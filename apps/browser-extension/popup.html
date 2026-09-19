@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AIRA Journey Recorder</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      width: 380px; margin: 0; padding: 0;
+      font: 13px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #101a2b; background: #f6f8fb;
+    }
+    header { background: #0b2545; color: #fff; padding: 10px 14px; display: flex; align-items: baseline; gap: 8px; }
+    header strong { letter-spacing: .2px; }
+    header span { font-size: 11px; color: rgba(255,255,255,.65); }
+    main { padding: 12px 14px 14px; }
+    .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .row + .row { margin-top: 8px; }
+    label { display: block; font-weight: 600; font-size: 11px; text-transform: uppercase;
+            letter-spacing: .04em; color: #5b6b82; margin-bottom: 3px; }
+    input, select {
+      width: 100%; padding: 6px 8px; border: 1px solid #e2e8f2; border-radius: 6px;
+      font: inherit; background: #fff;
+    }
+    button {
+      border: 1px solid #e2e8f2; background: #fff; color: #101a2b; border-radius: 6px;
+      padding: 6px 10px; font: inherit; font-weight: 600; cursor: pointer;
+    }
+    button.primary { background: #0b5fff; border-color: #0b5fff; color: #fff; }
+    button.danger { background: #fdecec; border-color: #f3c2c2; color: #c02626; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .status { font-size: 12px; color: #5b6b82; margin: 10px 0 6px; }
+    .status.live { color: #c02626; font-weight: 600; }
+    ol { list-style: none; margin: 0; padding: 0; max-height: 240px; overflow-y: auto; }
+    li { background: #fff; border: 1px solid #e2e8f2; border-radius: 6px; padding: 6px 8px; margin-bottom: 5px; }
+    li .action { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+                 letter-spacing: .04em; color: #0b5fff; background: #e8f0ff; border-radius: 3px;
+                 padding: 1px 5px; margin-right: 5px; }
+    li .locator { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: #8798ac;
+                  word-break: break-all; margin-top: 2px; }
+    li .remove { float: right; border: 0; background: none; color: #8798ac; padding: 0 2px; cursor: pointer; }
+    .empty { text-align: center; color: #8798ac; padding: 18px 8px; font-size: 12px; }
+    .notice { border-radius: 6px; padding: 7px 9px; font-size: 12px; margin-top: 8px; }
+    .notice.error { background: #fdecec; color: #c02626; }
+    .notice.ok { background: #e6f5ee; color: #12855a; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; font-weight: 600; font-size: 12px; color: #0b5fff; }
+    details .body { margin-top: 8px; }
+    .hint { font-size: 11px; color: #8798ac; margin-top: 3px; }
+  </style>
+</head>
+<body>
+  <header><strong>AIRA</strong><span>Journey Recorder</span></header>
+  <main>
+    <div id="setup">
+      <label for="journey-name">Journey name</label>
+      <input id="journey-name" placeholder="Customer downloads a statement" />
+      <div class="row" style="margin-top:8px">
+        <button id="start" class="primary">Start recording</button>
+      </div>
+      <p class="hint">Recording captures clicks, typing, selections and navigation. Password fields are never read — they are recorded as a secret reference.</p>
+    </div>
+
+    <div id="controls" hidden>
+      <div class="row">
+        <button id="pause">Pause</button>
+        <button id="resume" hidden>Resume</button>
+        <button id="assert">Add assertion</button>
+        <button id="inspect">Inspect element</button>
+        <button id="stop" class="danger">Stop</button>
+      </div>
+    </div>
+
+    <p id="status" class="status">Not recording.</p>
+    <ol id="steps"></ol>
+
+    <div class="row">
+      <button id="download">Download JSON</button>
+      <button id="clear">Clear</button>
+    </div>
+
+    <details id="send-panel">
+      <summary>Send to AIRA</summary>
+      <div class="body">
+        <label for="api-url">Platform URL</label>
+        <input id="api-url" placeholder="http://localhost:5080" />
+        <label for="token" style="margin-top:6px">Access token</label>
+        <input id="token" type="password" placeholder="Paste from the console" />
+        <label for="project-id" style="margin-top:6px">Project id</label>
+        <input id="project-id" />
+        <label for="application-id" style="margin-top:6px">Application id</label>
+        <input id="application-id" />
+        <div class="row" style="margin-top:8px">
+          <button id="send" class="primary">Send journey</button>
+        </div>
+        <p class="hint">The token is stored only in this extension's local storage and is sent only to the URL above.</p>
+      </div>
+    </details>
+
+    <div id="notice"></div>
+  </main>
+  <script type="module" src="dist/popup.js"></script>
+</body>
+</html>

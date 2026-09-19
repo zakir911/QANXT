@@ -98,6 +98,11 @@ backend journey import → test generation.
 
 **Done when:** a recorded journey JSON imports and generates an executable test.
 
+*Verified:* `tests/e2e` — `pnpm recorder` records a journey through the demo bank with the
+real extension loaded into Chromium, and `pnpm journey` imports that recording and executes
+the generated test to a pass, with the recorded password resolved from encrypted storage at
+run time and masked in the stored evidence.
+
 ### Phase 7 — CLI, CI/CD, gates, reporting
 `aira` CLI (`login`, `run`, `status`, `report`, `discover`); JUnit XML, JSON, HTML reports;
 exit codes; quality gate rule engine; GitHub Actions workflow and Azure DevOps pipeline templates.

@@ -4,6 +4,7 @@ using Aira.Application.Dashboard;
 using Aira.Application.Diagnosis;
 using Aira.Application.Discovery;
 using Aira.Application.Identity;
+using Aira.Application.Journeys;
 using Aira.Application.Quality;
 using Aira.Application.Testing;
 using Aira.Application.Projects;
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IExecutionIngestService, ExecutionIngestService>();
         services.AddScoped<IFailureAnalysisService, FailureAnalysisService>();
         services.AddScoped<IHealingService, HealingService>();
+        services.AddScoped<IJourneyImportService, JourneyImportService>();
         services.AddScoped<IQualityGateEvaluator, QualityGateEvaluator>();
         services.AddScoped<IAiOrchestrator, AiOrchestrator>();
         services.AddSingleton<ISchemaValidator, SchemaValidator>();

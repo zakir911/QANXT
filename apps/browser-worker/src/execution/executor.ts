@@ -379,7 +379,10 @@ export class TestExecutor {
         ...base,
         status: healed ? 'healed' : 'passed',
         durationMs: Date.now() - started,
-        url: safeUrl(page),
+        // base.url — the page the action was performed on — is deliberately kept. Reading
+        // the URL again here would record where the click landed instead of where it
+        // happened, so "Click Sign in" would be filed against the dashboard, and the field
+        // would mean one thing on a passing step and another on a failing one.
         wasHealed: healed,
         healingConfidence,
         locatorUsed,
