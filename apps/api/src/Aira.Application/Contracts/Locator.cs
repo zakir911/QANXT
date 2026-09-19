@@ -17,7 +17,7 @@ public enum LocatorStrategy
     AltText = 5,
     Title = 6,
     Css = 7,
-    XPath = 8
+    Xpath = 8
 }
 
 /// <summary>A locator plus its ordered fallbacks. This is the only locator shape the
@@ -55,7 +55,7 @@ public sealed record LocatorDescriptor
         LocatorStrategy.AltText => $"altText=\"{Value}\"",
         LocatorStrategy.Title => $"title=\"{Value}\"",
         LocatorStrategy.Css => $"css={Value}",
-        LocatorStrategy.XPath => $"xpath={Value}",
+        LocatorStrategy.Xpath => $"xpath={Value}",
         _ => Value
     };
 
@@ -71,7 +71,7 @@ public sealed record LocatorDescriptor
         LocatorStrategy.Title => 60,
         LocatorStrategy.Text => 55,
         LocatorStrategy.Css => 30,
-        LocatorStrategy.XPath => 15,
+        LocatorStrategy.Xpath => 15,
         _ => 20
     };
 

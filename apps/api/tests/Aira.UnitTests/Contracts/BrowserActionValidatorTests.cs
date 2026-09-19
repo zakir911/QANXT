@@ -119,7 +119,7 @@ public class BrowserActionValidatorTests
         var action = new BrowserAction
         {
             Action = BrowserActionType.Click,
-            Target = new LocatorDescriptor { Strategy = LocatorStrategy.XPath, Value = "//div[3]/span[2]" }
+            Target = new LocatorDescriptor { Strategy = LocatorStrategy.Xpath, Value = "//div[3]/span[2]" }
         };
         BrowserActionValidator.Validate(action, Policy(allowXPath: false)).Errors
             .Should().Contain(e => e.Contains("XPath locators are disabled"));

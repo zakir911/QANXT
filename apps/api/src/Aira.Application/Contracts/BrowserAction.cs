@@ -130,7 +130,7 @@ public static class BrowserActionValidator
             errors.Add("Locator value exceeds 512 characters.");
         if (locator.Nth is < 0)
             errors.Add("Locator 'nth' must be zero or greater.");
-        if (locator.Strategy == LocatorStrategy.XPath && !policy.AllowXPathLocators)
+        if (locator.Strategy == LocatorStrategy.Xpath && !policy.AllowXPathLocators)
             errors.Add("XPath locators are disabled for this project because they are the least stable strategy.");
         if (locator.Within is not null) ValidateLocator(locator.Within, policy, errors, depth + 1);
         if (locator.Fallbacks.Count > 8)

@@ -41,7 +41,7 @@ public class LocatorDescriptorTests
         var role = new LocatorDescriptor { Strategy = LocatorStrategy.Role, Value = "button", Name = "Save" }.StabilityScore();
         var text = new LocatorDescriptor { Strategy = LocatorStrategy.Text, Value = "Save" }.StabilityScore();
         var css = new LocatorDescriptor { Strategy = LocatorStrategy.Css, Value = ".btn" }.StabilityScore();
-        var xpath = new LocatorDescriptor { Strategy = LocatorStrategy.XPath, Value = "//div[2]" }.StabilityScore();
+        var xpath = new LocatorDescriptor { Strategy = LocatorStrategy.Xpath, Value = "//div[2]" }.StabilityScore();
 
         testId.Should().BeGreaterThan(role);
         role.Should().BeGreaterThan(text);
