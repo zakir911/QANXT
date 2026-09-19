@@ -1,0 +1,17 @@
+{
+  "name": "aira",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AIRA — AI autonomous web application testing platform",
+  "packageManager": "pnpm@10.33.0",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "demo-bank": "pnpm --filter @aira/demo-bank start",
+    "worker": "pnpm --filter @aira/browser-worker start",
+    "console": "pnpm --filter @aira/web-console dev"
+  }
+}
