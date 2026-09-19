@@ -170,15 +170,34 @@ async function runAssertionAction(
       return;
     }
 
-    case 'assertVisible':
-      await locate(page, target, timeout).then(l => l.waitFor({ state: 'visible', timeout }))
-        .catch(() => { throw new ActionError('The element was expected to be visible but was not.', false); });
+    case 'assertVisible': {
+      // Resolution is deliberately outside the catch below: an element that is absent
+      // entirely is a locator failure, and healing should be given a chance at it. Only a
+      // resolved-but-invisible element is an assertion failure.
+      const locator = await locate(page, target, timeout);
+      try {
+        await locator.waitFor({ state: 'visible', timeout });
+      } catch {
+        throw new ActionError('The element was found but was not visible.', false);
+      }
       return;
+    }
 
-    case 'assertHidden':
-      await locate(page, target, timeout).then(l => l.waitFor({ state: 'hidden', timeout }))
-        .catch(() => { throw new ActionError('The element was expected to be hidden but was visible.', false); });
+    case 'assertHidden': {
+      // An absent element satisfies "hidden", so resolution failing here is a pass rather
+      // than something to heal.
+      if (!target) throw new ActionError('assertHidden requires a target locator.', false);
+      const count = await countOf(page, target);
+      if (count === 0) return;
+
+      const locator = buildLocator(page, target).first();
+      try {
+        await locator.waitFor({ state: 'hidden', timeout });
+      } catch {
+        throw new ActionError('The element was expected to be hidden but was visible.', false);
+      }
       return;
+    }
 
     case 'assertText': {
       const locator = await locate(page, target, timeout);
@@ -235,15 +254,29 @@ async function runAssertionAction(
   }
 }
 
+export interface AssertionOutcome {
+  /** null when the assertion held. */
+  failure: string | null;
+  /** True when the assertion failed because its locator resolved to nothing — which is
+   *  healable, unlike an assertion that resolved and then disagreed about a value. */
+  isLocatorFailure: boolean;
+}
+
 /**
- * Evaluates a standalone assertion attached to a step. Returns a message on failure and
- * null on success, so the caller can decide whether it is soft or hard.
+ * Evaluates a standalone assertion attached to a step.
+ *
+ * An assertion's locator breaks exactly like an action's does, so the outcome distinguishes
+ * "I could not find the element" from "I found it and it was wrong". Only the first is
+ * something healing can help with; treating the second as healable would let a test quietly
+ * re-point at whatever element happens to satisfy it.
  */
 export async function evaluateAssertion(
-  page: Page, assertion: PlannedAssertion, context: ActionContext
-): Promise<string | null> {
+  page: Page, assertion: PlannedAssertion, context: ActionContext,
+  overrideTarget?: LocatorDescriptor
+): Promise<AssertionOutcome> {
   const timeout = context.defaultTimeoutMs;
   const expected = context.resolveValue(assertion.expected) ?? assertion.expected ?? '';
+  const target = overrideTarget ?? assertion.target;
 
   const check = async (): Promise<string | null> => {
     switch (assertion.type) {
@@ -252,43 +285,43 @@ export async function evaluateAssertion(
       case 'urlContains':
         return page.url().includes(expected) ? null : `Expected the URL to contain "${expected}" but it was "${page.url()}".`;
       case 'visible': {
-        const locator = await locate(page, assertion.target, timeout);
+        const locator = await locate(page, target, timeout);
         return await locator.isVisible() ? null : 'The element was expected to be visible but was not.';
       }
       case 'hidden': {
-        const count = assertion.target ? await countOf(page, assertion.target) : 0;
+        const count = target ? await countOf(page, target) : 0;
         return count === 0 ? null : 'The element was expected to be hidden but was present and visible.';
       }
       case 'textEquals': {
-        const locator = await locate(page, assertion.target, timeout);
+        const locator = await locate(page, target, timeout);
         const actual = (await locator.textContent())?.replace(/\s+/g, ' ').trim() ?? '';
         return actual === expected.trim() ? null : `Expected the text "${expected}" but found "${actual}".`;
       }
       case 'textContains': {
-        const locator = await locate(page, assertion.target, timeout);
+        const locator = await locate(page, target, timeout);
         const actual = (await locator.textContent())?.replace(/\s+/g, ' ').trim() ?? '';
         return actual.includes(expected.trim()) ? null : `Expected the text to contain "${expected}" but it read "${actual}".`;
       }
       case 'valueEquals': {
-        const locator = await locate(page, assertion.target, timeout);
+        const locator = await locate(page, target, timeout);
         const actual = await locator.inputValue();
         return actual === expected ? null : `Expected the value "${expected}" but found "${actual}".`;
       }
       case 'countEquals': {
-        const actual = assertion.target ? await countOf(page, assertion.target) : 0;
+        const actual = target ? await countOf(page, target) : 0;
         return String(actual) === expected ? null : `Expected ${expected} matching elements but found ${actual}.`;
       }
       case 'attributeEquals': {
-        const locator = await locate(page, assertion.target, timeout);
+        const locator = await locate(page, target, timeout);
         const actual = await locator.getAttribute(assertion.attribute ?? '');
         return actual === expected ? null : `Expected attribute "${assertion.attribute}" to be "${expected}" but it was "${actual ?? '(absent)'}".`;
       }
       case 'enabled': {
-        const locator = await locate(page, assertion.target, timeout);
+        const locator = await locate(page, target, timeout);
         return await locator.isEnabled() ? null : 'The element was expected to be enabled but was disabled.';
       }
       case 'disabled': {
-        const locator = await locate(page, assertion.target, timeout);
+        const locator = await locate(page, target, timeout);
         return await locator.isEnabled() ? 'The element was expected to be disabled but was enabled.' : null;
       }
       default:
@@ -298,11 +331,12 @@ export async function evaluateAssertion(
 
   try {
     const failure = await check();
-    if (failure === null) return null;
-    return assertion.negate ? null : failure;
+    if (failure === null) return { failure: null, isLocatorFailure: false };
+    return { failure: assertion.negate ? null : failure, isLocatorFailure: false };
   } catch (error) {
+    const isLocatorFailure = error instanceof ActionError && error.isLocatorFailure;
     const message = error instanceof Error ? error.message.split('\n')[0] ?? error.message : String(error);
-    return assertion.negate ? null : message;
+    return { failure: assertion.negate ? null : message, isLocatorFailure };
   }
 }
 

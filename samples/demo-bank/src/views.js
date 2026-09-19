@@ -11,8 +11,21 @@ const money = (value, currency = 'GBP') =>
   new Intl.NumberFormat('en-GB', { style: 'currency', currency }).format(value);
 
 /** Honours the removeTestIds switch in one place so no view can forget it. */
+/** Renamed test ids under the renameFilterControls scenario: the element is unchanged,
+ *  only the hook a test grabs it by. */
+const RENAMED_TEST_IDS = {
+  'filter-from': 'date-range-start',
+  'filter-to': 'date-range-end',
+  'filter-category': 'category-select',
+  'apply-filter': 'filter-apply-button',
+  'transaction-filter': 'txn-filter-form'
+};
+
 function testId(name) {
-  return getScenario().removeTestIds ? '' : ` data-testid="${name}"`;
+  const scenario = getScenario();
+  if (scenario.removeTestIds) return '';
+  const effective = scenario.renameFilterControls ? (RENAMED_TEST_IDS[name] ?? name) : name;
+  return ` data-testid="${effective}"`;
 }
 
 function layout({ title, body, user, activeNav = '' }) {
@@ -21,6 +34,7 @@ function layout({ title, body, user, activeNav = '' }) {
       <nav class="nav" aria-label="Main">
         <a href="/dashboard" class="${activeNav === 'dashboard' ? 'active' : ''}"${testId('nav-dashboard')}>Dashboard</a>
         <a href="/accounts" class="${activeNav === 'accounts' ? 'active' : ''}"${testId('nav-accounts')}>Accounts</a>
+        <a href="/activity" class="${activeNav === 'activity' ? 'active' : ''}"${testId('nav-activity')}>Activity</a>
         <a href="/payments" class="${activeNav === 'payments' ? 'active' : ''}"${testId('nav-payments')}>Payments</a>
         <a href="/profile" class="${activeNav === 'profile' ? 'active' : ''}"${testId('nav-profile')}>Profile</a>
         <form method="post" action="/logout" class="nav-end">
@@ -246,6 +260,79 @@ export function paymentsPage({ user, accounts, payees, message, error, values = 
           <div style="margin-top:18px"><button type="submit" class="primary"${testId('payment-submit')}>Send payment</button></div>
         </form>
       </div>`
+  });
+}
+
+/**
+ * A client-rendered page: it fetches its data from the JSON API after load. Deliberately
+ * different from the rest of the application, so the platform's API discovery has real
+ * XHR traffic to observe and correlate with the UI action that caused it.
+ */
+export function activityPage({ user, accounts }) {
+  return layout({
+    title: 'Activity', user, activeNav: 'activity',
+    body: `
+      <h1>Recent activity</h1>
+      <p class="sub">Loaded from the accounts API after the page renders.</p>
+      <div class="card">
+        <label for="activity-account">Account</label>
+        <select id="activity-account"${testId('activity-account')}>
+          ${accounts.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('')}
+        </select>
+        <div style="margin-top:14px">
+          <button type="button" class="primary" id="activity-refresh"${testId('activity-refresh')}>Refresh activity</button>
+        </div>
+      </div>
+      <div class="card">
+        <div id="activity-status" class="muted"${testId('activity-status')}>Loading recent activity…</div>
+        <table id="activity-table" hidden${testId('activity-table')}>
+          <thead><tr><th>Date</th><th>Description</th><th>Category</th><th style="text-align:right">Amount</th></tr></thead>
+          <tbody id="activity-rows"></tbody>
+        </table>
+      </div>
+      <script>
+        (function () {
+          var select = document.getElementById('activity-account');
+          var status = document.getElementById('activity-status');
+          var table = document.getElementById('activity-table');
+          var rows = document.getElementById('activity-rows');
+
+          function render(transactions) {
+            rows.innerHTML = '';
+            transactions.slice(0, 15).forEach(function (t) {
+              var tr = document.createElement('tr');
+              tr.innerHTML = '<td>' + t.date + '</td><td>' + t.description + '</td><td>' + t.category +
+                '</td><td class="amount ' + (t.amount < 0 ? 'negative' : 'positive') + '">' + t.amount.toFixed(2) + '</td>';
+              rows.appendChild(tr);
+            });
+            table.hidden = transactions.length === 0;
+            status.textContent = transactions.length === 0
+              ? 'No recent activity for this account.'
+              : 'Showing the ' + Math.min(15, transactions.length) + ' most recent transactions.';
+          }
+
+          function load() {
+            status.textContent = 'Loading recent activity…';
+            table.hidden = true;
+            fetch('/api/accounts/' + encodeURIComponent(select.value) + '/transactions', {
+              headers: { accept: 'application/json' }
+            })
+              .then(function (response) {
+                if (!response.ok) throw new Error('The activity service returned ' + response.status + '.');
+                return response.json();
+              })
+              .then(function (body) { render(body.transactions || []); })
+              .catch(function (error) {
+                status.textContent = 'Recent activity could not be loaded: ' + error.message;
+                status.setAttribute('role', 'alert');
+              });
+          }
+
+          document.getElementById('activity-refresh').addEventListener('click', load);
+          select.addEventListener('change', load);
+          load();
+        })();
+      </script>`
   });
 }
 

@@ -198,3 +198,52 @@ describe('candidate scoring', () => {
     expect(first).toEqual(second);
   });
 });
+
+describe('uninformative signals', () => {
+  test('a signal no candidate carries does not penalise the match', () => {
+    const fingerprint = {
+      tagName: 'input', ariaRole: 'textbox', accessibleName: 'From', label: 'From',
+      testId: 'filter-from', type: 'date', domPath: 'html/body/main/form/input'
+    };
+
+    // Every test id has been stripped from the page. The remembered test id now says
+    // nothing about which element is the right one.
+    const stripped = element({
+      kind: 'dateInput', tagName: 'input', ariaRole: 'textbox', accessibleName: 'From',
+      label: 'From', testId: null, type: 'date', text: null,
+      domPath: 'html/body/main/form/input'
+    });
+
+    const [best] = scoreCandidates({
+      brokenLocator: { strategy: 'testId', value: 'filter-from' },
+      fingerprint,
+      candidates: [stripped]
+    });
+
+    expect(best).toBeDefined();
+    expect(best!.breakdown.testId, 'an uninformative signal is not scored at all').toBeUndefined();
+    expect(best!.score).toBeGreaterThanOrEqual(85);
+  });
+
+  test('a signal some candidates carry still discriminates', () => {
+    const fingerprint = {
+      tagName: 'button', ariaRole: 'button', accessibleName: 'Save',
+      testId: 'save-button', domPath: 'html/body/form/button'
+    };
+
+    const wrongTestId = element({
+      tagName: 'button', ariaRole: 'button', accessibleName: 'Save',
+      testId: 'delete-button', type: null, text: 'Save', domPath: 'html/body/form/button'
+    });
+
+    const [best] = scoreCandidates({
+      brokenLocator: { strategy: 'testId', value: 'save-button' },
+      fingerprint,
+      candidates: [wrongTestId]
+    });
+
+    // Some candidate has a test id, so the mismatch is real evidence and is counted.
+    expect(best!.breakdown.testId).toBeDefined();
+    expect(best!.breakdown.testId!).toBeLessThan(24);
+  });
+});

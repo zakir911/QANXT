@@ -1,4 +1,7 @@
 using Aira.Application.Abstractions;
+using Aira.Application.Ai;
+using Aira.Infrastructure.Ai;
+using Aira.Infrastructure.Ai.Providers;
 using Aira.Infrastructure.Persistence;
 using Aira.Infrastructure.Queue;
 using Aira.Infrastructure.Security;
@@ -22,6 +25,7 @@ public static class DependencyInjection
         services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
         services.Configure<EncryptionOptions>(configuration.GetSection("Encryption"));
         services.Configure<StorageOptions>(configuration.GetSection("Storage"));
+        services.Configure<AiOptions>(configuration.GetSection("Ai"));
 
         var connectionString = configuration.GetConnectionString("Database")
             ?? throw new InvalidOperationException("ConnectionStrings:Database (DATABASE_URL) is not configured.");
@@ -69,6 +73,18 @@ public static class DependencyInjection
             return ConnectionMultiplexer.Connect(config);
         });
         services.AddSingleton<IJobQueue, RedisJobQueue>();
+
+        // Every provider is registered; the factory decides which one answers a request,
+        // and falls back to the local rule engine when a key is missing.
+        services.AddHttpClient<OpenAiProvider>();
+        services.AddHttpClient<AnthropicProvider>();
+        services.AddHttpClient<GeminiProvider>();
+        services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<OpenAiProvider>());
+        services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<AnthropicProvider>());
+        services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<GeminiProvider>());
+        services.AddScoped<ILlmProvider, LocalProvider>();
+        services.AddScoped<ILlmProviderFactory, LlmProviderFactory>();
+        services.AddScoped<IAiBudget, AiBudget>();
 
         return services;
     }

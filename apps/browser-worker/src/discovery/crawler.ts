@@ -344,7 +344,9 @@ export class Crawler {
     const template = normalizeUrl(url);
     const key = `${request.method()} ${template}`;
     const timing = request.timing();
-    const durationMs = Math.max(0, Math.round(timing.responseEnd - timing.requestStart));
+    const durationMs = timing.responseEnd > 0
+      ? Math.max(0, Math.round(timing.responseEnd - Math.max(0, timing.requestStart)))
+      : 0;
 
     const existing = this.apiEndpoints.get(key);
     if (existing) {
@@ -365,6 +367,10 @@ export class Crawler {
       }
     }
 
+    // allHeaders() includes headers the browser adds at the network layer (cookies in
+    // particular), which request.headers() does not — and a cookie is exactly what marks
+    // a same-origin API call as authenticated.
+    const requestHeaders = await request.allHeaders().catch(() => request.headers());
     const postData = request.postData();
     this.apiEndpoints.set(key, {
       method: request.method(),
@@ -374,9 +380,9 @@ export class Crawler {
       durationMs,
       requestSample: postData ? this.masker.maskJson(postData).slice(0, 4000) : undefined,
       responseSample,
-      requestContentType: request.headers()['content-type'],
+      requestContentType: requestHeaders['content-type'],
       responseContentType: contentType || undefined,
-      requiresAuthentication: Boolean(request.headers()['authorization'] || request.headers()['cookie']),
+      requiresAuthentication: Boolean(requestHeaders['authorization'] || requestHeaders['cookie']),
       triggeredByNormalizedUrl: normalizeUrl(request.frame()?.url() ?? url),
       timesObserved: 1
     });

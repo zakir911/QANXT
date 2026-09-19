@@ -87,6 +87,11 @@ export class EvidenceCollector {
     if (!['document', 'xhr', 'fetch'].includes(resourceType)) return;
 
     const timing = request.timing();
+    // Playwright reports -1 for phases that never happened (a cached response has no
+    // request start); falling back keeps the duration honest rather than reporting 0.
+    const durationMs = timing.responseEnd > 0
+      ? Math.max(0, Math.round(timing.responseEnd - Math.max(0, timing.requestStart)))
+      : 0;
     const contentType = response.headers()['content-type'] ?? '';
     let responseBody: string | undefined;
 
@@ -106,7 +111,7 @@ export class EvidenceCollector {
       url: this.masker.maskText(response.url()).slice(0, 2000),
       resourceType,
       statusCode: response.status(),
-      durationMs: Math.max(0, Math.round(timing.responseEnd - timing.requestStart)),
+      durationMs,
       requestSizeBytes: postData?.length ?? 0,
       responseSizeBytes: Number(response.headers()['content-length'] ?? 0),
       requestHeaders: this.masker.maskHeaders(request.headers()),

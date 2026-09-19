@@ -135,18 +135,25 @@ public class AiraDbContext : DbContext, IAiraDbContext
         if (Database.ProviderName?.Contains("InMemory", StringComparison.Ordinal) == true)
             return await operation(ct).ConfigureAwait(false);
 
-        await using var transaction = await Database.BeginTransactionAsync(ct).ConfigureAwait(false);
-        try
+        // Connection resiliency retries a failed command, which would replay only part of a
+        // manual transaction. EF therefore requires the whole transaction to run inside the
+        // execution strategy so a retry restarts it from the beginning.
+        var strategy = Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async () =>
         {
-            var result = await operation(ct).ConfigureAwait(false);
-            await transaction.CommitAsync(ct).ConfigureAwait(false);
-            return result;
-        }
-        catch
-        {
-            await transaction.RollbackAsync(ct).ConfigureAwait(false);
-            throw;
-        }
+            await using var transaction = await Database.BeginTransactionAsync(ct).ConfigureAwait(false);
+            try
+            {
+                var result = await operation(ct).ConfigureAwait(false);
+                await transaction.CommitAsync(ct).ConfigureAwait(false);
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync(ct).ConfigureAwait(false);
+                throw;
+            }
+        }).ConfigureAwait(false);
     }
 
     /// <summary>Stamps timestamps and the owning tenant, and refuses writes that would

@@ -46,6 +46,9 @@ builder.Services.AddAiraApplicationServices();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddScoped<ICorrelationContext, CorrelationContext>();
+builder.Services.AddScoped<Aira.Application.Applications.ITargetPolicy, Aira.Api.Services.TargetPolicy>();
+builder.Services.AddSingleton<Aira.Application.Discovery.IPlatformUrls, Aira.Api.Services.PlatformUrls>();
+builder.Services.AddScoped<IExecutionEventPublisher, Aira.Api.Services.SignalRExecutionEventPublisher>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

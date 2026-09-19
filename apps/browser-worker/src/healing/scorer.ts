@@ -65,9 +65,17 @@ export function scoreCandidates(input: ScoringInput): ScoredCandidate[] {
   const target = deriveTarget(input.brokenLocator, input.fingerprint);
   const minimum = input.minimumScore ?? 40;
 
-  const scored = input.candidates
-    .filter(candidate => isPlausible(candidate, target))
-    .map(candidate => scoreOne(candidate, target))
+  const plausible = input.candidates.filter(candidate => isPlausible(candidate, target));
+
+  // A signal only discriminates between candidates if some candidate carries it. When a
+  // team strips every data-testid from a page, the target's remembered test id no longer
+  // tells us which element is the right one — it tells us the page changed. Counting it as
+  // a mismatch would penalise every candidate equally while making the best of them look
+  // 24 points worse than it is, which is how a correct heal gets rejected by a threshold.
+  const informative = informativeSignals(plausible);
+
+  const scored = plausible
+    .map(candidate => scoreOne(candidate, target, informative))
     .filter(candidate => candidate.similarity >= minimum);
 
   scored.sort((a, b) =>
@@ -220,12 +228,36 @@ function isPlausible(candidate: RawElement, target: TargetProfile): boolean {
   return true;
 }
 
-function scoreOne(candidate: RawElement, target: TargetProfile): ScoredCandidate {
+/** Which signals at least one candidate on the page actually carries. */
+function informativeSignals(candidates: RawElement[]): Set<SignalName> {
+  const signals = new Set<SignalName>();
+  // Structural signals are always computable, so they always discriminate.
+  signals.add('tagName');
+  signals.add('ancestry');
+  signals.add('geometry');
+
+  for (const candidate of candidates) {
+    if (candidate.testId) signals.add('testId');
+    if (candidate.ariaRole) signals.add('role');
+    if (candidate.accessibleName) signals.add('accessibleName');
+    if (candidate.label) signals.add('label');
+    if (candidate.placeholder) signals.add('placeholder');
+    if (candidate.text) signals.add('text');
+    if (candidate.name || candidate.elementId) signals.add('attributes');
+    if (candidate.neighbourText) signals.add('neighbours');
+  }
+
+  return signals;
+}
+
+function scoreOne(candidate: RawElement, target: TargetProfile, informative: Set<SignalName>): ScoredCandidate {
   const breakdown: ScoreBreakdown = {};
   let total = 0;
   let available = 0;
 
   const award = (signal: SignalName, similarity: number): void => {
+    // Skipped entirely, not scored as zero: an uninformative signal must not move the ratio.
+    if (!informative.has(signal)) return;
     const weight = SIGNAL_WEIGHTS[signal];
     available += weight;
     const points = Math.round(weight * similarity);

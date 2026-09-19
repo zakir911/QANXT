@@ -4,7 +4,8 @@ import { URL } from 'node:url';
 import { accountsFor, findUser, payees as allPayees, transactionsFor, accounts as allAccounts } from './data.js';
 import { getScenario, resetScenario, setScenario, SCENARIO_KEYS } from './scenario.js';
 import {
-  accountDetailPage, accountsPage, dashboardPage, errorPage, loginPage, paymentsPage, profilePage
+  accountDetailPage, accountsPage, activityPage, dashboardPage, errorPage, loginPage,
+  paymentsPage, profilePage
 } from './views.js';
 
 /**
@@ -116,6 +117,10 @@ async function route(req, res) {
 
   const statementMatch = /^\/accounts\/([A-Za-z0-9-]+)\/statement$/.exec(path);
   if (statementMatch && method === 'GET') return handleStatement(res, user, statementMatch[1], url);
+
+  if (path === '/activity' && method === 'GET') {
+    return html(res, 200, activityPage({ user, accounts: accountsFor(user.id) }));
+  }
 
   if (path === '/payments' && method === 'GET') {
     return html(res, 200, paymentsPage({ user, accounts: accountsFor(user.id), payees: payeesFor(user.id) }));

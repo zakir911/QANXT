@@ -172,24 +172,27 @@ export class TestExecutor {
         }
       }
 
+      let video: ReturnType<Page['video']> | null = null;
       if (page && !page.isClosed()) {
         await collector.screenshot(page, 'final').catch(() => undefined);
-        if (job.capture.video) {
-          const video = page.video();
-          await page.close().catch(() => undefined);
-          if (video) {
-            try {
-              const path = await video.path();
-              await collector.registerExternal('video', 'execution.webm', path, 'video/webm');
-            } catch (error) {
-              this.logger.warn('Video capture failed', { error: String(error) });
-            }
-          }
-        }
+        if (job.capture.video) video = page.video();
+        await page.close().catch(() => undefined);
       }
 
       await collector.writeLogs('execution').catch(() => undefined);
+
+      // The context must close before the video file is finalised on disk; registering it
+      // any earlier records a zero-byte artifact.
       await context?.close().catch(() => undefined);
+
+      if (video) {
+        try {
+          const path = await video.path();
+          await collector.registerExternal('video', 'execution.webm', path, 'video/webm');
+        } catch (error) {
+          this.logger.warn('Video capture failed', { error: String(error) });
+        }
+      }
     }
 
     const completedAt = new Date();
@@ -315,7 +318,37 @@ export class TestExecutor {
     // Assertions run after the action, including after a heal: a healed locator that
     // reaches the wrong element shows up here rather than silently passing.
     for (const assertion of step.assertions) {
-      const failure = await evaluateAssertion(page, assertion, context);
+      let outcome = await evaluateAssertion(page, assertion, context);
+
+      // An assertion whose own locator broke is healable in the same way an action's is.
+      if (outcome.failure && outcome.isLocatorFailure && assertion.target) {
+        const assertionHeal = await healer.attempt(page, {
+          brokenLocator: assertion.target,
+          fingerprint: step.fingerprint,
+          testStepId: step.testStepId,
+          timeoutMs: job.defaultTimeoutMs
+        }, async candidate => {
+          const retry = await evaluateAssertion(page, assertion, context, candidate);
+          return retry.failure === null;
+        });
+
+        if (assertionHeal.kind === 'healed') {
+          outcome = await evaluateAssertion(page, assertion, context, assertionHeal.locator);
+          if (outcome.failure === null) {
+            healed = true;
+            healingConfidence = assertionHeal.confidence;
+            healingEvent = assertionHeal.event;
+            locatorUsed = assertionHeal.locator;
+            alternatives = assertionHeal.alternatives;
+          }
+        } else if (assertionHeal.kind === 'proposed') {
+          healingEvent ??= assertionHeal.event;
+          healingConfidence ??= assertionHeal.confidence;
+          alternatives = assertionHeal.alternatives;
+        }
+      }
+
+      const failure = outcome.failure;
       if (failure && !assertion.isSoft) {
         return {
           report: {

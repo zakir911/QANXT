@@ -11,6 +11,9 @@ const DEFAULTS = Object.freeze({
   moveStatementButton: false,
   /** Every data-testid disappears: forces semantic locators. */
   removeTestIds: false,
+  /** The transaction filter controls keep their labels but get new test ids: the most
+   *  common real-world locator break, and the case self-healing exists for. */
+  renameFilterControls: false,
   /** The dashboard takes six seconds: a timing issue, not a defect. */
   slowDashboard: false,
   /** The transactions API returns 500: a genuine application defect. */

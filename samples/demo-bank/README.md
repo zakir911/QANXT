@@ -44,6 +44,7 @@ curl -X POST http://localhost:4200/__control/reset # back to a clean application
 | `renameLoginButton` | "Sign in" becomes "Log in", and its test id changes | Locator healing on an accessible-name change |
 | `moveStatementButton` | The statement download control moves into an overflow menu | Healing across a structural change |
 | `removeTestIds` | Strips every `data-testid` | Fallback to semantic locators |
+| `renameFilterControls` | The transaction filter controls keep their labels but get new test ids | The canonical locator break self-healing exists for |
 | `slowDashboard` | Adds a 6s delay to the dashboard | Timing-issue classification |
 | `breakTransactionsApi` | `/api/accounts/:id/transactions` returns 500 | Application-defect classification |
 | `wrongBalance` | Dashboard total is computed incorrectly | An assertion catching a genuine defect |
