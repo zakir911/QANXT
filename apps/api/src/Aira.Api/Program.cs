@@ -111,8 +111,12 @@ builder.Services.AddAuthorization(options =>
 });
 
 // ---- Cross-origin ---------------------------------------------------------
-var corsOrigins = builder.Configuration.GetSection("Security:CorsOrigins").Get<string[]>()
-    ?? new[] { "http://localhost:5173" };
+// localhost and 127.0.0.1 are different origins to a browser, and a developer will use
+// whichever their tooling prints. Both are allowed by default so the console is not
+// mysteriously broken depending on how it was opened.
+var corsOrigins = builder.Configuration.GetSection("Security:CorsOrigins").Get<string[]>() is { Length: > 0 } configured
+    ? configured
+    : new[] { "http://localhost:5173", "http://127.0.0.1:5173" };
 builder.Services.AddCors(options => options.AddPolicy("console", policy => policy
     .WithOrigins(corsOrigins)
     .AllowAnyHeader()

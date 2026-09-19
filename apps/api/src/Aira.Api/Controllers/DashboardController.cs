@@ -1,0 +1,48 @@
+using Aira.Api.Authorization;
+using Aira.Application.Ai;
+using Aira.Application.Dashboard;
+using Aira.Application.Security;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Aira.Api.Controllers;
+
+/// <summary>Quality metrics and trends, computed from stored executions.</summary>
+[RequirePermission(Permissions.DashboardRead)]
+public sealed class DashboardController : ApiControllerBase
+{
+    private readonly IDashboardService _dashboard;
+    public DashboardController(IDashboardService dashboard) => _dashboard = dashboard;
+
+    /// <summary>The full dashboard view for a project, or for the whole organization.</summary>
+    [HttpGet]
+    public async Task<IActionResult> Get([FromQuery] Guid? projectId, [FromQuery] int windowDays = 30, CancellationToken ct = default)
+        => Ok(await _dashboard.GetAsync(projectId, windowDays, ct));
+}
+
+/// <summary>AI-assisted quality intelligence and provider status.</summary>
+[Route("api/v1/ai")]
+[RequirePermission(Permissions.AiUse)]
+public sealed class AiController : ApiControllerBase
+{
+    private readonly IQualityInsightService _insights;
+    private readonly IAiOrchestrator _orchestrator;
+
+    public AiController(IQualityInsightService insights, IAiOrchestrator orchestrator)
+    {
+        _insights = insights;
+        _orchestrator = orchestrator;
+    }
+
+    /// <summary>Which providers are configured, so the console can say honestly which
+    /// engine answered a question rather than implying a model was consulted.</summary>
+    [HttpGet("providers")]
+    [RequirePermission(Permissions.ProjectRead)]
+    public IActionResult GetProviders() => Ok(_orchestrator.DescribeProviders());
+
+    public sealed record AskBody(Guid? ProjectId, string Question, int? WindowDays);
+
+    /// <summary>Answers a question about quality, citing the records it was derived from.</summary>
+    [HttpPost("insights")]
+    public async Task<IActionResult> Ask([FromBody] AskBody body, CancellationToken ct)
+        => FromResult(await _insights.AskAsync(new AskInsightRequest(body.ProjectId, body.Question, body.WindowDays), ct));
+}

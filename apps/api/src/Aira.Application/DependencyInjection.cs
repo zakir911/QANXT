@@ -1,5 +1,6 @@
 using Aira.Application.Ai;
 using Aira.Application.Applications;
+using Aira.Application.Dashboard;
 using Aira.Application.Diagnosis;
 using Aira.Application.Discovery;
 using Aira.Application.Identity;
@@ -30,6 +31,8 @@ public static class DependencyInjection
         services.AddScoped<IQualityGateEvaluator, QualityGateEvaluator>();
         services.AddScoped<IAiOrchestrator, AiOrchestrator>();
         services.AddSingleton<ISchemaValidator, SchemaValidator>();
+        services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<IQualityInsightService, QualityInsightService>();
         services.AddSingleton<SecretMasker>();
         return services;
     }
