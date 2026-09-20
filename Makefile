@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
-.PHONY: help setup dev test build migrate db-reset api worker console demo-bank clean docker-up docker-down lint verify
+.PHONY: help setup dev test build migrate db-reset api worker console demo-bank clean docker-up docker-down docker-logs docker-reset lint verify
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -44,11 +44,21 @@ demo-bank: ## Run the demo banking application only
 lint: ## Lint all Node packages
 	@pnpm -r lint
 
-docker-up: ## Start the full stack with Docker Compose
-	@docker compose -f infrastructure/docker/docker-compose.yml up --build -d
+# --project-directory is what makes the repository-root .env the one compose reads; without
+# it compose looks beside the compose file and every secret comes back missing.
+COMPOSE := docker compose -f infrastructure/docker/docker-compose.yml --project-directory .
 
-docker-down: ## Stop the Docker Compose stack
-	@docker compose -f infrastructure/docker/docker-compose.yml down -v
+docker-up: ## Start the full stack with Docker Compose
+	@$(COMPOSE) up --build -d
+
+docker-down: ## Stop the Docker Compose stack, keeping the database
+	@$(COMPOSE) down
+
+docker-logs: ## Follow the logs of the Docker Compose stack
+	@$(COMPOSE) logs -f
+
+docker-reset: ## Stop the stack and delete its data (destructive)
+	@$(COMPOSE) down -v
 
 clean: ## Remove build output
 	@find . -type d \( -name bin -o -name obj -o -name dist -o -name node_modules \) -prune -exec rm -rf {} + 2>/dev/null || true

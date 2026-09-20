@@ -1,0 +1,166 @@
+# The whole platform, on one machine.
+#
+# Run it from the repository root:
+#
+#   cp .env.example .env     # then set JWT_SECRET, ENCRYPTION_KEY and WORKER_TOKEN
+#   make docker-up
+#
+# Or, without make:
+#
+#   docker compose -f infrastructure/docker/docker-compose.yml --project-directory . up --build
+#
+# --project-directory is not optional. Compose reads .env from beside the compose file
+# unless told otherwise, so without it every secret below comes back missing.
+#
+# The console is then on http://localhost:5173 and the API on http://localhost:5080.
+#
+# Every service waits for what it depends on to be *healthy*, not merely started. Starting
+# the API against a Postgres that is still initialising produces a migration failure that
+# looks like a code defect, and people spend an afternoon on it.
+
+name: aira
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aira}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aira}
+      POSTGRES_DB: ${POSTGRES_DB:-aira}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # Not published by default: nothing outside the compose network needs it, and an
+    # exposed database with a default password is how demo environments become incidents.
+    # Uncomment to inspect it with psql from the host.
+    # ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aira} -d ${POSTGRES_DB:-aira}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    # Persists the queue, so a restart does not silently drop queued work.
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.api
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      DATABASE_URL: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-aira};Username=${POSTGRES_USER:-aira};Password=${POSTGRES_PASSWORD:-aira}"
+      REDIS_URL: redis:6379
+      # No defaults for these three. A platform that starts with a known signing key is not
+      # secured by anything, so it refuses to start rather than pretending.
+      JWT_SECRET: "${JWT_SECRET:?set JWT_SECRET in .env - generate one with openssl rand -base64 48}"
+      ENCRYPTION_KEY: "${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env - generate one with openssl rand -base64 32}"
+      WORKER_TOKEN: "${WORKER_TOKEN:?set WORKER_TOKEN in .env - generate one with openssl rand -base64 32}"
+      PRODUCT_NAME: ${PRODUCT_NAME:-AIRA}
+      PRODUCT_TAGLINE: ${PRODUCT_TAGLINE:-Your AI Quality Engineer}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      AI_DEFAULT_PROVIDER: ${AI_DEFAULT_PROVIDER:-local}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      LOG_LEVEL: ${LOG_LEVEL:-Information}
+      RATE_LIMIT_PERMIT_PER_MINUTE: ${RATE_LIMIT_PERMIT_PER_MINUTE:-300}
+      AUTH_RATE_LIMIT_PERMIT_PER_MINUTE: ${AUTH_RATE_LIMIT_PERMIT_PER_MINUTE:-10}
+      # The demo bank runs on this network, so private targets have to be permitted for the
+      # bundled demo to work. Turn this off for any real deployment.
+      ALLOW_PRIVATE_NETWORK_TARGETS: ${ALLOW_PRIVATE_NETWORK_TARGETS:-true}
+    volumes:
+      - artifact-storage:/var/lib/aira/storage
+    ports:
+      - "${API_PORT:-5080}:5080"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.worker
+    environment:
+      API_URL: http://api:5080
+      REDIS_URL: redis:6379
+      WORKER_TOKEN: "${WORKER_TOKEN:?set WORKER_TOKEN in .env}"
+      WORKER_ID: ${WORKER_ID:-worker-compose-1}
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+      WORKER_HEADLESS: ${WORKER_HEADLESS:-true}
+      WORKER_DEFAULT_BROWSER: ${WORKER_DEFAULT_BROWSER:-chromium}
+      WORKER_ACTION_TIMEOUT_MS: ${WORKER_ACTION_TIMEOUT_MS:-15000}
+      WORKER_NAVIGATION_TIMEOUT_MS: ${WORKER_NAVIGATION_TIMEOUT_MS:-30000}
+      LOG_LEVEL: ${LOG_LEVEL:-Information}
+      WORKER_HEALTH_PORT: 9091
+    depends_on:
+      api: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    # Chromium needs more shared memory than Docker's 64MB default; without this it crashes
+    # part-way through a page and the failure looks like a flaky test.
+    shm_size: 1gb
+    # Deliberately not published. Scaling to several workers would collide on a fixed host
+    # port, and nothing outside the compose network needs to reach it; the healthcheck runs
+    # inside the container.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:9091/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # Scale with: docker compose up --scale worker=3
+    restart: unless-stopped
+
+  console:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.console
+      args:
+        # Baked in at build time — Vite inlines it. Pointing a built console at a different
+        # API means rebuilding this image.
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5080}
+        VITE_PRODUCT_NAME: ${PRODUCT_NAME:-AIRA}
+    ports:
+      - "${CONSOLE_PORT:-5173}:8080"
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+
+  demo-bank:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.demo-bank
+    environment:
+      DEMO_BANK_PORT: 4200
+    ports:
+      - "${DEMO_BANK_PORT:-4200}:4200"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4200/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    # Started by default so the platform can be tried against something real straight after
+    # `docker compose up`. It holds no real data and serves no purpose outside a
+    # demonstration, so delete this service for a real deployment — along with
+    # ALLOW_PRIVATE_NETWORK_TARGETS on the api service, which only exists to let the
+    # platform reach it.
+
+volumes:
+  postgres-data:
+  redis-data:
+  artifact-storage:

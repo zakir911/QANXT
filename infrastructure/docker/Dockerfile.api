@@ -1,0 +1,57 @@
+# The control plane.
+#
+# Built from the repository root so the solution's project references resolve. The restore
+# layer is kept separate from the build layer: dependencies change far less often than
+# source, so an ordinary code change reuses the cached restore instead of re-downloading
+# every package.
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Corporate networks often terminate TLS at an inspecting proxy, which makes a package
+# restore fail with an opaque certificate error. Any .crt dropped into
+# infrastructure/docker/certs/ is trusted here; the directory is otherwise empty, so this is
+# a no-op for everyone else.
+COPY infrastructure/docker/certs/ /usr/local/share/ca-certificates/aira-extra/
+RUN update-ca-certificates >/dev/null 2>&1 || true
+
+# TargetFramework and the shared analyzer settings live here; without it every project
+# restores with an empty TargetFramework.
+COPY apps/api/Directory.Build.props ./apps/api/
+
+# Restoring the API project alone pulls in the three libraries it references. The solution
+# and the test projects are deliberately not copied: they are excluded from the build
+# context, and the shipped image has no use for them.
+COPY apps/api/src/Aira.Domain/Aira.Domain.csproj ./apps/api/src/Aira.Domain/
+COPY apps/api/src/Aira.Application/Aira.Application.csproj ./apps/api/src/Aira.Application/
+COPY apps/api/src/Aira.Infrastructure/Aira.Infrastructure.csproj ./apps/api/src/Aira.Infrastructure/
+COPY apps/api/src/Aira.Api/Aira.Api.csproj ./apps/api/src/Aira.Api/
+RUN dotnet restore apps/api/src/Aira.Api/Aira.Api.csproj
+
+COPY apps/api/src/ ./apps/api/src/
+RUN dotnet publish apps/api/src/Aira.Api/Aira.Api.csproj \
+      -c Release -o /app --no-restore /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+
+# Runs as a non-root user. The image has no business writing anywhere but its own storage
+# directory, and a container that cannot escalate is one less thing to reason about.
+RUN useradd --system --uid 10001 --create-home aira \
+ && mkdir -p /var/lib/aira/storage \
+ && chown -R aira:aira /var/lib/aira
+
+COPY --from=build --chown=aira:aira /app ./
+USER aira
+
+ENV ASPNETCORE_URLS=http://+:5080 \
+    DOTNET_RUNNING_IN_CONTAINER=true \
+    STORAGE_ROOT=/var/lib/aira/storage
+
+EXPOSE 5080
+
+# Checks the process can serve, not merely that it started. /health is deliberately the
+# liveness probe; /ready additionally checks the database and Redis.
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=10 \
+  CMD ["/bin/sh", "-c", "exec 3<>/dev/tcp/127.0.0.1/5080 && printf 'GET /health HTTP/1.0\\r\\n\\r\\n' >&3 && head -1 <&3 | grep -q '200'"]
+
+ENTRYPOINT ["dotnet", "Aira.Api.dll"]

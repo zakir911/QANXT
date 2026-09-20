@@ -1,0 +1,40 @@
+# Keeping the build context small is what makes the builds fast; it also keeps anything
+# secret out of the image, since a COPY cannot copy what was never sent to the daemon.
+.git
+.github
+**/node_modules
+**/dist
+**/bin
+**/obj
+**/.vite
+**/*.tsbuildinfo
+
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+!infrastructure/docker/certs/*.crt
+
+storage/
+/var/
+/data/
+dump.rdb
+*.log
+/tmp
+
+docs/
+
+# Test sources are never shipped in an image.
+apps/*/tests/
+**/test/
+playwright-report/
+test-results/
+/tmp/aira-shots
+
+# The end-to-end checks are excluded, but pnpm resolves the lockfile against every workspace
+# manifest, so this one manifest still has to reach the build. Its directory is matched by
+# contents rather than by name, because a re-inclusion under an excluded directory never
+# takes effect — and this rule is last, since the final match is the one that counts.
+tests/e2e/**
+!tests/e2e/package.json

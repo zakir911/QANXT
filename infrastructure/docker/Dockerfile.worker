@@ -1,0 +1,62 @@
+# The execution plane: Playwright-driven discovery, test execution and healing.
+#
+# Built on Microsoft's Playwright image because the browsers and their system libraries are
+# already installed and version-matched. Installing Chromium into a plain Node image is
+# possible but means tracking a long list of shared libraries by hand, and a missing one
+# shows up as a test failure rather than as a build failure.
+FROM mcr.microsoft.com/playwright:v1.56.0-jammy AS build
+WORKDIR /src
+
+# Corporate networks often terminate TLS at an inspecting proxy, which makes a package
+# restore fail with an opaque certificate error. Any .crt dropped into
+# infrastructure/docker/certs/ is trusted here; the directory is otherwise empty, so this is
+# a no-op for everyone else.
+COPY infrastructure/docker/certs/ /usr/local/share/ca-certificates/aira-extra/
+RUN update-ca-certificates >/dev/null 2>&1 || true
+
+ENV PNPM_HOME=/usr/local/bin
+RUN corepack enable && corepack prepare pnpm@10 --activate
+
+# Manifests first, so a source change does not invalidate the install layer.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/shared-types/package.json ./packages/shared-types/
+COPY packages/cli/package.json ./packages/cli/
+COPY apps/browser-worker/package.json ./apps/browser-worker/
+COPY apps/web-console/package.json ./apps/web-console/
+COPY apps/browser-extension/package.json ./apps/browser-extension/
+COPY samples/demo-bank/package.json ./samples/demo-bank/
+COPY tests/e2e/package.json ./tests/e2e/
+
+# The browsers are already in the base image; re-downloading them here would add a gigabyte
+# for nothing.
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+RUN pnpm install --frozen-lockfile --filter @aira/browser-worker...
+
+COPY packages/shared-types/ ./packages/shared-types/
+COPY apps/browser-worker/ ./apps/browser-worker/
+RUN pnpm --filter @aira/browser-worker... build
+
+# Drops dev dependencies from the tree that ships.
+RUN pnpm --filter @aira/browser-worker --prod --legacy deploy /out
+
+FROM mcr.microsoft.com/playwright:v1.56.0-jammy AS runtime
+WORKDIR /app
+
+COPY --from=build /out ./
+
+# pwuser ships with the Playwright image and owns the browser caches.
+USER pwuser
+
+ENV NODE_ENV=production \
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+# The worker serves a health endpoint so an orchestrator can tell "the process is alive"
+# apart from "the process can still reach its queue" — a consumer that has lost Redis looks
+# perfectly healthy from the outside and does no work at all.
+ENV WORKER_HEALTH_PORT=9091
+EXPOSE 9091
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD ["/bin/sh", "-c", "node -e \"fetch('http://127.0.0.1:'+(process.env.WORKER_HEALTH_PORT||9091)+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+
+ENTRYPOINT ["node", "--enable-source-maps", "dist/index.js"]

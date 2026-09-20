@@ -28,11 +28,22 @@ Root Cause → Self-Healing → Defect Proposals → Quality Intelligence → Da
 
 ## Getting started
 
+With Docker:
+
 ```bash
-cp .env.example .env      # then fill in JWT_SECRET and ENCRYPTION_KEY
+cp .env.example .env      # then fill in JWT_SECRET, ENCRYPTION_KEY and WORKER_TOKEN
+make docker-up            # build and start the whole platform
+```
+
+Or natively, if you have .NET 8, Node 22, pnpm and PostgreSQL:
+
+```bash
+cp .env.example .env
 make setup                # install dependencies, create and migrate the database
 make dev                  # run the full local stack
 ```
+
+Either way the console is on <http://localhost:5173>.
 
 See `docs/setup.md` for step-by-step instructions and `docs/implementation-plan.md` for the
 build plan and its phases.
@@ -43,6 +54,7 @@ build plan and its phases.
 - [Implementation plan](docs/implementation-plan.md)
 - [Verification status](docs/verification-status.md) — what has actually been executed, and what has not
 - [Running from a pipeline](docs/ci-cd.md) — the `aira` CLI, exit codes, reports and quality gates
+- [Deploying with Docker](docs/deployment.md) — one compose file for the whole platform
 - [The autonomous agent](docs/agent.md) — the bounded loop, risk scoring, regression intelligence, and what the agent is not allowed to do
 
 ## Principles

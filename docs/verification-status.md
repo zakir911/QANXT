@@ -7,7 +7,7 @@ reader deserves to know which one applies to each part. Everything marked **veri
 run in this environment and observed to work; everything marked **unverified** may be
 correct but has not been proved, and should be treated as untested until it is.
 
-Last updated at the end of Phase 9.
+Last updated after the Docker Compose work that followed Phase 9.
 
 ## Verified by automated tests
 
@@ -36,6 +36,7 @@ with `pnpm <name>` from that directory.
 | `recorder` | The real MV3 extension loads into Chromium, recording starts from its own popup, and a journey through the demo bank is captured with the right locator preferences and the password stored as a `${secret:...}` reference rather than a value. |
 | `journey` | That recording imports, generates a test case, and the generated test executes green in a real browser with every step passing, the secret masked in stored evidence, and screenshot, video, trace and network log captured. |
 | `cli` | The CLI runs a real 11-test suite; the emitted JUnit parses in a browser's XML parser with its declared counts matching its contents; breaking the demo bank's transactions API turns the build red (exit 1) with the failure carried into the XML; misuse, a rejected token and an unreachable platform each exit with their own code. |
+| Docker images | `Dockerfile.api` and `Dockerfile.worker` build, and were run together against a real Postgres and Redis: the API migrated, served authenticated requests and returned its security headers as a non-root user, and the worker reported ready, claimed a run and executed 11 tests in Chromium **inside the container** — all 11 passed, every execution recorded against `worker-container-1`. |
 | `security` | Against production settings: a session resolves to a real user, responses carry the browser security headers and a CSP, a token in a query string does not authenticate a normal endpoint, stored evidence requires a session, and sign-in is rate limited after its configured budget without throttling the first attempt. |
 
 Self-healing was additionally observed end to end: renaming the demo bank's filter controls
@@ -47,6 +48,8 @@ pass.
 
 | Area | Why not, and what it would take |
 | --- | --- |
+| `Dockerfile.console`, `Dockerfile.demo-bank` | Written but never built. Their base images (`nginx:1.27-alpine`, `node:22-bookworm-slim`) live on Docker Hub, which this environment's egress policy denies; only `mcr.microsoft.com` is reachable, which is why the API and worker images could be built. |
+| `docker compose up` as a whole | The compose file validates, and two of its four built images were built and run. The stack has never been started end to end here, because `postgres:16-alpine` and `redis:7-alpine` cannot be pulled either. |
 | `.github/workflows/aira-tests.yml` | The YAML parses, the pnpm filter it uses was run locally, and its embedded summary script was run against a real failing report — but the workflow itself has never executed on GitHub Actions. |
 | `infrastructure/ci/azure-pipelines.yml` | Same: validated as YAML, never executed on Azure Pipelines. |
 | Firefox and WebKit execution | Every run so far has been Chromium. The browser is a parameter and the code paths are shared, but neither other engine has been exercised. |
@@ -67,12 +70,8 @@ exist that do not yet.
   `browser-engine.md`, `self-healing.md`, `security.md`, `api.md`, `deployment.md`,
   `browser-extension.md`, `troubleshooting.md` and `database.md` are referenced in places
   but not yet written. `architecture.md`, `ci-cd.md`, the ADRs and this page exist.
-- **No container or cluster manifests.** `infrastructure/docker` and
-  `infrastructure/kubernetes` are empty directories. There is no Dockerfile and no compose
-  file, so the "clone, `docker compose up`" path in the definition of done does not work
-  today; the local stack is started with `make dev` instead. No Docker daemon is available
-  in this environment, so anything written there could not be built or run, and writing an
-  unrunnable compose file would be worse than an empty directory that says so.
+- **No Kubernetes manifests.** `infrastructure/kubernetes` is an empty directory. The
+  compose file is the deployment topology; nothing expresses it as a chart yet.
 - **The agent has not been run at scale.** Passes here covered an 8-page application. Nothing has been tried against a large knowledge graph, and no claim is made about how
   the prioritisation behaves with hundreds of routes.
 
@@ -92,3 +91,7 @@ and declaring it correct.
 | Agent pass | Polling a status through a tracking `DbContext` returned the first-loaded entity forever, so the agent waited on a crawl that had already finished six minutes earlier. |
 | Agent pass | `TestGenerationService` read the organization from the signed-in user, which only exists for callers with an HTTP request. The agent was the first caller without one. The DbContext already stamps the tenant on save, so the assignment was removed rather than worked around. |
 | Agent pass | A phase that threw was recorded as failed, but the run still reported `completed` because the loop reached its end — exactly the kind of quiet green the platform refuses everywhere else. |
+| Docker work | This page previously said no Docker daemon was available. That was wrong: the daemon simply was not running, and I had not tried starting it. The images below were built and run once it was. |
+| Docker work | `make docker-down` used `down -v`, which deletes the database, the queue and every stored artifact. A command called "down" should not destroy anything; the destructive one is now `make docker-reset`. |
+| Docker work | Compose reads `.env` from beside the compose file, so the documented command resolved none of the secrets and failed with an error that did not explain why. Both the Makefile and the documented command now pass `--project-directory .`. |
+| Docker work | `Dockerfile.worker` claimed the worker exposes no port and health-checked it with `kill -0 1`. The worker serves `/health` on 9091, and a consumer that has lost Redis looks perfectly alive to a PID check while doing no work at all. |

@@ -1,0 +1,20 @@
+# The demo banking application the platform tests against.
+#
+# It exists so the platform can be demonstrated and verified against something real rather
+# than a mock. It holds no real data and has no dependencies beyond Node.
+FROM node:22-bookworm-slim AS runtime
+WORKDIR /app
+
+COPY samples/demo-bank/package.json ./
+COPY samples/demo-bank/src/ ./src/
+
+RUN useradd --system --uid 10002 --create-home bank && chown -R bank:bank /app
+USER bank
+
+ENV NODE_ENV=production DEMO_BANK_PORT=4200
+EXPOSE 4200
+
+HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=5 \
+  CMD ["/bin/sh", "-c", "node -e \"fetch('http://127.0.0.1:4200/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+
+ENTRYPOINT ["node", "src/server.js"]
