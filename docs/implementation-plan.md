@@ -109,6 +109,12 @@ exit codes; quality gate rule engine; GitHub Actions workflow and Azure DevOps p
 
 **Done when:** CLI drives a real run against a local API and emits a JUnit file that a CI system can consume.
 
+*Verified:* `tests/e2e` — `pnpm cli` drives the CLI against the running stack: it runs a real
+suite, parses the emitted JUnit in a browser's XML parser and checks its declared counts match
+its contents, then breaks the demo bank and confirms the quality gate turns the build red. The
+exit codes for misuse, a rejected token and an unreachable platform are checked too, since a
+pipeline that cannot tell those apart from a test failure sends people to the wrong place.
+
 ### Phase 8 — Demo app + platform test suites
 Demo banking app (login, dashboard, accounts, transactions, statements, payments, profile)
 with toggleable defects and locator mutations; unit, integration, API, frontend, extension,

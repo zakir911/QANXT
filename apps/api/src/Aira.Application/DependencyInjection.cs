@@ -31,6 +31,7 @@ public static class DependencyInjection
         services.AddScoped<IHealingService, HealingService>();
         services.AddScoped<IJourneyImportService, JourneyImportService>();
         services.AddScoped<IQualityGateEvaluator, QualityGateEvaluator>();
+        services.AddScoped<IQualityGateService, QualityGateService>();
         services.AddScoped<IAiOrchestrator, AiOrchestrator>();
         services.AddSingleton<ISchemaValidator, SchemaValidator>();
         services.AddScoped<IDashboardService, DashboardService>();

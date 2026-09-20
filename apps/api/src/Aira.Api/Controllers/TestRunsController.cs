@@ -55,6 +55,8 @@ public sealed class TestRunsController : ApiControllerBase
             .Select(e => new
             {
                 e.Id, e.TestCaseId, reference = e.TestCase!.Reference, name = e.TestCase.Name,
+                // The suite is what a CI report groups by, so it travels with the verdict.
+                suite = e.TestCase.TestSuite!.Name,
                 status = e.Status, e.StartedAt, e.CompletedAt, e.DurationMs, e.Attempt,
                 e.StepsTotal, e.StepsPassed, e.StepsFailed, e.StepsHealed,
                 e.ConsoleErrorCount, e.NetworkErrorCount, e.ErrorMessage, e.WorkerId,

@@ -1,0 +1,103 @@
+# Runs an AIRA suite from Azure Pipelines and blocks the pipeline on its quality gate.
+#
+# This calls a platform that is already running; it does not start one. Set AIRA_API_URL and
+# AIRA_PROJECT_ID as pipeline variables, and AIRA_TOKEN as a secret variable — mark it
+# secret so it is masked in the logs.
+#
+# Use it as a template from another pipeline:
+#   extends:
+#     template: infrastructure/ci/azure-pipelines.yml
+#     parameters:
+#       suiteId: '00000000-0000-0000-0000-000000000000'
+
+parameters:
+  - name: suiteId
+    type: string
+    default: ''
+  - name: timeoutSeconds
+    type: number
+    default: 1800
+  - name: vmImage
+    type: string
+    default: ubuntu-latest
+
+trigger:
+  - main
+
+pool:
+  vmImage: ${{ parameters.vmImage }}
+
+variables:
+  - name: AIRA_SUITE_ID
+    value: ${{ parameters.suiteId }}
+
+steps:
+  - task: NodeTool@0
+    displayName: Use Node 22
+    inputs:
+      versionSpec: '22.x'
+
+  - script: |
+      corepack enable
+      corepack prepare pnpm@10 --activate
+    displayName: Enable pnpm
+
+  - script: pnpm install --frozen-lockfile
+    displayName: Install
+
+  - script: pnpm --filter @aira/cli... build
+    displayName: Build the CLI
+
+  # Fail with a clear message rather than letting the first real command report a confusing
+  # authentication error.
+  - script: |
+      set -e
+      if [ -z "$AIRA_API_URL" ]; then
+        echo "##vso[task.logissue type=error]AIRA_API_URL is not set. Add it as a pipeline variable."
+        exit 1
+      fi
+      if [ -z "$AIRA_TOKEN" ]; then
+        echo "##vso[task.logissue type=error]AIRA_TOKEN is not set. Add it as a secret pipeline variable."
+        exit 1
+      fi
+      if [ -z "$AIRA_SUITE_ID" ]; then
+        echo "##vso[task.logissue type=error]No suite was given. Pass the suiteId parameter."
+        exit 1
+      fi
+    displayName: Check the configuration
+    env:
+      AIRA_API_URL: $(AIRA_API_URL)
+      AIRA_TOKEN: $(AIRA_TOKEN)
+
+  - script: |
+      node packages/cli/dist/aira.js run \
+        --suite "$AIRA_SUITE_ID" \
+        --name "$(Build.DefinitionName) · $(Build.SourceBranchName) · $(Build.BuildNumber)" \
+        --report-dir "$(Build.ArtifactStagingDirectory)/reports" \
+        --timeout ${{ parameters.timeoutSeconds }}
+    displayName: Run the suite
+    env:
+      AIRA_API_URL: $(AIRA_API_URL)
+      AIRA_TOKEN: $(AIRA_TOKEN)
+      AIRA_PROJECT_ID: $(AIRA_PROJECT_ID)
+      AIRA_CONSOLE_URL: $(AIRA_CONSOLE_URL)
+
+  # Published whether or not the gate passed: a failing run is exactly when the evidence
+  # is needed.
+  - task: PublishTestResults@2
+    displayName: Publish the test results
+    condition: always()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: '$(Build.ArtifactStagingDirectory)/reports/junit.xml'
+      testRunTitle: 'AIRA · $(Build.BuildNumber)'
+      # The task must not decide the build's fate; the quality gate already did, through the
+      # CLI's exit status.
+      failTaskOnFailedTests: false
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish the reports
+    condition: always()
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/reports'
+      ArtifactName: aira-reports

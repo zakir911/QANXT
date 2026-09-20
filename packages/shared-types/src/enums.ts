@@ -27,6 +27,12 @@ export const LOCATOR_STRATEGIES = [
 ] as const;
 export type LocatorStrategy = (typeof LOCATOR_STRATEGIES)[number];
 
+export const RUN_TRIGGERS = ['manual', 'scheduled', 'cicd', 'api', 'agent'] as const;
+export type RunTrigger = (typeof RUN_TRIGGERS)[number];
+
+export const BROWSER_TYPES = ['chromium', 'firefox', 'webkit'] as const;
+export type BrowserType = (typeof BROWSER_TYPES)[number];
+
 export const EXECUTION_STATUSES = [
   'pending', 'queued', 'running', 'passed', 'failed', 'skipped', 'blocked',
   'healed', 'flaky', 'timedOut', 'cancelled', 'error'

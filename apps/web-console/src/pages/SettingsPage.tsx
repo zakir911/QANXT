@@ -3,6 +3,8 @@ import { apiRequest } from '../api/client';
 import { useAuth } from '../lib/auth';
 import { Card, PageHeader, Spinner } from '../components/ui';
 import { humanize } from '../lib/format';
+import { useProject } from '../lib/project';
+import QualityGates from '../components/QualityGates';
 
 interface PermissionCatalogue {
   permissions: { name: string; category: string; description: string }[];
@@ -15,6 +17,7 @@ interface ProviderStatus {
 
 export default function SettingsPage() {
   const { user } = useAuth();
+  const { projectId } = useProject();
 
   const { data: catalogue, isLoading } = useQuery({
     queryKey: ['permissions'],
@@ -77,6 +80,8 @@ export default function SettingsPage() {
             ))}
           </ul>
         </Card>
+
+        <QualityGates projectId={projectId} />
 
         <Card title="Roles and permissions" className="lg:col-span-2"
               description="The capability each built-in role carries. Every one of these is enforced server-side.">

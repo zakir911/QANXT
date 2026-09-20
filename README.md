@@ -42,6 +42,7 @@ build plan and its phases.
 - [Architecture](docs/architecture.md) · [Assessment](docs/architecture-assessment.md) · [ADRs](docs/adr)
 - [Implementation plan](docs/implementation-plan.md)
 - [Verification status](docs/verification-status.md) — what has actually been executed, and what has not
+- [Running from a pipeline](docs/ci-cd.md) — the `aira` CLI, exit codes, reports and quality gates
 
 ## Principles
 

@@ -4,7 +4,8 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
-  BROWSER_ACTION_TYPES, LOCATOR_STRATEGIES, EXECUTION_STATUSES, FAILURE_CATEGORIES,
+  BROWSER_ACTION_TYPES, BROWSER_TYPES, LOCATOR_STRATEGIES, EXECUTION_STATUSES,
+  FAILURE_CATEGORIES, RUN_TRIGGERS,
   ELEMENT_KINDS, PAGE_KINDS, describeLocator, locatorStability, isReference,
   isRecordedJourney
 } from '../src/index.js';
@@ -49,6 +50,14 @@ test('LocatorStrategy matches the server enum', () => {
 
 test('ExecutionStatus matches the server enum', () => {
   assert.deepEqual([...EXECUTION_STATUSES].sort(), membersOf('ExecutionStatus').map(camel).sort());
+});
+
+test('RunTrigger matches the server enum', () => {
+  assert.deepEqual([...RUN_TRIGGERS].sort(), membersOf('RunTrigger').map(camel).sort());
+});
+
+test('BrowserType matches the server enum', () => {
+  assert.deepEqual([...BROWSER_TYPES].sort(), membersOf('BrowserType').map(camel).sort());
 });
 
 test('FailureCategory matches the server enum', () => {

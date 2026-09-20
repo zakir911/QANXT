@@ -119,6 +119,35 @@ await step('settings shows the role matrix', async () => {
   await page.screenshot({ path: '/tmp/aira-shots/settings.png', fullPage: true });
 });
 
+await step('quality gates can be configured from the console', async () => {
+  // The gate engine is only real if a person can reach it: the rules the evaluator uses
+  // must be listed here, and an editor must be able to change one.
+  await page.getByRole('heading', { name: 'Quality gates' }).waitFor({ timeout: 10000 });
+
+  const rules = page.locator('li').filter({ hasText: 'Block when' });
+  const count = await rules.count();
+  if (count === 0) throw new Error('no quality gate rules were listed');
+
+  // Stating the rule in the evaluator's words is what stops a gate being misconfigured.
+  const described = await rules.first().innerText();
+  if (!/Block when .+ is .+/.test(described)) {
+    throw new Error(`the rule is not explained in words: ${described}`);
+  }
+
+  // Toggling proves the change reached the server and came back: the button only relabels
+  // once the refetched rule says so.
+  const toggle = rules.first().getByRole('button', { name: /Disable|Enable/ });
+  const before = await toggle.innerText();
+  const after = before === 'Disable' ? 'Enable' : 'Disable';
+
+  await toggle.click();
+  await toggle.filter({ hasText: after }).waitFor({ timeout: 10000 });
+  await toggle.click();                       // Leave the gate as it was found.
+  await toggle.filter({ hasText: before }).waitFor({ timeout: 10000 });
+
+  await page.screenshot({ path: '/tmp/aira-shots/quality-gates.png', fullPage: true });
+});
+
 if (consoleErrors.length > 0) {
   console.log(`\nConsole errors observed (${consoleErrors.length}):`);
   for (const error of consoleErrors.slice(0, 8)) console.log('  -', error.slice(0, 200));
