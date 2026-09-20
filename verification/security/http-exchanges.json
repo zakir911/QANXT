@@ -1,0 +1,230 @@
+{
+  "recordedAt": "2026-09-20T16:36:04.742Z",
+  "api": "http://127.0.0.1:5080",
+  "exchanges": [
+    {
+      "label": "anonymous /api/v1/projects",
+      "attempted": "access without a token",
+      "status": 401,
+      "body": "",
+      "at": "2026-09-20T16:36:04.116Z"
+    },
+    {
+      "label": "anonymous /api/v1/users",
+      "attempted": "access without a token",
+      "status": 401,
+      "body": "",
+      "at": "2026-09-20T16:36:04.117Z"
+    },
+    {
+      "label": "anonymous /api/v1/testruns?projectId=x",
+      "attempted": "access without a token",
+      "status": 401,
+      "body": "",
+      "at": "2026-09-20T16:36:04.119Z"
+    },
+    {
+      "label": "anonymous /api/v1/agent/runs",
+      "attempted": "access without a token",
+      "status": 401,
+      "body": "",
+      "at": "2026-09-20T16:36:04.120Z"
+    },
+    {
+      "label": "anonymous /api/v1/quality-gates?projectId=x",
+      "attempted": "access without a token",
+      "status": 401,
+      "body": "",
+      "at": "2026-09-20T16:36:04.121Z"
+    },
+    {
+      "label": "forged signature",
+      "attempted": "a token signed with the wrong key",
+      "status": 401,
+      "body": "",
+      "at": "2026-09-20T16:36:04.123Z"
+    },
+    {
+      "label": "alg=none",
+      "attempted": "an unsigned token claiming alg=none",
+      "status": 401,
+      "body": "",
+      "at": "2026-09-20T16:36:04.126Z"
+    },
+    {
+      "label": "beta reads alpha project",
+      "attempted": "GET /api/v1/projects/2332cb05-6f12-4a16-8413-d17eff0340fa as the other tenant",
+      "status": 404,
+      "body": "{\"code\":\"not_found\",\"title\":\"The project was not found.\",\"status\":404,\"correlationId\":\"08be3147bbe54218911d4c4d2b01c026\"}",
+      "at": "2026-09-20T16:36:04.141Z"
+    },
+    {
+      "label": "beta writes into alpha project",
+      "attempted": "creating a gate rule in the other tenant",
+      "status": 404,
+      "body": "{\"code\":\"not_found\",\"title\":\"The project was not found.\",\"status\":404,\"correlationId\":\"1fd0e9e61d4e4c4581fd566788e6289d\"}",
+      "at": "2026-09-20T16:36:04.147Z"
+    },
+    {
+      "label": "beta lists projects",
+      "attempted": "listing projects as the other tenant",
+      "status": 200,
+      "body": "[]",
+      "at": "2026-09-20T16:36:04.152Z"
+    },
+    {
+      "label": "viewer writes a project",
+      "attempted": "creating a project as a viewer",
+      "status": 403,
+      "body": "",
+      "at": "2026-09-20T16:36:04.436Z"
+    },
+    {
+      "label": "sqli ' OR '1'='1",
+      "attempted": "SQL metacharacters in projectId",
+      "status": 400,
+      "body": "{\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\"title\":\"One or more validation errors occurred.\",\"status\":400,\"errors\":{\"projectId\":[\"The value '' OR '1'='1' is not valid.\"]},\"traceId\":\"00-c1557ec76d70803a1cc5e94bf5e8ff0f-5c99dbc1dc3f21f5-00\"}",
+      "at": "2026-09-20T16:36:04.439Z"
+    },
+    {
+      "label": "sqli '; DROP TABLE users;",
+      "attempted": "SQL metacharacters in projectId",
+      "status": 400,
+      "body": "{\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\"title\":\"One or more validation errors occurred.\",\"status\":400,\"errors\":{\"projectId\":[\"The value ''; DROP TABLE users; --' is not valid.\"]},\"traceId\":\"00-a09e245ce7b3f2d5f5a1bd43f91cf65d-16ff23fcdba20601-00\"}",
+      "at": "2026-09-20T16:36:04.441Z"
+    },
+    {
+      "label": "sqli 1' UNION SELECT NULL",
+      "attempted": "SQL metacharacters in projectId",
+      "status": 400,
+      "body": "{\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\"title\":\"One or more validation errors occurred.\",\"status\":400,\"errors\":{\"projectId\":[\"The value '1' UNION SELECT NULL,NULL,NULL--' is not valid.\"]},\"traceId\":\"00-447937ffa398024a2eb76fa2044ee805-04eed9d409c62575-00\"}",
+      "at": "2026-09-20T16:36:04.443Z"
+    },
+    {
+      "label": "sqli \\'; SELECT pg_sleep(",
+      "attempted": "SQL metacharacters in projectId",
+      "status": 400,
+      "body": "{\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\"title\":\"One or more validation errors occurred.\",\"status\":400,\"errors\":{\"projectId\":[\"The value '\\\\'; SELECT pg_sleep(5); --' is not valid.\"]},\"traceId\":\"00-4fc54878f26aed8d0b0591897f25426e-d292b0a00a643070-00\"}",
+      "at": "2026-09-20T16:36:04.445Z"
+    },
+    {
+      "label": "ssrf http://169.254.169.254/latest/meta-data/",
+      "attempted": "registering an application at a forbidden target",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target\",\"status\":400,\"correlationId\":\"395788d93d3446539939f3c1066a281c\"}",
+      "at": "2026-09-20T16:36:04.478Z"
+    },
+    {
+      "label": "ssrf http://169.254.169.254/latest/meta-data/iam/security-credentials/",
+      "attempted": "registering an application at a forbidden target",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target\",\"status\":400,\"correlationId\":\"355da5f4a2be44109391b664837ebee2\"}",
+      "at": "2026-09-20T16:36:04.482Z"
+    },
+    {
+      "label": "ssrf http://[::ffff:169.254.169.254]/",
+      "attempted": "registering an application at a forbidden target",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target\",\"status\":400,\"correlationId\":\"6500bedeeb53412a9f046d612e500937\"}",
+      "at": "2026-09-20T16:36:04.485Z"
+    },
+    {
+      "label": "ssrf http://metadata.google.internal/computeMetadata/v1/",
+      "attempted": "registering an application at a forbidden target",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: the host is a cloud metadata endpoint\",\"status\":400,\"correlationId\":\"2290eeb3fda84971a9f4e65a4999da4d\"}",
+      "at": "2026-09-20T16:36:04.489Z"
+    },
+    {
+      "label": "ssrf http://100.64.0.1/",
+      "attempted": "registering an application at a forbidden target",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 100.64.0.0/10 is carrier-grade NAT space and is never a permitted target\",\"status\":400,\"correlationId\":\"be6597e94ba548e0944c7a38db299ced\"}",
+      "at": "2026-09-20T16:36:04.492Z"
+    },
+    {
+      "label": "ssrf http://0.0.0.0/",
+      "attempted": "registering an application at a forbidden target",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 0.0.0.0/8 is reserved and is never a permitted target\",\"status\":400,\"correlationId\":\"fbb5c9d90d6049ecabf5912d606045b7\"}",
+      "at": "2026-09-20T16:36:04.495Z"
+    },
+    {
+      "label": "ssrf file:///etc/passwd",
+      "attempted": "registering an application at a forbidden target",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: scheme 'file' is not permitted (http and https only)\",\"status\":400,\"correlationId\":\"79959af2bf79427698a6b7fb044d9fc9\"}",
+      "at": "2026-09-20T16:36:04.498Z"
+    },
+    {
+      "label": "ssrf gopher://127.0.0.1:6379/_FLUSHALL",
+      "attempted": "registering an application at a forbidden target",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: scheme 'gopher' is not permitted (http and https only)\",\"status\":400,\"correlationId\":\"6659a9825e37412f960525ac147b75ba\"}",
+      "at": "2026-09-20T16:36:04.501Z"
+    },
+    {
+      "label": "ssrf javascript:fetch(\"http://evil.test\")",
+      "attempted": "registering an application at a forbidden target",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: scheme 'javascript' is not permitted (http and https only)\",\"status\":400,\"correlationId\":\"28a53765d5594fbd9ebbc25a45d7ac01\"}",
+      "at": "2026-09-20T16:36:04.504Z"
+    },
+    {
+      "label": "ssrf http://169.254.169.254@example.com/",
+      "attempted": "registering an application at a forbidden target",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: credentials embedded in a URL are not permitted\",\"status\":400,\"correlationId\":\"3f4a264fd2ef4f7fb25b4d212b71ab83\"}",
+      "at": "2026-09-20T16:36:04.507Z"
+    },
+    {
+      "label": "strict http://127.0.0.1:4200/",
+      "attempted": "loopback with the flag off",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: loopback addresses are disabled by configuration\",\"status\":400,\"correlationId\":\"2aa2e03abfaa4ebf9d1ae36543a8ad5e\"}",
+      "at": "2026-09-20T16:36:04.705Z"
+    },
+    {
+      "label": "strict http://0177.0.0.1/",
+      "attempted": "loopback with the flag off",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: loopback addresses are disabled by configuration\",\"status\":400,\"correlationId\":\"687e4bd4dd374067b0dbe2c65c0b2717\"}",
+      "at": "2026-09-20T16:36:04.709Z"
+    },
+    {
+      "label": "strict http://localhost:4200/",
+      "attempted": "loopback with the flag off",
+      "status": 400,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: localhost targets are disabled by configuration\",\"status\":400,\"correlationId\":\"329bb1a048124f3fa05f68688784d10c\"}",
+      "at": "2026-09-20T16:36:04.712Z"
+    },
+    {
+      "label": "token in query string",
+      "attempted": "authenticating via ?access_token=",
+      "status": 401,
+      "body": "",
+      "at": "2026-09-20T16:36:04.736Z"
+    },
+    {
+      "label": "traversal ../../../../etc/passwd",
+      "attempted": "requesting an artifact by a traversal path",
+      "status": 404,
+      "body": "",
+      "at": "2026-09-20T16:36:04.738Z"
+    },
+    {
+      "label": "traversal ..%2f..%2f..%2fetc%2fpasswd",
+      "attempted": "requesting an artifact by a traversal path",
+      "status": 404,
+      "body": "",
+      "at": "2026-09-20T16:36:04.740Z"
+    },
+    {
+      "label": "traversal %2e%2e%2f%2e%2e%2fetc%2fpasswd",
+      "attempted": "requesting an artifact by a traversal path",
+      "status": 404,
+      "body": "",
+      "at": "2026-09-20T16:36:04.742Z"
+    }
+  ]
+}

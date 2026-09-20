@@ -1,0 +1,442 @@
+{
+  "healthy": {
+    "run": {
+      "id": "6b5bf38f-1cd7-44dc-be18-f500d7e22f75",
+      "projectId": "3008a441-3ab1-4306-9d23-17b929637848",
+      "name": "FP healthy total",
+      "status": "passed",
+      "trigger": "manual",
+      "browser": "chromium",
+      "createdAt": "2026-09-20T16:21:05.452885+00:00",
+      "startedAt": "2026-09-20T16:21:05.464099+00:00",
+      "completedAt": "2026-09-20T16:21:06.622927+00:00",
+      "durationMs": 1158,
+      "totalCount": 1,
+      "passedCount": 1,
+      "failedCount": 0,
+      "skippedCount": 0,
+      "blockedCount": 0,
+      "healedCount": 0,
+      "flakyCount": 0,
+      "qualityGatePassed": true
+    },
+    "execution": {
+      "id": "8a0c9e0d-32c6-4689-8e02-435994c536e4",
+      "testCaseId": "bf1a9bae-00e0-463e-959c-c2fe2e968115",
+      "reference": "TC-0006",
+      "name": "Dashboard total is correct",
+      "suite": "Demo Bank — recorded",
+      "status": "passed",
+      "startedAt": "2026-09-20T16:21:05.463262+00:00",
+      "completedAt": "2026-09-20T16:21:06.59+00:00",
+      "durationMs": 1124,
+      "attempt": 1,
+      "stepsTotal": 5,
+      "stepsPassed": 5,
+      "stepsFailed": 0,
+      "stepsHealed": 0,
+      "consoleErrorCount": 0,
+      "networkErrorCount": 0,
+      "workerId": "worker-5390",
+      "browser": "chromium",
+      "browserVersion": "141.0.7390.37",
+      "correlationId": "d805fe4e15514c39b86198c44cae3791",
+      "priority": "medium"
+    },
+    "detail": {
+      "id": "8a0c9e0d-32c6-4689-8e02-435994c536e4",
+      "testRunId": "6b5bf38f-1cd7-44dc-be18-f500d7e22f75",
+      "testCaseId": "bf1a9bae-00e0-463e-959c-c2fe2e968115",
+      "reference": "TC-0006",
+      "name": "Dashboard total is correct",
+      "objective": "Reproduce the recorded journey: Dashboard total is correct.",
+      "expectedResults": "The journey completes and:\n- The dashboard total is correct",
+      "status": "passed",
+      "startedAt": "2026-09-20T16:21:05.463262+00:00",
+      "completedAt": "2026-09-20T16:21:06.59+00:00",
+      "durationMs": 1124,
+      "attempt": 1,
+      "testCaseVersion": 1,
+      "browser": "chromium",
+      "browserVersion": "141.0.7390.37",
+      "workerId": "worker-5390",
+      "correlationId": "d805fe4e15514c39b86198c44cae3791",
+      "stepsTotal": 5,
+      "stepsPassed": 5,
+      "stepsFailed": 0,
+      "stepsHealed": 0,
+      "consoleErrorCount": 0,
+      "networkErrorCount": 0,
+      "actions": [
+        {
+          "id": "27542644-a97a-4074-bc70-fb221ba15b2f",
+          "order": 1,
+          "action": "navigate",
+          "description": "Open the sign-in page",
+          "status": "passed",
+          "startedAt": "2026-09-20T16:21:06.172+00:00",
+          "durationMs": 15,
+          "url": "http://localhost:4200/dashboard",
+          "wasHealed": false
+        },
+        {
+          "id": "ca2e36db-27ef-4fb6-be9f-d58ec8946a16",
+          "order": 2,
+          "action": "fill",
+          "description": "Enter the username",
+          "status": "passed",
+          "startedAt": "2026-09-20T16:21:06.195+00:00",
+          "durationMs": 39,
+          "url": "http://localhost:4200/login",
+          "maskedValue": "***REDACTED***",
+          "wasHealed": false,
+          "locatorUsed": {
+            "strategy": "testId",
+            "value": "username",
+            "exact": false,
+            "fallbacks": []
+          },
+          "locatorDescription": "testId=\"username\""
+        },
+        {
+          "id": "860036df-899a-450b-9bcb-fa5dc19df9fa",
+          "order": 3,
+          "action": "fill",
+          "description": "Enter the password",
+          "status": "passed",
+          "startedAt": "2026-09-20T16:21:06.264+00:00",
+          "durationMs": 29,
+          "url": "http://localhost:4200/login",
+          "maskedValue": "***REDACTED***",
+          "wasHealed": false,
+          "locatorUsed": {
+            "strategy": "testId",
+            "value": "password",
+            "exact": false,
+            "fallbacks": []
+          },
+          "locatorDescription": "testId=\"password\""
+        },
+        {
+          "id": "d10ae835-4295-40fd-8f18-bc1b66536d3f",
+          "order": 4,
+          "action": "click",
+          "description": "Press the sign-in button",
+          "status": "passed",
+          "startedAt": "2026-09-20T16:21:06.304+00:00",
+          "durationMs": 68,
+          "url": "http://localhost:4200/login",
+          "wasHealed": false,
+          "locatorUsed": {
+            "strategy": "testId",
+            "value": "login-submit",
+            "exact": false,
+            "fallbacks": []
+          },
+          "locatorDescription": "testId=\"login-submit\""
+        },
+        {
+          "id": "32ef38eb-f7ea-4ce8-913e-70be2fb8fbb7",
+          "order": 5,
+          "action": "assertText",
+          "description": "The dashboard total is correct",
+          "status": "passed",
+          "startedAt": "2026-09-20T16:21:06.385+00:00",
+          "durationMs": 55,
+          "url": "http://localhost:4200/dashboard",
+          "wasHealed": false,
+          "locatorUsed": {
+            "strategy": "testId",
+            "value": "total-balance",
+            "exact": false,
+            "fallbacks": []
+          },
+          "locatorDescription": "testId=\"total-balance\""
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "1ef2c841-5a10-499d-b54e-2b050fd8f312",
+          "kind": "networkLog",
+          "name": "execution.network.json",
+          "contentType": "application/json",
+          "sizeBytes": 6234,
+          "isMasked": true
+        },
+        {
+          "id": "2d23220d-0dc4-43bd-b2f2-d6c96b8b4d29",
+          "kind": "screenshot",
+          "name": "final.png",
+          "contentType": "image/png",
+          "sizeBytes": 60337,
+          "isMasked": false
+        },
+        {
+          "id": "2ee6a697-c8b0-452f-8037-5f6b67bc5f41",
+          "kind": "trace",
+          "name": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 306676,
+          "isMasked": false
+        },
+        {
+          "id": "6a170e58-bce0-4937-acca-c23eae1541c5",
+          "kind": "video",
+          "name": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 93805,
+          "isMasked": false
+        }
+      ],
+      "healingEvents": []
+    }
+  },
+  "broken": {
+    "run": {
+      "id": "cb759a7a-7c99-4cbc-943f-54dd2d369f88",
+      "projectId": "3008a441-3ab1-4306-9d23-17b929637848",
+      "name": "FP wrong total",
+      "status": "failed",
+      "trigger": "manual",
+      "browser": "chromium",
+      "createdAt": "2026-09-20T16:21:07.893441+00:00",
+      "startedAt": "2026-09-20T16:21:07.906+00:00",
+      "completedAt": "2026-09-20T16:21:09.15701+00:00",
+      "durationMs": 1251,
+      "totalCount": 1,
+      "passedCount": 0,
+      "failedCount": 1,
+      "skippedCount": 0,
+      "blockedCount": 0,
+      "healedCount": 0,
+      "flakyCount": 0,
+      "qualityGatePassed": true
+    },
+    "execution": {
+      "id": "93c0566b-26b8-497d-b507-4a2620d7e5da",
+      "testCaseId": "bf1a9bae-00e0-463e-959c-c2fe2e968115",
+      "reference": "TC-0006",
+      "name": "Dashboard total is correct",
+      "suite": "Demo Bank — recorded",
+      "status": "failed",
+      "startedAt": "2026-09-20T16:21:07.905163+00:00",
+      "completedAt": "2026-09-20T16:21:09.11+00:00",
+      "durationMs": 1202,
+      "attempt": 1,
+      "stepsTotal": 5,
+      "stepsPassed": 4,
+      "stepsFailed": 1,
+      "stepsHealed": 0,
+      "consoleErrorCount": 0,
+      "networkErrorCount": 0,
+      "errorMessage": "The dashboard total is correct: Expected the text to contain \"16,976.65\" but it read \"£16,801.65\".",
+      "workerId": "worker-5390",
+      "browser": "chromium",
+      "browserVersion": "141.0.7390.37",
+      "correlationId": "38873524880b47a7b34c6d3d944d37b7",
+      "priority": "medium"
+    },
+    "detail": {
+      "id": "93c0566b-26b8-497d-b507-4a2620d7e5da",
+      "testRunId": "cb759a7a-7c99-4cbc-943f-54dd2d369f88",
+      "testCaseId": "bf1a9bae-00e0-463e-959c-c2fe2e968115",
+      "reference": "TC-0006",
+      "name": "Dashboard total is correct",
+      "objective": "Reproduce the recorded journey: Dashboard total is correct.",
+      "expectedResults": "The journey completes and:\n- The dashboard total is correct",
+      "status": "failed",
+      "startedAt": "2026-09-20T16:21:07.905163+00:00",
+      "completedAt": "2026-09-20T16:21:09.11+00:00",
+      "durationMs": 1202,
+      "attempt": 1,
+      "testCaseVersion": 1,
+      "browser": "chromium",
+      "browserVersion": "141.0.7390.37",
+      "workerId": "worker-5390",
+      "correlationId": "38873524880b47a7b34c6d3d944d37b7",
+      "stepsTotal": 5,
+      "stepsPassed": 4,
+      "stepsFailed": 1,
+      "stepsHealed": 0,
+      "consoleErrorCount": 0,
+      "networkErrorCount": 0,
+      "errorMessage": "The dashboard total is correct: Expected the text to contain \"16,976.65\" but it read \"£16,801.65\".",
+      "actions": [
+        {
+          "id": "9c1746a1-90ff-45c5-836d-8a84a8cba379",
+          "order": 1,
+          "action": "navigate",
+          "description": "Open the sign-in page",
+          "status": "passed",
+          "startedAt": "2026-09-20T16:21:08.628+00:00",
+          "durationMs": 15,
+          "url": "http://localhost:4200/dashboard",
+          "wasHealed": false
+        },
+        {
+          "id": "563d98d6-dd7f-41ea-8911-738f7fb1ff77",
+          "order": 2,
+          "action": "fill",
+          "description": "Enter the username",
+          "status": "passed",
+          "startedAt": "2026-09-20T16:21:08.65+00:00",
+          "durationMs": 51,
+          "url": "http://localhost:4200/login",
+          "maskedValue": "***REDACTED***",
+          "wasHealed": false,
+          "locatorUsed": {
+            "strategy": "testId",
+            "value": "username",
+            "exact": false,
+            "fallbacks": []
+          },
+          "locatorDescription": "testId=\"username\""
+        },
+        {
+          "id": "f236e0f5-3a56-4410-bd37-b2ea94d68fba",
+          "order": 3,
+          "action": "fill",
+          "description": "Enter the password",
+          "status": "passed",
+          "startedAt": "2026-09-20T16:21:08.718+00:00",
+          "durationMs": 33,
+          "url": "http://localhost:4200/login",
+          "maskedValue": "***REDACTED***",
+          "wasHealed": false,
+          "locatorUsed": {
+            "strategy": "testId",
+            "value": "password",
+            "exact": false,
+            "fallbacks": []
+          },
+          "locatorDescription": "testId=\"password\""
+        },
+        {
+          "id": "9c9deff5-ef38-4b97-8c97-64e61b2e2781",
+          "order": 4,
+          "action": "click",
+          "description": "Press the sign-in button",
+          "status": "passed",
+          "startedAt": "2026-09-20T16:21:08.763+00:00",
+          "durationMs": 105,
+          "url": "http://localhost:4200/login",
+          "wasHealed": false,
+          "locatorUsed": {
+            "strategy": "testId",
+            "value": "login-submit",
+            "exact": false,
+            "fallbacks": []
+          },
+          "locatorDescription": "testId=\"login-submit\""
+        },
+        {
+          "id": "eefdd3d9-07a5-49a4-9788-51a9ff799af1",
+          "order": 5,
+          "action": "assertText",
+          "description": "The dashboard total is correct",
+          "status": "failed",
+          "startedAt": "2026-09-20T16:21:08.877+00:00",
+          "durationMs": 39,
+          "url": "http://localhost:4200/dashboard",
+          "wasHealed": false,
+          "errorMessage": "The dashboard total is correct: Expected the text to contain \"16,976.65\" but it read \"£16,801.65\".",
+          "locatorUsed": {
+            "strategy": "testId",
+            "value": "total-balance",
+            "exact": false,
+            "fallbacks": []
+          },
+          "locatorDescription": "testId=\"total-balance\""
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "2de3c675-295d-45b1-8f8d-f275ca601d3c",
+          "kind": "screenshot",
+          "name": "final.png",
+          "contentType": "image/png",
+          "sizeBytes": 60601,
+          "isMasked": false
+        },
+        {
+          "id": "8fa7fc94-632d-4b41-9a02-be2032384a39",
+          "kind": "video",
+          "name": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 108975,
+          "isMasked": false
+        },
+        {
+          "id": "9422ca05-2be0-4a1a-a658-79d2724dc484",
+          "kind": "trace",
+          "name": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 390675,
+          "isMasked": false
+        },
+        {
+          "id": "9d1fb943-075c-476a-bbcb-0fb7676f4082",
+          "kind": "domSnapshot",
+          "name": "step-5-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 5683,
+          "isMasked": true,
+          "testActionId": "eefdd3d9-07a5-49a4-9788-51a9ff799af1"
+        },
+        {
+          "id": "d1538dfa-c958-4b42-a598-cbd757de2c4c",
+          "kind": "accessibilityTree",
+          "name": "step-5-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 1203,
+          "isMasked": true,
+          "testActionId": "eefdd3d9-07a5-49a4-9788-51a9ff799af1"
+        },
+        {
+          "id": "d37b9b71-d4f3-4256-8110-2a5bb855c5ec",
+          "kind": "networkLog",
+          "name": "execution.network.json",
+          "contentType": "application/json",
+          "sizeBytes": 6234,
+          "isMasked": true
+        },
+        {
+          "id": "fc5dff9a-1ace-4aff-9a3e-7dd380aa9070",
+          "kind": "screenshot",
+          "name": "step-5-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 60601,
+          "isMasked": false,
+          "testActionId": "eefdd3d9-07a5-49a4-9788-51a9ff799af1"
+        }
+      ],
+      "failure": {
+        "id": "31c7e444-4f16-46e5-b948-6cfcfa589cd1",
+        "category": "applicationDefect",
+        "categoryConfidence": 70,
+        "rawMessage": "The dashboard total is correct: Expected the text to contain \"16,976.65\" but it read \"£16,801.65\".",
+        "signature": "09887bb782f6fda125f91ae66fb56eda28eea78c4dc86a5f45e0d56cdb86f16f",
+        "isNewFailure": true,
+        "isRegression": true,
+        "occurrenceCount": 1,
+        "firstSeenAt": "2026-09-20T16:21:09.14679+00:00",
+        "lastSeenAt": "2026-09-20T16:21:09.14679+00:00",
+        "analysis": {
+          "summary": "An assertion failed on the failing step.",
+          "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+          "evidence": "The dashboard total is correct: Expected the text to contain \"16,976.65\" but it read \"£16,801.65\".",
+          "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+          "category": "applicationDefect",
+          "confidence": 70,
+          "isLikelyApplicationDefect": true,
+          "isHealable": false,
+          "producedByAi": false,
+          "provider": "local",
+          "model": "aira-rules-v1",
+          "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2de3c675-295d-45b1-8f8d-f275ca601d3c\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"8fa7fc94-632d-4b41-9a02-be2032384a39\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"9422ca05-2be0-4a1a-a658-79d2724dc484\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"9d1fb943-075c-476a-bbcb-0fb7676f4082\", \"kind\": \"DomSnapshot\", \"name\": \"step-5-failure.html\"}, {\"id\": \"d1538dfa-c958-4b42-a598-cbd757de2c4c\", \"kind\": \"AccessibilityTree\", \"name\": \"step-5-failure.a11y.json\"}, {\"id\": \"d37b9b71-d4f3-4256-8110-2a5bb855c5ec\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"fc5dff9a-1ace-4aff-9a3e-7dd380aa9070\", \"kind\": \"Screenshot\", \"name\": \"step-5-failure.png\"}], \"executionId\": \"93c0566b-26b8-497d-b507-4a2620d7e5da\"}"
+        }
+      },
+      "healingEvents": []
+    }
+  }
+}

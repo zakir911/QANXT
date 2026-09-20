@@ -89,3 +89,52 @@ public class TargetUrlGuardTests
     public void Normalize_keeps_non_default_ports()
         => TargetUrlGuard.Normalize("http://app.example.com:8080/x").Should().Be("http://app.example.com:8080/x");
 }
+
+
+/// <summary>Regression cover for BUG-0001: allowing private networks is a development
+/// convenience and must not also unlock the cloud metadata service. These are the cases the
+/// independent security suite found accepted.</summary>
+public class TargetUrlGuardAlwaysForbiddenTests
+{
+    private static UrlGuardOptions Permissive(bool allowPrivate = true)
+        => new(Array.Empty<string>(), Array.Empty<string>(), allowPrivate);
+
+    [Theory]
+    [InlineData("http://169.254.169.254/latest/meta-data/")]
+    [InlineData("http://169.254.169.254/latest/meta-data/iam/security-credentials/")]
+    [InlineData("http://[::ffff:169.254.169.254]/")]
+    [InlineData("http://169.254.1.1/")]
+    public void Link_local_is_refused_even_when_private_networks_are_allowed(string url)
+    {
+        // 169.254.169.254 returns instance credentials on every major cloud, and the worker
+        // stores whatever it fetches as evidence the caller can download.
+        TargetUrlGuard.IsAllowed(url, Permissive(), out var reason).Should().BeFalse();
+        reason.Should().Contain("never a permitted target");
+    }
+
+    [Theory]
+    [InlineData("http://100.64.0.1/")]
+    [InlineData("http://0.0.0.0/")]
+    [InlineData("http://239.255.255.250/")]
+    public void Other_never_routable_space_is_refused_regardless_of_configuration(string url)
+        => TargetUrlGuard.IsAllowed(url, Permissive(), out _).Should().BeFalse();
+
+    [Theory]
+    [InlineData("http://localhost:4200/")]
+    [InlineData("http://127.0.0.1:4200/")]
+    [InlineData("http://10.0.0.5/")]
+    [InlineData("http://192.168.1.10/")]
+    public void What_the_flag_is_actually_for_still_works(string url)
+    {
+        // Loopback and RFC1918 are exactly what a developer enables the flag to reach.
+        TargetUrlGuard.IsAllowed(url, Permissive(), out var reason).Should().BeTrue(reason);
+    }
+
+    [Theory]
+    [InlineData("http://localhost:4200/")]
+    [InlineData("http://10.0.0.5/")]
+    public void And_is_still_refused_when_the_flag_is_off(string url)
+    {
+        TargetUrlGuard.IsAllowed(url, Permissive(allowPrivate: false), out _).Should().BeFalse();
+    }
+}

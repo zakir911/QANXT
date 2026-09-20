@@ -1,0 +1,28 @@
+{
+  "attempt": 3,
+  "api": "http://127.0.0.1:5080",
+  "at": "2026-09-20T16:08:26.541Z",
+  "allowPrivateNetworkTargets": true,
+  "accepted": 0,
+  "total": 3,
+  "rows": [
+    {
+      "baseUrl": "http://169.254.169.254/latest/meta-data/",
+      "status": 400,
+      "accepted": false,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target\",\"status\":400,\"correlationId\":\"eb6d085e55cd4a6ca183ca8"
+    },
+    {
+      "baseUrl": "http://[::ffff:169.254.169.254]/",
+      "status": 400,
+      "accepted": false,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target\",\"status\":400,\"correlationId\":\"3bc6600bd2844a448bc724e"
+    },
+    {
+      "baseUrl": "http://169.254.169.254/latest/meta-data/iam/security-credentials/",
+      "status": 400,
+      "accepted": false,
+      "body": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target\",\"status\":400,\"correlationId\":\"2552484a20af4fe5a5e9d58"
+    }
+  ]
+}

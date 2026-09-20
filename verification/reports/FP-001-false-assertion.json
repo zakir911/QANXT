@@ -1,0 +1,248 @@
+{
+  "run": {
+    "id": "a59fe347-1d03-45f0-a85d-2d14ccd06a25",
+    "projectId": "3008a441-3ab1-4306-9d23-17b929637848",
+    "name": "FP false assertion",
+    "status": "failed",
+    "trigger": "manual",
+    "browser": "chromium",
+    "createdAt": "2026-09-20T16:21:03.083639+00:00",
+    "startedAt": "2026-09-20T16:21:03.100355+00:00",
+    "completedAt": "2026-09-20T16:21:04.363511+00:00",
+    "durationMs": 1263,
+    "totalCount": 1,
+    "passedCount": 0,
+    "failedCount": 1,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 0,
+    "flakyCount": 0,
+    "qualityGatePassed": true
+  },
+  "execution": {
+    "id": "76a98ff3-fcb1-453f-a741-38ca59d1d447",
+    "testCaseId": "87ffbac0-2e47-4621-9d4d-754ccd6e4eab",
+    "reference": "TC-0005",
+    "name": "False assertion",
+    "suite": "Demo Bank — recorded",
+    "status": "failed",
+    "startedAt": "2026-09-20T16:21:03.098887+00:00",
+    "completedAt": "2026-09-20T16:21:04.308+00:00",
+    "durationMs": 1204,
+    "attempt": 1,
+    "stepsTotal": 5,
+    "stepsPassed": 4,
+    "stepsFailed": 1,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "errorMessage": "Assert text that is not there: Expected the text to contain \"Quarterly audit export completed successfully\" but it read \"Dashboard\".",
+    "workerId": "worker-5390",
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "correlationId": "84ca5b359508459bb453d6b6937a0862",
+    "priority": "medium"
+  },
+  "detail": {
+    "id": "76a98ff3-fcb1-453f-a741-38ca59d1d447",
+    "testRunId": "a59fe347-1d03-45f0-a85d-2d14ccd06a25",
+    "testCaseId": "87ffbac0-2e47-4621-9d4d-754ccd6e4eab",
+    "reference": "TC-0005",
+    "name": "False assertion",
+    "objective": "Reproduce the recorded journey: False assertion.",
+    "expectedResults": "The journey completes and:\n- Assert text that is not there",
+    "status": "failed",
+    "startedAt": "2026-09-20T16:21:03.098887+00:00",
+    "completedAt": "2026-09-20T16:21:04.308+00:00",
+    "durationMs": 1204,
+    "attempt": 1,
+    "testCaseVersion": 1,
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "workerId": "worker-5390",
+    "correlationId": "84ca5b359508459bb453d6b6937a0862",
+    "stepsTotal": 5,
+    "stepsPassed": 4,
+    "stepsFailed": 1,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "errorMessage": "Assert text that is not there: Expected the text to contain \"Quarterly audit export completed successfully\" but it read \"Dashboard\".",
+    "actions": [
+      {
+        "id": "2d97854b-23b6-4c57-9584-366265ab2009",
+        "order": 1,
+        "action": "navigate",
+        "description": "Open the sign-in page",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:21:03.822+00:00",
+        "durationMs": 19,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false
+      },
+      {
+        "id": "15099bb8-81b6-453f-b492-999adea1b7e4",
+        "order": 2,
+        "action": "fill",
+        "description": "Enter the username",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:21:03.849+00:00",
+        "durationMs": 55,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "username",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"username\""
+      },
+      {
+        "id": "09fbe489-e56b-4884-929d-725ce697f77f",
+        "order": 3,
+        "action": "fill",
+        "description": "Enter the password",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:21:03.915+00:00",
+        "durationMs": 42,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "password",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"password\""
+      },
+      {
+        "id": "a8976f5b-eb24-4934-be82-68b41bdad259",
+        "order": 4,
+        "action": "click",
+        "description": "Press the sign-in button",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:21:03.968+00:00",
+        "durationMs": 58,
+        "url": "http://localhost:4200/login",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "login-submit",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"login-submit\""
+      },
+      {
+        "id": "286db4e4-3b21-4c3a-ab6b-a9e30a38239e",
+        "order": 5,
+        "action": "assertText",
+        "description": "Assert text that is not there",
+        "status": "failed",
+        "startedAt": "2026-09-20T16:21:04.035+00:00",
+        "durationMs": 56,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false,
+        "errorMessage": "Assert text that is not there: Expected the text to contain \"Quarterly audit export completed successfully\" but it read \"Dashboard\".",
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "nav-dashboard",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"nav-dashboard\""
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "29210111-ed72-4adc-b7a5-5601486d3093",
+        "kind": "screenshot",
+        "name": "step-5-failure.png",
+        "contentType": "image/png",
+        "sizeBytes": 60337,
+        "isMasked": false,
+        "testActionId": "286db4e4-3b21-4c3a-ab6b-a9e30a38239e"
+      },
+      {
+        "id": "40e96113-8a68-4d96-9226-286c20ed2621",
+        "kind": "domSnapshot",
+        "name": "step-5-failure.html",
+        "contentType": "text/html",
+        "sizeBytes": 5683,
+        "isMasked": true,
+        "testActionId": "286db4e4-3b21-4c3a-ab6b-a9e30a38239e"
+      },
+      {
+        "id": "7a037bde-fc10-4e3b-a868-700ace18a696",
+        "kind": "trace",
+        "name": "trace.zip",
+        "contentType": "application/zip",
+        "sizeBytes": 391674,
+        "isMasked": false
+      },
+      {
+        "id": "9f883059-62b5-44b1-84cc-341a5ded00b0",
+        "kind": "accessibilityTree",
+        "name": "step-5-failure.a11y.json",
+        "contentType": "application/json",
+        "sizeBytes": 1203,
+        "isMasked": true,
+        "testActionId": "286db4e4-3b21-4c3a-ab6b-a9e30a38239e"
+      },
+      {
+        "id": "b59cf34f-984e-4f9c-a2fd-4310a48ca3a6",
+        "kind": "video",
+        "name": "execution.webm",
+        "contentType": "video/webm",
+        "sizeBytes": 105271,
+        "isMasked": false
+      },
+      {
+        "id": "eb8ac479-6eed-404c-aa74-42cb306e9da5",
+        "kind": "screenshot",
+        "name": "final.png",
+        "contentType": "image/png",
+        "sizeBytes": 60337,
+        "isMasked": false
+      },
+      {
+        "id": "ff9b3d06-d46b-430a-b0e7-af4c61b92fdc",
+        "kind": "networkLog",
+        "name": "execution.network.json",
+        "contentType": "application/json",
+        "sizeBytes": 6234,
+        "isMasked": true
+      }
+    ],
+    "failure": {
+      "id": "4c3b8e96-9656-43f9-9acb-ca3633e08ebf",
+      "category": "applicationDefect",
+      "categoryConfidence": 70,
+      "rawMessage": "Assert text that is not there: Expected the text to contain \"Quarterly audit export completed successfully\" but it read \"Dashboard\".",
+      "signature": "a1a7b8af337813f42068a0d9aaba2bb7203693b84d052ec147b9ffbd6b8aa033",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-20T16:21:04.350699+00:00",
+      "lastSeenAt": "2026-09-20T16:21:04.350699+00:00",
+      "analysis": {
+        "summary": "An assertion failed on the failing step.",
+        "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+        "evidence": "Assert text that is not there: Expected the text to contain \"Quarterly audit export completed successfully\" but it read \"Dashboard\".",
+        "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+        "category": "applicationDefect",
+        "confidence": 70,
+        "isLikelyApplicationDefect": true,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"29210111-ed72-4adc-b7a5-5601486d3093\", \"kind\": \"Screenshot\", \"name\": \"step-5-failure.png\"}, {\"id\": \"40e96113-8a68-4d96-9226-286c20ed2621\", \"kind\": \"DomSnapshot\", \"name\": \"step-5-failure.html\"}, {\"id\": \"7a037bde-fc10-4e3b-a868-700ace18a696\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"9f883059-62b5-44b1-84cc-341a5ded00b0\", \"kind\": \"AccessibilityTree\", \"name\": \"step-5-failure.a11y.json\"}, {\"id\": \"b59cf34f-984e-4f9c-a2fd-4310a48ca3a6\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"eb8ac479-6eed-404c-aa74-42cb306e9da5\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"ff9b3d06-d46b-430a-b0e7-af4c61b92fdc\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"76a98ff3-fcb1-453f-a741-38ca59d1d447\"}"
+      }
+    },
+    "healingEvents": []
+  }
+}

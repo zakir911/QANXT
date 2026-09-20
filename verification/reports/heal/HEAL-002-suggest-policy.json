@@ -1,0 +1,242 @@
+{
+  "run": {
+    "id": "fe63c08b-f5e1-447f-9f1c-14548b5ded82",
+    "projectId": "603271ad-d03a-4952-81de-012cba35b2a6",
+    "name": "HEAL rename under Suggest",
+    "status": "failed",
+    "trigger": "manual",
+    "browser": "chromium",
+    "createdAt": "2026-09-20T16:15:09.194828+00:00",
+    "startedAt": "2026-09-20T16:15:09.206663+00:00",
+    "completedAt": "2026-09-20T16:15:28.405658+00:00",
+    "durationMs": 19198,
+    "totalCount": 1,
+    "passedCount": 0,
+    "failedCount": 1,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 0,
+    "flakyCount": 0,
+    "qualityGatePassed": true
+  },
+  "execution": {
+    "id": "63ef9f8a-70bd-4f25-aee7-f7fb07dabc1d",
+    "testCaseId": "7b847b66-62a1-4f97-bc89-16f2f1ce5425",
+    "reference": "TC-0001",
+    "name": "Sign in (healing subject)",
+    "suite": "Demo Bank — recorded",
+    "status": "failed",
+    "startedAt": "2026-09-20T16:15:09.204965+00:00",
+    "completedAt": "2026-09-20T16:15:28.354+00:00",
+    "durationMs": 19145,
+    "attempt": 1,
+    "stepsTotal": 5,
+    "stepsPassed": 3,
+    "stepsFailed": 1,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "errorMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "workerId": "worker-5390",
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "correlationId": "9612930e85be4e2e9ec5544d6ebaa42a",
+    "priority": "medium"
+  },
+  "detail": {
+    "id": "63ef9f8a-70bd-4f25-aee7-f7fb07dabc1d",
+    "testRunId": "fe63c08b-f5e1-447f-9f1c-14548b5ded82",
+    "testCaseId": "7b847b66-62a1-4f97-bc89-16f2f1ce5425",
+    "reference": "TC-0001",
+    "name": "Sign in (healing subject)",
+    "objective": "Reproduce the recorded journey: Sign in (healing subject).",
+    "expectedResults": "The journey completes and:\n- The dashboard is shown",
+    "status": "failed",
+    "startedAt": "2026-09-20T16:15:09.204965+00:00",
+    "completedAt": "2026-09-20T16:15:28.354+00:00",
+    "durationMs": 19145,
+    "attempt": 1,
+    "testCaseVersion": 1,
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "workerId": "worker-5390",
+    "correlationId": "9612930e85be4e2e9ec5544d6ebaa42a",
+    "stepsTotal": 5,
+    "stepsPassed": 3,
+    "stepsFailed": 1,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "errorMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "actions": [
+      {
+        "id": "88f5078a-06ff-4455-a8a3-a8aa84343f48",
+        "order": 1,
+        "action": "navigate",
+        "description": "Open the sign-in page",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:12.946+00:00",
+        "durationMs": 20,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false
+      },
+      {
+        "id": "823f236a-3635-4588-b613-9ba94304c24e",
+        "order": 2,
+        "action": "fill",
+        "description": "Enter the username",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:12.973+00:00",
+        "durationMs": 37,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "username",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"username\""
+      },
+      {
+        "id": "4fa19131-7d3b-4f16-a067-9ab5773c5065",
+        "order": 3,
+        "action": "fill",
+        "description": "Enter the password",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:13.028+00:00",
+        "durationMs": 26,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "password",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"password\""
+      },
+      {
+        "id": "4c9856aa-289f-4a18-8284-d13173234ae6",
+        "order": 4,
+        "action": "click",
+        "description": "Press the sign-in button",
+        "status": "failed",
+        "startedAt": "2026-09-20T16:15:13.069+00:00",
+        "durationMs": 15034,
+        "url": "http://localhost:4200/login",
+        "wasHealed": false,
+        "healingConfidence": 93,
+        "errorMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "login-submit",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"login-submit\"",
+        "locatorAlternativesJson": "[{\"rank\": 1, \"score\": 93, \"breakdown\": {\"testId\": 20, \"uniqueness\": 10}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"login-submit-v2\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"main > div > div > form > div:nth-of-type(2) > button\", \"strategy\": \"css\", \"fallbacks\": []}]}}, {\"rank\": 2, \"score\": 42, \"breakdown\": {\"testId\": 10}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"login-form\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Username Password Remember me on this device Log in\", \"exact\": false, \"value\": \"form\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > div > div > form\", \"strategy\": \"css\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"/html[1]/body[1]/main[1]/div[1]/div[1]/form[1]\", \"strategy\": \"xpath\", \"fallbacks\": []}]}}]"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "078ea42c-f289-4127-8027-243bb398367c",
+        "kind": "trace",
+        "name": "trace.zip",
+        "contentType": "application/zip",
+        "sizeBytes": 1033854,
+        "isMasked": false
+      },
+      {
+        "id": "4a159636-8c31-470d-847b-334cca9da717",
+        "kind": "screenshot",
+        "name": "final.png",
+        "contentType": "image/png",
+        "sizeBytes": 30809,
+        "isMasked": false
+      },
+      {
+        "id": "93c84057-9684-4d4b-b395-5640594d2389",
+        "kind": "video",
+        "name": "execution.webm",
+        "contentType": "video/webm",
+        "sizeBytes": 395238,
+        "isMasked": false
+      },
+      {
+        "id": "958d9309-226c-4941-9012-89188eb8e12a",
+        "kind": "networkLog",
+        "name": "execution.network.json",
+        "contentType": "application/json",
+        "sizeBytes": 4026,
+        "isMasked": true
+      },
+      {
+        "id": "ca4ec6e7-1f79-460e-84c5-c649ecd624ce",
+        "kind": "domSnapshot",
+        "name": "step-4-failure.html",
+        "contentType": "text/html",
+        "sizeBytes": 4497,
+        "isMasked": true,
+        "testActionId": "4c9856aa-289f-4a18-8284-d13173234ae6"
+      },
+      {
+        "id": "ce7cde3a-68b9-4d5e-ac59-d9d2ede3eb01",
+        "kind": "screenshot",
+        "name": "step-4-failure.png",
+        "contentType": "image/png",
+        "sizeBytes": 30809,
+        "isMasked": false,
+        "testActionId": "4c9856aa-289f-4a18-8284-d13173234ae6"
+      },
+      {
+        "id": "f5f03473-b529-4af0-a993-f5f46c01ea0d",
+        "kind": "accessibilityTree",
+        "name": "step-4-failure.a11y.json",
+        "contentType": "application/json",
+        "sizeBytes": 648,
+        "isMasked": true,
+        "testActionId": "4c9856aa-289f-4a18-8284-d13173234ae6"
+      }
+    ],
+    "failure": {
+      "id": "cab30044-1618-4901-a980-91bd0174cded",
+      "category": "locatorChange",
+      "categoryConfidence": 90,
+      "rawMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+      "signature": "2dbc0e64d187e8753bea44b0c7047804b864fc65134456dc79b4ed0760a46950",
+      "isNewFailure": true,
+      "isRegression": true,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-20T16:15:28.399242+00:00",
+      "lastSeenAt": "2026-09-20T16:15:28.399243+00:00",
+      "analysis": {
+        "summary": "The element this step targets has changed.",
+        "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (93% similarity). The markup changed, not the behaviour.",
+        "evidence": "A healing candidate scored 93% against the element's recorded signals.",
+        "suggestedAction": "Review and approve the healing proposal to update the locator.",
+        "category": "locatorChange",
+        "confidence": 90,
+        "isLikelyApplicationDefect": false,
+        "isHealable": true,
+        "producedByAi": false,
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"078ea42c-f289-4127-8027-243bb398367c\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"4a159636-8c31-470d-847b-334cca9da717\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"93c84057-9684-4d4b-b395-5640594d2389\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"958d9309-226c-4941-9012-89188eb8e12a\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"ca4ec6e7-1f79-460e-84c5-c649ecd624ce\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"ce7cde3a-68b9-4d5e-ac59-d9d2ede3eb01\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"f5f03473-b529-4af0-a993-f5f46c01ea0d\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}], \"executionId\": \"63ef9f8a-70bd-4f25-aee7-f7fb07dabc1d\"}"
+      }
+    },
+    "healingEvents": [
+      {
+        "id": "e84a6adc-5774-4da6-aa7d-77f52a392287",
+        "testStepId": "e11c08b4-75fb-49dc-a80d-dc16279888b4",
+        "confidence": 93,
+        "outcome": "proposed",
+        "outcomeVerified": false,
+        "reason": "testId=\"login-submit\" no longer matched any element. The closest candidate is testId=\"login-submit-v2\" (93% confidence). Unchanged: testId. The next best candidate scored 42%, a clear margin of 41 points.",
+        "original": "{\"exact\": false, \"value\": \"login-submit\", \"strategy\": \"testId\", \"fallbacks\": []}",
+        "healed": "{\"exact\": false, \"value\": \"login-submit-v2\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"main > div > div > form > div:nth-of-type(2) > button\", \"strategy\": \"css\", \"fallbacks\": []}]}",
+        "scoreBreakdownJson": "{\"testId\": 20, \"uniqueness\": 10}"
+      }
+    ]
+  }
+}

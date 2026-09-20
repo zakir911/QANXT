@@ -50,6 +50,18 @@ public static class TargetUrlGuard
             }
         }
 
+        // Two separate decisions, deliberately. Some addresses are never a legitimate test
+        // target however the platform is configured — link-local above all, because
+        // 169.254.169.254 is the cloud metadata service and the browser worker would fetch
+        // whatever it returns and store it as evidence the caller can download.
+        if (IsAlwaysForbiddenLiteral(host, out var forbiddenReason))
+        {
+            reason = forbiddenReason;
+            return false;
+        }
+
+        // These are the ones the flag exists for: a developer pointing the platform at an
+        // application on their own machine.
         if (!options.AllowPrivateNetworks && IsPrivateOrReservedLiteral(host, out var literalReason))
         {
             reason = literalReason;
@@ -77,9 +89,57 @@ public static class TargetUrlGuard
         return false;
     }
 
+    /// <summary>Addresses that are refused whatever the configuration says.
+    ///
+    /// Allowing private networks is a development convenience — it lets someone point the
+    /// platform at an application on localhost. Nothing about that need justifies reaching
+    /// the cloud metadata service, and an operator who enables the convenience is not
+    /// asking for it. These ranges therefore sit outside the flag entirely.</summary>
+    public static bool IsAlwaysForbiddenLiteral(string host, out string reason)
+    {
+        reason = string.Empty;
+
+        var candidate = host.StartsWith('[') && host.EndsWith(']') ? host[1..^1] : host;
+        if (!IPAddress.TryParse(candidate, out var ip)) return false;
+
+        if (ip.AddressFamily == AddressFamily.InterNetwork)
+        {
+            var b = ip.GetAddressBytes();
+            if (b[0] == 169 && b[1] == 254)
+            {
+                reason = "169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target";
+                return true;
+            }
+            if (b[0] == 100 && b[1] >= 64 && b[1] <= 127)
+            {
+                reason = "100.64.0.0/10 is carrier-grade NAT space and is never a permitted target";
+                return true;
+            }
+            if (b[0] == 0) { reason = "0.0.0.0/8 is reserved and is never a permitted target"; return true; }
+            if (b[0] >= 224) { reason = "multicast and reserved space is never a permitted target"; return true; }
+        }
+        else if (ip.AddressFamily == AddressFamily.InterNetworkV6)
+        {
+            // Checked before the mapping below, so ::ffff:169.254.169.254 cannot slip past.
+            if (ip.IsIPv4MappedToIPv6) return IsAlwaysForbiddenLiteral(ip.MapToIPv4().ToString(), out reason);
+            if (ip.IsIPv6LinkLocal)
+            {
+                reason = "IPv6 link-local addresses are never a permitted target";
+                return true;
+            }
+            if (ip.IsIPv6Multicast) { reason = "IPv6 multicast is never a permitted target"; return true; }
+        }
+
+        return false;
+    }
+
     /// <summary>Rejects literal addresses that point at loopback, link-local, private or
     /// otherwise reserved space. DNS names that resolve into those ranges are additionally
-    /// checked at connection time by the worker, because DNS can change between checks.</summary>
+    /// checked at connection time by the worker, because DNS can change between checks.
+    ///
+    /// Callers gate this behind <see cref="TargetPolicyOptions.AllowPrivateNetworks"/>; the
+    /// ranges that must never be reachable live in
+    /// <see cref="IsAlwaysForbiddenLiteral"/> instead.</summary>
     public static bool IsPrivateOrReservedLiteral(string host, out string reason)
     {
         reason = string.Empty;

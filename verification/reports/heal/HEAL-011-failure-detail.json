@@ -1,0 +1,229 @@
+{
+  "execution": {
+    "id": "fbfc2e80-6309-4f8f-96ef-b7862489914c",
+    "testCaseId": "7af571cb-8c6c-454c-9bb5-36df23403570",
+    "reference": "TC-0003",
+    "name": "Absent element",
+    "suite": "Demo Bank — recorded",
+    "status": "failed",
+    "startedAt": "2026-09-20T16:15:49.936474+00:00",
+    "completedAt": "2026-09-20T16:16:08.661+00:00",
+    "durationMs": 18721,
+    "attempt": 1,
+    "stepsTotal": 5,
+    "stepsPassed": 4,
+    "stepsFailed": 1,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "errorMessage": "testId=\"quarterly-audit-export-button\" could not be used: No element matched testId=\"quarterly-audit-export-button\".",
+    "workerId": "worker-5390",
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "correlationId": "824cb23d8cfc4447aa99fce5bfbc7498",
+    "priority": "medium"
+  },
+  "detail": {
+    "id": "fbfc2e80-6309-4f8f-96ef-b7862489914c",
+    "testRunId": "7787e4ef-9d7e-4f90-90d7-525df7506b61",
+    "testCaseId": "7af571cb-8c6c-454c-9bb5-36df23403570",
+    "reference": "TC-0003",
+    "name": "Absent element",
+    "objective": "Reproduce the recorded journey: Absent element.",
+    "expectedResults": "The journey completes without error. No assertions were recorded — add them to make this test meaningful.",
+    "status": "failed",
+    "startedAt": "2026-09-20T16:15:49.936474+00:00",
+    "completedAt": "2026-09-20T16:16:08.661+00:00",
+    "durationMs": 18721,
+    "attempt": 1,
+    "testCaseVersion": 1,
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "workerId": "worker-5390",
+    "correlationId": "824cb23d8cfc4447aa99fce5bfbc7498",
+    "stepsTotal": 5,
+    "stepsPassed": 4,
+    "stepsFailed": 1,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "errorMessage": "testId=\"quarterly-audit-export-button\" could not be used: No element matched testId=\"quarterly-audit-export-button\".",
+    "actions": [
+      {
+        "id": "a0d3bd3b-9226-43d0-8093-5c6f5ccc6b82",
+        "order": 1,
+        "action": "navigate",
+        "description": "Open the sign-in page",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:50.65+00:00",
+        "durationMs": 15,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false
+      },
+      {
+        "id": "78357eb4-3463-43c0-91e1-2c76671aa19d",
+        "order": 2,
+        "action": "fill",
+        "description": "Enter the username",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:50.672+00:00",
+        "durationMs": 38,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "username",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"username\""
+      },
+      {
+        "id": "64b3fca6-c308-490a-9b3f-ed2bb6d9651f",
+        "order": 3,
+        "action": "fill",
+        "description": "Enter the password",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:50.725+00:00",
+        "durationMs": 36,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "password",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"password\""
+      },
+      {
+        "id": "15b0e6a1-5b73-4e76-a8d3-7b241b0d340a",
+        "order": 4,
+        "action": "click",
+        "description": "Press the sign-in button",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:50.769+00:00",
+        "durationMs": 70,
+        "url": "http://localhost:4200/login",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "login-submit",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"login-submit\""
+      },
+      {
+        "id": "869aa5f4-50ab-4822-98e3-a3881ad3f383",
+        "order": 5,
+        "action": "click",
+        "description": "Press a control that does not exist",
+        "status": "failed",
+        "startedAt": "2026-09-20T16:15:50.848+00:00",
+        "durationMs": 15022,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false,
+        "errorMessage": "testId=\"quarterly-audit-export-button\" could not be used: No element matched testId=\"quarterly-audit-export-button\".",
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "quarterly-audit-export-button",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"quarterly-audit-export-button\"",
+        "locatorAlternativesJson": "[]"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "1446fc3f-e03a-4eb3-9e10-515223ce52c2",
+        "kind": "trace",
+        "name": "trace.zip",
+        "contentType": "application/zip",
+        "sizeBytes": 378269,
+        "isMasked": false
+      },
+      {
+        "id": "1ded2ac6-e783-4a65-8dba-ba4543778eaf",
+        "kind": "networkLog",
+        "name": "execution.network.json",
+        "contentType": "application/json",
+        "sizeBytes": 6234,
+        "isMasked": true
+      },
+      {
+        "id": "6b3f9593-fcd7-49c4-9114-ad715f8a09b0",
+        "kind": "domSnapshot",
+        "name": "step-5-failure.html",
+        "contentType": "text/html",
+        "sizeBytes": 5683,
+        "isMasked": true,
+        "testActionId": "869aa5f4-50ab-4822-98e3-a3881ad3f383"
+      },
+      {
+        "id": "6cde41bf-c22e-4346-9035-8b66baadb6b6",
+        "kind": "screenshot",
+        "name": "final.png",
+        "contentType": "image/png",
+        "sizeBytes": 60337,
+        "isMasked": false
+      },
+      {
+        "id": "b26347a7-6e0f-4c5d-b828-79c47da50095",
+        "kind": "screenshot",
+        "name": "step-5-failure.png",
+        "contentType": "image/png",
+        "sizeBytes": 60337,
+        "isMasked": false,
+        "testActionId": "869aa5f4-50ab-4822-98e3-a3881ad3f383"
+      },
+      {
+        "id": "ca913109-9a86-4fe4-a3fb-038a80c6631b",
+        "kind": "video",
+        "name": "execution.webm",
+        "contentType": "video/webm",
+        "sizeBytes": 765454,
+        "isMasked": false
+      },
+      {
+        "id": "d0ce293a-b790-4115-8f0b-dc8c5c9819a6",
+        "kind": "accessibilityTree",
+        "name": "step-5-failure.a11y.json",
+        "contentType": "application/json",
+        "sizeBytes": 1203,
+        "isMasked": true,
+        "testActionId": "869aa5f4-50ab-4822-98e3-a3881ad3f383"
+      }
+    ],
+    "failure": {
+      "id": "5ea1e142-2706-40be-b0c7-4f00e0467c37",
+      "category": "locatorChange",
+      "categoryConfidence": 65,
+      "rawMessage": "testId=\"quarterly-audit-export-button\" could not be used: No element matched testId=\"quarterly-audit-export-button\".",
+      "signature": "5e401b0e96931c4c1840499b8ff70024ea052eb8a09de2f09879f3c266b0ebcb",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-20T16:16:08.704621+00:00",
+      "lastSeenAt": "2026-09-20T16:16:08.704621+00:00",
+      "analysis": {
+        "summary": "the failing step could not find the element it needed.",
+        "likelyCause": "The element is absent from the page. Either the UI changed and the locator is stale, or an earlier step left the application somewhere other than the expected page.",
+        "evidence": "testId=\"quarterly-audit-export-button\" could not be used: No element matched testId=\"quarterly-audit-export-button\".",
+        "suggestedAction": "Compare the failure screenshot with the expected page. If the page is right but the element moved, update the locator; if the page is wrong, the failure is earlier in the journey.",
+        "category": "locatorChange",
+        "confidence": 65,
+        "isLikelyApplicationDefect": false,
+        "isHealable": true,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1446fc3f-e03a-4eb3-9e10-515223ce52c2\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"1ded2ac6-e783-4a65-8dba-ba4543778eaf\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"6b3f9593-fcd7-49c4-9114-ad715f8a09b0\", \"kind\": \"DomSnapshot\", \"name\": \"step-5-failure.html\"}, {\"id\": \"6cde41bf-c22e-4346-9035-8b66baadb6b6\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"b26347a7-6e0f-4c5d-b828-79c47da50095\", \"kind\": \"Screenshot\", \"name\": \"step-5-failure.png\"}, {\"id\": \"ca913109-9a86-4fe4-a3fb-038a80c6631b\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"d0ce293a-b790-4115-8f0b-dc8c5c9819a6\", \"kind\": \"AccessibilityTree\", \"name\": \"step-5-failure.a11y.json\"}], \"executionId\": \"fbfc2e80-6309-4f8f-96ef-b7862489914c\"}"
+      }
+    },
+    "healingEvents": []
+  }
+}

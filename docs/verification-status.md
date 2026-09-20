@@ -74,6 +74,18 @@ exist that do not yet.
 - **The agent has not been run at scale.** Passes here covered an 8-page application. Nothing has been tried against a large knowledge graph, and no claim is made about how
   the prioritisation behaves with hundreds of routes.
 
+## Independent verification
+
+An adversarial verification pass was run against a live deployment and is recorded under
+`verification/`, with its own environment record, traceability matrix, evidence index
+(SHA-256 per artifact) and bug reports. Forty checks; all pass on the current build. It found
+five defects the 215-test product suite had not, including a rate limiter that had never
+partitioned as designed and an SSRF flag that unlocked the cloud metadata range.
+
+Run it with `make verify-all`. Its conclusion is **PARTIALLY VERIFIED** — see
+`verification/final-report/FINAL-VERIFICATION-REPORT.md` for exactly what that excludes and
+why.
+
 ## Defects found by this verification
 
 Recorded because they are the argument for doing it this way, rather than reading the code

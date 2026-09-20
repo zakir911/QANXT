@@ -1,0 +1,192 @@
+{
+  "run": {
+    "id": "29d38d04-0015-4d5a-aaf0-4f097946060b",
+    "projectId": "603271ad-d03a-4952-81de-012cba35b2a6",
+    "name": "HEAL baseline",
+    "status": "passed",
+    "trigger": "manual",
+    "browser": "chromium",
+    "createdAt": "2026-09-20T16:15:06.649938+00:00",
+    "startedAt": "2026-09-20T16:15:06.664084+00:00",
+    "completedAt": "2026-09-20T16:15:07.779757+00:00",
+    "durationMs": 1115,
+    "totalCount": 1,
+    "passedCount": 1,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 0,
+    "flakyCount": 0,
+    "qualityGatePassed": true
+  },
+  "execution": {
+    "id": "501aceb8-2949-4be5-87f3-3195d4a9f2cd",
+    "testCaseId": "7b847b66-62a1-4f97-bc89-16f2f1ce5425",
+    "reference": "TC-0001",
+    "name": "Sign in (healing subject)",
+    "suite": "Demo Bank — recorded",
+    "status": "passed",
+    "startedAt": "2026-09-20T16:15:06.66143+00:00",
+    "completedAt": "2026-09-20T16:15:07.753+00:00",
+    "durationMs": 1087,
+    "attempt": 1,
+    "stepsTotal": 5,
+    "stepsPassed": 5,
+    "stepsFailed": 0,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "workerId": "worker-5390",
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "correlationId": "e0cf9dc5ff474bd9b40c3dffc6e5ec5c",
+    "priority": "medium"
+  },
+  "detail": {
+    "id": "501aceb8-2949-4be5-87f3-3195d4a9f2cd",
+    "testRunId": "29d38d04-0015-4d5a-aaf0-4f097946060b",
+    "testCaseId": "7b847b66-62a1-4f97-bc89-16f2f1ce5425",
+    "reference": "TC-0001",
+    "name": "Sign in (healing subject)",
+    "objective": "Reproduce the recorded journey: Sign in (healing subject).",
+    "expectedResults": "The journey completes and:\n- The dashboard is shown",
+    "status": "passed",
+    "startedAt": "2026-09-20T16:15:06.66143+00:00",
+    "completedAt": "2026-09-20T16:15:07.753+00:00",
+    "durationMs": 1087,
+    "attempt": 1,
+    "testCaseVersion": 1,
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "workerId": "worker-5390",
+    "correlationId": "e0cf9dc5ff474bd9b40c3dffc6e5ec5c",
+    "stepsTotal": 5,
+    "stepsPassed": 5,
+    "stepsFailed": 0,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "actions": [
+      {
+        "id": "be90a701-b6ed-4e00-bacb-be4b7566abef",
+        "order": 1,
+        "action": "navigate",
+        "description": "Open the sign-in page",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:07.362+00:00",
+        "durationMs": 18,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false
+      },
+      {
+        "id": "53c6c2e5-31d1-42a9-8e04-531d698e383f",
+        "order": 2,
+        "action": "fill",
+        "description": "Enter the username",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:07.387+00:00",
+        "durationMs": 42,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "username",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"username\""
+      },
+      {
+        "id": "af49d416-2eca-4d16-8a93-edb4c994104e",
+        "order": 3,
+        "action": "fill",
+        "description": "Enter the password",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:07.444+00:00",
+        "durationMs": 20,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "password",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"password\""
+      },
+      {
+        "id": "c1373508-3e01-4bfe-9269-68dcb5716f28",
+        "order": 4,
+        "action": "click",
+        "description": "Press the sign-in button",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:07.47+00:00",
+        "durationMs": 72,
+        "url": "http://localhost:4200/login",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "login-submit",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"login-submit\""
+      },
+      {
+        "id": "daf5ab9f-deb4-42a7-8d60-9f178e50985d",
+        "order": 5,
+        "action": "assertVisible",
+        "description": "The dashboard is shown",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:07.556+00:00",
+        "durationMs": 44,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "nav-dashboard",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"nav-dashboard\""
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "20cbe9d6-7b00-4121-a383-78bd8a03ea33",
+        "kind": "screenshot",
+        "name": "final.png",
+        "contentType": "image/png",
+        "sizeBytes": 60337,
+        "isMasked": false
+      },
+      {
+        "id": "7f5a5bae-aa6e-4775-8cdf-d9d6d4befb3c",
+        "kind": "trace",
+        "name": "trace.zip",
+        "contentType": "application/zip",
+        "sizeBytes": 305159,
+        "isMasked": false
+      },
+      {
+        "id": "e6d47081-2972-4fc5-8d89-d74501d97940",
+        "kind": "networkLog",
+        "name": "execution.network.json",
+        "contentType": "application/json",
+        "sizeBytes": 6234,
+        "isMasked": true
+      },
+      {
+        "id": "f6609e64-b045-4979-8932-ed578da3f2de",
+        "kind": "video",
+        "name": "execution.webm",
+        "contentType": "video/webm",
+        "sizeBytes": 95270,
+        "isMasked": false
+      }
+    ],
+    "healingEvents": []
+  }
+}

@@ -70,11 +70,14 @@ public sealed class JourneyImportService : IJourneyImportService
     private readonly ITargetPolicy _targetPolicy;
     private readonly IAuditLogger _audit;
     private readonly SecretMasker _masker;
+    private readonly Applications.IApplicationService _applications;
     private readonly ILogger<JourneyImportService> _logger;
 
     public JourneyImportService(IAiraDbContext db, ICurrentUser currentUser, IClock clock,
-        ITargetPolicy targetPolicy, IAuditLogger audit, SecretMasker masker, ILogger<JourneyImportService> logger)
+        ITargetPolicy targetPolicy, IAuditLogger audit, SecretMasker masker,
+        Applications.IApplicationService applications, ILogger<JourneyImportService> logger)
     {
+        _applications = applications;
         _db = db;
         _currentUser = currentUser;
         _clock = clock;
@@ -104,6 +107,21 @@ public sealed class JourneyImportService : IJourneyImportService
         if (application.ProjectId != request.ProjectId) return Error.Validation("That application belongs to a different project.");
 
         var allowlist = ApplicationService.ParseAllowlist(application.AllowedDomains, application.BaseUrl);
+
+        // Resolved once so that any step value equal to a stored credential can be replaced
+        // with a reference rather than persisted in the clear. A credential that will not
+        // decrypt must not stop an import, so this degrades to the shape-based check.
+        ApplicationCredentials? credentials = null;
+        try
+        {
+            credentials = await _applications.ResolveCredentialsAsync(application, ct);
+        }
+        catch (InvalidOperationException exception)
+        {
+            _logger.LogWarning(exception,
+                "Could not resolve credentials for application {ApplicationId} while importing a journey; "
+                + "falling back to pattern-based masking.", application.Id);
+        }
         var warnings = new List<string>();
 
         // A recording made against a different site must not become a test that navigates there.
@@ -144,7 +162,7 @@ public sealed class JourneyImportService : IJourneyImportService
                 TargetJson = step.Target?.ToJson(),
                 // Masked on arrival: a recorder can only promise so much, and a value that
                 // looks like a credential must not become a stored literal.
-                Value = Truncate(MaskRecordedValue(step.Value), 2000),
+                Value = Truncate(MaskRecordedValue(step.Value, credentials), 2000),
                 Url = Truncate(step.Url, 2048),
                 Annotation = Truncate(step.Annotation, 2000),
                 ExpectedResult = Truncate(step.Expected, 2000),
@@ -159,7 +177,7 @@ public sealed class JourneyImportService : IJourneyImportService
 
         if (request.GenerateTestCase ?? true)
         {
-            var generated = await GenerateTestCaseAsync(stored, journey, application, project, warnings, ct);
+            var generated = await GenerateTestCaseAsync(stored, journey, application, project, credentials, warnings, ct);
             testCaseId = generated?.Id;
             reference = generated?.Reference;
         }
@@ -190,7 +208,7 @@ public sealed class JourneyImportService : IJourneyImportService
 
     private async Task<TestCase?> GenerateTestCaseAsync(
         Journey journey, RecordedJourneyPayload payload, Domain.Applications.Application application,
-        Domain.Projects.Project project, List<string> warnings, CancellationToken ct)
+        Domain.Projects.Project project, ApplicationCredentials? credentials, List<string> warnings, CancellationToken ct)
     {
         var suite = await ResolveSuiteAsync(project.Id, application.Name, ct);
         var policy = new BrowserActionPolicy(
@@ -233,7 +251,7 @@ public sealed class JourneyImportService : IJourneyImportService
                 Action = step.Action,
                 Description = step.Description,
                 Target = step.Target is null ? null : WithFallbacks(step.Target, step.Candidates),
-                Value = MaskRecordedValue(step.Value),
+                Value = MaskRecordedValue(step.Value, credentials),
                 Url = step.Url,
                 Expected = step.Expected
             };
@@ -359,17 +377,32 @@ public sealed class JourneyImportService : IJourneyImportService
 
     /// <summary>A recorder marks passwords as secret references, but a value that merely
     /// looks like a credential is masked here as a second line of defence.</summary>
-    private string MaskRecordedValue(string? value)
+    private string MaskRecordedValue(string? value, ApplicationCredentials? credentials = null)
     {
         if (string.IsNullOrEmpty(value)) return string.Empty;
         if (value.StartsWith("${secret:", StringComparison.Ordinal)) return value;
         if (value.StartsWith("${data:", StringComparison.Ordinal)) return value;
+
+        // The platform already holds this application's credentials, so a value equal to one
+        // of them is a credential however innocuous the string looks. The shape-based check
+        // below cannot recognise an arbitrary password; this can, and a journey written by
+        // hand or by another tool is exactly where one arrives.
+        if (credentials is not null)
+        {
+            if (Matches(value, credentials.Password)) return "${secret:app_password}";
+            if (Matches(value, credentials.BearerToken)) return "${secret:app_bearer_token}";
+        }
 
         var masked = _masker.MaskText(value);
         return masked.Contains(SecretMasker.Redacted, StringComparison.Ordinal)
             ? "${secret:app_password}"
             : value;
     }
+
+    /// <summary>Ordinal comparison: a credential differing only in case is a different
+    /// credential, and treating them as equal would replace a value that is not a secret.</summary>
+    private static bool Matches(string value, string? credential)
+        => !string.IsNullOrEmpty(credential) && string.Equals(value, credential, StringComparison.Ordinal);
 
     private static bool IsAssertion(BrowserActionType action) => (int)action >= 20 && (int)action < 90;
 

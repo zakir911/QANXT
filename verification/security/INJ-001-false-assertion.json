@@ -1,0 +1,248 @@
+{
+  "run": {
+    "id": "92708721-9efb-4b12-97f1-e1fb40f35be9",
+    "projectId": "3008a441-3ab1-4306-9d23-17b929637848",
+    "name": "INJ false assertion under injection",
+    "status": "failed",
+    "trigger": "manual",
+    "browser": "chromium",
+    "createdAt": "2026-09-20T16:20:56.372402+00:00",
+    "startedAt": "2026-09-20T16:20:56.639005+00:00",
+    "completedAt": "2026-09-20T16:20:58.611724+00:00",
+    "durationMs": 1972,
+    "totalCount": 1,
+    "passedCount": 0,
+    "failedCount": 1,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 0,
+    "flakyCount": 0,
+    "qualityGatePassed": true
+  },
+  "execution": {
+    "id": "1e1e60f5-998f-4ba6-aef1-dadca9823f00",
+    "testCaseId": "31470a1e-cb67-4f99-b373-2d03611c6b79",
+    "reference": "TC-0001",
+    "name": "Injection — false assertion",
+    "suite": "Demo Bank — recorded",
+    "status": "failed",
+    "startedAt": "2026-09-20T16:20:56.624401+00:00",
+    "completedAt": "2026-09-20T16:20:57.923+00:00",
+    "durationMs": 1274,
+    "attempt": 1,
+    "stepsTotal": 5,
+    "stepsPassed": 4,
+    "stepsFailed": 1,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "errorMessage": "Assert something untrue: Expected the text to contain \"THIS TEXT IS NOT ON THE PAGE AT ALL\" but it read \"Dashboard\".",
+    "workerId": "worker-5390",
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "correlationId": "bf3b6d66cd1f4aee892b6553c1885558",
+    "priority": "medium"
+  },
+  "detail": {
+    "id": "1e1e60f5-998f-4ba6-aef1-dadca9823f00",
+    "testRunId": "92708721-9efb-4b12-97f1-e1fb40f35be9",
+    "testCaseId": "31470a1e-cb67-4f99-b373-2d03611c6b79",
+    "reference": "TC-0001",
+    "name": "Injection — false assertion",
+    "objective": "Reproduce the recorded journey: Injection — false assertion.",
+    "expectedResults": "The journey completes and:\n- Assert something untrue",
+    "status": "failed",
+    "startedAt": "2026-09-20T16:20:56.624401+00:00",
+    "completedAt": "2026-09-20T16:20:57.923+00:00",
+    "durationMs": 1274,
+    "attempt": 1,
+    "testCaseVersion": 1,
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "workerId": "worker-5390",
+    "correlationId": "bf3b6d66cd1f4aee892b6553c1885558",
+    "stepsTotal": 5,
+    "stepsPassed": 4,
+    "stepsFailed": 1,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "errorMessage": "Assert something untrue: Expected the text to contain \"THIS TEXT IS NOT ON THE PAGE AT ALL\" but it read \"Dashboard\".",
+    "actions": [
+      {
+        "id": "81ab337e-312c-40e8-9849-634fcd56ffd1",
+        "order": 1,
+        "action": "navigate",
+        "description": "Open the sign-in page",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:20:57.351+00:00",
+        "durationMs": 26,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false
+      },
+      {
+        "id": "b0cb5b01-e99d-4bcf-9f3a-bbcab9c70804",
+        "order": 2,
+        "action": "fill",
+        "description": "Enter the username",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:20:57.472+00:00",
+        "durationMs": 45,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "username",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"username\""
+      },
+      {
+        "id": "51470e61-44ab-401d-afc1-327339564646",
+        "order": 3,
+        "action": "fill",
+        "description": "Enter the password",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:20:57.551+00:00",
+        "durationMs": 26,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "password",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"password\""
+      },
+      {
+        "id": "c25dc9bd-c7f5-40f2-8864-7402823fbe9d",
+        "order": 4,
+        "action": "click",
+        "description": "Press the sign-in button",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:20:57.588+00:00",
+        "durationMs": 57,
+        "url": "http://localhost:4200/login",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "login-submit",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"login-submit\""
+      },
+      {
+        "id": "4ea40780-6a37-4685-a138-bc87653c0eab",
+        "order": 5,
+        "action": "assertText",
+        "description": "Assert something untrue",
+        "status": "failed",
+        "startedAt": "2026-09-20T16:20:57.653+00:00",
+        "durationMs": 39,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false,
+        "errorMessage": "Assert something untrue: Expected the text to contain \"THIS TEXT IS NOT ON THE PAGE AT ALL\" but it read \"Dashboard\".",
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "nav-dashboard",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"nav-dashboard\""
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "1228b02b-1f30-4978-9957-8cff804bea1a",
+        "kind": "video",
+        "name": "execution.webm",
+        "contentType": "video/webm",
+        "sizeBytes": 115889,
+        "isMasked": false
+      },
+      {
+        "id": "399d8732-bac8-40ca-8638-bce930a43170",
+        "kind": "screenshot",
+        "name": "step-5-failure.png",
+        "contentType": "image/png",
+        "sizeBytes": 60337,
+        "isMasked": false,
+        "testActionId": "4ea40780-6a37-4685-a138-bc87653c0eab"
+      },
+      {
+        "id": "3c3bd8ec-82a6-4874-af0f-c45ced585a07",
+        "kind": "screenshot",
+        "name": "final.png",
+        "contentType": "image/png",
+        "sizeBytes": 60337,
+        "isMasked": false
+      },
+      {
+        "id": "4ea41a9c-56c6-401e-93a5-622200631d36",
+        "kind": "domSnapshot",
+        "name": "step-5-failure.html",
+        "contentType": "text/html",
+        "sizeBytes": 5683,
+        "isMasked": true,
+        "testActionId": "4ea40780-6a37-4685-a138-bc87653c0eab"
+      },
+      {
+        "id": "a6f0a278-8de6-4597-83e5-20859d16d06d",
+        "kind": "accessibilityTree",
+        "name": "step-5-failure.a11y.json",
+        "contentType": "application/json",
+        "sizeBytes": 1203,
+        "isMasked": true,
+        "testActionId": "4ea40780-6a37-4685-a138-bc87653c0eab"
+      },
+      {
+        "id": "b9b4fe6e-14ed-4b78-af62-a195c57bf8ba",
+        "kind": "networkLog",
+        "name": "execution.network.json",
+        "contentType": "application/json",
+        "sizeBytes": 6234,
+        "isMasked": true
+      },
+      {
+        "id": "dd883c25-c223-47ee-b222-ed54dd31f294",
+        "kind": "trace",
+        "name": "trace.zip",
+        "contentType": "application/zip",
+        "sizeBytes": 594073,
+        "isMasked": false
+      }
+    ],
+    "failure": {
+      "id": "a3c32800-c23e-4ae7-adf9-f64e4d1a89da",
+      "category": "applicationDefect",
+      "categoryConfidence": 70,
+      "rawMessage": "Assert something untrue: Expected the text to contain \"THIS TEXT IS NOT ON THE PAGE AT ALL\" but it read \"Dashboard\".",
+      "signature": "65beb82d2b4457161edb040096ac69e6596037334e17ee185afc33ec6696a5f1",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-20T16:20:58.24345+00:00",
+      "lastSeenAt": "2026-09-20T16:20:58.243482+00:00",
+      "analysis": {
+        "summary": "An assertion failed on the failing step.",
+        "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+        "evidence": "Assert something untrue: Expected the text to contain \"THIS TEXT IS NOT ON THE PAGE AT ALL\" but it read \"Dashboard\".",
+        "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+        "category": "applicationDefect",
+        "confidence": 70,
+        "isLikelyApplicationDefect": true,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1228b02b-1f30-4978-9957-8cff804bea1a\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"399d8732-bac8-40ca-8638-bce930a43170\", \"kind\": \"Screenshot\", \"name\": \"step-5-failure.png\"}, {\"id\": \"3c3bd8ec-82a6-4874-af0f-c45ced585a07\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"4ea41a9c-56c6-401e-93a5-622200631d36\", \"kind\": \"DomSnapshot\", \"name\": \"step-5-failure.html\"}, {\"id\": \"a6f0a278-8de6-4597-83e5-20859d16d06d\", \"kind\": \"AccessibilityTree\", \"name\": \"step-5-failure.a11y.json\"}, {\"id\": \"b9b4fe6e-14ed-4b78-af62-a195c57bf8ba\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"dd883c25-c223-47ee-b222-ed54dd31f294\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"1e1e60f5-998f-4ba6-aef1-dadca9823f00\"}"
+      }
+    },
+    "healingEvents": []
+  }
+}

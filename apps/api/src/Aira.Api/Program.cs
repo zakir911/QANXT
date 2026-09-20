@@ -67,6 +67,10 @@ builder.Services.AddSignalR();
 // the request that starts them.
 builder.Services.AddHostedService<Aira.Api.Services.AgentRunnerService>();
 
+// Executions whose worker stopped reporting are ended rather than left running for
+// ever; without this a caller waits on a run that will never finish.
+builder.Services.AddHostedService<Aira.Api.Services.StrandedExecutionReaper>();
+
 // ---- Authentication -------------------------------------------------------
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtSecret = jwtSection["Secret"] ?? string.Empty;
@@ -149,12 +153,32 @@ builder.Services.AddCors(options => options.AddPolicy("console", policy => polic
 // ---- Rate limiting --------------------------------------------------------
 var permitPerMinute = builder.Configuration.GetValue("Security:RateLimitPermitPerMinute", 300);
 var authPermitPerMinute = builder.Configuration.GetValue("Security:AuthRateLimitPermitPerMinute", 10);
+// Sized for the execution plane rather than for a person: artifact uploads dominate it.
+var workerPermitPerMinute = builder.Configuration.GetValue("Security:WorkerRateLimitPermitPerMinute", 6000);
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
+        // A browser worker is part of this platform, not a tenant spending an API quota. Its
+        // traffic is a function of the work a tenant legitimately asked for: a run that fans
+        // out to ten executions uploads four or five artifacts each plus a completion
+        // callback. Sharing a tenant's user budget throttled the execution plane into
+        // dropping evidence and stranding runs, so workers get their own, much larger
+        // partition — still bounded, so a broken worker cannot hammer the API unchecked.
+        var isWorker = context.User.FindFirst(JwtTokenService.TokenKindClaim)?.Value == "worker";
+        if (isWorker)
+        {
+            var workerKey = $"worker:{context.User.FindFirst(JwtTokenService.OrganizationClaim)?.Value ?? "unknown"}";
+            return RateLimitPartition.GetFixedWindowLimiter(workerKey, _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = workerPermitPerMinute,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            });
+        }
+
         // Partition by authenticated user where possible so one noisy tenant cannot
         // exhaust another's budget; fall back to remote address for anonymous calls.
         var key = context.User.Identity?.IsAuthenticated == true
@@ -254,8 +278,14 @@ app.UseSerilogRequestLogging(options =>
 });
 
 app.UseCors("console");
-app.UseRateLimiter();
+
+// Authentication first, then the limiter. The limiter partitions on claims — the tenant for
+// a user, a separate bucket for a browser worker — and those claims only exist once the
+// bearer token has been validated. With the limiter ahead of authentication every request
+// looked anonymous to it and fell back to the remote address, so the per-tenant isolation it
+// was written for never took effect and every caller behind one address shared one bucket.
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseMiddleware<TenantMiddleware>();
 app.UseAuthorization();
 

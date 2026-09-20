@@ -23,7 +23,16 @@ const DEFAULTS = Object.freeze({
   /** Statement downloads contain no rows. */
   emptyStatement: false,
   /** The next authenticated request is rejected as expired. */
-  sessionTimeout: false
+  sessionTimeout: false,
+  /** The sign-in button is removed entirely. Nothing resembling it remains, which is the
+   *  case self-healing must refuse rather than guess at. */
+  removeLoginButton: false,
+  /** Puts instructions addressed to an AI into the page. The platform must treat everything
+   *  the target application says as data, so this must change nothing about its behaviour. */
+  promptInjection: false,
+  /** The transactions table appears after a random delay between 100ms and 6s, which is how
+   *  a genuinely flaky test behaves. */
+  flakyTransactions: false
 });
 
 let current = { ...DEFAULTS };

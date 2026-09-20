@@ -112,6 +112,18 @@ async function route(req, res) {
         (!filters.category || t.category === filters.category));
     }
 
+    // A genuinely unstable response: sometimes fast enough for any wait, sometimes slower
+    // than a default timeout. This is what a flaky test looks like from the outside, and it
+    // is deliberately random rather than alternating so that no run can predict the next.
+    if (getScenario().flakyTransactions) {
+      // Straddles a typical action timeout on purpose: some runs are comfortably fast,
+      // others exceed it. Anything entirely under the timeout is not flaky, it is slow.
+      const delayMs = [150, 600, 2500, 20000][Math.floor(Math.random() * 4)];
+      return setTimeout(
+        () => html(res, 200, accountDetailPage({ user, account, transactions: rows, filters, error })),
+        delayMs);
+    }
+
     return html(res, 200, accountDetailPage({ user, account, transactions: rows, filters, error }));
   }
 

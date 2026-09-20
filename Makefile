@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
-.PHONY: help setup dev test build migrate db-reset api worker console demo-bank clean docker-up docker-down docker-logs docker-reset lint verify
+.PHONY: help setup dev test build migrate db-reset api worker console demo-bank clean docker-up docker-down docker-logs docker-reset lint verify verify-all
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -18,6 +18,9 @@ test: ## Run every test suite (.NET + Node)
 
 verify: ## Build everything and run the full test suite (what CI runs)
 	@bash scripts/verify.sh
+
+verify-all: ## Independent verification: start the stack, run every verification suite, collect evidence
+	@bash scripts/verify-all.sh
 
 build: ## Build all applications
 	@dotnet build apps/api/Aira.sln -c Release

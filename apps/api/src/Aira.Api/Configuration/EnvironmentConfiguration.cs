@@ -40,6 +40,7 @@ public static class EnvironmentConfiguration
             ["LOG_LEVEL"] = "Logging:MinimumLevel",
             ["RATE_LIMIT_PERMIT_PER_MINUTE"] = "Security:RateLimitPermitPerMinute",
             ["AUTH_RATE_LIMIT_PERMIT_PER_MINUTE"] = "Security:AuthRateLimitPermitPerMinute",
+            ["WORKER_RATE_LIMIT_PERMIT_PER_MINUTE"] = "Security:WorkerRateLimitPermitPerMinute",
             ["ALLOW_PRIVATE_NETWORK_TARGETS"] = "Security:AllowPrivateNetworkTargets"
         };
 

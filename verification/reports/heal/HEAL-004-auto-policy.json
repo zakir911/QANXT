@@ -1,0 +1,226 @@
+{
+  "run": {
+    "id": "c4f547a6-0ff0-4680-a955-6e3d15a590d3",
+    "projectId": "603271ad-d03a-4952-81de-012cba35b2a6",
+    "name": "HEAL rename under Auto",
+    "status": "passed",
+    "trigger": "manual",
+    "browser": "chromium",
+    "createdAt": "2026-09-20T16:15:29.300818+00:00",
+    "startedAt": "2026-09-20T16:15:29.312309+00:00",
+    "completedAt": "2026-09-20T16:15:48.559275+00:00",
+    "durationMs": 19246,
+    "totalCount": 1,
+    "passedCount": 0,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 1,
+    "flakyCount": 0,
+    "qualityGatePassed": true
+  },
+  "execution": {
+    "id": "8fed0da0-8053-4c51-a7ef-cefd7805a81a",
+    "testCaseId": "7b847b66-62a1-4f97-bc89-16f2f1ce5425",
+    "reference": "TC-0001",
+    "name": "Sign in (healing subject)",
+    "suite": "Demo Bank — recorded",
+    "status": "healed",
+    "startedAt": "2026-09-20T16:15:29.311527+00:00",
+    "completedAt": "2026-09-20T16:15:48.522+00:00",
+    "durationMs": 19208,
+    "attempt": 1,
+    "stepsTotal": 5,
+    "stepsPassed": 5,
+    "stepsFailed": 0,
+    "stepsHealed": 1,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "workerId": "worker-5390",
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "correlationId": "cb0157718c104fb7b1ee798a969928d4",
+    "priority": "medium"
+  },
+  "detail": {
+    "id": "8fed0da0-8053-4c51-a7ef-cefd7805a81a",
+    "testRunId": "c4f547a6-0ff0-4680-a955-6e3d15a590d3",
+    "testCaseId": "7b847b66-62a1-4f97-bc89-16f2f1ce5425",
+    "reference": "TC-0001",
+    "name": "Sign in (healing subject)",
+    "objective": "Reproduce the recorded journey: Sign in (healing subject).",
+    "expectedResults": "The journey completes and:\n- The dashboard is shown",
+    "status": "healed",
+    "startedAt": "2026-09-20T16:15:29.311527+00:00",
+    "completedAt": "2026-09-20T16:15:48.522+00:00",
+    "durationMs": 19208,
+    "attempt": 1,
+    "testCaseVersion": 1,
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "workerId": "worker-5390",
+    "correlationId": "cb0157718c104fb7b1ee798a969928d4",
+    "stepsTotal": 5,
+    "stepsPassed": 5,
+    "stepsFailed": 0,
+    "stepsHealed": 1,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "actions": [
+      {
+        "id": "0f35d8b7-9224-4d61-b3c8-7cb2d1f99a2d",
+        "order": 1,
+        "action": "navigate",
+        "description": "Open the sign-in page",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:33.025+00:00",
+        "durationMs": 17,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false
+      },
+      {
+        "id": "52de0c4f-5903-4e99-b895-8a7a067a3f7e",
+        "order": 2,
+        "action": "fill",
+        "description": "Enter the username",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:33.048+00:00",
+        "durationMs": 49,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "username",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"username\""
+      },
+      {
+        "id": "9a8d3af9-43d0-43b8-9e8a-add240b3ac0a",
+        "order": 3,
+        "action": "fill",
+        "description": "Enter the password",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:33.108+00:00",
+        "durationMs": 40,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "password",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"password\""
+      },
+      {
+        "id": "dbffe023-079a-43fa-8d9a-dd2dd1b2df98",
+        "order": 4,
+        "action": "click",
+        "description": "Press the sign-in button",
+        "status": "healed",
+        "startedAt": "2026-09-20T16:15:33.158+00:00",
+        "durationMs": 15100,
+        "url": "http://localhost:4200/login",
+        "wasHealed": true,
+        "healingConfidence": 93,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "login-submit-v2",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "button",
+              "name": "Log in",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "text",
+              "value": "Log in",
+              "exact": true,
+              "fallbacks": []
+            },
+            {
+              "strategy": "css",
+              "value": "main > div > div > form > div:nth-of-type(2) > button",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "locatorDescription": "testId=\"login-submit-v2\"",
+        "locatorAlternativesJson": "[{\"rank\": 1, \"score\": 93, \"breakdown\": {\"testId\": 20, \"uniqueness\": 10}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"login-submit-v2\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"main > div > div > form > div:nth-of-type(2) > button\", \"strategy\": \"css\", \"fallbacks\": []}]}}, {\"rank\": 2, \"score\": 42, \"breakdown\": {\"testId\": 10}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"login-form\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Username Password Remember me on this device Log in\", \"exact\": false, \"value\": \"form\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > div > div > form\", \"strategy\": \"css\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"/html[1]/body[1]/main[1]/div[1]/div[1]/form[1]\", \"strategy\": \"xpath\", \"fallbacks\": []}]}}]"
+      },
+      {
+        "id": "a11c5b34-c9b0-465c-8d02-a59d50160f49",
+        "order": 5,
+        "action": "assertVisible",
+        "description": "The dashboard is shown",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:15:48.269+00:00",
+        "durationMs": 50,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "nav-dashboard",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"nav-dashboard\""
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "20eacc66-cbaf-4378-82c1-3e9264506023",
+        "kind": "trace",
+        "name": "trace.zip",
+        "contentType": "application/zip",
+        "sizeBytes": 1099767,
+        "isMasked": false
+      },
+      {
+        "id": "738d337e-2adc-4e94-a021-a4e0fca616c0",
+        "kind": "networkLog",
+        "name": "execution.network.json",
+        "contentType": "application/json",
+        "sizeBytes": 6234,
+        "isMasked": true
+      },
+      {
+        "id": "b70e3c20-de40-483a-ad85-ac1549caa69a",
+        "kind": "video",
+        "name": "execution.webm",
+        "contentType": "video/webm",
+        "sizeBytes": 443755,
+        "isMasked": false
+      },
+      {
+        "id": "c2f3e81d-81b6-4f1d-8d57-bea973734b3f",
+        "kind": "screenshot",
+        "name": "final.png",
+        "contentType": "image/png",
+        "sizeBytes": 60337,
+        "isMasked": false
+      }
+    ],
+    "healingEvents": [
+      {
+        "id": "6e7542b8-1926-4336-8dd7-b5f1a1e158cc",
+        "testStepId": "e11c08b4-75fb-49dc-a80d-dc16279888b4",
+        "confidence": 93,
+        "outcome": "applied",
+        "outcomeVerified": true,
+        "reason": "testId=\"login-submit\" no longer matched any element. The closest candidate is testId=\"login-submit-v2\" (93% confidence). Unchanged: testId. The next best candidate scored 42%, a clear margin of 41 points.",
+        "original": "{\"exact\": false, \"value\": \"login-submit\", \"strategy\": \"testId\", \"fallbacks\": []}",
+        "healed": "{\"exact\": false, \"value\": \"login-submit-v2\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"main > div > div > form > div:nth-of-type(2) > button\", \"strategy\": \"css\", \"fallbacks\": []}]}",
+        "scoreBreakdownJson": "{\"testId\": 20, \"uniqueness\": 10}"
+      }
+    ]
+  }
+}

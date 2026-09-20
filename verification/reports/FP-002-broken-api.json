@@ -1,0 +1,210 @@
+{
+  "run": {
+    "id": "411baeae-dc03-416b-8760-481038868689",
+    "projectId": "14b954df-3f00-4736-8877-f9c05b0f67f7",
+    "name": "FP broken API",
+    "status": "passed",
+    "trigger": "manual",
+    "browser": "chromium",
+    "createdAt": "2026-09-20T16:17:18.240672+00:00",
+    "startedAt": "2026-09-20T16:17:18.251471+00:00",
+    "completedAt": "2026-09-20T16:17:19.614677+00:00",
+    "durationMs": 1363,
+    "totalCount": 1,
+    "passedCount": 1,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 0,
+    "flakyCount": 0,
+    "qualityGatePassed": true
+  },
+  "execution": {
+    "id": "9bb2015d-33fc-47c9-b837-a6e5618ab4fe",
+    "testCaseId": "c231f82b-0637-4c1f-8125-0df241301386",
+    "reference": "TC-0006",
+    "name": "Transactions visible",
+    "suite": "Demo Bank — recorded",
+    "status": "passed",
+    "startedAt": "2026-09-20T16:17:18.250529+00:00",
+    "completedAt": "2026-09-20T16:17:19.587+00:00",
+    "durationMs": 1334,
+    "attempt": 1,
+    "stepsTotal": 6,
+    "stepsPassed": 6,
+    "stepsFailed": 0,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "workerId": "worker-5390",
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "correlationId": "c18f2278791246aa91fe6015cf14a87a",
+    "priority": "medium"
+  },
+  "detail": {
+    "id": "9bb2015d-33fc-47c9-b837-a6e5618ab4fe",
+    "testRunId": "411baeae-dc03-416b-8760-481038868689",
+    "testCaseId": "c231f82b-0637-4c1f-8125-0df241301386",
+    "reference": "TC-0006",
+    "name": "Transactions visible",
+    "objective": "Reproduce the recorded journey: Transactions visible.",
+    "expectedResults": "The journey completes and:\n- The transactions table is shown",
+    "status": "passed",
+    "startedAt": "2026-09-20T16:17:18.250529+00:00",
+    "completedAt": "2026-09-20T16:17:19.587+00:00",
+    "durationMs": 1334,
+    "attempt": 1,
+    "testCaseVersion": 1,
+    "browser": "chromium",
+    "browserVersion": "141.0.7390.37",
+    "workerId": "worker-5390",
+    "correlationId": "c18f2278791246aa91fe6015cf14a87a",
+    "stepsTotal": 6,
+    "stepsPassed": 6,
+    "stepsFailed": 0,
+    "stepsHealed": 0,
+    "consoleErrorCount": 0,
+    "networkErrorCount": 0,
+    "actions": [
+      {
+        "id": "4a97f8f3-216c-4bd5-b36e-0d8270b01398",
+        "order": 1,
+        "action": "navigate",
+        "description": "Open the sign-in page",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:17:18.987+00:00",
+        "durationMs": 17,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false
+      },
+      {
+        "id": "2e7ae2b2-e70b-4e26-b7a2-7ba12d0c717a",
+        "order": 2,
+        "action": "fill",
+        "description": "Enter the username",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:17:19.011+00:00",
+        "durationMs": 61,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "username",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"username\""
+      },
+      {
+        "id": "8b2f69e2-e353-4f4e-a1e6-9ab9e5d3f6a9",
+        "order": 3,
+        "action": "fill",
+        "description": "Enter the password",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:17:19.082+00:00",
+        "durationMs": 32,
+        "url": "http://localhost:4200/login",
+        "maskedValue": "***REDACTED***",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "password",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"password\""
+      },
+      {
+        "id": "385243ba-d802-40c2-8850-53bcc2977f3c",
+        "order": 4,
+        "action": "click",
+        "description": "Press the sign-in button",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:17:19.12+00:00",
+        "durationMs": 64,
+        "url": "http://localhost:4200/login",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "login-submit",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"login-submit\""
+      },
+      {
+        "id": "3f17bdb1-5dc7-4290-ad0b-56bff5c64e7c",
+        "order": 5,
+        "action": "click",
+        "description": "Open an account",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:17:19.201+00:00",
+        "durationMs": 128,
+        "url": "http://localhost:4200/dashboard",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "open-account-acc-1001",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"open-account-acc-1001\""
+      },
+      {
+        "id": "e8ab5b32-0a32-4ee9-82ff-9f6054d4296c",
+        "order": 6,
+        "action": "assertVisible",
+        "description": "The transactions table is shown",
+        "status": "passed",
+        "startedAt": "2026-09-20T16:17:19.339+00:00",
+        "durationMs": 81,
+        "url": "http://localhost:4200/accounts/acc-1001",
+        "wasHealed": false,
+        "locatorUsed": {
+          "strategy": "testId",
+          "value": "transactions-table",
+          "exact": false,
+          "fallbacks": []
+        },
+        "locatorDescription": "testId=\"transactions-table\""
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "08fa0ca5-3465-4ddb-bc9a-0c5b093aa774",
+        "kind": "networkLog",
+        "name": "execution.network.json",
+        "contentType": "application/json",
+        "sizeBytes": 7239,
+        "isMasked": true
+      },
+      {
+        "id": "3936adea-bca9-414a-9273-fb314961c549",
+        "kind": "trace",
+        "name": "trace.zip",
+        "contentType": "application/zip",
+        "sizeBytes": 455943,
+        "isMasked": false
+      },
+      {
+        "id": "604dedce-f128-4ab1-b282-afad57675105",
+        "kind": "screenshot",
+        "name": "final.png",
+        "contentType": "image/png",
+        "sizeBytes": 105867,
+        "isMasked": false
+      },
+      {
+        "id": "60a8bb2b-48d5-46f7-ba79-d54b693d66b3",
+        "kind": "video",
+        "name": "execution.webm",
+        "contentType": "video/webm",
+        "sizeBytes": 137679,
+        "isMasked": false
+      }
+    ],
+    "healingEvents": []
+  }
+}

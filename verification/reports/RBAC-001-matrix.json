@@ -1,0 +1,44 @@
+{
+  "organizationAdmin": {
+    "read projects": "ALLOW",
+    "create project": "ALLOW",
+    "start a run": "ALLOW",
+    "invite a user": "ALLOW",
+    "change a gate": "ALLOW"
+  },
+  "projectAdmin": {
+    "read projects": "ALLOW",
+    "create project": "ALLOW",
+    "start a run": "ALLOW",
+    "invite a user": "DENY",
+    "change a gate": "ALLOW"
+  },
+  "qaLead": {
+    "read projects": "ALLOW",
+    "create project": "DENY",
+    "start a run": "ALLOW",
+    "invite a user": "DENY",
+    "change a gate": "ALLOW"
+  },
+  "qaEngineer": {
+    "read projects": "ALLOW",
+    "create project": "DENY",
+    "start a run": "ALLOW",
+    "invite a user": "DENY",
+    "change a gate": "DENY"
+  },
+  "developer": {
+    "read projects": "ALLOW",
+    "create project": "DENY",
+    "start a run": "ALLOW",
+    "invite a user": "DENY",
+    "change a gate": "DENY"
+  },
+  "viewer": {
+    "read projects": "ALLOW",
+    "create project": "DENY",
+    "start a run": "DENY",
+    "invite a user": "DENY",
+    "change a gate": "DENY"
+  }
+}

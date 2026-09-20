@@ -1,0 +1,131 @@
+{
+  "id": "7b847b66-62a1-4f97-bc89-16f2f1ce5425",
+  "reference": "TC-0001",
+  "name": "Sign in (healing subject)",
+  "objective": "Reproduce the recorded journey: Sign in (healing subject).",
+  "preconditions": "The customer is signed in with the application's configured credentials.",
+  "expectedResults": "The journey completes and:\n- The dashboard is shown",
+  "priority": "medium",
+  "risk": "medium",
+  "tags": "recorded",
+  "source": "recordedJourney",
+  "isEnabled": true,
+  "version": 1,
+  "testSuiteId": "de313f35-93a1-4c10-a56d-9179a68d56c5",
+  "applicationId": "69ec6942-1199-4ede-ae5e-6786ffc674d5",
+  "statistics": {
+    "executionCount": 3,
+    "passCount": 2,
+    "failCount": 1,
+    "healCount": 1,
+    "flakinessScore": 100,
+    "averageDurationMs": 10315,
+    "lastExecutedAt": "2026-09-20T16:15:48.522+00:00",
+    "lastStatus": "healed"
+  },
+  "steps": [
+    {
+      "id": "45940727-3ce3-4e66-bed2-ae7d40fe4f83",
+      "order": 1,
+      "description": "Open the sign-in page",
+      "action": "navigate",
+      "value": "",
+      "url": "http://localhost:4200/login",
+      "isCritical": true,
+      "continueOnFailure": false,
+      "healCount": 0,
+      "assertions": []
+    },
+    {
+      "id": "e9e73052-02f8-4d99-a246-14dbfa6b2d43",
+      "order": 2,
+      "description": "Enter the username",
+      "action": "fill",
+      "target": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "targetDescription": "testId=\"username\"",
+      "value": "alice",
+      "url": "http://localhost:4200/login",
+      "isCritical": true,
+      "continueOnFailure": false,
+      "healCount": 0,
+      "assertions": []
+    },
+    {
+      "id": "806f1ae3-80ba-422b-9560-5e380d919e0f",
+      "order": 3,
+      "description": "Enter the password",
+      "action": "fill",
+      "target": {
+        "strategy": "testId",
+        "value": "password",
+        "exact": false,
+        "fallbacks": []
+      },
+      "targetDescription": "testId=\"password\"",
+      "value": "${secret:app_password}",
+      "url": "http://localhost:4200/login",
+      "isCritical": true,
+      "continueOnFailure": false,
+      "healCount": 0,
+      "assertions": []
+    },
+    {
+      "id": "e11c08b4-75fb-49dc-a80d-dc16279888b4",
+      "order": 4,
+      "description": "Press the sign-in button",
+      "action": "click",
+      "target": {
+        "strategy": "testId",
+        "value": "login-submit",
+        "exact": false,
+        "fallbacks": []
+      },
+      "targetDescription": "testId=\"login-submit\"",
+      "value": "",
+      "url": "http://localhost:4200/login",
+      "isCritical": true,
+      "continueOnFailure": false,
+      "healCount": 2,
+      "assertions": []
+    },
+    {
+      "id": "1362b932-c9bd-458f-9f97-2b7f8ccb3491",
+      "order": 5,
+      "description": "The dashboard is shown",
+      "action": "assertVisible",
+      "target": {
+        "strategy": "testId",
+        "value": "nav-dashboard",
+        "exact": false,
+        "fallbacks": []
+      },
+      "targetDescription": "testId=\"nav-dashboard\"",
+      "value": "",
+      "url": "http://localhost:4200/dashboard",
+      "isCritical": true,
+      "continueOnFailure": false,
+      "healCount": 0,
+      "assertions": [
+        {
+          "id": "048b2825-49c7-4271-9d3a-85ab50ed4f28",
+          "type": "visible",
+          "target": {
+            "strategy": "testId",
+            "value": "nav-dashboard",
+            "exact": false,
+            "fallbacks": []
+          },
+          "expectedValue": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The dashboard is shown"
+        }
+      ]
+    }
+  ]
+}
