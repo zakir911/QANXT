@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IJourneyImportService, JourneyImportService>();
         services.AddScoped<IQualityGateEvaluator, QualityGateEvaluator>();
         services.AddScoped<IQualityGateService, QualityGateService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAgentService, AgentService>();
         services.AddScoped<IAgentLoop, AgentLoop>();
         services.AddScoped<IAiOrchestrator, AiOrchestrator>();

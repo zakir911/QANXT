@@ -7,14 +7,14 @@ reader deserves to know which one applies to each part. Everything marked **veri
 run in this environment and observed to work; everything marked **unverified** may be
 correct but has not been proved, and should be treated as untested until it is.
 
-Last updated after the Docker Compose work that followed Phase 9.
+Last updated after the user-management work that followed Phase 9.
 
 ## Verified by automated tests
 
 | Area | How | Count |
 | --- | --- | --- |
 | Domain contracts, locators, action validation | `dotnet test` — unit | 150 tests |
-| API over real HTTP against real PostgreSQL | `dotnet test` — integration | 39 tests |
+| API over real HTTP against real PostgreSQL | `dotnet test` — integration | 52 tests |
 | Cross-language enum parity (C# ↔ TypeScript) | `pnpm -r test` | 12 tests |
 | Browser worker: healing, execution, discovery | `pnpm -r test` | 81 tests |
 | CLI: reports, verdict mapping, argument parsing | `pnpm -r test` | 30 tests |
@@ -36,6 +36,8 @@ with `pnpm <name>` from that directory.
 | `recorder` | The real MV3 extension loads into Chromium, recording starts from its own popup, and a journey through the demo bank is captured with the right locator preferences and the password stored as a `${secret:...}` reference rather than a value. |
 | `journey` | That recording imports, generates a test case, and the generated test executes green in a real browser with every step passing, the secret masked in stored evidence, and screenshot, video, trace and network log captured. |
 | `cli` | The CLI runs a real 11-test suite; the emitted JUnit parses in a browser's XML parser with its declared counts matching its contents; breaking the demo bank's transactions API turns the build red (exit 1) with the failure carried into the XML; misuse, a rejected token and an unreachable platform each exit with their own code. |
+| Cross-browser execution | The same 11-test suite was run on all three engines through the containerised worker: Chromium 141, Firefox 142.0.1 and WebKit 26.0, 11 passed on each. The recorded engine and version were checked per execution, so a silent fallback to Chromium would have shown. |
+| User management | A second person can be added, sign in with the one-time password they were given, be demoted, disabled and reset — and each of those ends the session they already hold, immediately rather than when their token expires. |
 | Docker images | `Dockerfile.api` and `Dockerfile.worker` build, and were run together against a real Postgres and Redis: the API migrated, served authenticated requests and returned its security headers as a non-root user, and the worker reported ready, claimed a run and executed 11 tests in Chromium **inside the container** — all 11 passed, every execution recorded against `worker-container-1`. |
 | `security` | Against production settings: a session resolves to a real user, responses carry the browser security headers and a CSP, a token in a query string does not authenticate a normal endpoint, stored evidence requires a session, and sign-in is rate limited after its configured budget without throttling the first attempt. |
 
@@ -52,7 +54,6 @@ pass.
 | `docker compose up` as a whole | The compose file validates, and two of its four built images were built and run. The stack has never been started end to end here, because `postgres:16-alpine` and `redis:7-alpine` cannot be pulled either. |
 | `.github/workflows/aira-tests.yml` | The YAML parses, the pnpm filter it uses was run locally, and its embedded summary script was run against a real failing report — but the workflow itself has never executed on GitHub Actions. |
 | `infrastructure/ci/azure-pipelines.yml` | Same: validated as YAML, never executed on Azure Pipelines. |
-| Firefox and WebKit execution | Every run so far has been Chromium. The browser is a parameter and the code paths are shared, but neither other engine has been exercised. |
 | S3-compatible artifact storage | Only the filesystem store has been run. The interface has a second implementation that has not been pointed at a real bucket. |
 | OpenAI, Anthropic and Gemini providers | No API key is configured here, so every AI result so far came from the local deterministic engines. The provider abstraction is exercised; the HTTP clients for the hosted models are not. |
 | Scale and concurrency | Runs here are single-worker and small. Nothing has been load-tested, and no claim is made about behaviour under parallel workers or large knowledge graphs. |
@@ -62,10 +63,6 @@ pass.
 These are absences rather than untested code — things a reader might reasonably expect to
 exist that do not yet.
 
-- **No user management endpoint.** An organization's first administrator is created by
-  registration, and the role/permission matrix is enforced, but there is no API for
-  inviting a second user or changing someone's role. The integration tests mint
-  reduced-permission tokens through the real token service to check authorization.
 - **Remaining documentation.** `docs/setup.md`, `development.md`, `ai-architecture.md`,
   `browser-engine.md`, `self-healing.md`, `security.md`, `api.md`, `deployment.md`,
   `browser-extension.md`, `troubleshooting.md` and `database.md` are referenced in places
@@ -95,3 +92,5 @@ and declaring it correct.
 | Docker work | `make docker-down` used `down -v`, which deletes the database, the queue and every stored artifact. A command called "down" should not destroy anything; the destructive one is now `make docker-reset`. |
 | Docker work | Compose reads `.env` from beside the compose file, so the documented command resolved none of the secrets and failed with an error that did not explain why. Both the Makefile and the documented command now pass `--project-directory .`. |
 | Docker work | `Dockerfile.worker` claimed the worker exposes no port and health-checked it with `kill -0 1`. The worker serves `/health` on 9091, and a consumer that has lost Redis looks perfectly alive to a PID check while doing no work at all. |
+| User management | Every access token carried a security stamp that nothing ever checked. Disabling an account, demoting someone or resetting a password left their existing session working for up to an hour — the token lifetime — while the UI reported success. Removing the new validator makes three tests fail, which is what that gap looked like. |
+| User management | Login refused any account whose status was not `Active`, so an invited user could never sign in and every invitation was a dead end. Login now accepts `Invited` and promotes it to `Active` on first use, which is also what makes the status worth recording. |

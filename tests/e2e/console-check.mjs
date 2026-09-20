@@ -119,6 +119,37 @@ await step('settings shows the role matrix', async () => {
   await page.screenshot({ path: '/tmp/aira-shots/settings.png', fullPage: true });
 });
 
+await step('people can be added and their access taken away', async () => {
+  await page.getByRole('heading', { name: 'People' }).waitFor({ timeout: 10000 });
+
+  const before = await page.locator('table tbody tr').filter({ hasText: '@' }).count();
+
+  await page.getByRole('button', { name: 'Add someone' }).click();
+  const email = `colleague-${Date.now()}@example.test`;
+  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Name', { exact: true }).fill('A Colleague');
+  await page.getByRole('button', { name: 'Add them' }).click();
+
+  // The one-time password is the whole point of the flow: there is no mail transport, so if
+  // it is not shown here the invitation is useless.
+  const handover = page.getByText(/One-time password for/);
+  await handover.waitFor({ timeout: 10000 });
+  const notice = await handover.locator('..').innerText();
+  if (!/shown once/i.test(notice)) {
+    throw new Error(`the handover does not say the password cannot be retrieved: ${notice}`);
+  }
+
+  const after = await page.locator('table tbody tr').filter({ hasText: '@' }).count();
+  if (after <= before) throw new Error(`the new person was not listed (${before} -> ${after})`);
+
+  // Disabling has to be reachable, and has to report back.
+  const row = page.locator('table tbody tr').filter({ hasText: email });
+  await row.getByRole('button', { name: 'Disable' }).click();
+  await row.getByText('Disabled', { exact: false }).waitFor({ timeout: 10000 });
+
+  await page.screenshot({ path: '/tmp/aira-shots/people.png', fullPage: true });
+});
+
 await step('quality gates can be configured from the console', async () => {
   // The gate engine is only real if a person can reach it: the rules the evaluator uses
   // must be listed here, and an editor must be able to change one.

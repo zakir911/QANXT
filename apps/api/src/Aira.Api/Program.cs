@@ -106,6 +106,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         // live-execution hub accepts the token as a query parameter on that path only.
         options.Events = new JwtBearerEvents
         {
+            // A valid signature only proves the token was issued here, not that it still
+            // describes the account. See SecurityStampValidator.
+            OnTokenValidated = Aira.Api.Services.SecurityStampValidator.ValidateAsync,
+
             OnMessageReceived = context =>
             {
                 var accessToken = context.Request.Query["access_token"].FirstOrDefault();

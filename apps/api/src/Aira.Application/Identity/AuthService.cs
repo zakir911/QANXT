@@ -138,7 +138,10 @@ public sealed class AuthService : IAuthService
             if (user.LockedUntil is not null && user.LockedUntil > now)
                 return Error.Unauthorized($"This account is locked until {user.LockedUntil:u} after repeated failed sign-in attempts.");
 
-            if (user.Status != UserStatus.Active)
+            // Invited is allowed through: it means an administrator created the account and
+            // nobody has used it yet. Refusing it would make every invitation a dead end.
+            // Suspended and Disabled are refused, and so is a soft-deleted account.
+            if (user.Status is not (UserStatus.Active or UserStatus.Invited))
                 return Error.Unauthorized("This account is not active.");
 
             if (!_hasher.Verify(request.Password, user.PasswordHash))
@@ -159,6 +162,10 @@ public sealed class AuthService : IAuthService
             user.FailedLoginAttempts = 0;
             user.LockedUntil = null;
             user.LastLoginAt = now;
+
+            // The first successful sign-in is what turns an invitation into an account in
+            // use, which is the distinction the audit trail is keeping.
+            if (user.Status == UserStatus.Invited) user.Status = UserStatus.Active;
 
             if (_hasher.NeedsRehash(user.PasswordHash))
             {

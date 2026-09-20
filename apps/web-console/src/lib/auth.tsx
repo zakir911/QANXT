@@ -98,5 +98,7 @@ export const Permissions = {
   secretWrite: 'secret:write',
   aiUse: 'ai:use',
   agentRun: 'agent:run',
+  userRead: 'user:read',
+  userWrite: 'user:write',
   auditRead: 'audit:read'
 } as const;

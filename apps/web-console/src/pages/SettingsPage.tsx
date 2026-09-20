@@ -5,6 +5,7 @@ import { Card, PageHeader, Spinner } from '../components/ui';
 import { humanize } from '../lib/format';
 import { useProject } from '../lib/project';
 import QualityGates from '../components/QualityGates';
+import UserManagement from '../components/UserManagement';
 
 interface PermissionCatalogue {
   permissions: { name: string; category: string; description: string }[];
@@ -80,6 +81,8 @@ export default function SettingsPage() {
             ))}
           </ul>
         </Card>
+
+        <UserManagement />
 
         <QualityGates projectId={projectId} />
 
