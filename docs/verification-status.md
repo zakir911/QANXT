@@ -7,18 +7,19 @@ reader deserves to know which one applies to each part. Everything marked **veri
 run in this environment and observed to work; everything marked **unverified** may be
 correct but has not been proved, and should be treated as untested until it is.
 
-Last updated at the end of Phase 8.
+Last updated at the end of Phase 9.
 
 ## Verified by automated tests
 
 | Area | How | Count |
 | --- | --- | --- |
-| Domain contracts, locators, action validation | `dotnet test` — unit | 120 tests |
-| API over real HTTP against real PostgreSQL | `dotnet test` — integration | 29 tests |
+| Domain contracts, locators, action validation | `dotnet test` — unit | 150 tests |
+| API over real HTTP against real PostgreSQL | `dotnet test` — integration | 39 tests |
 | Cross-language enum parity (C# ↔ TypeScript) | `pnpm -r test` | 12 tests |
 | Browser worker: healing, execution, discovery | `pnpm -r test` | 81 tests |
 | CLI: reports, verdict mapping, argument parsing | `pnpm -r test` | 30 tests |
 | Extension recorder: locators, recording state | `pnpm -r test` | 20 tests |
+| Risk scoring and regression classification | `dotnet test` — unit | 30 tests |
 | Web console components | `pnpm -r test` | 19 tests |
 
 Run all of them with `make test`. The integration tests need PostgreSQL; they say so
@@ -31,7 +32,7 @@ with `pnpm <name>` from that directory.
 
 | Check | What was observed |
 | --- | --- |
-| `console` | A person can sign in, read dashboard metrics computed from real runs, open the discovered application map, inspect a generated test, open a run and an execution, see a stored screenshot render through the authorized artifact path, review a healing proposal, ask the insights engine a question, and configure a quality gate — with no console errors. |
+| `console` | A person can sign in, read dashboard metrics computed from real runs, open the discovered application map, inspect a generated test, open a run and an execution, see a stored screenshot render through the authorized artifact path, review a healing proposal, ask the insights engine a question, configure a quality gate, and read an agent pass with its phases, bounds and proposals — with no console errors. |
 | `recorder` | The real MV3 extension loads into Chromium, recording starts from its own popup, and a journey through the demo bank is captured with the right locator preferences and the password stored as a `${secret:...}` reference rather than a value. |
 | `journey` | That recording imports, generates a test case, and the generated test executes green in a real browser with every step passing, the secret masked in stored evidence, and screenshot, video, trace and network log captured. |
 | `cli` | The CLI runs a real 11-test suite; the emitted JUnit parses in a browser's XML parser with its declared counts matching its contents; breaking the demo bank's transactions API turns the build red (exit 1) with the failure carried into the XML; misuse, a rejected token and an unreachable platform each exit with their own code. |
@@ -72,8 +73,8 @@ exist that do not yet.
   today; the local stack is started with `make dev` instead. No Docker daemon is available
   in this environment, so anything written there could not be built or run, and writing an
   unrunnable compose file would be worse than an empty directory that says so.
-- **Phase 9 is not started.** The autonomous agent mode, risk scoring and regression
-  intelligence described in the implementation plan are not implemented.
+- **The agent has not been run at scale.** Passes here covered an 8-page application. Nothing has been tried against a large knowledge graph, and no claim is made about how
+  the prioritisation behaves with hundreds of routes.
 
 ## Defects found by this verification
 
@@ -88,3 +89,6 @@ and declaring it correct.
 | Journey import check | An executed action recorded the page it landed on rather than the one it ran on, but only when it passed — so the same field meant different things depending on outcome. |
 | Phase 7 review | The quality gate engine had no endpoint and no UI: gates could be evaluated but never configured, so every run reported "no quality gates are configured". |
 | Phase 8 review | `make setup`, `make dev`, `make test`, `make verify`, `make migrate` and `make db-reset` all referenced scripts that did not exist. |
+| Agent pass | Polling a status through a tracking `DbContext` returned the first-loaded entity forever, so the agent waited on a crawl that had already finished six minutes earlier. |
+| Agent pass | `TestGenerationService` read the organization from the signed-in user, which only exists for callers with an HTTP request. The agent was the first caller without one. The DbContext already stamps the tenant on save, so the assignment was removed rather than worked around. |
+| Agent pass | A phase that threw was recorded as failed, but the run still reported `completed` because the loop reached its end — exactly the kind of quiet green the platform refuses everywhere else. |

@@ -130,6 +130,22 @@ public enum QualityGateMetric
     HealedCount = 7, AverageDurationMs = 8
 }
 
+/// <summary>Where a bounded agent pass has got to.</summary>
+public enum AgentPhase
+{
+    Pending = 0, Exploring = 1, Modelling = 2, Prioritizing = 3, Generating = 4,
+    Executing = 5, Investigating = 6, Proposing = 7, Done = 8
+}
+
+public enum AgentRunStatus { Queued = 0, Running = 1, Completed = 2, Failed = 3, Cancelled = 4, Stopped = 5 }
+
+/// <summary>What an agent concluded. Every one of these is a proposal for a person.</summary>
+public enum AgentFindingKind
+{
+    CoverageGap = 0, RiskArea = 1, SuspectedDefect = 2, Regression = 3,
+    UnstableTest = 4, BrokenLocator = 5, Observation = 6
+}
+
 public enum JourneySource { Discovered = 0, Recorded = 1, Manual = 2, AiProposed = 3 }
 
 public enum TestDataKind { Static = 0, Generated = 1, Random = 2, SeededRandom = 3, SecretReference = 4, EnvironmentSpecific = 5 }

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Aira.Application.Abstractions;
 using Aira.Domain.Ai;
+using Aira.Domain.Agent;
 using Aira.Domain.Applications;
 using Aira.Domain.Audit;
 using Aira.Domain.Common;
@@ -42,6 +43,10 @@ public class AiraDbContext : DbContext, IAiraDbContext
 
     public DbSet<Domain.Applications.Application> Applications => Set<Domain.Applications.Application>();
     public DbSet<DiscoveryRun> DiscoveryRuns => Set<DiscoveryRun>();
+
+    public DbSet<AgentRun> AgentRuns => Set<AgentRun>();
+    public DbSet<AgentStep> AgentSteps => Set<AgentStep>();
+    public DbSet<AgentFinding> AgentFindings => Set<AgentFinding>();
     public DbSet<ApplicationPage> ApplicationPages => Set<ApplicationPage>();
     public DbSet<PageTransition> PageTransitions => Set<PageTransition>();
     public DbSet<ApplicationElement> ApplicationElements => Set<ApplicationElement>();

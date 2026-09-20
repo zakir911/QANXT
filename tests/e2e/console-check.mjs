@@ -148,6 +148,36 @@ await step('quality gates can be configured from the console', async () => {
   await page.screenshot({ path: '/tmp/aira-shots/quality-gates.png', fullPage: true });
 });
 
+await step('the agent page shows a pass, its steps and its proposals', async () => {
+  await page.getByRole('link', { name: 'Agent' }).click();
+  await page.getByRole('heading', { name: 'Autonomous agent' }).waitFor({ timeout: 10000 });
+
+  // A pass that ran earlier in this environment should be listed and selectable. The list
+  // arrives asynchronously, so wait for it rather than counting an empty list.
+  const passes = page.locator('li button').filter({ hasText: /pass/i });
+  await passes.first().waitFor({ timeout: 15000 });
+  await passes.first().click();
+
+  // The three things that make an unattended run reviewable: what it did, under what
+  // bounds, and what it concluded.
+  await page.getByRole('heading', { name: 'What it did' }).waitFor({ timeout: 10000 });
+  const phases = await page.locator('ol li').count();
+  if (phases < 3) throw new Error(`expected the phases to be listed, found ${phases}`);
+
+  const bounds = await page.getByText(/Bounded to \d+ page/).first().innerText();
+  if (!/model spend/i.test(bounds)) throw new Error(`the bounds do not state the spend: ${bounds}`);
+
+  await page.getByRole('heading', { name: /^Proposals/ }).waitFor({ timeout: 10000 });
+
+  // The agent's lack of authority is stated on the screen, not just in the docs.
+  const disclaimer = await page.getByText(/cannot raise a defect/i).first().innerText();
+  if (!/quality gate/i.test(disclaimer)) {
+    throw new Error(`the proposals card does not state what the agent cannot do: ${disclaimer}`);
+  }
+
+  await page.screenshot({ path: '/tmp/aira-shots/agent.png', fullPage: true });
+});
+
 if (consoleErrors.length > 0) {
   console.log(`\nConsole errors observed (${consoleErrors.length}):`);
   for (const error of consoleErrors.slice(0, 8)) console.log('  -', error.slice(0, 200));

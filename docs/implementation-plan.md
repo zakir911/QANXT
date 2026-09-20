@@ -133,6 +133,17 @@ credential rate limiting under production settings.
 ### Phase 9 — Autonomous agent + quality intelligence
 Bounded agent loop (explore → model → prioritize → generate → execute → investigate →
 propose), risk scoring, flakiness and regression intelligence, dashboard analytics, AI insights
+
+**Done when:** an agent pass runs unattended against a real application, stays inside its
+bounds, and produces proposals a person can act on — having changed nothing on its own.
+
+*Verified:* a pass over the demo bank explored 8 pages, scored every area (`/payments`
+highest at 46), generated 5 tests for the 3 uncovered areas, ran them, and wrote up 8
+proposals. A second pass against a deliberately broken bank generated 3 tests, ran them,
+caught the failure and recorded it as a proposal with its analysis attached — raising no
+defect. Integration tests assert the bounds cannot be argued past and that, after a pass,
+the quality gate is untouched, no defect exists and no healing is approved. See
+`docs/agent.md`.
 with evidence links.
 
 ## 3. Cross-cutting requirements tracked across every phase

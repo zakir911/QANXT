@@ -332,7 +332,9 @@ public sealed class JourneyImportService : IJourneyImportService
 
         suite = new TestSuite
         {
-            OrganizationId = _currentUser.OrganizationId!.Value,
+            // OrganizationId is stamped by the DbContext from the tenant context on save.
+            // Reading it from the signed-in user instead would work only for callers that
+            // have an HTTP request, and the autonomous agent does not have one.
             ProjectId = projectId,
             Name = name,
             Description = "Tests generated from journeys recorded with the browser extension.",

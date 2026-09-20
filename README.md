@@ -43,6 +43,7 @@ build plan and its phases.
 - [Implementation plan](docs/implementation-plan.md)
 - [Verification status](docs/verification-status.md) — what has actually been executed, and what has not
 - [Running from a pipeline](docs/ci-cd.md) — the `aira` CLI, exit codes, reports and quality gates
+- [The autonomous agent](docs/agent.md) — the bounded loop, risk scoring, regression intelligence, and what the agent is not allowed to do
 
 ## Principles
 

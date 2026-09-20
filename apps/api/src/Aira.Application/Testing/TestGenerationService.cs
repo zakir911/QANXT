@@ -207,7 +207,9 @@ public sealed class TestGenerationService : ITestGenerationService
 
         suite = new TestSuite
         {
-            OrganizationId = _currentUser.OrganizationId!.Value,
+            // OrganizationId is stamped by the DbContext from the tenant context on save.
+            // Reading it from the signed-in user instead would work only for callers that
+            // have an HTTP request, and the autonomous agent does not have one.
             ProjectId = projectId,
             Name = name,
             Description = "Created by AI test generation from the discovered application model.",

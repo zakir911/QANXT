@@ -1,3 +1,4 @@
+using Aira.Application.Agent;
 using Aira.Application.Ai;
 using Aira.Application.Applications;
 using Aira.Application.Dashboard;
@@ -32,6 +33,8 @@ public static class DependencyInjection
         services.AddScoped<IJourneyImportService, JourneyImportService>();
         services.AddScoped<IQualityGateEvaluator, QualityGateEvaluator>();
         services.AddScoped<IQualityGateService, QualityGateService>();
+        services.AddScoped<IAgentService, AgentService>();
+        services.AddScoped<IAgentLoop, AgentLoop>();
         services.AddScoped<IAiOrchestrator, AiOrchestrator>();
         services.AddSingleton<ISchemaValidator, SchemaValidator>();
         services.AddScoped<IDashboardService, DashboardService>();

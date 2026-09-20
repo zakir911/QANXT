@@ -63,6 +63,10 @@ builder.Services.AddControllers()
 
 builder.Services.AddSignalR();
 
+// Agent passes wait on a crawl and then on a test run, so they cannot be held open on
+// the request that starts them.
+builder.Services.AddHostedService<Aira.Api.Services.AgentRunnerService>();
+
 // ---- Authentication -------------------------------------------------------
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtSecret = jwtSection["Secret"] ?? string.Empty;

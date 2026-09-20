@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Aira.Domain.Ai;
+using Aira.Domain.Agent;
 using Aira.Domain.Applications;
 using Aira.Domain.Audit;
 using Aira.Domain.Diagnosis;
@@ -33,6 +34,10 @@ public interface IAiraDbContext
 
     DbSet<Domain.Applications.Application> Applications { get; }
     DbSet<DiscoveryRun> DiscoveryRuns { get; }
+
+    DbSet<AgentRun> AgentRuns { get; }
+    DbSet<AgentStep> AgentSteps { get; }
+    DbSet<AgentFinding> AgentFindings { get; }
     DbSet<ApplicationPage> ApplicationPages { get; }
     DbSet<PageTransition> PageTransitions { get; }
     DbSet<ApplicationElement> ApplicationElements { get; }

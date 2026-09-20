@@ -15,6 +15,7 @@ const NAV = [
   { to: '/runs', label: 'Test runs' },
   { to: '/failures', label: 'Failures' },
   { to: '/healing', label: 'Healing' },
+  { to: '/agent', label: 'Agent' },
   { to: '/insights', label: 'AI insights' },
   { to: '/settings', label: 'Settings' }
 ];

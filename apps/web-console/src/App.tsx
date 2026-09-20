@@ -15,6 +15,7 @@ import TestRunDetailPage from './pages/TestRunDetailPage';
 import ExecutionDetailPage from './pages/ExecutionDetailPage';
 import FailuresPage from './pages/FailuresPage';
 import HealingPage from './pages/HealingPage';
+import AgentPage from './pages/AgentPage';
 import InsightsPage from './pages/InsightsPage';
 import SettingsPage from './pages/SettingsPage';
 
@@ -54,6 +55,7 @@ export default function App() {
         <Route path="executions/:executionId" element={<ExecutionDetailPage />} />
         <Route path="failures" element={<FailuresPage />} />
         <Route path="healing" element={<HealingPage />} />
+        <Route path="agent" element={<AgentPage />} />
         <Route path="insights" element={<InsightsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
