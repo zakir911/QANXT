@@ -67,8 +67,12 @@ export default function ProjectsPage() {
             </div>
             <div>
               <label className="label" htmlFor="key">Key</label>
+              {/* The hyphen in the pattern is escaped deliberately. Chrome compiles this
+                  attribute with the regular-expression `v` flag, where `_-` is a reserved
+                  double punctuator; unescaped, the browser rejects the whole pattern and it
+                  validates nothing at all. */}
               <input id="key" name="key" required className="input" placeholder="BANK"
-                     pattern="[A-Za-z0-9_-]+" title="Letters, digits, hyphens and underscores only" />
+                     pattern="[A-Za-z0-9_\-]+" title="Letters, digits, hyphens and underscores only" />
               <p className="mt-1 text-xs text-ink-muted">Used by the CLI and in test references.</p>
             </div>
             <div className="sm:col-span-2">

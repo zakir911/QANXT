@@ -39,6 +39,7 @@ with `pnpm <name>` from that directory.
 | Cross-browser execution | The same 11-test suite was run on all three engines through the containerised worker: Chromium 141, Firefox 142.0.1 and WebKit 26.0, 11 passed on each. The recorded engine and version were checked per execution, so a silent fallback to Chromium would have shown. |
 | User management | A second person can be added, sign in with the one-time password they were given, be demoted, disabled and reset — and each of those ends the session they already hold, immediately rather than when their token expires. |
 | Docker images | `Dockerfile.api` and `Dockerfile.worker` build, and were run together against a real Postgres and Redis: the API migrated, served authenticated requests and returned its security headers as a non-root user, and the worker reported ready, claimed a run and executed 11 tests in Chromium **inside the container** — all 11 passed, every execution recorded against `worker-container-1`. |
+| `first-run` | The path `docs/setup.md` documents was walked in a real browser: an organization registered from an empty platform, the founder landing on the dashboard as its administrator, a project created and an application registered. A setup guide nobody has followed is a guess. |
 | `security` | Against production settings: a session resolves to a real user, responses carry the browser security headers and a CSP, a token in a query string does not authenticate a normal endpoint, stored evidence requires a session, and sign-in is rate limited after its configured budget without throttling the first attempt. |
 
 Self-healing was additionally observed end to end: renaming the demo bank's filter controls
@@ -63,10 +64,11 @@ pass.
 These are absences rather than untested code — things a reader might reasonably expect to
 exist that do not yet.
 
-- **Remaining documentation.** `docs/setup.md`, `development.md`, `ai-architecture.md`,
-  `browser-engine.md`, `self-healing.md`, `security.md`, `api.md`, `deployment.md`,
-  `browser-extension.md`, `troubleshooting.md` and `database.md` are referenced in places
-  but not yet written. `architecture.md`, `ci-cd.md`, the ADRs and this page exist.
+- **Remaining documentation.** Nothing links to a page that does not exist any more.
+  `architecture.md`, `setup.md`, `deployment.md`, `database.md`, `ci-cd.md`, `agent.md`,
+  the ADRs and this page are written. Deeper pages on the AI architecture, the browser
+  engine, self-healing internals and a hand-written API reference are not; the API's own
+  reference is served at `/swagger`.
 - **No Kubernetes manifests.** `infrastructure/kubernetes` is an empty directory. The
   compose file is the deployment topology; nothing expresses it as a chart yet.
 - **The agent has not been run at scale.** Passes here covered an 8-page application. Nothing has been tried against a large knowledge graph, and no claim is made about how
@@ -94,3 +96,4 @@ and declaring it correct.
 | Docker work | `Dockerfile.worker` claimed the worker exposes no port and health-checked it with `kill -0 1`. The worker serves `/health` on 9091, and a consumer that has lost Redis looks perfectly alive to a PID check while doing no work at all. |
 | User management | Every access token carried a security stamp that nothing ever checked. Disabling an account, demoting someone or resetting a password left their existing session working for up to an hour — the token lifetime — while the UI reported success. Removing the new validator makes three tests fail, which is what that gap looked like. |
 | User management | Login refused any account whose status was not `Active`, so an invited user could never sign in and every invitation was a dead end. Login now accepts `Invited` and promotes it to `Active` on first use, which is also what makes the status worth recording. |
+| Writing `setup.md` | The project-key field's `pattern` attribute was `[A-Za-z0-9_-]+`. Chrome compiles that attribute with the regular-expression `v` flag, where `_-` is a reserved double punctuator, so the browser rejected the pattern outright and it validated nothing — logging a console error on every render of the form. The server still validated the key, so this was a usability defect rather than a security one. |

@@ -6,6 +6,7 @@ rather than reporting a green that means nothing.
 
 | Check | What it proves |
 | --- | --- |
+| `first-run-check.mjs` | The path docs/setup.md tells a new developer to take actually works: register an organization from an empty platform, land on the dashboard as its administrator, create a project and register an application. Everything it creates is namespaced by a timestamp, so it is safe against an environment that already has data. |
 | `console-check.mjs` | The web console works: sign in, dashboard metrics computed from real runs, the discovered application map, a generated test's steps, a run and an execution, a stored screenshot rendering through the authorized artifact path, a healing proposal with its confidence, the insights engine answering a question, quality gates being configured, and an agent pass with its phases, bounds and proposals — failing on any console error along the way. |
 | `../../apps/browser-worker/extension-check.mjs` | The MV3 recorder works: the real extension is loaded into a real Chromium, recording is started from its own popup, a journey is recorded through the demo bank, and the resulting JSON is checked for the right steps, the right locator preferences, and a password captured as a `${secret:...}` reference rather than a value. Writes the recording to `/tmp/aira-journey.json`. |
 | `cli-check.mjs` | The CLI works as a pipeline needs: it drives a real run, its JUnit output parses in a real XML parser with counts matching its contents, a broken application turns the build red, and misuse, a rejected token and an unreachable platform each exit with their own code rather than looking like a test failure. |
@@ -32,6 +33,7 @@ pnpm recorder    # record a journey with the extension
 pnpm journey     # import that recording and execute the test it generates
 pnpm cli         # drive the CLI the way a pipeline does
 pnpm security    # check the running deployment's security properties
+pnpm first-run   # walk the documented setup path in a real browser
 ```
 
 `security` deliberately spends the sign-in rate-limit budget for the current window, so
