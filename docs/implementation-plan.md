@@ -120,6 +120,16 @@ Demo banking app (login, dashboard, accounts, transactions, statements, payments
 with toggleable defects and locator mutations; unit, integration, API, frontend, extension,
 engine and E2E test suites.
 
+**Done when:** every layer has a suite that runs from one command, and the API is covered
+over real HTTP against a real database rather than only through its services.
+
+*Verified:* `make test` runs 149 .NET tests (120 unit, 29 integration) and 162 Node tests.
+The integration suite boots the real API against a per-run PostgreSQL database and asserts
+the boundaries a unit test cannot reach: permission enforcement, tenant isolation across
+organizations, credential encryption at rest, the SSRF guard, and the shape of a problem
+response. `tests/e2e/security-check.mjs` covers what only a real deployment shows, including
+credential rate limiting under production settings.
+
 ### Phase 9 — Autonomous agent + quality intelligence
 Bounded agent loop (explore → model → prioritize → generate → execute → investigate →
 propose), risk scoring, flakiness and regression intelligence, dashboard analytics, AI insights

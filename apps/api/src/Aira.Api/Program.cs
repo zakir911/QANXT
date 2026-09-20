@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
@@ -31,7 +32,9 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration)
     .Enrich.FromLogContext()
     .Enrich.WithProperty("Service", "aira-api")
-    .MinimumLevel.Information()
+    // Information by default, but settable: turning logging up to diagnose an incident, or
+    // down so a test run's output stays readable, should not need a code change.
+    .MinimumLevel.Is(context.Configuration.GetValue("Logging:MinimumLevel", LogEventLevel.Information))
     .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
     .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
     .WriteTo.Console(outputTemplate:
@@ -72,8 +75,19 @@ if (jwtSecret.Length < JwtOptions.MinimumSecretLength)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        // Without this, the handler rewrites "sub" and "email" into the long WS-Federation
+        // claim URIs, and every lookup for them finds nothing. The visible symptom was a
+        // 401 from /auth/me with a perfectly valid token; the invisible one was worse —
+        // ICurrentUser.UserId was null for every authenticated request, so audit entries
+        // recorded no author and every CreatedByUserId was stored as null. Roles and the
+        // display name are issued under their ClaimTypes URIs already, and the claim types
+        // below are named explicitly so that stays true if a default ever changes.
+        options.MapInboundClaims = false;
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = ClaimTypes.Role,
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
@@ -126,6 +140,7 @@ builder.Services.AddCors(options => options.AddPolicy("console", policy => polic
 
 // ---- Rate limiting --------------------------------------------------------
 var permitPerMinute = builder.Configuration.GetValue("Security:RateLimitPermitPerMinute", 300);
+var authPermitPerMinute = builder.Configuration.GetValue("Security:AuthRateLimitPermitPerMinute", 10);
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -146,10 +161,18 @@ builder.Services.AddRateLimiter(options =>
         });
     });
 
-    // Credential endpoints get a much tighter budget to blunt brute-force attempts.
+    // Credential endpoints get a much tighter budget to blunt brute-force attempts. It is
+    // configurable because the right number depends on the deployment: a shared corporate
+    // egress IP puts a whole office behind one partition, and a limit that locks out real
+    // users gets removed altogether rather than tuned.
     options.AddPolicy("auth", context => RateLimitPartition.GetFixedWindowLimiter(
         context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-        _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = authPermitPerMinute,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        }));
 });
 
 // ---- Health ---------------------------------------------------------------

@@ -37,7 +37,9 @@ public static class EnvironmentConfiguration
             ["GEMINI_API_KEY"] = "Ai:Gemini:ApiKey",
             ["GEMINI_BASE_URL"] = "Ai:Gemini:BaseUrl",
             ["GEMINI_MODEL"] = "Ai:Gemini:Model",
+            ["LOG_LEVEL"] = "Logging:MinimumLevel",
             ["RATE_LIMIT_PERMIT_PER_MINUTE"] = "Security:RateLimitPermitPerMinute",
+            ["AUTH_RATE_LIMIT_PERMIT_PER_MINUTE"] = "Security:AuthRateLimitPermitPerMinute",
             ["ALLOW_PRIVATE_NETWORK_TARGETS"] = "Security:AllowPrivateNetworkTargets"
         };
 
