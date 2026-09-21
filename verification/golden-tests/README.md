@@ -63,12 +63,13 @@ assertion held, and the evidence exists.
 | Discovery | `DISC-` | 15 | A real single-page application is crawled into a model, measured for recall and precision against hand-written ground truth. |
 | AI test generation | `GEN-` | 16 | A sentence in English becomes tests that execute, reach across the application, and fail when it breaks. |
 | Browser execution | `EXEC-` | 20 | Every action and assertion type, on a real browser, with screenshots, traces and logs. |
-| Assertions | `ASRT-` | 8 | Each assertion type holds when it should and fails when it should not. |
+| Assertions | `ASRT-` | 10 | Each assertion type holds when it should and fails when it should not. |
 | Failure detection | `DET-` | 12 | Eleven failure classes on identically shaped pages, plus a control where nothing is broken. |
 | Failure analysis | `FA-` | 16 | Classification accuracy measured against the lab's own expectations; an analysis never overturns a verdict. |
 | Self-healing | `HEAL-` | 20 | Two heals that should happen, ten refusals that must happen, and the metrics that separate them. |
 | Security | `SEC-G` | 11 | Tenant isolation, credential handling, prompt injection, target policy — against local applications only. |
 | Reliability | `REL-` | 7 | Ten identical runs, twenty against a genuinely unstable application, ten started at once. |
+| Performance baseline | `PERF-` | 3 | Discovery, a twelve-step run and one generation, timed several times each. Measurements, not targets: no gate depends on them. |
 
 The lab itself is checked before it is trusted: `node test-lab/scripts/lab-selftest.mjs`
 (34 checks — every application serves, every declared fault sets and resets, an unknown
@@ -109,7 +110,7 @@ still renders red.
 Do not edit the test. The process is written down in `docs/test-lab-plan.md` and followed
 in `verification/bugs/`: reproduce it twice, write the bug up with steps, expected and
 actual, fix the product, re-run the reproduction, re-run the suite, and only then close it.
-Ten defects found this way are recorded as `BUG-0007` to `BUG-0016`; each directory
+Eleven defects found this way are recorded as `BUG-0007` to `BUG-0017`; each directory
 contains a script that reproduces the original failure against an unfixed build.
 
 One of them, `BUG-0016`, was a test in this suite passing for the wrong reason. It is

@@ -331,7 +331,19 @@ public sealed class TestRunService : ITestRunService
                     Expected = step.Assertions
                         .OrderBy(a => a.CreatedAt)
                         .Select(a => a.ExpectedValue)
-                        .FirstOrDefault(value => !string.IsNullOrEmpty(value))
+                        .FirstOrDefault(value => !string.IsNullOrEmpty(value)),
+                    // The same reasoning as Expected, for the two assertions that need more
+                    // than a value. Without these the engine ran assertAttribute with no
+                    // attribute name and assertCount with no count, so neither could ever
+                    // hold — which is half of why they were unreachable (BUG-0017).
+                    Attribute = step.Assertions
+                        .OrderBy(a => a.CreatedAt)
+                        .Select(a => a.AttributeName)
+                        .FirstOrDefault(value => !string.IsNullOrEmpty(value)),
+                    Count = step.Assertions
+                        .OrderBy(a => a.CreatedAt)
+                        .Select(a => int.TryParse(a.ExpectedValue, out var parsed) ? parsed : (int?)null)
+                        .FirstOrDefault(value => value is not null)
                 },
                 Fingerprint = fingerprints.GetValueOrDefault(step.Id),
                 ContinueOnFailure = step.ContinueOnFailure,

@@ -22,7 +22,8 @@ const SUITES = {
   'failure-analysis': () => import('./suites/failure-analysis.mjs'),
   healing: () => import('./suites/self-healing.mjs'),
   security: () => import('./suites/security.mjs'),
-  reliability: () => import('./suites/reliability.mjs')
+  reliability: () => import('./suites/reliability.mjs'),
+  performance: () => import('./suites/performance.mjs')
 };
 
 const argv = process.argv.slice(2);

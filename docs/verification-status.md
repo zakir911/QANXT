@@ -40,12 +40,13 @@ that run writes, not from this document.
 | Discovery | 15 | Page recall and precision measured against ground truth, including an application whose element ids regenerate on every render |
 | AI test generation | 16 | A sentence in English becomes tests that execute unedited and fail when the application breaks |
 | Browser execution | 20 | Every action and assertion type, with screenshots, traces, console and network logs |
-| Assertions | 8 | Each assertion type holds when it should and fails when it should not |
+| Assertions | 10 | Each assertion type holds when it should and fails when it should not |
 | Failure detection | 12 | Eleven failure classes on identically shaped pages, plus a control where nothing is broken |
 | Failure analysis | 16 | Classification accuracy; an analysis never overturns a verdict; a silent failure is still caught |
 | Self-healing | 20 | Two heals that should happen, ten refusals that must happen |
 | Security | 11 | Tenant isolation, credential handling, prompt injection, target policy — local applications only |
 | Reliability | 7 | Ten identical runs, twenty against a genuinely unstable application, ten started at once |
+| Performance baseline | 3 | Discovery, a twelve-step run and one generation, each timed several times on recorded hardware |
 
 The headline number is the **false-healing rate**: incorrect heals divided by healing
 opportunities. It is never folded into a success rate, because a healer that repairs nine
@@ -161,5 +162,6 @@ and declaring it correct.
 | Golden suite (generation) | A generated "Reject an invalid filter range" scenario closed by asserting that the filter control it had just clicked was still visible — an assertion that holds whatever the application does. The generated step's own description admitted it was a placeholder. Two more scenarios did the same. A test that cannot fail is worse than no test. `BUG-0016`. |
 | My own golden test | `GEN-011` — "a generated test fails when the application it covers is broken" — passed once on a run where the only failure was an unrelated authentication blip in a two-step smoke test. A test about false passes produced one. It now chooses the fault from the routes the generated tests actually visit and counts only failures in tests that visit the broken page. |
 | Golden suite (generation context) | `TestGenerationService` carries at most 30 elements per page and chose them by stability score — which the crawler gives every stable element equally, all 95 on the page in question. The order was therefore the database's, the cut arbitrary, and it varied between runs: the navigation links that appear on every page survived while the form controls unique to that one were dropped, and the same scenario filled a date range in the right order on one run and the wrong order on the next. Only visible once the generated tests asserted something real. `BUG-0016`. |
+| Auditing the suite against the brief | `assertCount` and `assertAttribute` are implemented by the engine, carried by `BrowserAction` and checked by its validator — and could not be authored at all: the recorded-journey contract had no field for a count or an attribute name, `TestRunService` never copied either onto the executed action, and `MapAssertion` fell through to `_ => Visible`, so an imported count assertion silently became a visibility check pointed at a locator matching three elements. Two of nine assertion types were dead. `BUG-0017`. |
 | Product demonstration | A 401 the application returns on its own sign-in page — the ordinary answer to "is anyone signed in?" — outranked the engine's statement that no element matched, so a removed button was reported as an authentication problem and the reader was sent to check account permissions. Found by the demonstration, not by a test; the classifier now has unit tests that pin the rule ordering. `BUG-0015`. |
 | Writing `setup.md` | The project-key field's `pattern` attribute was `[A-Za-z0-9_-]+`. Chrome compiles that attribute with the regular-expression `v` flag, where `_-` is a reserved double punctuator, so the browser rejected the pattern outright and it validated nothing — logging a console error on every render of the form. The server still validated the key, so this was a usability defect rather than a security one. |

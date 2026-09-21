@@ -76,5 +76,7 @@ artifact hashed in `reports/EVIDENCE-INDEX.md`.
 | R-52 | Scenario budget | `maxScenarios` is respected | GEN-009 | **VERIFIED** (after BUG-0011) |
 | R-53 | Prompt injection (generation) | Text in the application under test cannot instruct the generator | GEN-014 | **VERIFIED** |
 | R-55 | Generated assertions can fail | A generated assertion is about something the action could change | GEN-010, GEN-011, `verification/bugs/BUG-0016/reproduce.mjs` | **VERIFIED** (after BUG-0016) — GEN-011 now attributes the failure to the injected fault rather than accepting any failure |
+| R-57 | Every assertion type is authorable | An assertion the engine implements can be written and reaches it | ASRT-001…ASRT-010, `verification/bugs/BUG-0017/reproduce.mjs` | **VERIFIED** (after BUG-0017) — assertCount and assertAttribute were unreachable end to end |
+| R-58 | Performance baseline | The cost of discovery, execution and generation is measured, not asserted | PERF-001, PERF-002, PERF-003 | **VERIFIED** — published in the report with the hardware it was measured on; no gate depends on it |
 | R-56 | The lab itself | The applications serve, their faults bite, and their ground truth still matches | `test-lab/scripts/lab-selftest.mjs` | **VERIFIED** — 34 checks, run by `make test` |
 | R-54 | Verification visibility | The console shows the last golden run and cannot report green over a red gate | `apps/web-console/src/pages/VerificationPage.test.tsx` | **VERIFIED** — the gate re-check is itself tested with a report that falsely claims to have passed |

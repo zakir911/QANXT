@@ -109,6 +109,20 @@ const falseNegativeChecks = ['DET-001', 'DET-012', 'REL-001', 'EXEC-001', 'HEAL-
 const falsePasses = falsePassChecks.filter(id => latest.get(id)?.result === 'FAIL');
 const falseNegatives = falseNegativeChecks.filter(id => latest.get(id)?.result === 'FAIL');
 
+// Measured, never chosen. Absent when the performance suite did not run, rather than
+// defaulted to a number that would read like evidence.
+metrics.performance = {
+  discoveryMs: metricOf('PERF-001', 'discoveryMs'),
+  discoveryP95Ms: metricOf('PERF-001', 'discoveryP95Ms'),
+  perPageMs: metricOf('PERF-001', 'perPageMs'),
+  runWallClockMs: metricOf('PERF-002', 'runWallClockMs'),
+  runWallClockP95Ms: metricOf('PERF-002', 'runWallClockP95Ms'),
+  runEngineMs: metricOf('PERF-002', 'runEngineMs'),
+  platformOverheadMs: metricOf('PERF-002', 'platformOverheadMs'),
+  perStepMs: metricOf('PERF-002', 'perStepMs'),
+  generationMs: metricOf('PERF-003', 'generationMs')
+};
+
 metrics.integrity = {
   falsePassChecks: falsePassChecks.filter(id => latest.has(id)).length,
   falsePasses: falsePasses.length,
@@ -225,6 +239,9 @@ writeFileSync(join(REPORT_DIR, 'golden-test-report.json'), `${JSON.stringify(sum
 // ---- Markdown --------------------------------------------------------------
 const pct = (value) => (value === null || value === undefined ? 'not measured' : `${(value * 100).toFixed(1)}%`);
 const tick = (ok) => (ok ? 'PASS' : 'FAIL');
+/** Milliseconds, read the way a person would say them. "not measured" is not zero. */
+const dur = (value) => (value === null || value === undefined ? 'not measured'
+  : value >= 1000 ? `${(value / 1000).toFixed(1)}s` : `${value}ms`);
 
 const markdown = `# Golden test report
 
@@ -285,6 +302,21 @@ ${gates.map(entry => `| ${entry.name} | **${tick(entry.passed)}** | ${entry.exec
 | Repeatability | ${metrics.reliability.repeatabilityRuns ?? '—'} runs, ${metrics.reliability.repeatabilityDistinctVerdicts ?? '—'} distinct verdict(s) |
 | Flaky application | ${metrics.reliability.flakyPassed ?? '—'} passed / ${metrics.reliability.flakyFailed ?? '—'} failed of ${metrics.reliability.flakyRuns ?? '—'} |
 | Concurrency | ${metrics.reliability.concurrentReachedVerdict ?? '—'}/${metrics.reliability.concurrentRuns ?? '—'} concurrent runs reached a verdict |
+
+### Performance baseline
+
+Measured on the hardware recorded in \`verification/environment.md\`. These are observations,
+not targets: no gate depends on them, and a run on other hardware will differ.
+
+| | |
+| --- | --- |
+| Discovery of the nine-page bank | ${dur(metrics.performance.discoveryMs)} median, ${dur(metrics.performance.discoveryP95Ms)} p95 |
+| …per discovered page | ${dur(metrics.performance.perPageMs)} |
+| A twelve-step run, queued to verdict | ${dur(metrics.performance.runWallClockMs)} median, ${dur(metrics.performance.runWallClockP95Ms)} p95 |
+| …of which in the browser | ${dur(metrics.performance.runEngineMs)} |
+| …platform overhead (queue, claim, callbacks) | ${dur(metrics.performance.platformOverheadMs)} |
+| …per step | ${dur(metrics.performance.perStepMs)} |
+| Generating a suite from one requirement | ${dur(metrics.performance.generationMs)} |
 
 ### Result integrity
 | | |

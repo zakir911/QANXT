@@ -34,6 +34,11 @@ public sealed record RecordedStepPayload
     [JsonPropertyName("value")] public string? Value { get; init; }
     [JsonPropertyName("url")] public string? Url { get; init; }
     [JsonPropertyName("expected")] public string? Expected { get; init; }
+    /// <summary>The attribute an assertAttribute step reads. Without it the step cannot be
+    /// imported, which is what made that assertion type unreachable (BUG-0017).</summary>
+    [JsonPropertyName("attribute")] public string? Attribute { get; init; }
+    /// <summary>How many elements an assertCount step expects.</summary>
+    [JsonPropertyName("count")] public int? Count { get; init; }
     [JsonPropertyName("annotation")] public string? Annotation { get; init; }
     [JsonPropertyName("timestampMs")] public long TimestampMs { get; init; }
 }
@@ -166,6 +171,8 @@ public sealed class JourneyImportService : IJourneyImportService
                 Url = Truncate(step.Url, 2048),
                 Annotation = Truncate(step.Annotation, 2000),
                 ExpectedResult = Truncate(step.Expected, 2000),
+                AttributeName = Truncate(step.Attribute, 200),
+                ExpectedCount = step.Count,
                 CreatedAt = _clock.UtcNow
             });
         }
@@ -253,7 +260,9 @@ public sealed class JourneyImportService : IJourneyImportService
                 Target = step.Target is null ? null : WithFallbacks(step.Target, step.Candidates),
                 Value = MaskRecordedValue(step.Value, credentials),
                 Url = step.Url,
-                Expected = step.Expected
+                Expected = step.Expected,
+                Attribute = step.Attribute,
+                Count = step.Count
             };
 
             var validation = BrowserActionValidator.Validate(action, policy);
@@ -279,16 +288,19 @@ public sealed class JourneyImportService : IJourneyImportService
             };
             _db.TestSteps.Add(testStep);
 
-            if (IsAssertion(step.Action))
+            if (IsAssertion(step.Action) && MapAssertion(step.Action) is { } assertionType)
             {
                 assertionCount++;
                 _db.Assertions.Add(new Assertion
                 {
                     OrganizationId = application.OrganizationId,
                     TestStepId = testStep.Id,
-                    Type = MapAssertion(step.Action),
+                    Type = assertionType,
                     TargetJson = action.Target?.ToJson(),
-                    ExpectedValue = Truncate(step.Expected, 4000),
+                    // A count is an expectation like any other, so it travels in the same
+                    // column; TestRunService reads it back when it builds the action.
+                    ExpectedValue = Truncate(step.Count?.ToString() ?? step.Expected, 4000),
+                    AttributeName = Truncate(step.Attribute, 200),
                     Description = Truncate(step.Annotation ?? step.Description, 1000),
                     CreatedAt = _clock.UtcNow
                 });
@@ -406,14 +418,27 @@ public sealed class JourneyImportService : IJourneyImportService
 
     private static bool IsAssertion(BrowserActionType action) => (int)action >= 20 && (int)action < 90;
 
-    private static AssertionType MapAssertion(BrowserActionType action) => action switch
+    /// <summary>The planned assertion that mirrors an assertion-typed step, or null when
+    /// there is no honest equivalent.
+    ///
+    /// This used to fall back to <see cref="AssertionType.Visible"/> for anything it did not
+    /// recognise, which turned an assertCount into a visibility check: the step counted
+    /// correctly and the planned assertion beside it then failed on the very locator the
+    /// count needed, because resolving a locator that matches three elements is an error
+    /// (BUG-0017). A wrong assertion is worse than no assertion, so unmapped actions now
+    /// produce none — the step itself still runs and still decides the verdict.</summary>
+    private static AssertionType? MapAssertion(BrowserActionType action) => action switch
     {
         BrowserActionType.AssertText => AssertionType.TextContains,
         BrowserActionType.AssertVisible => AssertionType.Visible,
         BrowserActionType.AssertHidden => AssertionType.Hidden,
         BrowserActionType.AssertUrl => AssertionType.UrlContains,
         BrowserActionType.AssertValue => AssertionType.ValueEquals,
-        _ => AssertionType.Visible
+        BrowserActionType.AssertCount => AssertionType.CountEquals,
+        BrowserActionType.AssertAttribute => AssertionType.AttributeEquals,
+        BrowserActionType.AssertEnabled => AssertionType.Enabled,
+        BrowserActionType.AssertDisabled => AssertionType.Disabled,
+        _ => null
     };
 
     private static string Truncate(string? value, int max)

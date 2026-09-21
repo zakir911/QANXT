@@ -1,0 +1,35 @@
+{
+  "bug": "BUG-0017",
+  "summary": "assertCount and assertAttribute are executed by the engine but cannot be authored: the recorded-journey payload carries neither a count nor an attribute name, so the step is dropped at import and a test written to check a row count arrives without the check.",
+  "unreachable": 0,
+  "of": 2,
+  "findings": [
+    {
+      "kind": "assertCount",
+      "sentSteps": 5,
+      "storedActions": [
+        "navigate",
+        "fill",
+        "fill",
+        "click",
+        "assertCount"
+      ],
+      "survived": true,
+      "runStatus": "failed",
+      "warnings": [],
+      "reachable": true
+    },
+    {
+      "kind": "assertAttribute",
+      "sentSteps": 2,
+      "storedActions": [
+        "navigate",
+        "assertAttribute"
+      ],
+      "survived": true,
+      "runStatus": "failed",
+      "warnings": [],
+      "reachable": true
+    }
+  ]
+}

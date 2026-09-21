@@ -47,4 +47,8 @@ public class JourneyStep : BaseEntity, ITenantOwned
     public string? Url { get; set; }
     public string? Annotation { get; set; }
     public string? ExpectedResult { get; set; }
+    /// <summary>The attribute an assertAttribute step reads.</summary>
+    public string? AttributeName { get; set; }
+    /// <summary>How many elements an assertCount step expects.</summary>
+    public int? ExpectedCount { get; set; }
 }

@@ -17,6 +17,28 @@ import {
 
 const BANK = LAB.banking;
 
+/**
+ * Two step builders the shared kit does not carry, because until BUG-0017 neither
+ * assertion could be imported: the recorded-journey contract had no field for a count or
+ * an attribute name, so the engine's implementation of both was unreachable.
+ */
+// Counted by CSS rather than by test id: getByTestId is an exact match, so it can never
+// return more than the one element, and a count assertion needs a locator that matches a
+// set. The account rows carry one test id each, prefixed alike.
+const assertCount = (selector, count, url) => ({
+  action: 'assertCount', description: `${selector} matches ${count} element(s)`,
+  target: { strategy: 'css', value: selector, exact: false, fallbacks: [] }, count, url
+});
+
+const assertAttribute = (testId, attribute, expected, url) => ({
+  action: 'assertAttribute', description: `${testId}'s ${attribute} is "${expected}"`,
+  target: { strategy: 'testId', value: testId, exact: false, fallbacks: [] },
+  attribute, expected, url
+});
+
+/** One row per account, each with its own test id under a shared prefix. */
+const ACCOUNT_ROWS = '[data-testid^="account-row-"]';
+
 const signIn = () => [
   step.navigate(`${BANK}/login`),
   step.fill('username', 'alice', `${BANK}/login`),
@@ -86,6 +108,24 @@ export default async function run() {
         step.fill('filter-min', '250', `${BANK}/transactions`),
         step.assertValue('filter-min', '999', `${BANK}/transactions`)],
       severity: 'critical'
+    },
+    {
+      id: 'ASRT-009', kind: 'assertCount',
+      // Alice holds three accounts, so the accounts table renders three rows. Ten is wrong
+      // about the application, and an assertion that works must fail on it.
+      holds: [...signIn(), step.click('nav-accounts', `${BANK}/dashboard`),
+        assertCount(ACCOUNT_ROWS, 3, `${BANK}/accounts`)],
+      breaks: [...signIn(), step.click('nav-accounts', `${BANK}/dashboard`),
+        assertCount(ACCOUNT_ROWS, 10, `${BANK}/accounts`)],
+      severity: 'high'
+    },
+    {
+      id: 'ASRT-010', kind: 'assertAttribute',
+      // The field carries name="username"; it carries no type attribute at all, which is
+      // why an earlier version of this check failed against a perfectly healthy page.
+      holds: [step.navigate(`${BANK}/login`), assertAttribute('username', 'name', 'username', `${BANK}/login`)],
+      breaks: [step.navigate(`${BANK}/login`), assertAttribute('username', 'name', 'account-number', `${BANK}/login`)],
+      severity: 'high'
     },
     {
       id: 'ASRT-005', kind: 'assertHidden',

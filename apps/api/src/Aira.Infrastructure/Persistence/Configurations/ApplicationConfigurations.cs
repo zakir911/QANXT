@@ -145,6 +145,7 @@ public class JourneyStepConfiguration : IEntityTypeConfiguration<JourneyStep>
         b.Property(x => x.Url).HasMaxLength(2048);
         b.Property(x => x.Annotation).HasMaxLength(2000);
         b.Property(x => x.ExpectedResult).HasMaxLength(2000);
+        b.Property(x => x.AttributeName).HasMaxLength(200);
         b.HasIndex(x => new { x.JourneyId, x.Order });
         b.HasOne(x => x.Journey).WithMany(j => j.Steps)
             .HasForeignKey(x => x.JourneyId).OnDelete(DeleteBehavior.Cascade);
