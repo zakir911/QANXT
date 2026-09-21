@@ -97,7 +97,23 @@ export class TestExecutor {
       page = await context.newPage();
       collector.attach(page);
 
-      if (auth.strategy === 'formLogin') {
+      // A test that signs in for itself must not be signed in for.
+      //
+      // The recorder captures the sign-in a person performed — that is why it substitutes
+      // ${secret:...} for the password field — so an imported journey usually begins at the
+      // login page. Signing in first and then replaying those steps breaks on every
+      // application that redirects an authenticated visitor away from its login screen,
+      // which is most of them (BUG-0009). When the test starts by navigating to the
+      // configured login URL, it means to do this itself.
+      const testSignsInItself = auth.strategy === 'formLogin'
+        && auth.loginUrl !== undefined
+        && startsAtLoginPage(job.steps, auth.loginUrl);
+
+      if (testSignsInItself) {
+        this.logger.info('Skipping the configured sign-in: this test starts at the login page and signs in itself.', { executionId: job.executionId });
+      }
+
+      if (auth.strategy === 'formLogin' && !testSignsInItself) {
         const login = await performLogin(page, auth, {
           navigationTimeoutMs: Math.max(job.defaultTimeoutMs, 30_000),
           actionTimeoutMs: job.defaultTimeoutMs
@@ -455,4 +471,27 @@ function safeUrl(page: Page): string | undefined {
 /** Removes an execution's temporary artifact directory once the files are uploaded. */
 export async function cleanupExecutionArtifacts(artifactRoot: string, executionId: string): Promise<void> {
   await rm(join(artifactRoot, executionId), { recursive: true, force: true });
+}
+
+/**
+ * True when the test's own first navigation goes to the application's login page.
+ *
+ * Compared by origin and path so that a query string or a trailing slash does not change
+ * the answer, and only the first step counts: a journey that visits the login page halfway
+ * through (to sign out and back in, say) still wants the session it started with.
+ */
+function startsAtLoginPage(steps: ExecutionJob['steps'], loginUrl: string): boolean {
+  const first = steps.find(step => step.action.action === 'navigate');
+  if (!first) return false;
+
+  const target = first.action.url ?? first.action.value;
+  if (!target) return false;
+
+  try {
+    const a = new URL(target);
+    const b = new URL(loginUrl);
+    return a.origin === b.origin && a.pathname.replace(/\/$/, '') === b.pathname.replace(/\/$/, '');
+  } catch {
+    return false;
+  }
 }

@@ -1,0 +1,56 @@
+{
+  "run": {
+    "id": "b25a6cb8-4853-47f1-b047-4ffa831e1631",
+    "projectId": "2c34f20e-ef7c-4b2b-98ea-813217146ad7",
+    "name": "EXEC pagination",
+    "status": "failed",
+    "trigger": "manual",
+    "browser": "chromium",
+    "createdAt": "2026-09-21T03:28:18.174651+00:00",
+    "startedAt": "2026-09-21T03:28:18.187172+00:00",
+    "completedAt": "2026-09-21T03:28:40.508246+00:00",
+    "durationMs": 22321,
+    "totalCount": 1,
+    "passedCount": 0,
+    "failedCount": 1,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 0,
+    "flakyCount": 0,
+    "qualityGatePassed": true
+  },
+  "actions": [
+    {
+      "id": "2ad8d3ec-a62c-4b7b-b2ee-18e3d8082081",
+      "order": 1,
+      "action": "navigate",
+      "description": "Go to http://localhost:4300/login",
+      "status": "passed",
+      "startedAt": "2026-09-21T03:28:21.452+00:00",
+      "durationMs": 85,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false
+    },
+    {
+      "id": "7796d169-e9d6-44c1-8ab1-50486977bc5e",
+      "order": 2,
+      "action": "fill",
+      "description": "Enter a value in username",
+      "status": "failed",
+      "startedAt": "2026-09-21T03:28:21.548+00:00",
+      "durationMs": 15045,
+      "url": "http://localhost:4300/login",
+      "maskedValue": "***REDACTED***",
+      "wasHealed": false,
+      "errorMessage": "testId=\"username\" could not be used: No element matched testId=\"username\".",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"username\"",
+      "locatorAlternativesJson": "[]"
+    }
+  ]
+}

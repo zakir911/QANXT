@@ -1,0 +1,84 @@
+{
+  "bug": "BUG-0010",
+  "summary": "An assertion step is evaluated twice: once as an action, whose expected value the execution plan never carries, and once as a planned assertion, which has it. assertValue therefore always fails; assertText and assertUrl pass vacuously at the action level.",
+  "incorrectVerdicts": 0,
+  "of": 6,
+  "attempts": [
+    {
+      "attempt": 1,
+      "case": "wrong-text",
+      "expectedVerdict": "failed",
+      "actualVerdict": "failed",
+      "correct": true,
+      "why": "the expected text does not match the page",
+      "lastAction": {
+        "action": "assertText",
+        "status": "failed",
+        "error": "Expected the element to contain \"Totally Wrong Title\" but it read \"Dashboard\"."
+      }
+    },
+    {
+      "attempt": 1,
+      "case": "wrong-url",
+      "expectedVerdict": "failed",
+      "actualVerdict": "failed",
+      "correct": true,
+      "why": "the expected fragment is not in the address",
+      "lastAction": {
+        "action": "assertUrl",
+        "status": "failed",
+        "error": "Expected the URL to contain \"/nowhere-at-all\" but it was \"http://localhost:4300/dashboard\"."
+      }
+    },
+    {
+      "attempt": 1,
+      "case": "right-value",
+      "expectedVerdict": "passed",
+      "actualVerdict": "passed",
+      "correct": true,
+      "why": "the field really does hold 100",
+      "lastAction": {
+        "action": "assertValue",
+        "status": "passed"
+      }
+    },
+    {
+      "attempt": 2,
+      "case": "wrong-text",
+      "expectedVerdict": "failed",
+      "actualVerdict": "failed",
+      "correct": true,
+      "why": "the expected text does not match the page",
+      "lastAction": {
+        "action": "assertText",
+        "status": "failed",
+        "error": "Expected the element to contain \"Totally Wrong Title\" but it read \"Dashboard\"."
+      }
+    },
+    {
+      "attempt": 2,
+      "case": "wrong-url",
+      "expectedVerdict": "failed",
+      "actualVerdict": "failed",
+      "correct": true,
+      "why": "the expected fragment is not in the address",
+      "lastAction": {
+        "action": "assertUrl",
+        "status": "failed",
+        "error": "Expected the URL to contain \"/nowhere-at-all\" but it was \"http://localhost:4300/dashboard\"."
+      }
+    },
+    {
+      "attempt": 2,
+      "case": "right-value",
+      "expectedVerdict": "passed",
+      "actualVerdict": "passed",
+      "correct": true,
+      "why": "the field really does hold 100",
+      "lastAction": {
+        "action": "assertValue",
+        "status": "passed"
+      }
+    }
+  ]
+}

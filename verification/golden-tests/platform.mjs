@@ -245,6 +245,23 @@ export const step = {
   assertText: (testId, expected, url, description) => ({
     action: 'assertText', description: description ?? `${testId} reads "${expected}"`,
     target: { strategy: 'testId', value: testId, exact: false, fallbacks: [] }, expected, url
+  }),
+  assertUrl: (fragment, url, description) => ({
+    action: 'assertUrl', description: description ?? `The address contains "${fragment}"`,
+    expected: fragment, url
+  }),
+  assertValue: (testId, expected, url, description) => ({
+    action: 'assertValue', description: description ?? `${testId} holds "${expected}"`,
+    target: { strategy: 'testId', value: testId, exact: false, fallbacks: [] }, expected, url
+  }),
+  assertHidden: (testId, url, description) => ({
+    action: 'assertHidden', description: description ?? `${testId} is not visible`,
+    target: { strategy: 'testId', value: testId, exact: false, fallbacks: [] }, url
+  }),
+  press: (key, testId, url) => ({
+    action: 'press', description: `Press ${key}`,
+    target: testId ? { strategy: 'testId', value: testId, exact: false, fallbacks: [] } : undefined,
+    value: key, url
   })
 };
 

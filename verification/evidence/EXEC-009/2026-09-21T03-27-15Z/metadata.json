@@ -1,0 +1,25 @@
+{
+  "testId": "EXEC-009",
+  "suite": "Browser execution",
+  "runId": "2026-09-21T03-27-15Z",
+  "objective": "A value assertion compares what is in the field, not what was typed",
+  "preconditions": [
+    "EXEC-001 executed"
+  ],
+  "input": "assertValue on filter-min after filling it with 100",
+  "expected": "The assertion passed and recorded the value it compared",
+  "severity": "high",
+  "result": "FAIL",
+  "detail": "the assertion did not run; declared evidence never produced: EXEC-009-action.json",
+  "metrics": null,
+  "startedAt": "2026-09-21T03:27:41.781Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "399446c",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": []
+}

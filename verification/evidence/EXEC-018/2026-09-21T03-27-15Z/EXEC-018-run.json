@@ -1,0 +1,56 @@
+{
+  "run": {
+    "id": "5aa5ed89-6661-48cd-b85b-4aeafef8b3ae",
+    "projectId": "2c34f20e-ef7c-4b2b-98ea-813217146ad7",
+    "name": "EXEC modal dialog",
+    "status": "failed",
+    "trigger": "manual",
+    "browser": "chromium",
+    "createdAt": "2026-09-21T03:27:54.055706+00:00",
+    "startedAt": "2026-09-21T03:27:54.066639+00:00",
+    "completedAt": "2026-09-21T03:28:16.429791+00:00",
+    "durationMs": 22363,
+    "totalCount": 1,
+    "passedCount": 0,
+    "failedCount": 1,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 0,
+    "flakyCount": 0,
+    "qualityGatePassed": true
+  },
+  "actions": [
+    {
+      "id": "5f1d367f-be98-4bc7-b3ca-1df799e412fc",
+      "order": 1,
+      "action": "navigate",
+      "description": "Go to http://localhost:4300/login",
+      "status": "passed",
+      "startedAt": "2026-09-21T03:27:57.37+00:00",
+      "durationMs": 69,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false
+    },
+    {
+      "id": "8330aa11-9b9d-4ba8-8633-524376b33fb9",
+      "order": 2,
+      "action": "fill",
+      "description": "Enter a value in username",
+      "status": "failed",
+      "startedAt": "2026-09-21T03:27:57.451+00:00",
+      "durationMs": 15044,
+      "url": "http://localhost:4300/dashboard",
+      "maskedValue": "***REDACTED***",
+      "wasHealed": false,
+      "errorMessage": "testId=\"username\" could not be used: No element matched testId=\"username\".",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"username\"",
+      "locatorAlternativesJson": "[]"
+    }
+  ]
+}

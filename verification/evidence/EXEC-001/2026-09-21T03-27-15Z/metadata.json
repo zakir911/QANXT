@@ -1,0 +1,42 @@
+{
+  "testId": "EXEC-001",
+  "suite": "Browser execution",
+  "runId": "2026-09-21T03-27-15Z",
+  "objective": "A twenty-step journey through a real application passes end to end",
+  "preconditions": [
+    "the lab bank is running with no faults",
+    "the journey was imported, not hand-edited"
+  ],
+  "input": "navigate, fill, check, click, select and six assertions across four pages",
+  "expected": "The run passes, every step passes, and the browser really visited those pages",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "run failed, 1/20 step(s) passed on chromium 141.0.7390.37 in 22870ms",
+  "metrics": {
+    "durationMs": 22870,
+    "steps": 20
+  },
+  "startedAt": "2026-09-21T03:27:41.774Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "399446c",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/EXEC-001/2026-09-21T03-27-15Z/run.json",
+      "bytes": 551,
+      "sha256": "ded89d173cca1b1ab0c3dbbf0b64bc87aedf2af82fa8da658d3757605a14da38"
+    },
+    {
+      "file": "actions.json",
+      "path": "evidence/EXEC-001/2026-09-21T03-27-15Z/actions.json",
+      "bytes": 989,
+      "sha256": "60d5f08a6487fa293fad842ae72afc996d19a3074a916d0043d657b0ba160e50"
+    }
+  ]
+}

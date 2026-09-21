@@ -322,7 +322,16 @@ public sealed class TestRunService : ITestRunService
                     Value = step.Value,
                     Url = step.Url,
                     TimeoutMs = step.TimeoutMs,
-                    Critical = step.IsCritical
+                    Critical = step.IsCritical,
+                    // A step has no expected-value column of its own: the expectation lives
+                    // on its assertion. The engine evaluates an assertion-typed action as
+                    // well as the planned assertions, so without this the action is judged
+                    // against an empty string — assertValue always failed and assertText
+                    // and assertUrl passed whatever the page said (BUG-0010).
+                    Expected = step.Assertions
+                        .OrderBy(a => a.CreatedAt)
+                        .Select(a => a.ExpectedValue)
+                        .FirstOrDefault(value => !string.IsNullOrEmpty(value))
                 },
                 Fingerprint = fingerprints.GetValueOrDefault(step.Id),
                 ContinueOnFailure = step.ContinueOnFailure,
