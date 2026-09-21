@@ -1,0 +1,72 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "87acf339-6990-44ac-a276-f608851fe5f8",
+      "order": 5,
+      "action": "assertVisible",
+      "description": "total-balance is visible",
+      "status": "passed",
+      "startedAt": "2026-09-21T07:46:59.561+00:00",
+      "durationMs": 59,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "total-balance",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"total-balance\""
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "7d1159a1-7569-4479-a378-770c7e02ad5b",
+      "order": 5,
+      "action": "assertVisible",
+      "description": "no-such-element-anywhere is visible",
+      "status": "failed",
+      "startedAt": "2026-09-21T07:47:01.642+00:00",
+      "durationMs": 15036,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false,
+      "errorMessage": "testId=\"no-such-element-anywhere\" could not be used: No element matched testId=\"no-such-element-anywhere\".",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "no-such-element-anywhere",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"no-such-element-anywhere\"",
+      "locatorAlternativesJson": "[]"
+    },
+    "failure": {
+      "id": "f4a6903c-2d31-4114-8a48-8945b440b668",
+      "category": "authenticationIssue",
+      "categoryConfidence": 85,
+      "rawMessage": "testId=\"no-such-element-anywhere\" could not be used: No element matched testId=\"no-such-element-anywhere\".",
+      "signature": "6670448a397bc8344be219763aaaae1a39d161208b354c4f19c8a06d9f86002f",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-21T07:47:18.938378+00:00",
+      "lastSeenAt": "2026-09-21T07:47:18.938378+00:00",
+      "analysis": {
+        "summary": "The session was not authorised.",
+        "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+        "evidence": "1 request(s) returned 401 or 403.",
+        "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+        "category": "authenticationIssue",
+        "confidence": 85,
+        "isLikelyApplicationDefect": false,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1d0c467b-9bba-43f2-b8d1-a8ddcbb62cb3\", \"kind\": \"Screenshot\", \"name\": \"step-5-failure.png\"}, {\"id\": \"9ebbd315-1b4b-475d-a33b-5e939058dbbe\", \"kind\": \"AccessibilityTree\", \"name\": \"step-5-failure.a11y.json\"}, {\"id\": \"a0a6a738-5786-46d6-a85a-6799cd50187e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"a31bd3c1-89d8-4970-86cb-867cb5ee75ab\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"a54553c8-7a7a-4d0f-b369-cc14cd391c86\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"a6029779-35fc-4a9f-9ab8-52db56921768\", \"kind\": \"DomSnapshot\", \"name\": \"step-5-failure.html\"}, {\"id\": \"c3bb2905-3586-45ae-b5f2-6dc3edbc9504\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"d1822598-fc09-45cd-8b6f-0209f1da20ea\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"7bc07535-514d-47a7-a437-3e65db480810\"}"
+      }
+    }
+  }
+}

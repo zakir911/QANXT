@@ -1,0 +1,247 @@
+{
+  "generatedAt": "2026-09-21T12:24:31.928Z",
+  "application": "AIRA Demo Bank 1.0.0",
+  "discovery": {
+    "status": "completed",
+    "pages": 11,
+    "elements": 259,
+    "apiEndpoints": 14,
+    "routes": [
+      "/login",
+      "/accounts",
+      "/accounts/acc-1001",
+      "/accounts/acc-1002",
+      "/accounts/acc-1003",
+      "/beneficiaries",
+      "/dashboard",
+      "/payments",
+      "/profile",
+      "/statements",
+      "/transactions"
+    ]
+  },
+  "generation": {
+    "requirement": "Customer can login and download account statement.",
+    "provider": "local/aira-rules-v1",
+    "isLocalProvider": true,
+    "casesCreated": 3,
+    "firstCase": {
+      "name": "AIRA Demo Bank /dashboard loads",
+      "status": "passed"
+    }
+  },
+  "baseline": {
+    "reference": "TC-0004",
+    "status": "passed",
+    "durationMs": 1036
+  },
+  "afterRename": {
+    "status": "passed",
+    "healingEvents": [
+      {
+        "outcome": "applied",
+        "confidence": 79
+      }
+    ],
+    "storedLocatorAfterwards": {
+      "strategy": "testId",
+      "value": "login-submit",
+      "exact": false,
+      "fallbacks": []
+    }
+  },
+  "afterRemoval": {
+    "status": "failed",
+    "healsApplied": 0,
+    "failingStep": {
+      "order": 4,
+      "action": "click",
+      "error": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\"."
+    },
+    "classification": "locatorChange",
+    "analysis": {
+      "summary": "The failing step could not find the element it needed.",
+      "likelyCause": "The element is absent from the page. Either the UI changed and the locator is stale, or an earlier step left the application somewhere other than the expected page.",
+      "suggestedAction": "Compare the failure screenshot with the expected page. If the page is right but the element moved, update the locator; if the page is wrong, the failure is earlier in the journey.",
+      "producedByAi": false,
+      "provider": "local"
+    }
+  },
+  "restored": {
+    "status": "passed"
+  },
+  "artifacts": {
+    "afterRename": [
+      {
+        "kind": "screenshot",
+        "name": "final.png",
+        "bytes": 103613
+      },
+      {
+        "kind": "video",
+        "name": "execution.webm",
+        "bytes": 999543
+      },
+      {
+        "kind": "trace",
+        "name": "trace.zip",
+        "bytes": 1172786
+      },
+      {
+        "kind": "consoleLog",
+        "name": "execution.console.json",
+        "bytes": 242
+      },
+      {
+        "kind": "networkLog",
+        "name": "execution.network.json",
+        "bytes": 16049
+      }
+    ],
+    "afterRemoval": [
+      {
+        "kind": "screenshot",
+        "name": "final.png",
+        "bytes": 326830
+      },
+      {
+        "kind": "screenshot",
+        "name": "step-4-failure.png",
+        "bytes": 326830
+      },
+      {
+        "kind": "video",
+        "name": "execution.webm",
+        "bytes": 932303
+      },
+      {
+        "kind": "trace",
+        "name": "trace.zip",
+        "bytes": 1188809
+      },
+      {
+        "kind": "domSnapshot",
+        "name": "step-4-failure.html",
+        "bytes": 1737
+      },
+      {
+        "kind": "accessibilityTree",
+        "name": "step-4-failure.a11y.json",
+        "bytes": 807
+      },
+      {
+        "kind": "consoleLog",
+        "name": "execution.console.json",
+        "bytes": 242
+      },
+      {
+        "kind": "networkLog",
+        "name": "execution.network.json",
+        "bytes": 1881
+      }
+    ]
+  },
+  "transcript": [
+    {
+      "step": 1,
+      "title": "Check the platform and the application under test are up",
+      "detail": "AIRA: healthy\nAIRA Demo Bank 1.0.0: healthy, faults: none",
+      "at": "2026-09-21T12:23:17.377Z"
+    },
+    {
+      "step": 2,
+      "title": "Create an organisation, a project and register the application",
+      "detail": "project GD4SB1Z, application af23b77c-d67b-41a6-9ad9-05bb2b9cb5e5\nhealing policy: auto at 75% · video and trace capture: on",
+      "at": "2026-09-21T12:23:17.491Z"
+    },
+    {
+      "step": 3,
+      "title": "Discover the application",
+      "detail": "crawl completed in 20s",
+      "at": "2026-09-21T12:23:20.588Z"
+    },
+    {
+      "step": 4,
+      "title": "What discovery found",
+      "detail": "/login                     7 elements  public   login\n/accounts                 19 elements  private  list\n/accounts/acc-1001        29 elements  private  list\n/accounts/acc-1002        29 elements  private  list\n/accounts/acc-1003        29 elements  private  list\n/beneficiaries            17 elements  private  list\n/dashboard                39 elements  private  dashboard\n/payments                 21 elements  private  form\n/profile                  17 elements  private  settings\n/statements               17 elements  private  form\n/transactions             35 elements  private  list\n11 pages, 259 elements, 14 API endpoints",
+      "at": "2026-09-21T12:23:41.077Z"
+    },
+    {
+      "step": 5,
+      "title": "Generate tests from a sentence",
+      "detail": "\"Customer can login and download account statement.\"\n3 test case(s), 9 steps, by local/aira-rules-v1 (built-in rules — no model provider configured)\n  TC-0001  AIRA Demo Bank /dashboard loads\n  TC-0002  View AIRA Demo Bank /transactions\n  TC-0003  Reject an invalid filter range on AIRA Demo Bank /transactions",
+      "at": "2026-09-21T12:23:41.078Z"
+    },
+    {
+      "step": 6,
+      "title": "Execute a generated test",
+      "detail": "AIRA Demo Bank /dashboard loads: passed (2/2 steps, 3974ms)",
+      "at": "2026-09-21T12:23:43.849Z"
+    },
+    {
+      "step": 7,
+      "title": "Execute the statement journey the demonstration is about",
+      "detail": "TC-0004: passed (9/9 steps, 1036ms)",
+      "at": "2026-09-21T12:23:51.314Z"
+    },
+    {
+      "step": 8,
+      "title": "Change the application underneath the test",
+      "detail": "FAULT_LOGIN_BUTTON_RENAMED: the sign-in control is relabelled \"Sign In\" and its test id changes\nthe page now renders: renamedSignIn\":true",
+      "at": "2026-09-21T12:23:53.504Z"
+    },
+    {
+      "step": 9,
+      "title": "Re-run the same test, unedited",
+      "detail": "passed: 1 healing event(s)\n  applied at 79% — login-submit → signin-submit\nthe click step records wasHealed=true at 79%",
+      "at": "2026-09-21T12:23:53.510Z"
+    },
+    {
+      "step": 10,
+      "title": "The stored test was not rewritten",
+      "detail": "the stored step still targets {\"strategy\":\"testId\",\"value\":\"login-submit\",\"exact\":false,\"fallbacks\":[]}",
+      "at": "2026-09-21T12:24:11.647Z"
+    },
+    {
+      "step": 11,
+      "title": "Collect the evidence for that run",
+      "detail": "screenshot   final.png (103613 bytes)\nvideo        execution.webm (999543 bytes)\ntrace        trace.zip (1172786 bytes)\nconsoleLog   execution.console.json (242 bytes)\nnetworkLog   execution.network.json (16049 bytes)\nvideo saved to verification/demo/product-demo.webm (999543 bytes)",
+      "at": "2026-09-21T12:24:11.707Z"
+    },
+    {
+      "step": 12,
+      "title": "Remove the control entirely",
+      "detail": "FAULT_LOGIN_BUTTON_REMOVED: nothing on the page submits the form",
+      "at": "2026-09-21T12:24:11.761Z"
+    },
+    {
+      "step": 13,
+      "title": "Re-run the same test again, still unedited",
+      "detail": "failed: 3/9 steps\nfailed at step 4 (click): testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".\n0 heal(s) applied — nothing on the page performs that function, so nothing was substituted",
+      "at": "2026-09-21T12:24:11.765Z"
+    },
+    {
+      "step": 14,
+      "title": "What the platform says about the failure",
+      "detail": "category: locatorChange at 65% confidence\nsummary: The failing step could not find the element it needed.\nlikely cause: The element is absent from the page. Either the UI changed and the locator is stale, or an earlier step left the application somewhere other than the expected page.\nsuggested action: Compare the failure screenshot with the expected page. If the page is right but the element moved, update the locator; if the page is wrong, the failure is earlier in the journey.\nproduced by: local (deterministic rules)",
+      "at": "2026-09-21T12:24:29.876Z"
+    },
+    {
+      "step": 15,
+      "title": "Evidence for the failed run",
+      "detail": "screenshot   final.png (326830 bytes)\nscreenshot   step-4-failure.png (326830 bytes)\nvideo        execution.webm (932303 bytes)\ntrace        trace.zip (1188809 bytes)\ndomSnapshot  step-4-failure.html (1737 bytes)\naccessibilityTree step-4-failure.a11y.json (807 bytes)\nconsoleLog   execution.console.json (242 bytes)\nnetworkLog   execution.network.json (1881 bytes)",
+      "at": "2026-09-21T12:24:29.877Z"
+    },
+    {
+      "step": 16,
+      "title": "Put the application back and confirm the test passes again",
+      "detail": "passed (9/9 steps)",
+      "at": "2026-09-21T12:24:29.881Z"
+    },
+    {
+      "step": 17,
+      "title": "Write the demonstration record",
+      "at": "2026-09-21T12:24:31.928Z"
+    }
+  ]
+}

@@ -1,0 +1,1736 @@
+{
+  "runId": "2026-09-21T09-27-06Z",
+  "generatedAt": "2026-09-21T09:45:25.561Z",
+  "build": {
+    "commit": "6bf8a08",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "totals": {
+    "total": 125,
+    "passed": 121,
+    "failed": 0,
+    "notVerified": 4,
+    "criticalFailures": 0
+  },
+  "bySeverity": [
+    {
+      "severity": "critical",
+      "total": 52,
+      "failed": 0
+    },
+    {
+      "severity": "high",
+      "total": 52,
+      "failed": 0
+    },
+    {
+      "severity": "medium",
+      "total": 21,
+      "failed": 0
+    },
+    {
+      "severity": "low",
+      "total": 0,
+      "failed": 0
+    }
+  ],
+  "bySuite": [
+    {
+      "suite": "Assertions",
+      "total": 8,
+      "passed": 8,
+      "failed": 0,
+      "notVerified": 0
+    },
+    {
+      "suite": "Failure detection",
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "notVerified": 0
+    },
+    {
+      "suite": "Discovery",
+      "total": 15,
+      "passed": 15,
+      "failed": 0,
+      "notVerified": 0
+    },
+    {
+      "suite": "Browser execution",
+      "total": 20,
+      "passed": 18,
+      "failed": 0,
+      "notVerified": 2
+    },
+    {
+      "suite": "Failure analysis",
+      "total": 16,
+      "passed": 16,
+      "failed": 0,
+      "notVerified": 0
+    },
+    {
+      "suite": "AI test generation",
+      "total": 16,
+      "passed": 15,
+      "failed": 0,
+      "notVerified": 1
+    },
+    {
+      "suite": "Self-healing",
+      "total": 20,
+      "passed": 20,
+      "failed": 0,
+      "notVerified": 0
+    },
+    {
+      "suite": "Reliability",
+      "total": 7,
+      "passed": 6,
+      "failed": 0,
+      "notVerified": 1
+    },
+    {
+      "suite": "Security and multi-tenancy",
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "notVerified": 0
+    }
+  ],
+  "metrics": {
+    "discovery": {
+      "pageRecall": 1,
+      "pagePrecision": 1,
+      "apiRecall": 0.8333,
+      "stableLocatorShare": 1,
+      "pagesDiscovered": 11,
+      "elementsDiscovered": 259,
+      "discoveryMs": 15067
+    },
+    "generation": {
+      "coverageOfDiscoveredPages": 0.6667,
+      "stableLocatorShare": 1,
+      "generatedTestsExecuted": 5,
+      "generatedTestsPassed": 5,
+      "generatedTestsFailedUnderFault": 1
+    },
+    "execution": {
+      "twentyStepJourneyMs": 1218,
+      "steps": 20,
+      "networkEventsCaptured": 8,
+      "lateContentWaitMs": 6389
+    },
+    "failureAnalysis": {
+      "classificationAccuracy": 1,
+      "classesCorrect": 10,
+      "classesTotal": 10,
+      "classifiedUnknown": 0
+    },
+    "healing": {
+      "opportunities": 12,
+      "correctHeals": 2,
+      "correctRejections": 10,
+      "incorrectHeals": 0,
+      "missedHeals": 0,
+      "healingSuccessRate": 1,
+      "falseHealingRate": 0,
+      "confidenceMargin": 16,
+      "lowestHealable": 79,
+      "highestWrongTarget": 63
+    },
+    "reliability": {
+      "repeatabilityRuns": 10,
+      "repeatabilityDistinctVerdicts": 1,
+      "flakyRuns": 20,
+      "flakyPassed": 7,
+      "flakyFailed": 13,
+      "concurrentRuns": 10,
+      "concurrentReachedVerdict": 10
+    },
+    "integrity": {
+      "falsePassChecks": 12,
+      "falsePasses": 0,
+      "falseNegativeChecks": 5,
+      "falseNegatives": 0
+    }
+  },
+  "gates": [
+    {
+      "name": "Functional",
+      "passed": true,
+      "total": 28,
+      "executed": 26,
+      "failures": [],
+      "notVerified": [
+        "EXEC-015",
+        "EXEC-016"
+      ]
+    },
+    {
+      "name": "Discovery",
+      "passed": true,
+      "total": 15,
+      "executed": 15,
+      "failures": [],
+      "notVerified": []
+    },
+    {
+      "name": "AI",
+      "passed": true,
+      "total": 32,
+      "executed": 31,
+      "failures": [],
+      "notVerified": [
+        "GEN-016"
+      ]
+    },
+    {
+      "name": "Self-healing",
+      "passed": true,
+      "total": 20,
+      "executed": 20,
+      "failures": [],
+      "notVerified": []
+    },
+    {
+      "name": "Security",
+      "passed": true,
+      "total": 11,
+      "executed": 11,
+      "failures": [],
+      "notVerified": []
+    },
+    {
+      "name": "Reliability",
+      "passed": true,
+      "total": 7,
+      "executed": 6,
+      "failures": [],
+      "notVerified": [
+        "REL-007"
+      ]
+    },
+    {
+      "name": "Failure detection",
+      "passed": true,
+      "total": 12,
+      "executed": 12,
+      "failures": [],
+      "notVerified": []
+    },
+    {
+      "name": "Evidence",
+      "passed": true,
+      "total": 125,
+      "executed": 121,
+      "failures": [],
+      "notVerified": []
+    }
+  ],
+  "overall": true,
+  "evidence": {
+    "artifacts": 123,
+    "bytes": 361112,
+    "missing": 0,
+    "changed": 0
+  },
+  "tests": [
+    {
+      "id": "ASRT-001",
+      "suite": "Assertions",
+      "objective": "assertVisible holds when it should and fails when it should not",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "holds → passed; breaks → failed; message: testId=\"no-such-element-anywhere\" could not be used: No element matched testId=\"no-such-element-anywhere\".",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/ASRT-001/2026-09-21T09-27-06Z/ASRT-001-both-directions.json"
+      ]
+    },
+    {
+      "id": "ASRT-002",
+      "suite": "Assertions",
+      "objective": "assertText holds when it should and fails when it should not",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "holds → passed; breaks → failed; message: Expected the element to contain \"Something Else Entirely\" but it read \"Dashboard\" (waited 15075ms).",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/ASRT-002/2026-09-21T09-27-06Z/ASRT-002-both-directions.json"
+      ]
+    },
+    {
+      "id": "ASRT-003",
+      "suite": "Assertions",
+      "objective": "assertUrl holds when it should and fails when it should not",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "holds → passed; breaks → failed; message: Expected the URL to contain \"/nowhere-at-all\" but it was \"http://localhost:4300/dashboard\".",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/ASRT-003/2026-09-21T09-27-06Z/ASRT-003-both-directions.json"
+      ]
+    },
+    {
+      "id": "ASRT-004",
+      "suite": "Assertions",
+      "objective": "assertValue holds when it should and fails when it should not",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "holds → passed; breaks → failed; message: Expected the value \"999\" but found \"250\" (waited 15068ms).",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/ASRT-004/2026-09-21T09-27-06Z/ASRT-004-both-directions.json"
+      ]
+    },
+    {
+      "id": "ASRT-005",
+      "suite": "Assertions",
+      "objective": "assertHidden holds when it should and fails when it should not",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "holds → passed; breaks → failed; message: The element was expected to be hidden but was visible.",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/ASRT-005/2026-09-21T09-27-06Z/ASRT-005-both-directions.json"
+      ]
+    },
+    {
+      "id": "ASRT-006",
+      "suite": "Assertions",
+      "objective": "A failed assertion on an element that exists does not trigger healing",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "0 healing event(s) on a failed text assertion",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/ASRT-006/2026-09-21T09-27-06Z/no-healing-on-assertion.json"
+      ]
+    },
+    {
+      "id": "ASRT-007",
+      "suite": "Assertions",
+      "objective": "A failed assertion reports what it expected and what it found",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "5/5 failing assertion(s) name expected and actual",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/ASRT-007/2026-09-21T09-27-06Z/assertion-messages.json"
+      ]
+    },
+    {
+      "id": "ASRT-008",
+      "suite": "Assertions",
+      "objective": "Assertions run after a healed step, so a heal that reaches the wrong element is caught",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "the click healed at 93%; the assertion that followed passed",
+      "durationMs": 26227,
+      "evidence": [
+        "evidence/ASRT-008/2026-09-21T09-27-06Z/assertion-after-heal.json"
+      ]
+    },
+    {
+      "id": "DET-001",
+      "suite": "Failure detection",
+      "objective": "A working application produces a passing run",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "passed, 4/4 steps; 1 screenshot(s)",
+      "durationMs": 2047,
+      "evidence": [
+        "evidence/DET-001/2026-09-21T09-27-06Z/DET-001-execution.json"
+      ]
+    },
+    {
+      "id": "DET-002",
+      "suite": "Failure detection",
+      "objective": "A http 400 failure is detected and reported as a failure",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15071ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18096,
+      "evidence": [
+        "evidence/DET-002/2026-09-21T09-27-06Z/DET-002-execution.json"
+      ]
+    },
+    {
+      "id": "DET-003",
+      "suite": "Failure detection",
+      "objective": "A http 401 failure is detected and reported as a failure",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15037ms).; 2 screenshot(s); classified authenticationIssue",
+      "durationMs": 18101,
+      "evidence": [
+        "evidence/DET-003/2026-09-21T09-27-06Z/DET-003-execution.json"
+      ]
+    },
+    {
+      "id": "DET-004",
+      "suite": "Failure detection",
+      "objective": "A http 403 failure is detected and reported as a failure",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15087ms).; 2 screenshot(s); classified authenticationIssue",
+      "durationMs": 18097,
+      "evidence": [
+        "evidence/DET-004/2026-09-21T09-27-06Z/DET-004-execution.json"
+      ]
+    },
+    {
+      "id": "DET-005",
+      "suite": "Failure detection",
+      "objective": "A http 404 failure is detected and reported as a failure",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15083ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18100,
+      "evidence": [
+        "evidence/DET-005/2026-09-21T09-27-06Z/DET-005-execution.json"
+      ]
+    },
+    {
+      "id": "DET-006",
+      "suite": "Failure detection",
+      "objective": "A http 500 failure is detected and reported as a failure",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15052ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18117,
+      "evidence": [
+        "evidence/DET-006/2026-09-21T09-27-06Z/DET-006-execution.json"
+      ]
+    },
+    {
+      "id": "DET-007",
+      "suite": "Failure detection",
+      "objective": "A timeout failure is detected and reported as a failure",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15010ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18101,
+      "evidence": [
+        "evidence/DET-007/2026-09-21T09-27-06Z/DET-007-execution.json"
+      ]
+    },
+    {
+      "id": "DET-008",
+      "suite": "Failure detection",
+      "objective": "A connection reset failure is detected and reported as a failure",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15007ms).; 2 screenshot(s); classified networkIssue",
+      "durationMs": 18101,
+      "evidence": [
+        "evidence/DET-008/2026-09-21T09-27-06Z/DET-008-execution.json"
+      ]
+    },
+    {
+      "id": "DET-009",
+      "suite": "Failure detection",
+      "objective": "A js error failure is detected and reported as a failure",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15077ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18094,
+      "evidence": [
+        "evidence/DET-009/2026-09-21T09-27-06Z/DET-009-execution.json"
+      ]
+    },
+    {
+      "id": "DET-010",
+      "suite": "Failure detection",
+      "objective": "A wrong value failure is detected and reported as a failure",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15004ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18097,
+      "evidence": [
+        "evidence/DET-010/2026-09-21T09-27-06Z/DET-010-execution.json"
+      ]
+    },
+    {
+      "id": "DET-011",
+      "suite": "Failure detection",
+      "objective": "A missing element failure is detected and reported as a failure",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): testId=\"outcome\" could not be used: No element matched testId=\"outcome\".; 2 screenshot(s); classified locatorChange",
+      "durationMs": 18119,
+      "evidence": [
+        "evidence/DET-011/2026-09-21T09-27-06Z/DET-011-execution.json"
+      ]
+    },
+    {
+      "id": "DET-012",
+      "suite": "Failure detection",
+      "objective": "With every case made healthy, none of the tests fails",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "http-500: passed, timeout: passed, connection-reset: passed",
+      "durationMs": 6183,
+      "evidence": [
+        "evidence/DET-012/2026-09-21T09-27-06Z/false-positive-control.json"
+      ]
+    },
+    {
+      "id": "DISC-001",
+      "suite": "Discovery",
+      "objective": "Discovery completes against a real single-page application",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "status completed, 11 page(s) in 15s",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/DISC-001/2026-09-21T09-27-06Z/discovery-run.json"
+      ]
+    },
+    {
+      "id": "DISC-002",
+      "suite": "Discovery",
+      "objective": "Every page the application has is discovered",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "recall 100.0% (9/9)",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/DISC-002/2026-09-21T09-27-06Z/page-score.json"
+      ]
+    },
+    {
+      "id": "DISC-003",
+      "suite": "Discovery",
+      "objective": "Nothing is discovered that the application does not have",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "precision 100.0%",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/DISC-003/2026-09-21T09-27-06Z/page-precision.json"
+      ]
+    },
+    {
+      "id": "DISC-004",
+      "suite": "Discovery",
+      "objective": "The sign-in page is discovered and recognised as public",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "found, requiresAuthentication=false",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/DISC-004/2026-09-21T09-27-06Z/login-page.json"
+      ]
+    },
+    {
+      "id": "DISC-005",
+      "suite": "Discovery",
+      "objective": "Pages behind the sign-in are marked as requiring authentication",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "8/8 marked private",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/DISC-005/2026-09-21T09-27-06Z/auth-flags.json"
+      ]
+    },
+    {
+      "id": "DISC-006",
+      "suite": "Discovery",
+      "objective": "Discovery finds the application's form fields",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "5/5 found; classified as textInput/passwordInput; 8 element(s) of that kind",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/DISC-006/2026-09-21T09-27-06Z/DISC-006-elements.json"
+      ]
+    },
+    {
+      "id": "DISC-007",
+      "suite": "Discovery",
+      "objective": "Discovery finds the application's buttons",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "5/5 found; classified as button; 24 element(s) of that kind",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/DISC-007/2026-09-21T09-27-06Z/DISC-007-elements.json"
+      ]
+    },
+    {
+      "id": "DISC-008",
+      "suite": "Discovery",
+      "objective": "Discovery finds the application's links",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "4/4 found; classified as link; 93 element(s) of that kind",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/DISC-008/2026-09-21T09-27-06Z/DISC-008-elements.json"
+      ]
+    },
+    {
+      "id": "DISC-009",
+      "suite": "Discovery",
+      "objective": "Discovery finds the application's select controls",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "3/3 found; classified as select; 4 element(s) of that kind",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/DISC-009/2026-09-21T09-27-06Z/DISC-009-elements.json"
+      ]
+    },
+    {
+      "id": "DISC-010",
+      "suite": "Discovery",
+      "objective": "Tabular content is discovered on the pages that have it",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "/accounts:19 /transactions:35 /dashboard:39 /beneficiaries:17",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/DISC-010/2026-09-21T09-27-06Z/tables.json"
+      ]
+    },
+    {
+      "id": "DISC-011",
+      "suite": "Discovery",
+      "objective": "The application's own API calls are observed while the UI is driven",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "recall 83% of 12 browsable endpoint(s); sign-in POST observed: true; missing DELETE /api/session, GET /api/statements/:id/download",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/DISC-011/2026-09-21T09-27-06Z/api-score.json"
+      ]
+    },
+    {
+      "id": "DISC-012",
+      "suite": "Discovery",
+      "objective": "Navigation between pages is recorded as transitions",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "9 transition(s), 0 dangling",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/DISC-012/2026-09-21T09-27-06Z/transitions.json"
+      ]
+    },
+    {
+      "id": "DISC-013",
+      "suite": "Discovery",
+      "objective": "Discovered elements carry a stable preferred locator, not a structural path",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "100.0% stable of 259 element(s): testId=240 role=19",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/DISC-013/2026-09-21T09-27-06Z/locator-strategies.json"
+      ]
+    },
+    {
+      "id": "DISC-014",
+      "suite": "Discovery",
+      "objective": "Discovery captures a screenshot of each page it maps",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "11/11 page(s) have a screenshot",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/DISC-014/2026-09-21T09-27-06Z/screenshots.json"
+      ]
+    },
+    {
+      "id": "DISC-015",
+      "suite": "Discovery",
+      "objective": "Discovery copes with an application whose ids change on every render",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "6 page(s) (recall 100%), 111 element(s), 0 locator(s) bound to a generated id",
+      "durationMs": 5086,
+      "evidence": [
+        "evidence/DISC-015/2026-09-21T09-27-06Z/dynamic-model.json"
+      ]
+    },
+    {
+      "id": "EXEC-001",
+      "suite": "Browser execution",
+      "objective": "A twenty-step journey through a real application passes end to end",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "run passed, 20/20 step(s) passed on chromium 141.0.7390.37 in 1218ms",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/EXEC-001/2026-09-21T09-27-06Z/run.json",
+        "evidence/EXEC-001/2026-09-21T09-27-06Z/actions.json"
+      ]
+    },
+    {
+      "id": "EXEC-002",
+      "suite": "Browser execution",
+      "objective": "The browser navigates to the start URL (navigate)",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "navigate passed in 51ms on about:blank",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/EXEC-002/2026-09-21T09-27-06Z/EXEC-002-action.json"
+      ]
+    },
+    {
+      "id": "EXEC-003",
+      "suite": "Browser execution",
+      "objective": "Text is typed into a field (fill)",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "fill passed in 62ms on http://localhost:4300/login via testId=\"username\"",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/EXEC-003/2026-09-21T09-27-06Z/EXEC-003-action.json"
+      ]
+    },
+    {
+      "id": "EXEC-004",
+      "suite": "Browser execution",
+      "objective": "A checkbox is ticked (check)",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "check passed in 49ms on http://localhost:4300/login via testId=\"remember-me\"",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/EXEC-004/2026-09-21T09-27-06Z/EXEC-004-action.json"
+      ]
+    },
+    {
+      "id": "EXEC-005",
+      "suite": "Browser execution",
+      "objective": "A control is pressed (click)",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "click passed in 45ms on http://localhost:4300/login via testId=\"login-submit\"",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/EXEC-005/2026-09-21T09-27-06Z/EXEC-005-action.json"
+      ]
+    },
+    {
+      "id": "EXEC-006",
+      "suite": "Browser execution",
+      "objective": "An option is chosen from a select (select)",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "select passed in 40ms on http://localhost:4300/transactions via testId=\"filter-category\"",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/EXEC-006/2026-09-21T09-27-06Z/EXEC-006-action.json"
+      ]
+    },
+    {
+      "id": "EXEC-007",
+      "suite": "Browser execution",
+      "objective": "A visibility assertion is evaluated (assertVisible)",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "assertVisible passed in 53ms on http://localhost:4300/login via testId=\"total-balance\"",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/EXEC-007/2026-09-21T09-27-06Z/EXEC-007-action.json"
+      ]
+    },
+    {
+      "id": "EXEC-008",
+      "suite": "Browser execution",
+      "objective": "A URL assertion is evaluated (assertUrl)",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "assertUrl passed in 23ms on http://localhost:4300/dashboard",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/EXEC-008/2026-09-21T09-27-06Z/EXEC-008-action.json"
+      ]
+    },
+    {
+      "id": "EXEC-009",
+      "suite": "Browser execution",
+      "objective": "A value assertion compares what is in the field, not what was typed",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "assertValue passed",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/EXEC-009/2026-09-21T09-27-06Z/EXEC-009-action.json"
+      ]
+    },
+    {
+      "id": "EXEC-010",
+      "suite": "Browser execution",
+      "objective": "A text assertion reads the rendered text of an element",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "assertText passed — page-title reads \"Statements\"",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/EXEC-010/2026-09-21T09-27-06Z/EXEC-010-action.json"
+      ]
+    },
+    {
+      "id": "EXEC-011",
+      "suite": "Browser execution",
+      "objective": "A password typed during execution is never stored in readable form",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "literal present: false; password step records \"***REDACTED***\"",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/EXEC-011/2026-09-21T09-27-06Z/EXEC-011-masking.json"
+      ]
+    },
+    {
+      "id": "EXEC-012",
+      "suite": "Browser execution",
+      "objective": "A screenshot is captured for the execution",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "1 screenshot(s), 5 artifact(s) in total",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/EXEC-012/2026-09-21T09-27-06Z/artifacts.json"
+      ]
+    },
+    {
+      "id": "EXEC-013",
+      "suite": "Browser execution",
+      "objective": "A Playwright trace is captured for the execution",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "1 trace(s), 955461 bytes",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/EXEC-013/2026-09-21T09-27-06Z/trace.json"
+      ]
+    },
+    {
+      "id": "EXEC-014",
+      "suite": "Browser execution",
+      "objective": "Console and network activity are recorded for the execution",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "8 network event(s) of which 7 are API calls; 1 console event(s)",
+      "durationMs": 27,
+      "evidence": [
+        "evidence/EXEC-014/2026-09-21T09-27-06Z/console.json",
+        "evidence/EXEC-014/2026-09-21T09-27-06Z/network.json"
+      ]
+    },
+    {
+      "id": "EXEC-015",
+      "suite": "Browser execution",
+      "objective": "The same unchanged test passes on firefox",
+      "severity": "high",
+      "result": "NOT_VERIFIED",
+      "detail": "firefox is not installed in this environment and cannot be downloaded (the Playwright CDN is unreachable); the platform reported: \"browserType.launch: Executable doesn't exist at /opt/pw-browsers/firefox-1495/firefox/firefox\"",
+      "durationMs": 0,
+      "evidence": []
+    },
+    {
+      "id": "EXEC-016",
+      "suite": "Browser execution",
+      "objective": "The same unchanged test passes on webkit",
+      "severity": "high",
+      "result": "NOT_VERIFIED",
+      "detail": "webkit is not installed in this environment and cannot be downloaded (the Playwright CDN is unreachable); the platform reported: \"browserType.launch: Executable doesn't exist at /opt/pw-browsers/webkit-2215/pw_run.sh\"",
+      "durationMs": 0,
+      "evidence": []
+    },
+    {
+      "id": "EXEC-017",
+      "suite": "Browser execution",
+      "objective": "Execution waits for an element that arrives late instead of failing immediately",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "passed; the assertion waited 6389ms for content the page renders after about 2.5 seconds",
+      "durationMs": 8087,
+      "evidence": [
+        "evidence/EXEC-017/2026-09-21T09-27-06Z/EXEC-017-run.json"
+      ]
+    },
+    {
+      "id": "EXEC-018",
+      "suite": "Browser execution",
+      "objective": "A modal dialog can be opened, filled and submitted",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "passed, 12/12 steps",
+      "durationMs": 2055,
+      "evidence": [
+        "evidence/EXEC-018/2026-09-21T09-27-06Z/EXEC-018-run.json"
+      ]
+    },
+    {
+      "id": "EXEC-019",
+      "suite": "Browser execution",
+      "objective": "Paging through a table changes what the page shows",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "passed, 8/8 steps",
+      "durationMs": 2192,
+      "evidence": [
+        "evidence/EXEC-019/2026-09-21T09-27-06Z/EXEC-019-run.json"
+      ]
+    },
+    {
+      "id": "EXEC-020",
+      "suite": "Browser execution",
+      "objective": "A multi-step purchase journey completes, with each step depending on the last",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "passed, 21/21 steps; the shop's order endpoint answers 200",
+      "durationMs": 2082,
+      "evidence": [
+        "evidence/EXEC-020/2026-09-21T09-27-06Z/EXEC-020-run.json"
+      ]
+    },
+    {
+      "id": "FA-001",
+      "suite": "Failure analysis",
+      "objective": "Every failed run produces a failure record, not just a red verdict",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "10/10 failure(s) recorded with a category, message and signature",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/FA-001/2026-09-21T09-27-06Z/failure-records.json"
+      ]
+    },
+    {
+      "id": "FA-002",
+      "suite": "Failure analysis",
+      "objective": "A http 400 failure is classified as applicationDefect",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects applicationError (accepting applicationDefect)",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/FA-002/2026-09-21T09-27-06Z/FA-002-classification.json"
+      ]
+    },
+    {
+      "id": "FA-003",
+      "suite": "Failure analysis",
+      "objective": "A http 401 failure is classified as authenticationIssue",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "classified \"authenticationIssue\" at 85% confidence; the lab expects authenticationFailure (accepting authenticationIssue)",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/FA-003/2026-09-21T09-27-06Z/FA-003-classification.json"
+      ]
+    },
+    {
+      "id": "FA-004",
+      "suite": "Failure analysis",
+      "objective": "A http 403 failure is classified as authenticationIssue",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "classified \"authenticationIssue\" at 85% confidence; the lab expects authorizationFailure (accepting authenticationIssue)",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/FA-004/2026-09-21T09-27-06Z/FA-004-classification.json"
+      ]
+    },
+    {
+      "id": "FA-005",
+      "suite": "Failure analysis",
+      "objective": "A http 404 failure is classified as applicationDefect",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects applicationError (accepting applicationDefect)",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/FA-005/2026-09-21T09-27-06Z/FA-005-classification.json"
+      ]
+    },
+    {
+      "id": "FA-006",
+      "suite": "Failure analysis",
+      "objective": "A http 500 failure is classified as applicationDefect",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "classified \"applicationDefect\" at 90% confidence; the lab expects applicationError (accepting applicationDefect)",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/FA-006/2026-09-21T09-27-06Z/FA-006-classification.json"
+      ]
+    },
+    {
+      "id": "FA-007",
+      "suite": "Failure analysis",
+      "objective": "A timeout failure is classified as timingIssue or applicationDefect",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects timeout (accepting timingIssue or applicationDefect)",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/FA-007/2026-09-21T09-27-06Z/FA-007-classification.json"
+      ]
+    },
+    {
+      "id": "FA-008",
+      "suite": "Failure analysis",
+      "objective": "A connection reset failure is classified as networkIssue",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "classified \"networkIssue\" at 85% confidence; the lab expects networkError (accepting networkIssue)",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/FA-008/2026-09-21T09-27-06Z/FA-008-classification.json"
+      ]
+    },
+    {
+      "id": "FA-009",
+      "suite": "Failure analysis",
+      "objective": "A js error failure is classified as applicationDefect",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects javascriptError (accepting applicationDefect)",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/FA-009/2026-09-21T09-27-06Z/FA-009-classification.json"
+      ]
+    },
+    {
+      "id": "FA-010",
+      "suite": "Failure analysis",
+      "objective": "A wrong value failure is classified as applicationDefect or dataIssue",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects assertionFailed (accepting applicationDefect or dataIssue)",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/FA-010/2026-09-21T09-27-06Z/FA-010-classification.json"
+      ]
+    },
+    {
+      "id": "FA-011",
+      "suite": "Failure analysis",
+      "objective": "A missing element failure is classified as locatorChange or applicationDefect",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "classified \"locatorChange\" at 90% confidence; the lab expects elementNotFound (accepting locatorChange or applicationDefect)",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/FA-011/2026-09-21T09-27-06Z/FA-011-classification.json"
+      ]
+    },
+    {
+      "id": "FA-012",
+      "suite": "Failure analysis",
+      "objective": "Classification accuracy across every failure class is measured, not assumed",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "10/10 correct (100%), 0 classified as unknown",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/FA-012/2026-09-21T09-27-06Z/classification-accuracy.json"
+      ]
+    },
+    {
+      "id": "FA-013",
+      "suite": "Failure analysis",
+      "objective": "A failure carries an explanation a person can act on, and says what produced it",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "10/10 failure(s) analysed; 10 carry a summary, likely cause and suggested action; providers: local (deterministic)",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/FA-013/2026-09-21T09-27-06Z/analyses.json"
+      ]
+    },
+    {
+      "id": "FA-014",
+      "suite": "Failure analysis",
+      "objective": "Analysis explains a failure; it never overturns the verdict",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "10/10 run(s) remained failed after analysis",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/FA-014/2026-09-21T09-27-06Z/verdict-integrity.json"
+      ]
+    },
+    {
+      "id": "FA-015",
+      "suite": "Failure analysis",
+      "objective": "The same failure seen twice is recognised rather than counted as new",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "signatures match; second run isNewFailure=false, occurrences 2",
+      "durationMs": 36206,
+      "evidence": [
+        "evidence/FA-015/2026-09-21T09-27-06Z/recurrence.json"
+      ]
+    },
+    {
+      "id": "FA-016",
+      "suite": "Failure analysis",
+      "objective": "A confirmation shown for something that never happened is detected",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; the confirmation banner passed, the payment list assertion failed",
+      "durationMs": 18127,
+      "evidence": [
+        "evidence/FA-016/2026-09-21T09-27-06Z/silent-failure.json"
+      ]
+    },
+    {
+      "id": "GEN-001",
+      "suite": "AI test generation",
+      "objective": "A requirement in plain English produces runnable test cases: \"Customer can login and view account balance.\"",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: balance, dashboard",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/GEN-001/2026-09-21T09-27-06Z/GEN-001-generated.json"
+      ]
+    },
+    {
+      "id": "GEN-002",
+      "suite": "AI test generation",
+      "objective": "A requirement in plain English produces runnable test cases: \"Customer can download account statement.\"",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: statement, download",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/GEN-002/2026-09-21T09-27-06Z/GEN-002-generated.json"
+      ]
+    },
+    {
+      "id": "GEN-003",
+      "suite": "AI test generation",
+      "objective": "A requirement in plain English produces runnable test cases: \"Customer can make a payment.\"",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: payment, pay",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/GEN-003/2026-09-21T09-27-06Z/GEN-003-generated.json"
+      ]
+    },
+    {
+      "id": "GEN-004",
+      "suite": "AI test generation",
+      "objective": "A requirement in plain English produces runnable test cases: \"Customer receives validation when payment amount is invalid.\"",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: payment, amount, invalid, valid",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/GEN-004/2026-09-21T09-27-06Z/GEN-004-generated.json"
+      ]
+    },
+    {
+      "id": "GEN-005",
+      "suite": "AI test generation",
+      "objective": "A requirement in plain English produces runnable test cases: \"Customer cannot login with invalid credentials.\"",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: login, credential",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/GEN-005/2026-09-21T09-27-06Z/GEN-005-generated.json"
+      ]
+    },
+    {
+      "id": "GEN-006",
+      "suite": "AI test generation",
+      "objective": "The platform names the provider that generated a suite and does not invent usage it did not have",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "5 plan(s); providers local/aira-rules-v1; local fallback flagged: true; tokens reported 0",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/GEN-006/2026-09-21T09-27-06Z/provider-disclosure.json"
+      ]
+    },
+    {
+      "id": "GEN-007",
+      "suite": "AI test generation",
+      "objective": "Generated steps address elements by test id, role or label rather than a structural path",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "100.0% stable of 40 targeted step(s): testId=40",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/GEN-007/2026-09-21T09-27-06Z/generated-locators.json"
+      ]
+    },
+    {
+      "id": "GEN-008",
+      "suite": "AI test generation",
+      "objective": "Every generated test carries the context a reviewer needs",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "25/25 case(s) carry an objective, preconditions and expected results",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/GEN-008/2026-09-21T09-27-06Z/reviewable.json"
+      ]
+    },
+    {
+      "id": "GEN-009",
+      "suite": "AI test generation",
+      "objective": "Generation respects the scenario budget it was given",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "asked for at most 2, created 2",
+      "durationMs": 52,
+      "evidence": [
+        "evidence/GEN-009/2026-09-21T09-27-06Z/budget.json"
+      ]
+    },
+    {
+      "id": "GEN-010",
+      "suite": "AI test generation",
+      "objective": "Generated tests execute in a real browser rather than merely reading well",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "5/5 generated test(s) passed: TC-0001 passed, TC-0002 passed, TC-0003 passed, TC-0004 passed, TC-0005 passed",
+      "durationMs": 20267,
+      "evidence": [
+        "evidence/GEN-010/2026-09-21T09-27-06Z/generated-execution.json"
+      ]
+    },
+    {
+      "id": "GEN-011",
+      "suite": "AI test generation",
+      "objective": "A generated test fails when the application it covers is broken",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "FAULT_EMPTY_TRANSACTIONS on /transactions (the transactions list renders nothing): 1/2 test(s) that visit that page failed (all 5 passed when it was healthy): TC-0001 passed, TC-0002 failed, TC-0003 passed, TC-0004 passed, TC-0005 passed",
+      "durationMs": 38322,
+      "evidence": [
+        "evidence/GEN-011/2026-09-21T09-27-06Z/generated-under-fault.json"
+      ]
+    },
+    {
+      "id": "GEN-012",
+      "suite": "AI test generation",
+      "objective": "Generation reaches across the application rather than testing one page repeatedly",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "6/9 distinct page(s) appear in a generated step (67%), across 9 generated case(s); 8/11 before collapsing repeated routes; 9 case(s) from one unbudgeted generation",
+      "durationMs": 15223,
+      "evidence": [
+        "evidence/GEN-012/2026-09-21T09-27-06Z/generation-coverage.json"
+      ]
+    },
+    {
+      "id": "GEN-013",
+      "suite": "AI test generation",
+      "objective": "Generation against an application that was never discovered does not invent tests",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "status 400, 0 case(s) created; 0 warning(s): {\"code\":\"validation_failed\",\"title\":\"This application has no discovered pages yet. Run discovery before generating tests",
+      "durationMs": 13,
+      "evidence": [
+        "evidence/GEN-013/2026-09-21T09-27-06Z/no-model.json"
+      ]
+    },
+    {
+      "id": "GEN-014",
+      "suite": "AI test generation",
+      "objective": "Text in the application under test cannot give instructions to the generator",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "3 case(s) generated from a page carrying an injected instruction; obeyed: false; credentials leaked: false",
+      "durationMs": 15136,
+      "evidence": [
+        "evidence/GEN-014/2026-09-21T09-27-06Z/prompt-injection.json"
+      ]
+    },
+    {
+      "id": "GEN-015",
+      "suite": "AI test generation",
+      "objective": "Every generation is recorded as an auditable request",
+      "severity": "medium",
+      "result": "PASS",
+      "detail": "5/5 generation(s) recorded an AI request id",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/GEN-015/2026-09-21T09-27-06Z/ai-requests.json"
+      ]
+    },
+    {
+      "id": "GEN-016",
+      "suite": "AI test generation",
+      "objective": "Generation quality with a hosted model provider (OpenAI, Anthropic or Gemini)",
+      "severity": "high",
+      "result": "NOT_VERIFIED",
+      "detail": "no model provider is configured in this environment (AI_PROVIDER=local) and no API key is available, so everything above measures the built-in rules engine, which the platform labels honestly as isLocalProvider=true",
+      "durationMs": 0,
+      "evidence": []
+    },
+    {
+      "id": "HEAL-G01",
+      "suite": "Self-healing",
+      "objective": "The test passes against the unmodified application",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "passed, 5/5 steps, reached /welcome: true",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/HEAL-G01/2026-09-21T09-27-06Z/baseline.json"
+      ]
+    },
+    {
+      "id": "HEAL-G02",
+      "suite": "Self-healing",
+      "objective": "Under the default policy a broken locator is proposed, never silently applied",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; 1 healing event(s), 0 applied; confidence 79; proposals: proposed",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/HEAL-G02/2026-09-21T09-27-06Z/suggest.json"
+      ]
+    },
+    {
+      "id": "HEAL-G03",
+      "suite": "Self-healing",
+      "objective": "Under an opt-in Auto policy the same break is healed and the run continues",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "passed; 1 heal(s) applied at 79%; best candidate 79% against a threshold of 75; reached /welcome: true",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/HEAL-G03/2026-09-21T09-27-06Z/auto.json"
+      ]
+    },
+    {
+      "id": "HEAL-G04",
+      "suite": "Self-healing",
+      "objective": "A healed run is reported as healed, not as a clean pass",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "run status \"passed\"; the click records wasHealed=true at 79% confidence",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/HEAL-G04/2026-09-21T09-27-06Z/healed-verdict.json"
+      ]
+    },
+    {
+      "id": "HEAL-G05",
+      "suite": "Self-healing",
+      "objective": "Healing at run time does not rewrite the stored test",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "the stored click still targets {\"strategy\":\"testId\",\"value\":\"login-submit\",\"exact\":false,\"fallbacks\":[]}",
+      "durationMs": 10,
+      "evidence": [
+        "evidence/HEAL-G05/2026-09-21T09-27-06Z/stored-test.json"
+      ]
+    },
+    {
+      "id": "HEAL-G06",
+      "suite": "Self-healing",
+      "objective": "A control whose test id changed but whose label did not is healed",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "passed; 1 heal(s) at 93%; best candidate 93%",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/HEAL-G06/2026-09-21T09-27-06Z/testid-only.json"
+      ]
+    },
+    {
+      "id": "HEAL-G07",
+      "suite": "Self-healing",
+      "objective": "Every healing decision is recorded for a human to review",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "3 healing event(s) listed, 3 with confidence, outcome and both locators",
+      "durationMs": 42,
+      "evidence": [
+        "evidence/HEAL-G07/2026-09-21T09-27-06Z/healing-events.json"
+      ]
+    },
+    {
+      "id": "HEAL-G08",
+      "suite": "Self-healing",
+      "objective": "Raising the confidence threshold stops a heal that would otherwise be applied",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "at threshold 100: failed, 0 heal(s) applied, best candidate 79%",
+      "durationMs": 16113,
+      "evidence": [
+        "evidence/HEAL-G08/2026-09-21T09-27-06Z/threshold.json"
+      ]
+    },
+    {
+      "id": "HEAL-M01",
+      "suite": "Self-healing",
+      "objective": "Healing is measured as four counts, so a rate cannot hide a wrong heal",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "12 opportunities: 2 correctly healed, 10 correctly refused, 0 wrongly healed, 0 missed — false-healing rate 0.0%",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/HEAL-M01/2026-09-21T09-27-06Z/healing-metrics.json"
+      ]
+    },
+    {
+      "id": "HEAL-M02",
+      "suite": "Self-healing",
+      "objective": "The scorer separates a break that should heal from one that must not",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "healable: renamed control 79%, test id changed 93%; highest wrong-target candidate 63% (AMBIGUOUS_CONTROLS 51%, CONTROL_IS_LINK_ELSEWHERE 63%); margin +16 points. Findable-but-unusable controls scored 84%, 94%, 93%, 84% and all failed anyway.",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/HEAL-M02/2026-09-21T09-27-06Z/confidence-separation.json"
+      ]
+    },
+    {
+      "id": "HEAL-N01",
+      "suite": "Self-healing",
+      "objective": "Healing is refused: no control performs the function any more",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/HEAL-N01/2026-09-21T09-27-06Z/HEAL-N01.json"
+      ]
+    },
+    {
+      "id": "HEAL-N02",
+      "suite": "Self-healing",
+      "objective": "Healing is refused: two equally plausible controls lead to different outcomes",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 51%",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/HEAL-N02/2026-09-21T09-27-06Z/HEAL-N02.json"
+      ]
+    },
+    {
+      "id": "HEAL-N03",
+      "suite": "Self-healing",
+      "objective": "Healing is refused: a control with the same label now cancels the sign-in",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/HEAL-N03/2026-09-21T09-27-06Z/HEAL-N03.json"
+      ]
+    },
+    {
+      "id": "HEAL-N04",
+      "suite": "Self-healing",
+      "objective": "Healing is refused: an unrelated marketing button occupies the same position",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/HEAL-N04/2026-09-21T09-27-06Z/HEAL-N04.json"
+      ]
+    },
+    {
+      "id": "HEAL-N05",
+      "suite": "Self-healing",
+      "objective": "Healing is refused: the control exists but only behind an extra interaction",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 84%",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/HEAL-N05/2026-09-21T09-27-06Z/HEAL-N05.json"
+      ]
+    },
+    {
+      "id": "HEAL-N06",
+      "suite": "Self-healing",
+      "objective": "Healing is refused: the control is present but disabled",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 94%",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/HEAL-N06/2026-09-21T09-27-06Z/HEAL-N06.json"
+      ]
+    },
+    {
+      "id": "HEAL-N07",
+      "suite": "Self-healing",
+      "objective": "Healing is refused: the control is present but not visible",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 93%",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/HEAL-N07/2026-09-21T09-27-06Z/HEAL-N07.json"
+      ]
+    },
+    {
+      "id": "HEAL-N08",
+      "suite": "Self-healing",
+      "objective": "Healing is refused: a link with the same words leads somewhere else",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 63%",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/HEAL-N08/2026-09-21T09-27-06Z/HEAL-N08.json"
+      ]
+    },
+    {
+      "id": "HEAL-N09",
+      "suite": "Self-healing",
+      "objective": "Healing is refused: the page has been replaced by a maintenance notice",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/HEAL-N09/2026-09-21T09-27-06Z/HEAL-N09.json"
+      ]
+    },
+    {
+      "id": "HEAL-N10",
+      "suite": "Self-healing",
+      "objective": "Healing is refused: two controls share the label and do opposite things",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 84%",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/HEAL-N10/2026-09-21T09-27-06Z/HEAL-N10.json"
+      ]
+    },
+    {
+      "id": "REL-001",
+      "suite": "Reliability",
+      "objective": "A deterministic test gives the same verdict ten times running",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "10/10 passed; verdicts: passed; duration 425–497ms (median 467ms)",
+      "durationMs": 20452,
+      "evidence": [
+        "evidence/REL-001/2026-09-21T09-27-06Z/repeatability.json"
+      ]
+    },
+    {
+      "id": "REL-002",
+      "suite": "Reliability",
+      "objective": "An unstable application produces unstable results, and they are recorded",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "7 passed, 13 failed across 20 runs; delays the application served: 100ms, 800ms, 2500ms, 6000ms",
+      "durationMs": 66998,
+      "evidence": [
+        "evidence/REL-002/2026-09-21T09-27-06Z/flakiness.json"
+      ]
+    },
+    {
+      "id": "REL-003",
+      "suite": "Reliability",
+      "objective": "The platform records instability against the test rather than leaving it to a reader",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "the platform records 20 execution(s): 7 passed, 13 failed, flakiness score 56; this suite observed 7/20 passing",
+      "durationMs": 11,
+      "evidence": [
+        "evidence/REL-003/2026-09-21T09-27-06Z/flakiness-score.json"
+      ]
+    },
+    {
+      "id": "REL-004",
+      "suite": "Reliability",
+      "objective": "A test that only passes on a retry is not reported as a clean pass",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "0/6 run(s) needed a retry; verdicts: passed, failed, failed, failed, passed, passed",
+      "durationMs": 18216,
+      "evidence": [
+        "evidence/REL-004/2026-09-21T09-27-06Z/retries.json"
+      ]
+    },
+    {
+      "id": "REL-005",
+      "suite": "Reliability",
+      "objective": "Ten runs started at the same moment all reach a verdict",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "10/10 reached a verdict, 10 passed; statuses: passed",
+      "durationMs": 4123,
+      "evidence": [
+        "evidence/REL-005/2026-09-21T09-27-06Z/concurrency.json"
+      ]
+    },
+    {
+      "id": "REL-006",
+      "suite": "Reliability",
+      "objective": "When the configured model provider cannot be reached, nothing is fabricated",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "run failed; analysis present, produced by local (deterministic rules)",
+      "durationMs": 18144,
+      "evidence": [
+        "evidence/REL-006/2026-09-21T09-27-06Z/ai-unavailable.json"
+      ]
+    },
+    {
+      "id": "REL-007",
+      "suite": "Reliability",
+      "objective": "An execution whose worker dies is reconciled rather than left running forever",
+      "severity": "high",
+      "result": "NOT_VERIFIED",
+      "detail": "this deployment reconciles stranded executions after 10 minutes, which is longer than this suite is willing to wait. Set Execution:StrandedAfterMinutes to 1 and AIRA_STRANDED_AFTER_MINUTES=1 to include it. The mechanism itself is covered by the product's own tests (BUG-0005).",
+      "durationMs": 0,
+      "evidence": []
+    },
+    {
+      "id": "SEC-G01",
+      "suite": "Security and multi-tenancy",
+      "objective": "Every data endpoint refuses an unauthenticated request",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "6/6 refused with 401; other statuses: none",
+      "durationMs": 9,
+      "evidence": [
+        "evidence/SEC-G01/2026-09-21T09-27-06Z/unauthenticated.json"
+      ]
+    },
+    {
+      "id": "SEC-G02",
+      "suite": "Security and multi-tenancy",
+      "objective": "A forged or tampered token is refused",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "random: 401, flipped signature: 401, tampered payload with wildcard permissions: 401, empty: 401",
+      "durationMs": 6,
+      "evidence": [
+        "evidence/SEC-G02/2026-09-21T09-27-06Z/bad-tokens.json"
+      ]
+    },
+    {
+      "id": "SEC-G03",
+      "suite": "Security and multi-tenancy",
+      "objective": "One tenant cannot read another's data by knowing its identifier",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "7/7 refused for the other tenant; 7/7 readable by their owner; intruder statuses 404, 200",
+      "durationMs": 80,
+      "evidence": [
+        "evidence/SEC-G03/2026-09-21T09-27-06Z/tenant-isolation.json"
+      ]
+    },
+    {
+      "id": "SEC-G04",
+      "suite": "Security and multi-tenancy",
+      "objective": "One tenant cannot start work inside another's project",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "the write answered 404; 0 intruder run(s) visible in the owner's project",
+      "durationMs": 21,
+      "evidence": [
+        "evidence/SEC-G04/2026-09-21T09-27-06Z/cross-tenant-write.json"
+      ]
+    },
+    {
+      "id": "SEC-G05",
+      "suite": "Security and multi-tenancy",
+      "objective": "SQL and script payloads in user input are stored as data, not executed",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "4/4 payload(s) stored verbatim; the project list still answers 200 with 5 project(s)",
+      "durationMs": 69,
+      "evidence": [
+        "evidence/SEC-G05/2026-09-21T09-27-06Z/injection.json"
+      ]
+    },
+    {
+      "id": "SEC-G06",
+      "suite": "Security and multi-tenancy",
+      "objective": "The platform refuses targets that are never legitimate, whatever it is configured to allow",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "6/6 refused; accepted: none",
+      "durationMs": 24,
+      "evidence": [
+        "evidence/SEC-G06/2026-09-21T09-27-06Z/ssrf-always-forbidden.json"
+      ]
+    },
+    {
+      "id": "SEC-G07",
+      "suite": "Security and multi-tenancy",
+      "objective": "A stored credential is never returned by the API",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "absent from all 6 surfaces; 2 action(s) record a masked value instead",
+      "durationMs": 63,
+      "evidence": [
+        "evidence/SEC-G07/2026-09-21T09-27-06Z/credential-exposure.json"
+      ]
+    },
+    {
+      "id": "SEC-G08",
+      "suite": "Security and multi-tenancy",
+      "objective": "Artifact identifiers cannot be turned into a path traversal",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "../../../../etc/passwd → 404, ..%2f..%2f..%2fetc%2fpas → 404, 00000000-0000-0000-0000- → 404",
+      "durationMs": 27,
+      "evidence": [
+        "evidence/SEC-G08/2026-09-21T09-27-06Z/traversal.json"
+      ]
+    },
+    {
+      "id": "SEC-G09",
+      "suite": "Security and multi-tenancy",
+      "objective": "A test cannot run arbitrary JavaScript in the browser unless the project allows it",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "refused at import: 200 Step 2 (“Read the session cookie”) was not imported: executeScript is not permitted: enable script execution on the project and grant execut",
+      "durationMs": 14,
+      "evidence": [
+        "evidence/SEC-G09/2026-09-21T09-27-06Z/script-execution.json"
+      ]
+    },
+    {
+      "id": "SEC-G10",
+      "suite": "Security and multi-tenancy",
+      "objective": "The API sets the browser security headers it claims to",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "all present: x-content-type-options, x-frame-options, referrer-policy",
+      "durationMs": 6,
+      "evidence": [
+        "evidence/SEC-G10/2026-09-21T09-27-06Z/headers.json"
+      ]
+    },
+    {
+      "id": "SEC-G11",
+      "suite": "Security and multi-tenancy",
+      "objective": "Loopback and private addresses are treated consistently with the deployment's configuration",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "IPv4 loopback: 201, IPv6 loopback: 201, private range: 201, link-local: 400; loopback and private treated consistently: true; link-local refused regardless: true",
+      "durationMs": 27,
+      "evidence": [
+        "evidence/SEC-G11/2026-09-21T09-27-06Z/ssrf-private.json"
+      ]
+    }
+  ]
+}

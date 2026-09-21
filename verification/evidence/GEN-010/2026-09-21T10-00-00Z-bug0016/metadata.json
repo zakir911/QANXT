@@ -1,0 +1,36 @@
+{
+  "testId": "GEN-010",
+  "suite": "AI test generation",
+  "runId": "2026-09-21T10-00-00Z-bug0016",
+  "objective": "Generated tests execute in a real browser rather than merely reading well",
+  "preconditions": [
+    "the bank is healthy",
+    "the generated cases are executed unedited"
+  ],
+  "input": "Every case generated for the balance requirement",
+  "expected": "Every one of them runs to a verdict, and they pass against a healthy application",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "4/5 generated test(s) passed: TC-0001 passed, TC-0002 passed, TC-0003 failed, TC-0004 passed, TC-0005 passed",
+  "metrics": {
+    "executed": 5,
+    "passed": 4
+  },
+  "startedAt": "2026-09-21T08:54:00.417Z",
+  "durationMs": 36677,
+  "build": {
+    "commit": "98c0687",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "generated-execution.json",
+      "path": "evidence/GEN-010/2026-09-21T10-00-00Z-bug0016/generated-execution.json",
+      "bytes": 946,
+      "sha256": "298f102b710fa0a99d095a13f185291252e548831b41a6c367703d6411d8da38"
+    }
+  ]
+}

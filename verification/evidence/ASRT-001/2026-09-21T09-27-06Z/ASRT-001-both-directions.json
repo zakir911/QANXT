@@ -1,0 +1,72 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "e451efb7-f799-4c2f-b7bc-bb831ba204b4",
+      "order": 5,
+      "action": "assertVisible",
+      "description": "total-balance is visible",
+      "status": "passed",
+      "startedAt": "2026-09-21T09:29:32.888+00:00",
+      "durationMs": 61,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "total-balance",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"total-balance\""
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "37f230e8-486d-4bdb-a183-d50127931227",
+      "order": 5,
+      "action": "assertVisible",
+      "description": "no-such-element-anywhere is visible",
+      "status": "failed",
+      "startedAt": "2026-09-21T09:29:34.911+00:00",
+      "durationMs": 15034,
+      "url": "http://localhost:4300/login",
+      "wasHealed": false,
+      "errorMessage": "testId=\"no-such-element-anywhere\" could not be used: No element matched testId=\"no-such-element-anywhere\".",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "no-such-element-anywhere",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"no-such-element-anywhere\"",
+      "locatorAlternativesJson": "[]"
+    },
+    "failure": {
+      "id": "a7114ff8-b2c2-468b-9671-d874ebf21a57",
+      "category": "locatorChange",
+      "categoryConfidence": 65,
+      "rawMessage": "testId=\"no-such-element-anywhere\" could not be used: No element matched testId=\"no-such-element-anywhere\".",
+      "signature": "84ffff56a316aa115c190a97585349b6be6f16de04a48faa72db0fc203939e2b",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-21T09:29:52.368825+00:00",
+      "lastSeenAt": "2026-09-21T09:29:52.368825+00:00",
+      "analysis": {
+        "summary": "The failing step could not find the element it needed.",
+        "likelyCause": "The element is absent from the page. Either the UI changed and the locator is stale, or an earlier step left the application somewhere other than the expected page.",
+        "evidence": "testId=\"no-such-element-anywhere\" could not be used: No element matched testId=\"no-such-element-anywhere\". 1 request(s) also returned 401 or 403, which is ordinary on a signed-out page but would also follow a session that expired mid-test.",
+        "suggestedAction": "Compare the failure screenshot with the expected page. If the page is right but the element moved, update the locator; if the page is wrong, the failure is earlier in the journey.",
+        "category": "locatorChange",
+        "confidence": 65,
+        "isLikelyApplicationDefect": false,
+        "isHealable": true,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"20187d7f-afa3-4ae7-b248-990fc5639d07\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"54f519bf-bc0b-4b48-94b0-89019e6eff37\", \"kind\": \"AccessibilityTree\", \"name\": \"step-5-failure.a11y.json\"}, {\"id\": \"656dce08-b805-464d-ad1b-b1fe4d1e7e6c\", \"kind\": \"Screenshot\", \"name\": \"step-5-failure.png\"}, {\"id\": \"9a2703e1-b984-4847-96b4-4802013d2b39\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"cfc6ad05-4f3d-400a-ba56-3dbbdbd3b206\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"e6e4ce46-8992-45c2-a923-388b509c4a9e\", \"kind\": \"DomSnapshot\", \"name\": \"step-5-failure.html\"}, {\"id\": \"ebd6f305-f8e9-46cf-bed7-a570d3c6e105\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"f1cf4663-5e2f-415f-b9e3-483d5ca8251a\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"f0a071d9-b6be-4c28-a9f8-2c75de19c53a\"}"
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "testId": "HEAL-N10",
+  "suite": "Self-healing",
+  "runId": "2026-09-21T09-27-06Z",
+  "objective": "Healing is refused: two controls share the label and do opposite things",
+  "preconditions": [
+    "FAULT_DUPLICATE_CONTROLS is enabled",
+    "the project is on healingPolicy=auto — the permissive setting"
+  ],
+  "input": "The same unedited sign-in test",
+  "expected": "The run FAILS, no heal is applied, and the browser never reaches /welcome",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 84%",
+  "metrics": {
+    "applied": 0,
+    "candidates": 1,
+    "reachedWelcome": false
+  },
+  "startedAt": "2026-09-21T09:42:58.653Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "6bf8a08",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "HEAL-N10.json",
+      "path": "evidence/HEAL-N10/2026-09-21T09-27-06Z/HEAL-N10.json",
+      "bytes": 4868,
+      "sha256": "153a3a90fa1d5a834b789d305a73286674dda7752dfbde197e85ebdd46c9949b"
+    }
+  ]
+}

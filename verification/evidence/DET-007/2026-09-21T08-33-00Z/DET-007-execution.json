@@ -1,0 +1,42 @@
+{
+  "id": "DET-007",
+  "case": "timeout",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "772f9344-7b9c-42a5-8d36-ec0e78ffcaad",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15066ms).",
+    "signature": "a644be1bb16b01e86f27f5f2b59efb2202934916c6e63cd262d17e8456553a69",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:39:01.023624+00:00",
+    "lastSeenAt": "2026-09-21T08:39:01.023624+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15066ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"06d27b65-bafa-4ba6-92ce-7ee56ee5c2d4\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"16437910-0803-40f0-8c88-7b1d0ed07118\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"17bfdccb-6420-4d8d-804d-873b873684b0\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"53455d76-51e2-46fd-b19a-df94a2012e74\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"6a59b643-7c32-4171-8dcc-978a544fd24a\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"980ccf72-cb2d-4078-a209-96cb67bb52ed\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"c61e41e7-cf98-4835-b61a-449c82a0c6fc\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"45a9e9a2-d55b-4917-a5d1-ad3467a55c1c\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15066ms)."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

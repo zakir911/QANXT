@@ -1,0 +1,32 @@
+{
+  "testId": "GEN-015",
+  "suite": "AI test generation",
+  "runId": "2026-09-21T11-10-03Z-filter",
+  "objective": "Every generation is recorded as an auditable request",
+  "preconditions": [
+    "the suites above were generated"
+  ],
+  "input": "The aiRequestId returned by each generation",
+  "expected": "Each generation carries an identifier tying the output to a recorded request",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "5/5 generation(s) recorded an AI request id",
+  "metrics": null,
+  "startedAt": "2026-09-21T09:14:54.280Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "6bf8a08",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "ai-requests.json",
+      "path": "evidence/GEN-015/2026-09-21T11-10-03Z-filter/ai-requests.json",
+      "bytes": 632,
+      "sha256": "d6306dbb1e17c3fe3089297626e3e0e87187eb0abbb65a332380694c5d667dfc"
+    }
+  ]
+}

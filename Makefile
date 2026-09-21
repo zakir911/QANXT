@@ -22,6 +22,21 @@ verify: ## Build everything and run the full test suite (what CI runs)
 verify-all: ## Independent verification: start the stack, run every verification suite, collect evidence
 	@bash scripts/verify-all.sh
 
+verify-product: ## Prove the product against the test lab: golden suite, evidence, reports, certification
+	@bash scripts/verify-product
+
+golden: ## Run the golden test suite against a running platform and test lab
+	@bash scripts/run-golden-tests --all
+
+demo: ## Run the sixteen-step product demonstration and record it
+	@bash scripts/run-product-demo
+
+lab: ## Start the six test-lab applications
+	@bash test-lab/scripts/lab-ctl.sh start
+
+lab-stop: ## Stop the test-lab applications
+	@bash test-lab/scripts/lab-ctl.sh stop
+
 build: ## Build all applications
 	@dotnet build apps/api/Aira.sln -c Release
 	@pnpm -r build

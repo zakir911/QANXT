@@ -1,0 +1,32 @@
+{
+  "testId": "HEAL-G04",
+  "suite": "Self-healing",
+  "runId": "2026-09-21T09-27-06Z",
+  "objective": "A healed run is reported as healed, not as a clean pass",
+  "preconditions": [
+    "HEAL-G03 executed"
+  ],
+  "input": "The run status and the execution's healed-step count",
+  "expected": "The verdict distinguishes a healed run from an ordinary pass",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run status \"passed\"; the click records wasHealed=true at 79% confidence",
+  "metrics": null,
+  "startedAt": "2026-09-21T09:39:27.337Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "6bf8a08",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "healed-verdict.json",
+      "path": "evidence/HEAL-G04/2026-09-21T09-27-06Z/healed-verdict.json",
+      "bytes": 1681,
+      "sha256": "14ae927dbc256bba45b3a74d8d47855964d0cc827e3b304d35c955732d31ab72"
+    }
+  ]
+}

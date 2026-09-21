@@ -1,0 +1,34 @@
+{
+  "case": "js-error",
+  "lab": "javascriptError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "7d729f67-ed72-44dc-b211-dc602efc4c0e",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15063ms).",
+    "signature": "0f1e6b85a4a067d6e223bfeb7e81da8fba1281a84c80ec64d42c7cbc39b9534d",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:42:44.823048+00:00",
+    "lastSeenAt": "2026-09-21T08:42:44.823048+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15063ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"4732ccef-2ffb-4e8e-a9ca-83d0fff670ee\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"538d4370-c858-46ee-ad6b-26d5da3ef8d1\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"629cf86f-3fd5-402e-a25e-9235161ae58b\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"7655dbc8-a67f-4e46-b348-202dcd89213a\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"7dcbd506-a108-4c4a-b846-f86e6474b107\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"9a55515c-0131-4124-a9b1-5956173e9cc1\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"c8da9073-a3e6-4ebc-bb44-328dbf3dbba6\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"d991a9d5-79eb-47ee-b4c8-a293133aff35\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"8a72c5fc-35d4-4e0b-abc0-9e08a792c4ee\"}"
+    }
+  }
+}

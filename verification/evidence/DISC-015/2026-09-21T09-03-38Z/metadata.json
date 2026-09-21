@@ -1,0 +1,35 @@
+{
+  "testId": "DISC-015",
+  "suite": "Discovery",
+  "runId": "2026-09-21T09-03-38Z",
+  "objective": "Discovery copes with an application whose ids change on every render",
+  "preconditions": [
+    "the dynamic lab application is running"
+  ],
+  "input": "A crawl of http://localhost:4330, whose element ids and class names are regenerated per render",
+  "expected": "Pages are discovered and their elements prefer stable locators over generated ids",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "6 page(s) (recall 100%), 111 element(s), 0 locator(s) bound to a generated id",
+  "metrics": {
+    "dynamicRecall": 1,
+    "generatedIdLocators": 0
+  },
+  "startedAt": "2026-09-21T09:03:54.072Z",
+  "durationMs": 5087,
+  "build": {
+    "commit": "98c0687",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "dynamic-model.json",
+      "path": "evidence/DISC-015/2026-09-21T09-03-38Z/dynamic-model.json",
+      "bytes": 267,
+      "sha256": "a649e717d0ca8cbf3d5e1cadfb4d6989d8d579af4da9df2b349e1692f33ea2a0"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "d8b601d8-b4aa-4282-8047-f5e148c86bc7",
+      "order": 5,
+      "action": "assertText",
+      "description": "page-title reads \"Dashboard\"",
+      "status": "passed",
+      "startedAt": "2026-09-21T09:29:53.052+00:00",
+      "durationMs": 53,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "page-title",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"page-title\""
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "d9225aa6-0439-4796-ad84-098812decd6c",
+      "order": 5,
+      "action": "assertText",
+      "description": "page-title reads \"Something Else Entirely\"",
+      "status": "failed",
+      "startedAt": "2026-09-21T09:29:55.096+00:00",
+      "durationMs": 15107,
+      "url": "http://localhost:4300/login",
+      "wasHealed": false,
+      "errorMessage": "Expected the element to contain \"Something Else Entirely\" but it read \"Dashboard\" (waited 15075ms).",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "page-title",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"page-title\""
+    },
+    "failure": {
+      "id": "d194b395-43e7-4468-898b-f66c165d22cd",
+      "category": "authenticationIssue",
+      "categoryConfidence": 85,
+      "rawMessage": "Expected the element to contain \"Something Else Entirely\" but it read \"Dashboard\" (waited 15075ms).",
+      "signature": "ed182e41c39cda84e010a23585797b18fd6f3d79aeb397cecabbb784ab396d06",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-21T09:30:12.659351+00:00",
+      "lastSeenAt": "2026-09-21T09:30:12.659351+00:00",
+      "analysis": {
+        "summary": "The session was not authorised.",
+        "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+        "evidence": "1 request(s) returned 401 or 403.",
+        "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+        "category": "authenticationIssue",
+        "confidence": 85,
+        "isLikelyApplicationDefect": false,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0aaa23b8-1edf-4fdb-847e-b53b275e73c8\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"3610ad18-9973-4aa6-b50a-238ca214b838\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"3f532e62-96d0-444a-8a87-7df2101ac423\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"5a95c3f5-eb9c-4f75-b8ba-75bedd0ffb74\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"62bafefb-0ca4-4b7e-b791-460902e85457\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"a6cb2842-a06c-4414-9910-aad52d0fc275\", \"kind\": \"DomSnapshot\", \"name\": \"step-5-failure.html\"}, {\"id\": \"d367566f-9e9a-4a8f-a629-1f256b258804\", \"kind\": \"AccessibilityTree\", \"name\": \"step-5-failure.a11y.json\"}, {\"id\": \"fbfef1de-5485-4001-b0ba-8a884943a450\", \"kind\": \"Screenshot\", \"name\": \"step-5-failure.png\"}], \"executionId\": \"124bc83f-c9f2-4d2f-a37f-0997d82c003b\"}"
+      }
+    }
+  }
+}

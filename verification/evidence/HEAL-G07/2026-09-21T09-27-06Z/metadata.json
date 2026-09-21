@@ -1,0 +1,34 @@
+{
+  "testId": "HEAL-G07",
+  "suite": "Self-healing",
+  "runId": "2026-09-21T09-27-06Z",
+  "objective": "Every healing decision is recorded for a human to review",
+  "preconditions": [
+    "the healing runs above have executed"
+  ],
+  "input": "GET /api/v1/healing",
+  "expected": "The events are listed with their confidence, outcome and both locators",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "3 healing event(s) listed, 3 with confidence, outcome and both locators",
+  "metrics": {
+    "events": 3
+  },
+  "startedAt": "2026-09-21T09:39:43.455Z",
+  "durationMs": 42,
+  "build": {
+    "commit": "6bf8a08",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "healing-events.json",
+      "path": "evidence/HEAL-G07/2026-09-21T09-27-06Z/healing-events.json",
+      "bytes": 3088,
+      "sha256": "9ad1cd74a2a2742852f79cda2a01966dd0ea0c60f05d35908b34f7a937fa18c3"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "first": {
+    "id": "1c230608-2f57-44c1-ac4e-4ea6670c5641",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15019ms).",
+    "signature": "a6ca4c1be8f9333ff413f22e7fd25fec1eb38945fef88a08e7d5c5f92a7a1b70",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T09:38:05.73014+00:00",
+    "lastSeenAt": "2026-09-21T09:38:05.73014+00:00",
+    "analysis": {
+      "summary": "The application returned server errors during this execution.",
+      "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on.",
+      "evidence": "1 server error response(s) recorded in the network evidence.",
+      "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"b338c7db-355a-4034-bcf5-12b7e5422521\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"b750b09c-e135-450b-9014-eecea7536c2a\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"c209673a-b33f-4b76-8a34-74fe59b54cbb\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"cce223be-e44c-46d2-b0f9-ea26cda14ccd\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"d060fff5-0574-4f2c-9b53-334dd66a0d10\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"f4cb7b6e-e83f-4806-ae65-bcf3c33e10e4\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"f95f0505-2226-4b46-ac0c-56cbeb1c4293\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"fc0e37ec-6174-4d55-83be-a5a538ce9b1e\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}], \"executionId\": \"93108a53-9594-4eaf-8790-e8d7694aafe7\"}"
+    }
+  },
+  "second": {
+    "id": "aa1f133d-0e02-4b7c-8496-e29d3259c72d",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15041ms).",
+    "signature": "a6ca4c1be8f9333ff413f22e7fd25fec1eb38945fef88a08e7d5c5f92a7a1b70",
+    "isNewFailure": false,
+    "isRegression": false,
+    "occurrenceCount": 2,
+    "firstSeenAt": "2026-09-21T09:38:05.73014+00:00",
+    "lastSeenAt": "2026-09-21T09:38:24.050856+00:00",
+    "analysis": {
+      "summary": "The application returned server errors during this execution.",
+      "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on.",
+      "evidence": "1 server error response(s) recorded in the network evidence.",
+      "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"3f1787c9-1867-4171-86f0-3e240fb92531\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"5fd61cc8-7cd0-4ea5-8edc-e3fa211a991e\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"9a74feb8-e8bd-4cc2-bfcc-de2d8d09275c\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"c3708a16-8497-412d-81d3-5ddf071f5e9c\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"c5a8f1f8-561b-48a3-8e1b-5d73dfcc3889\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"cc24b54c-bb30-4de5-b7ce-ed32dca9e58c\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"d639b72e-2b53-4b90-a94b-e638ccf141bf\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"ee574272-9d86-423b-8754-7cc1436b3f38\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"6676efc7-7a2e-4440-b241-af5ab2423776\"}"
+    }
+  }
+}

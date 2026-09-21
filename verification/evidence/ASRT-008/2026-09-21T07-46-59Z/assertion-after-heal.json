@@ -1,0 +1,61 @@
+{
+  "status": "passed",
+  "click": {
+    "id": "f1fa6067-fc46-4e34-b1d9-e2a2793d1557",
+    "order": 4,
+    "action": "click",
+    "description": "Press login-submit",
+    "status": "healed",
+    "startedAt": "2026-09-21T07:48:18.567+00:00",
+    "durationMs": 15100,
+    "url": "http://localhost:4350/login",
+    "wasHealed": true,
+    "healingConfidence": 93,
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "auth-submit-v2",
+      "exact": false,
+      "fallbacks": [
+        {
+          "strategy": "role",
+          "value": "button",
+          "name": "Log in",
+          "exact": false,
+          "fallbacks": []
+        },
+        {
+          "strategy": "text",
+          "value": "Log in",
+          "exact": true,
+          "fallbacks": []
+        },
+        {
+          "strategy": "css",
+          "value": "html > body > main > form > button",
+          "exact": false,
+          "fallbacks": []
+        }
+      ]
+    },
+    "locatorDescription": "testId=\"auth-submit-v2\"",
+    "locatorAlternativesJson": "[{\"rank\": 1, \"score\": 93, \"breakdown\": {\"role\": 16, \"text\": 7, \"testId\": 8, \"tagName\": 4, \"ancestry\": 6, \"geometry\": 2, \"neighbours\": 4, \"uniqueness\": 12, \"accessibleName\": 20}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"auth-submit-v2\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form > button\", \"strategy\": \"css\", \"fallbacks\": []}]}}]"
+  },
+  "assertion": {
+    "id": "fc7d952d-cd43-4744-b9de-f30e9c271416",
+    "order": 5,
+    "action": "assertText",
+    "description": "welcome-heading reads \"You are signed in\"",
+    "status": "passed",
+    "startedAt": "2026-09-21T07:48:33.684+00:00",
+    "durationMs": 51,
+    "url": "http://localhost:4350/welcome",
+    "wasHealed": false,
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "welcome-heading",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"welcome-heading\""
+  }
+}

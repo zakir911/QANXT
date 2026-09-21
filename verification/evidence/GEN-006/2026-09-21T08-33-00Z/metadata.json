@@ -1,0 +1,32 @@
+{
+  "testId": "GEN-006",
+  "suite": "AI test generation",
+  "runId": "2026-09-21T08-33-00Z",
+  "objective": "The platform names the provider that generated a suite and does not invent usage it did not have",
+  "preconditions": [
+    "no model provider is configured in this environment"
+  ],
+  "input": "The generation responses for all five requirements",
+  "expected": "Each response names its provider and model, flags the local fallback, and reports zero tokens and zero cost for it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "5 plan(s); providers local/aira-rules-v1; local fallback flagged: true; tokens reported 0",
+  "metrics": null,
+  "startedAt": "2026-09-21T08:33:37.326Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "98c0687",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "provider-disclosure.json",
+      "path": "evidence/GEN-006/2026-09-21T08-33-00Z/provider-disclosure.json",
+      "bytes": 3966,
+      "sha256": "402515093e65f3c8046f458a4dc0d7c4d217e5d0af9830580d2038ac3a1d3e93"
+    }
+  ]
+}

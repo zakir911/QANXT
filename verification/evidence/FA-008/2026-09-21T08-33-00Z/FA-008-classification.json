@@ -1,0 +1,34 @@
+{
+  "case": "connection-reset",
+  "lab": "networkError",
+  "accept": [
+    "networkIssue"
+  ],
+  "actual": "networkIssue",
+  "failure": {
+    "id": "e87ec22f-3675-4f54-b8f0-099b07d25434",
+    "category": "networkIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15069ms).",
+    "signature": "dcf915e83f140681032c95186b3fb124095aedc1a2652d7cd9cf99382699f2df",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:42:26.714662+00:00",
+    "lastSeenAt": "2026-09-21T08:42:26.714662+00:00",
+    "analysis": {
+      "summary": "The application could not be reached.",
+      "likelyCause": "A network-level failure stopped the browser from loading the application.",
+      "evidence": "1 request(s) failed at the network layer. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15069ms).",
+      "suggestedAction": "Confirm the environment is running and reachable from the worker, then re-run.",
+      "category": "networkIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0ea909ae-a660-43d6-91a6-d0d377001d79\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"17a412df-8ecb-4e28-8cd7-509a602b0e1e\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"28f5afa1-724d-4918-8f9a-c770ba5ad71d\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"2aa06a32-d135-4287-a348-92930a32098d\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"58403013-04a3-4f4e-a38a-b8f6633584cf\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"8467db96-7262-4f3a-88cc-52edd2c17395\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"ba39425f-e64a-4aa2-bad8-0854cf9f390b\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"d0661b11-16ba-4250-9c10-b64b86109f82\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"5bcbe0d1-3608-414e-acc7-3cd56204071a\"}"
+    }
+  }
+}

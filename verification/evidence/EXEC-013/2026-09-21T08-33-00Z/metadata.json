@@ -1,0 +1,33 @@
+{
+  "testId": "EXEC-013",
+  "suite": "Browser execution",
+  "runId": "2026-09-21T08-33-00Z",
+  "objective": "A Playwright trace is captured for the execution",
+  "preconditions": [
+    "EXEC-001 executed",
+    "the project captures traces"
+  ],
+  "input": "The artifact list for the execution",
+  "expected": "A trace artifact exists and is larger than a kilobyte",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "1 trace(s), 929414 bytes",
+  "metrics": null,
+  "startedAt": "2026-09-21T08:34:42.626Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "98c0687",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "trace.json",
+      "path": "evidence/EXEC-013/2026-09-21T08-33-00Z/trace.json",
+      "bytes": 245,
+      "sha256": "e87424eaf9435e6bf4cf5ddeaaa273bd1b8f43930c31238209408d6c6be3cef7"
+    }
+  ]
+}

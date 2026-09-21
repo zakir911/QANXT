@@ -1,0 +1,37 @@
+{
+  "testId": "HEAL-N06",
+  "suite": "Self-healing",
+  "runId": "2026-09-21T09-27-06Z",
+  "objective": "Healing is refused: the control is present but disabled",
+  "preconditions": [
+    "FAULT_CONTROL_DISABLED is enabled",
+    "the project is on healingPolicy=auto — the permissive setting"
+  ],
+  "input": "The same unedited sign-in test",
+  "expected": "The run FAILS, no heal is applied, and the browser never reaches /welcome",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 94%",
+  "metrics": {
+    "applied": 0,
+    "candidates": 1,
+    "reachedWelcome": false
+  },
+  "startedAt": "2026-09-21T09:41:36.170Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "6bf8a08",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "HEAL-N06.json",
+      "path": "evidence/HEAL-N06/2026-09-21T09-27-06Z/HEAL-N06.json",
+      "bytes": 4809,
+      "sha256": "1e0be2ee60f7410bdea75397b716eba0928c6d3b07fc7ca285b4e8c1a56412f3"
+    }
+  ]
+}

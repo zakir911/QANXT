@@ -1,0 +1,57 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "0f68d59a-99d0-4e7c-a92f-c9b7b767ca8c",
+      "order": 5,
+      "action": "assertUrl",
+      "description": "The address contains \"/dashboard\"",
+      "status": "passed",
+      "startedAt": "2026-09-21T08:35:44.218+00:00",
+      "durationMs": 47,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "1fbca48f-d9a1-44ae-8864-df8e0e6cd196",
+      "order": 5,
+      "action": "assertUrl",
+      "description": "The address contains \"/nowhere-at-all\"",
+      "status": "failed",
+      "startedAt": "2026-09-21T08:35:46.266+00:00",
+      "durationMs": 15017,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false,
+      "errorMessage": "Expected the URL to contain \"/nowhere-at-all\" but it was \"http://localhost:4300/dashboard\"."
+    },
+    "failure": {
+      "id": "de9edfe2-1dc0-45a9-a21a-23b67df689e3",
+      "category": "authenticationIssue",
+      "categoryConfidence": 85,
+      "rawMessage": "Expected the URL to contain \"/nowhere-at-all\" but it was \"http://localhost:4300/dashboard\".",
+      "signature": "3ca3db4ac10586183e7459f29a6fa5510b728a439dbf84eca701edc9f10cb37f",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-21T08:36:03.81901+00:00",
+      "lastSeenAt": "2026-09-21T08:36:03.81901+00:00",
+      "analysis": {
+        "summary": "The session was not authorised.",
+        "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+        "evidence": "1 request(s) returned 401 or 403.",
+        "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+        "category": "authenticationIssue",
+        "confidence": 85,
+        "isLikelyApplicationDefect": false,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"749f7118-916a-48f4-ade8-d23b392ca3a0\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"7f0eaa9c-5bee-4f5d-8fdd-aa07ec63d96c\", \"kind\": \"AccessibilityTree\", \"name\": \"step-5-failure.a11y.json\"}, {\"id\": \"8ab634bc-602a-4c5b-84c9-a1a421e08c3b\", \"kind\": \"Screenshot\", \"name\": \"step-5-failure.png\"}, {\"id\": \"96b40622-2e3a-41a7-ab89-724a8a591126\", \"kind\": \"DomSnapshot\", \"name\": \"step-5-failure.html\"}, {\"id\": \"99b28edd-0a7a-4d99-9011-905d26674ef4\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"d6928bee-9cdf-4d6a-a2ba-e970c2747a81\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"dfb6d816-bc10-42ca-8aec-305de5f92132\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"e285a4cc-29e9-4bf2-b77d-c3ffa2aee50b\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"27b20607-5516-437e-aaef-62cc2008f7b2\"}"
+      }
+    }
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "requirement": "Customer receives validation when payment amount is invalid.",
+  "plan": {
+    "testSuiteId": "f2d80f3d-cb9c-4e5e-9f11-98b682f3f23d",
+    "testSuiteName": "Suite for GEN-004",
+    "casesCreated": 5,
+    "stepsCreated": 10,
+    "planSummary": "Generated 10 scenarios covering \"Customer receives validation when payment amount is invalid.\" from 11 discovered pages using AIRA's built-in rules (no model provider configured).",
+    "provider": "local",
+    "model": "aira-rules-v1",
+    "isLocalProvider": true,
+    "aiRequestId": "0f18240d-b1d0-49c7-939c-6a70613db733",
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "estimatedCostUsd": 0,
+    "warnings": [
+      "The plan proposed 10 scenarios; 5 were dropped to stay within the requested limit of 5."
+    ]
+  },
+  "cases": [
+    {
+      "reference": "TC-0016",
+      "name": "AIRA Demo Bank /dashboard loads",
+      "objective": "AIRA Demo Bank /dashboard loads without error for a signed-in customer.",
+      "preconditions": "The customer is signed in.",
+      "expectedResults": "The page loads and displays its expected content.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank /dashboard",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm AIRA Demo Bank /dashboard rendered",
+          "target": {
+            "strategy": "testId",
+            "value": "recent-row-txn-1001-119",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0017",
+      "name": "View AIRA Demo Bank /transactions",
+      "objective": "AIRA Demo Bank /transactions loads and displays its records.",
+      "preconditions": "The customer is signed in and has data to display.",
+      "expectedResults": "The page loads and the records are visible.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank /transactions",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm the records are listed",
+          "target": {
+            "strategy": "testId",
+            "value": "transactions-table",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0018",
+      "name": "View AIRA Demo Bank /accounts/acc-1001",
+      "objective": "AIRA Demo Bank /accounts/acc-1001 loads and displays its records.",
+      "preconditions": "The customer is signed in and has data to display.",
+      "expectedResults": "The page loads and the records are visible.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank /accounts/acc-1001",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm the records are listed",
+          "target": {
+            "strategy": "testId",
+            "value": "transactions-table",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0019",
+      "name": "View AIRA Demo Bank /accounts/acc-1003",
+      "objective": "AIRA Demo Bank /accounts/acc-1003 loads and displays its records.",
+      "preconditions": "The customer is signed in and has data to display.",
+      "expectedResults": "The page loads and the records are visible.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank /accounts/acc-1003",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm the records are listed",
+          "target": {
+            "strategy": "testId",
+            "value": "transactions-table",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0020",
+      "name": "View AIRA Demo Bank /accounts/acc-1002",
+      "objective": "AIRA Demo Bank /accounts/acc-1002 loads and displays its records.",
+      "preconditions": "The customer is signed in and has data to display.",
+      "expectedResults": "The page loads and the records are visible.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank /accounts/acc-1002",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm the records are listed",
+          "target": {
+            "strategy": "testId",
+            "value": "transactions-table",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

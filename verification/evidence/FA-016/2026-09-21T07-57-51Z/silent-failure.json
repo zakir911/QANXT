@@ -1,0 +1,68 @@
+{
+  "status": "failed",
+  "confirmationStep": {
+    "id": "2d1b33ae-f77d-440c-9363-b13f0bd3db84",
+    "order": 8,
+    "action": "assertVisible",
+    "description": "payment-confirmation is visible",
+    "status": "passed",
+    "startedAt": "2026-09-21T08:09:12.188+00:00",
+    "durationMs": 37,
+    "url": "http://localhost:4300/payments",
+    "wasHealed": false,
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "payment-confirmation",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"payment-confirmation\""
+  },
+  "recordStep": {
+    "id": "cdeb5e8d-0186-4e35-9cc9-ef900e1cb5b0",
+    "order": 9,
+    "action": "assertVisible",
+    "description": "payments-table is visible",
+    "status": "failed",
+    "startedAt": "2026-09-21T08:09:12.231+00:00",
+    "durationMs": 15028,
+    "url": "http://localhost:4300/payments",
+    "wasHealed": false,
+    "healingConfidence": 58,
+    "errorMessage": "testId=\"payments-table\" could not be used: No element matched testId=\"payments-table\".",
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "payments-table",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"payments-table\"",
+    "locatorAlternativesJson": "[{\"rank\": 1, \"score\": 58, \"breakdown\": {\"testId\": 11, \"uniqueness\": 12}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"payments-empty\", \"strategy\": \"testId\", \"fallbacks\": [{\"exact\": false, \"value\": \"#root > div > main > section > p\", \"strategy\": \"css\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"/html[1]/body[1]/div[1]/div[1]/main[1]/section[1]/p[1]\", \"strategy\": \"xpath\", \"fallbacks\": []}]}}]"
+  },
+  "failure": {
+    "id": "0d47c985-e8ef-4780-9beb-37b611b063c9",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "testId=\"payments-table\" could not be used: No element matched testId=\"payments-table\".",
+    "signature": "7cbcae0eed8c06f76787c3d343766296df7ec390c56d6d7fc7868502116e3eeb",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:09:29.576243+00:00",
+    "lastSeenAt": "2026-09-21T08:09:29.576244+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"03130a85-34ed-4228-865c-d745211fc813\", \"kind\": \"Screenshot\", \"name\": \"step-9-failure.png\"}, {\"id\": \"100662eb-7f6c-4248-aa19-a67123f66482\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"3b09eb8f-e5ed-429b-b15c-3e51a813d8ef\", \"kind\": \"DomSnapshot\", \"name\": \"step-9-failure.html\"}, {\"id\": \"48b58782-2df0-46af-85ab-89084eecd1c5\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"949c3c94-d768-43ab-8915-25b5355a6e9b\", \"kind\": \"AccessibilityTree\", \"name\": \"step-9-failure.a11y.json\"}, {\"id\": \"9877b9a8-c8fd-4bc0-ac35-51c2769ec865\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"a18c8364-b930-4813-b4e7-39b23e32e695\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"a9e0cc09-870d-4613-a5ee-adfc45b6ca67\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"a24f8ed9-7abb-4c7d-bc6c-989e65fe5e7a\"}"
+    }
+  }
+}

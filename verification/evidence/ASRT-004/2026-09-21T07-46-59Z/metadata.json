@@ -1,0 +1,32 @@
+{
+  "testId": "ASRT-004",
+  "suite": "Assertions",
+  "runId": "2026-09-21T07-46-59Z",
+  "objective": "assertValue holds when it should and fails when it should not",
+  "preconditions": [
+    "the lab bank is running with no faults"
+  ],
+  "input": "Two journeys: one where the assertValue is satisfied, one where it is deliberately wrong",
+  "expected": "The first run passes; the second FAILS with a message naming expected and actual",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "holds → passed; breaks → failed; message: Expected the value \"999\" but found \"250\".",
+  "metrics": null,
+  "startedAt": "2026-09-21T07:47:47.996Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "98c0687",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "ASRT-004-both-directions.json",
+      "path": "evidence/ASRT-004/2026-09-21T07-46-59Z/ASRT-004-both-directions.json",
+      "bytes": 3393,
+      "sha256": "5df3400fc49e24d8d6254de8d7941f3b181ee3aa6a8beb79c89c5fe7b46f8a69"
+    }
+  ]
+}

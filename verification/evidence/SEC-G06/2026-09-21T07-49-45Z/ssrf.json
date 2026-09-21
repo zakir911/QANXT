@@ -1,0 +1,32 @@
+[
+  {
+    "url": "http://169.254.169.254/latest/meta-data/",
+    "status": 400,
+    "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target\",\"status\":400,"
+  },
+  {
+    "url": "http://metadata.google.internal/computeMetadata/v1/",
+    "status": 400,
+    "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: the host is a cloud metadata endpoint\",\"status\":400,\"correlationId\":\"ac5a023f8a6a4447a190365"
+  },
+  {
+    "url": "http://[::1]:22/",
+    "status": 201,
+    "message": "{\"id\":\"25942d0e-0641-47ff-bbd5-327cebc51a01\",\"projectId\":\"2c936fb2-638c-4bd2-8a33-b70eeb00fd0b\",\"name\":\"SSRF http://[::1]:22/\",\"baseUrl\":\"http://[::1]:22/\",\"des"
+  },
+  {
+    "url": "file:///etc/passwd",
+    "status": 400,
+    "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: scheme 'file' is not permitted (http and https only)\",\"status\":400,\"correlationId\":\"937fb7fe"
+  },
+  {
+    "url": "ftp://example.com/",
+    "status": 400,
+    "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: scheme 'ftp' is not permitted (http and https only)\",\"status\":400,\"correlationId\":\"610ae2b8d"
+  },
+  {
+    "url": "http://0.0.0.0:5080/",
+    "status": 400,
+    "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 0.0.0.0/8 is reserved and is never a permitted target\",\"status\":400,\"correlationId\":\"6461eb1"
+  }
+]

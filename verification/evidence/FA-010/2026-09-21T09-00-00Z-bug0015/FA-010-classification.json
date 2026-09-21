@@ -1,0 +1,35 @@
+{
+  "case": "wrong-value",
+  "lab": "assertionFailed",
+  "accept": [
+    "applicationDefect",
+    "dataIssue"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "234e2111-8b64-49e5-b331-a81b3fa541ff",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15089ms).",
+    "signature": "64fbf00e3d3599f0a074793812ad5e4250c26bd17a5a93020b5423a7d3217c0d",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:28:38.149935+00:00",
+    "lastSeenAt": "2026-09-21T08:28:38.149935+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15089ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"44c44f6d-7b19-4f46-aa89-167144549e6e\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"759f9aa8-8534-4931-a915-2ed246a3606d\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"7a8eca9b-f8da-4a31-a12f-0fe3e426ee91\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"836d34fb-e884-4215-802a-4489ba792d13\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"a2f904a1-2121-45ae-9c5d-ae230d607a2e\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"bb48bc62-d37d-45e4-80d8-fb19c89f19a4\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"1297e3d0-0f20-4d5b-8c57-ccf709e9c515\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"acd82100-e980-4f08-8ea9-08eaaa5ceec2\"}"
+    }
+  }
+}

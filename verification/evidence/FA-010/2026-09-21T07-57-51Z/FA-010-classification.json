@@ -1,0 +1,35 @@
+{
+  "case": "wrong-value",
+  "lab": "assertionFailed",
+  "accept": [
+    "applicationDefect",
+    "dataIssue"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "1eee6a0c-8b6c-4814-b738-6c98595b4380",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15087ms).",
+    "signature": "9ece54f3c37286ce04c974e29777b83ec833ba4de14d5de3a103ac01a1df43c6",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:08:16.698929+00:00",
+    "lastSeenAt": "2026-09-21T08:08:16.698929+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15087ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1b096e26-4d7f-481a-a6c7-bfcf4e4391c0\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"234142a0-c92d-43f7-8f99-c094870712d6\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"2cd265fa-7609-49f6-9657-5cca0d708398\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"33d118e0-5174-4f3e-9db9-b581d20b2e30\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"c06b089d-d098-4fb5-934a-9036df13089b\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"ee408bdf-eb85-4e8e-8a98-5f9593b24c26\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"f78f9cd9-02bb-4bbe-97db-1da67e55f3cf\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"e62eea79-0892-4768-9089-45a2243f0faa\"}"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "EXEC-011",
+  "suite": "Browser execution",
+  "runId": "2026-09-21T09-03-38Z",
+  "objective": "A password typed during execution is never stored in readable form",
+  "preconditions": [
+    "EXEC-001 executed with ${secret:app_password}"
+  ],
+  "input": "Every recorded action of the run",
+  "expected": "The literal password appears nowhere; the password step records a masked value",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "literal present: false; password step records \"***REDACTED***\"",
+  "metrics": null,
+  "startedAt": "2026-09-21T09:06:18.477Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "98c0687",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "EXEC-011-masking.json",
+      "path": "evidence/EXEC-011/2026-09-21T09-03-38Z/EXEC-011-masking.json",
+      "bytes": 65,
+      "sha256": "20f7af9394b7b270a1fbc44b1ec397cddfb47514de9af442efa9ec41571335c6"
+    }
+  ]
+}

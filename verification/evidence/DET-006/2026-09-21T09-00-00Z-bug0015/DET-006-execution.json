@@ -1,0 +1,42 @@
+{
+  "id": "DET-006",
+  "case": "http-500",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "95523e18-ca8f-41da-8c70-752dde28a7f1",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15033ms).",
+    "signature": "7b37298d880a530eeb3b7b1d68dae2949aeb1af6efa6fcd5ae06a795d9f15cef",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:24:17.902363+00:00",
+    "lastSeenAt": "2026-09-21T08:24:17.902363+00:00",
+    "analysis": {
+      "summary": "The application returned server errors during this execution.",
+      "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on.",
+      "evidence": "1 server error response(s) recorded in the network evidence.",
+      "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"fa20eea0-30c2-4974-b8fe-6b03089a5dd2\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"ffbb88df-f1d3-4246-b2af-1155b06bd8a0\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"4cd6a7bc-4f24-4628-9ce3-e3ba305f355d\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"5b16f25a-a323-499a-8a3b-2ce873669dbb\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"7f16c1e2-d651-4692-9326-733026b749a3\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"c166d83b-6d9a-4c2d-8c9d-dd9da651f84e\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"c98823a6-b686-4dc8-a8a9-5601f3e0c62c\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"d0319773-b266-40c1-b732-e47a64608157\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"67e29ec8-2346-4773-ae00-9368cb8f0fd6\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15033ms)."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

@@ -1,0 +1,35 @@
+{
+  "testId": "EXEC-020",
+  "suite": "Browser execution",
+  "runId": "2026-09-21T08-33-00Z",
+  "objective": "A multi-step purchase journey completes, with each step depending on the last",
+  "preconditions": [
+    "the commerce lab is running and reset"
+  ],
+  "input": "Sign in, search, open a product, add to basket, apply a coupon, check out, confirm",
+  "expected": "An order confirmation is reached",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "passed, 21/21 steps; the shop's order endpoint answers 200",
+  "metrics": {
+    "steps": 21,
+    "durationMs": 1740
+  },
+  "startedAt": "2026-09-21T08:34:59.046Z",
+  "durationMs": 2129,
+  "build": {
+    "commit": "98c0687",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "EXEC-020-run.json",
+      "path": "evidence/EXEC-020/2026-09-21T08-33-00Z/EXEC-020-run.json",
+      "bytes": 12069,
+      "sha256": "256ea870ed92c76834344544af995a36dbaa7d67dbaa2f301aa7a4d3c2539aef"
+    }
+  ]
+}

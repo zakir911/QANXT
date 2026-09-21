@@ -1,0 +1,34 @@
+{
+  "case": "http-401",
+  "lab": "authenticationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "95dc554f-fe92-4c92-8b83-9934cafa2584",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15014ms).",
+    "signature": "b2d71e806c4eb4b5908b45b1f397a4805b8e15bb5a87e873c6a873a816999a42",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:26:31.0146+00:00",
+    "lastSeenAt": "2026-09-21T08:26:31.0146+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"3968e496-bc82-42c7-b9be-e61b645659ce\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"5f8c0bf6-021d-424e-9a6b-c3ff47ed50e2\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"672c88c0-3aff-4a94-86d5-84177a0d1488\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"71ee197a-329c-41fe-bf8e-c8db866fdf4b\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"8b9cf399-aef3-4d2e-bb8c-64f6d1c3d8a5\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"a4448391-4a82-43c3-906c-763c83f4b05f\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"c07ec465-5d3d-486e-8591-df1611d6e668\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"c7ef3fa8-d02d-4cae-9b8f-527c63ed4633\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}], \"executionId\": \"63ce1730-4359-4b44-93be-8e1e56e8b646\"}"
+    }
+  }
+}

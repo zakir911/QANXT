@@ -1,0 +1,35 @@
+{
+  "case": "missing-element",
+  "lab": "elementNotFound",
+  "accept": [
+    "locatorChange",
+    "applicationDefect"
+  ],
+  "actual": "locatorChange",
+  "failure": {
+    "id": "c5b79c5c-17a0-4dbc-a041-1880e66f065d",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "8ffae5df3f79132aac504f2811273550b81d8ea439b4719ca60d99b1ace42847",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:43:20.89031+00:00",
+    "lastSeenAt": "2026-09-21T08:43:20.89031+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"083d26bc-d72f-48ee-9f13-d1312bcb5314\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"08f509e2-5b64-421b-a26a-bed0eadbaa17\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"4affb7ea-105d-4d3b-8a89-4d7c195ad62a\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"5f0e2b36-83ef-4e8f-b763-509a666d8f08\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"670346d4-d044-4d4d-b053-2c0a63c30eb6\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b95b3b4c-5d3c-4808-88cb-c3c22540009e\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"eb493e06-912c-4a27-a1b9-c98dda7d5253\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"04d7993b-8fb3-40fe-ab7c-6b894637dbec\"}"
+    }
+  }
+}

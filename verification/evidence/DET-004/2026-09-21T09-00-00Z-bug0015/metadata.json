@@ -1,0 +1,36 @@
+{
+  "testId": "DET-004",
+  "suite": "Failure detection",
+  "runId": "2026-09-21T09-00-00Z-bug0015",
+  "objective": "A http 403 failure is detected and reported as a failure",
+  "preconditions": [
+    "the failure lab is running",
+    "the test targets /case/http-403"
+  ],
+  "input": "The same four-step test: open /case/http-403, press the button, expect \"OK 42\"",
+  "expected": "The run FAILS, with the failing step, an error message and a screenshot",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15061ms).; 2 screenshot(s); classified authenticationIssue",
+  "metrics": {
+    "screenshots": 2,
+    "consoleErrors": 1
+  },
+  "startedAt": "2026-09-21T08:23:24.422Z",
+  "durationMs": 18096,
+  "build": {
+    "commit": "98c0687",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DET-004-execution.json",
+      "path": "evidence/DET-004/2026-09-21T09-00-00Z-bug0015/DET-004-execution.json",
+      "bytes": 2486,
+      "sha256": "96d8a952263e0aaa6a121c04cbc086cb6af9722aa24d51b946e562f233ba8511"
+    }
+  ]
+}

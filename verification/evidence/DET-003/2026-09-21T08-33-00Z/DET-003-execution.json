@@ -1,0 +1,42 @@
+{
+  "id": "DET-003",
+  "case": "http-401",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "c1811118-80aa-4dab-b398-9705f081428b",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15077ms).",
+    "signature": "0297d801abfe9ebdb8ff319b5fcae3cfdf31978182cc17bb774eae51a4dd9e6f",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:37:48.601297+00:00",
+    "lastSeenAt": "2026-09-21T08:37:48.601297+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"03e40d7e-46b5-473c-a387-b61ce7ebfcaf\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"31e783d7-72f5-46c6-802a-ca906791f91c\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"4ea62545-90d9-450a-b40b-62bd64d23633\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"ae14ad51-9d28-4dd3-ae20-a08942c219f2\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"b1333fcd-b358-4a84-9f41-16612bb4621e\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"b4b5a52c-8801-4b30-b2a3-866d2b36704d\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"d393ce75-b691-4a73-8ba9-568d51818d48\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"e16eab28-678b-4620-8ba8-f389ac5c50d7\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}], \"executionId\": \"0f40275e-931b-43c8-84e2-4841456a8d01\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15077ms)."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

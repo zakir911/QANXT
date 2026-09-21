@@ -1,0 +1,105 @@
+[
+  {
+    "id": "FA-002",
+    "case": "http-400",
+    "expected": "applicationError",
+    "accepted": [
+      "applicationDefect"
+    ],
+    "actual": "applicationDefect",
+    "correct": true
+  },
+  {
+    "id": "FA-003",
+    "case": "http-401",
+    "expected": "authenticationFailure",
+    "accepted": [
+      "authenticationIssue"
+    ],
+    "actual": "authenticationIssue",
+    "correct": true
+  },
+  {
+    "id": "FA-004",
+    "case": "http-403",
+    "expected": "authorizationFailure",
+    "accepted": [
+      "authenticationIssue"
+    ],
+    "actual": "authenticationIssue",
+    "correct": true
+  },
+  {
+    "id": "FA-005",
+    "case": "http-404",
+    "expected": "applicationError",
+    "accepted": [
+      "applicationDefect"
+    ],
+    "actual": "applicationDefect",
+    "correct": true
+  },
+  {
+    "id": "FA-006",
+    "case": "http-500",
+    "expected": "applicationError",
+    "accepted": [
+      "applicationDefect"
+    ],
+    "actual": "applicationDefect",
+    "correct": true
+  },
+  {
+    "id": "FA-007",
+    "case": "timeout",
+    "expected": "timeout",
+    "accepted": [
+      "timingIssue",
+      "applicationDefect"
+    ],
+    "actual": "applicationDefect",
+    "correct": true
+  },
+  {
+    "id": "FA-008",
+    "case": "connection-reset",
+    "expected": "networkError",
+    "accepted": [
+      "networkIssue"
+    ],
+    "actual": "networkIssue",
+    "correct": true
+  },
+  {
+    "id": "FA-009",
+    "case": "js-error",
+    "expected": "javascriptError",
+    "accepted": [
+      "applicationDefect"
+    ],
+    "actual": "applicationDefect",
+    "correct": true
+  },
+  {
+    "id": "FA-010",
+    "case": "wrong-value",
+    "expected": "assertionFailed",
+    "accepted": [
+      "applicationDefect",
+      "dataIssue"
+    ],
+    "actual": "applicationDefect",
+    "correct": true
+  },
+  {
+    "id": "FA-011",
+    "case": "missing-element",
+    "expected": "elementNotFound",
+    "accepted": [
+      "locatorChange",
+      "applicationDefect"
+    ],
+    "actual": "locatorChange",
+    "correct": true
+  }
+]

@@ -1,0 +1,71 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "a8b30e6c-eb30-4468-809e-7aea165cbeb9",
+      "order": 6,
+      "action": "assertHidden",
+      "description": "payments-table is not visible",
+      "status": "passed",
+      "startedAt": "2026-09-21T09:30:51.643+00:00",
+      "durationMs": 11,
+      "url": "http://localhost:4300/payments",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "payments-table",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"payments-table\""
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "04eb91bf-09c2-45fb-bf09-308ccf0510b9",
+      "order": 6,
+      "action": "assertHidden",
+      "description": "payment-submit is not visible",
+      "status": "failed",
+      "startedAt": "2026-09-21T09:30:53.751+00:00",
+      "durationMs": 15014,
+      "url": "http://localhost:4300/payments",
+      "wasHealed": false,
+      "errorMessage": "The element was expected to be hidden but was visible.",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "payment-submit",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"payment-submit\""
+    },
+    "failure": {
+      "id": "a1809e83-1e12-41af-bccf-c6ff045b4842",
+      "category": "authenticationIssue",
+      "categoryConfidence": 85,
+      "rawMessage": "The element was expected to be hidden but was visible.",
+      "signature": "95b5fc6b7177c55c98bdc15ed5918e2098eb4085b17444b59b56c1d0ce77e0a1",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-21T09:31:10.989749+00:00",
+      "lastSeenAt": "2026-09-21T09:31:10.989749+00:00",
+      "analysis": {
+        "summary": "The session was not authorised.",
+        "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+        "evidence": "1 request(s) returned 401 or 403.",
+        "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+        "category": "authenticationIssue",
+        "confidence": 85,
+        "isLikelyApplicationDefect": false,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0410b440-3aff-4ca0-87c3-55e22f1f225c\", \"kind\": \"AccessibilityTree\", \"name\": \"step-6-failure.a11y.json\"}, {\"id\": \"220c2df2-a049-467d-9ae8-0616f2e2015d\", \"kind\": \"DomSnapshot\", \"name\": \"step-6-failure.html\"}, {\"id\": \"6ca16c2b-a797-4dd7-ac9a-d0005578a1da\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b54ccf4f-86b1-4950-bc51-b8f8efa2adc1\", \"kind\": \"Screenshot\", \"name\": \"step-6-failure.png\"}, {\"id\": \"b7e50f59-5295-4bca-a381-5a7c1e218c44\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"c8c85677-2165-400a-9e9c-29142ba9f5b9\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"e772a0e4-325e-49da-82a2-94009c24bcb3\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"f8d75421-c442-49fe-8e86-3807e32dd578\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"3135a24b-1c62-499c-b4e0-8b1b90f3c90e\"}"
+      }
+    }
+  }
+}

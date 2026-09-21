@@ -1,0 +1,37 @@
+{
+  "testId": "REL-003",
+  "suite": "Reliability",
+  "runId": "2026-09-21T07-55-42Z",
+  "objective": "The platform records instability against the test rather than leaving it to a reader",
+  "preconditions": [
+    "REL-002 ran the same test twenty times with mixed results"
+  ],
+  "input": "The test case's own execution history",
+  "expected": "Pass and fail counts reflect what happened, and a flakiness score is maintained",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "the platform records 20 execution(s): 10 passed, 10 failed, flakiness score 78; this suite observed 10/20 passing",
+  "metrics": {
+    "executionCount": 20,
+    "passCount": 10,
+    "failCount": 10,
+    "flakinessScore": 78
+  },
+  "startedAt": "2026-09-21T07:57:04.097Z",
+  "durationMs": 13,
+  "build": {
+    "commit": "98c0687",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "flakiness-score.json",
+      "path": "evidence/REL-003/2026-09-21T07-55-42Z/flakiness-score.json",
+      "bytes": 843,
+      "sha256": "127350e22562887a9554ee1b1a227a53745597cc98d55074cf4c639cbdb53f50"
+    }
+  ]
+}

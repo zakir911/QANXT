@@ -1,0 +1,39 @@
+{
+  "testId": "DISC-009",
+  "suite": "Discovery",
+  "runId": "2026-09-21T07-57-51Z",
+  "objective": "Discovery finds the application's select controls",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "Ground-truth select controls on the discovered pages",
+  "expected": "Every declared select control appears in the model",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "3/3 found; classified as select; 4 element(s) of that kind",
+  "metrics": {
+    "expected": 3,
+    "found": 3,
+    "kinds": [
+      "select"
+    ],
+    "ofKind": 4
+  },
+  "startedAt": "2026-09-21T07:58:06.932Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "98c0687",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DISC-009-elements.json",
+      "path": "evidence/DISC-009/2026-09-21T07-57-51Z/DISC-009-elements.json",
+      "bytes": 4932,
+      "sha256": "0319e7405be4db94390f7f5a6f5700c87be5b1d561cd0907b4221ef045d9e19d"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "3bee0618-5d3c-4766-83bf-7428e5b59ce7",
+      "order": 7,
+      "action": "assertValue",
+      "description": "filter-min holds \"250\"",
+      "status": "passed",
+      "startedAt": "2026-09-21T07:46:01.985+00:00",
+      "durationMs": 38,
+      "url": "http://localhost:4300/transactions",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "filter-min",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"filter-min\""
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "0cb4180c-6613-4ce4-88e0-f18c3591bace",
+      "order": 7,
+      "action": "assertValue",
+      "description": "filter-min holds \"999\"",
+      "status": "failed",
+      "startedAt": "2026-09-21T07:46:04.01+00:00",
+      "durationMs": 23,
+      "url": "http://localhost:4300/transactions",
+      "wasHealed": false,
+      "errorMessage": "Expected the value \"999\" but found \"250\".",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "filter-min",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"filter-min\""
+    },
+    "failure": {
+      "id": "e34cf812-3971-4c05-9e8e-f1ca375d7abe",
+      "category": "authenticationIssue",
+      "categoryConfidence": 85,
+      "rawMessage": "Expected the value \"999\" but found \"250\".",
+      "signature": "8bbf6191423b84a9b5d80e436e8b44505b3bf55a78a1e94498f6efd4481a7304",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-21T07:46:04.35623+00:00",
+      "lastSeenAt": "2026-09-21T07:46:04.35623+00:00",
+      "analysis": {
+        "summary": "The session was not authorised.",
+        "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+        "evidence": "1 request(s) returned 401 or 403.",
+        "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+        "category": "authenticationIssue",
+        "confidence": 85,
+        "isLikelyApplicationDefect": false,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"4409a74b-e2b3-4492-9138-fdb0002f0273\", \"kind\": \"AccessibilityTree\", \"name\": \"step-7-failure.a11y.json\"}, {\"id\": \"48c84c4d-d732-4031-a27b-d125c8fef27a\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"62cbdb0b-0417-41f3-8741-8dba2190bc9a\", \"kind\": \"Screenshot\", \"name\": \"step-7-failure.png\"}, {\"id\": \"763dbe9e-17ab-4f05-92a4-4c079df5c058\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"8555cde5-c716-4f6f-9a9f-6991c6df3b13\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"c31ae52b-fdf9-4a59-8e07-50a851233b7b\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"cad83308-2963-4179-8975-1ff1991e73e6\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"d1585f58-c303-461f-b12b-e025df9bb5d6\", \"kind\": \"DomSnapshot\", \"name\": \"step-7-failure.html\"}], \"executionId\": \"4d978310-5873-412a-acb1-b9382776447a\"}"
+      }
+    }
+  }
+}

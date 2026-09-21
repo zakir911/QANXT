@@ -1,0 +1,35 @@
+{
+  "case": "timeout",
+  "lab": "timeout",
+  "accept": [
+    "timingIssue",
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "3b36430c-6d11-45fe-9ac8-b9684c9f0f83",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15103ms).",
+    "signature": "1efc016a7be435780435132ab82e07bf8405043b32fd46b8443cbd35689e66df",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:07:22.740262+00:00",
+    "lastSeenAt": "2026-09-21T08:07:22.740262+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15103ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2ed32bbc-9e57-4be3-9efd-2f59e5a550de\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"4908b3d3-c9f5-494f-ae6a-59ad838af048\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"4bdd8f1f-6e87-42ed-bb6c-5c58acb2eb73\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"896967bf-7905-4e83-8e53-6e4505096a47\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"91e9d8ed-df74-4b9c-bc55-c1ca575054a6\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"d3cfed77-fe17-4bbb-99d3-df66611aabef\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"e1ce7c03-a51b-4dcc-a8f5-c3e4f355ed5c\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}], \"executionId\": \"394a29de-6921-450b-9dd4-e7b879258f46\"}"
+    }
+  }
+}

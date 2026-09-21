@@ -1,0 +1,35 @@
+{
+  "case": "timeout",
+  "lab": "timeout",
+  "accept": [
+    "timingIssue",
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "bcc4d5af-0a42-4525-8465-5a2478b869c3",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15038ms).",
+    "signature": "22f5cb5bb7568aa86c40a5a32e2a9a8cdcead727fb0469b130bf6b9817250825",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:42:08.479738+00:00",
+    "lastSeenAt": "2026-09-21T08:42:08.479738+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15038ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0247babc-0310-41e0-9f43-fd6a3237f085\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"08186adb-142f-4827-a33a-10b793222dd5\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"08dfdf53-5ba2-47c2-a461-54626b0f11a1\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"6dbfd45f-27e6-454b-8b40-a05133fca47d\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"7e3d47c4-42e1-4785-ba39-7a6703444ded\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"bac14320-f74d-4e07-a28f-cf3d581f0659\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"c1c1cebd-b9fd-4190-99d4-3621d0e04f0e\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"2b9efa41-79e2-49dd-8821-3cd2833adcd7\"}"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "case": "http-404",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "8e4a07d7-3263-444b-984a-a8a891f0d013",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15087ms).",
+    "signature": "9a4f2aaedd455973b6ba8330396b543a5b52e66a67eb8fd3a3c10821349a2898",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T08:41:32.106313+00:00",
+    "lastSeenAt": "2026-09-21T08:41:32.106313+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15087ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"08398190-117f-486d-9608-2f09936aca0c\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"2abd4fd0-e10b-4afb-af03-49ee5448840e\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"4572cf98-92bb-489c-b6ee-8241ab23b353\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"799547b5-1159-4ea2-819c-353ccced643e\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"ad08664d-d9cf-4649-a0a4-ec00e3a773fd\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"f5708315-0651-4461-8250-4de4547fa9da\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"f59e3190-79f1-40a9-be60-625c6b6ce6f2\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"fa96e270-c74f-48ad-b8af-f0ad9a3b28f9\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"f9a2723e-76c6-4db1-add7-070c09469f39\"}"
+    }
+  }
+}

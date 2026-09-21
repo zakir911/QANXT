@@ -1,0 +1,34 @@
+{
+  "case": "http-403",
+  "lab": "authorizationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "e068e9c3-c3f9-47d4-bc4e-fa802352dd84",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15077ms).",
+    "signature": "58e6d726e62b953a8d8cc58cfff7c10b6906fa6daeac1af5b7f170b61a5f4bb9",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T09:35:41.015194+00:00",
+    "lastSeenAt": "2026-09-21T09:35:41.015194+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"03563af0-53e4-4c12-b4c4-c36c6837a7aa\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"068f3af1-c8e7-4c93-9775-858bf1f5d48e\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"1432e640-86b8-4c6e-88a7-59fcea234c8e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"7064d520-3b13-4973-bdc0-52dd107edf78\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"8b9bb5a8-37db-4e6d-a59d-33a2ae6a37c8\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b090dd9f-0fcc-4b03-bae9-7f2bfc16d66f\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"cc50e340-9302-4447-b4cf-9b6d108a0727\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"d094d46b-fb73-45b6-a5d1-52e4c57d4719\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"2b889d6a-a762-45fe-859f-a5a6734fe95b\"}"
+    }
+  }
+}
