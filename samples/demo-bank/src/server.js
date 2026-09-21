@@ -58,7 +58,13 @@ async function route(req, res) {
   if (path === '/health') return json(res, 200, { status: 'ok', scenario: getScenario() });
 
   // ---- Public --------------------------------------------------------------
-  if (path === '/' && method === 'GET') return redirect(res, '/login');
+  // Signed in, the root belongs at the dashboard. Sending an authenticated customer back
+  // to the sign-in page is wrong on its own terms, and it also meant that registering this
+  // application by its root URL produced a one-page model: a crawl that starts at / and is
+  // bounced to /login can reach nothing else, and reports "completed" while it does it.
+  if (path === '/' && method === 'GET') {
+    return redirect(res, currentSession(req) ? '/dashboard' : '/login');
+  }
   if (path === '/login' && method === 'GET') return html(res, 200, loginPage({}));
   if (path === '/login' && method === 'POST') return handleLogin(req, res);
   if (path === '/logout' && method === 'POST') return handleLogout(req, res);

@@ -1,0 +1,250 @@
+/**
+ * Captures the screenshots the user manual uses.
+ *
+ * A manual illustrated with empty screens teaches nothing, so this seeds a realistic
+ * workspace first — a project, an application, a crawl, generated tests, a run that passes,
+ * a run that fails, and a healing proposal — and only then photographs each page. Every
+ * image is a real browser looking at a real platform holding real results.
+ *
+ * Needs AIRA and the demo bank running.
+ *
+ *   node test-lab/scripts/capture-user-manual.mjs
+ */
+import { mkdirSync } from 'node:fs';
+import { chromium } from 'playwright';
+import {
+  createProject, execute, generateTests, importJourney, journey, newTenant,
+  registerApplication, request, runDiscovery, step
+} from '../../verification/golden-tests/platform.mjs';
+
+const CONSOLE = process.env.CONSOLE_URL ?? 'http://127.0.0.1:5173';
+const BANK = process.env.DEMO_BANK_URL ?? 'http://127.0.0.1:4200';
+const OUT = new URL('../../docs/images/manual/', import.meta.url).pathname;
+mkdirSync(OUT, { recursive: true });
+
+const scenario = (patch) => fetch(`${BANK}/__control/scenario`, {
+  method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(patch)
+}).then(response => response.json());
+const resetBank = () => fetch(`${BANK}/__control/reset`, { method: 'POST' }).then(r => r.json());
+
+// ---------------------------------------------------------------------------
+// Seed a workspace worth photographing
+// ---------------------------------------------------------------------------
+
+console.log('Seeding a workspace:');
+await resetBank();
+
+const tenant = await newTenant('Manual');
+console.log(`  organization ready (${tenant.email})`);
+
+const project = await createProject(tenant, 'Retail Banking');
+const application = await registerApplication(tenant, project.id, {
+  name: 'Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
+  username: 'alice', password: 'Password123!'
+});
+console.log(`  project ${project.key}, application registered`);
+
+const discovery = await runDiscovery(tenant, application.id, { timeoutMs: 300_000 });
+console.log(`  discovery ${discovery.status}`);
+
+const generated = await generateTests(tenant, {
+  applicationId: application.id,
+  requirement: 'Customer can sign in and view their account balance.',
+  suiteName: 'Account access', maxScenarios: 5
+});
+console.log(`  ${generated.json?.casesCreated ?? 0} test case(s) generated`
+  + `${generated.ok ? '' : ` — generation answered ${generated.status}: ${generated.text.slice(0, 160)}`}`);
+
+// A recorded journey, so the manual can show a test a person wrote rather than one the
+// platform proposed — and so there is something stable to run twice.
+const signIn = [
+  step.navigate(`${BANK}/login`),
+  step.fill('username', 'alice', `${BANK}/login`),
+  step.fill('password', '${secret:app_password}', `${BANK}/login`),
+  step.click('login-submit', `${BANK}/login`)
+];
+const imported = await importJourney(tenant, {
+  projectId: project.id, applicationId: application.id,
+  journey: journey({
+    name: 'Customer signs in and reads their balance',
+    startUrl: `${BANK}/login`,
+    steps: [...signIn, step.assertText('total-balance', '£16,976.65', `${BANK}/dashboard`)]
+  })
+});
+console.log(`  journey imported as ${imported.testCaseReference}`);
+
+const healthy = await execute(tenant, {
+  projectId: project.id, testCaseId: imported.testCaseId, name: 'Nightly regression'
+});
+console.log(`  run against a healthy application: ${healthy.run?.status}`);
+if (healthy.run?.status !== 'passed') {
+  // A manual whose first screenshot shows a red baseline teaches the reader that red is
+  // normal. It is not.
+  throw new Error(`the baseline run did not pass (${healthy.run?.status}): `
+    + `${healthy.detail?.errorMessage ?? 'no message'}`);
+}
+
+// A failure worth analysing: the balance is wrong, so the assertion is right and the
+// application is not.
+await scenario({ wrongBalance: true });
+const broken = await execute(tenant, {
+  projectId: project.id, testCaseId: imported.testCaseId, name: 'Nightly regression (after a change)'
+});
+console.log(`  run against a broken application: ${broken.run?.status}`);
+await resetBank();
+
+// A healing proposal: rename the control the test clicks, and let the default policy
+// propose a replacement rather than apply one.
+await scenario({ renameLoginButton: true });
+const healed = await execute(tenant, {
+  projectId: project.id, testCaseId: imported.testCaseId, name: 'Nightly regression (renamed control)'
+});
+const healingEvents = healed.detail?.healingEvents ?? [];
+console.log(`  run after a locator change: ${healed.run?.status}, ${healingEvents.length} healing event(s)`);
+await resetBank();
+
+// An agent pass, so the manual shows the agent's own report rather than "No passes yet".
+console.log('  starting an agent pass…');
+const agentStart = await request('/api/v1/agent/runs', {
+  token: tenant.token, method: 'POST',
+  body: {
+    applicationId: application.id, name: 'First autonomous pass',
+    objective: 'Cover the account pages', explore: true, execute: true,
+    maxPages: 8, maxDepth: 2, maxTargets: 3, maxGeneratedTests: 4, timeBudgetSeconds: 240
+  }
+});
+let agentRun = agentStart.json ?? null;
+if (agentStart.ok && agentRun?.id) {
+  const deadline = Date.now() + 360_000;
+  while (Date.now() < deadline) {
+    const poll = await request(`/api/v1/agent/runs/${agentRun.id}`, { token: tenant.token });
+    // The detail endpoint wraps the summary; reading `status` off the envelope gave
+    // undefined, and the first version of this script left the loop immediately.
+    agentRun = poll.json?.summary ?? poll.json ?? agentRun;
+    if (!['running', 'queued', 'pending'].includes(String(agentRun?.status).toLowerCase())) break;
+    await new Promise(resolve => setTimeout(resolve, 5_000));
+  }
+  console.log(`  agent pass: ${agentRun?.status}`);
+} else {
+  console.log(`  agent pass could not start: ${agentStart.status} ${agentStart.text.slice(0, 140)}`);
+}
+
+const generatedList = await request(
+  `/api/v1/testcases?projectId=${project.id}&testSuiteId=${generated.json?.testSuiteId}`,
+  { token: tenant.token });
+const firstGenerated = (generatedList.json ?? [])[0];
+
+// ---------------------------------------------------------------------------
+// Photograph it
+// ---------------------------------------------------------------------------
+
+const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
+const page = await browser.newPage({ viewport: { width: 1380, height: 900 }, deviceScaleFactor: 2 });
+const shots = [];
+
+const settle = async () => {
+  await page.waitForLoadState('networkidle').catch(() => {});
+  await page.locator('[role="status"]', { hasText: /loading|…/i })
+    .first().waitFor({ state: 'detached', timeout: 20_000 }).catch(() => {});
+  await page.waitForTimeout(600);
+};
+
+/**
+ * Photographs a page, optionally after proving it shows what the caption claims.
+ *
+ * `expect` is a locator the page must be showing. Without it, a page whose data had not
+ * arrived was photographed in its empty state and captioned as though it were full — the
+ * agent screenshot said "No passes yet" under a caption about an agent's report. A manual
+ * illustrated with the wrong screen is worse than one with no screens, so a missing
+ * expectation is a hard failure rather than a warning.
+ */
+const shot = async (name, note, expect) => {
+  await settle();
+  if (expect) {
+    await expect.first().waitFor({ state: 'visible', timeout: 30_000 }).catch(() => {
+      throw new Error(`${name}: the page never showed what the caption claims (${note})`);
+    });
+    await page.waitForTimeout(300);
+  }
+  await page.screenshot({ path: `${OUT}${name}.png` });
+  shots.push(name);
+  console.log(`  ${name}.png — ${note}`);
+};
+
+const openPath = async (path) => { await page.goto(`${CONSOLE}${path}`, { waitUntil: 'domcontentloaded' }); };
+
+try {
+  console.log('\nCapturing:');
+
+  await page.goto(`${CONSOLE}/login`, { waitUntil: 'domcontentloaded' });
+  await page.getByLabel('Email').fill(tenant.email);
+  await page.getByLabel('Password', { exact: true }).fill(tenant.password);
+  await shot('01-sign-in', 'signing in');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.waitForURL(url => !url.pathname.endsWith('/login'), { timeout: 30_000 });
+
+  await shot('02-dashboard', 'the dashboard, with real runs behind it', page.getByText(/pass rate|executions/i));
+
+  await openPath('/projects');
+  await shot('03-projects', 'projects');
+
+  await openPath('/applications');
+  await shot('04-applications', 'the registered application', page.getByText('Demo Bank'));
+
+  await openPath(`/applications/${application.id}/graph`);
+  await shot('05-application-model', 'the model discovery built');
+
+  await openPath('/discovery');
+  await shot('06-discovery', 'discovery runs', page.getByText(/completed/i));
+
+  await openPath('/tests');
+  await shot('07-test-cases', 'the test case list', page.getByText('TC-0006'));
+
+  if (firstGenerated) {
+    await openPath(`/tests/${firstGenerated.id}`);
+    await shot('08-generated-test', 'a generated test, with its steps and assertions');
+  }
+
+  await openPath(`/tests/${imported.testCaseId}`);
+  await shot('09-recorded-test', 'a test imported from a recorded journey');
+
+  await openPath('/runs');
+  await shot('10-test-runs', 'test runs', page.getByText('Nightly regression'));
+
+  if (broken.run?.id) {
+    await openPath(`/runs/${broken.run.id}`);
+    await shot('11-run-detail', 'a run that failed, and why');
+  }
+
+  const failedExecution = broken.executions?.[0]?.id ?? healthy.executions?.[0]?.id;
+  if (failedExecution) {
+    await openPath(`/executions/${failedExecution}`);
+    await shot('12-execution-evidence', 'the evidence one execution left behind');
+  }
+
+  await openPath('/failures');
+  await shot('13-failures', 'failures, grouped and explained', page.getByText(/assertion|defect/i));
+
+  await openPath('/healing');
+  await shot('14-healing', 'a healing proposal awaiting review', page.getByRole('button', { name: 'Approve' }));
+
+  await openPath('/agent');
+  await shot('15-agent', 'the autonomous agent, after a completed pass', page.getByText('First autonomous pass'));
+
+  await openPath('/insights');
+  // An empty question box teaches nothing; the answer is the feature.
+  await page.getByRole('button', { name: 'Which failures are likely application defects?' }).click();
+  await page.getByRole('heading', { name: 'Answer' }).waitFor({ timeout: 60_000 }).catch(() => {});
+  await shot('16-insights', 'a question asked, and answered from stored runs', page.getByRole('heading', { name: 'Answer' }));
+
+  await openPath('/verification');
+  await shot('17-verification', 'the Verification Center', page.getByText(/quality gates/i));
+
+  await openPath('/settings');
+  await shot('18-settings', 'settings: people, gates and providers');
+
+  console.log(`\n${shots.length} screenshot(s) written to docs/images/manual/`);
+  console.log(`Workspace: project ${project.key}, application ${application.id}`);
+} finally {
+  await browser.close();
+}

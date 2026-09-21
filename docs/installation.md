@@ -406,6 +406,8 @@ From there: **Test cases → Generate** writes tests from the model, and **Test 
 run** executes them in a real browser and keeps the screenshots, video, trace and network
 log of each one.
 
+**[The user manual](user-manual.md)** takes it from here, screen by screen.
+
 ---
 
 ## 7. Checking it really works

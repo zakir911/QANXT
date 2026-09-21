@@ -52,6 +52,7 @@ already have the toolchain, and `docs/implementation-plan.md` has the build plan
 ## Documentation
 
 - **[Installing AIRA](docs/installation.md)** — Windows, macOS and Linux, step by step, with screenshots
+- **[User manual](docs/user-manual.md)** — how to use the product, screen by screen, with screenshots
 - [Architecture](docs/architecture.md) · [Assessment](docs/architecture-assessment.md) · [ADRs](docs/adr)
 - [Implementation plan](docs/implementation-plan.md)
 - [Verification status](docs/verification-status.md) — what has actually been executed, and what has not
