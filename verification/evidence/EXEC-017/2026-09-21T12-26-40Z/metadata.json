@@ -1,0 +1,35 @@
+{
+  "testId": "EXEC-017",
+  "suite": "Browser execution",
+  "runId": "2026-09-21T12-26-40Z",
+  "objective": "Execution waits for an element that arrives late instead of failing immediately",
+  "preconditions": [
+    "the dynamic lab application is running",
+    "its late content takes ~2.5s"
+  ],
+  "input": "A journey that asserts on /late content with no explicit wait step",
+  "expected": "The assertion passes, and the step took longer than the delay",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "passed; the assertion waited 6402ms for content the page renders after about 2.5 seconds",
+  "metrics": {
+    "waitMs": 6402
+  },
+  "startedAt": "2026-09-21T12:31:25.939Z",
+  "durationMs": 8095,
+  "build": {
+    "commit": "5bf2579",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "EXEC-017-run.json",
+      "path": "evidence/EXEC-017/2026-09-21T12-26-40Z/EXEC-017-run.json",
+      "bytes": 1113,
+      "sha256": "d083d5730f54aa4758cbbbc8a3af8d899c1b9f5cebfaef3c9dc2394e0467afcf"
+    }
+  ]
+}

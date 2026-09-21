@@ -1,6 +1,6 @@
 # Golden test report
 
-Run `2026-09-21T09-27-06Z` · build `6bf8a08` (working tree dirty) · generated 2026-09-21T09:45:25.561Z
+Run `2026-09-21T12-26-40Z` · build `5bf2579` · generated 2026-09-21T12:48:39.539Z
 
 **121 passed, 0 failed, 4 not verified** of 125 golden tests.
 No critical test failed.
@@ -30,7 +30,7 @@ No critical test failed.
 | API endpoint recall | 83.3% |
 | Elements preferring a stable locator | 100.0% |
 | Pages / elements discovered | 11 / 259 |
-| Crawl duration | 15s |
+| Crawl duration | 18s |
 
 ### Generation
 | | |
@@ -78,31 +78,31 @@ No critical test failed.
 | ID | Suite | Severity | Result | Objective | Detail |
 | --- | --- | --- | --- | --- | --- |
 | ASRT-001 | Assertions | critical | **PASS** | assertVisible holds when it should and fails when it should not | holds → passed; breaks → failed; message: testId="no-such-element-anywhere" could not be used: No element matched testId="no-such-element-anywhere". |
-| ASRT-002 | Assertions | critical | **PASS** | assertText holds when it should and fails when it should not | holds → passed; breaks → failed; message: Expected the element to contain "Something Else Entirely" but it read "Dashboard" (waited 15075ms). |
+| ASRT-002 | Assertions | critical | **PASS** | assertText holds when it should and fails when it should not | holds → passed; breaks → failed; message: Expected the element to contain "Something Else Entirely" but it read "Dashboard" (waited 15089ms). |
 | ASRT-003 | Assertions | critical | **PASS** | assertUrl holds when it should and fails when it should not | holds → passed; breaks → failed; message: Expected the URL to contain "/nowhere-at-all" but it was "http://localhost:4300/dashboard". |
-| ASRT-004 | Assertions | critical | **PASS** | assertValue holds when it should and fails when it should not | holds → passed; breaks → failed; message: Expected the value "999" but found "250" (waited 15068ms). |
+| ASRT-004 | Assertions | critical | **PASS** | assertValue holds when it should and fails when it should not | holds → passed; breaks → failed; message: Expected the value "999" but found "250" (waited 15033ms). |
 | ASRT-005 | Assertions | high | **PASS** | assertHidden holds when it should and fails when it should not | holds → passed; breaks → failed; message: The element was expected to be hidden but was visible. |
 | ASRT-006 | Assertions | high | **PASS** | A failed assertion on an element that exists does not trigger healing | 0 healing event(s) on a failed text assertion |
 | ASRT-007 | Assertions | high | **PASS** | A failed assertion reports what it expected and what it found | 5/5 failing assertion(s) name expected and actual |
 | ASRT-008 | Assertions | critical | **PASS** | Assertions run after a healed step, so a heal that reaches the wrong element is caught | the click healed at 93%; the assertion that followed passed |
 | DET-001 | Failure detection | critical | **PASS** | A working application produces a passing run | passed, 4/4 steps; 1 screenshot(s) |
-| DET-002 | Failure detection | high | **PASS** | A http 400 failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15071ms).; 2 screenshot(s); classified applicationDefect |
-| DET-003 | Failure detection | high | **PASS** | A http 401 failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15037ms).; 2 screenshot(s); classified authenticationIssue |
-| DET-004 | Failure detection | high | **PASS** | A http 403 failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15087ms).; 2 screenshot(s); classified authenticationIssue |
-| DET-005 | Failure detection | high | **PASS** | A http 404 failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15083ms).; 2 screenshot(s); classified applicationDefect |
-| DET-006 | Failure detection | critical | **PASS** | A http 500 failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15052ms).; 2 screenshot(s); classified applicationDefect |
-| DET-007 | Failure detection | high | **PASS** | A timeout failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15010ms).; 2 screenshot(s); classified applicationDefect |
-| DET-008 | Failure detection | high | **PASS** | A connection reset failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15007ms).; 2 screenshot(s); classified networkIssue |
-| DET-009 | Failure detection | high | **PASS** | A js error failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15077ms).; 2 screenshot(s); classified applicationDefect |
-| DET-010 | Failure detection | critical | **PASS** | A wrong value failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "OK 99" (waited 15004ms).; 2 screenshot(s); classified applicationDefect |
+| DET-002 | Failure detection | high | **PASS** | A http 400 failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15060ms).; 2 screenshot(s); classified applicationDefect |
+| DET-003 | Failure detection | high | **PASS** | A http 401 failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15064ms).; 2 screenshot(s); classified authenticationIssue |
+| DET-004 | Failure detection | high | **PASS** | A http 403 failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15051ms).; 2 screenshot(s); classified authenticationIssue |
+| DET-005 | Failure detection | high | **PASS** | A http 404 failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15085ms).; 2 screenshot(s); classified applicationDefect |
+| DET-006 | Failure detection | critical | **PASS** | A http 500 failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15029ms).; 2 screenshot(s); classified applicationDefect |
+| DET-007 | Failure detection | high | **PASS** | A timeout failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15032ms).; 2 screenshot(s); classified applicationDefect |
+| DET-008 | Failure detection | high | **PASS** | A connection reset failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15041ms).; 2 screenshot(s); classified networkIssue |
+| DET-009 | Failure detection | high | **PASS** | A js error failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15058ms).; 2 screenshot(s); classified applicationDefect |
+| DET-010 | Failure detection | critical | **PASS** | A wrong value failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "OK 99" (waited 15050ms).; 2 screenshot(s); classified applicationDefect |
 | DET-011 | Failure detection | critical | **PASS** | A missing element failure is detected and reported as a failure | failed, 3/4 steps; failed at step 4 (assertText): testId="outcome" could not be used: No element matched testId="outcome".; 2 screenshot(s); classified locatorChange |
 | DET-012 | Failure detection | critical | **PASS** | With every case made healthy, none of the tests fails | http-500: passed, timeout: passed, connection-reset: passed |
-| DISC-001 | Discovery | critical | **PASS** | Discovery completes against a real single-page application | status completed, 11 page(s) in 15s |
+| DISC-001 | Discovery | critical | **PASS** | Discovery completes against a real single-page application | status completed, 11 page(s) in 18s |
 | DISC-002 | Discovery | critical | **PASS** | Every page the application has is discovered | recall 100.0% (9/9) |
 | DISC-003 | Discovery | high | **PASS** | Nothing is discovered that the application does not have | precision 100.0% |
 | DISC-004 | Discovery | high | **PASS** | The sign-in page is discovered and recognised as public | found, requiresAuthentication=false |
 | DISC-005 | Discovery | medium | **PASS** | Pages behind the sign-in are marked as requiring authentication | 8/8 marked private |
-| DISC-006 | Discovery | high | **PASS** | Discovery finds the application's form fields | 5/5 found; classified as textInput/passwordInput; 8 element(s) of that kind |
+| DISC-006 | Discovery | high | **PASS** | Discovery finds the application's form fields | 5/5 found; classified as passwordInput/textInput; 8 element(s) of that kind |
 | DISC-007 | Discovery | high | **PASS** | Discovery finds the application's buttons | 5/5 found; classified as button; 24 element(s) of that kind |
 | DISC-008 | Discovery | high | **PASS** | Discovery finds the application's links | 4/4 found; classified as link; 93 element(s) of that kind |
 | DISC-009 | Discovery | high | **PASS** | Discovery finds the application's select controls | 3/3 found; classified as select; 4 element(s) of that kind |
@@ -112,23 +112,23 @@ No critical test failed.
 | DISC-013 | Discovery | high | **PASS** | Discovered elements carry a stable preferred locator, not a structural path | 100.0% stable of 259 element(s): testId=240 role=19 |
 | DISC-014 | Discovery | medium | **PASS** | Discovery captures a screenshot of each page it maps | 11/11 page(s) have a screenshot |
 | DISC-015 | Discovery | high | **PASS** | Discovery copes with an application whose ids change on every render | 6 page(s) (recall 100%), 111 element(s), 0 locator(s) bound to a generated id |
-| EXEC-001 | Browser execution | critical | **PASS** | A twenty-step journey through a real application passes end to end | run passed, 20/20 step(s) passed on chromium 141.0.7390.37 in 1218ms |
-| EXEC-002 | Browser execution | high | **PASS** | The browser navigates to the start URL (navigate) | navigate passed in 51ms on about:blank |
-| EXEC-003 | Browser execution | high | **PASS** | Text is typed into a field (fill) | fill passed in 62ms on http://localhost:4300/login via testId="username" |
-| EXEC-004 | Browser execution | high | **PASS** | A checkbox is ticked (check) | check passed in 49ms on http://localhost:4300/login via testId="remember-me" |
-| EXEC-005 | Browser execution | high | **PASS** | A control is pressed (click) | click passed in 45ms on http://localhost:4300/login via testId="login-submit" |
-| EXEC-006 | Browser execution | high | **PASS** | An option is chosen from a select (select) | select passed in 40ms on http://localhost:4300/transactions via testId="filter-category" |
-| EXEC-007 | Browser execution | high | **PASS** | A visibility assertion is evaluated (assertVisible) | assertVisible passed in 53ms on http://localhost:4300/login via testId="total-balance" |
-| EXEC-008 | Browser execution | high | **PASS** | A URL assertion is evaluated (assertUrl) | assertUrl passed in 23ms on http://localhost:4300/dashboard |
+| EXEC-001 | Browser execution | critical | **PASS** | A twenty-step journey through a real application passes end to end | run passed, 20/20 step(s) passed on chromium 141.0.7390.37 in 1673ms |
+| EXEC-002 | Browser execution | high | **PASS** | The browser navigates to the start URL (navigate) | navigate passed in 67ms on about:blank |
+| EXEC-003 | Browser execution | high | **PASS** | Text is typed into a field (fill) | fill passed in 97ms on http://localhost:4300/login via testId="username" |
+| EXEC-004 | Browser execution | high | **PASS** | A checkbox is ticked (check) | check passed in 78ms on http://localhost:4300/login via testId="remember-me" |
+| EXEC-005 | Browser execution | high | **PASS** | A control is pressed (click) | click passed in 74ms on http://localhost:4300/login via testId="login-submit" |
+| EXEC-006 | Browser execution | high | **PASS** | An option is chosen from a select (select) | select passed in 65ms on http://localhost:4300/transactions via testId="filter-category" |
+| EXEC-007 | Browser execution | high | **PASS** | A visibility assertion is evaluated (assertVisible) | assertVisible passed in 60ms on http://localhost:4300/dashboard via testId="total-balance" |
+| EXEC-008 | Browser execution | high | **PASS** | A URL assertion is evaluated (assertUrl) | assertUrl passed in 41ms on http://localhost:4300/dashboard |
 | EXEC-009 | Browser execution | high | **PASS** | A value assertion compares what is in the field, not what was typed | assertValue passed |
 | EXEC-010 | Browser execution | high | **PASS** | A text assertion reads the rendered text of an element | assertText passed — page-title reads "Statements" |
 | EXEC-011 | Browser execution | critical | **PASS** | A password typed during execution is never stored in readable form | literal present: false; password step records "***REDACTED***" |
 | EXEC-012 | Browser execution | high | **PASS** | A screenshot is captured for the execution | 1 screenshot(s), 5 artifact(s) in total |
-| EXEC-013 | Browser execution | medium | **PASS** | A Playwright trace is captured for the execution | 1 trace(s), 955461 bytes |
+| EXEC-013 | Browser execution | medium | **PASS** | A Playwright trace is captured for the execution | 1 trace(s), 927552 bytes |
 | EXEC-014 | Browser execution | high | **PASS** | Console and network activity are recorded for the execution | 8 network event(s) of which 7 are API calls; 1 console event(s) |
 | EXEC-015 | Browser execution | high | **NOT_VERIFIED** | The same unchanged test passes on firefox | firefox is not installed in this environment and cannot be downloaded (the Playwright CDN is unreachable); the platform reported: "browserType.launch: Executable doesn't exist at /opt/pw-browsers/fire |
 | EXEC-016 | Browser execution | high | **NOT_VERIFIED** | The same unchanged test passes on webkit | webkit is not installed in this environment and cannot be downloaded (the Playwright CDN is unreachable); the platform reported: "browserType.launch: Executable doesn't exist at /opt/pw-browsers/webki |
-| EXEC-017 | Browser execution | high | **PASS** | Execution waits for an element that arrives late instead of failing immediately | passed; the assertion waited 6389ms for content the page renders after about 2.5 seconds |
+| EXEC-017 | Browser execution | high | **PASS** | Execution waits for an element that arrives late instead of failing immediately | passed; the assertion waited 6402ms for content the page renders after about 2.5 seconds |
 | EXEC-018 | Browser execution | high | **PASS** | A modal dialog can be opened, filled and submitted | passed, 12/12 steps |
 | EXEC-019 | Browser execution | medium | **PASS** | Paging through a table changes what the page shows | passed, 8/8 steps |
 | EXEC-020 | Browser execution | critical | **PASS** | A multi-step purchase journey completes, with each step depending on the last | passed, 21/21 steps; the shop's order endpoint answers 200 |
@@ -184,10 +184,10 @@ No critical test failed.
 | HEAL-N08 | Self-healing | critical | **PASS** | Healing is refused: a link with the same words leads somewhere else | failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 63% |
 | HEAL-N09 | Self-healing | critical | **PASS** | Healing is refused: the page has been replaced by a maintenance notice | failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold |
 | HEAL-N10 | Self-healing | critical | **PASS** | Healing is refused: two controls share the label and do opposite things | failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 84% |
-| REL-001 | Reliability | critical | **PASS** | A deterministic test gives the same verdict ten times running | 10/10 passed; verdicts: passed; duration 425–497ms (median 467ms) |
+| REL-001 | Reliability | critical | **PASS** | A deterministic test gives the same verdict ten times running | 10/10 passed; verdicts: passed; duration 598–705ms (median 658ms) |
 | REL-002 | Reliability | high | **PASS** | An unstable application produces unstable results, and they are recorded | 7 passed, 13 failed across 20 runs; delays the application served: 100ms, 800ms, 2500ms, 6000ms |
-| REL-003 | Reliability | high | **PASS** | The platform records instability against the test rather than leaving it to a reader | the platform records 20 execution(s): 7 passed, 13 failed, flakiness score 56; this suite observed 7/20 passing |
-| REL-004 | Reliability | critical | **PASS** | A test that only passes on a retry is not reported as a clean pass | 0/6 run(s) needed a retry; verdicts: passed, failed, failed, failed, passed, passed |
+| REL-003 | Reliability | high | **PASS** | The platform records instability against the test rather than leaving it to a reader | the platform records 20 execution(s): 7 passed, 13 failed, flakiness score 78; this suite observed 7/20 passing |
+| REL-004 | Reliability | critical | **PASS** | A test that only passes on a retry is not reported as a clean pass | 0/6 run(s) needed a retry; verdicts: failed, failed, passed, passed, failed, passed |
 | REL-005 | Reliability | high | **PASS** | Ten runs started at the same moment all reach a verdict | 10/10 reached a verdict, 10 passed; statuses: passed |
 | REL-006 | Reliability | critical | **PASS** | When the configured model provider cannot be reached, nothing is fabricated | run failed; analysis present, produced by local (deterministic rules) |
 | REL-007 | Reliability | high | **NOT_VERIFIED** | An execution whose worker dies is reconciled rather than left running forever | this deployment reconciles stranded executions after 10 minutes, which is longer than this suite is willing to wait. Set Execution:StrandedAfterMinutes to 1 and AIRA_STRANDED_AFTER_MINUTES=1 to includ |
@@ -205,7 +205,7 @@ No critical test failed.
 
 ## Evidence
 
-123 artifact(s), 353 KiB, under `verification/evidence/<TEST-ID>/2026-09-21T09-27-06Z/`.
+123 artifact(s), 353 KiB, under `verification/evidence/<TEST-ID>/2026-09-21T12-26-40Z/`.
 0 missing, 0 changed since they were recorded.
 
 Full index with SHA-256 per artifact: `verification/reports/EVIDENCE-INDEX.md`.

@@ -77,3 +77,22 @@ launch error. They are not recorded as passes and not as failures.
 Data in every lab application is generated from a fixed seed (Mulberry32), so a run on
 another host produces the same balances, orders and transactions. No real data of any kind
 is present.
+
+## The one-command run
+
+`./scripts/verify-product` was run end to end on this host on 2026-09-21 and exited **0**:
+infrastructure, the six lab applications, the ground-truth audit, the product's own 377
+tests, all 125 golden tests, the reports and the certification, in one pass and with no
+manual step between them.
+
+```
+121 passed, 0 failed, 4 not verified of 125 golden tests in 1176s
+gates: Functional=PASS Discovery=PASS AI=PASS Self-healing=PASS Security=PASS
+       Reliability=PASS Failure detection=PASS Evidence=PASS
+overall: PASS
+Certification: CERTIFIED — 10 YES, 0 NO, 0 NOT VERIFIED of 10 questions
+```
+
+The run before it, on the same build, produced the same verdicts from a different set of
+browser sessions: the unstable application passed 10 of 20 runs then 7 of 20, which is the
+number the lab intends to vary and the only one that did.

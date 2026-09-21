@@ -1,0 +1,32 @@
+{
+  "testId": "GEN-013",
+  "suite": "AI test generation",
+  "runId": "2026-09-21T12-26-40Z",
+  "objective": "Generation against an application that was never discovered does not invent tests",
+  "preconditions": [
+    "a second application is registered and never crawled"
+  ],
+  "input": "A generation request for an application with an empty model",
+  "expected": "The request is refused, or answers with no test cases and says why — never fabricated steps",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 400, 0 case(s) created; 0 warning(s): {\"code\":\"validation_failed\",\"title\":\"This application has no discovered pages yet. Run discovery before generating tests",
+  "metrics": null,
+  "startedAt": "2026-09-21T12:31:01.632Z",
+  "durationMs": 23,
+  "build": {
+    "commit": "5bf2579",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "no-model.json",
+      "path": "evidence/GEN-013/2026-09-21T12-26-40Z/no-model.json",
+      "bytes": 245,
+      "sha256": "b7cef0d4f6caccf6ed1ff15c6ced1a5f2f7c2f29a877d54d93fd0d807849e20e"
+    }
+  ]
+}

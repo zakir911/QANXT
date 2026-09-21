@@ -1,0 +1,36 @@
+{
+  "testId": "DET-006",
+  "suite": "Failure detection",
+  "runId": "2026-09-21T12-26-40Z",
+  "objective": "A http 500 failure is detected and reported as a failure",
+  "preconditions": [
+    "the failure lab is running",
+    "the test targets /case/http-500"
+  ],
+  "input": "The same four-step test: open /case/http-500, press the button, expect \"OK 42\"",
+  "expected": "The run FAILS, with the failing step, an error message and a screenshot",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15029ms).; 2 screenshot(s); classified applicationDefect",
+  "metrics": {
+    "screenshots": 2,
+    "consoleErrors": 1
+  },
+  "startedAt": "2026-09-21T12:35:18.929Z",
+  "durationMs": 20090,
+  "build": {
+    "commit": "5bf2579",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DET-006-execution.json",
+      "path": "evidence/DET-006/2026-09-21T12-26-40Z/DET-006-execution.json",
+      "bytes": 2528,
+      "sha256": "98e95f2bb6d7bd6daf2c310b169f8be0d297e748833b45f13b37f878e1cd919b"
+    }
+  ]
+}

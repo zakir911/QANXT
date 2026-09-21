@@ -1,0 +1,34 @@
+{
+  "step": {
+    "id": "cfcf8afd-dbe3-4453-8643-64edd15f2ff9",
+    "order": 4,
+    "description": "Press login-submit",
+    "action": "click",
+    "target": {
+      "strategy": "testId",
+      "value": "login-submit",
+      "exact": false,
+      "fallbacks": []
+    },
+    "targetDescription": "testId=\"login-submit\"",
+    "value": "",
+    "url": "http://localhost:4350/login",
+    "isCritical": true,
+    "continueOnFailure": false,
+    "healCount": 1,
+    "assertions": []
+  },
+  "healingEvents": [
+    {
+      "id": "2629ed98-c2ee-4767-88d1-215a3d3b8080",
+      "testStepId": "cfcf8afd-dbe3-4453-8643-64edd15f2ff9",
+      "confidence": 79,
+      "outcome": "applied",
+      "outcomeVerified": true,
+      "reason": "testId=\"login-submit\" no longer matched any element. The closest candidate is testId=\"signin-submit\" (79% confidence). Unchanged: role, tagName, ancestry, neighbours, geometry. No other element came close.",
+      "original": "{\"exact\": false, \"value\": \"login-submit\", \"strategy\": \"testId\", \"fallbacks\": []}",
+      "healed": "{\"exact\": false, \"value\": \"signin-submit\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Sign In\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Sign In\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form > button\", \"strategy\": \"css\", \"fallbacks\": []}]}",
+      "scoreBreakdownJson": "{\"role\": 16, \"text\": 3, \"testId\": 12, \"tagName\": 4, \"ancestry\": 6, \"geometry\": 2, \"neighbours\": 4, \"uniqueness\": 12, \"accessibleName\": 9}"
+    }
+  ]
+}

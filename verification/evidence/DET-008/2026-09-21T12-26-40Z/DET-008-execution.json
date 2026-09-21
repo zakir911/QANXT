@@ -1,0 +1,42 @@
+{
+  "id": "DET-008",
+  "case": "connection-reset",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "4ffd1d5f-9291-4731-87fb-d88cc88d9c98",
+    "category": "networkIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15041ms).",
+    "signature": "dc987e9c21e8f0a7620cb9811a9eb03f6c0c1044b0a6934195201845415bcbfc",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T12:36:18.372429+00:00",
+    "lastSeenAt": "2026-09-21T12:36:18.372429+00:00",
+    "analysis": {
+      "summary": "The application could not be reached.",
+      "likelyCause": "A network-level failure stopped the browser from loading the application.",
+      "evidence": "1 request(s) failed at the network layer. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15041ms).",
+      "suggestedAction": "Confirm the environment is running and reachable from the worker, then re-run.",
+      "category": "networkIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2b3b8aea-ba5b-410d-906a-41c3305bdaf2\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"36598578-2235-4160-8206-d93296ecc2f1\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"52bf6508-cf6c-4f47-b252-9dc3770e9b29\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"78ad9978-b7ff-4b9b-ae12-99ad865ffdf2\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"7e0a0cf6-e5f7-439b-be68-70e5e6795a7b\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"8e5cdd07-9823-4ca5-92dd-2cc8f4a1d7f0\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"906f4705-5a69-430c-88e3-5e857ef45383\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"b7966d57-53a7-47c7-a1b6-adf13dd34cc6\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}], \"executionId\": \"4f59f453-fe83-430c-b6b4-09b1f41e10ef\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15041ms)."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

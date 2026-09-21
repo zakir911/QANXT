@@ -1,0 +1,32 @@
+{
+  "testId": "SEC-G08",
+  "suite": "Security and multi-tenancy",
+  "runId": "2026-09-21T12-26-40Z",
+  "objective": "Artifact identifiers cannot be turned into a path traversal",
+  "preconditions": [
+    "tenant A has an execution with artifacts"
+  ],
+  "input": "Traversal payloads in place of an artifact id",
+  "expected": "Each is refused; no file content is returned",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "../../../../etc/passwd → 404, ..%2f..%2f..%2fetc%2fpas → 404, 00000000-0000-0000-0000- → 404",
+  "metrics": null,
+  "startedAt": "2026-09-21T12:46:24.647Z",
+  "durationMs": 9,
+  "build": {
+    "commit": "5bf2579",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "traversal.json",
+      "path": "evidence/SEC-G08/2026-09-21T12-26-40Z/traversal.json",
+      "bytes": 288,
+      "sha256": "5f3b94ea0beb318f5ab7352e2f3df1ee3af27536240f67dd32a265d2818d1f08"
+    }
+  ]
+}

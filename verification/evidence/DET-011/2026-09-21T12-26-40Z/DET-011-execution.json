@@ -1,0 +1,42 @@
+{
+  "id": "DET-011",
+  "case": "missing-element",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "d055db50-47a4-4060-af57-6c15397da9b4",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "a960550cb11cbace2baeafb553c03a11daed89173382a1db1130d97fb8efd4b0",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T12:37:18.196194+00:00",
+    "lastSeenAt": "2026-09-21T12:37:18.196194+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0b923a0f-a4a8-4c45-90d6-849324874d70\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"56aa1598-e02a-4697-8174-d16464b90751\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"5e3489b0-a654-4af2-a3b4-b3a248152ed3\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"5efe46c6-41a4-405e-be19-dfc545770437\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"a6c78404-b486-4cc7-986f-6e6e8231f6c8\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"d3ba4b59-efff-41d1-bdfc-3a315794205f\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"f5a3a656-c854-4a41-8769-0773bb1c7a2f\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}], \"executionId\": \"abcdd0bb-bae9-40c9-8341-7b8c954d66a7\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\"."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

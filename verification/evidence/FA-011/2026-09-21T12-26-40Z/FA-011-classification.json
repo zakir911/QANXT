@@ -1,0 +1,35 @@
+{
+  "case": "missing-element",
+  "lab": "elementNotFound",
+  "accept": [
+    "locatorChange",
+    "applicationDefect"
+  ],
+  "actual": "locatorChange",
+  "failure": {
+    "id": "243cbb6e-fd7e-4feb-858d-992ead668516",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "7ae6bc4246c67a34a576daf4a934380e9b32282266571dfbbd3e687204b5d15e",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T12:40:46.068828+00:00",
+    "lastSeenAt": "2026-09-21T12:40:46.068828+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1196273a-452c-4afd-98e6-ab563d621df7\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"15280a92-d8bc-4704-a1a9-c8e26a0f48b1\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"22247e72-5868-4322-9e9e-0ca7cea80faa\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"57adac08-4575-43a0-a782-edc2e2073415\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"59a3e8f9-f78b-46a5-8bf4-213b94995813\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"8b9a50b2-d62b-4877-88c3-c19655951c8d\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b120df7b-2f81-4b25-852e-89dd480dfe12\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}], \"executionId\": \"9cf54c41-b8e4-4004-979f-10b4ba4d9dec\"}"
+    }
+  }
+}

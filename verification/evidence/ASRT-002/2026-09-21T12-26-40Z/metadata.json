@@ -1,0 +1,32 @@
+{
+  "testId": "ASRT-002",
+  "suite": "Assertions",
+  "runId": "2026-09-21T12-26-40Z",
+  "objective": "assertText holds when it should and fails when it should not",
+  "preconditions": [
+    "the lab bank is running with no faults"
+  ],
+  "input": "Two journeys: one where the assertText is satisfied, one where it is deliberately wrong",
+  "expected": "The first run passes; the second FAILS with a message naming expected and actual",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "holds → passed; breaks → failed; message: Expected the element to contain \"Something Else Entirely\" but it read \"Dashboard\" (waited 15089ms).",
+  "metrics": null,
+  "startedAt": "2026-09-21T12:32:25.099Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "5bf2579",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "ASRT-002-both-directions.json",
+      "path": "evidence/ASRT-002/2026-09-21T12-26-40Z/ASRT-002-both-directions.json",
+      "bytes": 3530,
+      "sha256": "4554424c3e68e922d6309227e3b58e6ea0f5733cbb540a6ccf2cb9215eb3abe3"
+    }
+  ]
+}
