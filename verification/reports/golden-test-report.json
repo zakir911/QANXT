@@ -1,14 +1,14 @@
 {
-  "runId": "2026-09-21T12-26-40Z",
-  "generatedAt": "2026-09-21T12:48:39.539Z",
+  "runId": "2026-09-21T14-41-46Z",
+  "generatedAt": "2026-09-21T15:02:25.300Z",
   "build": {
-    "commit": "5bf2579",
+    "commit": "8b1d8d4",
     "branch": "claude/blissful-pasteur-qtbzbs",
-    "dirty": false
+    "dirty": true
   },
   "totals": {
-    "total": 125,
-    "passed": 121,
+    "total": 130,
+    "passed": 126,
     "failed": 0,
     "notVerified": 4,
     "criticalFailures": 0
@@ -21,7 +21,7 @@
     },
     {
       "severity": "high",
-      "total": 52,
+      "total": 54,
       "failed": 0
     },
     {
@@ -31,15 +31,15 @@
     },
     {
       "severity": "low",
-      "total": 0,
+      "total": 3,
       "failed": 0
     }
   ],
   "bySuite": [
     {
       "suite": "Assertions",
-      "total": 8,
-      "passed": 8,
+      "total": 10,
+      "passed": 10,
       "failed": 0,
       "notVerified": 0
     },
@@ -86,6 +86,13 @@
       "notVerified": 0
     },
     {
+      "suite": "Performance baseline",
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "notVerified": 0
+    },
+    {
       "suite": "Reliability",
       "total": 7,
       "passed": 6,
@@ -108,7 +115,7 @@
       "stableLocatorShare": 1,
       "pagesDiscovered": 11,
       "elementsDiscovered": 259,
-      "discoveryMs": 17607
+      "discoveryMs": 15083
     },
     "generation": {
       "coverageOfDiscoveredPages": 0.6667,
@@ -118,10 +125,10 @@
       "generatedTestsFailedUnderFault": 1
     },
     "execution": {
-      "twentyStepJourneyMs": 1673,
+      "twentyStepJourneyMs": 1470,
       "steps": 20,
       "networkEventsCaptured": 8,
-      "lateContentWaitMs": 6402
+      "lateContentWaitMs": 6413
     },
     "failureAnalysis": {
       "classificationAccuracy": 1,
@@ -150,6 +157,17 @@
       "concurrentRuns": 10,
       "concurrentReachedVerdict": 10
     },
+    "performance": {
+      "discoveryMs": 15070,
+      "discoveryP95Ms": 15073,
+      "perPageMs": 1370,
+      "runWallClockMs": 2051,
+      "runWallClockP95Ms": 2056,
+      "runEngineMs": 931,
+      "platformOverheadMs": 1120,
+      "perStepMs": 78,
+      "generationMs": 33
+    },
     "integrity": {
       "falsePassChecks": 12,
       "falsePasses": 0,
@@ -161,8 +179,8 @@
     {
       "name": "Functional",
       "passed": true,
-      "total": 28,
-      "executed": 26,
+      "total": 30,
+      "executed": 28,
       "failures": [],
       "notVerified": [
         "EXEC-015",
@@ -224,16 +242,16 @@
     {
       "name": "Evidence",
       "passed": true,
-      "total": 125,
-      "executed": 121,
+      "total": 130,
+      "executed": 126,
       "failures": [],
       "notVerified": []
     }
   ],
   "overall": true,
   "evidence": {
-    "artifacts": 123,
-    "bytes": 361129,
+    "artifacts": 128,
+    "bytes": 371115,
     "missing": 0,
     "changed": 0
   },
@@ -247,7 +265,7 @@
       "detail": "holds → passed; breaks → failed; message: testId=\"no-such-element-anywhere\" could not be used: No element matched testId=\"no-such-element-anywhere\".",
       "durationMs": 0,
       "evidence": [
-        "evidence/ASRT-001/2026-09-21T12-26-40Z/ASRT-001-both-directions.json"
+        "evidence/ASRT-001/2026-09-21T14-41-46Z/ASRT-001-both-directions.json"
       ]
     },
     {
@@ -256,10 +274,10 @@
       "objective": "assertText holds when it should and fails when it should not",
       "severity": "critical",
       "result": "PASS",
-      "detail": "holds → passed; breaks → failed; message: Expected the element to contain \"Something Else Entirely\" but it read \"Dashboard\" (waited 15089ms).",
+      "detail": "holds → passed; breaks → failed; message: Expected the element to contain \"Something Else Entirely\" but it read \"Dashboard\" (waited 15016ms).",
       "durationMs": 1,
       "evidence": [
-        "evidence/ASRT-002/2026-09-21T12-26-40Z/ASRT-002-both-directions.json"
+        "evidence/ASRT-002/2026-09-21T14-41-46Z/ASRT-002-both-directions.json"
       ]
     },
     {
@@ -271,7 +289,7 @@
       "detail": "holds → passed; breaks → failed; message: Expected the URL to contain \"/nowhere-at-all\" but it was \"http://localhost:4300/dashboard\".",
       "durationMs": 1,
       "evidence": [
-        "evidence/ASRT-003/2026-09-21T12-26-40Z/ASRT-003-both-directions.json"
+        "evidence/ASRT-003/2026-09-21T14-41-46Z/ASRT-003-both-directions.json"
       ]
     },
     {
@@ -280,10 +298,10 @@
       "objective": "assertValue holds when it should and fails when it should not",
       "severity": "critical",
       "result": "PASS",
-      "detail": "holds → passed; breaks → failed; message: Expected the value \"999\" but found \"250\" (waited 15033ms).",
-      "durationMs": 1,
+      "detail": "holds → passed; breaks → failed; message: Expected the value \"999\" but found \"250\" (waited 15107ms).",
+      "durationMs": 0,
       "evidence": [
-        "evidence/ASRT-004/2026-09-21T12-26-40Z/ASRT-004-both-directions.json"
+        "evidence/ASRT-004/2026-09-21T14-41-46Z/ASRT-004-both-directions.json"
       ]
     },
     {
@@ -295,7 +313,7 @@
       "detail": "holds → passed; breaks → failed; message: The element was expected to be hidden but was visible.",
       "durationMs": 1,
       "evidence": [
-        "evidence/ASRT-005/2026-09-21T12-26-40Z/ASRT-005-both-directions.json"
+        "evidence/ASRT-005/2026-09-21T14-41-46Z/ASRT-005-both-directions.json"
       ]
     },
     {
@@ -307,7 +325,7 @@
       "detail": "0 healing event(s) on a failed text assertion",
       "durationMs": 0,
       "evidence": [
-        "evidence/ASRT-006/2026-09-21T12-26-40Z/no-healing-on-assertion.json"
+        "evidence/ASRT-006/2026-09-21T14-41-46Z/no-healing-on-assertion.json"
       ]
     },
     {
@@ -316,10 +334,10 @@
       "objective": "A failed assertion reports what it expected and what it found",
       "severity": "high",
       "result": "PASS",
-      "detail": "5/5 failing assertion(s) name expected and actual",
-      "durationMs": 1,
+      "detail": "7/7 failing assertion(s) name expected and actual",
+      "durationMs": 0,
       "evidence": [
-        "evidence/ASRT-007/2026-09-21T12-26-40Z/assertion-messages.json"
+        "evidence/ASRT-007/2026-09-21T14-41-46Z/assertion-messages.json"
       ]
     },
     {
@@ -329,9 +347,33 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "the click healed at 93%; the assertion that followed passed",
-      "durationMs": 26217,
+      "durationMs": 26221,
       "evidence": [
-        "evidence/ASRT-008/2026-09-21T12-26-40Z/assertion-after-heal.json"
+        "evidence/ASRT-008/2026-09-21T14-41-46Z/assertion-after-heal.json"
+      ]
+    },
+    {
+      "id": "ASRT-009",
+      "suite": "Assertions",
+      "objective": "assertCount holds when it should and fails when it should not",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "holds → passed; breaks → failed; message: Expected 10 matching elements but found 3.",
+      "durationMs": 0,
+      "evidence": [
+        "evidence/ASRT-009/2026-09-21T14-41-46Z/ASRT-009-both-directions.json"
+      ]
+    },
+    {
+      "id": "ASRT-010",
+      "suite": "Assertions",
+      "objective": "assertAttribute holds when it should and fails when it should not",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "holds → passed; breaks → failed; message: Expected attribute \"name\" to be \"account-number\" but it was \"username\" (waited 15023ms).",
+      "durationMs": 1,
+      "evidence": [
+        "evidence/ASRT-010/2026-09-21T14-41-46Z/ASRT-010-both-directions.json"
       ]
     },
     {
@@ -341,9 +383,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "passed, 4/4 steps; 1 screenshot(s)",
-      "durationMs": 2053,
+      "durationMs": 2056,
       "evidence": [
-        "evidence/DET-001/2026-09-21T12-26-40Z/DET-001-execution.json"
+        "evidence/DET-001/2026-09-21T14-41-46Z/DET-001-execution.json"
       ]
     },
     {
@@ -352,10 +394,10 @@
       "objective": "A http 400 failure is detected and reported as a failure",
       "severity": "high",
       "result": "PASS",
-      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15060ms).; 2 screenshot(s); classified applicationDefect",
-      "durationMs": 20112,
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15074ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18111,
       "evidence": [
-        "evidence/DET-002/2026-09-21T12-26-40Z/DET-002-execution.json"
+        "evidence/DET-002/2026-09-21T14-41-46Z/DET-002-execution.json"
       ]
     },
     {
@@ -364,10 +406,10 @@
       "objective": "A http 401 failure is detected and reported as a failure",
       "severity": "high",
       "result": "PASS",
-      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15064ms).; 2 screenshot(s); classified authenticationIssue",
-      "durationMs": 20114,
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15020ms).; 2 screenshot(s); classified authenticationIssue",
+      "durationMs": 18111,
       "evidence": [
-        "evidence/DET-003/2026-09-21T12-26-40Z/DET-003-execution.json"
+        "evidence/DET-003/2026-09-21T14-41-46Z/DET-003-execution.json"
       ]
     },
     {
@@ -376,10 +418,10 @@
       "objective": "A http 403 failure is detected and reported as a failure",
       "severity": "high",
       "result": "PASS",
-      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15051ms).; 2 screenshot(s); classified authenticationIssue",
-      "durationMs": 20113,
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15038ms).; 2 screenshot(s); classified authenticationIssue",
+      "durationMs": 18113,
       "evidence": [
-        "evidence/DET-004/2026-09-21T12-26-40Z/DET-004-execution.json"
+        "evidence/DET-004/2026-09-21T14-41-46Z/DET-004-execution.json"
       ]
     },
     {
@@ -388,10 +430,10 @@
       "objective": "A http 404 failure is detected and reported as a failure",
       "severity": "high",
       "result": "PASS",
-      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15085ms).; 2 screenshot(s); classified applicationDefect",
-      "durationMs": 20114,
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15003ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18115,
       "evidence": [
-        "evidence/DET-005/2026-09-21T12-26-40Z/DET-005-execution.json"
+        "evidence/DET-005/2026-09-21T14-41-46Z/DET-005-execution.json"
       ]
     },
     {
@@ -400,10 +442,10 @@
       "objective": "A http 500 failure is detected and reported as a failure",
       "severity": "critical",
       "result": "PASS",
-      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15029ms).; 2 screenshot(s); classified applicationDefect",
-      "durationMs": 20090,
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15102ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18107,
       "evidence": [
-        "evidence/DET-006/2026-09-21T12-26-40Z/DET-006-execution.json"
+        "evidence/DET-006/2026-09-21T14-41-46Z/DET-006-execution.json"
       ]
     },
     {
@@ -412,10 +454,10 @@
       "objective": "A timeout failure is detected and reported as a failure",
       "severity": "high",
       "result": "PASS",
-      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15032ms).; 2 screenshot(s); classified applicationDefect",
-      "durationMs": 20104,
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15088ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18111,
       "evidence": [
-        "evidence/DET-007/2026-09-21T12-26-40Z/DET-007-execution.json"
+        "evidence/DET-007/2026-09-21T14-41-46Z/DET-007-execution.json"
       ]
     },
     {
@@ -424,10 +466,10 @@
       "objective": "A connection reset failure is detected and reported as a failure",
       "severity": "high",
       "result": "PASS",
-      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15041ms).; 2 screenshot(s); classified networkIssue",
-      "durationMs": 20105,
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15042ms).; 2 screenshot(s); classified networkIssue",
+      "durationMs": 18109,
       "evidence": [
-        "evidence/DET-008/2026-09-21T12-26-40Z/DET-008-execution.json"
+        "evidence/DET-008/2026-09-21T14-41-46Z/DET-008-execution.json"
       ]
     },
     {
@@ -436,10 +478,10 @@
       "objective": "A js error failure is detected and reported as a failure",
       "severity": "high",
       "result": "PASS",
-      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15058ms).; 2 screenshot(s); classified applicationDefect",
-      "durationMs": 20093,
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15014ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18109,
       "evidence": [
-        "evidence/DET-009/2026-09-21T12-26-40Z/DET-009-execution.json"
+        "evidence/DET-009/2026-09-21T14-41-46Z/DET-009-execution.json"
       ]
     },
     {
@@ -448,10 +490,10 @@
       "objective": "A wrong value failure is detected and reported as a failure",
       "severity": "critical",
       "result": "PASS",
-      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15050ms).; 2 screenshot(s); classified applicationDefect",
-      "durationMs": 20090,
+      "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15070ms).; 2 screenshot(s); classified applicationDefect",
+      "durationMs": 18110,
       "evidence": [
-        "evidence/DET-010/2026-09-21T12-26-40Z/DET-010-execution.json"
+        "evidence/DET-010/2026-09-21T14-41-46Z/DET-010-execution.json"
       ]
     },
     {
@@ -461,9 +503,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "failed, 3/4 steps; failed at step 4 (assertText): testId=\"outcome\" could not be used: No element matched testId=\"outcome\".; 2 screenshot(s); classified locatorChange",
-      "durationMs": 20093,
+      "durationMs": 18151,
       "evidence": [
-        "evidence/DET-011/2026-09-21T12-26-40Z/DET-011-execution.json"
+        "evidence/DET-011/2026-09-21T14-41-46Z/DET-011-execution.json"
       ]
     },
     {
@@ -473,9 +515,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "http-500: passed, timeout: passed, connection-reset: passed",
-      "durationMs": 6377,
+      "durationMs": 6268,
       "evidence": [
-        "evidence/DET-012/2026-09-21T12-26-40Z/false-positive-control.json"
+        "evidence/DET-012/2026-09-21T14-41-46Z/false-positive-control.json"
       ]
     },
     {
@@ -484,10 +526,10 @@
       "objective": "Discovery completes against a real single-page application",
       "severity": "critical",
       "result": "PASS",
-      "detail": "status completed, 11 page(s) in 18s",
-      "durationMs": 2,
+      "detail": "status completed, 11 page(s) in 15s",
+      "durationMs": 1,
       "evidence": [
-        "evidence/DISC-001/2026-09-21T12-26-40Z/discovery-run.json"
+        "evidence/DISC-001/2026-09-21T14-41-46Z/discovery-run.json"
       ]
     },
     {
@@ -499,7 +541,7 @@
       "detail": "recall 100.0% (9/9)",
       "durationMs": 0,
       "evidence": [
-        "evidence/DISC-002/2026-09-21T12-26-40Z/page-score.json"
+        "evidence/DISC-002/2026-09-21T14-41-46Z/page-score.json"
       ]
     },
     {
@@ -509,9 +551,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "precision 100.0%",
-      "durationMs": 1,
+      "durationMs": 0,
       "evidence": [
-        "evidence/DISC-003/2026-09-21T12-26-40Z/page-precision.json"
+        "evidence/DISC-003/2026-09-21T14-41-46Z/page-precision.json"
       ]
     },
     {
@@ -521,9 +563,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "found, requiresAuthentication=false",
-      "durationMs": 1,
+      "durationMs": 2,
       "evidence": [
-        "evidence/DISC-004/2026-09-21T12-26-40Z/login-page.json"
+        "evidence/DISC-004/2026-09-21T14-41-46Z/login-page.json"
       ]
     },
     {
@@ -535,7 +577,7 @@
       "detail": "8/8 marked private",
       "durationMs": 1,
       "evidence": [
-        "evidence/DISC-005/2026-09-21T12-26-40Z/auth-flags.json"
+        "evidence/DISC-005/2026-09-21T14-41-46Z/auth-flags.json"
       ]
     },
     {
@@ -547,7 +589,7 @@
       "detail": "5/5 found; classified as passwordInput/textInput; 8 element(s) of that kind",
       "durationMs": 1,
       "evidence": [
-        "evidence/DISC-006/2026-09-21T12-26-40Z/DISC-006-elements.json"
+        "evidence/DISC-006/2026-09-21T14-41-46Z/DISC-006-elements.json"
       ]
     },
     {
@@ -559,7 +601,7 @@
       "detail": "5/5 found; classified as button; 24 element(s) of that kind",
       "durationMs": 1,
       "evidence": [
-        "evidence/DISC-007/2026-09-21T12-26-40Z/DISC-007-elements.json"
+        "evidence/DISC-007/2026-09-21T14-41-46Z/DISC-007-elements.json"
       ]
     },
     {
@@ -569,9 +611,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "4/4 found; classified as link; 93 element(s) of that kind",
-      "durationMs": 1,
+      "durationMs": 0,
       "evidence": [
-        "evidence/DISC-008/2026-09-21T12-26-40Z/DISC-008-elements.json"
+        "evidence/DISC-008/2026-09-21T14-41-46Z/DISC-008-elements.json"
       ]
     },
     {
@@ -581,9 +623,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "3/3 found; classified as select; 4 element(s) of that kind",
-      "durationMs": 1,
+      "durationMs": 0,
       "evidence": [
-        "evidence/DISC-009/2026-09-21T12-26-40Z/DISC-009-elements.json"
+        "evidence/DISC-009/2026-09-21T14-41-46Z/DISC-009-elements.json"
       ]
     },
     {
@@ -595,7 +637,7 @@
       "detail": "/accounts:19 /transactions:35 /dashboard:39 /beneficiaries:17",
       "durationMs": 1,
       "evidence": [
-        "evidence/DISC-010/2026-09-21T12-26-40Z/tables.json"
+        "evidence/DISC-010/2026-09-21T14-41-46Z/tables.json"
       ]
     },
     {
@@ -607,7 +649,7 @@
       "detail": "recall 83% of 12 browsable endpoint(s); sign-in POST observed: true; missing DELETE /api/session, GET /api/statements/:id/download",
       "durationMs": 1,
       "evidence": [
-        "evidence/DISC-011/2026-09-21T12-26-40Z/api-score.json"
+        "evidence/DISC-011/2026-09-21T14-41-46Z/api-score.json"
       ]
     },
     {
@@ -617,9 +659,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "9 transition(s), 0 dangling",
-      "durationMs": 1,
+      "durationMs": 0,
       "evidence": [
-        "evidence/DISC-012/2026-09-21T12-26-40Z/transitions.json"
+        "evidence/DISC-012/2026-09-21T14-41-46Z/transitions.json"
       ]
     },
     {
@@ -629,9 +671,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "100.0% stable of 259 element(s): testId=240 role=19",
-      "durationMs": 1,
+      "durationMs": 2,
       "evidence": [
-        "evidence/DISC-013/2026-09-21T12-26-40Z/locator-strategies.json"
+        "evidence/DISC-013/2026-09-21T14-41-46Z/locator-strategies.json"
       ]
     },
     {
@@ -641,9 +683,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "11/11 page(s) have a screenshot",
-      "durationMs": 1,
+      "durationMs": 0,
       "evidence": [
-        "evidence/DISC-014/2026-09-21T12-26-40Z/screenshots.json"
+        "evidence/DISC-014/2026-09-21T14-41-46Z/screenshots.json"
       ]
     },
     {
@@ -653,9 +695,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "6 page(s) (recall 100%), 111 element(s), 0 locator(s) bound to a generated id",
-      "durationMs": 5179,
+      "durationMs": 5094,
       "evidence": [
-        "evidence/DISC-015/2026-09-21T12-26-40Z/dynamic-model.json"
+        "evidence/DISC-015/2026-09-21T14-41-46Z/dynamic-model.json"
       ]
     },
     {
@@ -664,11 +706,11 @@
       "objective": "A twenty-step journey through a real application passes end to end",
       "severity": "critical",
       "result": "PASS",
-      "detail": "run passed, 20/20 step(s) passed on chromium 141.0.7390.37 in 1673ms",
-      "durationMs": 1,
+      "detail": "run passed, 20/20 step(s) passed on chromium 141.0.7390.37 in 1470ms",
+      "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-001/2026-09-21T12-26-40Z/run.json",
-        "evidence/EXEC-001/2026-09-21T12-26-40Z/actions.json"
+        "evidence/EXEC-001/2026-09-21T14-41-46Z/run.json",
+        "evidence/EXEC-001/2026-09-21T14-41-46Z/actions.json"
       ]
     },
     {
@@ -677,10 +719,10 @@
       "objective": "The browser navigates to the start URL (navigate)",
       "severity": "high",
       "result": "PASS",
-      "detail": "navigate passed in 67ms on about:blank",
-      "durationMs": 1,
+      "detail": "navigate passed in 70ms on about:blank",
+      "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-002/2026-09-21T12-26-40Z/EXEC-002-action.json"
+        "evidence/EXEC-002/2026-09-21T14-41-46Z/EXEC-002-action.json"
       ]
     },
     {
@@ -689,10 +731,10 @@
       "objective": "Text is typed into a field (fill)",
       "severity": "high",
       "result": "PASS",
-      "detail": "fill passed in 97ms on http://localhost:4300/login via testId=\"username\"",
+      "detail": "fill passed in 63ms on http://localhost:4300/login via testId=\"username\"",
       "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-003/2026-09-21T12-26-40Z/EXEC-003-action.json"
+        "evidence/EXEC-003/2026-09-21T14-41-46Z/EXEC-003-action.json"
       ]
     },
     {
@@ -701,10 +743,10 @@
       "objective": "A checkbox is ticked (check)",
       "severity": "high",
       "result": "PASS",
-      "detail": "check passed in 78ms on http://localhost:4300/login via testId=\"remember-me\"",
+      "detail": "check passed in 63ms on http://localhost:4300/login via testId=\"remember-me\"",
       "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-004/2026-09-21T12-26-40Z/EXEC-004-action.json"
+        "evidence/EXEC-004/2026-09-21T14-41-46Z/EXEC-004-action.json"
       ]
     },
     {
@@ -716,7 +758,7 @@
       "detail": "click passed in 74ms on http://localhost:4300/login via testId=\"login-submit\"",
       "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-005/2026-09-21T12-26-40Z/EXEC-005-action.json"
+        "evidence/EXEC-005/2026-09-21T14-41-46Z/EXEC-005-action.json"
       ]
     },
     {
@@ -725,10 +767,10 @@
       "objective": "An option is chosen from a select (select)",
       "severity": "high",
       "result": "PASS",
-      "detail": "select passed in 65ms on http://localhost:4300/transactions via testId=\"filter-category\"",
+      "detail": "select passed in 53ms on http://localhost:4300/transactions via testId=\"filter-category\"",
       "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-006/2026-09-21T12-26-40Z/EXEC-006-action.json"
+        "evidence/EXEC-006/2026-09-21T14-41-46Z/EXEC-006-action.json"
       ]
     },
     {
@@ -737,10 +779,10 @@
       "objective": "A visibility assertion is evaluated (assertVisible)",
       "severity": "high",
       "result": "PASS",
-      "detail": "assertVisible passed in 60ms on http://localhost:4300/dashboard via testId=\"total-balance\"",
+      "detail": "assertVisible passed in 65ms on http://localhost:4300/dashboard via testId=\"total-balance\"",
       "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-007/2026-09-21T12-26-40Z/EXEC-007-action.json"
+        "evidence/EXEC-007/2026-09-21T14-41-46Z/EXEC-007-action.json"
       ]
     },
     {
@@ -749,10 +791,10 @@
       "objective": "A URL assertion is evaluated (assertUrl)",
       "severity": "high",
       "result": "PASS",
-      "detail": "assertUrl passed in 41ms on http://localhost:4300/dashboard",
+      "detail": "assertUrl passed in 28ms on http://localhost:4300/dashboard",
       "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-008/2026-09-21T12-26-40Z/EXEC-008-action.json"
+        "evidence/EXEC-008/2026-09-21T14-41-46Z/EXEC-008-action.json"
       ]
     },
     {
@@ -764,7 +806,7 @@
       "detail": "assertValue passed",
       "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-009/2026-09-21T12-26-40Z/EXEC-009-action.json"
+        "evidence/EXEC-009/2026-09-21T14-41-46Z/EXEC-009-action.json"
       ]
     },
     {
@@ -774,9 +816,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "assertText passed — page-title reads \"Statements\"",
-      "durationMs": 1,
+      "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-010/2026-09-21T12-26-40Z/EXEC-010-action.json"
+        "evidence/EXEC-010/2026-09-21T14-41-46Z/EXEC-010-action.json"
       ]
     },
     {
@@ -788,7 +830,7 @@
       "detail": "literal present: false; password step records \"***REDACTED***\"",
       "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-011/2026-09-21T12-26-40Z/EXEC-011-masking.json"
+        "evidence/EXEC-011/2026-09-21T14-41-46Z/EXEC-011-masking.json"
       ]
     },
     {
@@ -800,7 +842,7 @@
       "detail": "1 screenshot(s), 5 artifact(s) in total",
       "durationMs": 1,
       "evidence": [
-        "evidence/EXEC-012/2026-09-21T12-26-40Z/artifacts.json"
+        "evidence/EXEC-012/2026-09-21T14-41-46Z/artifacts.json"
       ]
     },
     {
@@ -809,10 +851,10 @@
       "objective": "A Playwright trace is captured for the execution",
       "severity": "medium",
       "result": "PASS",
-      "detail": "1 trace(s), 927552 bytes",
+      "detail": "1 trace(s), 955499 bytes",
       "durationMs": 0,
       "evidence": [
-        "evidence/EXEC-013/2026-09-21T12-26-40Z/trace.json"
+        "evidence/EXEC-013/2026-09-21T14-41-46Z/trace.json"
       ]
     },
     {
@@ -822,10 +864,10 @@
       "severity": "high",
       "result": "PASS",
       "detail": "8 network event(s) of which 7 are API calls; 1 console event(s)",
-      "durationMs": 32,
+      "durationMs": 33,
       "evidence": [
-        "evidence/EXEC-014/2026-09-21T12-26-40Z/console.json",
-        "evidence/EXEC-014/2026-09-21T12-26-40Z/network.json"
+        "evidence/EXEC-014/2026-09-21T14-41-46Z/console.json",
+        "evidence/EXEC-014/2026-09-21T14-41-46Z/network.json"
       ]
     },
     {
@@ -854,10 +896,10 @@
       "objective": "Execution waits for an element that arrives late instead of failing immediately",
       "severity": "high",
       "result": "PASS",
-      "detail": "passed; the assertion waited 6402ms for content the page renders after about 2.5 seconds",
-      "durationMs": 8095,
+      "detail": "passed; the assertion waited 6413ms for content the page renders after about 2.5 seconds",
+      "durationMs": 8111,
       "evidence": [
-        "evidence/EXEC-017/2026-09-21T12-26-40Z/EXEC-017-run.json"
+        "evidence/EXEC-017/2026-09-21T14-41-46Z/EXEC-017-run.json"
       ]
     },
     {
@@ -867,9 +909,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "passed, 12/12 steps",
-      "durationMs": 2078,
+      "durationMs": 2072,
       "evidence": [
-        "evidence/EXEC-018/2026-09-21T12-26-40Z/EXEC-018-run.json"
+        "evidence/EXEC-018/2026-09-21T14-41-46Z/EXEC-018-run.json"
       ]
     },
     {
@@ -879,9 +921,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "passed, 8/8 steps",
-      "durationMs": 2217,
+      "durationMs": 2075,
       "evidence": [
-        "evidence/EXEC-019/2026-09-21T12-26-40Z/EXEC-019-run.json"
+        "evidence/EXEC-019/2026-09-21T14-41-46Z/EXEC-019-run.json"
       ]
     },
     {
@@ -893,7 +935,7 @@
       "detail": "passed, 21/21 steps; the shop's order endpoint answers 200",
       "durationMs": 2092,
       "evidence": [
-        "evidence/EXEC-020/2026-09-21T12-26-40Z/EXEC-020-run.json"
+        "evidence/EXEC-020/2026-09-21T14-41-46Z/EXEC-020-run.json"
       ]
     },
     {
@@ -905,7 +947,7 @@
       "detail": "10/10 failure(s) recorded with a category, message and signature",
       "durationMs": 1,
       "evidence": [
-        "evidence/FA-001/2026-09-21T12-26-40Z/failure-records.json"
+        "evidence/FA-001/2026-09-21T14-41-46Z/failure-records.json"
       ]
     },
     {
@@ -917,7 +959,7 @@
       "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects applicationError (accepting applicationDefect)",
       "durationMs": 1,
       "evidence": [
-        "evidence/FA-002/2026-09-21T12-26-40Z/FA-002-classification.json"
+        "evidence/FA-002/2026-09-21T14-41-46Z/FA-002-classification.json"
       ]
     },
     {
@@ -929,7 +971,7 @@
       "detail": "classified \"authenticationIssue\" at 85% confidence; the lab expects authenticationFailure (accepting authenticationIssue)",
       "durationMs": 0,
       "evidence": [
-        "evidence/FA-003/2026-09-21T12-26-40Z/FA-003-classification.json"
+        "evidence/FA-003/2026-09-21T14-41-46Z/FA-003-classification.json"
       ]
     },
     {
@@ -941,7 +983,7 @@
       "detail": "classified \"authenticationIssue\" at 85% confidence; the lab expects authorizationFailure (accepting authenticationIssue)",
       "durationMs": 0,
       "evidence": [
-        "evidence/FA-004/2026-09-21T12-26-40Z/FA-004-classification.json"
+        "evidence/FA-004/2026-09-21T14-41-46Z/FA-004-classification.json"
       ]
     },
     {
@@ -953,7 +995,7 @@
       "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects applicationError (accepting applicationDefect)",
       "durationMs": 0,
       "evidence": [
-        "evidence/FA-005/2026-09-21T12-26-40Z/FA-005-classification.json"
+        "evidence/FA-005/2026-09-21T14-41-46Z/FA-005-classification.json"
       ]
     },
     {
@@ -965,7 +1007,7 @@
       "detail": "classified \"applicationDefect\" at 90% confidence; the lab expects applicationError (accepting applicationDefect)",
       "durationMs": 0,
       "evidence": [
-        "evidence/FA-006/2026-09-21T12-26-40Z/FA-006-classification.json"
+        "evidence/FA-006/2026-09-21T14-41-46Z/FA-006-classification.json"
       ]
     },
     {
@@ -977,7 +1019,7 @@
       "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects timeout (accepting timingIssue or applicationDefect)",
       "durationMs": 0,
       "evidence": [
-        "evidence/FA-007/2026-09-21T12-26-40Z/FA-007-classification.json"
+        "evidence/FA-007/2026-09-21T14-41-46Z/FA-007-classification.json"
       ]
     },
     {
@@ -989,7 +1031,7 @@
       "detail": "classified \"networkIssue\" at 85% confidence; the lab expects networkError (accepting networkIssue)",
       "durationMs": 0,
       "evidence": [
-        "evidence/FA-008/2026-09-21T12-26-40Z/FA-008-classification.json"
+        "evidence/FA-008/2026-09-21T14-41-46Z/FA-008-classification.json"
       ]
     },
     {
@@ -999,9 +1041,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects javascriptError (accepting applicationDefect)",
-      "durationMs": 0,
+      "durationMs": 1,
       "evidence": [
-        "evidence/FA-009/2026-09-21T12-26-40Z/FA-009-classification.json"
+        "evidence/FA-009/2026-09-21T14-41-46Z/FA-009-classification.json"
       ]
     },
     {
@@ -1011,9 +1053,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects assertionFailed (accepting applicationDefect or dataIssue)",
-      "durationMs": 1,
+      "durationMs": 0,
       "evidence": [
-        "evidence/FA-010/2026-09-21T12-26-40Z/FA-010-classification.json"
+        "evidence/FA-010/2026-09-21T14-41-46Z/FA-010-classification.json"
       ]
     },
     {
@@ -1025,7 +1067,7 @@
       "detail": "classified \"locatorChange\" at 90% confidence; the lab expects elementNotFound (accepting locatorChange or applicationDefect)",
       "durationMs": 0,
       "evidence": [
-        "evidence/FA-011/2026-09-21T12-26-40Z/FA-011-classification.json"
+        "evidence/FA-011/2026-09-21T14-41-46Z/FA-011-classification.json"
       ]
     },
     {
@@ -1035,9 +1077,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "10/10 correct (100%), 0 classified as unknown",
-      "durationMs": 0,
+      "durationMs": 1,
       "evidence": [
-        "evidence/FA-012/2026-09-21T12-26-40Z/classification-accuracy.json"
+        "evidence/FA-012/2026-09-21T14-41-46Z/classification-accuracy.json"
       ]
     },
     {
@@ -1047,9 +1089,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "10/10 failure(s) analysed; 10 carry a summary, likely cause and suggested action; providers: local (deterministic)",
-      "durationMs": 0,
+      "durationMs": 1,
       "evidence": [
-        "evidence/FA-013/2026-09-21T12-26-40Z/analyses.json"
+        "evidence/FA-013/2026-09-21T14-41-46Z/analyses.json"
       ]
     },
     {
@@ -1061,7 +1103,7 @@
       "detail": "10/10 run(s) remained failed after analysis",
       "durationMs": 1,
       "evidence": [
-        "evidence/FA-014/2026-09-21T12-26-40Z/verdict-integrity.json"
+        "evidence/FA-014/2026-09-21T14-41-46Z/verdict-integrity.json"
       ]
     },
     {
@@ -1071,9 +1113,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "signatures match; second run isNewFailure=false, occurrences 2",
-      "durationMs": 40209,
+      "durationMs": 36249,
       "evidence": [
-        "evidence/FA-015/2026-09-21T12-26-40Z/recurrence.json"
+        "evidence/FA-015/2026-09-21T14-41-46Z/recurrence.json"
       ]
     },
     {
@@ -1083,9 +1125,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "failed; the confirmation banner passed, the payment list assertion failed",
-      "durationMs": 20145,
+      "durationMs": 20164,
       "evidence": [
-        "evidence/FA-016/2026-09-21T12-26-40Z/silent-failure.json"
+        "evidence/FA-016/2026-09-21T14-41-46Z/silent-failure.json"
       ]
     },
     {
@@ -1097,7 +1139,7 @@
       "detail": "5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: balance, dashboard",
       "durationMs": 1,
       "evidence": [
-        "evidence/GEN-001/2026-09-21T12-26-40Z/GEN-001-generated.json"
+        "evidence/GEN-001/2026-09-21T14-41-46Z/GEN-001-generated.json"
       ]
     },
     {
@@ -1107,9 +1149,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: statement, download",
-      "durationMs": 1,
+      "durationMs": 0,
       "evidence": [
-        "evidence/GEN-002/2026-09-21T12-26-40Z/GEN-002-generated.json"
+        "evidence/GEN-002/2026-09-21T14-41-46Z/GEN-002-generated.json"
       ]
     },
     {
@@ -1121,7 +1163,7 @@
       "detail": "5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: payment, pay",
       "durationMs": 0,
       "evidence": [
-        "evidence/GEN-003/2026-09-21T12-26-40Z/GEN-003-generated.json"
+        "evidence/GEN-003/2026-09-21T14-41-46Z/GEN-003-generated.json"
       ]
     },
     {
@@ -1131,9 +1173,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: payment, amount, invalid, valid",
-      "durationMs": 1,
+      "durationMs": 2,
       "evidence": [
-        "evidence/GEN-004/2026-09-21T12-26-40Z/GEN-004-generated.json"
+        "evidence/GEN-004/2026-09-21T14-41-46Z/GEN-004-generated.json"
       ]
     },
     {
@@ -1145,7 +1187,7 @@
       "detail": "5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: login, credential",
       "durationMs": 0,
       "evidence": [
-        "evidence/GEN-005/2026-09-21T12-26-40Z/GEN-005-generated.json"
+        "evidence/GEN-005/2026-09-21T14-41-46Z/GEN-005-generated.json"
       ]
     },
     {
@@ -1155,9 +1197,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "5 plan(s); providers local/aira-rules-v1; local fallback flagged: true; tokens reported 0",
-      "durationMs": 1,
+      "durationMs": 0,
       "evidence": [
-        "evidence/GEN-006/2026-09-21T12-26-40Z/provider-disclosure.json"
+        "evidence/GEN-006/2026-09-21T14-41-46Z/provider-disclosure.json"
       ]
     },
     {
@@ -1169,7 +1211,7 @@
       "detail": "100.0% stable of 40 targeted step(s): testId=40",
       "durationMs": 1,
       "evidence": [
-        "evidence/GEN-007/2026-09-21T12-26-40Z/generated-locators.json"
+        "evidence/GEN-007/2026-09-21T14-41-46Z/generated-locators.json"
       ]
     },
     {
@@ -1181,7 +1223,7 @@
       "detail": "25/25 case(s) carry an objective, preconditions and expected results",
       "durationMs": 0,
       "evidence": [
-        "evidence/GEN-008/2026-09-21T12-26-40Z/reviewable.json"
+        "evidence/GEN-008/2026-09-21T14-41-46Z/reviewable.json"
       ]
     },
     {
@@ -1191,9 +1233,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "asked for at most 2, created 2",
-      "durationMs": 57,
+      "durationMs": 65,
       "evidence": [
-        "evidence/GEN-009/2026-09-21T12-26-40Z/budget.json"
+        "evidence/GEN-009/2026-09-21T14-41-46Z/budget.json"
       ]
     },
     {
@@ -1203,9 +1245,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "5/5 generated test(s) passed: TC-0001 passed, TC-0002 passed, TC-0003 passed, TC-0004 passed, TC-0005 passed",
-      "durationMs": 20299,
+      "durationMs": 20306,
       "evidence": [
-        "evidence/GEN-010/2026-09-21T12-26-40Z/generated-execution.json"
+        "evidence/GEN-010/2026-09-21T14-41-46Z/generated-execution.json"
       ]
     },
     {
@@ -1215,9 +1257,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "FAULT_EMPTY_TRANSACTIONS on /transactions (the transactions list renders nothing): 1/2 test(s) that visit that page failed (all 5 passed when it was healthy): TC-0001 passed, TC-0002 failed, TC-0003 passed, TC-0004 passed, TC-0005 passed",
-      "durationMs": 40323,
+      "durationMs": 38438,
       "evidence": [
-        "evidence/GEN-011/2026-09-21T12-26-40Z/generated-under-fault.json"
+        "evidence/GEN-011/2026-09-21T14-41-46Z/generated-under-fault.json"
       ]
     },
     {
@@ -1227,9 +1269,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "6/9 distinct page(s) appear in a generated step (67%), across 9 generated case(s); 8/11 before collapsing repeated routes; 9 case(s) from one unbudgeted generation",
-      "durationMs": 17843,
+      "durationMs": 15311,
       "evidence": [
-        "evidence/GEN-012/2026-09-21T12-26-40Z/generation-coverage.json"
+        "evidence/GEN-012/2026-09-21T14-41-46Z/generation-coverage.json"
       ]
     },
     {
@@ -1239,9 +1281,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "status 400, 0 case(s) created; 0 warning(s): {\"code\":\"validation_failed\",\"title\":\"This application has no discovered pages yet. Run discovery before generating tests",
-      "durationMs": 23,
+      "durationMs": 18,
       "evidence": [
-        "evidence/GEN-013/2026-09-21T12-26-40Z/no-model.json"
+        "evidence/GEN-013/2026-09-21T14-41-46Z/no-model.json"
       ]
     },
     {
@@ -1251,9 +1293,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "3 case(s) generated from a page carrying an injected instruction; obeyed: false; credentials leaked: false",
-      "durationMs": 17680,
+      "durationMs": 15165,
       "evidence": [
-        "evidence/GEN-014/2026-09-21T12-26-40Z/prompt-injection.json"
+        "evidence/GEN-014/2026-09-21T14-41-46Z/prompt-injection.json"
       ]
     },
     {
@@ -1265,7 +1307,7 @@
       "detail": "5/5 generation(s) recorded an AI request id",
       "durationMs": 0,
       "evidence": [
-        "evidence/GEN-015/2026-09-21T12-26-40Z/ai-requests.json"
+        "evidence/GEN-015/2026-09-21T14-41-46Z/ai-requests.json"
       ]
     },
     {
@@ -1285,9 +1327,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "passed, 5/5 steps, reached /welcome: true",
-      "durationMs": 0,
+      "durationMs": 1,
       "evidence": [
-        "evidence/HEAL-G01/2026-09-21T12-26-40Z/baseline.json"
+        "evidence/HEAL-G01/2026-09-21T14-41-46Z/baseline.json"
       ]
     },
     {
@@ -1297,9 +1339,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "failed; 1 healing event(s), 0 applied; confidence 79; proposals: proposed",
-      "durationMs": 1,
+      "durationMs": 0,
       "evidence": [
-        "evidence/HEAL-G02/2026-09-21T12-26-40Z/suggest.json"
+        "evidence/HEAL-G02/2026-09-21T14-41-46Z/suggest.json"
       ]
     },
     {
@@ -1309,9 +1351,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "passed; 1 heal(s) applied at 79%; best candidate 79% against a threshold of 75; reached /welcome: true",
-      "durationMs": 0,
+      "durationMs": 1,
       "evidence": [
-        "evidence/HEAL-G03/2026-09-21T12-26-40Z/auto.json"
+        "evidence/HEAL-G03/2026-09-21T14-41-46Z/auto.json"
       ]
     },
     {
@@ -1323,7 +1365,7 @@
       "detail": "run status \"passed\"; the click records wasHealed=true at 79% confidence",
       "durationMs": 0,
       "evidence": [
-        "evidence/HEAL-G04/2026-09-21T12-26-40Z/healed-verdict.json"
+        "evidence/HEAL-G04/2026-09-21T14-41-46Z/healed-verdict.json"
       ]
     },
     {
@@ -1333,9 +1375,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "the stored click still targets {\"strategy\":\"testId\",\"value\":\"login-submit\",\"exact\":false,\"fallbacks\":[]}",
-      "durationMs": 7,
+      "durationMs": 10,
       "evidence": [
-        "evidence/HEAL-G05/2026-09-21T12-26-40Z/stored-test.json"
+        "evidence/HEAL-G05/2026-09-21T14-41-46Z/stored-test.json"
       ]
     },
     {
@@ -1345,9 +1387,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "passed; 1 heal(s) at 93%; best candidate 93%",
-      "durationMs": 0,
+      "durationMs": 1,
       "evidence": [
-        "evidence/HEAL-G06/2026-09-21T12-26-40Z/testid-only.json"
+        "evidence/HEAL-G06/2026-09-21T14-41-46Z/testid-only.json"
       ]
     },
     {
@@ -1357,9 +1399,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "3 healing event(s) listed, 3 with confidence, outcome and both locators",
-      "durationMs": 48,
+      "durationMs": 49,
       "evidence": [
-        "evidence/HEAL-G07/2026-09-21T12-26-40Z/healing-events.json"
+        "evidence/HEAL-G07/2026-09-21T14-41-46Z/healing-events.json"
       ]
     },
     {
@@ -1369,9 +1411,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "at threshold 100: failed, 0 heal(s) applied, best candidate 79%",
-      "durationMs": 16119,
+      "durationMs": 16132,
       "evidence": [
-        "evidence/HEAL-G08/2026-09-21T12-26-40Z/threshold.json"
+        "evidence/HEAL-G08/2026-09-21T14-41-46Z/threshold.json"
       ]
     },
     {
@@ -1383,7 +1425,7 @@
       "detail": "12 opportunities: 2 correctly healed, 10 correctly refused, 0 wrongly healed, 0 missed — false-healing rate 0.0%",
       "durationMs": 1,
       "evidence": [
-        "evidence/HEAL-M01/2026-09-21T12-26-40Z/healing-metrics.json"
+        "evidence/HEAL-M01/2026-09-21T14-41-46Z/healing-metrics.json"
       ]
     },
     {
@@ -1395,7 +1437,7 @@
       "detail": "healable: renamed control 79%, test id changed 93%; highest wrong-target candidate 63% (AMBIGUOUS_CONTROLS 51%, CONTROL_IS_LINK_ELSEWHERE 63%); margin +16 points. Findable-but-unusable controls scored 84%, 94%, 93%, 84% and all failed anyway.",
       "durationMs": 1,
       "evidence": [
-        "evidence/HEAL-M02/2026-09-21T12-26-40Z/confidence-separation.json"
+        "evidence/HEAL-M02/2026-09-21T14-41-46Z/confidence-separation.json"
       ]
     },
     {
@@ -1407,7 +1449,7 @@
       "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold",
       "durationMs": 1,
       "evidence": [
-        "evidence/HEAL-N01/2026-09-21T12-26-40Z/HEAL-N01.json"
+        "evidence/HEAL-N01/2026-09-21T14-41-46Z/HEAL-N01.json"
       ]
     },
     {
@@ -1417,9 +1459,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 51%",
-      "durationMs": 0,
+      "durationMs": 1,
       "evidence": [
-        "evidence/HEAL-N02/2026-09-21T12-26-40Z/HEAL-N02.json"
+        "evidence/HEAL-N02/2026-09-21T14-41-46Z/HEAL-N02.json"
       ]
     },
     {
@@ -1431,7 +1473,7 @@
       "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold",
       "durationMs": 0,
       "evidence": [
-        "evidence/HEAL-N03/2026-09-21T12-26-40Z/HEAL-N03.json"
+        "evidence/HEAL-N03/2026-09-21T14-41-46Z/HEAL-N03.json"
       ]
     },
     {
@@ -1443,7 +1485,7 @@
       "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold",
       "durationMs": 0,
       "evidence": [
-        "evidence/HEAL-N04/2026-09-21T12-26-40Z/HEAL-N04.json"
+        "evidence/HEAL-N04/2026-09-21T14-41-46Z/HEAL-N04.json"
       ]
     },
     {
@@ -1453,9 +1495,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 84%",
-      "durationMs": 0,
+      "durationMs": 1,
       "evidence": [
-        "evidence/HEAL-N05/2026-09-21T12-26-40Z/HEAL-N05.json"
+        "evidence/HEAL-N05/2026-09-21T14-41-46Z/HEAL-N05.json"
       ]
     },
     {
@@ -1465,9 +1507,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 94%",
-      "durationMs": 1,
+      "durationMs": 0,
       "evidence": [
-        "evidence/HEAL-N06/2026-09-21T12-26-40Z/HEAL-N06.json"
+        "evidence/HEAL-N06/2026-09-21T14-41-46Z/HEAL-N06.json"
       ]
     },
     {
@@ -1479,7 +1521,7 @@
       "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 93%",
       "durationMs": 1,
       "evidence": [
-        "evidence/HEAL-N07/2026-09-21T12-26-40Z/HEAL-N07.json"
+        "evidence/HEAL-N07/2026-09-21T14-41-46Z/HEAL-N07.json"
       ]
     },
     {
@@ -1491,7 +1533,7 @@
       "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 63%",
       "durationMs": 0,
       "evidence": [
-        "evidence/HEAL-N08/2026-09-21T12-26-40Z/HEAL-N08.json"
+        "evidence/HEAL-N08/2026-09-21T14-41-46Z/HEAL-N08.json"
       ]
     },
     {
@@ -1503,7 +1545,7 @@
       "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold",
       "durationMs": 0,
       "evidence": [
-        "evidence/HEAL-N09/2026-09-21T12-26-40Z/HEAL-N09.json"
+        "evidence/HEAL-N09/2026-09-21T14-41-46Z/HEAL-N09.json"
       ]
     },
     {
@@ -1515,7 +1557,43 @@
       "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 84%",
       "durationMs": 0,
       "evidence": [
-        "evidence/HEAL-N10/2026-09-21T12-26-40Z/HEAL-N10.json"
+        "evidence/HEAL-N10/2026-09-21T14-41-46Z/HEAL-N10.json"
+      ]
+    },
+    {
+      "id": "PERF-001",
+      "suite": "Performance baseline",
+      "objective": "How long discovery of a nine-page single-page application takes",
+      "severity": "low",
+      "result": "PASS",
+      "detail": "crawl: median 15070ms (min 15069ms, p95 15073ms, max 15073ms, n=3); 11 pages, 259 elements; about 1370ms per page",
+      "durationMs": 45476,
+      "evidence": [
+        "evidence/PERF-001/2026-09-21T14-41-46Z/discovery-timings.json"
+      ]
+    },
+    {
+      "id": "PERF-002",
+      "suite": "Performance baseline",
+      "objective": "How long a twelve-step journey takes from queued to verdict",
+      "severity": "low",
+      "result": "PASS",
+      "detail": "queued to verdict: median 2051ms (min 2048ms, p95 2056ms, max 2056ms, n=10); in the browser: median 931ms (min 853ms, p95 1198ms, max 1198ms, n=10); platform overhead about 1120ms; about 78ms per step",
+      "durationMs": 20511,
+      "evidence": [
+        "evidence/PERF-002/2026-09-21T14-41-46Z/execution-timings.json"
+      ]
+    },
+    {
+      "id": "PERF-003",
+      "suite": "Performance baseline",
+      "objective": "How long generating a suite from one requirement takes",
+      "severity": "low",
+      "result": "PASS",
+      "detail": "generation: median 33ms (min 26ms, p95 82ms, max 82ms, n=3); 5/5/5 case(s) per attempt; provider local/aira-rules-v1 — the built-in rules, not a hosted model",
+      "durationMs": 15213,
+      "evidence": [
+        "evidence/PERF-003/2026-09-21T14-41-46Z/generation-timings.json"
       ]
     },
     {
@@ -1524,10 +1602,10 @@
       "objective": "A deterministic test gives the same verdict ten times running",
       "severity": "critical",
       "result": "PASS",
-      "detail": "10/10 passed; verdicts: passed; duration 598–705ms (median 658ms)",
-      "durationMs": 20501,
+      "detail": "10/10 passed; verdicts: passed; duration 472–596ms (median 542ms)",
+      "durationMs": 20496,
       "evidence": [
-        "evidence/REL-001/2026-09-21T12-26-40Z/repeatability.json"
+        "evidence/REL-001/2026-09-21T14-41-46Z/repeatability.json"
       ]
     },
     {
@@ -1537,9 +1615,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "7 passed, 13 failed across 20 runs; delays the application served: 100ms, 800ms, 2500ms, 6000ms",
-      "durationMs": 67203,
+      "durationMs": 67129,
       "evidence": [
-        "evidence/REL-002/2026-09-21T12-26-40Z/flakiness.json"
+        "evidence/REL-002/2026-09-21T14-41-46Z/flakiness.json"
       ]
     },
     {
@@ -1548,10 +1626,10 @@
       "objective": "The platform records instability against the test rather than leaving it to a reader",
       "severity": "high",
       "result": "PASS",
-      "detail": "the platform records 20 execution(s): 7 passed, 13 failed, flakiness score 78; this suite observed 7/20 passing",
-      "durationMs": 16,
+      "detail": "the platform records 20 execution(s): 7 passed, 13 failed, flakiness score 33; this suite observed 7/20 passing",
+      "durationMs": 12,
       "evidence": [
-        "evidence/REL-003/2026-09-21T12-26-40Z/flakiness-score.json"
+        "evidence/REL-003/2026-09-21T14-41-46Z/flakiness-score.json"
       ]
     },
     {
@@ -1560,10 +1638,10 @@
       "objective": "A test that only passes on a retry is not reported as a clean pass",
       "severity": "critical",
       "result": "PASS",
-      "detail": "0/6 run(s) needed a retry; verdicts: failed, failed, passed, passed, failed, passed",
-      "durationMs": 18256,
+      "detail": "0/6 run(s) needed a retry; verdicts: failed, failed, failed, failed, passed, failed",
+      "durationMs": 22294,
       "evidence": [
-        "evidence/REL-004/2026-09-21T12-26-40Z/retries.json"
+        "evidence/REL-004/2026-09-21T14-41-46Z/retries.json"
       ]
     },
     {
@@ -1573,9 +1651,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "10/10 reached a verdict, 10 passed; statuses: passed",
-      "durationMs": 8259,
+      "durationMs": 6133,
       "evidence": [
-        "evidence/REL-005/2026-09-21T12-26-40Z/concurrency.json"
+        "evidence/REL-005/2026-09-21T14-41-46Z/concurrency.json"
       ]
     },
     {
@@ -1585,9 +1663,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run failed; analysis present, produced by local (deterministic rules)",
-      "durationMs": 20190,
+      "durationMs": 18155,
       "evidence": [
-        "evidence/REL-006/2026-09-21T12-26-40Z/ai-unavailable.json"
+        "evidence/REL-006/2026-09-21T14-41-46Z/ai-unavailable.json"
       ]
     },
     {
@@ -1607,9 +1685,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "6/6 refused with 401; other statuses: none",
-      "durationMs": 7,
+      "durationMs": 10,
       "evidence": [
-        "evidence/SEC-G01/2026-09-21T12-26-40Z/unauthenticated.json"
+        "evidence/SEC-G01/2026-09-21T14-41-46Z/unauthenticated.json"
       ]
     },
     {
@@ -1621,7 +1699,7 @@
       "detail": "random: 401, flipped signature: 401, tampered payload with wildcard permissions: 401, empty: 401",
       "durationMs": 6,
       "evidence": [
-        "evidence/SEC-G02/2026-09-21T12-26-40Z/bad-tokens.json"
+        "evidence/SEC-G02/2026-09-21T14-41-46Z/bad-tokens.json"
       ]
     },
     {
@@ -1631,9 +1709,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "7/7 refused for the other tenant; 7/7 readable by their owner; intruder statuses 404, 200",
-      "durationMs": 95,
+      "durationMs": 86,
       "evidence": [
-        "evidence/SEC-G03/2026-09-21T12-26-40Z/tenant-isolation.json"
+        "evidence/SEC-G03/2026-09-21T14-41-46Z/tenant-isolation.json"
       ]
     },
     {
@@ -1643,9 +1721,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "the write answered 404; 0 intruder run(s) visible in the owner's project",
-      "durationMs": 26,
+      "durationMs": 25,
       "evidence": [
-        "evidence/SEC-G04/2026-09-21T12-26-40Z/cross-tenant-write.json"
+        "evidence/SEC-G04/2026-09-21T14-41-46Z/cross-tenant-write.json"
       ]
     },
     {
@@ -1655,9 +1733,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "4/4 payload(s) stored verbatim; the project list still answers 200 with 5 project(s)",
-      "durationMs": 60,
+      "durationMs": 73,
       "evidence": [
-        "evidence/SEC-G05/2026-09-21T12-26-40Z/injection.json"
+        "evidence/SEC-G05/2026-09-21T14-41-46Z/injection.json"
       ]
     },
     {
@@ -1667,9 +1745,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "6/6 refused; accepted: none",
-      "durationMs": 28,
+      "durationMs": 30,
       "evidence": [
-        "evidence/SEC-G06/2026-09-21T12-26-40Z/ssrf-always-forbidden.json"
+        "evidence/SEC-G06/2026-09-21T14-41-46Z/ssrf-always-forbidden.json"
       ]
     },
     {
@@ -1679,9 +1757,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "absent from all 6 surfaces; 2 action(s) record a masked value instead",
-      "durationMs": 73,
+      "durationMs": 78,
       "evidence": [
-        "evidence/SEC-G07/2026-09-21T12-26-40Z/credential-exposure.json"
+        "evidence/SEC-G07/2026-09-21T14-41-46Z/credential-exposure.json"
       ]
     },
     {
@@ -1691,9 +1769,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "../../../../etc/passwd → 404, ..%2f..%2f..%2fetc%2fpas → 404, 00000000-0000-0000-0000- → 404",
-      "durationMs": 9,
+      "durationMs": 25,
       "evidence": [
-        "evidence/SEC-G08/2026-09-21T12-26-40Z/traversal.json"
+        "evidence/SEC-G08/2026-09-21T14-41-46Z/traversal.json"
       ]
     },
     {
@@ -1703,9 +1781,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "refused at import: 200 Step 2 (“Read the session cookie”) was not imported: executeScript is not permitted: enable script execution on the project and grant execut",
-      "durationMs": 16,
+      "durationMs": 18,
       "evidence": [
-        "evidence/SEC-G09/2026-09-21T12-26-40Z/script-execution.json"
+        "evidence/SEC-G09/2026-09-21T14-41-46Z/script-execution.json"
       ]
     },
     {
@@ -1717,7 +1795,7 @@
       "detail": "all present: x-content-type-options, x-frame-options, referrer-policy",
       "durationMs": 7,
       "evidence": [
-        "evidence/SEC-G10/2026-09-21T12-26-40Z/headers.json"
+        "evidence/SEC-G10/2026-09-21T14-41-46Z/headers.json"
       ]
     },
     {
@@ -1727,9 +1805,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "IPv4 loopback: 201, IPv6 loopback: 201, private range: 201, link-local: 400; loopback and private treated consistently: true; link-local refused regardless: true",
-      "durationMs": 34,
+      "durationMs": 31,
       "evidence": [
-        "evidence/SEC-G11/2026-09-21T12-26-40Z/ssrf-private.json"
+        "evidence/SEC-G11/2026-09-21T14-41-46Z/ssrf-private.json"
       ]
     }
   ]

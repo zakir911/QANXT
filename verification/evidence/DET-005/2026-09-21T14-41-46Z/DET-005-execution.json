@@ -1,0 +1,42 @@
+{
+  "id": "DET-005",
+  "case": "http-404",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "5ede3630-b892-4175-b61a-82e91f7ab618",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15003ms).",
+    "signature": "68a344977c5f60c642cba829acd058d7e339e75098c157f48abc20fafbfd7be4",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T14:48:21.071613+00:00",
+    "lastSeenAt": "2026-09-21T14:48:21.071613+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15003ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"69b43aa8-7967-4826-a082-ad06d9f93757\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"744e91c5-85c6-435b-8eaf-a0140a4cb5b8\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"8dd9371b-5f99-4fb1-9ab8-25fd7a1ac75e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"de8a558b-7e5c-410e-b3d1-5b146b095bf8\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"e316b340-6a3b-41ee-842a-85064c627f70\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"f9053466-e529-45b3-bdae-043d0cc6dfdc\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"fcf2f387-220a-411d-a2c4-5293d03a9d7a\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"ffd44dcf-062f-4c3e-8f3d-8f3c9deb6d62\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}], \"executionId\": \"ec2a8fa3-a6db-45c6-a31b-37b44fe06d95\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15003ms)."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

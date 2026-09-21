@@ -23,6 +23,15 @@ APPS=(
 pid_file() { echo "$RUN/$1.pid"; }
 log_file() { echo "$RUN/$1.log"; }
 
+# A pid file plus `kill -0` is not enough: after a host restart the operating system
+# reuses process ids, so an unrelated process inherits the one the file remembers and the
+# lab reports "already running" while nothing is listening. Every later measurement would
+# then be taken against an application that is not there. Answering on its own port is what
+# "running" means to everyone who asks.
+answering() {
+  curl -fsS --max-time 2 "http://127.0.0.1:$1/health" >/dev/null 2>&1
+}
+
 running() {
   local pid_path; pid_path="$(pid_file "$1")"
   [[ -f "$pid_path" ]] && kill -0 "$(cat "$pid_path")" 2>/dev/null
@@ -31,7 +40,13 @@ running() {
 start_one() {
   local name="$1" dir="$2" port="$3"
   [[ -f "$LAB/$dir/server.js" ]] || { echo "skip $name (not built yet)"; return 0; }
-  if running "$name"; then echo "$name already running on $port"; return 0; fi
+  if answering "$port"; then echo "$name already running on $port"; return 0; fi
+  # Something claims the pid but nothing answers: a stale file, or a process that died
+  # without cleaning up. Clear it and start again rather than report a lie.
+  if running "$name"; then
+    echo "$name held a stale pid and was not answering on $port; restarting it"
+    stop_one "$name" "$dir" >/dev/null 2>&1 || true
+  fi
 
   # An orphan holding the port is worse than a port that is simply busy: it answers
   # /health, so a naive readiness probe reports success while every request goes to code

@@ -1,0 +1,35 @@
+{
+  "case": "missing-element",
+  "lab": "elementNotFound",
+  "accept": [
+    "locatorChange",
+    "applicationDefect"
+  ],
+  "actual": "locatorChange",
+  "failure": {
+    "id": "e4050968-11d7-405e-9507-a3a66cf79bba",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "8019c39ae8704f9d9f5f22603e69a19553c785b34964a6ad83b36837fdb6ebcf",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T14:53:17.535599+00:00",
+    "lastSeenAt": "2026-09-21T14:53:17.535599+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"222c3416-4199-4669-825b-dabf6f3b8a98\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"2ba0db33-9aac-4822-baab-0564b919e733\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"40330a98-6a4a-4d38-9add-5437ea030af4\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"a02e08d9-4919-4c40-b2bb-7f2f694724d3\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"a617175f-77b2-42c0-ac3a-1a34da6180a0\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"ba133966-228e-4bf3-a687-84457fc5fa06\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"bfdb5163-0af5-4a5f-be55-fb857da22e73\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"07fa2384-782c-4d6c-afb3-5c5befc44015\"}"
+    }
+  }
+}

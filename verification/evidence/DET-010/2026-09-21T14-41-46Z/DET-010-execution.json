@@ -1,0 +1,42 @@
+{
+  "id": "DET-010",
+  "case": "wrong-value",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "84503d24-3961-40de-87f7-11201c15a906",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15070ms).",
+    "signature": "04b42636b1b3771fbdf9c6701f87765399a81170b2e466aed4cf69f8c0b86837",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T14:49:51.778241+00:00",
+    "lastSeenAt": "2026-09-21T14:49:51.778241+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15070ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"61ea9e64-c206-4444-8051-b9855cf66ef2\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"765ac78d-034a-4271-bdcb-5986e80fd86e\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"8e1e24b5-f5be-495e-9b96-e87838c9f611\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"933359fd-3f14-46fd-aeb3-3f68277746f1\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"d0d71a28-46ef-49d4-bb96-a939d6554a9d\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"e7042f44-123e-4bc7-9776-20bde8586489\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"f1c5bec3-a0c4-4480-b793-de8e1483e799\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"2aa565ee-63ec-46a7-8840-30c2149fc4cd\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15070ms)."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

@@ -1,0 +1,35 @@
+{
+  "testId": "PERF-003",
+  "suite": "Performance baseline",
+  "runId": "2026-09-21T15-05-00Z-perf",
+  "objective": "How long generating a suite from one requirement takes",
+  "preconditions": [
+    "the application has been discovered"
+  ],
+  "input": "Three generations from the same requirement, each into its own suite",
+  "expected": "Three generations that produce cases, with their durations recorded",
+  "severity": "low",
+  "result": "PASS",
+  "detail": "generation: median 12ms (min 11ms, p95 65ms, max 65ms, n=3); 0/0/0 case(s) per attempt; provider undefined/undefined",
+  "metrics": {
+    "generationMs": 12,
+    "generationP95Ms": 65
+  },
+  "startedAt": "2026-09-21T14:36:49.537Z",
+  "durationMs": 89,
+  "build": {
+    "commit": "8b1d8d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "generation-timings.json",
+      "path": "evidence/PERF-003/2026-09-21T15-05-00Z-perf/generation-timings.json",
+      "bytes": 557,
+      "sha256": "67db84f4ef34a562b25339a5671420fd0af8d95666b01426b9a559f44846cb8e"
+    }
+  ]
+}

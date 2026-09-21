@@ -1,0 +1,32 @@
+{
+  "testId": "ASRT-009",
+  "suite": "Assertions",
+  "runId": "2026-09-21T14-41-46Z",
+  "objective": "assertCount holds when it should and fails when it should not",
+  "preconditions": [
+    "the lab bank is running with no faults"
+  ],
+  "input": "Two journeys: one where the assertCount is satisfied, one where it is deliberately wrong",
+  "expected": "The first run passes; the second FAILS with a message naming expected and actual",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "holds → passed; breaks → failed; message: Expected 10 matching elements but found 3.",
+  "metrics": null,
+  "startedAt": "2026-09-21T14:45:58.239Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "8b1d8d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "ASRT-009-both-directions.json",
+      "path": "evidence/ASRT-009/2026-09-21T14-41-46Z/ASRT-009-both-directions.json",
+      "bytes": 3503,
+      "sha256": "9974acef9987e11bff70bbd4bb4db1cac42b407c2a9994510f4ad1c4f04ab20e"
+    }
+  ]
+}

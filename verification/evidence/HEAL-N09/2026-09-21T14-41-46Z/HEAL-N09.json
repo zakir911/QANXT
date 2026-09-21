@@ -1,0 +1,39 @@
+{
+  "fault": "FAULT_MAINTENANCE_PAGE",
+  "policy": "auto",
+  "threshold": 85,
+  "bestConfidence": null,
+  "status": "failed",
+  "stepsPassed": 1,
+  "stepsTotal": 5,
+  "healingEvents": [],
+  "healed": [],
+  "reachedWelcome": false,
+  "executionId": "4b946139-d046-4cd7-bc44-0a6ffa2a1ca2",
+  "failure": {
+    "id": "f7d32b12-6b7e-4f7e-a3bb-5d2f8ea7cc96",
+    "category": "locatorChange",
+    "categoryConfidence": 65,
+    "rawMessage": "testId=\"username\" could not be used: No element matched testId=\"username\".",
+    "signature": "99d6df150d4f219651b5f782ca7bfa3020d8ac31c16cdee5e223328860c25bc0",
+    "isNewFailure": true,
+    "isRegression": true,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T14:58:13.761248+00:00",
+    "lastSeenAt": "2026-09-21T14:58:13.761248+00:00",
+    "analysis": {
+      "summary": "The failing step could not find the element it needed.",
+      "likelyCause": "The element is absent from the page. Either the UI changed and the locator is stale, or an earlier step left the application somewhere other than the expected page.",
+      "evidence": "testId=\"username\" could not be used: No element matched testId=\"username\".",
+      "suggestedAction": "Compare the failure screenshot with the expected page. If the page is right but the element moved, update the locator; if the page is wrong, the failure is earlier in the journey.",
+      "category": "locatorChange",
+      "confidence": 65,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"67157167-491b-48d3-a044-9abf148bd79c\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"6e6c0f6e-a86f-41bc-91bb-de7ab06afb83\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"89835a73-8dbb-4e1a-94c1-7408056e0f2c\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"97a372c4-387c-4c01-b132-d53faa79c620\", \"kind\": \"Screenshot\", \"name\": \"step-2-failure.png\"}, {\"id\": \"ade4c879-6d0f-4326-8446-ef8ff18b8337\", \"kind\": \"AccessibilityTree\", \"name\": \"step-2-failure.a11y.json\"}, {\"id\": \"c6db694b-104b-42c2-bac0-5b31d23276a0\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"feff667a-bc7f-47a2-b7b1-a39ba8308718\", \"kind\": \"DomSnapshot\", \"name\": \"step-2-failure.html\"}], \"executionId\": \"4b946139-d046-4cd7-bc44-0a6ffa2a1ca2\"}"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "case": "http-403",
+  "lab": "authorizationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "be44c9ac-dd44-4687-ab20-1170cf198778",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15057ms).",
+    "signature": "79cb0d168a224bb7726c83ab91c479e8b367a8614e2e0ea53c6678f86f1c7326",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T14:51:10.695975+00:00",
+    "lastSeenAt": "2026-09-21T14:51:10.695975+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"12f0df08-00da-4897-90de-6922289ef298\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"17e4195d-f281-45e3-ad0d-3269f5701433\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"225bc65a-92d2-40f8-822c-8704682c7368\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"2629ebb9-53dc-48e3-b341-8c9495d4aabb\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"28d57636-3ea4-4c7a-bf9c-85ea26addb75\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"a569e518-6be9-4ee5-b3f3-9163df3a8292\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"a65b60a8-c24c-48c8-b68b-b25fad45f6f2\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"eafa6c53-ded8-4ed3-bb96-5844b62da0bb\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"4db11dea-bc8e-45b0-a84f-ee8c03a7e920\"}"
+    }
+  }
+}

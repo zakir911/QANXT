@@ -1,0 +1,42 @@
+{
+  "id": "DET-007",
+  "case": "timeout",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "a8a5fac3-e1d8-42fd-9d30-11a3e5c4da9d",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15088ms).",
+    "signature": "6c1e3ab9421a92af33df236e4b949a468c1433d885a3530a77a630cf7082865f",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T14:48:57.478722+00:00",
+    "lastSeenAt": "2026-09-21T14:48:57.478722+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15088ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"110030ad-e321-4293-9309-0dcc3fb12279\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"2a9deb54-c62a-4b39-99c2-ba7fb66ace46\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"3669b4a3-fab8-46dc-a62c-ba83aec66f23\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"99542938-4e58-48f6-9f33-691dbe6ffe2e\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"ce433989-7657-4068-a135-18d53b0c6e4c\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"d112da56-f308-492f-809a-62041aff5de6\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"ee722409-0d52-492d-8a6e-338046bbecb3\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}], \"executionId\": \"c9e41aae-355e-4d12-ae81-6fab7134da28\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15088ms)."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "FA-001",
+  "suite": "Failure analysis",
+  "runId": "2026-09-21T14-41-46Z",
+  "objective": "Every failed run produces a failure record, not just a red verdict",
+  "preconditions": [
+    "ten failure cases executed"
+  ],
+  "input": "The failure attached to each execution",
+  "expected": "Each failed execution carries a failure with a category, a message and a signature",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "10/10 failure(s) recorded with a category, message and signature",
+  "metrics": null,
+  "startedAt": "2026-09-21T14:53:18.155Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "8b1d8d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "failure-records.json",
+      "path": "evidence/FA-001/2026-09-21T14-41-46Z/failure-records.json",
+      "bytes": 3033,
+      "sha256": "778fff5466e960d4c55e87d90b70751038de6aed143885a9a5ee41dd7f948828"
+    }
+  ]
+}

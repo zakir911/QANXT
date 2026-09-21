@@ -1,0 +1,32 @@
+{
+  "testId": "SEC-G05",
+  "suite": "Security and multi-tenancy",
+  "runId": "2026-09-21T14-41-46Z",
+  "objective": "SQL and script payloads in user input are stored as data, not executed",
+  "preconditions": [
+    "tenant A can create projects"
+  ],
+  "input": "Project names containing a SQL injection and a script tag, then a read-back",
+  "expected": "The platform stays healthy, the value round-trips unchanged, and nothing is executed",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "4/4 payload(s) stored verbatim; the project list still answers 200 with 5 project(s)",
+  "metrics": null,
+  "startedAt": "2026-09-21T14:58:49.172Z",
+  "durationMs": 73,
+  "build": {
+    "commit": "8b1d8d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "injection.json",
+      "path": "evidence/SEC-G05/2026-09-21T14-41-46Z/injection.json",
+      "bytes": 693,
+      "sha256": "ee8c506ca4518a44117cb8717dd71908c5ca32249d7da85bf398c4b829a49a54"
+    }
+  ]
+}

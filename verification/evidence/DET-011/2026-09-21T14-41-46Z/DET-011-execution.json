@@ -1,0 +1,42 @@
+{
+  "id": "DET-011",
+  "case": "missing-element",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "2f10da35-b231-4028-89b6-754d17229cd5",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "b9926babb03d417fce5e04d57d486aa4778a64a44349c4086cfa49686f950fbb",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T14:50:09.85524+00:00",
+    "lastSeenAt": "2026-09-21T14:50:09.85524+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0c470959-29fb-4b9d-bace-4f0420624a2b\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"21ca2dbb-7cef-48e6-962c-e68133ad9663\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"92ea9085-98e0-443c-8669-306c0a78c095\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"9bed60c5-072b-4d1a-8314-da6b8cb88acb\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"b4da7403-ab56-4b16-a95b-94f876bf3f4e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"d140ee70-a926-4f81-acf5-7aae60569072\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"fcca80c6-2c18-4514-bfeb-fc82884bbed3\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"af8521cd-3029-4249-ad80-615cce586923\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\"."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

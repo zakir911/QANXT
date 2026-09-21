@@ -1,0 +1,71 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "bca0aff6-07dc-4180-ab56-7c83544c113a",
+      "order": 2,
+      "action": "assertAttribute",
+      "description": "username's name is \"username\"",
+      "status": "passed",
+      "startedAt": "2026-09-21T14:28:47.825+00:00",
+      "durationMs": 62,
+      "url": "http://localhost:4300/login",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"username\""
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "48a02340-075e-490d-8171-42fb9254372a",
+      "order": 2,
+      "action": "assertAttribute",
+      "description": "username's name is \"account-number\"",
+      "status": "failed",
+      "startedAt": "2026-09-21T14:28:49.866+00:00",
+      "durationMs": 15093,
+      "url": "http://localhost:4300/login",
+      "wasHealed": false,
+      "errorMessage": "Expected attribute \"name\" to be \"account-number\" but it was \"username\" (waited 15054ms).",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"username\""
+    },
+    "failure": {
+      "id": "89507ca4-0867-4398-a4e5-f4f287390dd5",
+      "category": "authenticationIssue",
+      "categoryConfidence": 85,
+      "rawMessage": "Expected attribute \"name\" to be \"account-number\" but it was \"username\" (waited 15054ms).",
+      "signature": "c544b29bb14e81f26c8140ceb4c45bb3d65d2dd3d7cc14b8132b4a790c4f92e2",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-21T14:29:08.225544+00:00",
+      "lastSeenAt": "2026-09-21T14:29:08.225544+00:00",
+      "analysis": {
+        "summary": "The session was not authorised.",
+        "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+        "evidence": "1 request(s) returned 401 or 403.",
+        "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+        "category": "authenticationIssue",
+        "confidence": 85,
+        "isLikelyApplicationDefect": false,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1a0965fc-8525-4902-a06b-07eaae4e2cd8\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"3ed1e74d-99c0-4d68-aadd-e9fe2e3de288\", \"kind\": \"Screenshot\", \"name\": \"step-2-failure.png\"}, {\"id\": \"4558eaa0-f931-48c9-a859-98110655bff1\", \"kind\": \"AccessibilityTree\", \"name\": \"step-2-failure.a11y.json\"}, {\"id\": \"6004d6d7-4c9a-477a-bc20-0c88ed5f8877\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"6808e157-5a7d-41c5-9e17-b884c5b2fae7\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"b325989b-1e92-4f38-b521-454c9ffbc029\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"bb4a1e4c-254b-4173-bcd6-860fe3d5d384\", \"kind\": \"DomSnapshot\", \"name\": \"step-2-failure.html\"}, {\"id\": \"e89ba00d-e453-431a-bacb-3d77822e311e\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"1072ef66-10f3-4918-b0f2-b4ce50fef422\"}"
+      }
+    }
+  }
+}

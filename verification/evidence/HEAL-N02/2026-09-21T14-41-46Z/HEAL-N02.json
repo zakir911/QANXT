@@ -1,0 +1,72 @@
+{
+  "fault": "FAULT_AMBIGUOUS_CONTROLS",
+  "policy": "auto",
+  "threshold": 85,
+  "bestConfidence": 51,
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 5,
+  "healingEvents": [
+    {
+      "id": "eb04a830-ca1c-4689-b96c-37a1ee8589a0",
+      "testStepId": "4d6bb4ec-d350-42d0-b9bd-137b5d862a66",
+      "confidence": 51,
+      "outcome": "proposed",
+      "outcomeVerified": false,
+      "reason": "testId=\"login-submit\" no longer matched any element. The closest candidate is testId=\"submit-business\" (51% confidence). Unchanged: role, accessibleName, text, tagName. Changed: ancestry. The next best candidate scored 61%, only 2 points behind — review this one carefully.",
+      "original": "{\"exact\": false, \"value\": \"login-submit\", \"strategy\": \"testId\", \"fallbacks\": []}",
+      "healed": "{\"exact\": false, \"value\": \"submit-business\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in to business banking\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in to business banking\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form > div:nth-of-type(3) > button:nth-of-type(2)\", \"strategy\": \"css\", \"fallbacks\": []}]}",
+      "scoreBreakdownJson": "{\"role\": 16, \"text\": 6, \"testId\": 7, \"tagName\": 4, \"ancestry\": 1, \"geometry\": 1, \"uniqueness\": -12, \"accessibleName\": 17}"
+    }
+  ],
+  "healed": [],
+  "clickAction": {
+    "id": "04dd50b8-1784-40b6-84e6-d9ebdd58439c",
+    "order": 4,
+    "action": "click",
+    "description": "Press login-submit",
+    "status": "failed",
+    "startedAt": "2026-09-21T14:55:31.633+00:00",
+    "durationMs": 15025,
+    "url": "http://localhost:4350/login",
+    "wasHealed": false,
+    "healingConfidence": 51,
+    "errorMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "login-submit",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"login-submit\"",
+    "locatorAlternativesJson": "[{\"rank\": 1, \"score\": 51, \"breakdown\": {\"role\": 16, \"text\": 6, \"testId\": 7, \"tagName\": 4, \"ancestry\": 1, \"geometry\": 1, \"uniqueness\": -12, \"accessibleName\": 17}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"submit-business\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in to business banking\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in to business banking\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form > div:nth-of-type(3) > button:nth-of-type(2)\", \"strategy\": \"css\", \"fallbacks\": []}]}}, {\"rank\": 2, \"score\": 61, \"breakdown\": {\"role\": 16, \"text\": 6, \"testId\": 6, \"tagName\": 4, \"ancestry\": 1, \"geometry\": 1, \"accessibleName\": 17}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"submit-personal\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in to personal banking\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in to personal banking\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form > div:nth-of-type(3) > button:nth-of-type(1)\", \"strategy\": \"css\", \"fallbacks\": []}]}}]"
+  },
+  "reachedWelcome": false,
+  "executionId": "a1bba453-2230-431f-9dd0-aa8bcf044a8c",
+  "failure": {
+    "id": "80ebc770-b2b5-48ed-9520-bf1ba44ff6ba",
+    "category": "locatorChange",
+    "categoryConfidence": 56,
+    "rawMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "signature": "5f139823cefcc3ee1bf4ccc98ea3a1eba1932230ed769e7736ef7256542c6ff1",
+    "isNewFailure": false,
+    "isRegression": false,
+    "occurrenceCount": 2,
+    "firstSeenAt": "2026-09-21T14:55:30.878054+00:00",
+    "lastSeenAt": "2026-09-21T14:55:47.03473+00:00",
+    "analysis": {
+      "summary": "The element the failing step targets has changed.",
+      "likelyCause": "The stored locator () no longer matches anything, but an element closely resembling the original was found: testId=\"submit-business\". The application's markup changed rather than its behaviour.",
+      "evidence": "A healing candidate scored 51% against the original element's recorded signals.",
+      "suggestedAction": "Review the healing proposal carefully: at 51% confidence it is a suggestion, not a certainty.",
+      "category": "locatorChange",
+      "confidence": 56,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"283a3522-3cc6-46ad-aa66-09a9360e2f57\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"92a03f74-d38e-4eb9-a703-e9a9adeb8789\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"9d645c1d-e38a-4f76-9746-183f6b2494d6\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"b6f12366-e96f-476f-a8f8-ca82b04b2acd\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"c3b35d3e-ed5e-4ef7-8f3c-432ea22334ab\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"cc769082-44ec-4f9c-9053-b6a457959225\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"cd7ba7dd-e144-4c53-aaf2-28927dc5e852\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"a1bba453-2230-431f-9dd0-aa8bcf044a8c\"}"
+    }
+  }
+}

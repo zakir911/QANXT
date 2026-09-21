@@ -1,0 +1,172 @@
+[
+  {
+    "case": "http-400",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15043ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"02e68ea8-32d8-491f-8407-f4cf687f19f7\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"1332519b-59b3-4370-aaf3-e7df368cbe40\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"36486e2c-c85a-4c06-bfd2-c2cfb19eb9bd\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"766f1589-3c54-4169-b8bb-b86b1052b20e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"a290f974-453b-4ccb-a901-e686fa3498ca\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"a9ae9b78-2799-479c-be27-feb8c530d96b\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"cc39411f-57ee-41e8-a5c4-9912a61c96f5\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"e77f87b4-2359-4acd-bb26-79e51c3b9ea7\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"6b23cce7-462b-4df7-b1a2-c18004b084dd\"}"
+    }
+  },
+  {
+    "case": "http-401",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"069bf1ee-fb46-489a-94f3-c59bd0d3b2e1\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"0dd6c1be-d12c-480e-a983-b9782160d457\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"3c10ddb8-5621-45ae-b40d-5d454ffceb47\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"757dd2a0-f5f1-4fbd-a3d3-a751d7ff05ce\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"85027b9d-e688-468e-8d00-a09fb42c29ce\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"cadb3315-5590-44dd-aa51-455b056903f2\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"e4d06b51-cef2-4c6e-9747-7170d696cedd\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"e948072f-3ec3-4ebb-8d74-ea122a987451\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"32ddbb52-fb39-447e-ba9b-ced4ccfb2682\"}"
+    }
+  },
+  {
+    "case": "http-403",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"12f0df08-00da-4897-90de-6922289ef298\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"17e4195d-f281-45e3-ad0d-3269f5701433\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"225bc65a-92d2-40f8-822c-8704682c7368\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"2629ebb9-53dc-48e3-b341-8c9495d4aabb\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"28d57636-3ea4-4c7a-bf9c-85ea26addb75\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"a569e518-6be9-4ee5-b3f3-9163df3a8292\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"a65b60a8-c24c-48c8-b68b-b25fad45f6f2\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"eafa6c53-ded8-4ed3-bb96-5844b62da0bb\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"4db11dea-bc8e-45b0-a84f-ee8c03a7e920\"}"
+    }
+  },
+  {
+    "case": "http-404",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15103ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"145ba0bd-0641-42c3-8e8e-d20c3d67552b\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"2c3255ce-18a2-4d21-a9a5-0022965fb9e6\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"67939105-632f-4478-9f9b-8d0c4213109c\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"850b81ec-e0e3-4da9-becd-cee90d9aa562\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"899a68b1-2e90-4420-9d07-7253b3848587\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"8e67747a-0dea-414c-9b49-5d1ce65d05b2\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b2c416f6-b671-4b4e-8ccb-2f23f1f4659a\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"f22b4976-4ecb-4f93-915f-f8662dd1d9da\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"75835795-ae8f-4b7d-a705-8fd57dc828c8\"}"
+    }
+  },
+  {
+    "case": "http-500",
+    "analysis": {
+      "summary": "The application returned server errors during this execution.",
+      "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on.",
+      "evidence": "1 server error response(s) recorded in the network evidence.",
+      "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1ed072b8-b991-47ef-8837-c53a5948802c\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"6592762d-c662-4732-8ff4-bd5d28049dc9\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"8b294ebd-e460-4d98-a048-19ec568bd950\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"90cbde67-c032-4e07-835d-d9d7aa82c14a\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"b8ba663b-74ea-4507-bbd4-f84c80b6dad4\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"bfa25f86-b508-4fda-981d-5b3f992ab90b\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"ca872398-48d2-4cbc-9802-e7012b77f680\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"f8b45035-736d-434a-bd15-5edb371c924d\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"937430e3-c768-490f-9704-c56fa20dfa62\"}"
+    }
+  },
+  {
+    "case": "timeout",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15035ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"44645ccc-5b37-4b35-80be-271532859458\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"451fb29f-b721-48e5-a1f5-25efff9378d1\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"7dfe0ba7-297d-4feb-9559-2da5dbda41cd\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"7faea3e8-d63b-4428-a5af-b682ff18d75c\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"8ce0ad4a-0036-42a0-9e1c-e3bdbc85d9c9\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"a391f2a8-e78a-4e7a-8aca-10a71ef278da\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"dbbcbe26-4cd7-4e7d-bbf7-f9635f7a0aa9\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"92cce10e-e5e6-4ef4-9bec-ae60aeb3587b\"}"
+    }
+  },
+  {
+    "case": "connection-reset",
+    "analysis": {
+      "summary": "The application could not be reached.",
+      "likelyCause": "A network-level failure stopped the browser from loading the application.",
+      "evidence": "1 request(s) failed at the network layer. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15106ms).",
+      "suggestedAction": "Confirm the environment is running and reachable from the worker, then re-run.",
+      "category": "networkIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"05cfb820-e845-4002-bdd3-ab5e15dea166\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"4935cd89-c03f-4cdd-8209-e02c5f6e8068\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"4c459f9e-35fd-4dd8-9a9d-90b4be8cfa5d\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"79ed455a-2655-4c81-89ed-8f4fa0fc74f0\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"7ae7d944-35c0-4874-9c09-aff899c9cc62\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"90f300ab-7d8e-4d43-9da6-fdb18624ce1f\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"b8199c9b-fe96-44d3-b666-a3ae8597d420\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"ea203968-476a-4abe-bee1-fe6619ee5c6c\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"686c82d8-d7fe-4741-a3ef-85c9fdf49797\"}"
+    }
+  },
+  {
+    "case": "js-error",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15022ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"04b69f4b-aab2-45c7-8f09-a2c401153565\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"05cae6b3-9ad2-4e29-b528-07822dc1e390\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"207ef4af-d80f-4fb8-aae7-f5d7a4b53e0e\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"6835c9a9-b912-4d3b-9513-187c62cd806e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"78ebdf00-beb5-45c8-b45c-e79b5484f9d5\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"c16a1cac-0fca-4059-979f-1587941c0983\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"e547d7c2-eee6-4478-bb02-119c620ae87e\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"fb3934b0-a682-4003-a6f8-6cd83b8db19e\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}], \"executionId\": \"1f9a677b-d6c6-47b4-887b-a926f195efcd\"}"
+    }
+  },
+  {
+    "case": "wrong-value",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15001ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0621ff32-082f-4f44-88d6-a4950a216e8b\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"38b4ae01-a9b5-45ee-9096-ca7dac328e52\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"53e9cded-f310-4182-9dd1-97f3a659ceed\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"58945761-af56-483e-ba67-b9176b6f22c3\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"5a774e43-5d0e-4c08-9edc-0191f9210c38\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"7e8c8360-12ee-4a0a-b3e0-bc425ab020bc\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"96c747a4-c5c5-4a3b-b0d3-d80d4c498ace\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"bc0237b9-e816-4a1d-86b8-03569987bc17\"}"
+    }
+  },
+  {
+    "case": "missing-element",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"222c3416-4199-4669-825b-dabf6f3b8a98\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"2ba0db33-9aac-4822-baab-0564b919e733\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"40330a98-6a4a-4d38-9add-5437ea030af4\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"a02e08d9-4919-4c40-b2bb-7f2f694724d3\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"a617175f-77b2-42c0-ac3a-1a34da6180a0\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"ba133966-228e-4bf3-a687-84457fc5fa06\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"bfdb5163-0af5-4a5f-be55-fb857da22e73\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"07fa2384-782c-4d6c-afb3-5c5befc44015\"}"
+    }
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "testId": "FA-009",
+  "suite": "Failure analysis",
+  "runId": "2026-09-21T14-41-46Z",
+  "objective": "A js error failure is classified as applicationDefect",
+  "preconditions": [
+    "the js-error case failed"
+  ],
+  "input": "The failure category the platform assigned to /case/js-error",
+  "expected": "One of: applicationDefect — the lab calls this javascriptError",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects javascriptError (accepting applicationDefect)",
+  "metrics": {
+    "correct": 1
+  },
+  "startedAt": "2026-09-21T14:53:18.158Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "8b1d8d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "FA-009-classification.json",
+      "path": "evidence/FA-009/2026-09-21T14-41-46Z/FA-009-classification.json",
+      "bytes": 2425,
+      "sha256": "e97506c19219c3c03bdff83913fb985cba01f454b2b77d4970363813f3c3459e"
+    }
+  ]
+}

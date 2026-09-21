@@ -1,0 +1,32 @@
+{
+  "testId": "FA-014",
+  "suite": "Failure analysis",
+  "runId": "2026-09-21T14-41-46Z",
+  "objective": "Analysis explains a failure; it never overturns the verdict",
+  "preconditions": [
+    "ten failures were analysed"
+  ],
+  "input": "Each failed run's status after analysis, and whether the analysis claims the test passed",
+  "expected": "Every failed run is still failed, whatever the analysis concluded",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "10/10 run(s) remained failed after analysis",
+  "metrics": null,
+  "startedAt": "2026-09-21T14:53:18.162Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "8b1d8d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "verdict-integrity.json",
+      "path": "evidence/FA-014/2026-09-21T14-41-46Z/verdict-integrity.json",
+      "bytes": 1814,
+      "sha256": "ed9de23b8cc69bb342aed0d376096110050d835e2c9425ccf5af54f3f1c0f0e6"
+    }
+  ]
+}
