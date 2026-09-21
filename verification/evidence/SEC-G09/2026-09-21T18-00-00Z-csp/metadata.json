@@ -1,0 +1,32 @@
+{
+  "testId": "SEC-G09",
+  "suite": "Security and multi-tenancy",
+  "runId": "2026-09-21T18-00-00Z-csp",
+  "objective": "A test cannot run arbitrary JavaScript in the browser unless the project allows it",
+  "preconditions": [
+    "the project has not enabled script execution"
+  ],
+  "input": "A journey containing an executeScript step",
+  "expected": "The step is refused at import or at execution — never silently run",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "refused at import: 200 Step 2 (“Read the session cookie”) was not imported: executeScript is not permitted: enable script execution on the project and grant execut",
+  "metrics": null,
+  "startedAt": "2026-09-21T17:43:02.315Z",
+  "durationMs": 89,
+  "build": {
+    "commit": "8b20cf3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "script-execution.json",
+      "path": "evidence/SEC-G09/2026-09-21T18-00-00Z-csp/script-execution.json",
+      "bytes": 406,
+      "sha256": "f24cae7beca3278558cf3680b3bf1287fde305400fbdf87bc2a04923a0d14ed5"
+    }
+  ]
+}

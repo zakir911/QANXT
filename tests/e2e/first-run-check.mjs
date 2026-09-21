@@ -44,11 +44,20 @@ try {
   // The founder administers it, or nobody can.
   await page.getByRole('link', { name: 'Settings' }).click();
   await page.getByRole('heading', { name: 'People' }).waitFor({ timeout: 15000 });
-  const people = await page.locator('table tbody tr').filter({ hasText: email }).count();
+
+  // The heading renders before the people query resolves, so counting rows straight after
+  // it counted an empty table and reported a healthy platform as broken. Waiting for the
+  // row is the difference between checking the product and checking the network's mood —
+  // and a false failure is as much a defect in a check as a false pass.
+  const founderRow = page.locator('table tbody tr').filter({ hasText: email });
+  await founderRow.first().waitFor({ state: 'visible', timeout: 15000 })
+    .catch(() => {/* reported as a failure below, with the count it actually saw */});
+
+  const people = await founderRow.count();
   if (people !== 1) fail(`the founder is not listed exactly once (found ${people})`);
   else pass('the founder is listed as a member of the new organization');
 
-  const roleText = await page.locator('table tbody tr').filter({ hasText: email }).innerText();
+  const roleText = await founderRow.innerText();
   if (!/admin/i.test(roleText)) fail(`the founder is not an administrator: ${roleText}`);
   else pass('the founder administers the organization they created');
 

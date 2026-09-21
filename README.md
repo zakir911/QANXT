@@ -45,11 +45,13 @@ make dev                  # run the full local stack
 
 Either way the console is on <http://localhost:5173>.
 
-See `docs/setup.md` for step-by-step instructions and `docs/implementation-plan.md` for the
-build plan and its phases.
+New to the project, or installing on Windows or macOS? **[docs/installation.md](docs/installation.md)**
+walks the whole thing with screenshots. `docs/setup.md` is the short version for people who
+already have the toolchain, and `docs/implementation-plan.md` has the build plan.
 
 ## Documentation
 
+- **[Installing AIRA](docs/installation.md)** — Windows, macOS and Linux, step by step, with screenshots
 - [Architecture](docs/architecture.md) · [Assessment](docs/architecture-assessment.md) · [ADRs](docs/adr)
 - [Implementation plan](docs/implementation-plan.md)
 - [Verification status](docs/verification-status.md) — what has actually been executed, and what has not

@@ -1,0 +1,20 @@
+{
+  "bug": "BUG-0018",
+  "summary": "The API's Content-Security-Policy of default-src 'none' blocks the stylesheet, script and images of its own API reference, so the page the documentation points at renders blank.",
+  "broken": 0,
+  "of": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "renderedSwaggerUi": true,
+      "contentSecurityPolicy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'",
+      "refusals": []
+    },
+    {
+      "attempt": 2,
+      "renderedSwaggerUi": true,
+      "contentSecurityPolicy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'",
+      "refusals": []
+    }
+  ]
+}

@@ -1,5 +1,10 @@
 # Setting up
 
+> This is the short version, for people who already have .NET 8, Node 22 and PostgreSQL.
+> If you are starting from a clean machine — or on **Windows or macOS** — use
+> **[the installation guide](installation.md)** instead: same two paths, every step written
+> out, with screenshots of what you should see.
+
 Two ways in. Docker needs nothing but Docker; the native path is what you want if you are
 going to change the code.
 

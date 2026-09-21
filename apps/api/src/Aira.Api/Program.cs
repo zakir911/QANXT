@@ -247,6 +247,8 @@ var app = builder.Build();
 app.UseMiddleware<CorrelationMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+var swaggerEnabled = app.Environment.IsDevelopment();
+
 app.Use(async (context, next) =>
 {
     // Conservative defaults; the console is served separately so no inline script is needed here.
@@ -255,11 +257,24 @@ app.Use(async (context, next) =>
     headers["X-Frame-Options"] = "DENY";
     headers["Referrer-Policy"] = "no-referrer";
     headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()";
-    headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'";
+
+    // `default-src 'none'` is right for an API that only ever answers JSON — and it also
+    // blocked the stylesheet, script and images of the one page this application serves as
+    // HTML, so the API reference the documentation points at rendered blank (BUG-0018).
+    // The reference exists only in Development, and the policy below is still same-origin
+    // only: nothing external may load, and the relaxation reaches no other path.
+    var isSwagger = swaggerEnabled
+        && context.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase);
+
+    headers["Content-Security-Policy"] = isSwagger
+        ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+          + "img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'"
+        : "default-src 'none'; frame-ancestors 'none'";
+
     await next();
 });
 
-if (app.Environment.IsDevelopment())
+if (swaggerEnabled)
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
