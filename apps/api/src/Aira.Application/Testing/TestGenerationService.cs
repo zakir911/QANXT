@@ -188,11 +188,11 @@ public sealed class TestGenerationService : ITestGenerationService
         var pageIds = pages.Select(p => p.Id).ToList();
         var elements = await _db.ApplicationElements
             .Where(e => pageIds.Contains(e.ApplicationPageId) && e.IsVisible)
-            .OrderByDescending(e => e.StabilityScore)
             .Select(e => new
             {
-                e.ApplicationPageId, e.Kind, e.TagName, e.AriaRole, e.AccessibleName, e.Text,
-                e.Label, e.Placeholder, e.TestId, e.Name, e.Type, e.IsRequired, e.CssSelector
+                e.Id, e.ApplicationPageId, e.Kind, e.TagName, e.AriaRole, e.AccessibleName, e.Text,
+                e.Label, e.Placeholder, e.TestId, e.Name, e.Type, e.IsRequired, e.CssSelector,
+                e.StabilityScore
             })
             .ToListAsync(ct);
 
@@ -200,6 +200,10 @@ public sealed class TestGenerationService : ITestGenerationService
             page.Route, page.Url, page.Title, page.Kind.ToString().ToLowerInvariant(),
             page.Depth, page.RequiresAuthentication, page.ElementCount,
             elements.Where(e => e.ApplicationPageId == page.Id)
+                .OrderBy(e => TestabilityRank(e.Kind))
+                .ThenByDescending(e => e.StabilityScore)
+                .ThenBy(e => e.TestId ?? string.Empty)
+                .ThenBy(e => e.Id)
                 .Take(MaxElementsPerPage)
                 .Select(e => new ElementContext(
                     e.Kind.ToString().ToLowerInvariant(), e.TagName, e.AriaRole,
@@ -208,6 +212,34 @@ public sealed class TestGenerationService : ITestGenerationService
                 .ToList()))
             .ToList();
     }
+
+    /// <summary>What a page's elements are worth to a test author, most first.
+    ///
+    /// A page can hold more elements than the context carries, and the cut used to be made
+    /// on stability score alone — which the crawler gives every stable element equally, so
+    /// the order was really the database's and the cut was arbitrary. A page's form controls
+    /// were dropped in favour of the navigation links that appear on every page, and two
+    /// runs against the same model saw different elements. The generated tests varied with
+    /// it: the same scenario filled a date range in the right order on one run and the wrong
+    /// one on the next (BUG-0016).
+    ///
+    /// Controls a test acts on come first, then the content it asserts about, then the
+    /// furniture. Within a rank the order is stability, then test id, then id, so the same
+    /// model always produces the same context.</summary>
+    private static int TestabilityRank(ElementKind kind) => kind switch
+    {
+        ElementKind.TextInput or ElementKind.PasswordInput or ElementKind.NumberInput
+            or ElementKind.DateInput or ElementKind.FileInput or ElementKind.Checkbox
+            or ElementKind.Radio or ElementKind.Select or ElementKind.TextArea => 0,
+        ElementKind.Button => 1,
+        ElementKind.Form => 2,
+        ElementKind.Table or ElementKind.Alert => 3,
+        ElementKind.Dialog or ElementKind.Tab or ElementKind.Menu => 4,
+        ElementKind.Heading => 5,
+        ElementKind.Link => 6,
+        ElementKind.Navigation or ElementKind.Image or ElementKind.Text => 7,
+        _ => 8
+    };
 
     /// <summary>The ceiling when a caller does not ask for one.</summary>
     private const int DefaultScenarioBudget = 20;

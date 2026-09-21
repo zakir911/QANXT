@@ -281,7 +281,15 @@ internal static class LocalTestPlanner
     private static IEnumerable<object> ListScenarios(string url, string title, string route, List<JsonElement> elements)
     {
         var table = elements.FirstOrDefault(e => LocalJson.String(e, "kind") == "table");
-        var filter = elements.FirstOrDefault(e => Mentions(e, "filter", "search", "apply"));
+
+        // The control that applies the filter has to be a control that can apply it.
+        // Matching on the name alone selected whichever element scored highest for
+        // stability — often a date field or the form itself — so the step called "Apply the
+        // filter" clicked something that applies nothing, and the assertion that followed
+        // judged an unfiltered list (BUG-0016).
+        var filterButton = Find(elements, e => IsButton(e) && Mentions(e, "apply", "filter", "search", "submit"))
+            ?? Find(elements, e => IsButton(e) && Mentions(e, "go", "update", "refresh"));
+        var filter = filterButton ?? default;
 
         var steps = new List<object>
         {
@@ -317,21 +325,27 @@ internal static class LocalTestPlanner
             || Mentions(e, "error", "validation", "invalid", "warning"));
         var emptyState = Find(elements, e => Mentions(e, "empty", "no-results", "no-records", "nothing"));
 
-        // Both date fields are required, not optional. Without them the scenario clicks the
-        // filter with nothing entered and then asserts about a range it never set — which
-        // is how it came to assert that an unfiltered list was empty, and fail against a
-        // healthy application (BUG-0016).
-        var dateInputs = elements.Where(e => LocalJson.String(e, "type") == "date").Take(2).ToList();
+        // Which field is the start of the range and which is the end is decided by their
+        // names, never by their position. Elements arrive ordered by stability score, so
+        // taking the first two date inputs filled the *end* with the later date and the
+        // *start* with the earlier one — a perfectly valid range — and the scenario then
+        // asserted that a correctly populated list was empty. It failed against a healthy
+        // application, and only on the runs where the ordering happened to come out that
+        // way (BUG-0016).
+        var dateInputs = elements.Where(e => LocalJson.String(e, "type") == "date").ToList();
+        var rangeStart = Find(dateInputs, e => Mentions(e, "from", "start", "after", "begin"));
+        var rangeEnd = Find(dateInputs, e => Mentions(e, "to", "end", "until", "before")
+            && !SameElement(e, rangeStart));
 
         if (filter.ValueKind == JsonValueKind.Object
-            && dateInputs.Count == 2
+            && rangeStart is not null && rangeEnd is not null
             && (validationTarget is not null || emptyState is not null || table.ValueKind == JsonValueKind.Object))
         {
             var filterSteps = new List<object>
             {
                 Step($"Open {title}", "navigate", url: url),
-                Step("Enter a start date after the end date", "fill", Locator(dateInputs[0]), value: "2030-12-31"),
-                Step("Enter an end date before the start date", "fill", Locator(dateInputs[1]), value: "2020-01-01"),
+                Step("Enter a start date after the end date", "fill", Locator(rangeStart.Value), value: "2030-12-31"),
+                Step("Enter an end date before the start date", "fill", Locator(rangeEnd.Value), value: "2020-01-01"),
                 Step("Apply the filter", "click", Locator(filter))
             };
 
@@ -445,6 +459,16 @@ internal static class LocalTestPlanner
     private static bool IsButton(JsonElement element)
         => LocalJson.String(element, "kind") == "button"
         || LocalJson.String(element, "ariaRole") == "button";
+
+    /// <summary>Whether two discovered elements are the same one. Compared by the signals a
+    /// locator would use, because JsonElement has no meaningful equality.</summary>
+    private static bool SameElement(JsonElement candidate, JsonElement? other)
+    {
+        if (other is null) return false;
+        var left = LocalJson.String(candidate, "testId") ?? LocalJson.String(candidate, "cssSelector");
+        var right = LocalJson.String(other.Value, "testId") ?? LocalJson.String(other.Value, "cssSelector");
+        return left is not null && left == right;
+    }
 
     private static bool Mentions(JsonElement element, params string[] terms)
     {

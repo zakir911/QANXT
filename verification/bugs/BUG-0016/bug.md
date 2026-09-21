@@ -127,3 +127,44 @@ that an unfiltered list was empty. A healthy application failed that test. Requi
 date inputs before generating the scenario is the second change above; the first attempt is
 recorded here rather than quietly amended, because it is the same class of mistake as the
 defect: asserting something the steps did not establish.
+
+## The root cause under the root cause
+
+Verifying the fix above made `GEN-010` fail — a generated test failing against a *healthy*
+application — and it failed intermittently, which is the shape of a defect worth chasing
+rather than re-running. Three more causes were underneath, each found by printing what the
+generator actually produced instead of reasoning about what it should have:
+
+**The range was filled backwards.** The scenario took the first two date inputs and assumed
+the first was the start of the range. It filled the *end* with 2030-12-31 and the *start*
+with 2020-01-01 — a perfectly valid range covering every record — and then asserted the list
+was empty. Start and end are now identified by their names (from/start/after/begin against
+to/end/until/before), and the scenario is not generated if they cannot be told apart.
+
+**"Apply the filter" clicked something that applies nothing.** The control was matched on
+its name alone, so on the transactions page it selected `filter-search`, a text input.
+Clicking a text box applies no filter. The control must now be a button.
+
+**The generation context dropped the page's form controls.** `TestGenerationService` carries
+at most 30 elements per page and chose them by stability score — which the crawler gives
+every stable element equally, all 95 on this page. The order was therefore the database's,
+the cut was arbitrary, and it varied between runs: on some the records table fell outside
+the 30 and the scenario was not generated at all, on others the two date inputs came out in
+the opposite order. The navigation links that appear on every page were kept while the
+controls unique to this one were dropped.
+
+Elements are now ranked by what they are worth to a test author — inputs and selects, then
+buttons, then forms, then tables and alerts, then dialogs, headings, links and furniture —
+and within a rank by stability, then test id, then id. The same model now always produces
+the same context, and the controls a test acts on survive the cut.
+
+That last one is the interesting defect. It was invisible while the generated tests were
+shallow: a two-step smoke test does not care which 30 elements it was shown. It only became
+visible once the generated tests asserted something real — which is another way of saying
+the first fix in this report is what made the rest findable.
+
+| | Before | After |
+| --- | --- | --- |
+| GEN-010 across four consecutive runs | pass, fail, fail, fail | **pass, pass, pass** (three consecutive) |
+| The generated filter scenario | filled `filter-to` with the later date, clicked a text input | fills `filter-from` with 2030-12-31, `filter-to` with 2020-01-01, clicks `apply-filters` |
+| Elements carried for `/transactions` | 30 of 35, chosen by database order | 30 of 35, every input, button, form and table among them |
