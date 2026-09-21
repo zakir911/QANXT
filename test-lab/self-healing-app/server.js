@@ -34,7 +34,12 @@ const FAULTS = [
   { id: 'FAULT_AMBIGUOUS_CONTROLS', description: 'Two equally plausible submit controls exist. Healing must be refused.' },
   { id: 'FAULT_MEANING_CHANGED', description: 'A control labelled "Log in" now cancels instead of signing in. Healing must be refused.' },
   { id: 'FAULT_DECOY_CONTROL', description: 'An unrelated button takes the submit control\'s place. Healing must be refused.' },
-  { id: 'FAULT_SLOW_ELEMENT', description: 'The submit control is rendered after a delay.' }
+  { id: 'FAULT_SLOW_ELEMENT', description: 'The submit control is rendered after a delay.' },
+  { id: 'FAULT_CONTROL_DISABLED', description: 'The submit control is present but disabled. Healing must be refused.' },
+  { id: 'FAULT_CONTROL_HIDDEN', description: 'The submit control is present but not rendered visibly. Healing must be refused.' },
+  { id: 'FAULT_CONTROL_IS_LINK_ELSEWHERE', description: 'A link with the same words leads somewhere else. Healing must be refused.' },
+  { id: 'FAULT_MAINTENANCE_PAGE', description: 'The whole form is replaced by a maintenance notice. Healing must be refused.' },
+  { id: 'FAULT_DUPLICATE_CONTROLS', description: 'Two controls share the label; one signs in, one deletes the account. Healing must be refused.' }
 ];
 
 const faults = createFaultEngine(FAULTS, { parameters: { slowElementMs: 4000 } });
@@ -51,6 +56,18 @@ app.get('/', ctx => ctx.redirect('/login'));
 
 app.get('/login', (ctx) => {
   const error = ctx.query.error;
+
+  if (faults.on('FAULT_MAINTENANCE_PAGE')) {
+    // There is nothing on this page to heal towards. A platform that finds "something"
+    // here is finding noise.
+    return ctx.html(200, layout({
+      title: 'Maintenance',
+      application: APPLICATION,
+      body: `<h1 data-testid="maintenance-heading">Online banking is unavailable</h1>
+<p data-testid="maintenance-message">We are carrying out planned maintenance. Please try again later.</p>`
+    }));
+  }
+
   ctx.html(200, layout({
     title: 'Sign in',
     application: APPLICATION,
@@ -123,6 +140,34 @@ function submitArea() {
       <button type="submit" class="primary" data-testid="dialog-submit">Log in</button>
     </div>
   </div>
+</div>`;
+  }
+
+  if (faults.on('FAULT_CONTROL_DISABLED')) {
+    // Present, findable, and useless. A healer that swaps in a different control to get
+    // past a disabled one is inventing a path the user does not have.
+    return `<button type="submit" class="primary" disabled data-testid="login-disabled">Log in</button>
+<p class="muted">Sign-in is disabled while we verify your account.</p>`;
+  }
+
+  if (faults.on('FAULT_CONTROL_HIDDEN')) {
+    return `<button type="submit" class="primary" data-testid="login-hidden" style="display:none">Log in</button>
+<p class="muted">Nothing visible submits this form.</p>`;
+  }
+
+  if (faults.on('FAULT_CONTROL_IS_LINK_ELSEWHERE')) {
+    return `<a href="/offers" class="button primary" data-testid="login-link">Log in</a>
+<p class="muted">(The words match; the destination does not.)</p>`;
+  }
+
+  if (faults.on('FAULT_DUPLICATE_CONTROLS')) {
+    // Same accessible name, opposite consequences. Picking by name alone is a coin flip
+    // with someone's account on the other side.
+    return `
+<div class="row">
+  <button type="submit" class="primary" data-testid="login-a">Log in</button>
+  <button type="button" class="primary" data-testid="login-b"
+          onclick="window.location.href='/cancelled'">Log in</button>
 </div>`;
   }
 

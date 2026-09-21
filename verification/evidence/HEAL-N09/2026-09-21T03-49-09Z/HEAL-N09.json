@@ -1,0 +1,37 @@
+{
+  "fault": "FAULT_MAINTENANCE_PAGE",
+  "policy": "auto",
+  "status": "failed",
+  "stepsPassed": 1,
+  "stepsTotal": 5,
+  "healingEvents": [],
+  "healed": [],
+  "reachedWelcome": false,
+  "executionId": "281ee5fd-852c-437a-ab15-fddb7016338b",
+  "failure": {
+    "id": "8101a122-e386-46c1-8752-ff8a817412be",
+    "category": "locatorChange",
+    "categoryConfidence": 65,
+    "rawMessage": "testId=\"username\" could not be used: No element matched testId=\"username\".",
+    "signature": "2ae807bf3a5fb015b08337e32fc4c128f047d48551f3397f8d67b4d6991b9e6e",
+    "isNewFailure": true,
+    "isRegression": true,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T03:52:28.146126+00:00",
+    "lastSeenAt": "2026-09-21T03:52:28.146126+00:00",
+    "analysis": {
+      "summary": "the failing step could not find the element it needed.",
+      "likelyCause": "The element is absent from the page. Either the UI changed and the locator is stale, or an earlier step left the application somewhere other than the expected page.",
+      "evidence": "testId=\"username\" could not be used: No element matched testId=\"username\".",
+      "suggestedAction": "Compare the failure screenshot with the expected page. If the page is right but the element moved, update the locator; if the page is wrong, the failure is earlier in the journey.",
+      "category": "locatorChange",
+      "confidence": 65,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"106f8eb1-9aba-46be-9c56-e5b69d32c906\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"3aaf8ed5-129e-4575-95ce-8e5b4b0327c2\", \"kind\": \"AccessibilityTree\", \"name\": \"step-2-failure.a11y.json\"}, {\"id\": \"af865364-9667-4f58-bf7c-872a2bdb738b\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"c7465dc7-18a7-4e1f-8bb2-341e275e926e\", \"kind\": \"Screenshot\", \"name\": \"step-2-failure.png\"}, {\"id\": \"dd0672c3-5237-4386-9871-b1a27b4ab5db\", \"kind\": \"DomSnapshot\", \"name\": \"step-2-failure.html\"}, {\"id\": \"e2b84c37-c295-4b5e-bf24-0cdffccbf442\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"e47bceec-ac5b-4a66-bb52-2d5f520e4f06\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"281ee5fd-852c-437a-ab15-fddb7016338b\"}"
+    }
+  }
+}

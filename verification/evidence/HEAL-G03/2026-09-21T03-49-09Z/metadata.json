@@ -1,0 +1,35 @@
+{
+  "testId": "HEAL-G03",
+  "suite": "Self-healing",
+  "runId": "2026-09-21T03-49-09Z",
+  "objective": "Under an opt-in Auto policy the same break is healed and the run continues",
+  "preconditions": [
+    "the submit control has been relabelled and re-identified",
+    "the project opted in to healingPolicy=auto with a threshold of 85"
+  ],
+  "input": "The same unedited test",
+  "expected": "The run completes, the click is marked healed, and the browser reaches /welcome",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "failed; 0 heal(s) applied at ; reached /welcome: false",
+  "metrics": {
+    "confidence": null
+  },
+  "startedAt": "2026-09-21T03:49:44.590Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "4edacd2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "auto.json",
+      "path": "evidence/HEAL-G03/2026-09-21T03-49-09Z/auto.json",
+      "bytes": 5151,
+      "sha256": "986c0ef1fa167135f23b6daf99014601181c3eb3e64eb48e36b9c1b2e2baf156"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "fault": "FAULT_LOGIN_BUTTON_REMOVED",
+  "policy": "auto",
+  "threshold": 85,
+  "bestConfidence": null,
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 5,
+  "healingEvents": [],
+  "healed": [],
+  "clickAction": {
+    "id": "b00c6d09-4fb0-4a54-a9bd-83b0a374306a",
+    "order": 4,
+    "action": "click",
+    "description": "Press login-submit",
+    "status": "failed",
+    "startedAt": "2026-09-21T07:09:34.058+00:00",
+    "durationMs": 15023,
+    "url": "http://localhost:4350/login",
+    "wasHealed": false,
+    "errorMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "login-submit",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"login-submit\"",
+    "locatorAlternativesJson": "[]"
+  },
+  "reachedWelcome": false,
+  "executionId": "e4834af8-a125-4e07-8ee8-bbcaa25b12b3",
+  "failure": {
+    "id": "a42901ff-48d3-4cfa-b473-2ccf97348805",
+    "category": "locatorChange",
+    "categoryConfidence": 65,
+    "rawMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "signature": "d935bfd3e21b7b6e61070aa43384b4a3ae91efe639581399c9825df9c23bd463",
+    "isNewFailure": true,
+    "isRegression": true,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:09:49.351288+00:00",
+    "lastSeenAt": "2026-09-21T07:09:49.351288+00:00",
+    "analysis": {
+      "summary": "the failing step could not find the element it needed.",
+      "likelyCause": "The element is absent from the page. Either the UI changed and the locator is stale, or an earlier step left the application somewhere other than the expected page.",
+      "evidence": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+      "suggestedAction": "Compare the failure screenshot with the expected page. If the page is right but the element moved, update the locator; if the page is wrong, the failure is earlier in the journey.",
+      "category": "locatorChange",
+      "confidence": 65,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"07aa193d-6e67-4357-a5a5-48a018bf9d75\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"3c45dee3-82df-48f3-a285-29d28d1b80a0\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"55b615bc-c094-4be1-8d87-29e1920140ad\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"61205063-906d-4fde-9ce2-9e9304c9360c\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"9a5a6a80-6ad2-4b59-a234-8bc114b7f467\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"bbfae99b-64ce-4221-8b57-876a01f551ef\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"dee11927-c36c-479f-a644-b900449b5d9a\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}], \"executionId\": \"e4834af8-a125-4e07-8ee8-bbcaa25b12b3\"}"
+    }
+  }
+}

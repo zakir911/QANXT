@@ -1,0 +1,32 @@
+{
+  "testId": "HEAL-G06",
+  "suite": "Self-healing",
+  "runId": "2026-09-21T07-08-24Z",
+  "objective": "A control whose test id changed but whose label did not is healed",
+  "preconditions": [
+    "only the test id of the submit control changed"
+  ],
+  "input": "The same unedited test under Auto policy",
+  "expected": "The run heals and reaches /welcome",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "passed; 1 heal(s) at 93%; best candidate 93%",
+  "metrics": null,
+  "startedAt": "2026-09-21T07:09:33.822Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "4edacd2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "testid-only.json",
+      "path": "evidence/HEAL-G06/2026-09-21T07-08-24Z/testid-only.json",
+      "bytes": 4329,
+      "sha256": "962cd76a22b2cdffd97bba0de61ce21ef34f889c0492756b8ac09452608d746b"
+    }
+  ]
+}

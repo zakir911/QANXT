@@ -1,0 +1,37 @@
+{
+  "testId": "HEAL-M02",
+  "suite": "Self-healing",
+  "runId": "2026-09-21T03-55-00Z",
+  "objective": "The scorer separates a break that should heal from one that must not",
+  "preconditions": [
+    "every healing scenario above has executed and recorded its confidence"
+  ],
+  "input": "The best candidate confidence in each scenario",
+  "expected": "The lowest confidence among the healable breaks is above the highest among the refusals",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "healable renamed control 79%, test id changed 93%; highest refusal 94%; margin -15 points; the chosen threshold of 75 sits -19 points above the highest refusal",
+  "metrics": {
+    "lowestHealable": 79,
+    "highestRefusal": 94,
+    "margin": -15,
+    "threshold": 75
+  },
+  "startedAt": "2026-09-21T03:59:18.583Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "4edacd2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "confidence-separation.json",
+      "path": "evidence/HEAL-M02/2026-09-21T03-55-00Z/confidence-separation.json",
+      "bytes": 738,
+      "sha256": "de3c7a60917b98d962a75346b5bead502f9059f2eb4c017cf46b3d0bdaa9558e"
+    }
+  ]
+}

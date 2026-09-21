@@ -39,12 +39,16 @@ start_one() {
   # measuring something that is no longer in the repository.
   if curl -fsS "http://127.0.0.1:$port/health" >/dev/null 2>&1; then
     echo "$name: something is already serving port $port; stopping it first"
-    pkill -f "$LAB/$dir/server.js" 2>/dev/null
+    pkill -f "^node $LAB/$dir/server\.js$" 2>/dev/null
     sleep 0.5
   fi
 
-  ( cd "$ROOT" && node "$LAB/$dir/server.js" >"$(log_file "$name")" 2>&1 & echo $! >"$(pid_file "$name")" )
-  local pid; pid="$(cat "$(pid_file "$name")")"
+  # `exec` inside the background subshell so that bash is replaced by node rather than
+  # lingering as its parent: a leftover shell keeps the caller's stdout open, and a caller
+  # that pipes this script (lab-ctl.sh start | tail) would hang forever waiting for it.
+  ( cd "$ROOT"; exec node "$LAB/$dir/server.js" >"$(log_file "$name")" 2>&1 </dev/null ) &
+  local pid=$!
+  echo "$pid" >"$(pid_file "$name")"
 
   for _ in $(seq 1 50); do
     # The process we launched has to be the one that is alive. Probing the port alone
@@ -75,7 +79,7 @@ stop_one() {
   fi
   # Also by path: a pid file can be lost or overwritten, and an orphan that keeps serving
   # the port is exactly how a verification run ends up measuring stale code.
-  if [[ -n "$dir" ]] && pkill -f "$LAB/$dir/server.js" 2>/dev/null; then stopped=1; fi
+  if [[ -n "$dir" ]] && pkill -f "^node $LAB/$dir/server\.js$" 2>/dev/null; then stopped=1; fi
   [[ $stopped -eq 1 ]] && echo "$name stopped"
   return 0
 }

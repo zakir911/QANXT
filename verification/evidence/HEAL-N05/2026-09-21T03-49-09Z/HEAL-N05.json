@@ -1,0 +1,70 @@
+{
+  "fault": "FAULT_CONTROL_MOVED_TO_DIALOG",
+  "policy": "auto",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 5,
+  "healingEvents": [
+    {
+      "id": "1e59224b-6a45-4e30-850a-e13c4b8ba98b",
+      "testStepId": "7b4dcccc-20d7-4b17-bacd-b41d37da2656",
+      "confidence": 34,
+      "outcome": "proposed",
+      "outcomeVerified": false,
+      "reason": "testId=\"login-submit\" no longer matched any element. The closest candidate is testId=\"dialog-submit\" (34% confidence). The next best candidate scored 42%, only 4 points behind — review this one carefully.",
+      "original": "{\"exact\": false, \"value\": \"login-submit\", \"strategy\": \"testId\", \"fallbacks\": []}",
+      "healed": "{\"exact\": false, \"value\": \"dialog-submit\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"#dialog > div > div > button\", \"strategy\": \"css\", \"fallbacks\": []}]}",
+      "scoreBreakdownJson": "{\"testId\": 11, \"uniqueness\": -12}"
+    }
+  ],
+  "healed": [],
+  "clickAction": {
+    "id": "7b16243e-bea0-4b3c-b912-b65718abf88b",
+    "order": 4,
+    "action": "click",
+    "description": "Press login-submit",
+    "status": "failed",
+    "startedAt": "2026-09-21T03:51:05.453+00:00",
+    "durationMs": 15028,
+    "url": "http://localhost:4350/login",
+    "wasHealed": false,
+    "healingConfidence": 34,
+    "errorMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "login-submit",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"login-submit\"",
+    "locatorAlternativesJson": "[{\"rank\": 1, \"score\": 34, \"breakdown\": {\"testId\": 11, \"uniqueness\": -12}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"dialog-submit\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"#dialog > div > div > button\", \"strategy\": \"css\", \"fallbacks\": []}]}}, {\"rank\": 2, \"score\": 42, \"breakdown\": {\"testId\": 10}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"login-form\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Username Password Continue Confirm sign in Press the button below to finish signing in. Log in\", \"exact\": false, \"value\": \"form\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form\", \"strategy\": \"css\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"/html[1]/body[1]/main[1]/form[1]\", \"strategy\": \"xpath\", \"fallbacks\": []}]}}]"
+  },
+  "reachedWelcome": false,
+  "executionId": "4db03705-277f-4e6e-aca4-d10e8bc99a25",
+  "failure": {
+    "id": "a83fa0bc-9184-4fbb-a4ab-ceb74962f552",
+    "category": "locatorChange",
+    "categoryConfidence": 39,
+    "rawMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "signature": "f3be43a4c728b582fb369c6e61dda79d84737d0172d353394cfbfe9d5c9b5662",
+    "isNewFailure": false,
+    "isRegression": false,
+    "occurrenceCount": 2,
+    "firstSeenAt": "2026-09-21T03:49:44.123031+00:00",
+    "lastSeenAt": "2026-09-21T03:51:20.902743+00:00",
+    "analysis": {
+      "summary": "The element the failing step targets has changed.",
+      "likelyCause": "The stored locator () no longer matches anything, but an element closely resembling the original was found: testId=\"dialog-submit\". The application's markup changed rather than its behaviour.",
+      "evidence": "A healing candidate scored 34% against the original element's recorded signals.",
+      "suggestedAction": "Review the healing proposal carefully: at 34% confidence it is a suggestion, not a certainty.",
+      "category": "locatorChange",
+      "confidence": 39,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0ced04ba-943b-43f6-9990-ed9e517e0be2\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"45efcfdc-cdc5-422f-a139-e9e98a020b8c\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"7958e20d-d939-4ed2-acd7-9dafbd0e1f3c\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"9bded14e-e64c-4164-bfa8-0d8e110f44bd\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"bd228d66-3211-44d0-ac9f-f7d0f267da6a\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"c5d33ed2-9e8b-4f23-808e-aee2385044a4\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"fdb723ba-a410-40e4-8edd-5608dad89d79\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"4db03705-277f-4e6e-aca4-d10e8bc99a25\"}"
+    }
+  }
+}

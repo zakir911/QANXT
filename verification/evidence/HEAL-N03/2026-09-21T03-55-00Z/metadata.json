@@ -1,0 +1,37 @@
+{
+  "testId": "HEAL-N03",
+  "suite": "Self-healing",
+  "runId": "2026-09-21T03-55-00Z",
+  "objective": "Healing is refused: a control with the same label now cancels the sign-in",
+  "preconditions": [
+    "FAULT_MEANING_CHANGED is enabled",
+    "the project is on healingPolicy=auto — the permissive setting"
+  ],
+  "input": "The same unedited sign-in test",
+  "expected": "The run FAILS, no heal is applied, and the browser never reaches /welcome",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold",
+  "metrics": {
+    "applied": 0,
+    "candidates": 0,
+    "reachedWelcome": false
+  },
+  "startedAt": "2026-09-21T03:56:49.789Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "4edacd2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "HEAL-N03.json",
+      "path": "evidence/HEAL-N03/2026-09-21T03-55-00Z/HEAL-N03.json",
+      "bytes": 3146,
+      "sha256": "90c368054b47e442b728c151f75bbcf3e2f168d61ac25c6dc868ba1f54e61796"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "fault": "FAULT_CONTROL_IS_LINK_ELSEWHERE",
+  "policy": "auto",
+  "threshold": 85,
+  "bestConfidence": 63,
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 5,
+  "healingEvents": [
+    {
+      "id": "2e33652d-69fe-45ac-a39e-5f700705ba30",
+      "testStepId": "02b04466-2e76-48ae-a32d-c8686374794d",
+      "confidence": 63,
+      "outcome": "proposed",
+      "outcomeVerified": false,
+      "reason": "testId=\"login-submit\" no longer matched any element. The closest candidate is testId=\"login-link\" (63% confidence). Unchanged: accessibleName, text, geometry. No other element came close.",
+      "original": "{\"exact\": false, \"value\": \"login-submit\", \"strategy\": \"testId\", \"fallbacks\": []}",
+      "healed": "{\"exact\": false, \"value\": \"login-link\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"link\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form > a\", \"strategy\": \"css\", \"fallbacks\": []}]}",
+      "scoreBreakdownJson": "{\"text\": 7, \"testId\": 10, \"geometry\": 2, \"neighbours\": 3, \"uniqueness\": 12, \"accessibleName\": 20}"
+    }
+  ],
+  "healed": [],
+  "clickAction": {
+    "id": "9589b8d5-d372-447a-932d-93621f8b0d73",
+    "order": 4,
+    "action": "click",
+    "description": "Press login-submit",
+    "status": "failed",
+    "startedAt": "2026-09-21T07:12:00.94+00:00",
+    "durationMs": 15020,
+    "url": "http://localhost:4350/login",
+    "wasHealed": false,
+    "healingConfidence": 63,
+    "errorMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "login-submit",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"login-submit\"",
+    "locatorAlternativesJson": "[{\"rank\": 1, \"score\": 63, \"breakdown\": {\"text\": 7, \"testId\": 10, \"geometry\": 2, \"neighbours\": 3, \"uniqueness\": 12, \"accessibleName\": 20}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"login-link\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"link\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form > a\", \"strategy\": \"css\", \"fallbacks\": []}]}}]"
+  },
+  "reachedWelcome": false,
+  "executionId": "3c1ba81d-03f8-4e1c-b2d2-47f6e2a1c89e",
+  "failure": {
+    "id": "0115471d-0d1a-4943-a775-bfe86bc96e85",
+    "category": "locatorChange",
+    "categoryConfidence": 68,
+    "rawMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "signature": "d935bfd3e21b7b6e61070aa43384b4a3ae91efe639581399c9825df9c23bd463",
+    "isNewFailure": false,
+    "isRegression": false,
+    "occurrenceCount": 2,
+    "firstSeenAt": "2026-09-21T07:09:49.351288+00:00",
+    "lastSeenAt": "2026-09-21T07:12:16.254392+00:00",
+    "analysis": {
+      "summary": "The element the failing step targets has changed.",
+      "likelyCause": "The stored locator () no longer matches anything, but an element closely resembling the original was found: testId=\"login-link\". The application's markup changed rather than its behaviour.",
+      "evidence": "A healing candidate scored 63% against the original element's recorded signals.",
+      "suggestedAction": "Review the healing proposal carefully: at 63% confidence it is a suggestion, not a certainty.",
+      "category": "locatorChange",
+      "confidence": 68,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1b22c0a6-cabe-48f8-888b-a7fa75ac3876\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"2c6f79ca-1b09-4280-bca3-00832c39b690\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"666e8f58-a771-44d0-99e8-a742cd5e0350\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"9110f936-a7a1-46a8-b404-0177f0ef3946\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"a33578fc-34cb-40c1-96c9-d8ce1283029f\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"a9e734d0-1f80-4f93-aa60-cde4ad771b71\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"c80b45d6-bf81-40ee-9995-71d8c6e0d991\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"3c1ba81d-03f8-4e1c-b2d2-47f6e2a1c89e\"}"
+    }
+  }
+}

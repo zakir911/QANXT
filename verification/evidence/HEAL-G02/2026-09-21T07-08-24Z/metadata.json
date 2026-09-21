@@ -1,0 +1,34 @@
+{
+  "testId": "HEAL-G02",
+  "suite": "Self-healing",
+  "runId": "2026-09-21T07-08-24Z",
+  "objective": "Under the default policy a broken locator is proposed, never silently applied",
+  "preconditions": [
+    "the submit control has been relabelled and re-identified"
+  ],
+  "input": "The same unedited test, on a project with the default Suggest policy",
+  "expected": "The run FAILS, and a healing candidate is recorded with its confidence",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failed; 1 healing event(s), 0 applied; confidence 79; proposals: proposed",
+  "metrics": {
+    "confidence": 79
+  },
+  "startedAt": "2026-09-21T07:09:01.541Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "4edacd2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "suggest.json",
+      "path": "evidence/HEAL-G02/2026-09-21T07-08-24Z/suggest.json",
+      "bytes": 4760,
+      "sha256": "6fe81811cbf78877f8314332d8259cd01b2fd0b825052d1c8478420c16b741fb"
+    }
+  ]
+}

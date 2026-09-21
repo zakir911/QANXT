@@ -1,0 +1,70 @@
+{
+  "fault": "FAULT_AMBIGUOUS_CONTROLS",
+  "policy": "auto",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 5,
+  "healingEvents": [
+    {
+      "id": "93dd8d52-acda-49e5-b1a4-5feb0d8d0d8b",
+      "testStepId": "7b4dcccc-20d7-4b17-bacd-b41d37da2656",
+      "confidence": 54,
+      "outcome": "proposed",
+      "outcomeVerified": false,
+      "reason": "testId=\"login-submit\" no longer matched any element. The closest candidate is testId=\"login-form\" (54% confidence). No other element came close.",
+      "original": "{\"exact\": false, \"value\": \"login-submit\", \"strategy\": \"testId\", \"fallbacks\": []}",
+      "healed": "{\"exact\": false, \"value\": \"login-form\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Username Password Log in to personal banking Log in to business banking\", \"exact\": false, \"value\": \"form\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form\", \"strategy\": \"css\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"/html[1]/body[1]/main[1]/form[1]\", \"strategy\": \"xpath\", \"fallbacks\": []}]}",
+      "scoreBreakdownJson": "{\"testId\": 10, \"uniqueness\": 12}"
+    }
+  ],
+  "healed": [],
+  "clickAction": {
+    "id": "6e2d76df-e133-477e-8c1c-e228325b13ad",
+    "order": 4,
+    "action": "click",
+    "description": "Press login-submit",
+    "status": "failed",
+    "startedAt": "2026-09-21T03:50:17.162+00:00",
+    "durationMs": 15021,
+    "url": "http://localhost:4350/login",
+    "wasHealed": false,
+    "healingConfidence": 54,
+    "errorMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "login-submit",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"login-submit\"",
+    "locatorAlternativesJson": "[{\"rank\": 1, \"score\": 54, \"breakdown\": {\"testId\": 10, \"uniqueness\": 12}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"login-form\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Username Password Log in to personal banking Log in to business banking\", \"exact\": false, \"value\": \"form\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form\", \"strategy\": \"css\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"/html[1]/body[1]/main[1]/form[1]\", \"strategy\": \"xpath\", \"fallbacks\": []}]}}]"
+  },
+  "reachedWelcome": false,
+  "executionId": "041632a2-47c7-4346-926a-faa22a096792",
+  "failure": {
+    "id": "b69ff8a4-bc9c-4853-a0a4-6272a4942bda",
+    "category": "locatorChange",
+    "categoryConfidence": 59,
+    "rawMessage": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\".",
+    "signature": "f3be43a4c728b582fb369c6e61dda79d84737d0172d353394cfbfe9d5c9b5662",
+    "isNewFailure": false,
+    "isRegression": false,
+    "occurrenceCount": 2,
+    "firstSeenAt": "2026-09-21T03:49:44.123031+00:00",
+    "lastSeenAt": "2026-09-21T03:50:32.573791+00:00",
+    "analysis": {
+      "summary": "The element the failing step targets has changed.",
+      "likelyCause": "The stored locator () no longer matches anything, but an element closely resembling the original was found: testId=\"login-form\". The application's markup changed rather than its behaviour.",
+      "evidence": "A healing candidate scored 54% against the original element's recorded signals.",
+      "suggestedAction": "Review the healing proposal carefully: at 54% confidence it is a suggestion, not a certainty.",
+      "category": "locatorChange",
+      "confidence": 59,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2b4e3b96-3115-451d-8fbe-e8d0364e10b6\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"32576b9f-b054-46d0-9115-82152b209f06\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"376ef4e5-0225-4319-937b-3872ba204890\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"4260d0ea-8553-43bb-908b-2f02bb2e42ad\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"b1e5a06e-b59d-4140-ba31-50ce54254e87\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"e050683c-c331-4b16-b25d-400e4ce3082b\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"ffd0bc10-aee3-4242-99bf-3a0133e63c0e\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"041632a2-47c7-4346-926a-faa22a096792\"}"
+    }
+  }
+}

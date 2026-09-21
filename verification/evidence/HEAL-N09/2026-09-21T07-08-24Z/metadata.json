@@ -1,0 +1,37 @@
+{
+  "testId": "HEAL-N09",
+  "suite": "Self-healing",
+  "runId": "2026-09-21T07-08-24Z",
+  "objective": "Healing is refused: the page has been replaced by a maintenance notice",
+  "preconditions": [
+    "FAULT_MAINTENANCE_PAGE is enabled",
+    "the project is on healingPolicy=auto — the permissive setting"
+  ],
+  "input": "The same unedited sign-in test",
+  "expected": "The run FAILS, no heal is applied, and the browser never reaches /welcome",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold",
+  "metrics": {
+    "applied": 0,
+    "candidates": 0,
+    "reachedWelcome": false
+  },
+  "startedAt": "2026-09-21T07:12:34.964Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "4edacd2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "HEAL-N09.json",
+      "path": "evidence/HEAL-N09/2026-09-21T07-08-24Z/HEAL-N09.json",
+      "bytes": 2480,
+      "sha256": "3132e2fc139cc34ec5ea088a97290f8cbaad6b32de3deb9fe562df7ac89db40d"
+    }
+  ]
+}
