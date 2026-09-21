@@ -35,3 +35,45 @@ extension built from `apps/browser-extension`.
 | PostgreSQL | 16.13(Ubuntu16.13-0ubuntu0.24.04.1) |
 | Redis | 7.0.15 |
 | Playwright | 1.56.0 |
+
+## Golden test suite and product test lab
+
+Added 2026-09-21 on the same host. The golden suite (`verification/golden-tests`) and the
+test lab (`test-lab/`) ran against the stack below, started by `scripts/services-ctl.sh`
+and `test-lab/scripts/lab-ctl.sh`.
+
+| | |
+| --- | --- |
+| API | `http://127.0.0.1:5080`, ASP.NET Core 8, Development configuration |
+| Worker | Node 22 browser worker, Playwright 1.56.0 |
+| Console | Vite dev server on `http://127.0.0.1:5173` |
+| Database | PostgreSQL 16.13, schema migrated to head |
+| Queue | Redis 7.0.15 |
+| AI provider | `local` — no hosted model key is present, so every generation and analysis figure describes AIRA's built-in rules engine |
+| `ALLOW_PRIVATE_NETWORK_TARGETS` | `true` — required for the lab, which runs on localhost. Two security tests are scoped to that fact and say so in their own text. |
+
+### Browsers
+
+| Browser | Version | Available |
+| --- | --- | --- |
+| Chromium | 141.0.7390.37 | yes |
+| Firefox | — | no — not installed, and the Playwright CDN is unreachable from this host |
+| WebKit | — | no — as above |
+
+EXEC-015 and EXEC-016 are therefore recorded NOT VERIFIED, carrying the platform's own
+launch error. They are not recorded as passes and not as failures.
+
+### Test lab applications
+
+| Application | Port | Stack |
+| --- | --- | --- |
+| Banking | 4300 | React 18 + Vite single-page application, dependency-free Node HTTP server |
+| Ecommerce | 4301 | Server-rendered, dependency-free Node HTTP server |
+| Forms | 4302 | Server-rendered |
+| Dynamic | 4303 | Single-page application built to be hostile to automation |
+| Failure | 4304 | Thirteen fault cases on identically shaped pages |
+| Self-healing | 4305 | Thirteen locator-change scenarios |
+
+Data in every lab application is generated from a fixed seed (Mulberry32), so a run on
+another host produces the same balances, orders and transactions. No real data of any kind
+is present.

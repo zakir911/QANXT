@@ -7,7 +7,7 @@ reader deserves to know which one applies to each part. Everything marked **veri
 run in this environment and observed to work; everything marked **unverified** may be
 correct but has not been proved, and should be treated as untested until it is.
 
-Last updated after the user-management work that followed Phase 9.
+Last updated after the product test lab and golden test suite.
 
 ## Verified by automated tests
 
@@ -24,6 +24,43 @@ Last updated after the user-management work that followed Phase 9.
 
 Run all of them with `make test`. The integration tests need PostgreSQL; they say so
 clearly if it is not running.
+
+## Verified by the golden test suite
+
+A hundred and twenty-five tests that drive the product from outside — its HTTP API, its
+worker, a real browser — against six purpose-built applications in `test-lab/`, each with
+hand-written ground truth. They are the strongest evidence on this page, because the
+applications can be broken on demand and the expected answer was written down first.
+
+Run them with `./scripts/run-golden-tests --all`; the numbers below come from the report
+that run writes, not from this document.
+
+| Suite | Tests | What it establishes |
+| --- | --- | --- |
+| Discovery | 15 | Page recall and precision measured against ground truth, including an application whose element ids regenerate on every render |
+| AI test generation | 16 | A sentence in English becomes tests that execute unedited and fail when the application breaks |
+| Browser execution | 20 | Every action and assertion type, with screenshots, traces, console and network logs |
+| Assertions | 8 | Each assertion type holds when it should and fails when it should not |
+| Failure detection | 12 | Eleven failure classes on identically shaped pages, plus a control where nothing is broken |
+| Failure analysis | 16 | Classification accuracy; an analysis never overturns a verdict; a silent failure is still caught |
+| Self-healing | 20 | Two heals that should happen, ten refusals that must happen |
+| Security | 11 | Tenant isolation, credential handling, prompt injection, target policy — local applications only |
+| Reliability | 7 | Ten identical runs, twenty against a genuinely unstable application, ten started at once |
+
+The headline number is the **false-healing rate**: incorrect heals divided by healing
+opportunities. It is never folded into a success rate, because a healer that repairs nine
+locators and silently clicks the wrong button once is worse than one that repairs nothing.
+The current report and the certification that reads from it are in `verification/reports/`.
+
+Four tests are recorded **NOT VERIFIED** rather than passed or failed: Firefox and WebKit
+execution (neither browser is installed here and the Playwright CDN is unreachable),
+generation quality with a hosted model provider (none is configured), and stranded-execution
+reconciliation (this deployment waits ten minutes, longer than the suite is willing to).
+Each carries the platform's own error message or the setting that would enable it.
+
+The console renders the report at **Verification**, and re-checks the quality gates in the
+browser rather than trusting the file's own `overall` flag — a report claiming green while a
+gate is red still renders red, and that behaviour is itself tested.
 
 ## Verified end to end, against a running stack
 
@@ -114,4 +151,14 @@ and declaring it correct.
 | User management | Every access token carried a security stamp that nothing ever checked. Disabling an account, demoting someone or resetting a password left their existing session working for up to an hour — the token lifetime — while the UI reported success. Removing the new validator makes three tests fail, which is what that gap looked like. |
 | User management | Login refused any account whose status was not `Active`, so an invited user could never sign in and every invitation was a dead end. Login now accepts `Invited` and promotes it to `Active` on first use, which is also what makes the status worth recording. |
 | Extension verification | The service worker's de-duplication of consecutive edits to one field had never fired: it compared two locators by `JSON.stringify`, and `chrome.storage.session` returns keys in sorted order, so the stored locator and the incoming one never matched. Every change event became a step, corrected values included. The unit test covering it passed because its storage stub preserved key order; the stub now sorts keys as Chrome does. See `verification/failures/BUG-0006/`. |
+| Golden suite (SPA discovery) | Sign-in against a single-page application was decided by two `waitForLoadState` calls, both of which return immediately when an SPA never reloads. Discovery against React reported "failed, 0 pages" while the bank's own record showed the correct credentials arriving 5ms earlier. Every React, Vue or Angular application would have behaved this way. See `verification/bugs/BUG-0007/`. |
+| Golden suite (discovery model) | The crawler signed in before capturing anything, so the login page — the one page every user sees — was never in the model. Recall against ground truth was 88.9% with the missing page being `/login`. `BUG-0008`. |
+| Golden suite (execution) | The recorder and the executor contradicted each other: a recorded journey that signs in itself was forced through the configured sign-in first, so it started on `/dashboard` and failed at step 2. Two shipped features, each correct alone. `BUG-0009`. |
+| Golden suite (assertions) | The generated plan never carried its expected value onto the action, so `assertValue` could not pass at all and `assertText` passed vacuously at action level. Measured rather than assumed: the paired planned assertions still caught wrong values, so this produced false negatives, not false passes. `BUG-0010`. |
+| Golden suite (generation) | `maxScenarios` was accepted by the API and then ignored — asking for 2 produced 11. `BUG-0011`. |
+| Golden suite (analysis) | The failure classifier matched on prose the execution engine had stopped producing ("expected the text" against "Expected the element to contain"), and the same drift was duplicated in the local analyser. Classification accuracy 7/10 with 2 unknown; 10/10 after. `BUG-0012`. |
+| Golden suite (reliability) | Text and value assertions read the element once. A value the page rendered after three seconds failed in 17ms, and all twenty runs against the lab's unstable application failed — including the ones it answered in a tenth of a second. `BUG-0014`. |
+| Golden suite (generation) | A generated "Reject an invalid filter range" scenario closed by asserting that the filter control it had just clicked was still visible — an assertion that holds whatever the application does. The generated step's own description admitted it was a placeholder. Two more scenarios did the same. A test that cannot fail is worse than no test. `BUG-0016`. |
+| My own golden test | `GEN-011` — "a generated test fails when the application it covers is broken" — passed once on a run where the only failure was an unrelated authentication blip in a two-step smoke test. A test about false passes produced one. It now chooses the fault from the routes the generated tests actually visit and counts only failures in tests that visit the broken page. |
+| Product demonstration | A 401 the application returns on its own sign-in page — the ordinary answer to "is anyone signed in?" — outranked the engine's statement that no element matched, so a removed button was reported as an authentication problem and the reader was sent to check account permissions. Found by the demonstration, not by a test; the classifier now has unit tests that pin the rule ordering. `BUG-0015`. |
 | Writing `setup.md` | The project-key field's `pattern` attribute was `[A-Za-z0-9_-]+`. Chrome compiles that attribute with the regular-expression `v` flag, where `_-` is a reserved double punctuator, so the browser rejected the pattern outright and it validated nothing — logging a console error on every render of the form. The server still validated the key, so this was a usability defect rather than a security one. |

@@ -17,6 +17,7 @@ const NAV = [
   { to: '/healing', label: 'Healing' },
   { to: '/agent', label: 'Agent' },
   { to: '/insights', label: 'AI insights' },
+  { to: '/verification', label: 'Verification' },
   { to: '/settings', label: 'Settings' }
 ];
 

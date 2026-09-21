@@ -11,7 +11,6 @@
 | **Component** | `apps/api/src/Aira.Application/Diagnosis/FailureAnalysisService.cs` |
 | **Reproduction rate** | Every deterministic analysis |
 | **Status** | Fixed and re-verified |
-| **Status** | Fixed and re-verified |
 
 ## What happens
 

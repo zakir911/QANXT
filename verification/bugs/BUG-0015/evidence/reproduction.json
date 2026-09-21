@@ -1,0 +1,36 @@
+{
+  "bug": "BUG-0015",
+  "summary": "A 401 the application returns on its own sign-in page — the ordinary answer to \"is anyone signed in?\" — outranks the engine's own statement that the step found no element, so a removed button is reported as an authentication problem.",
+  "misclassified": 0,
+  "of": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "failed",
+      "category": "locatorChange",
+      "confidence": 35,
+      "failingStep": {
+        "order": 4,
+        "action": "click",
+        "error": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\"."
+      },
+      "summary": "The element the failing step targets has changed.",
+      "suggestedAction": "Review the healing proposal carefully: at 30% confidence it is a suggestion, not a certainty.",
+      "correct": true
+    },
+    {
+      "attempt": 2,
+      "status": "failed",
+      "category": "locatorChange",
+      "confidence": 35,
+      "failingStep": {
+        "order": 4,
+        "action": "click",
+        "error": "testId=\"login-submit\" could not be used: No element matched testId=\"login-submit\"."
+      },
+      "summary": "The element the failing step targets has changed.",
+      "suggestedAction": "Review the healing proposal carefully: at 30% confidence it is a suggestion, not a certainty.",
+      "correct": true
+    }
+  ]
+}

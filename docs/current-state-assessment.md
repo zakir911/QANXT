@@ -159,3 +159,30 @@ Nothing in `apps/`, `packages/` or `samples/` is rewritten to make verification 
 lab is additive (`/test-lab`, `/verification/golden-tests`). Where a golden test fails, the
 defect is reproduced twice and recorded under `verification/bugs/` **before** anything is
 changed, and a test is never edited to make it pass.
+
+---
+
+## 10. What the assessment got wrong
+
+This section was added after the golden suite ran, because an assessment that is never
+checked against reality is an opinion.
+
+Section 2 listed discovery, generation, execution, failure analysis and self-healing as
+**working**, on the strength of 377 passing tests and an end-to-end pass against the demo
+bank. Driving the same code against applications built to be awkward found nine defects it
+had not, and two of them were severe:
+
+| What this document said | What was true |
+| --- | --- |
+| "Discovery crawls an application into a knowledge graph" | It could not sign in to a single-page application at all. The demo bank is server-rendered, so every check had been run against the one shape that happened to work. Against React it reported "failed, 0 pages". (BUG-0007) |
+| "The recorder and the executor share one action model" | They contradicted each other: a recorded journey that signs in itself was forced through the configured sign-in first and failed at step 2. Each feature was correct alone; nothing had ever run them together. (BUG-0009) |
+| "Assertions are evaluated by the engine" | Text and value assertions read the element once, so any asynchronously rendered value failed in milliseconds. (BUG-0014) |
+| "Failure analysis classifies a failure into a category" | The classifier matched on error prose the engine had stopped producing, and later blamed a missing button on the session because the signed-out page had answered its own probe with 401. (BUG-0012, BUG-0015) |
+| "AI test generation produces runnable tests from a requirement" | Some of them could not fail. A generated scenario closed by asserting that the control it had just clicked was still visible, with a comment in the generator admitting the assertion was a placeholder. It counted towards coverage and told a reader a behaviour was checked. (BUG-0016) |
+
+The pattern is the same in every case: the product's own tests and its demo application
+agreed with each other, and the agreement was mistaken for evidence. What the test lab adds
+is an application that was not written to make the platform look good.
+
+The bug reports are in `verification/bugs/BUG-0007` … `BUG-0016`, each with a script that
+reproduces the original failure against an unfixed build.

@@ -269,29 +269,79 @@ export default async function run() {
     evidence: ['generated-under-fault.json'],
     severity: 'critical',
     run: async () => {
-      await lab.set(BANK, { FAULT_EMPTY_TRANSACTIONS: true, FAULT_WRONG_BALANCE: true });
+      // The fault is chosen from what the generated tests actually reach, not picked in
+      // advance and hoped for. An earlier version enabled a wrong balance and an empty
+      // transaction list whatever the tests covered, and passed once on a run where the
+      // only failure was an unrelated authentication blip on a two-step smoke test — a
+      // false pass in the test whose whole subject is false passes.
+      const touched = new Set();
+      for (const testCaseDetail of sample) {
+        for (const stepDetail of testCaseDetail.steps ?? []) {
+          if (stepDetail.url) touched.add(new URL(stepDetail.url).pathname.replace(/\/$/, '') || '/');
+        }
+      }
+
+      // Each fault, the route it damages, and what a test of that route would notice.
+      const CANDIDATES = [
+        { fault: 'FAULT_EMPTY_TRANSACTIONS', route: '/transactions', breaks: 'the transactions list renders nothing' },
+        { fault: 'FAULT_STATEMENT_FAILURE', route: '/statements', breaks: 'statement generation fails' },
+        { fault: 'FAULT_LOGIN_BUTTON_REMOVED', route: '/login', breaks: 'nothing submits the sign-in form' },
+        { fault: 'FAULT_JS_ERROR', route: '/dashboard', breaks: 'the dashboard throws while rendering' }
+      ];
+      const applicable = CANDIDATES.filter(candidate => touched.has(candidate.route));
+
+      if (applicable.length === 0) {
+        // Not an inconclusive skip. If nothing the generator produced touches a page that
+        // can be broken, the generated suite cannot detect a defect, which is the finding.
+        return {
+          pass: false,
+          detail: `none of the ${sample.length} generated test(s) reaches a page the lab can break; `
+            + `they touch ${[...touched].join(', ') || 'nothing'}, so no injected fault could be detected by them`,
+          metrics: { executed: 0, failedUnderFault: 0, applicableFaults: 0 },
+          evidence: { 'generated-under-fault.json': { healthy: executions, touched: [...touched], applicable } }
+        };
+      }
+
+      const chosen = applicable[0];
+      await lab.set(BANK, { [chosen.fault]: true });
       const underFault = [];
       for (const testCaseDetail of sample) {
         const result = await execute(tenant, {
           projectId: project.id, testCaseId: testCaseDetail.id, name: `GEN ${testCaseDetail.reference} (broken)`
         });
+        const reaches = (testCaseDetail.steps ?? []).some(stepDetail =>
+          stepDetail.url && (new URL(stepDetail.url).pathname.replace(/\/$/, '') || '/') === chosen.route);
         underFault.push({
           reference: testCaseDetail.reference, status: result.run?.status,
+          reachesBrokenPage: reaches,
           stepsFailed: result.detail?.stepsFailed,
-          failure: result.detail?.failure?.category ?? null
+          failure: result.detail?.failure?.category ?? null,
+          error: result.detail?.errorMessage ?? null
         });
       }
       await lab.reset(BANK);
 
-      const failed = underFault.filter(entry => entry.status !== 'passed');
+      // A failure only counts if it happened in a test that visits the page that was
+      // broken. Any other failure is noise, however red it looks.
+      const attributable = underFault.filter(entry => entry.status !== 'passed' && entry.reachesBrokenPage);
+      const unrelated = underFault.filter(entry => entry.status !== 'passed' && !entry.reachesBrokenPage);
       const healthy = executions.filter(entry => entry.status === 'passed').map(entry => entry.reference);
       return {
-        pass: failed.length > 0,
-        detail: `${failed.length}/${underFault.length} generated test(s) failed once the application was broken `
+        pass: attributable.length > 0,
+        detail: `${chosen.fault} on ${chosen.route} (${chosen.breaks}): `
+          + `${attributable.length}/${underFault.filter(entry => entry.reachesBrokenPage).length} test(s) that visit that page failed`
+          + `${unrelated.length ? `; ${unrelated.length} other failure(s) not counted` : ''} `
           + `(all ${healthy.length} passed when it was healthy): `
           + underFault.map(entry => `${entry.reference} ${entry.status}`).join(', '),
-        metrics: { executed: underFault.length, failedUnderFault: failed.length },
-        evidence: { 'generated-under-fault.json': { healthy: executions, underFault } }
+        metrics: {
+          executed: underFault.length, failedUnderFault: attributable.length,
+          unrelatedFailures: unrelated.length, applicableFaults: applicable.length
+        },
+        evidence: {
+          'generated-under-fault.json': {
+            healthy: executions, touched: [...touched], chosen, applicable, underFault
+          }
+        }
       };
     }
   }, context);

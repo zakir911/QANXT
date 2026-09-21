@@ -8,6 +8,7 @@
  * Usage:
  *   node verification/golden-tests/run.mjs --all
  *   node verification/golden-tests/run.mjs --suite discovery --suite healing
+ *   node verification/golden-tests/run.mjs --list
  */
 import { requireEnvironment } from './platform.mjs';
 import { BUILD, RUN_ID, results } from './harness.mjs';
@@ -25,6 +26,14 @@ const SUITES = {
 };
 
 const argv = process.argv.slice(2);
+
+if (argv.includes('--list')) {
+  // Listing must not require the platform to be up: a reader asking what exists should not
+  // have to start a stack to find out.
+  for (const name of Object.keys(SUITES)) console.log(name);
+  process.exit(0);
+}
+
 const requested = [];
 for (let index = 0; index < argv.length; index++) {
   if (argv[index] === '--all') requested.push(...Object.keys(SUITES));

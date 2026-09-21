@@ -201,18 +201,30 @@ async function runAssertionAction(
 
     case 'assertText': {
       const locator = await locate(page, target, timeout);
-      const actual = (await locator.textContent({ timeout }))?.replace(/\s+/g, ' ').trim() ?? '';
-      if (!actual.includes(expected.trim())) {
-        throw new ActionError(`Expected the element to contain "${expected}" but it read "${actual}".`, false);
+      const observed = await waitForValue(
+        timeout,
+        async () => (await locator.textContent())?.replace(/\s+/g, ' ').trim() ?? '',
+        actual => actual.includes(expected.trim()));
+
+      if (!observed.satisfied) {
+        throw new ActionError(
+          `Expected the element to contain "${expected}" but it read "${observed.actual}" `
+          + `(waited ${observed.waitedMs}ms).`, false);
       }
       return;
     }
 
     case 'assertValue': {
       const locator = await locate(page, target, timeout);
-      const actual = await locator.inputValue({ timeout });
-      if (actual !== expected) {
-        throw new ActionError(`Expected the value "${expected}" but found "${actual}".`, false);
+      const observed = await waitForValue(
+        timeout,
+        () => locator.inputValue(),
+        actual => actual === expected);
+
+      if (!observed.satisfied) {
+        throw new ActionError(
+          `Expected the value "${expected}" but found "${observed.actual}" `
+          + `(waited ${observed.waitedMs}ms).`, false);
       }
       return;
     }
@@ -221,8 +233,12 @@ async function runAssertionAction(
       if (!target) throw new ActionError('assertCount requires a target.', false);
       // Counted from the descriptor rather than a resolved locator: resolution narrows to
       // a single element, which would make every count assertion read 1.
-      const actual = await countOf(page, target);
-      if (actual !== action.count) {
+      const observedCount = await waitForValue(
+        timeout,
+        () => countOf(page, target),
+        value => value === action.count);
+      const actual = observedCount.actual;
+      if (!observedCount.satisfied) {
         throw new ActionError(`Expected ${action.count} matching elements but found ${actual}.`, false);
       }
       return;
@@ -230,9 +246,15 @@ async function runAssertionAction(
 
     case 'assertAttribute': {
       const locator = await locate(page, target, timeout);
-      const actual = await locator.getAttribute(action.attribute!, { timeout });
-      if (actual !== expected) {
-        throw new ActionError(`Expected attribute "${action.attribute}" to be "${expected}" but it was "${actual ?? '(absent)'}".`, false);
+      const observed = await waitForValue(
+        timeout,
+        () => locator.getAttribute(action.attribute!),
+        actual => actual === expected);
+
+      if (!observed.satisfied) {
+        throw new ActionError(
+          `Expected attribute "${action.attribute}" to be "${expected}" but it was `
+          + `"${observed.actual ?? '(absent)'}" (waited ${observed.waitedMs}ms).`, false);
       }
       return;
     }
@@ -363,4 +385,38 @@ function absolute(url: string, baseUrl: string): string {
   } catch {
     return url;
   }
+}
+
+/**
+ * Polls a value until it satisfies the expectation, or the timeout expires.
+ *
+ * Assertions that compare a *value* used to read once, which failed every asynchronously
+ * rendered value in existence — a page that answered in a tenth of a second still lost,
+ * because the read happened seventeen milliseconds after the click (BUG-0014).
+ * `assertVisible` already waited; these now do too.
+ *
+ * The last value seen is returned either way, so a failure says what was actually there
+ * rather than only what was wanted. A failing assertion therefore takes until the timeout
+ * to conclude, which is the same trade-off every retrying assertion library makes.
+ */
+async function waitForValue<T>(
+  timeoutMs: number,
+  read: () => Promise<T>,
+  satisfied: (value: T) => boolean
+): Promise<{ satisfied: boolean; actual: T; waitedMs: number }> {
+  const started = Date.now();
+  const deadline = started + Math.max(0, timeoutMs);
+  let actual = await read();
+
+  while (!satisfied(actual) && Date.now() < deadline) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    try {
+      actual = await read();
+    } catch {
+      // The element can be replaced while the page re-renders; the next read asks again
+      // rather than treating a transient detachment as the answer.
+    }
+  }
+
+  return { satisfied: satisfied(actual), actual, waitedMs: Date.now() - started };
 }

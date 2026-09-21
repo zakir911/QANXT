@@ -17,6 +17,7 @@ import FailuresPage from './pages/FailuresPage';
 import HealingPage from './pages/HealingPage';
 import AgentPage from './pages/AgentPage';
 import InsightsPage from './pages/InsightsPage';
+import VerificationPage from './pages/VerificationPage';
 import SettingsPage from './pages/SettingsPage';
 
 function RequireAuth({ children }: { children: JSX.Element }) {
@@ -57,6 +58,7 @@ export default function App() {
         <Route path="healing" element={<HealingPage />} />
         <Route path="agent" element={<AgentPage />} />
         <Route path="insights" element={<InsightsPage />} />
+        <Route path="verification" element={<VerificationPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

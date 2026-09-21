@@ -42,6 +42,7 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 
 builder.Services.Configure<ProductOptions>(builder.Configuration.GetSection("Product"));
 builder.Services.Configure<SecurityOptions>(builder.Configuration.GetSection("Security"));
+builder.Services.Configure<VerificationOptions>(builder.Configuration.GetSection("Verification"));
 
 builder.Services.AddAiraInfrastructure(builder.Configuration);
 builder.Services.AddAiraApplicationServices();

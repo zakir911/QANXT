@@ -10,7 +10,7 @@
 | **Build** | `399446c` |
 | **Component** | `apps/browser-worker/src/execution/executor.ts` |
 | **Reproduction rate** | 3 of 3 — three independent journeys, same failure, in one run |
-| **Status** | Open |
+| **Status** | Fixed and re-verified |
 
 ## What happens
 
@@ -81,3 +81,26 @@ one that signs in itself (must pass) and one that assumes it is already signed i
 also pass). Before the fix the first failed; both must pass after it.
 
 `evidence/pre-fix-actions.json` holds the failing action from the golden run that found it.
+
+## Fix
+
+`executor.ts` compares the first `navigate` step's origin and path with the application's
+configured login URL. When they match, the test is signing in itself and the configured
+sign-in is skipped; when they do not, it runs as before. Comparing origin and path rather
+than the whole string means a query string or a trailing slash does not change the answer.
+
+```ts
+const startsAtLoginPage = (steps, loginUrl) => { … };  // origin + path
+```
+
+## Re-verification
+
+```
+PASS  the test signs in itself — 5/5 steps
+PASS  the test assumes the platform signed in — 2/2 steps
+both journeys pass — the defect is fixed
+```
+
+`reproduce.mjs` reports 0 of 2 failing. Both directions matter: a fix that simply stopped
+signing in would have broken every recorded journey that relies on the platform to do it,
+which is the second journey in that script.

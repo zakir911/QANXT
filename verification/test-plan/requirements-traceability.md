@@ -44,3 +44,37 @@ are not independent evidence.
 | R-30 | CI/CD pipelines | Pipelines run the product and publish results | — | — | **NOT VERIFIED** — no runner available; see limitations |
 | R-31 | Docker deployment | The platform runs from one compose file | Project verification | `docs/verification-status.md` | **PARTIALLY VERIFIED** — API and worker images built and run; console and demo-bank images unbuildable here |
 | R-32 | Manual test authoring | A test can be written by hand | BUG-0002 | `failures/BUG-0002/` | **NOT IMPLEMENTED** — no endpoint exists |
+
+## Added by the product test lab and golden suite (2026-09-21)
+
+The rows above came from the independent verification pass in September. The golden suite
+re-examines several of them against purpose-built applications with written-down ground
+truth, and covers capabilities that pass could only observe in passing. Test IDs resolve in
+`reports/GOLDEN-TEST-REPORT.md`; evidence is under `evidence/<TEST-ID>/<RUN-ID>/`, each
+artifact hashed in `reports/EVIDENCE-INDEX.md`.
+
+| ID | Feature | Requirement | Test IDs | Status |
+| --- | --- | --- | --- | --- |
+| R-10 | Application discovery | A real application is crawled into a knowledge graph, measured against ground truth | DISC-001…DISC-015 | **VERIFIED** — recall and precision measured against hand-written ground truth for a React SPA, and repeated against one whose ids regenerate each render (supersedes the earlier PARTIALLY VERIFIED) |
+| R-11 | Test generation | Tests generated from the model are runnable and reach the application | GEN-001…GEN-015 | **VERIFIED** for the built-in rules engine — generated tests executed unedited and one failed once the application was broken. **NOT VERIFIED** for a hosted model provider (GEN-016): none is configured here |
+| R-36 | Fault injection | A named fault can be turned on and off without editing application source | Every DET-, HEAL- and GEN-011 test | **VERIFIED** — faults are set through `POST /__faults` on the application under test |
+| R-37 | Failure classification | A failure is classified into the right category | FA-001…FA-012 | **VERIFIED** — accuracy measured across every failure class the lab can produce |
+| R-38 | Analysis honesty | An analysis explains a failure and never overturns its verdict | FA-013, FA-014 | **VERIFIED** |
+| R-39 | Duplicate failures | The same failure seen twice is recognised, not counted as new | FA-015 | **VERIFIED** |
+| R-40 | Silent failure | A confirmation shown for something that never happened is caught | FA-016, DET-010 | **VERIFIED** |
+| R-41 | Negative self-healing | A removed or changed-meaning control is never healed to something else | HEAL-N01…HEAL-N10 | see report — each requires both that the run fails *and* that the browser never reaches the signed-in page |
+| R-42 | False-healing rate | Incorrect heals are counted and reported, never folded into a success rate | HEAL-M01, HEAL-M02 | see report — the rate and the confidence margin are published as numbers |
+| R-43 | Assertion correctness | Each assertion type holds when it should and fails when it should not | ASRT-001…ASRT-008 | **VERIFIED** |
+| R-44 | Late-arriving content | An assertion waits for content rather than reading the page once | EXEC-017, ASRT-002, ASRT-004 | **VERIFIED** (after BUG-0014) |
+| R-45 | Evidence integrity | Every artifact is hashed at capture and the hash re-checked in the index | EXEC-012, EXEC-013, EXEC-014, DISC-014 | **VERIFIED** |
+| R-46 | Evidence retention | A run never overwrites an earlier run's evidence | Harness (`evidence/<TEST-ID>/<RUN-ID>/`) | **VERIFIED** — enforced by the harness, visible in the evidence tree |
+| R-47 | Repeatability | Ten identical runs produce one verdict | REL-001 | see report |
+| R-48 | Instability visibility | An application that is genuinely unstable produces visibly unstable results | REL-002 | see report — the application's own delay record is the control |
+| R-49 | Concurrency | Runs started together all reach a verdict | REL-003 | see report |
+| R-50 | SPA authentication | Sign-in against a single-page application is detected by outcome, not by a load event | DISC-001 (and every test that signs in) | **VERIFIED** (after BUG-0007) |
+| R-51 | Recorded sign-in | A test that signs in itself is not forced through a second configured sign-in | Every imported journey test | **VERIFIED** (after BUG-0009) |
+| R-52 | Scenario budget | `maxScenarios` is respected | GEN-009 | **VERIFIED** (after BUG-0011) |
+| R-53 | Prompt injection (generation) | Text in the application under test cannot instruct the generator | GEN-014 | **VERIFIED** |
+| R-55 | Generated assertions can fail | A generated assertion is about something the action could change | GEN-010, GEN-011, `verification/bugs/BUG-0016/reproduce.mjs` | **VERIFIED** (after BUG-0016) — GEN-011 now attributes the failure to the injected fault rather than accepting any failure |
+| R-56 | The lab itself | The applications serve, their faults bite, and their ground truth still matches | `test-lab/scripts/lab-selftest.mjs` | **VERIFIED** — 34 checks, run by `make test` |
+| R-54 | Verification visibility | The console shows the last golden run and cannot report green over a red gate | `apps/web-console/src/pages/VerificationPage.test.tsx` | **VERIFIED** — the gate re-check is itself tested with a report that falsely claims to have passed |

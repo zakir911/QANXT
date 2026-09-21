@@ -74,7 +74,15 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         Environment.SetEnvironmentVariable("STORAGE_PROVIDER", "filesystem");
         Environment.SetEnvironmentVariable("STORAGE_ROOT",
             Path.Combine(Path.GetTempPath(), "aira-test-artifacts", DatabaseName));
+        // Pointed at an empty directory of its own. Left unset, the API would walk up and
+        // find the repository's real verification/reports, and a test's verdict would
+        // depend on whether someone had run the golden suite lately.
+        Environment.SetEnvironmentVariable("VERIFICATION_REPORT_DIR", VerificationReportDirectory);
     }
+
+    /// <summary>Where the API reads golden test reports from during this run.</summary>
+    public static readonly string VerificationReportDirectory =
+        Path.Combine(Path.GetTempPath(), "aira-test-verification", DatabaseName);
 
     public static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {

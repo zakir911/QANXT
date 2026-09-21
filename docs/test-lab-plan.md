@@ -225,6 +225,20 @@ green only if every critical gate is green.
 At every milestone: build, run, test, collect evidence, fix, re-test, document. A milestone
 is not complete because the code exists.
 
+All six are complete. M5 landed 125 tests rather than the 100 planned, because the failure
+and self-healing applications produced more distinct scenarios than expected once they were
+running. M6 produced `verification/reports/` (report, evidence index, certification), the
+console's **Verification** page, `scripts/run-product-demo` and `scripts/verify-product`.
+
+Ten defects were found along the way and are recorded as `BUG-0007` … `BUG-0016`: an
+authentication race that made the product unusable against any single-page application, a
+model that omitted the login page, a recorder and an executor that contradicted each other,
+an assertion pipeline that lost its expected value, a classifier coupled to error prose in
+two places, assertions that never waited, an ignored API parameter, missing provider
+attribution, an analysis that blamed a missing button on the session, and a generator that
+emitted assertions which could not fail. Each was reproduced twice before anything was
+changed.
+
 ---
 
 ## 6. What this plan does not promise

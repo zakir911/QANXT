@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# The whole thing, from nothing to a certification.
+#
+#   ./scripts/verify-product
+#
+#   infrastructure → test lab → AIRA → golden suite → evidence → reports → certification
+#
+# Exits 0 only when every critical gate passes.
+set -uo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+section() { printf '\n\033[1m── %s ──\033[0m\n' "$1"; }
+fail() { printf '\n\033[31m%s\033[0m\n' "$1"; exit 1; }
+
+export GOLDEN_RUN_ID="${GOLDEN_RUN_ID:-$(date -u +%Y-%m-%dT%H-%M-%SZ)}"
+
+section "Infrastructure"
+bash scripts/services-ctl.sh --with-database || fail "PostgreSQL and Redis did not start."
+
+section "AIRA"
+bash scripts/api-ctl.sh start && bash scripts/api-ctl.sh wait || fail "The API did not start."
+bash scripts/worker-ctl.sh start || fail "The worker did not start."
+
+section "Test lab"
+if [[ ! -f test-lab/banking-app/dist/index.html ]]; then
+  pnpm --filter @aira/test-lab build >/dev/null || fail "The banking application did not build."
+fi
+bash test-lab/scripts/lab-ctl.sh start || fail "The test lab did not start."
+bash test-lab/scripts/lab-ctl.sh reset >/dev/null
+
+section "Ground truth"
+node test-lab/scripts/audit-ground-truth.mjs \
+  test-lab/banking-app/ground-truth.json \
+  test-lab/ecommerce-app/ground-truth.json \
+  test-lab/forms-app/ground-truth.json \
+  test-lab/dynamic-app/ground-truth.json \
+  test-lab/failure-app/ground-truth.json \
+  test-lab/self-healing-app/ground-truth.json \
+  || fail "Ground truth does not match the applications. Nothing measured against it would mean anything."
+
+section "Product regression baseline"
+bash scripts/test.sh || fail "The product's own tests failed; the golden suite would be measuring a broken build."
+
+section "Golden suite"
+node verification/golden-tests/run.mjs --all
+golden_status=$?
+
+section "Reports"
+node verification/golden-tests/report.mjs --run "$GOLDEN_RUN_ID"
+report_status=$?
+
+section "Certification"
+node verification/golden-tests/certify.mjs --run "$GOLDEN_RUN_ID"
+certify_status=$?
+
+printf '\n'
+if [[ $golden_status -ne 0 || $report_status -ne 0 ]]; then
+  printf '\033[31mVerification FAILED.\033[0m\n'
+  printf '  Report:        verification/reports/GOLDEN-TEST-REPORT.md\n'
+  printf '  Certification: verification/reports/AIRA-CERTIFICATION.md\n'
+  exit 1
+fi
+
+printf '\033[32mVerification complete.\033[0m\n'
+printf '  Report:        verification/reports/GOLDEN-TEST-REPORT.md (and .html, .json)\n'
+printf '  Evidence:      verification/evidence/<TEST-ID>/%s/\n' "$GOLDEN_RUN_ID"
+printf '  Certification: verification/reports/AIRA-CERTIFICATION.md\n'
+exit $certify_status

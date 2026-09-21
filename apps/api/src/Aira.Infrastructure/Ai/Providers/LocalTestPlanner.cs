@@ -19,11 +19,22 @@ internal static class LocalTestPlanner
         var requirement = LocalJson.String(context, "requirement");
         var scenarios = new List<object>();
 
+        // A single-page application serves one <title> for every route, so naming scenarios
+        // after the title alone produced three cases all called "View AIRA Demo Bank" — a
+        // suite a reviewer cannot act on. Where a title does not distinguish a page, the
+        // route does.
+        var titleCounts = pages
+            .GroupBy(page => LocalJson.String(page, "title") ?? LocalJson.String(page, "route") ?? "/")
+            .ToDictionary(group => group.Key, group => group.Count());
+
         foreach (var page in pages)
         {
             var kind = LocalJson.String(page, "kind") ?? "unknown";
             var route = LocalJson.String(page, "route") ?? "/";
-            var title = LocalJson.String(page, "title") ?? route;
+            var pageTitle = LocalJson.String(page, "title") ?? route;
+            var title = titleCounts.TryGetValue(pageTitle, out var shared) && shared > 1
+                ? $"{pageTitle} {route}"
+                : pageTitle;
             var url = LocalJson.String(page, "url") ?? route;
             var elements = LocalJson.Array(page, "elements").ToList();
 
@@ -178,12 +189,24 @@ internal static class LocalTestPlanner
             happyPath.Add(Step($"Complete {LabelOf(input)}", "fill", Locator(input), value: SampleFor(input)));
         }
         happyPath.Add(Step("Submit the form", "click", submitLocator));
-        // Asserted against the submit control itself: after a successful submission a form
-        // normally navigates or re-renders. The assertion carries a note telling the author
-        // to replace it with the application's own success signal, which only they know.
-        happyPath.Add(StepWithAssertion("Confirm the form was submitted", "assertVisible", submitLocator,
-            Assertion("visible", submitLocator,
-                description: "Placeholder assertion: replace it with the application's own success message or destination page.")));
+
+        // A success signal only exists in the DOM after a successful submission, so a crawl
+        // of the healthy application usually never sees one. Where discovery did find a
+        // confirmation element, assert it. Where it did not, assert nothing: an earlier
+        // version closed by asserting the submit control was still visible, which holds
+        // however the application behaved — and would fail a well-behaved form that
+        // navigates away (BUG-0016). The scenario still has value without it, because the
+        // fill and click steps fail if the form is broken.
+        var successSignal = Find(elements, e =>
+            LocalJson.String(e, "ariaRole") is "status"
+            || Mentions(e, "success", "confirmation", "confirmed", "receipt", "thank", "complete"));
+        if (successSignal is not null)
+        {
+            happyPath.Add(StepWithAssertion("Confirm the application reported success", "assertVisible",
+                Locator(successSignal.Value),
+                Assertion("visible", Locator(successSignal.Value),
+                    description: "The application confirms the submission was accepted.")));
+        }
 
         yield return new
         {
@@ -193,7 +216,10 @@ internal static class LocalTestPlanner
             priority = "high",
             risk = "high",
             preconditions = "The customer is signed in.",
-            expectedResults = "The form is accepted and the application confirms the outcome.",
+            expectedResults = successSignal is not null
+                ? "The form is accepted and the application confirms the outcome."
+                : "The form is accepted. Discovery found no confirmation element on this page, so no success "
+                  + "assertion was generated — add the application's own success signal before relying on this test.",
             tags = new[] { "form", Slug(route) },
             testData = inputs.Take(6).ToDictionary(i => FieldKey(i), SampleFor),
             steps = happyPath.ToArray()
@@ -282,21 +308,57 @@ internal static class LocalTestPlanner
             steps = steps.ToArray()
         };
 
-        if (filter.ValueKind == JsonValueKind.Object)
+        // The closing assertion has to be about something the action could change. Asserting
+        // that the filter control is still visible — which an earlier version of this
+        // generator did, with a comment admitting it was a placeholder — holds whatever the
+        // application does, so the whole scenario could never fail (BUG-0016).
+        var validationTarget = Find(elements, e =>
+            LocalJson.String(e, "ariaRole") is "alert" or "status"
+            || Mentions(e, "error", "validation", "invalid", "warning"));
+        var emptyState = Find(elements, e => Mentions(e, "empty", "no-results", "no-records", "nothing"));
+
+        // Both date fields are required, not optional. Without them the scenario clicks the
+        // filter with nothing entered and then asserts about a range it never set — which
+        // is how it came to assert that an unfiltered list was empty, and fail against a
+        // healthy application (BUG-0016).
+        var dateInputs = elements.Where(e => LocalJson.String(e, "type") == "date").Take(2).ToList();
+
+        if (filter.ValueKind == JsonValueKind.Object
+            && dateInputs.Count == 2
+            && (validationTarget is not null || emptyState is not null || table.ValueKind == JsonValueKind.Object))
         {
-            var dateInputs = elements.Where(e => LocalJson.String(e, "type") == "date").Take(2).ToList();
-            var filterSteps = new List<object> { Step($"Open {title}", "navigate", url: url) };
-
-            if (dateInputs.Count == 2)
+            var filterSteps = new List<object>
             {
-                filterSteps.Add(Step("Enter a start date after the end date", "fill", Locator(dateInputs[0]), value: "2030-12-31"));
-                filterSteps.Add(Step("Enter an end date before the start date", "fill", Locator(dateInputs[1]), value: "2020-01-01"));
-            }
+                Step($"Open {title}", "navigate", url: url),
+                Step("Enter a start date after the end date", "fill", Locator(dateInputs[0]), value: "2030-12-31"),
+                Step("Enter an end date before the start date", "fill", Locator(dateInputs[1]), value: "2020-01-01"),
+                Step("Apply the filter", "click", Locator(filter))
+            };
 
-            filterSteps.Add(Step("Apply the filter", "click", Locator(filter)));
-            filterSteps.Add(StepWithAssertion("Confirm the invalid range is reported", "assertVisible", Locator(filter),
-                Assertion("visible", Locator(filter),
-                    description: "Review this assertion: replace it with the application's own validation message locator.")));
+            // In order of how directly each answers "did the application refuse the range?".
+            // The last is the weakest of the three and still falsifiable: a filter that
+            // ignored the dates would list records, and the step would fail.
+            if (validationTarget is not null)
+            {
+                filterSteps.Add(StepWithAssertion("Confirm the invalid range is reported", "assertVisible",
+                    Locator(validationTarget.Value),
+                    Assertion("visible", Locator(validationTarget.Value),
+                        description: "The application explains that the range is invalid.")));
+            }
+            else if (emptyState is not null)
+            {
+                filterSteps.Add(StepWithAssertion("Confirm no records are listed for an impossible range", "assertVisible",
+                    Locator(emptyState.Value),
+                    Assertion("visible", Locator(emptyState.Value),
+                        description: "The application reports that nothing matched.")));
+            }
+            else
+            {
+                filterSteps.Add(StepWithAssertion("Confirm no records are listed for an impossible range", "assertHidden",
+                    Locator(table),
+                    Assertion("hidden", Locator(table),
+                        description: "No records are listed, because no record can fall inside an impossible range.")));
+            }
 
             yield return new
             {

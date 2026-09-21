@@ -81,7 +81,12 @@ public static class DeterministicFailureClassifier
                 IsLikelyApplicationDefect: false, IsHealable: false);
         }
 
-        if (input.AuthErrorCount > 0)
+        // Not when the engine has already said the step's locator matched nothing. A
+        // single-page application asks "is anyone signed in?" as it loads and is answered
+        // 401 when nobody is; that answer is the sign-in page working, not a symptom. Left
+        // ungated, this rule blamed the session for every failure on a signed-out page,
+        // including a button that had simply been removed (BUG-0015).
+        if (input.AuthErrorCount > 0 && !IsLocatorMiss(lowered))
         {
             return new DeterministicVerdict(
                 FailureCategory.AuthenticationIssue, 85,
@@ -117,13 +122,21 @@ public static class DeterministicFailureClassifier
                 IsLikelyApplicationDefect: false, IsHealable: false);
         }
 
-        if (lowered.Contains("no element matched") || lowered.Contains("waiting for locator") || lowered.Contains("not found"))
+        if (IsLocatorMiss(lowered))
         {
+            // Any 401s are still put in front of the reader. A session that really did
+            // expire produces this same symptom — the page becomes the sign-in page and
+            // the element vanishes — and they deserve both facts rather than one of them
+            // chosen for them.
+            var authNote = input.AuthErrorCount > 0
+                ? $" {input.AuthErrorCount} request(s) also returned 401 or 403, which is ordinary on a signed-out page but would also follow a session that expired mid-test."
+                : string.Empty;
+
             return new DeterministicVerdict(
                 FailureCategory.LocatorChange, 65,
                 "The step could not find the element it needed.",
                 "The element is not on the page. Either the UI changed, or an earlier step left the application somewhere unexpected.",
-                message,
+                $"{message}{authNote}",
                 "Compare the failure screenshot with the expected page before changing the locator.",
                 IsLikelyApplicationDefect: false, IsHealable: true);
         }
@@ -204,4 +217,13 @@ public static class DeterministicFailureClassifier
             || loweredMessage.Contains("but it read")
             || loweredMessage.Contains("but found");
     }
+
+    /// <summary>True when the engine reported that the step's locator matched no element.
+    ///
+    /// This is the most specific statement available about the step that actually failed,
+    /// which is why it outranks counts of responses recorded anywhere in the execution.</summary>
+    private static bool IsLocatorMiss(string loweredMessage)
+        => loweredMessage.Contains("no element matched")
+            || loweredMessage.Contains("waiting for locator")
+            || loweredMessage.Contains("not found");
 }

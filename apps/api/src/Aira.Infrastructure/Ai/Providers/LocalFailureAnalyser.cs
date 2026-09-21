@@ -16,6 +16,10 @@ internal static class LocalFailureAnalyser
         var message = LocalJson.String(context, "errorMessage") ?? string.Empty;
         var lowered = message.ToLowerInvariant();
         var stepDescription = LocalJson.String(context, "stepDescription") ?? "the step";
+        // The step's own description opens several of these sentences, and a step is named
+        // by whoever recorded it — "Press login-submit", "the failing step". Capitalised
+        // where it starts a sentence so the summary reads as one.
+        var stepSentence = Sentence(stepDescription);
         var locator = LocalJson.String(context, "locatorDescription");
         var healingConfidence = LocalJson.Int(context, "healingConfidence");
         var healedTo = LocalJson.String(context, "healedLocatorDescription");
@@ -45,7 +49,7 @@ internal static class LocalFailureAnalyser
         {
             var first = serverErrors[0];
             return Result(
-                summary: $"{stepDescription} failed while the application was returning server errors.",
+                summary: $"{stepSentence} failed while the application was returning server errors.",
                 likelyCause: $"The application returned {LocalJson.Int(first, "statusCode")} for {LocalJson.String(first, "url")}. The failure is in the application or a service it depends on, not in the test.",
                 evidence: $"{serverErrors.Count} request(s) failed with a 5xx status during this execution. First: {LocalJson.String(first, "method")} {LocalJson.String(first, "url")} -> {LocalJson.Int(first, "statusCode")}.",
                 suggestedAction: "Raise this with the application team, attaching the network evidence from this execution. Re-running is unlikely to help until the service is fixed.",
@@ -55,10 +59,18 @@ internal static class LocalFailureAnalyser
         var authFailures = networkFailures
             .Where(f => LocalJson.Int(f, "statusCode") is 401 or 403)
             .ToList();
-        if (authFailures.Count > 0)
+        // Not when the engine already said the locator matched nothing: a signed-out
+        // single-page application answers its own session probe with 401, so this rule
+        // otherwise blames the session for a control that was simply removed (BUG-0015).
+        // The classifier in Aira.Application applies the same condition; the two have to
+        // agree or the category and the prose contradict each other.
+        var locatorMiss = lowered.Contains("no element matched")
+            || lowered.Contains("not found")
+            || lowered.Contains("waiting for locator");
+        if (authFailures.Count > 0 && !locatorMiss)
         {
             return Result(
-                summary: $"{stepDescription} failed because the session was not authorised.",
+                summary: $"{stepSentence} failed because the session was not authorised.",
                 likelyCause: "The application rejected the request as unauthenticated or forbidden. The session expired mid-test, or the account lacks the permission this journey needs.",
                 evidence: $"{authFailures.Count} request(s) returned 401 or 403 during this execution.",
                 suggestedAction: "Confirm the test account's permissions and the session lifetime for this environment. If the session expired, the test may need to re-authenticate mid-journey.",
@@ -77,12 +89,14 @@ internal static class LocalFailureAnalyser
                 category: "locatorChange", confidence: Math.Min(95, healingConfidence + 5), isDefect: false, isHealable: true);
         }
 
-        if (lowered.Contains("no element matched") || lowered.Contains("not found") || lowered.Contains("waiting for locator"))
+        if (locatorMiss)
         {
             return Result(
-                summary: $"{stepDescription} could not find the element it needed.",
+                summary: $"{stepSentence} could not find the element it needed.",
                 likelyCause: "The element is absent from the page. Either the UI changed and the locator is stale, or an earlier step left the application somewhere other than the expected page.",
-                evidence: message,
+                evidence: authFailures.Count > 0
+                    ? $"{message} {authFailures.Count} request(s) also returned 401 or 403, which is ordinary on a signed-out page but would also follow a session that expired mid-test."
+                    : message,
                 suggestedAction: "Compare the failure screenshot with the expected page. If the page is right but the element moved, update the locator; if the page is wrong, the failure is earlier in the journey.",
                 category: "locatorChange", confidence: 65, isDefect: false, isHealable: true);
         }
@@ -90,7 +104,7 @@ internal static class LocalFailureAnalyser
         if (lowered.Contains("matched") && lowered.Contains("elements"))
         {
             return Result(
-                summary: $"{stepDescription} matched more than one element.",
+                summary: $"{stepSentence} matched more than one element.",
                 likelyCause: "The locator is ambiguous on this page. The application may now render several controls that satisfy it.",
                 evidence: message,
                 suggestedAction: "Narrow the locator — scope it to a container, or set an explicit index — so the step targets exactly one element.",
@@ -100,7 +114,7 @@ internal static class LocalFailureAnalyser
         if (lowered.Contains("timeout") || lowered.Contains("timed out"))
         {
             return Result(
-                summary: $"{stepDescription} timed out.",
+                summary: $"{stepSentence} timed out.",
                 likelyCause: consoleErrors.Count > 0
                     ? "The page did not reach the expected state in time, and JavaScript errors were logged — the page may have failed to finish rendering."
                     : "The page did not reach the expected state within the timeout. This is usually a slow environment or a missing wait, rather than a defect.",
@@ -171,7 +185,7 @@ internal static class LocalFailureAnalyser
         if (consoleErrors.Count > 0)
         {
             return Result(
-                summary: $"{stepDescription} failed on a page that logged JavaScript errors.",
+                summary: $"{stepSentence} failed on a page that logged JavaScript errors.",
                 likelyCause: "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
                 evidence: string.Join("\n", consoleErrors.Take(5).Select(e => $"[{LocalJson.String(e, "level")}] {LocalJson.String(e, "message")}")),
                 suggestedAction: "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
@@ -180,7 +194,7 @@ internal static class LocalFailureAnalyser
 
         // Nothing matched. Say so plainly rather than inventing a cause.
         return Result(
-            summary: $"{stepDescription} failed.",
+            summary: $"{stepSentence} failed.",
             likelyCause: "The available evidence does not identify a cause. The engine error is reproduced verbatim below.",
             evidence: string.IsNullOrWhiteSpace(message) ? "No error message was recorded." : message,
             suggestedAction: "Review the failure screenshot, DOM snapshot and trace for this execution. Configure a model provider for a deeper analysis of failures like this one.",
@@ -202,4 +216,12 @@ internal static class LocalFailureAnalyser
         });
 
     private static string Truncate(string value, int max) => value.Length <= max ? value : value[..max];
+
+    /// <summary>Capitalises the first letter so an arbitrary step name can open a sentence.
+    /// Only the first character is touched: "Press login-submit" must not become
+    /// "Press Login-Submit".</summary>
+    private static string Sentence(string text)
+        => string.IsNullOrEmpty(text) || char.IsUpper(text[0])
+            ? text
+            : char.ToUpperInvariant(text[0]) + text[1..];
 }

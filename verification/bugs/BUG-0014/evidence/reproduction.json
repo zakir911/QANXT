@@ -1,0 +1,48 @@
+{
+  "bug": "BUG-0014",
+  "summary": "assertText and assertValue read the element once instead of waiting for the expected value, so any asynchronously rendered content fails.",
+  "incorrect": 0,
+  "of": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "case": "healthy",
+      "expected": "passed",
+      "status": "passed",
+      "assertionStatus": "passed",
+      "assertionMs": 35,
+      "message": null,
+      "correct": true
+    },
+    {
+      "attempt": 1,
+      "case": "slow",
+      "expected": "passed",
+      "status": "passed",
+      "assertionStatus": "passed",
+      "assertionMs": 6118,
+      "message": null,
+      "correct": true
+    },
+    {
+      "attempt": 2,
+      "case": "healthy",
+      "expected": "passed",
+      "status": "passed",
+      "assertionStatus": "passed",
+      "assertionMs": 39,
+      "message": null,
+      "correct": true
+    },
+    {
+      "attempt": 2,
+      "case": "slow",
+      "expected": "passed",
+      "status": "passed",
+      "assertionStatus": "passed",
+      "assertionMs": 6041,
+      "message": null,
+      "correct": true
+    }
+  ]
+}

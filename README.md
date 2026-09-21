@@ -58,6 +58,22 @@ build plan and its phases.
 - [Deploying with Docker](docs/deployment.md) — one compose file for the whole platform
 - [The database](docs/database.md) — schema, tenant isolation, migrations
 - [The autonomous agent](docs/agent.md) — the bounded loop, risk scoring, regression intelligence, and what the agent is not allowed to do
+- [The test lab and golden suite](docs/test-lab-plan.md) — six applications built to break, and the tests that prove the product against them
+
+## Proving it works
+
+```bash
+./scripts/verify-product        # infrastructure → lab → golden suite → reports → certification
+./scripts/run-golden-tests --all
+./scripts/run-product-demo      # the whole product in sixteen steps, recorded
+```
+
+`test-lab/` holds six real applications with hand-written ground truth and switchable faults;
+`verification/golden-tests/` holds 125 tests that drive the product against them from the
+outside. The reports land in `verification/reports/`, the evidence — hashed — in
+`verification/evidence/`, and the console renders the last run at **Verification**.
+
+The headline number is the false-healing rate, and it is never folded into a success rate.
 
 ## Principles
 

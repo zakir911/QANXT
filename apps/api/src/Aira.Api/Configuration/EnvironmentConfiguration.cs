@@ -41,7 +41,8 @@ public static class EnvironmentConfiguration
             ["RATE_LIMIT_PERMIT_PER_MINUTE"] = "Security:RateLimitPermitPerMinute",
             ["AUTH_RATE_LIMIT_PERMIT_PER_MINUTE"] = "Security:AuthRateLimitPermitPerMinute",
             ["WORKER_RATE_LIMIT_PERMIT_PER_MINUTE"] = "Security:WorkerRateLimitPermitPerMinute",
-            ["ALLOW_PRIVATE_NETWORK_TARGETS"] = "Security:AllowPrivateNetworkTargets"
+            ["ALLOW_PRIVATE_NETWORK_TARGETS"] = "Security:AllowPrivateNetworkTargets",
+            ["VERIFICATION_REPORT_DIR"] = "Verification:ReportDirectory"
         };
 
         var overrides = new Dictionary<string, string?>();

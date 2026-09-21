@@ -21,3 +21,13 @@ public sealed class SecurityOptions
     /// <summary>Shared secret a worker presents to exchange for job-scoped tokens.</summary>
     public string WorkerToken { get; set; } = string.Empty;
 }
+
+/// <summary>Where the console reads the golden test report from. The API never writes
+/// these files; it only serves what a golden run produced.</summary>
+public sealed class VerificationOptions
+{
+    /// <summary>Absolute, or relative to the API's content root. Empty means "find the
+    /// repository's verification/reports by walking up from the content root", which is
+    /// what a local development stack wants.</summary>
+    public string ReportDirectory { get; set; } = string.Empty;
+}
