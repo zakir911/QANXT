@@ -1,0 +1,256 @@
+{
+  "application": "AIRA Demo Bank",
+  "baseUrl": "http://127.0.0.1:4300",
+  "version": "1.0.0",
+  "description": "What this application contains and how it should behave, written by hand so that discovery, generation and failure classification can be scored against something that was not derived from the product's own output.",
+  "authentication": {
+    "strategy": "formLogin",
+    "loginPath": "/login",
+    "username": "alice",
+    "password": "Password123!",
+    "successPath": "/dashboard",
+    "lockAfterFailedAttempts": 3,
+    "idleTimeoutMinutes": 15
+  },
+  "pages": [
+    {
+      "path": "/login",
+      "title": "Sign in",
+      "requiresAuth": false,
+      "forms": ["login-form"],
+      "elements": ["username", "password", "remember-me", "login-submit", "forgot-password"]
+    },
+    {
+      "path": "/dashboard",
+      "title": "Dashboard",
+      "requiresAuth": true,
+      "forms": [],
+      "elements": ["total-balance", "account-card-acc-1001", "account-card-acc-1002", "account-card-acc-1003", "recent-transactions", "quick-action-payments", "quick-action-statements", "quick-action-beneficiaries"]
+    },
+    {
+      "path": "/accounts",
+      "title": "Accounts",
+      "requiresAuth": true,
+      "forms": [],
+      "elements": ["accounts-table", "account-row-acc-1001", "open-account-acc-1001"]
+    },
+    {
+      "path": "/accounts/acc-1001",
+      "title": "Account detail",
+      "requiresAuth": true,
+      "forms": [],
+      "elements": ["account-name", "account-balance", "transactions-table", "page-next", "page-previous", "page-indicator", "back-to-accounts"]
+    },
+    {
+      "path": "/transactions",
+      "title": "Transactions",
+      "requiresAuth": true,
+      "forms": ["transaction-filters"],
+      "elements": ["filter-from", "filter-to", "filter-min", "filter-max", "filter-category", "filter-search", "apply-filters", "result-count", "transactions-table"]
+    },
+    {
+      "path": "/statements",
+      "title": "Statements",
+      "requiresAuth": true,
+      "forms": ["statement-form"],
+      "elements": ["statement-account", "statement-from", "statement-to", "generate-statement"]
+    },
+    {
+      "path": "/payments",
+      "title": "Payments",
+      "requiresAuth": true,
+      "forms": ["payment-form"],
+      "elements": ["payment-from", "payment-payee", "payment-amount", "payment-date", "payment-reference", "payment-submit"]
+    },
+    {
+      "path": "/beneficiaries",
+      "title": "Beneficiaries",
+      "requiresAuth": true,
+      "forms": [],
+      "elements": ["beneficiaries-table", "add-beneficiary", "beneficiary-row-ben-01"]
+    },
+    {
+      "path": "/profile",
+      "title": "Profile",
+      "requiresAuth": true,
+      "forms": ["profile-form"],
+      "elements": ["profile-name", "profile-email", "profile-phone", "profile-save"]
+    }
+  ],
+  "navigation": [
+    { "from": "/login", "to": "/dashboard", "via": "login-submit" },
+    { "from": "/dashboard", "to": "/accounts", "via": "nav-accounts" },
+    { "from": "/dashboard", "to": "/transactions", "via": "nav-transactions" },
+    { "from": "/dashboard", "to": "/statements", "via": "nav-statements" },
+    { "from": "/dashboard", "to": "/payments", "via": "nav-payments" },
+    { "from": "/dashboard", "to": "/beneficiaries", "via": "nav-beneficiaries" },
+    { "from": "/dashboard", "to": "/profile", "via": "nav-profile" },
+    { "from": "/accounts", "to": "/accounts/acc-1001", "via": "open-account-acc-1001" },
+    { "from": "/dashboard", "to": "/login", "via": "logout" }
+  ],
+  "elements": [
+    { "testId": "username", "role": "textbox", "name": "Username", "page": "/login", "kind": "input" },
+    { "testId": "password", "role": "textbox", "name": "Password", "page": "/login", "kind": "input", "sensitive": true },
+    { "testId": "remember-me", "role": "checkbox", "name": "Remember me on this device", "page": "/login", "kind": "checkbox" },
+    { "testId": "login-submit", "role": "button", "name": "Log in", "page": "/login", "kind": "button", "drifts": true },
+    { "testId": "forgot-password", "role": "link", "name": "Forgotten your password?", "page": "/login", "kind": "link" },
+    { "testId": "total-balance", "role": "strong", "name": "Total balance", "page": "/dashboard", "kind": "text" },
+    { "testId": "account-card-acc-1001", "role": "article", "name": "Everyday Current", "page": "/dashboard", "kind": "card" },
+    { "testId": "recent-transactions", "role": "table", "name": "Recent transactions", "page": "/dashboard", "kind": "table" },
+    { "testId": "quick-action-payments", "role": "link", "name": "Make a payment", "page": "/dashboard", "kind": "link" },
+    { "testId": "accounts-table", "role": "table", "name": "Accounts", "page": "/accounts", "kind": "table" },
+    { "testId": "open-account-acc-1001", "role": "link", "name": "Open", "page": "/accounts", "kind": "link" },
+    { "testId": "account-balance", "role": "paragraph", "name": "Account balance", "page": "/accounts/acc-1001", "kind": "text" },
+    { "testId": "page-next", "role": "button", "name": "Next", "page": "/accounts/acc-1001", "kind": "button" },
+    { "testId": "filter-from", "role": "textbox", "name": "From date", "page": "/transactions", "kind": "date" },
+    { "testId": "filter-to", "role": "textbox", "name": "To date", "page": "/transactions", "kind": "date" },
+    { "testId": "filter-min", "role": "spinbutton", "name": "Minimum amount", "page": "/transactions", "kind": "number" },
+    { "testId": "filter-max", "role": "spinbutton", "name": "Maximum amount", "page": "/transactions", "kind": "number" },
+    { "testId": "filter-category", "role": "combobox", "name": "Category", "page": "/transactions", "kind": "select" },
+    { "testId": "filter-search", "role": "textbox", "name": "Search", "page": "/transactions", "kind": "input" },
+    { "testId": "apply-filters", "role": "button", "name": "Apply filters", "page": "/transactions", "kind": "button" },
+    { "testId": "statement-account", "role": "combobox", "name": "Account", "page": "/statements", "kind": "select" },
+    { "testId": "statement-from", "role": "textbox", "name": "From", "page": "/statements", "kind": "date" },
+    { "testId": "statement-to", "role": "textbox", "name": "To", "page": "/statements", "kind": "date" },
+    { "testId": "generate-statement", "role": "button", "name": "Generate statement", "page": "/statements", "kind": "button" },
+    { "testId": "download-statement", "role": "link", "name": "Download PDF", "page": "/statements", "kind": "download", "conditional": "after a statement is generated" },
+    { "testId": "payment-from", "role": "combobox", "name": "Pay from", "page": "/payments", "kind": "select" },
+    { "testId": "payment-payee", "role": "combobox", "name": "Payee", "page": "/payments", "kind": "select" },
+    { "testId": "payment-amount", "role": "textbox", "name": "Amount", "page": "/payments", "kind": "input" },
+    { "testId": "payment-date", "role": "textbox", "name": "Payment date", "page": "/payments", "kind": "date" },
+    { "testId": "payment-reference", "role": "textbox", "name": "Reference", "page": "/payments", "kind": "input" },
+    { "testId": "payment-submit", "role": "button", "name": "Send payment", "page": "/payments", "kind": "button" },
+    { "testId": "add-beneficiary", "role": "button", "name": "Add a payee", "page": "/beneficiaries", "kind": "button" },
+    { "testId": "beneficiary-modal", "role": "dialog", "name": "Add a payee", "page": "/beneficiaries", "kind": "dialog", "conditional": "after add-beneficiary is pressed" },
+    { "testId": "profile-name", "role": "textbox", "name": "Full name", "page": "/profile", "kind": "input" },
+    { "testId": "profile-email", "role": "textbox", "name": "Email address", "page": "/profile", "kind": "input" },
+    { "testId": "profile-save", "role": "button", "name": "Save changes", "page": "/profile", "kind": "button" }
+  ],
+  "workflows": [
+    {
+      "id": "WF-BANK-01",
+      "name": "Customer can sign in and view the account balance",
+      "requirement": "Customer can login and view account balance.",
+      "steps": [
+        { "action": "navigate", "target": "/login" },
+        { "action": "fill", "target": "username", "value": "alice" },
+        { "action": "fill", "target": "password", "value": "${secret:app_password}" },
+        { "action": "click", "target": "login-submit" },
+        { "action": "assertVisible", "target": "total-balance" }
+      ],
+      "expectedOutcome": "The dashboard shows a total balance equal to the sum of the account balances."
+    },
+    {
+      "id": "WF-BANK-02",
+      "name": "Customer can download an account statement",
+      "requirement": "Customer can download account statement.",
+      "steps": [
+        { "action": "click", "target": "nav-statements" },
+        { "action": "select", "target": "statement-account", "value": "acc-1001" },
+        { "action": "fill", "target": "statement-from", "value": "2026-08-01" },
+        { "action": "fill", "target": "statement-to", "value": "2026-09-15" },
+        { "action": "click", "target": "generate-statement" },
+        { "action": "assertVisible", "target": "statement-result" },
+        { "action": "click", "target": "download-statement" }
+      ],
+      "expectedOutcome": "A PDF statement is produced for the chosen account and range."
+    },
+    {
+      "id": "WF-BANK-03",
+      "name": "Customer can make a payment to a saved payee",
+      "requirement": "Customer can make a payment.",
+      "steps": [
+        { "action": "click", "target": "nav-payments" },
+        { "action": "select", "target": "payment-payee", "value": "ben-01" },
+        { "action": "fill", "target": "payment-amount", "value": "42.50" },
+        { "action": "click", "target": "payment-submit" },
+        { "action": "assertVisible", "target": "payment-confirmation" }
+      ],
+      "expectedOutcome": "The payment is confirmed with a confirmation number and appears in the payment list."
+    },
+    {
+      "id": "WF-BANK-04",
+      "name": "Customer is told when a payment amount is invalid",
+      "requirement": "Customer receives validation when payment amount is invalid.",
+      "steps": [
+        { "action": "click", "target": "nav-payments" },
+        { "action": "fill", "target": "payment-amount", "value": "-5" },
+        { "action": "click", "target": "payment-submit" },
+        { "action": "assertText", "target": "payment-error-amount", "expected": "Enter an amount greater than zero." }
+      ],
+      "expectedOutcome": "The payment is refused and the amount field carries the reason."
+    },
+    {
+      "id": "WF-BANK-05",
+      "name": "Customer cannot sign in with the wrong password",
+      "requirement": "Customer cannot login with invalid credentials.",
+      "steps": [
+        { "action": "navigate", "target": "/login" },
+        { "action": "fill", "target": "username", "value": "alice" },
+        { "action": "fill", "target": "password", "value": "wrong-password" },
+        { "action": "click", "target": "login-submit" },
+        { "action": "assertText", "target": "login-error", "expected": "That username and password do not match." }
+      ],
+      "expectedOutcome": "Sign-in is refused and the browser stays on the sign-in page."
+    },
+    {
+      "id": "WF-BANK-06",
+      "name": "Customer can filter transactions by category and amount",
+      "requirement": "Customer can search transactions by category and amount.",
+      "steps": [
+        { "action": "click", "target": "nav-transactions" },
+        { "action": "select", "target": "filter-category", "value": "Salary" },
+        { "action": "fill", "target": "filter-min", "value": "100" },
+        { "action": "click", "target": "apply-filters" },
+        { "action": "assertVisible", "target": "result-count" }
+      ],
+      "expectedOutcome": "Only salary transactions of at least £100 are listed."
+    }
+  ],
+  "expectedApiCalls": [
+    { "method": "POST", "path": "/api/session", "purpose": "sign in" },
+    { "method": "GET", "path": "/api/session", "purpose": "restore the session" },
+    { "method": "DELETE", "path": "/api/session", "purpose": "sign out" },
+    { "method": "GET", "path": "/api/dashboard", "purpose": "dashboard summary" },
+    { "method": "GET", "path": "/api/accounts", "purpose": "account list" },
+    { "method": "GET", "path": "/api/accounts/{id}", "purpose": "one account" },
+    { "method": "GET", "path": "/api/accounts/{id}/transactions", "purpose": "account history" },
+    { "method": "GET", "path": "/api/transactions", "purpose": "transaction search" },
+    { "method": "GET", "path": "/api/beneficiaries", "purpose": "payee list" },
+    { "method": "POST", "path": "/api/beneficiaries", "purpose": "add a payee" },
+    { "method": "GET", "path": "/api/payments", "purpose": "payments made" },
+    { "method": "POST", "path": "/api/payments", "purpose": "make a payment" },
+    { "method": "POST", "path": "/api/statements", "purpose": "generate a statement" },
+    { "method": "GET", "path": "/api/statements/{id}/download", "purpose": "download a statement" },
+    { "method": "GET", "path": "/api/profile", "purpose": "read the profile" },
+    { "method": "PUT", "path": "/api/profile", "purpose": "update the profile" }
+  ],
+  "knownFaults": [
+    { "id": "FAULT_LOGIN_BUTTON_RENAMED", "affects": ["/login"], "healable": true, "expectedCandidate": { "role": "button", "name": "Sign In" } },
+    { "id": "FAULT_LOGIN_BUTTON_REMOVED", "affects": ["/login"], "healable": false },
+    { "id": "FAULT_API_500", "affects": ["/login"], "healable": false },
+    { "id": "FAULT_API_TIMEOUT", "affects": ["/login"], "healable": false },
+    { "id": "FAULT_NETWORK_ERROR", "affects": ["/login", "/payments"], "healable": false },
+    { "id": "FAULT_WRONG_BALANCE", "affects": ["/dashboard"], "healable": false },
+    { "id": "FAULT_STATEMENT_FAILURE", "affects": ["/statements"], "healable": false },
+    { "id": "FAULT_INVALID_VALIDATION", "affects": ["/login", "/payments"], "healable": false },
+    { "id": "FAULT_DYNAMIC_LOCATOR", "affects": ["*"], "healable": true },
+    { "id": "FAULT_SLOW_ELEMENT", "affects": ["/dashboard"], "healable": false },
+    { "id": "FAULT_JS_ERROR", "affects": ["*"], "healable": false },
+    { "id": "FAULT_SESSION_TIMEOUT", "affects": ["*"], "healable": false },
+    { "id": "FAULT_PAYMENT_SILENT_FAILURE", "affects": ["/payments"], "healable": false },
+    { "id": "FAULT_EMPTY_TRANSACTIONS", "affects": ["/transactions", "/dashboard"], "healable": false }
+  ],
+  "expectedFailures": [
+    { "fault": "FAULT_LOGIN_BUTTON_REMOVED", "classification": "elementNotFound", "mustNotHeal": true, "reason": "No control on the page performs the same function." },
+    { "fault": "FAULT_API_500", "classification": "applicationError", "mustNotHeal": true, "reason": "The failure is in the server, not the locator." },
+    { "fault": "FAULT_API_TIMEOUT", "classification": "timeout", "mustNotHeal": true },
+    { "fault": "FAULT_NETWORK_ERROR", "classification": "networkError", "mustNotHeal": true },
+    { "fault": "FAULT_WRONG_BALANCE", "classification": "assertionFailed", "mustNotHeal": true, "reason": "The element was found; its value is wrong." },
+    { "fault": "FAULT_STATEMENT_FAILURE", "classification": "applicationError", "mustNotHeal": true },
+    { "fault": "FAULT_JS_ERROR", "classification": "javascriptError", "mustNotHeal": true },
+    { "fault": "FAULT_SESSION_TIMEOUT", "classification": "authenticationFailure", "mustNotHeal": true },
+    { "fault": "FAULT_PAYMENT_SILENT_FAILURE", "classification": "assertionFailed", "mustNotHeal": true, "reason": "The confirmation is shown but the payment list stays empty." },
+    { "fault": "FAULT_LOGIN_BUTTON_RENAMED", "classification": "elementNotFound", "mustNotHeal": false, "reason": "The same control exists under a new name; healing is the correct outcome." }
+  ]
+}

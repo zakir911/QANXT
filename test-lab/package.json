@@ -1,0 +1,23 @@
+{
+  "name": "@aira/test-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The QA test lab: real applications with known behaviour and controlled faults, used to prove what AIRA can do",
+  "scripts": {
+    "build": "vite build --config banking-app/vite.config.js",
+    "start": "bash scripts/lab-ctl.sh start",
+    "stop": "bash scripts/lab-ctl.sh stop",
+    "test": "node scripts/lab-selftest.mjs"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11",
+    "playwright": "1.56.0"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0"
+  }
+}
