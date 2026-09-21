@@ -1,0 +1,74 @@
+{
+  "bug": "BUG-0007",
+  "summary": "Discovery cannot sign in to a single-page application: the platform posts the correct credentials and then reports that they are probably wrong, because it checks the outcome before the asynchronous sign-in has completed.",
+  "reproducedIn": 0,
+  "of": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "durationMs": 15140,
+      "discoveryStatus": "completed",
+      "errorMessage": null,
+      "pagesDiscovered": 10,
+      "elementsDiscovered": 252,
+      "apiEndpointsDiscovered": [
+        "GET http://localhost:4300/api/session",
+        "GET http://localhost:4300/api/accounts",
+        "GET http://localhost:4300/api/dashboard",
+        "GET http://localhost:4300/api/beneficiaries",
+        "GET http://localhost:4300/api/accounts/acc-1002/transactions?page={v}&pageSize={v}",
+        "GET http://localhost:4300/api/accounts/acc-1003",
+        "GET http://localhost:4300/api/accounts/acc-1003/transactions?page={v}&pageSize={v}",
+        "GET http://localhost:4300/api/accounts/acc-1002",
+        "GET http://localhost:4300/api/accounts/acc-1001/transactions?page={v}&pageSize={v}",
+        "GET http://localhost:4300/api/payments",
+        "GET http://localhost:4300/api/profile",
+        "GET http://localhost:4300/api/accounts/acc-1001",
+        "GET http://localhost:4300/api/transactions?page={v}&pageSize={v}",
+        "POST http://localhost:4300/api/session"
+      ],
+      "signInAttemptsSeenByTheBank": [
+        {
+          "at": "2026-09-21T03:17:23.721Z",
+          "username": "alice",
+          "passwordLength": 12,
+          "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/141.0.7390.37 Safari/537.36"
+        }
+      ],
+      "completedAt": "2026-09-21T03:17:31.343+00:00"
+    },
+    {
+      "attempt": 2,
+      "durationMs": 15109,
+      "discoveryStatus": "completed",
+      "errorMessage": null,
+      "pagesDiscovered": 10,
+      "elementsDiscovered": 252,
+      "apiEndpointsDiscovered": [
+        "GET http://localhost:4300/api/session",
+        "GET http://localhost:4300/api/accounts",
+        "GET http://localhost:4300/api/dashboard",
+        "GET http://localhost:4300/api/beneficiaries",
+        "GET http://localhost:4300/api/accounts/acc-1002/transactions?page={v}&pageSize={v}",
+        "GET http://localhost:4300/api/accounts/acc-1003",
+        "GET http://localhost:4300/api/accounts/acc-1003/transactions?page={v}&pageSize={v}",
+        "GET http://localhost:4300/api/accounts/acc-1002",
+        "GET http://localhost:4300/api/accounts/acc-1001/transactions?page={v}&pageSize={v}",
+        "GET http://localhost:4300/api/payments",
+        "GET http://localhost:4300/api/profile",
+        "GET http://localhost:4300/api/accounts/acc-1001",
+        "GET http://localhost:4300/api/transactions?page={v}&pageSize={v}",
+        "POST http://localhost:4300/api/session"
+      ],
+      "signInAttemptsSeenByTheBank": [
+        {
+          "at": "2026-09-21T03:17:39.018Z",
+          "username": "alice",
+          "passwordLength": 12,
+          "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/141.0.7390.37 Safari/537.36"
+        }
+      ],
+      "completedAt": "2026-09-21T03:17:46.508+00:00"
+    }
+  ]
+}

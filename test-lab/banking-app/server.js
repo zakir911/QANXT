@@ -46,6 +46,16 @@ const app = createLabApp({
 // Mutable state that a payment writes to, so the application has consequences a test can
 // observe. Reset with POST /__faults/reset, which every suite calls before it starts.
 let payments = [];
+
+/**
+ * The last few sign-in attempts, with the password length rather than the password.
+ *
+ * A verification run needs to be able to answer "did the platform actually try to sign in,
+ * and with what?" without guessing from the outside. Recording the length and a hash-free
+ * prefix is enough to tell an empty field from a wrong password, and never stores a
+ * credential in readable form.
+ */
+let signInAttempts = [];
 let profileEdits = new Map();
 let beneficiaries = [...BENEFICIARIES];
 
@@ -135,6 +145,13 @@ app.post('/api/session', async (ctx) => {
   }
 
   const { username, password } = await ctx.body();
+  signInAttempts = [{
+    at: new Date().toISOString(),
+    username: username ?? null,
+    passwordLength: typeof password === 'string' ? password.length : 0,
+    userAgent: ctx.req.headers['user-agent'] ?? null
+  }, ...signInAttempts].slice(0, 20);
+
   if (!username || !password) {
     return ctx.json(400, { error: 'validation', message: 'Username and password are both required.' });
   }
@@ -379,8 +396,12 @@ app.put('/api/profile', authenticated(async (ctx) => {
 // ---------------------------------------------------------------------------
 
 /** Puts mutable state back where every suite expects to find it. */
+/** What the application has been asked to sign in as, most recent first. */
+app.get('/__attempts', ctx => ctx.json(200, { attempts: signInAttempts }));
+
 app.post('/__reset', (ctx) => {
   payments = [];
+  signInAttempts = [];
   profileEdits = new Map();
   beneficiaries = [...BENEFICIARIES];
   faults.reset();

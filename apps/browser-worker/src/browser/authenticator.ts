@@ -87,6 +87,16 @@ async function performFormLogin(page: Page, auth: AuthConfig, options: LoginOpti
 
   await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => undefined);
 
+  // Neither wait above observes a single-page application signing in.
+  //
+  // `domcontentloaded` resolves at once because no navigation is coming, and
+  // `waitForLoadState('networkidle')` resolves at once too: Playwright returns as soon as
+  // the page is *currently* idle, and it is — the click's fetch has not been issued yet.
+  // Verifying here would judge the attempt while the request is still in flight, which is
+  // exactly what BUG-0007 was: correct credentials posted, then reported as wrong five
+  // milliseconds before the application answered.
+  await waitForSignInOutcome(page, auth, options);
+
   // Verify rather than assume. A login form that re-renders with an error message is the
   // most common cause of a "successful" run that maps nothing but the login page.
   if (auth.successLocator) {
@@ -105,6 +115,51 @@ async function performFormLogin(page: Page, auth: AuthConfig, options: LoginOpti
   }
 
   return { succeeded: true, message: 'Signed in.', actionsUsed: actions };
+}
+
+/**
+ * Waits for the sign-in to finish, whichever way this application finishes it.
+ *
+ * Returns as soon as the outcome is knowable rather than sleeping for a fixed time: a
+ * server-rendered application navigates, a single-page application swaps the view, and
+ * either may instead render an error. Waiting for a *failure* signal as well as a success
+ * one is what keeps a genuinely wrong password fast — and still a failure.
+ */
+async function waitForSignInOutcome(page: Page, auth: AuthConfig, options: LoginOptions): Promise<void> {
+  const deadline = Date.now() + options.actionTimeoutMs;
+
+  while (Date.now() < deadline) {
+    if (page.isClosed()) return;
+
+    try {
+      if (auth.successLocator) {
+        if (await buildLocator(page, auth.successLocator).first().isVisible().catch(() => false)) return;
+      }
+      if (auth.successUrlContains && page.url().includes(auth.successUrlContains)) return;
+
+      const leftTheLoginPage = auth.loginUrl !== undefined && !page.url().startsWith(auth.loginUrl);
+      if (leftTheLoginPage) return;
+
+      // The password field going away is what a client-rendered application does instead
+      // of navigating.
+      if (!await hasVisiblePasswordField(page)) return;
+
+      // An error the application has already rendered means the answer has arrived and it
+      // is "no". Waiting out the rest of the timeout would only slow the report down.
+      if (await hasVisibleError(page)) return;
+    } catch {
+      // A navigation can tear down the execution context mid-check; the next iteration
+      // asks again rather than treating that as an answer.
+    }
+
+    await page.waitForTimeout(100);
+  }
+}
+
+/** An alert or an error region the application rendered in response to the attempt. */
+async function hasVisibleError(page: Page): Promise<boolean> {
+  return page.locator('[role="alert"]:visible, [data-testid*="error"]:visible, .error:visible')
+    .count().then(count => count > 0).catch(() => false);
 }
 
 async function hasVisiblePasswordField(page: Page): Promise<boolean> {
