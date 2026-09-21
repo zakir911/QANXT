@@ -80,6 +80,12 @@ export class Crawler {
     try {
       let authenticated = false;
       if (this.options.auth.strategy !== 'none') {
+        // Map the sign-in page before signing in. Afterwards the application redirects a
+        // signed-in visitor away from it, so this is the only moment it can be captured —
+        // and a model with no sign-in screen cannot produce a sign-in test, which is the
+        // one test almost every application needs (BUG-0008).
+        await this.captureLoginPage(page);
+
         const login = await this.authenticate(page);
         authenticated = login.succeeded;
         if (!login.succeeded) {
@@ -173,6 +179,37 @@ export class Crawler {
       errorMessage,
       progressLog: this.progressLog.join('\n')
     };
+  }
+
+  /**
+   * Visits and records the login page, unauthenticated.
+   *
+   * Failing here must not fail the run: the page is worth having, but it is not worth
+   * losing a whole crawl over, and the sign-in that follows is the part that matters.
+   */
+  private async captureLoginPage(page: Page): Promise<void> {
+    const loginUrl = this.options.auth.loginUrl;
+    if (!loginUrl) return;
+
+    const guard = isUrlAllowed(loginUrl, {
+      allowedHosts: this.options.budget.allowedHosts,
+      excludedPathPrefixes: this.options.budget.excludedPathPrefixes,
+      allowPrivateNetworks: this.options.budget.allowPrivateNetworks
+    });
+    if (!guard.allowed) {
+      this.note(`Did not map the sign-in page: ${guard.reason}`);
+      return;
+    }
+
+    try {
+      const normalized = normalizeUrl(loginUrl);
+      this.visited.add(normalized);
+      this.routeShapeCounts.set(routeShapeOf(loginUrl), 1);
+      const captured = await this.visit(page, { url: loginUrl, depth: 0 }, false);
+      if (captured) this.note(`Mapped the sign-in page before signing in (${captured.elements.length} elements).`);
+    } catch (error) {
+      this.note(`Could not map the sign-in page: ${this.masker.maskText(String(error))}`);
+    }
   }
 
   private async authenticate(page: Page): Promise<LoginResult> {

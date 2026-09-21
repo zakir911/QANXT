@@ -1,0 +1,32 @@
+{
+  "testId": "DISC-014",
+  "suite": "Discovery",
+  "runId": "2026-09-21T03-21-17Z",
+  "objective": "Discovery captures a screenshot of each page it maps",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "The hasScreenshot flag on every discovered page",
+  "expected": "Every discovered page has a screenshot artifact",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "10/10 page(s) have a screenshot",
+  "metrics": null,
+  "startedAt": "2026-09-21T03:21:33.323Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fc9a034",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "screenshots.json",
+      "path": "evidence/DISC-014/2026-09-21T03-21-17Z/screenshots.json",
+      "bytes": 650,
+      "sha256": "94ee117184fe71899c61d045cbba725b4fc81b2fee8fd285274ff42111ff43be"
+    }
+  ]
+}

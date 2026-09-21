@@ -1,0 +1,36 @@
+{
+  "testId": "DISC-007",
+  "suite": "Discovery",
+  "runId": "2026-09-21T03-21-17Z",
+  "objective": "Discovery finds the application's buttons",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "Ground-truth buttons on the discovered pages",
+  "expected": "Every declared button appears in the model",
+  "severity": "high",
+  "result": "FAIL",
+  "detail": "4/5 found; 23 element(s) classified as button; missing login-submit",
+  "metrics": {
+    "expected": 5,
+    "found": 4,
+    "ofKind": 23
+  },
+  "startedAt": "2026-09-21T03:21:33.316Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fc9a034",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DISC-007-elements.json",
+      "path": "evidence/DISC-007/2026-09-21T03-21-17Z/DISC-007-elements.json",
+      "bytes": 11379,
+      "sha256": "0c6ee7a133e5a87e8c911d67c3f28317a2d4f17d76831c1fb8aad356d69118d5"
+    }
+  ]
+}

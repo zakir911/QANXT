@@ -1,0 +1,35 @@
+{
+  "testId": "DISC-011",
+  "suite": "Discovery",
+  "runId": "2026-09-21T03-24-30Z",
+  "objective": "The application's own API calls are observed while the UI is driven",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "Ground-truth expectedApiCalls against the discovered endpoint list",
+  "expected": "Recall over the endpoints reachable by browsing is at least 0.6, including the sign-in POST",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "recall 83% of 12 browsable endpoint(s); sign-in POST observed: true; missing DELETE /api/session, GET /api/statements/:id/download",
+  "metrics": {
+    "apiRecall": 0.8333,
+    "observed": 14
+  },
+  "startedAt": "2026-09-21T03:24:46.254Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "fc9a034",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "api-score.json",
+      "path": "evidence/DISC-011/2026-09-21T03-24-30Z/api-score.json",
+      "bytes": 998,
+      "sha256": "fb97d4390d74bc93a05aeffddfeca3753b39a2c28eb750b9502b2e5a5eb61b05"
+    }
+  ]
+}

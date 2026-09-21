@@ -1,0 +1,60 @@
+{
+  "bug": "BUG-0008",
+  "summary": "Discovery signs in before crawling and never records the sign-in page, so the application model has no login page and no sign-in fields.",
+  "reproducedIn": 0,
+  "of": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "discoveryStatus": "completed",
+      "pagesDiscovered": 11,
+      "routes": [
+        "/login",
+        "/accounts",
+        "/accounts/acc-1001",
+        "/accounts/acc-1002",
+        "/accounts/acc-1003",
+        "/beneficiaries",
+        "/dashboard",
+        "/payments",
+        "/profile",
+        "/statements",
+        "/transactions"
+      ],
+      "loginPageDiscovered": true,
+      "signInElements": {
+        "username": true,
+        "password": true,
+        "loginSubmit": true,
+        "rememberMe": true,
+        "forgotPassword": true
+      }
+    },
+    {
+      "attempt": 2,
+      "discoveryStatus": "completed",
+      "pagesDiscovered": 11,
+      "routes": [
+        "/login",
+        "/accounts",
+        "/accounts/acc-1001",
+        "/accounts/acc-1002",
+        "/accounts/acc-1003",
+        "/beneficiaries",
+        "/dashboard",
+        "/payments",
+        "/profile",
+        "/statements",
+        "/transactions"
+      ],
+      "loginPageDiscovered": true,
+      "signInElements": {
+        "username": true,
+        "password": true,
+        "loginSubmit": true,
+        "rememberMe": true,
+        "forgotPassword": true
+      }
+    }
+  ]
+}

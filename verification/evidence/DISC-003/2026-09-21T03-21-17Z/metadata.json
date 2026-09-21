@@ -1,0 +1,35 @@
+{
+  "testId": "DISC-003",
+  "suite": "Discovery",
+  "runId": "2026-09-21T03-21-17Z",
+  "objective": "Nothing is discovered that the application does not have",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "The discovered page list against the hand-written ground truth",
+  "expected": "Precision is 1.0 — every discovered route exists in the application",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "precision 100.0%",
+  "metrics": {
+    "precision": 1,
+    "extra": 0
+  },
+  "startedAt": "2026-09-21T03:21:33.313Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fc9a034",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "page-precision.json",
+      "path": "evidence/DISC-003/2026-09-21T03-21-17Z/page-precision.json",
+      "bytes": 234,
+      "sha256": "35dd4ef7fd19fbc175d483f0830daf0de36a532faf1bac13b142ad78ede8046d"
+    }
+  ]
+}

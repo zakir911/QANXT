@@ -1,0 +1,34 @@
+{
+  "expectedRoutes": [
+    "/login",
+    "/dashboard",
+    "/accounts",
+    "/accounts/:id",
+    "/transactions",
+    "/statements",
+    "/payments",
+    "/beneficiaries",
+    "/profile"
+  ],
+  "actualRoutes": [
+    "/accounts",
+    "/accounts/:id",
+    "/accounts/:id",
+    "/accounts/:id",
+    "/beneficiaries",
+    "/dashboard",
+    "/payments",
+    "/profile",
+    "/statements",
+    "/transactions"
+  ],
+  "expected": 9,
+  "actual": 8,
+  "found": 8,
+  "missing": [
+    "/login"
+  ],
+  "extra": [],
+  "recall": 0.8889,
+  "precision": 1
+}
