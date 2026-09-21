@@ -1,0 +1,36 @@
+{
+  "testId": "GEN-011",
+  "suite": "AI test generation",
+  "runId": "2026-09-21T07-28-52Z",
+  "objective": "A generated test fails when the application it covers is broken",
+  "preconditions": [
+    "the same generated cases as GEN-010",
+    "the balance is made wrong and transactions emptied"
+  ],
+  "input": "The same unedited generated tests, re-run with faults enabled",
+  "expected": "At least one of them fails — a test that cannot fail is not a test",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "2/5 generated test(s) failed once the application was broken (all 5 passed when it was healthy): TC-0001 failed, TC-0002 failed, TC-0003 passed, TC-0004 passed, TC-0005 passed",
+  "metrics": {
+    "executed": 5,
+    "failedUnderFault": 2
+  },
+  "startedAt": "2026-09-21T07:29:28.162Z",
+  "durationMs": 56382,
+  "build": {
+    "commit": "6d5d914",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "generated-under-fault.json",
+      "path": "evidence/GEN-011/2026-09-21T07-28-52Z/generated-under-fault.json",
+      "bytes": 1547,
+      "sha256": "00b1f012d3346dc54fdfba537ebe3cb37d9370627d237ef428a84a0c3fdc3cb5"
+    }
+  ]
+}

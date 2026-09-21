@@ -1,0 +1,38 @@
+{
+  "testId": "GEN-012",
+  "suite": "AI test generation",
+  "runId": "2026-09-21T07-28-52Z",
+  "objective": "Generation reaches across the application rather than testing one page repeatedly",
+  "preconditions": [
+    "the five suites above were generated"
+  ],
+  "input": "One generation with no scenario budget, in a project of its own",
+  "expected": "Generated tests touch at least half of the discovered pages",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "8/9 distinct page(s) appear in a generated step (89%), across 11 generated case(s); 10/11 before collapsing repeated routes; 11 case(s) from one unbudgeted generation",
+  "metrics": {
+    "discovered": 9,
+    "covered": 8,
+    "coverage": 0.8889,
+    "rawDiscovered": 11,
+    "rawCovered": 10
+  },
+  "startedAt": "2026-09-21T07:30:24.545Z",
+  "durationMs": 15358,
+  "build": {
+    "commit": "6d5d914",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "generation-coverage.json",
+      "path": "evidence/GEN-012/2026-09-21T07-28-52Z/generation-coverage.json",
+      "bytes": 1402,
+      "sha256": "00f34ec95d9e164dfe73cd33bc8a2a71a666b650fd7f9c3709b2090f0c6d655e"
+    }
+  ]
+}

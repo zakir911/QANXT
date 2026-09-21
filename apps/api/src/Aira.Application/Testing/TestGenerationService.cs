@@ -81,7 +81,7 @@ public sealed class TestGenerationService : ITestGenerationService
                 "This application has no discovered pages yet. Run discovery before generating tests.");
         }
 
-        var context = BuildContext(application.BaseUrl, request.Requirement, pages, request.MaxScenarios ?? 20);
+        var context = BuildContext(application.BaseUrl, request.Requirement, pages, request.MaxScenarios ?? DefaultScenarioBudget);
 
         var result = await _ai.ExecuteAsync<GeneratedTestPlan>(new AiCallOptions
         {
@@ -100,15 +100,36 @@ public sealed class TestGenerationService : ITestGenerationService
             return Error.Dependency("ai_generation_failed", result.Error ?? "Test generation failed.");
 
         var suite = await ResolveSuiteAsync(request, project.Id, application.Name, ct);
-        var persisted = await PersistAsync(result.Value, suite, project, application.Id, result.AiRequestId,
+
+        // The budget is enforced here rather than only asked for in the prompt. The
+        // built-in rules planner generates one scenario per page and ignores it, and a
+        // hosted model is under no obligation to obey it either — so a caller who asked
+        // for two test cases was getting eleven (BUG-0011).
+        var plan = result.Value;
+        var budget = request.MaxScenarios ?? DefaultScenarioBudget;
+        var truncated = 0;
+        if (budget > 0 && plan.Scenarios.Count > budget)
+        {
+            truncated = plan.Scenarios.Count - budget;
+            plan = plan with { Scenarios = plan.Scenarios.Take(budget).ToList() };
+        }
+
+        var persisted = await PersistAsync(plan, suite, project, application.Id, result.AiRequestId,
             request.Requirement, ct);
+
+        if (truncated > 0)
+        {
+            persisted.Warnings.Add(
+                $"The plan proposed {truncated + budget} scenarios; {truncated} were dropped to stay "
+                + $"within the requested limit of {budget}.");
+        }
 
         await _audit.LogAsync(AuditAction.AiGeneration, nameof(TestSuite), suite.Id,
             $"Generated {persisted.Cases} test case(s) for '{application.Name}' using {result.Provider}/{result.Model}.",
             projectId: project.Id, ct: ct);
 
         return Result<GeneratedTestSummary>.Success(new GeneratedTestSummary(
-            suite.Id, suite.Name, persisted.Cases, persisted.Steps, result.Value.Summary,
+            suite.Id, suite.Name, persisted.Cases, persisted.Steps, plan.Summary,
             result.Provider, result.Model, result.IsLocalProvider, result.AiRequestId,
             result.Usage?.PromptTokens ?? 0, result.Usage?.CompletionTokens ?? 0,
             result.EstimatedCostUsd, persisted.Warnings));
@@ -187,6 +208,9 @@ public sealed class TestGenerationService : ITestGenerationService
                 .ToList()))
             .ToList();
     }
+
+    /// <summary>The ceiling when a caller does not ask for one.</summary>
+    private const int DefaultScenarioBudget = 20;
 
     private static object BuildContext(string baseUrl, string? requirement, List<PageContext> pages, int maxScenarios)
         => new { baseUrl, requirement, maxScenarios, pages };

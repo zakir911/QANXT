@@ -1,0 +1,36 @@
+{
+  "testId": "GEN-012",
+  "suite": "AI test generation",
+  "runId": "2026-09-21T07-25-09Z",
+  "objective": "Generation reaches across the application rather than testing one page repeatedly",
+  "preconditions": [
+    "the five suites above were generated"
+  ],
+  "input": "The pages targeted by every generated step, against the discovered page list",
+  "expected": "Generated tests touch at least half of the discovered pages",
+  "severity": "medium",
+  "result": "FAIL",
+  "detail": "5/11 discovered page(s) appear in a generated step (45%), across 25 generated case(s) for this application",
+  "metrics": {
+    "discovered": 11,
+    "covered": 5,
+    "coverage": 0.4545
+  },
+  "startedAt": "2026-09-21T07:25:57.673Z",
+  "durationMs": 233,
+  "build": {
+    "commit": "6d5d914",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "generation-coverage.json",
+      "path": "evidence/GEN-012/2026-09-21T07-25-09Z/generation-coverage.json",
+      "bytes": 519,
+      "sha256": "0b5db38535958db6d3a27259d668e58d3eb0bc609066f7d3e8a8832f37ace2e5"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "bug": "BUG-0011",
+  "summary": "maxScenarios is passed to the generator as context and never enforced, so the number of test cases created bears no relation to the budget the caller asked for.",
+  "overBudget": 0,
+  "of": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "asked": 2,
+      "created": 1,
+      "withinBudget": true,
+      "warnings": [
+        "Scenario 'View AIRA Demo Bank' was dropped: it asserts nothing, so it could not fail meaningfully.",
+        "The plan proposed 11 scenarios; 9 were dropped to stay within the requested limit of 2."
+      ]
+    },
+    {
+      "attempt": 2,
+      "asked": 3,
+      "created": 2,
+      "withinBudget": true,
+      "warnings": [
+        "Scenario 'View AIRA Demo Bank' was dropped: it asserts nothing, so it could not fail meaningfully.",
+        "The plan proposed 11 scenarios; 8 were dropped to stay within the requested limit of 3."
+      ]
+    }
+  ]
+}

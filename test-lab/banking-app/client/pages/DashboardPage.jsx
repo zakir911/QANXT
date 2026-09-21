@@ -28,6 +28,10 @@ export function DashboardPage() {
     <section>
       <h1 {...testId('page-title')}>Dashboard</h1>
 
+      {data.notice && (
+        <p className="notice" data-testid="application-notice">{data.notice}</p>
+      )}
+
       <div className="summary">
         <span className="summary-label">Total balance</span>
         {slowReady

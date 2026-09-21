@@ -1,0 +1,459 @@
+{
+  "requirement": "Customer cannot login with invalid credentials.",
+  "plan": {
+    "testSuiteId": "b0360daf-2481-4171-b6c9-e43866e1a5f6",
+    "testSuiteName": "Suite for GEN-005",
+    "casesCreated": 11,
+    "stepsCreated": 27,
+    "planSummary": "Generated 11 scenarios covering \"Customer cannot login with invalid credentials.\" from 11 discovered pages using AIRA's built-in rules (no model provider configured).",
+    "provider": "local",
+    "model": "aira-rules-v1",
+    "isLocalProvider": true,
+    "aiRequestId": "e37b2259-8f2a-4b30-9959-9cddd64f0b21",
+    "promptTokens": 0,
+    "completionTokens": 0,
+    "estimatedCostUsd": 0,
+    "warnings": []
+  },
+  "cases": [
+    {
+      "reference": "TC-0045",
+      "name": "AIRA Demo Bank loads",
+      "objective": "AIRA Demo Bank loads without error for a signed-in customer.",
+      "preconditions": "The customer is signed in.",
+      "expectedResults": "The page loads and displays its expected content.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm AIRA Demo Bank rendered",
+          "target": {
+            "strategy": "testId",
+            "value": "nav-payments",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0046",
+      "name": "View AIRA Demo Bank",
+      "objective": "AIRA Demo Bank loads and displays its records.",
+      "preconditions": "The customer is signed in and has data to display.",
+      "expectedResults": "The page loads and the records are visible.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm the records are listed",
+          "target": {
+            "strategy": "testId",
+            "value": "transactions-table",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0047",
+      "name": "Reject an invalid filter range on AIRA Demo Bank",
+      "objective": "An impossible filter range is refused rather than silently returning nothing.",
+      "preconditions": "The customer is signed in.",
+      "expectedResults": "A validation message explains that the range is invalid.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "fill",
+          "description": "Enter a start date after the end date",
+          "target": {
+            "strategy": "testId",
+            "value": "filter-from",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "2030-12-31",
+          "assertions": []
+        },
+        {
+          "order": 3,
+          "action": "fill",
+          "description": "Enter an end date before the start date",
+          "target": {
+            "strategy": "testId",
+            "value": "filter-to",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "2020-01-01",
+          "assertions": []
+        },
+        {
+          "order": 4,
+          "action": "click",
+          "description": "Apply the filter",
+          "target": {
+            "strategy": "testId",
+            "value": "filter-max",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 5,
+          "action": "assertVisible",
+          "description": "Confirm the invalid range is reported",
+          "target": {
+            "strategy": "testId",
+            "value": "filter-max",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0048",
+      "name": "View AIRA Demo Bank",
+      "objective": "AIRA Demo Bank loads and displays its records.",
+      "preconditions": "The customer is signed in and has data to display.",
+      "expectedResults": "The page loads and the records are visible.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm the records are listed",
+          "target": {
+            "strategy": "testId",
+            "value": "transactions-table",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0049",
+      "name": "View AIRA Demo Bank",
+      "objective": "AIRA Demo Bank loads and displays its records.",
+      "preconditions": "The customer is signed in and has data to display.",
+      "expectedResults": "The page loads and the records are visible.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm the records are listed",
+          "target": {
+            "strategy": "testId",
+            "value": "transactions-table",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0050",
+      "name": "View AIRA Demo Bank",
+      "objective": "AIRA Demo Bank loads and displays its records.",
+      "preconditions": "The customer is signed in and has data to display.",
+      "expectedResults": "The page loads and the records are visible.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm the records are listed",
+          "target": {
+            "strategy": "testId",
+            "value": "transactions-table",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0051",
+      "name": "Submit AIRA Demo Bank with valid values",
+      "objective": "The AIRA Demo Bank form accepts a valid submission.",
+      "preconditions": "The customer is signed in.",
+      "expectedResults": "The form is accepted and the application confirms the outcome.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "click",
+          "description": "Submit the form",
+          "target": {
+            "strategy": "testId",
+            "value": "payment-submit",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 3,
+          "action": "assertVisible",
+          "description": "Confirm the form was submitted",
+          "target": {
+            "strategy": "testId",
+            "value": "payment-submit",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0052",
+      "name": "View AIRA Demo Bank",
+      "objective": "AIRA Demo Bank loads and displays its records.",
+      "preconditions": "The customer is signed in and has data to display.",
+      "expectedResults": "The page loads and the records are visible.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm the records are listed",
+          "target": {
+            "strategy": "testId",
+            "value": "accounts-table",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0053",
+      "name": "View AIRA Demo Bank",
+      "objective": "AIRA Demo Bank loads and displays its records.",
+      "preconditions": "The customer is signed in and has data to display.",
+      "expectedResults": "The page loads and the records are visible.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm the records are listed",
+          "target": {
+            "strategy": "testId",
+            "value": "beneficiaries-table",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0054",
+      "name": "AIRA Demo Bank loads",
+      "objective": "AIRA Demo Bank loads without error for a signed-in customer.",
+      "preconditions": "The customer is signed in.",
+      "expectedResults": "The page loads and displays its expected content.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "assertVisible",
+          "description": "Confirm AIRA Demo Bank rendered",
+          "target": {
+            "strategy": "testId",
+            "value": "logout",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "TC-0055",
+      "name": "Submit AIRA Demo Bank with valid values",
+      "objective": "The AIRA Demo Bank form accepts a valid submission.",
+      "preconditions": "The customer is signed in.",
+      "expectedResults": "The form is accepted and the application confirms the outcome.",
+      "steps": [
+        {
+          "order": 1,
+          "action": "navigate",
+          "description": "Open AIRA Demo Bank",
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 2,
+          "action": "click",
+          "description": "Submit the form",
+          "target": {
+            "strategy": "testId",
+            "value": "logout",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": []
+        },
+        {
+          "order": 3,
+          "action": "assertVisible",
+          "description": "Confirm the form was submitted",
+          "target": {
+            "strategy": "testId",
+            "value": "logout",
+            "exact": false,
+            "fallbacks": []
+          },
+          "value": "",
+          "assertions": [
+            {
+              "type": "visible",
+              "expected": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

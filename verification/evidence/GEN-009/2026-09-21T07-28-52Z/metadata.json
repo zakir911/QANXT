@@ -1,0 +1,34 @@
+{
+  "testId": "GEN-009",
+  "suite": "AI test generation",
+  "runId": "2026-09-21T07-28-52Z",
+  "objective": "Generation respects the scenario budget it was given",
+  "preconditions": [
+    "the bank has been discovered"
+  ],
+  "input": "maxScenarios=2 for a requirement that could produce many",
+  "expected": "No more than two test cases are created",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "asked for at most 2, created 2",
+  "metrics": {
+    "casesCreated": 2
+  },
+  "startedAt": "2026-09-21T07:29:07.872Z",
+  "durationMs": 44,
+  "build": {
+    "commit": "6d5d914",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "budget.json",
+      "path": "evidence/GEN-009/2026-09-21T07-28-52Z/budget.json",
+      "bytes": 640,
+      "sha256": "fca2f23bda586dcd3caaf902a25572aaa50c43699cd3ea669be822687363cc0a"
+    }
+  ]
+}

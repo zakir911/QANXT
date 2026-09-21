@@ -178,10 +178,15 @@ export async function createSuite(tenant, projectId, name) {
   return response.json;
 }
 
-export async function generateTests(tenant, { applicationId, requirement, suiteName, maxScenarios = 3, testSuiteId }) {
+export async function generateTests(tenant, { applicationId, requirement, suiteName, maxScenarios, testSuiteId }) {
   const response = await request('/api/v1/testcases/generate', {
     token: tenant.token, method: 'POST',
-    body: { applicationId, requirement, suiteName, maxScenarios, testSuiteId }
+    body: {
+      applicationId, requirement, suiteName, testSuiteId,
+      // Omitted rather than defaulted here: "no budget" is a distinct request from "a
+      // budget of three", and the platform's own default belongs to the platform.
+      ...(maxScenarios === undefined ? {} : { maxScenarios })
+    }
   });
   return response;
 }

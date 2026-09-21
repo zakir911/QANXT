@@ -1,0 +1,38 @@
+{
+  "testId": "GEN-007",
+  "suite": "AI test generation",
+  "runId": "2026-09-21T07-20-24Z",
+  "objective": "Generated steps address elements by test id, role or label rather than a structural path",
+  "preconditions": [
+    "the five suites above were generated"
+  ],
+  "input": "Every step of every generated test case",
+  "expected": "At least 90% of targeted steps use a stable strategy",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "100.0% stable of 30 targeted step(s): testId=30",
+  "metrics": {
+    "targeted": 30,
+    "stableShare": 1,
+    "strategies": {
+      "testId": 30
+    }
+  },
+  "startedAt": "2026-09-21T07:20:40.174Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "6d5d914",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "generated-locators.json",
+      "path": "evidence/GEN-007/2026-09-21T07-20-24Z/generated-locators.json",
+      "bytes": 74,
+      "sha256": "c0e98fb529250f29f6c7b4091102fdaa8d53f69e7d50a0259e200cf16ed866b0"
+    }
+  ]
+}
