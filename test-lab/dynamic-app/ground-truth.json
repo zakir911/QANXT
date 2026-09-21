@@ -1,0 +1,76 @@
+{
+  "application": "AIRA Dynamic Lab",
+  "baseUrl": "http://127.0.0.1:4330",
+  "version": "1.0.0",
+  "description": "A single-page application built to defeat brittle locators: ids and classes are regenerated on every render, the hierarchy changes, content arrives late and elements remove themselves. Roles, labels and test ids are the only stable surface.",
+  "authentication": { "strategy": "none" },
+  "pages": [
+    { "path": "/", "title": "Dynamic application", "requiresAuth": false, "forms": [], "elements": ["page-title", "intro"] },
+    { "path": "/feed", "title": "Feed", "requiresAuth": false, "forms": [], "elements": ["page-title", "feed-list", "feed-status", "feed-sentinel"] },
+    { "path": "/widgets", "title": "Widgets", "requiresAuth": false, "forms": [], "elements": ["page-title", "tab-list", "tab-summary", "tab-details", "tab-history", "tab-panel", "counter-slot"] },
+    { "path": "/dialog", "title": "Dialog", "requiresAuth": false, "forms": [], "elements": ["page-title", "open-dialog", "dialog-outcome"] },
+    { "path": "/late", "title": "Late content", "requiresAuth": false, "forms": [], "elements": ["page-title", "late-slot"] },
+    { "path": "/shuffle", "title": "Shuffle", "requiresAuth": false, "forms": [], "elements": ["page-title", "shuffle-target", "shuffle-output", "shuffle-rerender"] }
+  ],
+  "navigation": [
+    { "from": "/", "to": "/feed", "via": "nav-feed" },
+    { "from": "/", "to": "/widgets", "via": "nav-widgets" },
+    { "from": "/", "to": "/dialog", "via": "nav-dialog" },
+    { "from": "/", "to": "/late", "via": "nav-late" },
+    { "from": "/", "to": "/shuffle", "via": "nav-shuffle" }
+  ],
+  "elements": [
+    { "testId": "feed-list", "role": "region", "name": "Feed", "page": "/feed", "kind": "list", "note": "grows as the sentinel scrolls into view" },
+    { "testId": "tab-details", "role": "tab", "name": "Details", "page": "/widgets", "kind": "tab" },
+    { "testId": "panel-details", "role": "tabpanel", "name": "Details", "page": "/widgets", "kind": "panel", "conditional": "only after the Details tab is chosen" },
+    { "testId": "counter-value", "role": "text", "name": "Counter", "page": "/widgets", "kind": "text", "conditional": "arrives after a delay", "correctValue": "42" },
+    { "testId": "temporary-banner", "role": "status", "name": "Temporary banner", "page": "/widgets", "kind": "text", "conditional": "removes itself after three seconds" },
+    { "testId": "open-dialog", "role": "button", "name": "Open the dialog", "page": "/dialog", "kind": "button" },
+    { "testId": "confirm-action", "role": "button", "name": "Confirm", "page": "/dialog", "kind": "button", "conditional": "only while the dialog is open" },
+    { "testId": "late-content", "role": "text", "name": "Late content", "page": "/late", "kind": "text", "conditional": "arrives after a delay" },
+    { "testId": "shuffle-target", "role": "button", "name": "Press me", "page": "/shuffle", "kind": "button", "note": "nested under a different number of wrappers on every render" }
+  ],
+  "workflows": [
+    { "id": "WF-DYN-01", "name": "The feed loads more as it is scrolled",
+      "requirement": "A reader can scroll the feed to load more updates.",
+      "steps": [
+        { "action": "navigate", "target": "/feed" },
+        { "action": "assertVisible", "target": "feed-list" },
+        { "action": "scroll", "target": "feed-sentinel" },
+        { "action": "assertText", "target": "feed-status", "expected": "40 of 120 updates loaded." }
+      ],
+      "expectedOutcome": "More items are appended without a page load." },
+    { "id": "WF-DYN-02", "name": "A dialog can be opened and confirmed",
+      "requirement": "A user can confirm an action in a dialog.",
+      "steps": [
+        { "action": "navigate", "target": "/dialog" },
+        { "action": "click", "target": "open-dialog" },
+        { "action": "click", "target": "confirm-action" },
+        { "action": "assertText", "target": "dialog-outcome", "expected": "Confirmed" }
+      ],
+      "expectedOutcome": "The outcome reads Confirmed." },
+    { "id": "WF-DYN-03", "name": "Late content is waited for rather than assumed",
+      "requirement": "Content that arrives late is still found.",
+      "steps": [
+        { "action": "navigate", "target": "/late" },
+        { "action": "assertVisible", "target": "late-content" }
+      ],
+      "expectedOutcome": "The late content is found after the delay." }
+  ],
+  "expectedApiCalls": [
+    { "method": "GET", "path": "/api/feed", "purpose": "a page of the feed" },
+    { "method": "GET", "path": "/api/config", "purpose": "runtime behaviour" }
+  ],
+  "knownFaults": [
+    { "id": "FAULT_DYNAMIC_LOCATOR", "affects": ["*"], "healable": true, "reason": "Test ids rotate; role and name still identify every control." },
+    { "id": "FAULT_SLOW_ELEMENT", "affects": ["/late", "/widgets"], "healable": false },
+    { "id": "FAULT_JS_ERROR", "affects": ["*"], "healable": false },
+    { "id": "FAULT_ELEMENT_DISAPPEARS", "affects": ["/dialog"], "healable": false, "reason": "The control is found and then removed before it can be used." },
+    { "id": "FAULT_INFINITE_SCROLL_BROKEN", "affects": ["/feed"], "healable": false }
+  ],
+  "expectedFailures": [
+    { "fault": "FAULT_INFINITE_SCROLL_BROKEN", "classification": "assertionFailed", "mustNotHeal": true },
+    { "fault": "FAULT_ELEMENT_DISAPPEARS", "classification": "elementNotFound", "mustNotHeal": true },
+    { "fault": "FAULT_JS_ERROR", "classification": "javascriptError", "mustNotHeal": true }
+  ]
+}

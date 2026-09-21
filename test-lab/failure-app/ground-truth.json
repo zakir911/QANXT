@@ -1,0 +1,56 @@
+{
+  "application": "AIRA Failure Lab",
+  "baseUrl": "http://127.0.0.1:4340",
+  "version": "1.0.0",
+  "description": "One page per failure class, identical in shape, so that a classification can be attributed to the failure and nothing else.",
+  "authentication": { "strategy": "none" },
+  "pages": [
+    { "path": "/", "title": "Failure cases", "requiresAuth": false, "forms": [], "elements": ["page-title", "case-table", "open-case-healthy", "open-case-http-500"] },
+    { "path": "/case/healthy", "title": "Everything works", "requiresAuth": false, "forms": [], "elements": ["page-title", "run-case", "outcome"] },
+    { "path": "/case/http-400", "title": "Bad request", "requiresAuth": false, "forms": [], "elements": ["run-case", "outcome"] },
+    { "path": "/case/http-401", "title": "Unauthorized", "requiresAuth": false, "forms": [], "elements": ["run-case", "outcome"] },
+    { "path": "/case/http-403", "title": "Forbidden", "requiresAuth": false, "forms": [], "elements": ["run-case", "outcome"] },
+    { "path": "/case/http-404", "title": "Not found", "requiresAuth": false, "forms": [], "elements": ["run-case", "outcome"] },
+    { "path": "/case/http-500", "title": "Server error", "requiresAuth": false, "forms": [], "elements": ["run-case", "outcome"] },
+    { "path": "/case/timeout", "title": "No answer", "requiresAuth": false, "forms": [], "elements": ["run-case", "outcome"] },
+    { "path": "/case/connection-reset", "title": "Connection destroyed", "requiresAuth": false, "forms": [], "elements": ["run-case", "outcome"] },
+    { "path": "/case/js-error", "title": "Uncaught JavaScript error", "requiresAuth": false, "forms": [], "elements": ["run-case", "outcome"] },
+    { "path": "/case/wrong-value", "title": "Wrong value", "requiresAuth": false, "forms": [], "elements": ["run-case", "outcome"] },
+    { "path": "/case/missing-element", "title": "Missing element", "requiresAuth": false, "forms": [], "elements": ["run-case"] },
+    { "path": "/case/slow", "title": "Slow but correct", "requiresAuth": false, "forms": [], "elements": ["run-case", "outcome"] }
+  ],
+  "navigation": [{ "from": "/", "to": "/case/healthy", "via": "open-case-healthy" }],
+  "elements": [
+    { "testId": "run-case", "role": "button", "name": "Calculate the answer", "page": "/case/healthy", "kind": "button" },
+    { "testId": "outcome", "role": "text", "name": "Outcome", "page": "/case/healthy", "kind": "text", "correctValue": "OK 42" },
+    { "testId": "failure-detail", "role": "text", "name": "Failure detail", "page": "/case/healthy", "kind": "text", "conditional": "only when the call fails" }
+  ],
+  "workflows": [
+    { "id": "WF-FAIL-01", "name": "The healthy case produces the right answer",
+      "requirement": "The calculator returns 42.",
+      "steps": [
+        { "action": "navigate", "target": "/case/healthy" },
+        { "action": "click", "target": "run-case" },
+        { "action": "assertText", "target": "outcome", "expected": "OK 42" }
+      ],
+      "expectedOutcome": "The outcome reads OK 42." }
+  ],
+  "expectedApiCalls": [
+    { "method": "GET", "path": "/api/answer", "purpose": "calculate the answer" }
+  ],
+  "knownFaults": [
+    { "id": "FAULT_ALL_CASES_HEALTHY", "affects": ["*"], "healable": false, "reason": "Used as a control: every case behaves correctly, so any failure reported is a false positive." }
+  ],
+  "expectedFailures": [
+    { "case": "/case/http-400", "classification": "applicationError", "mustNotHeal": true, "evidence": ["screenshot", "network"] },
+    { "case": "/case/http-401", "classification": "authenticationFailure", "mustNotHeal": true, "evidence": ["screenshot", "network"] },
+    { "case": "/case/http-403", "classification": "authorizationFailure", "mustNotHeal": true, "evidence": ["screenshot", "network"] },
+    { "case": "/case/http-404", "classification": "applicationError", "mustNotHeal": true, "evidence": ["screenshot", "network"] },
+    { "case": "/case/http-500", "classification": "applicationError", "mustNotHeal": true, "evidence": ["screenshot", "network"] },
+    { "case": "/case/timeout", "classification": "timeout", "mustNotHeal": true, "evidence": ["screenshot"] },
+    { "case": "/case/connection-reset", "classification": "networkError", "mustNotHeal": true, "evidence": ["screenshot", "network"] },
+    { "case": "/case/js-error", "classification": "javascriptError", "mustNotHeal": true, "evidence": ["screenshot", "console"] },
+    { "case": "/case/wrong-value", "classification": "assertionFailed", "mustNotHeal": true, "evidence": ["screenshot"] },
+    { "case": "/case/missing-element", "classification": "elementNotFound", "mustNotHeal": true, "evidence": ["screenshot"] }
+  ]
+}

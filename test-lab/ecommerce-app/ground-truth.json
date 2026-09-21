@@ -1,0 +1,98 @@
+{
+  "application": "AIRA Demo Commerce",
+  "baseUrl": "http://127.0.0.1:4310",
+  "version": "1.0.0",
+  "description": "A multi-step purchase journey where every step depends on the one before it.",
+  "authentication": {
+    "strategy": "formLogin", "loginPath": "/login", "username": "alice", "password": "Password123!", "successPath": "/products"
+  },
+  "pages": [
+    { "path": "/login", "title": "Sign in to shop", "requiresAuth": false, "forms": ["login-form"],
+      "elements": ["page-title", "username", "password", "login-submit"] },
+    { "path": "/products", "title": "Shop", "requiresAuth": true, "forms": ["product-filters"],
+      "elements": ["page-title", "product-search", "product-category", "product-search-submit", "result-count", "product-grid", "pagination", "page-next", "page-previous"] },
+    { "path": "/products/p-102", "title": "Fountain Pen", "requiresAuth": true, "forms": [],
+      "elements": ["product-name", "product-price", "product-stock", "product-quantity", "add-to-cart", "back-to-products"] },
+    { "path": "/cart", "title": "Basket", "requiresAuth": true, "forms": ["coupon-form"],
+      "elements": ["page-title"] },
+    { "path": "/checkout", "title": "Checkout", "requiresAuth": true, "forms": [],
+      "elements": ["page-title"] },
+    { "path": "/orders", "title": "Orders", "requiresAuth": true, "forms": [],
+      "elements": ["page-title"] }
+  ],
+  "navigation": [
+    { "from": "/login", "to": "/products", "via": "login-submit" },
+    { "from": "/products", "to": "/products/p-102", "via": "open-product-p-102" },
+    { "from": "/products/p-102", "to": "/cart", "via": "add-to-cart" },
+    { "from": "/cart", "to": "/checkout", "via": "go-to-checkout" },
+    { "from": "/checkout", "to": "/orders/ord-0001", "via": "place-order" }
+  ],
+  "elements": [
+    { "testId": "product-search", "role": "textbox", "name": "Search", "page": "/products", "kind": "input" },
+    { "testId": "product-category", "role": "combobox", "name": "Category", "page": "/products", "kind": "select" },
+    { "testId": "add-to-cart", "role": "button", "name": "Add to basket", "page": "/products/p-102", "kind": "button" },
+    { "testId": "cart-total", "role": "text", "name": "Total", "page": "/cart", "kind": "text", "conditional": "only when the basket has lines" },
+    { "testId": "coupon-code", "role": "textbox", "name": "Coupon code", "page": "/cart", "kind": "input", "conditional": "only when the basket has lines" },
+    { "testId": "apply-coupon", "role": "button", "name": "Apply coupon", "page": "/cart", "kind": "button", "conditional": "only when the basket has lines" },
+    { "testId": "go-to-checkout", "role": "link", "name": "Checkout", "page": "/cart", "kind": "link", "conditional": "only when the basket has lines" },
+    { "testId": "place-order", "role": "button", "name": "Place order", "page": "/checkout", "kind": "button", "conditional": "only when the basket has lines" },
+    { "testId": "order-number", "role": "text", "name": "Order number", "page": "/orders/{id}", "kind": "text", "conditional": "after an order is placed" }
+  ],
+  "workflows": [
+    { "id": "WF-SHOP-01", "name": "A customer buys a product end to end",
+      "requirement": "A customer can search for a product, add it to the basket, apply a coupon and complete checkout.",
+      "steps": [
+        { "action": "navigate", "target": "/login" },
+        { "action": "fill", "target": "username", "value": "alice" },
+        { "action": "fill", "target": "password", "value": "${secret:app_password}" },
+        { "action": "click", "target": "login-submit" },
+        { "action": "fill", "target": "product-search", "value": "pen" },
+        { "action": "click", "target": "product-search-submit" },
+        { "action": "click", "target": "open-product-p-102" },
+        { "action": "fill", "target": "product-quantity", "value": "2" },
+        { "action": "click", "target": "add-to-cart" },
+        { "action": "fill", "target": "coupon-code", "value": "SAVE10" },
+        { "action": "click", "target": "apply-coupon" },
+        { "action": "click", "target": "go-to-checkout" },
+        { "action": "fill", "target": "checkout-name", "value": "Alice Fernsby" },
+        { "action": "fill", "target": "checkout-line1", "value": "12 Bridge Street" },
+        { "action": "fill", "target": "checkout-postcode", "value": "EC1A 1BB" },
+        { "action": "fill", "target": "checkout-card", "value": "4000000000000002" },
+        { "action": "fill", "target": "checkout-expiry", "value": "04/29" },
+        { "action": "fill", "target": "checkout-cvc", "value": "123" },
+        { "action": "click", "target": "place-order" },
+        { "action": "assertVisible", "target": "order-confirmation" }
+      ],
+      "expectedOutcome": "An order is confirmed with a number, and the total is the discounted total." },
+    { "id": "WF-SHOP-02", "name": "Checkout refuses an invalid card",
+      "requirement": "A card number must be 12 to 19 digits.",
+      "steps": [
+        { "action": "fill", "target": "checkout-card", "value": "12" },
+        { "action": "click", "target": "place-order" },
+        { "action": "assertText", "target": "checkout-error-card", "expected": "Enter a card number of 12 to 19 digits." }
+      ],
+      "expectedOutcome": "The order is refused with a message on the card field." }
+  ],
+  "expectedApiCalls": [
+    { "method": "GET", "path": "/api/products", "purpose": "catalogue" },
+    { "method": "GET", "path": "/api/cart", "purpose": "priced basket" },
+    { "method": "GET", "path": "/api/orders/{id}", "purpose": "one order" }
+  ],
+  "knownFaults": [
+    { "id": "FAULT_LOGIN_BUTTON_RENAMED", "affects": ["/login"], "healable": true, "expectedCandidate": { "role": "button", "name": "Sign In" } },
+    { "id": "FAULT_API_500", "affects": ["/api/products"], "healable": false },
+    { "id": "FAULT_SLOW_ELEMENT", "affects": ["/products"], "healable": false },
+    { "id": "FAULT_COUPON_IGNORED", "affects": ["/cart"], "healable": false, "reason": "The coupon banner appears and the total does not change." },
+    { "id": "FAULT_WRONG_TOTAL", "affects": ["/cart", "/checkout"], "healable": false },
+    { "id": "FAULT_CHECKOUT_500", "affects": ["/checkout"], "healable": false },
+    { "id": "FAULT_DYNAMIC_LOCATOR", "affects": ["/products"], "healable": true },
+    { "id": "FAULT_JS_ERROR", "affects": ["/cart"], "healable": false },
+    { "id": "FAULT_OUT_OF_STOCK_HIDDEN", "affects": ["/products"], "healable": false }
+  ],
+  "expectedFailures": [
+    { "fault": "FAULT_COUPON_IGNORED", "classification": "assertionFailed", "mustNotHeal": true },
+    { "fault": "FAULT_WRONG_TOTAL", "classification": "assertionFailed", "mustNotHeal": true },
+    { "fault": "FAULT_CHECKOUT_500", "classification": "applicationError", "mustNotHeal": true },
+    { "fault": "FAULT_API_500", "classification": "applicationError", "mustNotHeal": true }
+  ]
+}

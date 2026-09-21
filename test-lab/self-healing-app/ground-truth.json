@@ -1,0 +1,74 @@
+{
+  "application": "AIRA Locator Lab",
+  "baseUrl": "http://127.0.0.1:4350",
+  "version": "1.0.0",
+  "description": "A single sign-in control, presented eight different ways. Four of those ways should be healed; four must be refused.",
+  "authentication": {
+    "strategy": "formLogin",
+    "loginPath": "/login",
+    "username": "alice",
+    "password": "Password123!",
+    "successPath": "/welcome"
+  },
+  "pages": [
+    { "path": "/login", "title": "Sign in", "requiresAuth": false, "forms": ["login-form"],
+      "elements": ["page-title", "username", "password", "login-submit"] },
+    { "path": "/welcome", "title": "Welcome", "requiresAuth": true, "forms": [],
+      "elements": ["welcome-heading", "welcome-message", "logout"] },
+    { "path": "/cancelled", "title": "Cancelled", "requiresAuth": false, "forms": [],
+      "elements": ["cancelled-heading", "cancelled-message", "back-to-login"] },
+    { "path": "/offers", "title": "Savings rates", "requiresAuth": false, "forms": [],
+      "elements": ["offers-heading", "offers-message", "back-to-login"] }
+  ],
+  "navigation": [
+    { "from": "/login", "to": "/welcome", "via": "login-submit" },
+    { "from": "/welcome", "to": "/login", "via": "logout" }
+  ],
+  "elements": [
+    { "testId": "username", "role": "textbox", "name": "Username", "page": "/login", "kind": "input" },
+    { "testId": "password", "role": "textbox", "name": "Password", "page": "/login", "kind": "input", "sensitive": true },
+    { "testId": "login-submit", "role": "button", "name": "Log in", "page": "/login", "kind": "button", "drifts": true },
+    { "testId": "welcome-heading", "role": "heading", "name": "You are signed in", "page": "/welcome", "kind": "text" },
+    { "testId": "logout", "role": "link", "name": "Sign out", "page": "/welcome", "kind": "link" }
+  ],
+  "workflows": [
+    { "id": "WF-HEAL-01", "name": "Sign in with the baseline control",
+      "requirement": "A customer can sign in.",
+      "steps": [
+        { "action": "navigate", "target": "/login" },
+        { "action": "fill", "target": "username", "value": "alice" },
+        { "action": "fill", "target": "password", "value": "${secret:app_password}" },
+        { "action": "click", "target": "login-submit" },
+        { "action": "assertVisible", "target": "welcome-heading" }
+      ],
+      "expectedOutcome": "The welcome page is shown." }
+  ],
+  "expectedApiCalls": [],
+  "knownFaults": [
+    { "id": "FAULT_LOGIN_BUTTON_RENAMED", "affects": ["/login"], "healable": true,
+      "expectedCandidate": { "role": "button", "name": "Sign In", "testId": "signin-submit" },
+      "reason": "The same control, relabelled. One candidate, unambiguous." },
+    { "id": "FAULT_TESTID_ONLY_CHANGED", "affects": ["/login"], "healable": true,
+      "expectedCandidate": { "role": "button", "name": "Log in", "testId": "auth-submit-v2" },
+      "reason": "Label and function unchanged; only the identifier moved." },
+    { "id": "FAULT_CONTROL_MOVED_TO_DIALOG", "affects": ["/login"], "healable": false,
+      "reason": "The control exists but is unreachable without an extra interaction the test does not perform. Healing a locator cannot invent a step." },
+    { "id": "FAULT_SLOW_ELEMENT", "affects": ["/login"], "healable": false,
+      "reason": "Nothing is wrong with the locator; the element is late. Waiting is correct, healing is not." },
+    { "id": "FAULT_LOGIN_BUTTON_REMOVED", "affects": ["/login"], "healable": false,
+      "reason": "No control performs the function. Any substitute would be wrong." },
+    { "id": "FAULT_AMBIGUOUS_CONTROLS", "affects": ["/login"], "healable": false,
+      "reason": "Two equally plausible controls lead to different outcomes. Choosing either is a guess." },
+    { "id": "FAULT_MEANING_CHANGED", "affects": ["/login"], "healable": false,
+      "reason": "The label matches but the behaviour is the opposite. Matching text alone is what makes this dangerous." },
+    { "id": "FAULT_DECOY_CONTROL", "affects": ["/login"], "healable": false,
+      "reason": "A prominent unrelated button occupies the same position." }
+  ],
+  "expectedFailures": [
+    { "fault": "FAULT_LOGIN_BUTTON_REMOVED", "classification": "elementNotFound", "mustNotHeal": true, "mustNotReach": "/welcome" },
+    { "fault": "FAULT_AMBIGUOUS_CONTROLS", "classification": "elementNotFound", "mustNotHeal": true, "mustNotReach": "/welcome" },
+    { "fault": "FAULT_MEANING_CHANGED", "classification": "elementNotFound", "mustNotHeal": true, "mustNotReach": "/welcome" },
+    { "fault": "FAULT_DECOY_CONTROL", "classification": "elementNotFound", "mustNotHeal": true, "mustNotReach": "/welcome" },
+    { "fault": "FAULT_CONTROL_MOVED_TO_DIALOG", "classification": "elementNotFound", "mustNotHeal": true, "mustNotReach": "/welcome" }
+  ]
+}
