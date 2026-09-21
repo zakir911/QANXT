@@ -1,0 +1,34 @@
+{
+  "case": "http-400",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "7a48ae68-5f91-4f08-9d1f-607a26fde1de",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "7184479618ca5547ae92b336243b06e9b1cb4933ddb31b40eead3ba5db81289f",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:42:41.535345+00:00",
+    "lastSeenAt": "2026-09-21T07:42:41.535386+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"549b2b73-d2b4-4496-8904-8e9ffab9b781\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"7b609b7a-3a88-4e2b-b2d1-4513b4ec4e40\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"86973a69-6b81-4bf3-9ce5-67b0671d48d6\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"a3821f7b-bede-47b6-9bab-2663edd16c04\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"b8515df4-bf37-4416-9a60-cfb42bf995ee\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"ca16e7a9-bde9-4843-bffd-5cd87a1c45d9\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"cdebba32-8ea1-4ab1-9c36-4513e4d01e6b\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"ee5be515-d4cd-4210-8e5e-7560d4b078d9\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"5226d879-49fe-4989-84dd-1d601b9da407\"}"
+    }
+  }
+}

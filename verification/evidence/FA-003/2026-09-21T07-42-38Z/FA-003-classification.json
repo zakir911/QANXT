@@ -1,0 +1,34 @@
+{
+  "case": "http-401",
+  "lab": "authenticationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "76c9668f-7bc3-4faa-bbba-81de6af40365",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "e7f32e21964d2da828563e5ee2e7bfbbb358bdf6859ef416aee2a6f9e9f03eed",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:42:43.376924+00:00",
+    "lastSeenAt": "2026-09-21T07:42:43.376925+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"152b9db0-7675-4bc1-b5cd-0161020da978\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"16e6dedf-9bbe-4725-99a6-f9429d617a4d\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"2f89267e-729c-47bc-9340-a266832c16a7\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"5c0b8cba-0c7b-4faf-af2d-e4a29c23018d\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"5dec17c4-c86a-4aea-9e0a-524085f5ef8e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"902b5ead-6853-414e-a452-81bfced7d014\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"c2d28f61-e5ea-47dc-952e-a62b1f84c3d3\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"f8606798-7187-47aa-9004-2dced2262791\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"432000db-e307-4961-bcd8-9878c57c7dd7\"}"
+    }
+  }
+}

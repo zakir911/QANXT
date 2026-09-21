@@ -37,6 +37,10 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
     /// model is asked to do better.</summary>
     private const int DeterministicConfidenceFloor = 75;
 
+    /// <summary>What an analysis records as its producer when the rules wrote it.</summary>
+    private const LlmProviderKind DeterministicProvider = LlmProviderKind.Local;
+    private const string DeterministicModel = "aira-rules-v1";
+
     private readonly IAiraDbContext _db;
     private readonly IAiOrchestrator _ai;
     private readonly IClock _clock;
@@ -95,7 +99,9 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
             ConsoleErrorCount: completion.ConsoleErrorCount,
             ServerErrorCount: completion.NetworkEvents.Count(n => n.StatusCode >= 500),
             AuthErrorCount: completion.NetworkEvents.Count(n => n.StatusCode is 401 or 403),
-            NetworkFailureCount: completion.NetworkEvents.Count(n => n.IsFailed && n.StatusCode is null)));
+            NetworkFailureCount: completion.NetworkEvents.Count(n => n.IsFailed && n.StatusCode is null),
+            FailingAction: completion.Actions
+                .FirstOrDefault(a => a.Status is not ExecutionStatus.Passed and not ExecutionStatus.Healed)?.Action));
 
         failure.Category = deterministic.Category;
         failure.CategoryConfidence = deterministic.Confidence;
@@ -121,7 +127,9 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
         var completion = await ReconstructCompletionAsync(execution, ct);
         var deterministic = DeterministicFailureClassifier.Classify(new ClassificationInput(
             execution.Status, failure.RawMessage, false, null,
-            execution.ConsoleErrorCount, 0, 0, execution.NetworkErrorCount));
+            execution.ConsoleErrorCount, 0, 0, execution.NetworkErrorCount,
+            FailingAction: completion.Actions
+                .FirstOrDefault(a => a.Status is not ExecutionStatus.Passed and not ExecutionStatus.Healed)?.Action));
 
         if (failure.Analysis is not null) _db.FailureAnalyses.Remove(failure.Analysis);
         await _db.SaveChangesAsync(ct);
@@ -159,6 +167,10 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
                 IsHealable = deterministic.IsHealable,
                 EvidenceRefsJson = await BuildEvidenceRefsAsync(execution.Id, ct),
                 ProducedByAi = false,
+                // Named rather than left empty: an analysis that says neither who wrote it
+                // nor which rules produced it cannot be audited (BUG-0013).
+                Provider = DeterministicProvider,
+                Model = DeterministicModel,
                 CreatedAt = _clock.UtcNow
             };
         }
@@ -236,6 +248,8 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
                     IsHealable = deterministic.IsHealable,
                     EvidenceRefsJson = await BuildEvidenceRefsAsync(execution.Id, ct),
                     ProducedByAi = false,
+                    Provider = DeterministicProvider,
+                    Model = DeterministicModel,
                     CreatedAt = _clock.UtcNow
                 };
             }
@@ -278,6 +292,9 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
             priority = testCase?.Priority.ToString().ToLowerInvariant(),
             errorMessage = _masker.MaskText(completion.ErrorMessage ?? string.Empty),
             stepDescription = failedAction?.Description ?? "the failing step",
+            // The action the engine was performing, by name. Every analyser downstream can
+            // then recognise an assertion without parsing the prose of an error message.
+            failingAction = failedAction?.Action,
             locatorDescription = failedAction?.LocatorUsed?.Describe(),
             healingConfidence = completion.HealingEvents.Select(h => h.Confidence).FirstOrDefault(),
             healedLocatorDescription = completion.HealingEvents.Select(h => h.HealedLocator.Describe()).FirstOrDefault(),

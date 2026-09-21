@@ -1,0 +1,40 @@
+{
+  "id": "DET-006",
+  "case": "http-500",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "b26167a7-d61e-460d-9a82-8981b4175015",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "c7d67021a79f609184d535c5fb5086a9d4258cb03879a073d6fc47199e28aa35",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:32:40.917747+00:00",
+    "lastSeenAt": "2026-09-21T07:32:40.917747+00:00",
+    "analysis": {
+      "summary": "The application returned server errors during this execution.",
+      "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on.",
+      "evidence": "1 server error response(s) recorded in the network evidence.",
+      "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"063dc446-46c6-4a12-b56b-c56c010106e0\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"07867aa1-4428-48b7-a76d-dea6a53b095c\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"381294f6-fc21-4997-adda-6c1eccc59914\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"62c1025e-aff4-4213-a176-f6ab9f57e751\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"78b196aa-db43-4cf6-8534-9b393e49fa18\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"86c59dca-e24e-4eed-8a74-beaf8c442726\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"91b84d42-bb76-4015-8bfb-7203336a82c0\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"e64b1c81-dbb6-4762-9c34-ea2cc3b06c06\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"d03e34ef-5e1c-470a-8479-0944ca0bf6be\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\"."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

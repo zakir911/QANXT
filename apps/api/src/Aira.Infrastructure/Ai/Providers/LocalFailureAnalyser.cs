@@ -115,7 +115,40 @@ internal static class LocalFailureAnalyser
                 isDefect: consoleErrors.Count > 0, isHealable: false);
         }
 
-        if (lowered.Contains("expected the text") || lowered.Contains("expected the value") || lowered.Contains("assertion"))
+        // An assertion is recognised by the name of the action that failed. The message
+        // patterns below are a fallback: relying on them alone is how an assertion failure
+        // came to be reported as "unknown" after the engine reworded its messages
+        // (BUG-0012). The same drift existed in the deterministic classifier, which is the
+        // point — the wording was load-bearing in two modules and owned by neither.
+        var failingAction = LocalJson.String(context, "failingAction") ?? string.Empty;
+        var isAssertion = failingAction.StartsWith("assert", StringComparison.OrdinalIgnoreCase)
+            || lowered.Contains("expected the text") || lowered.Contains("expected the value")
+            || lowered.Contains("expected the element") || lowered.Contains("expected the url")
+            || lowered.Contains("expected attribute") || lowered.Contains("assertion")
+            || lowered.Contains("but it read") || lowered.Contains("but found");
+
+        // A transport-level failure in the network evidence outranks the assertion that
+        // noticed it: the assertion is the symptom, the dropped request is the cause.
+        // Only transport-level failures: an entry with no status code never reached the
+        // server at all. A 4xx or 5xx is a response, and the rules above already own it.
+        var transportFailures = networkFailures
+            .Where(entry => !entry.TryGetProperty("statusCode", out var status)
+                || status.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            .ToList();
+
+        if (transportFailures.Count > 0)
+        {
+            return Result(
+                summary: "A request failed at the network layer during this execution.",
+                likelyCause: "The browser could not complete a request the page depends on. "
+                    + "The application may be unreachable, or it dropped the connection.",
+                evidence: string.Join("\n", transportFailures.Take(5)
+                    .Select(e => $"{LocalJson.String(e, "method")} {LocalJson.String(e, "url")} — {LocalJson.String(e, "failureText")}")),
+                suggestedAction: "Check that the service the page calls is running and reachable from the worker, then re-run.",
+                category: "networkIssue", confidence: 85, isDefect: false, isHealable: false);
+        }
+
+        if (isAssertion)
         {
             return Result(
                 summary: $"An assertion failed on {stepDescription}.",

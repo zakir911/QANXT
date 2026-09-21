@@ -1,0 +1,42 @@
+{
+  "id": "DET-002",
+  "case": "http-400",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "8ea54a51-b98f-4c35-bc74-15e211f4f8d2",
+    "category": "applicationDefect",
+    "categoryConfidence": 65,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "51ab99a03f2bddeb49be81363b20dacb8e61814889a80382c045d34ee1e48f0f",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:32:32.673339+00:00",
+    "lastSeenAt": "2026-09-21T07:32:32.673339+00:00",
+    "analysis": {
+      "summary": "the failing step failed on a page that logged JavaScript errors.",
+      "likelyCause": "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
+      "evidence": "[error] Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "suggestedAction": "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
+      "category": "applicationDefect",
+      "confidence": 65,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0dd49580-c715-4c5e-8b60-8eba845602da\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"0f4a47d7-4301-47f3-ab9c-00849bd599e0\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"12edc0ff-a111-4385-a633-69b6088bc189\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"1448fd05-fddd-4a4f-b3ba-c5833682ba4d\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"1588c62f-8f9a-42c1-9505-b42031b7cfb6\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"862a9bc5-7dd8-4f91-a8f6-c1c1960c786b\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"a52aecb9-c094-4a3f-98e5-f90e563c6a64\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"d59a10db-4fa1-45a2-9629-02911df21f5b\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"ddcf41f8-4360-4bc6-bb1d-c5b05d33b2bf\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\"."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

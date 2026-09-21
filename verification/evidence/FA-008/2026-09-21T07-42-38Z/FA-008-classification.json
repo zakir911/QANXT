@@ -1,0 +1,34 @@
+{
+  "case": "connection-reset",
+  "lab": "networkError",
+  "accept": [
+    "networkIssue"
+  ],
+  "actual": "networkIssue",
+  "failure": {
+    "id": "fc4dba44-b39c-4522-982e-9ba1429d71fa",
+    "category": "networkIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "dd5451a36f29249b65b0a9c72345533b405a70a88945e37f6cfb25068e1e7c79",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:42:53.723916+00:00",
+    "lastSeenAt": "2026-09-21T07:42:53.723916+00:00",
+    "analysis": {
+      "summary": "The application could not be reached.",
+      "likelyCause": "A network-level failure stopped the browser from loading the application.",
+      "evidence": "1 request(s) failed at the network layer. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\".",
+      "suggestedAction": "Confirm the environment is running and reachable from the worker, then re-run.",
+      "category": "networkIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0f3439a6-e9cb-4631-9d60-3cf1b02ae0ad\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"5580b619-db28-4d98-84df-dabbe3b419f3\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"6c601a91-8fb0-47b2-9293-75edf8025f8a\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"a9e26a11-ff1f-4914-8fde-4f02ac80c436\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"b8fe521b-9d91-4591-a632-c37285c32612\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"c4f10a53-1d13-4081-8696-819dd48c1651\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"f32da3ae-010c-4473-a853-2821b663f5cd\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"f99ef803-cdbf-4dd4-9473-61085278ea13\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"c17d6cf5-b678-4e12-8f79-9ae93f644e7c\"}"
+    }
+  }
+}

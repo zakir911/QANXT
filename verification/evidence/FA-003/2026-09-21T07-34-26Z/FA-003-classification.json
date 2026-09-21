@@ -1,0 +1,32 @@
+{
+  "case": "http-401",
+  "lab": "authenticationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "ef852a11-8c33-4372-8c53-545fd42f7d06",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "a628ad6ac7933eaba5d917ea4dac391a8fbc9dd5c2cae8684ac2039986495165",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:34:29.45049+00:00",
+    "lastSeenAt": "2026-09-21T07:34:29.45049+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"40005710-e82c-48b8-8f7c-ca5f60b9d87d\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"43cd4e39-a217-4c95-987c-8fcecef01e7c\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"5c4d2c6d-8319-449a-b89d-feb53cb5a76c\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"77d4656d-fa9d-49cb-921b-1e2c8487e030\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"94d50003-32bb-4dfa-9f0e-8bb6e5bf8579\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"9dae45b0-ede2-4ef2-8133-6231ce36eafd\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"d332db60-f633-4f2e-a3f0-74bb1583f462\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"d9baf14d-d266-403d-849b-effa9f3cc067\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}], \"executionId\": \"01955b9b-40b1-4f2a-ae60-18105200512a\"}"
+    }
+  }
+}

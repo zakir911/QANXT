@@ -1,0 +1,34 @@
+{
+  "case": "http-500",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "ebad5fce-a820-42bf-b99d-9bbed0ffa895",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "bc4e87f2b065f8912c808042290f3a8e2a68375a0b7a39567250b6c5de461b9d",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:42:49.555732+00:00",
+    "lastSeenAt": "2026-09-21T07:42:49.555733+00:00",
+    "analysis": {
+      "summary": "The application returned server errors during this execution.",
+      "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on.",
+      "evidence": "1 server error response(s) recorded in the network evidence.",
+      "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2dc78d03-cffb-4190-b23b-237dfd37d954\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"36bd5516-03ec-4e70-bc40-db6d72d9f93a\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"5fab64e5-8048-4757-8c92-a4f330d6e034\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"754522e9-6012-427b-8dae-51ba2af06391\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"8ac1e170-aea3-41ca-a4ee-ea583dab5668\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"8b56d7bc-7fd9-4f4f-aace-4acc8b867c14\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"bad4aa12-c75f-4f8b-bfcf-d269a31a58f1\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"cb669bc7-10c2-46f5-825b-d73b9e28fb66\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"0e4b6ed5-8cdf-4325-b211-33126dc6fc22\"}"
+    }
+  }
+}

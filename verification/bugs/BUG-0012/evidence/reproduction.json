@@ -1,0 +1,24 @@
+{
+  "bug": "BUG-0012",
+  "summary": "The failure classifier matches on message text that the execution engine no longer produces, so an assertion failure — the commonest real defect — falls through to Unknown.",
+  "misclassified": 0,
+  "of": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "failed",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "message": "Expected the element to contain \"OK 42\" but it read \"OK 99\".",
+      "correct": true
+    },
+    {
+      "attempt": 2,
+      "status": "failed",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "message": "Expected the element to contain \"OK 42\" but it read \"OK 99\".",
+      "correct": true
+    }
+  ]
+}

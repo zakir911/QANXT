@@ -1,0 +1,34 @@
+{
+  "case": "connection-reset",
+  "lab": "networkError",
+  "accept": [
+    "networkIssue"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "3e5cf2ce-60fc-4856-8e4f-b853635e2d4f",
+    "category": "applicationDefect",
+    "categoryConfidence": 65,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "a36a3deb09f18c1a4a7ed5ac3d5046fd3f6980fd42752325f4eea4ac8757db68",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:34:39.764819+00:00",
+    "lastSeenAt": "2026-09-21T07:34:39.764819+00:00",
+    "analysis": {
+      "summary": "the failing step failed on a page that logged JavaScript errors.",
+      "likelyCause": "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
+      "evidence": "[error] Failed to load resource: net::ERR_EMPTY_RESPONSE",
+      "suggestedAction": "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
+      "category": "applicationDefect",
+      "confidence": 65,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"38387286-5308-4dad-8a00-ccc02e86394f\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"583b4bf2-b21e-44d0-a55c-0b64be167af9\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"651d1f15-5f48-4259-8ec0-4d463fd48594\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"7483d6ff-1416-463d-82d0-b7b615407a1c\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"90e34259-3650-480a-b17d-a68b8a4b5b8c\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"bbdd28a0-c34c-4632-ac70-6e0aa4d27dbc\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"dc1f0e50-6c26-4ec9-9aba-0b716f6540f4\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"e3d2db8a-65f2-4a81-8303-6a9fdf6bfbe4\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"8e2cef8d-99e4-43df-99a3-87b53cf2b652\"}"
+    }
+  }
+}

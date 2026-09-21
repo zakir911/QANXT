@@ -1,0 +1,32 @@
+{
+  "case": "http-403",
+  "lab": "authorizationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "5f65fdfb-3f63-4536-bbd8-4a11683abd71",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "c660701c63314faf2c0b1dfaf9edf82608c08cf90d5340885f41d0e383d7e7b9",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:34:31.49913+00:00",
+    "lastSeenAt": "2026-09-21T07:34:31.49913+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2568e60c-dd04-4be7-ba2d-f2ba8743bbf7\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"25a85ed4-db30-471f-9bf1-12c68b90ff11\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"389bf2a2-a885-4bcb-8256-53a33bdd5173\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"608de942-99be-48e7-bbe7-5cc36ad4df5d\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"aee83f3b-383c-4db2-8eb9-1680c3f67490\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"b8079683-a513-4868-9eba-81a808d2d6a5\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"bf7d84a2-5bd3-4456-bb9e-b44b0ad9060a\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"eadfb424-6624-43a6-903b-9a412c7251ea\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"8434fd2e-3ef3-4b36-a523-8a08b13f2e98\"}"
+    }
+  }
+}

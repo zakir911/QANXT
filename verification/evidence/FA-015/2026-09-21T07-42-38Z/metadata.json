@@ -1,0 +1,32 @@
+{
+  "testId": "FA-015",
+  "suite": "Failure analysis",
+  "runId": "2026-09-21T07-42-38Z",
+  "objective": "The same failure seen twice is recognised rather than counted as new",
+  "preconditions": [
+    "the http-500 case is executed twice"
+  ],
+  "input": "Two executions of the same failing test",
+  "expected": "Both carry the same signature, and the second is not reported as a new failure",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "signatures match; second run isNewFailure=false, occurrences 2",
+  "metrics": null,
+  "startedAt": "2026-09-21T07:43:17.571Z",
+  "durationMs": 4103,
+  "build": {
+    "commit": "2d18286",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "recurrence.json",
+      "path": "evidence/FA-015/2026-09-21T07-42-38Z/recurrence.json",
+      "bytes": 4302,
+      "sha256": "afc7328ab32f3c454edb3bed960e073b1834d26328a449372c2cd0a79549f417"
+    }
+  ]
+}

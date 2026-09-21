@@ -1,0 +1,32 @@
+{
+  "case": "http-500",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "6398b43d-78a7-4411-9de0-0d1b3890c2ac",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "79dacf9b21af95865523825f8d888e4d86986a19c6c2a3159bc8c91d0030297a",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:34:35.702012+00:00",
+    "lastSeenAt": "2026-09-21T07:34:35.702012+00:00",
+    "analysis": {
+      "summary": "The application returned server errors during this execution.",
+      "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on.",
+      "evidence": "1 server error response(s) recorded in the network evidence.",
+      "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1286f3b7-6a21-4d26-bcf0-4222669e2a6c\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"178b2193-9d17-45cd-88e4-a0cf466cfa68\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"25a88678-2e83-45e2-9f9c-439314501837\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"3a5bf15a-f6be-4874-8511-874998f71df3\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"51079dcb-6f6b-4592-aa8b-86d6e9fc8c4c\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"60814e8a-0141-4e81-b815-e4b69db5ecbe\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"a364fa50-dc24-4dd9-b977-22d01f7598c5\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"aee9471a-1e4c-400f-87b1-b55194f17478\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"3b3a59b3-03c6-424b-97be-c918e1045d2a\"}"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "case": "js-error",
+  "lab": "javascriptError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "a8fa9e47-278d-43f1-8f2f-a021325b4f93",
+    "category": "applicationDefect",
+    "categoryConfidence": 65,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"calculating…\".",
+    "signature": "3144d55328d5fde0973a89c3247b56657ac5aae508f918800fe7df8808a0dc74",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:34:41.802185+00:00",
+    "lastSeenAt": "2026-09-21T07:34:41.802186+00:00",
+    "analysis": {
+      "summary": "the failing step failed on a page that logged JavaScript errors.",
+      "likelyCause": "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
+      "evidence": "[pageerror] LAB_FAILURE_JS_ERROR: the calculator could not be initialised",
+      "suggestedAction": "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
+      "category": "applicationDefect",
+      "confidence": 65,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"25e5cd64-79d5-4cc2-9d7a-c5e37c359270\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"380b0908-6507-470f-ac77-5029d48792ed\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"471102da-8ac8-42b5-87b3-c5228db88d27\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"577651ca-8d74-4073-968e-9ef077ae9877\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"8ea74137-21f3-4f9e-b687-5abce8c8d402\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"b1fe8473-5ac4-46d5-897f-d890b8c72196\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b21e9eac-1eb2-4173-960d-32bd0fc0a9a1\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"b86a2f9b-8688-4ac5-b3c2-97ecaf833c30\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"f212c8d1-4838-4491-b1d4-42b6a117be01\"}"
+    }
+  }
+}

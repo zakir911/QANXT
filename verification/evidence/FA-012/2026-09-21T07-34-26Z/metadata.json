@@ -1,0 +1,37 @@
+{
+  "testId": "FA-012",
+  "suite": "Failure analysis",
+  "runId": "2026-09-21T07-34-26Z",
+  "objective": "Classification accuracy across every failure class is measured, not assumed",
+  "preconditions": [
+    "all ten classes executed and classified"
+  ],
+  "input": "The platform's category for each class against the lab's expectation",
+  "expected": "At least 70% correct, and nothing classified as unknown",
+  "severity": "high",
+  "result": "FAIL",
+  "detail": "7/10 correct (70%), 2 classified as unknown; wrong: timeout→unknown, connection-reset→applicationDefect, wrong-value→unknown",
+  "metrics": {
+    "accuracy": 0.7,
+    "correct": 7,
+    "unknown": 2,
+    "total": 10
+  },
+  "startedAt": "2026-09-21T07:35:03.647Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "2d18286",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "classification-accuracy.json",
+      "path": "evidence/FA-012/2026-09-21T07-34-26Z/classification-accuracy.json",
+      "bytes": 1980,
+      "sha256": "ca0e53bc300e37ccc0b4db72acb133565dbdac47cc27c64feab36065ee5edd76"
+    }
+  ]
+}

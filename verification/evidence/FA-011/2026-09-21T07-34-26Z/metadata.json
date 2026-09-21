@@ -1,0 +1,34 @@
+{
+  "testId": "FA-011",
+  "suite": "Failure analysis",
+  "runId": "2026-09-21T07-34-26Z",
+  "objective": "A missing element failure is classified as locatorChange or applicationDefect",
+  "preconditions": [
+    "the missing-element case failed"
+  ],
+  "input": "The failure category the platform assigned to /case/missing-element",
+  "expected": "One of: locatorChange, applicationDefect — the lab calls this elementNotFound",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "classified \"locatorChange\" at 90% confidence; the lab expects elementNotFound (accepting locatorChange or applicationDefect)",
+  "metrics": {
+    "correct": 1
+  },
+  "startedAt": "2026-09-21T07:35:03.647Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "2d18286",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "FA-011-classification.json",
+      "path": "evidence/FA-011/2026-09-21T07-34-26Z/FA-011-classification.json",
+      "bytes": 2120,
+      "sha256": "b4643666e5d066a3ec9476020d37d7131e4354f14a3cf25a3ca94d6951286fba"
+    }
+  ]
+}

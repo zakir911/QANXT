@@ -1,0 +1,42 @@
+{
+  "id": "DET-010",
+  "case": "wrong-value",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "fcd62cc9-44da-453b-a0a6-2f554eca741d",
+    "category": "unknown",
+    "categoryConfidence": 30,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"OK 99\".",
+    "signature": "b610c4b1702af8cf6ce7eb0997f2570f1ed29734f1db2c787a4938bd7ac3ec10",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:32:49.193763+00:00",
+    "lastSeenAt": "2026-09-21T07:32:49.193763+00:00",
+    "analysis": {
+      "summary": "the failing step failed.",
+      "likelyCause": "The available evidence does not identify a cause. The engine error is reproduced verbatim below.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"OK 99\".",
+      "suggestedAction": "Review the failure screenshot, DOM snapshot and trace for this execution. Configure a model provider for a deeper analysis of failures like this one.",
+      "category": "unknown",
+      "confidence": 30,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2876f7f6-e8b8-4db9-8881-57b2e348add7\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"3e69e8e1-7184-4e77-83b3-f98f2a604917\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"5ed255f7-74cc-4a0a-8864-b33f6f010ed9\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"7e916b4e-30cd-4ca2-be97-b90ebc25cd7b\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"b3d7d590-c0ad-4838-aef4-884805104af0\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b8daf060-12ba-45db-8adb-aefd631dc2c0\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"d5cb6c4a-fc34-4d3b-be66-fdbdcfca5704\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}], \"executionId\": \"764a2b20-a657-4608-8ff8-5902eea6a5c1\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"OK 99\"."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

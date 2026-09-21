@@ -1,0 +1,34 @@
+{
+  "case": "http-404",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "4dd91d57-6055-4ef4-a6a7-055838467cbb",
+    "category": "applicationDefect",
+    "categoryConfidence": 65,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "30747b2ce0b29b5748dc9d5558894970a842f5361f723ab7c9a002e302a76368",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:34:33.561756+00:00",
+    "lastSeenAt": "2026-09-21T07:34:33.561756+00:00",
+    "analysis": {
+      "summary": "the failing step failed on a page that logged JavaScript errors.",
+      "likelyCause": "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
+      "evidence": "[error] Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "suggestedAction": "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
+      "category": "applicationDefect",
+      "confidence": 65,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"05df09ea-4a67-48d0-b20e-edd67e772c44\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"80b89a04-1b66-456f-a9e5-f8f841d6f5cd\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"8503419f-cefe-4488-8865-e50e6a6b9a17\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"98d55696-441d-4a79-9d4f-11a23db26baf\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"b3039133-d9a9-4172-895d-4d4853bf09a1\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"cfda3c42-51e0-43c1-a287-5766969fff9a\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"d0020b5a-5ff5-4cb7-93d5-fbac9d65e993\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"f7a532c3-95a9-4546-8aad-b696a0900709\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}], \"executionId\": \"870aa84e-dae0-4fe7-82df-1aefb883763b\"}"
+    }
+  }
+}

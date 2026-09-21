@@ -1,0 +1,42 @@
+{
+  "id": "DET-005",
+  "case": "http-404",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "ec925acb-930e-4949-ab66-f15da21e0058",
+    "category": "applicationDefect",
+    "categoryConfidence": 65,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "4a24384431f6323923eb789021718fe10de9ea4da898c2560b356cd6793a496a",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:32:38.893782+00:00",
+    "lastSeenAt": "2026-09-21T07:32:38.893782+00:00",
+    "analysis": {
+      "summary": "the failing step failed on a page that logged JavaScript errors.",
+      "likelyCause": "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
+      "evidence": "[error] Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "suggestedAction": "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
+      "category": "applicationDefect",
+      "confidence": 65,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"03ac1899-c49f-4d84-a9f2-813b4ab223c4\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"380a15fc-f76c-4396-af8a-bc0d1f2fda87\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"742880e5-19f9-4d26-b2e9-c5f71d3b0d76\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"99645eeb-6b61-4ebd-80ec-109eb286f590\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"c010bd91-a072-4114-a4e7-6cb2be965a86\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"ed7db139-1ea3-4726-8e33-9c125d07d80b\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"f22bfc60-ca26-4e70-b427-0a8e15ea08f3\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"fb2d63f6-67fe-4e5c-ab6e-ad51ccbe0b8f\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}], \"executionId\": \"f6dce6a3-cdf7-4697-b90e-4b14d796b25c\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\"."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

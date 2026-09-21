@@ -1,0 +1,34 @@
+{
+  "case": "http-400",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "ef77bd7d-dd6a-46de-ba7a-c84fb5fc1779",
+    "category": "applicationDefect",
+    "categoryConfidence": 65,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "6fec321d7eb18762d2aeef08901d76b88628aec676618056ea418319c7085915",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:34:27.391062+00:00",
+    "lastSeenAt": "2026-09-21T07:34:27.391062+00:00",
+    "analysis": {
+      "summary": "the failing step failed on a page that logged JavaScript errors.",
+      "likelyCause": "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
+      "evidence": "[error] Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "suggestedAction": "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
+      "category": "applicationDefect",
+      "confidence": 65,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"23de2df4-663b-4883-914c-0029a33f830a\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"38d420c3-8c27-465e-8af5-f1f8400c3eb8\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"5ae4e0eb-9fb5-4994-a859-144d772de297\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"6fc56bc5-e3f4-49f6-ba91-9846ddcb75c6\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"77bffa25-a06e-4b44-87b3-2d0aa9939a5a\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"9687400f-236a-4eb8-9725-8c29f0dbc658\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"cb7d43cb-fb6b-4b76-9c06-8bf7b78bf310\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"d5d8abe0-4b45-480e-bc23-e1dd0902131a\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"6848ba5b-1a73-47fc-a845-73169836e014\"}"
+    }
+  }
+}

@@ -10,7 +10,12 @@ public sealed record ClassificationInput(
     int ConsoleErrorCount,
     int ServerErrorCount,
     int AuthErrorCount,
-    int NetworkFailureCount);
+    int NetworkFailureCount,
+    /// <summary>The action that failed, as the engine named it — "assertText", "click".
+    /// Structured, because identifying an assertion by the prose of its error message
+    /// drifts the moment the message is reworded, which is how assertion failures came to
+    /// be classified as Unknown (BUG-0012).</summary>
+    string? FailingAction = null);
 
 public sealed record DeterministicVerdict(
     FailureCategory Category,
@@ -60,7 +65,12 @@ public static class DeterministicFailureClassifier
                 IsLikelyApplicationDefect: true, IsHealable: false);
         }
 
-        if (input.NetworkFailureCount > 0 && (lowered.Contains("net::") || lowered.Contains("econnrefused") || lowered.Contains("timeout")))
+        // The recorded network evidence decides this, not the wording of the step's error.
+        // A page that catches a dropped request and renders "failed" produces an assertion
+        // message with nothing network-ish in it, while the network log holds the actual
+        // cause — and the platform was reporting an application defect for a connection
+        // that never completed (BUG-0012).
+        if (input.NetworkFailureCount > 0)
         {
             return new DeterministicVerdict(
                 FailureCategory.NetworkIssue, 85,
@@ -140,8 +150,7 @@ public static class DeterministicFailureClassifier
                 IsLikelyApplicationDefect: false, IsHealable: false);
         }
 
-        if (lowered.Contains("expected the text") || lowered.Contains("expected the value")
-            || lowered.Contains("expected attribute") || lowered.Contains("assertion"))
+        if (IsAssertionFailure(input.FailingAction, lowered))
         {
             return new DeterministicVerdict(
                 FailureCategory.ApplicationDefect, 70,
@@ -171,5 +180,28 @@ public static class DeterministicFailureClassifier
             string.IsNullOrWhiteSpace(message) ? "No error message was recorded." : message,
             "Review the failure screenshot, DOM snapshot and trace for this execution.",
             IsLikelyApplicationDefect: false, IsHealable: false);
+    }
+
+    /// <summary>True when the step that failed was an assertion.
+    ///
+    /// The action name is the reliable signal; the message patterns are a fallback for
+    /// executions recorded before the engine reported one, and for assertions evaluated
+    /// outside a step.</summary>
+    private static bool IsAssertionFailure(string? failingAction, string loweredMessage)
+    {
+        if (!string.IsNullOrEmpty(failingAction)
+            && failingAction.StartsWith("assert", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return loweredMessage.Contains("expected the text")
+            || loweredMessage.Contains("expected the value")
+            || loweredMessage.Contains("expected the element")
+            || loweredMessage.Contains("expected the url")
+            || loweredMessage.Contains("expected attribute")
+            || loweredMessage.Contains("assertion")
+            || loweredMessage.Contains("but it read")
+            || loweredMessage.Contains("but found");
     }
 }

@@ -1,0 +1,40 @@
+{
+  "id": "DET-003",
+  "case": "http-401",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "81617857-a295-4390-9914-f4beac2a844f",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "2e2acb30d22a3f109cb34cf57cd90825749d54face7ca04fed79d55abe3bc2b1",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:32:34.717712+00:00",
+    "lastSeenAt": "2026-09-21T07:32:34.717712+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2d9c2dac-dcb0-4edb-afae-a465806db912\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"533234ab-6c0b-4c7c-9d2d-22f703b08608\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"98e08185-4d96-4cce-9be2-7efd838b6fa7\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"bce24387-c93f-4bb4-a2c9-b6ebb1548cc7\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"c2d0dc0e-ea12-4fb5-885a-57011e9d6d64\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"c69a1c9e-0a91-4ab7-8706-8babf90128cd\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"d2c8d6f3-46ac-4f79-aab3-67a7c5324454\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"ec9d241f-5632-42a5-bff5-db062afdc933\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}], \"executionId\": \"0facdaf7-1f46-46ce-9dfb-23f4a82c4cd6\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\"."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

@@ -1,0 +1,40 @@
+{
+  "id": "DET-011",
+  "case": "missing-element",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "be1cec91-89ae-4958-adea-92d35da2b3ab",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "4864e00359a4483ad16486cd16d4e3f3fe6115bb1e53c85ae8f039eaaf5c7c96",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:33:08.188265+00:00",
+    "lastSeenAt": "2026-09-21T07:33:08.188265+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"06384237-227f-47ca-8b06-95db6687573f\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"2cab3773-0636-4540-978d-ff6d3c5ccab9\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"3b298f94-3efa-47eb-8b2e-1afd05382561\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"5122385c-b034-42e6-b767-41815f895f96\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"a2ad5cb9-2991-4868-9ba1-6816d6b076ae\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"ad3fff3f-dbf4-43fc-8469-c7870840d778\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"b5b248da-4814-44cf-9d16-dbcfc7314f0c\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}], \"executionId\": \"115ce4d1-9a85-4bf6-aa53-2b01c16fb06a\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\"."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

@@ -1,0 +1,34 @@
+{
+  "case": "http-401",
+  "lab": "authenticationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "569364a3-ad85-4b80-94ca-f2087761707b",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "6ae662efb8623100e7ece5020ea927d026e1b5d1c225b28959fb8d787a519ba3",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:39:32.315605+00:00",
+    "lastSeenAt": "2026-09-21T07:39:32.315605+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"233451ec-f2ed-42a6-a961-fc7f733f7b43\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"381752be-ff9e-48ad-b655-bdc2893a49c3\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"43d8987f-1817-4129-bed5-88b8fd505158\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"583f500a-86d8-4528-b383-6591328f15cd\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"5861f436-ace5-4724-bade-3f2e432e54ca\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"636aa926-87ee-4a3c-9cac-1515be608ae4\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"657ed24c-6224-49ba-9cf8-440bd0c2719e\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"c65c759f-8776-4270-b17a-2cec006598cb\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"60dba158-0a47-4ac7-8c29-3782acea933c\"}"
+    }
+  }
+}

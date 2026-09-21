@@ -1,0 +1,164 @@
+[
+  {
+    "case": "http-400",
+    "analysis": {
+      "summary": "the failing step failed on a page that logged JavaScript errors.",
+      "likelyCause": "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
+      "evidence": "[error] Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "suggestedAction": "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
+      "category": "applicationDefect",
+      "confidence": 65,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"23de2df4-663b-4883-914c-0029a33f830a\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"38d420c3-8c27-465e-8af5-f1f8400c3eb8\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"5ae4e0eb-9fb5-4994-a859-144d772de297\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"6fc56bc5-e3f4-49f6-ba91-9846ddcb75c6\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"77bffa25-a06e-4b44-87b3-2d0aa9939a5a\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"9687400f-236a-4eb8-9725-8c29f0dbc658\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"cb7d43cb-fb6b-4b76-9c06-8bf7b78bf310\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"d5d8abe0-4b45-480e-bc23-e1dd0902131a\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"6848ba5b-1a73-47fc-a845-73169836e014\"}"
+    }
+  },
+  {
+    "case": "http-401",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"40005710-e82c-48b8-8f7c-ca5f60b9d87d\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"43cd4e39-a217-4c95-987c-8fcecef01e7c\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"5c4d2c6d-8319-449a-b89d-feb53cb5a76c\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"77d4656d-fa9d-49cb-921b-1e2c8487e030\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"94d50003-32bb-4dfa-9f0e-8bb6e5bf8579\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"9dae45b0-ede2-4ef2-8133-6231ce36eafd\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"d332db60-f633-4f2e-a3f0-74bb1583f462\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"d9baf14d-d266-403d-849b-effa9f3cc067\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}], \"executionId\": \"01955b9b-40b1-4f2a-ae60-18105200512a\"}"
+    }
+  },
+  {
+    "case": "http-403",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2568e60c-dd04-4be7-ba2d-f2ba8743bbf7\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"25a85ed4-db30-471f-9bf1-12c68b90ff11\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"389bf2a2-a885-4bcb-8256-53a33bdd5173\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"608de942-99be-48e7-bbe7-5cc36ad4df5d\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"aee83f3b-383c-4db2-8eb9-1680c3f67490\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"b8079683-a513-4868-9eba-81a808d2d6a5\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"bf7d84a2-5bd3-4456-bb9e-b44b0ad9060a\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"eadfb424-6624-43a6-903b-9a412c7251ea\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"8434fd2e-3ef3-4b36-a523-8a08b13f2e98\"}"
+    }
+  },
+  {
+    "case": "http-404",
+    "analysis": {
+      "summary": "the failing step failed on a page that logged JavaScript errors.",
+      "likelyCause": "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
+      "evidence": "[error] Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "suggestedAction": "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
+      "category": "applicationDefect",
+      "confidence": 65,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"05df09ea-4a67-48d0-b20e-edd67e772c44\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"80b89a04-1b66-456f-a9e5-f8f841d6f5cd\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"8503419f-cefe-4488-8865-e50e6a6b9a17\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"98d55696-441d-4a79-9d4f-11a23db26baf\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"b3039133-d9a9-4172-895d-4d4853bf09a1\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"cfda3c42-51e0-43c1-a287-5766969fff9a\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"d0020b5a-5ff5-4cb7-93d5-fbac9d65e993\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"f7a532c3-95a9-4546-8aad-b696a0900709\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}], \"executionId\": \"870aa84e-dae0-4fe7-82df-1aefb883763b\"}"
+    }
+  },
+  {
+    "case": "http-500",
+    "analysis": {
+      "summary": "The application returned server errors during this execution.",
+      "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on.",
+      "evidence": "1 server error response(s) recorded in the network evidence.",
+      "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1286f3b7-6a21-4d26-bcf0-4222669e2a6c\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"178b2193-9d17-45cd-88e4-a0cf466cfa68\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"25a88678-2e83-45e2-9f9c-439314501837\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"3a5bf15a-f6be-4874-8511-874998f71df3\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"51079dcb-6f6b-4592-aa8b-86d6e9fc8c4c\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"60814e8a-0141-4e81-b815-e4b69db5ecbe\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"a364fa50-dc24-4dd9-b977-22d01f7598c5\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"aee9471a-1e4c-400f-87b1-b55194f17478\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"3b3a59b3-03c6-424b-97be-c918e1045d2a\"}"
+    }
+  },
+  {
+    "case": "timeout",
+    "analysis": {
+      "summary": "the failing step failed.",
+      "likelyCause": "The available evidence does not identify a cause. The engine error is reproduced verbatim below.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\".",
+      "suggestedAction": "Review the failure screenshot, DOM snapshot and trace for this execution. Configure a model provider for a deeper analysis of failures like this one.",
+      "category": "unknown",
+      "confidence": 30,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"069ce24f-c0bc-4996-9be4-e75fd70b048a\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"34d8b98d-50c5-4a01-9830-846379fac7c2\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"50920f5a-28cf-4c9d-ac18-9d1d722562b9\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"662098c6-1f15-4fa7-ab3f-9293e963c7c6\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"7b1ab230-e837-4ce0-ac6c-e23cce416b3e\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"7f28edc2-9c03-41c4-962f-418b9edc6c72\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"90fdfa57-013d-4e4a-8263-4e5c40c0b534\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"a5bd8fb7-2f85-4604-870b-b888f88b837b\"}"
+    }
+  },
+  {
+    "case": "connection-reset",
+    "analysis": {
+      "summary": "the failing step failed on a page that logged JavaScript errors.",
+      "likelyCause": "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
+      "evidence": "[error] Failed to load resource: net::ERR_EMPTY_RESPONSE",
+      "suggestedAction": "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
+      "category": "applicationDefect",
+      "confidence": 65,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"38387286-5308-4dad-8a00-ccc02e86394f\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"583b4bf2-b21e-44d0-a55c-0b64be167af9\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"651d1f15-5f48-4259-8ec0-4d463fd48594\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"7483d6ff-1416-463d-82d0-b7b615407a1c\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"90e34259-3650-480a-b17d-a68b8a4b5b8c\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"bbdd28a0-c34c-4632-ac70-6e0aa4d27dbc\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"dc1f0e50-6c26-4ec9-9aba-0b716f6540f4\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"e3d2db8a-65f2-4a81-8303-6a9fdf6bfbe4\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"8e2cef8d-99e4-43df-99a3-87b53cf2b652\"}"
+    }
+  },
+  {
+    "case": "js-error",
+    "analysis": {
+      "summary": "the failing step failed on a page that logged JavaScript errors.",
+      "likelyCause": "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
+      "evidence": "[pageerror] LAB_FAILURE_JS_ERROR: the calculator could not be initialised",
+      "suggestedAction": "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
+      "category": "applicationDefect",
+      "confidence": 65,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"25e5cd64-79d5-4cc2-9d7a-c5e37c359270\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"380b0908-6507-470f-ac77-5029d48792ed\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"471102da-8ac8-42b5-87b3-c5228db88d27\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"577651ca-8d74-4073-968e-9ef077ae9877\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"8ea74137-21f3-4f9e-b687-5abce8c8d402\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"b1fe8473-5ac4-46d5-897f-d890b8c72196\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b21e9eac-1eb2-4173-960d-32bd0fc0a9a1\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"b86a2f9b-8688-4ac5-b3c2-97ecaf833c30\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"f212c8d1-4838-4491-b1d4-42b6a117be01\"}"
+    }
+  },
+  {
+    "case": "wrong-value",
+    "analysis": {
+      "summary": "the failing step failed.",
+      "likelyCause": "The available evidence does not identify a cause. The engine error is reproduced verbatim below.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"OK 99\".",
+      "suggestedAction": "Review the failure screenshot, DOM snapshot and trace for this execution. Configure a model provider for a deeper analysis of failures like this one.",
+      "category": "unknown",
+      "confidence": 30,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"023d8fc1-2dd0-4c8b-a75c-2f6e0685134e\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"388de219-ca00-40ff-9bb4-f00aed4eaeef\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"4c1af916-4f32-4639-a03e-1fce05c78a08\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"56b43eaf-aad8-4e3c-b101-f87fc0e06e41\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"78059229-4d2a-46e1-b30a-59a58a8b5f0c\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"baac2980-8e1d-4093-ab3f-18564e6a74b7\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"d1367981-2ec1-44a5-bacf-2b11f1fb8614\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"d3b4d731-c352-43a5-a5c3-3521ac197db1\"}"
+    }
+  },
+  {
+    "case": "missing-element",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"265c4592-e980-4bb9-9152-345c317bff0d\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"4aeeaff1-2f6d-4e0b-b7f6-f511b8cfd6d9\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"56132bc6-ce42-45b5-91db-a62d752b5d5c\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"6437101c-4746-4c14-8423-86bdf2c9733d\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"905567c3-6905-41dc-baf0-1e5240d1accd\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"9cd7367c-5ae4-435c-9e6a-7a9af6f3bbc8\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"ec8f1b71-5a7c-47f4-a720-ca36475f7afb\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"5217e126-a6bb-4b8f-9f61-6cc0034dc461\"}"
+    }
+  }
+]

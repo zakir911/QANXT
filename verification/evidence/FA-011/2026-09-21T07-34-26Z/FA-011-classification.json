@@ -1,0 +1,33 @@
+{
+  "case": "missing-element",
+  "lab": "elementNotFound",
+  "accept": [
+    "locatorChange",
+    "applicationDefect"
+  ],
+  "actual": "locatorChange",
+  "failure": {
+    "id": "7618cd30-bb04-49fe-bf05-93625f009566",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "4e08dd371822256ec8765c32f295be497229f1dcaa46354c1cdc795f00038db1",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:35:02.682169+00:00",
+    "lastSeenAt": "2026-09-21T07:35:02.682169+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"265c4592-e980-4bb9-9152-345c317bff0d\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"4aeeaff1-2f6d-4e0b-b7f6-f511b8cfd6d9\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"56132bc6-ce42-45b5-91db-a62d752b5d5c\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"6437101c-4746-4c14-8423-86bdf2c9733d\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"905567c3-6905-41dc-baf0-1e5240d1accd\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"9cd7367c-5ae4-435c-9e6a-7a9af6f3bbc8\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"ec8f1b71-5a7c-47f4-a720-ca36475f7afb\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"5217e126-a6bb-4b8f-9f61-6cc0034dc461\"}"
+    }
+  }
+}

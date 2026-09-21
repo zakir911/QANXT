@@ -1,0 +1,36 @@
+{
+  "testId": "DET-005",
+  "suite": "Failure detection",
+  "runId": "2026-09-21T07-32-29Z",
+  "objective": "A http 404 failure is detected and reported as a failure",
+  "preconditions": [
+    "the failure lab is running",
+    "the test targets /case/http-404"
+  ],
+  "input": "The same four-step test: open /case/http-404, press the button, expect \"OK 42\"",
+  "expected": "The run FAILS, with the failing step, an error message and a screenshot",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\".; 2 screenshot(s); classified applicationDefect",
+  "metrics": {
+    "screenshots": 2,
+    "consoleErrors": 1
+  },
+  "startedAt": "2026-09-21T07:32:38.468Z",
+  "durationMs": 2045,
+  "build": {
+    "commit": "2d18286",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DET-005-execution.json",
+      "path": "evidence/DET-005/2026-09-21T07-32-29Z/DET-005-execution.json",
+      "bytes": 2531,
+      "sha256": "2fd7ce126efc1747f10c3f8a79771d86533f9410d082c8e11614f1c7705e487a"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "case": "http-404",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "1e33ebe3-1f70-4e0e-b43e-212b9ada6f03",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "4f2809cf94a50ea2adce486b1fa1e9e7548b6eca4671ebb438a041bbaca93f36",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:42:47.556363+00:00",
+    "lastSeenAt": "2026-09-21T07:42:47.556363+00:00",
+    "analysis": {
+      "summary": "An assertion failed on the failing step.",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"123c49bd-1fb0-4c04-b688-eff171a8a239\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"22b7bd32-1186-46e3-a463-97c4522a28f5\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"494dd188-e138-455e-b4a4-d0959511a4f2\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"b7f33de9-ac69-443b-ba39-d0ea8bab3971\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"de09ee57-f82f-4b2e-9d6b-534605eacb0c\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"de6b180e-a80a-4f14-bc20-72e63bf029d8\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"e2dc3e99-6e9a-4a58-a4af-a994d5ec5495\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"eba1d342-cdd3-4c7f-b137-8ce884df2827\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"c551ee17-db11-4103-9f07-aa3540823b36\"}"
+    }
+  }
+}

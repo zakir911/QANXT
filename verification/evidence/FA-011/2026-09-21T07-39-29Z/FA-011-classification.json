@@ -1,0 +1,35 @@
+{
+  "case": "missing-element",
+  "lab": "elementNotFound",
+  "accept": [
+    "locatorChange",
+    "applicationDefect"
+  ],
+  "actual": "locatorChange",
+  "failure": {
+    "id": "2b1f6c14-1be0-438e-ae80-bfeb3e3a1f9c",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "e1353e5c40748306d1c3c850ba425a4e2426a2fb7f7c2cb8c28def15a2f87988",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:40:05.752381+00:00",
+    "lastSeenAt": "2026-09-21T07:40:05.752381+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"012cb7f8-8041-4b41-9402-9b997aaa4783\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"568a93f8-9031-485c-9cbb-00412be3311b\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"655668be-3149-47df-be44-3ad1841c1e78\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"784d22c4-a0eb-4e2e-b09e-2ed10fff1672\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"8c431b6d-04ab-453d-b61b-96dd89b23b44\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"cdd9d8af-92aa-4b96-95df-41c854c247ee\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"da20a874-020b-441d-85d8-cc47a8a7c308\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}], \"executionId\": \"a9665395-613e-4cef-9daa-71e52267b57e\"}"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "case": "http-403",
+  "lab": "authorizationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "0a26d337-7a89-4027-8995-685a39c0d27c",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\".",
+    "signature": "b575ac60f755a9d815fb2256048d546d223454e088439dc2c9305e4828392ba5",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:42:45.451741+00:00",
+    "lastSeenAt": "2026-09-21T07:42:45.451741+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"099daf65-ea47-4cdc-a1cd-8bb50b60ee18\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"4685c64c-b307-400b-acb6-019733d2e182\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"490aeb31-a340-4786-adb2-ad9daf803ef1\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"a0535ddc-9498-4c77-8884-8aae5a833b72\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"a55c4aee-fe43-44d1-99d2-f68621ff74c3\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"cbdbadba-ff1f-4cea-a47f-1d851188d135\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"e2856c8b-3dbc-4709-8af8-a0ecca075f34\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"f8c10ecb-502b-406f-9a22-d91b102c47b9\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"d8e2a405-5d48-4193-8c53-31fffd4bda68\"}"
+    }
+  }
+}

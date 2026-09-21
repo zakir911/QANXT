@@ -1,0 +1,42 @@
+{
+  "id": "DET-007",
+  "case": "timeout",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "dc1b062e-c17f-470f-93a8-89aae2cd6abd",
+    "category": "unknown",
+    "categoryConfidence": 30,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"calculating…\".",
+    "signature": "aee029b53dbab58dc1b672a96d93f7ed8a20b16f3611597cb8dc1e1207f118ef",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:32:43.008204+00:00",
+    "lastSeenAt": "2026-09-21T07:32:43.008204+00:00",
+    "analysis": {
+      "summary": "the failing step failed.",
+      "likelyCause": "The available evidence does not identify a cause. The engine error is reproduced verbatim below.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\".",
+      "suggestedAction": "Review the failure screenshot, DOM snapshot and trace for this execution. Configure a model provider for a deeper analysis of failures like this one.",
+      "category": "unknown",
+      "confidence": 30,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0c8ce989-5494-4a26-8b3b-3cc44e23acf0\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"548c11c2-3ec6-4c2f-b339-6915ffdcf896\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"61fdf50c-a5cb-43e0-a5fb-cde3bf0ed652\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"77221835-5580-4395-aed1-1420edb1bc35\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"a880de03-f228-44fe-8c51-68526ce1f576\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"d5b71d3d-054a-4d6e-9bbc-80b21eefca02\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"fa3fff8c-a8ae-4683-86c1-af9a8a01cc78\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}], \"executionId\": \"515767b7-bf0a-4237-8f18-efb0035c6513\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"calculating…\"."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

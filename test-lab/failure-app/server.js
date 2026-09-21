@@ -31,7 +31,8 @@ const CASES = [
   { name: 'js-error', title: 'Uncaught JavaScript error', expectation: 'The handler throws before it can render.', classification: 'javascriptError' },
   { name: 'wrong-value', title: 'Wrong value', expectation: 'The outcome renders, but reads 99 instead of 42.', classification: 'assertionFailed' },
   { name: 'missing-element', title: 'Missing element', expectation: 'The outcome element is never rendered.', classification: 'elementNotFound' },
-  { name: 'slow', title: 'Slow but correct', expectation: 'The outcome appears after a delay and is correct.', classification: null }
+  { name: 'slow', title: 'Slow but correct', expectation: 'The outcome appears after a delay and is correct.', classification: null },
+  { name: 'flaky', title: 'Intermittently slow', expectation: 'The outcome arrives after 100ms, 800ms, 2.5s or 6s, chosen at random.', classification: 'flaky' }
 ];
 
 const FAULTS = [
@@ -43,6 +44,9 @@ const faults = createFaultEngine(FAULTS, { parameters: { slowElementMs: 3000, ti
 const app = createLabApp({ name: APPLICATION, version: '1.0.0', faults });
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+/** What the flaky case actually did, so a run's verdict can be explained afterwards. */
+let flakyDelays = [];
 
 // ---------------------------------------------------------------------------
 // Pages
@@ -166,6 +170,17 @@ app.get('/api/answer', async (ctx) => {
     case 'slow':
       await sleep(faults.on('FAULT_SLOW_ELEMENT') ? faults.parameter('slowElementMs') * 3 : faults.parameter('slowElementMs'));
       return ctx.json(200, { answer: CORRECT_ANSWER });
+    case 'flaky': {
+      // Genuine instability rather than a fixed slow path: four delays, chosen at random,
+      // two of them comfortably inside a normal action timeout and two outside it. A
+      // platform that claims to detect flakiness needs something that is actually flaky.
+      const delays = [100, 800, 2500, 6000];
+      const chosen = delays[Math.floor(Math.random() * delays.length)];
+      flakyDelays.push({ at: new Date().toISOString(), delayMs: chosen });
+      if (flakyDelays.length > 50) flakyDelays.shift();
+      await sleep(chosen);
+      return ctx.json(200, { answer: CORRECT_ANSWER, delayMs: chosen });
+    }
     default:
       return ctx.json(200, { answer: CORRECT_ANSWER });
   }
@@ -179,6 +194,12 @@ app.get('/direct/:code', (ctx) => {
     Buffer.from(`<!doctype html><title>${code}</title><h1 data-testid="status-heading">HTTP ${code}</h1>`));
 });
 
-app.post('/__reset', ctx => ctx.json(200, { reset: true, faults: faults.reset() }));
+/** The delays the flaky case served, newest last. */
+app.get('/__flaky', ctx => ctx.json(200, { delays: flakyDelays }));
+
+app.post('/__reset', (ctx) => {
+  flakyDelays = [];
+  return ctx.json(200, { reset: true, faults: faults.reset() });
+});
 
 await app.listen(PORT);

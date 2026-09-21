@@ -1,0 +1,42 @@
+{
+  "id": "DET-009",
+  "case": "js-error",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "52adfc61-dda4-420f-9114-df3532d543af",
+    "category": "applicationDefect",
+    "categoryConfidence": 65,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"calculating…\".",
+    "signature": "56594c84c526274c71b4d778b58f4c2ddbd8153b25668d9c2eae2c16b85c6f8a",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-21T07:32:47.070272+00:00",
+    "lastSeenAt": "2026-09-21T07:32:47.070272+00:00",
+    "analysis": {
+      "summary": "the failing step failed on a page that logged JavaScript errors.",
+      "likelyCause": "Uncaught JavaScript errors were logged during this execution. The failure is plausibly a consequence of a broken front-end.",
+      "evidence": "[pageerror] LAB_FAILURE_JS_ERROR: the calculator could not be initialised",
+      "suggestedAction": "Investigate the JavaScript errors; they are the most likely cause of the step failing.",
+      "category": "applicationDefect",
+      "confidence": 65,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"02714730-9ea4-4afd-b439-20d8c3be74b5\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"41a63296-43f0-4cf7-a1db-52f0890bd078\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"4e0267ff-6022-486d-a7cd-7722b27241ba\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"57394047-5096-4770-8e12-27487e8ad244\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"70b23c67-9b2c-4326-b52b-f5651b0af180\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"95f4d900-b981-4575-949a-1d5378be8ff5\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"e31d34ea-9c6f-4e8a-b332-c4a93c65df9f\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"f4703708-cdee-4698-aadc-257ee1cf64c8\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"d6589757-6927-4d0a-ace6-618a1fc366a0\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"calculating…\"."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 0,
+  "screenshots": 2
+}
