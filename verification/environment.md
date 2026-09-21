@@ -10,6 +10,10 @@ Recorded 2026-09-20T16:03:20Z by direct interrogation of the running system.
 | Branch | `claude/blissful-pasteur-qtbzbs` |
 | Working tree | has uncommitted changes |
 
+The browser-extension suite (EXT-001 to EXT-007) was added afterwards and ran on the same
+host against commit `082c85b` plus the fix for BUG-0006, using Chromium 141 loaded with the
+extension built from `apps/browser-extension`.
+
 ## Host
 
 | | |

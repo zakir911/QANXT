@@ -15,7 +15,20 @@ type Listener = (message: unknown, sender: unknown, sendResponse: (r: unknown) =
 let listener: Listener;
 let store: Record<string, unknown>;
 
-const clone = <T>(value: T): T => (value === undefined ? value : structuredClone(value));
+/**
+ * Mimics what chrome.storage.session actually does to a value: it clones it, and it hands
+ * the keys back in sorted order rather than the order they were written. Measured in a
+ * real service worker — see verification/failures/BUG-0006. A stub that preserves key
+ * order lets a comparison that depends on it pass here and fail in Chrome.
+ */
+const clone = <T>(value: T): T => {
+  if (value === undefined || value === null || typeof value !== 'object') return value;
+  if (Array.isArray(value)) return value.map(clone) as unknown as T;
+  return Object.fromEntries(
+    Object.keys(value as Record<string, unknown>).sort()
+      .map(key => [key, clone((value as Record<string, unknown>)[key])])
+  ) as T;
+};
 
 /** A storage stub that suspends on every read, the way the real one does. */
 function installChromeStub(readDelayMs: number): void {

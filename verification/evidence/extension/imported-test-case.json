@@ -1,0 +1,595 @@
+{
+  "import": {
+    "journeyId": "cbd79b73-9aa7-498f-a02b-e518de761e25",
+    "journeyName": "Independent verification journey",
+    "stepCount": 15,
+    "testCaseId": "576ac6c6-97c3-4669-9a0f-b9a7f8397e64",
+    "testCaseReference": "TC-0001",
+    "warnings": [
+      "This journey contains no assertions, so the test only proves the steps completed. Use the recorder's “Add assertion” button, or add assertions to the generated test."
+    ]
+  },
+  "testCase": {
+    "id": "576ac6c6-97c3-4669-9a0f-b9a7f8397e64",
+    "reference": "TC-0001",
+    "name": "Independent verification journey",
+    "objective": "Reproduce the recorded journey: Independent verification journey.",
+    "preconditions": "The customer is signed in with the application's configured credentials.",
+    "expectedResults": "The journey completes without error. No assertions were recorded — add them to make this test meaningful.",
+    "priority": "medium",
+    "risk": "medium",
+    "tags": "recorded",
+    "source": "recordedJourney",
+    "isEnabled": true,
+    "version": 1,
+    "testSuiteId": "9074c713-2f12-4275-8fc8-5a45c23d5b4c",
+    "applicationId": "be072b20-4fed-4d88-abd0-ae27ec90efbd",
+    "statistics": {
+      "executionCount": 0,
+      "passCount": 0,
+      "failCount": 0,
+      "healCount": 0,
+      "flakinessScore": 0,
+      "averageDurationMs": 0
+    },
+    "steps": [
+      {
+        "id": "d1f77f1d-fa84-470d-8048-0e2db4bf308b",
+        "order": 1,
+        "description": "Go to /login",
+        "action": "navigate",
+        "value": "",
+        "url": "http://localhost:4200/login",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "4c7af584-186f-4a7f-805a-9d969f96436d",
+        "order": 2,
+        "description": "Enter \"alice\" in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "username",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "textbox",
+              "name": "Username",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "label",
+              "value": "Username",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "css",
+              "value": "#username",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"username\"",
+        "value": "alice",
+        "url": "http://localhost:4200/login",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "bd0800cd-1ad7-4be8-bd9a-d2467e43b525",
+        "order": 3,
+        "description": "Enter the password in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "password",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "label",
+              "value": "Password",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "css",
+              "value": "#password",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "css",
+              "value": "input[name=\"password\"]",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"password\"",
+        "value": "${secret:app_password}",
+        "url": "http://localhost:4200/login",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "4c99ea26-97f2-4e61-be14-293aaf82aaa4",
+        "order": 4,
+        "description": "Click \"Sign in\"",
+        "action": "click",
+        "target": {
+          "strategy": "testId",
+          "value": "login-submit",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "button",
+              "name": "Sign in",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "text",
+              "value": "Sign in",
+              "exact": true,
+              "fallbacks": []
+            },
+            {
+              "strategy": "css",
+              "value": "main > div > div > form > div:nth-of-type(2) > button",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"login-submit\"",
+        "value": "",
+        "url": "http://localhost:4200/login",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "dbd5bd04-cb60-4663-8035-50feddd09567",
+        "order": 5,
+        "description": "Click \"Payments\"",
+        "action": "click",
+        "target": {
+          "strategy": "testId",
+          "value": "nav-payments",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "link",
+              "name": "Payments",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "text",
+              "value": "Payments",
+              "exact": true,
+              "fallbacks": []
+            },
+            {
+              "strategy": "css",
+              "value": "html > body > nav > a:nth-of-type(4)",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"nav-payments\"",
+        "value": "",
+        "url": "http://localhost:4200/dashboard",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "9ff01474-967a-47a4-8f44-8864f3a9d8bc",
+        "order": 6,
+        "description": "Enter \"arming-probe\" in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "payment-amount",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "textbox",
+              "name": "Amount (GBP)",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "label",
+              "value": "Amount (GBP)",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "placeholder",
+              "value": "0.00",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"payment-amount\"",
+        "value": "arming-probe",
+        "url": "http://localhost:4200/payments",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "fc89eac9-d4d5-4415-a5e4-1643d735af2c",
+        "order": 7,
+        "description": "Enter \"burst-1\" in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "payment-reference",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "textbox",
+              "name": "Reference",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "label",
+              "value": "Reference",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "placeholder",
+              "value": "Up to 18 characters",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"payment-reference\"",
+        "value": "burst-1",
+        "url": "http://localhost:4200/payments",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "eaa67f0a-5bd7-472d-88f2-48196472310b",
+        "order": 8,
+        "description": "Enter \"burst-2\" in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "payment-amount",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "textbox",
+              "name": "Amount (GBP)",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "label",
+              "value": "Amount (GBP)",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "placeholder",
+              "value": "0.00",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"payment-amount\"",
+        "value": "burst-2",
+        "url": "http://localhost:4200/payments",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "f43c4cb1-dd58-473b-9706-9df949b63111",
+        "order": 9,
+        "description": "Enter \"burst-3\" in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "payment-reference",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "textbox",
+              "name": "Reference",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "label",
+              "value": "Reference",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "placeholder",
+              "value": "Up to 18 characters",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"payment-reference\"",
+        "value": "burst-3",
+        "url": "http://localhost:4200/payments",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "2ac93b9a-b171-4444-973b-3b29016c2740",
+        "order": 10,
+        "description": "Enter \"burst-4\" in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "payment-amount",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "textbox",
+              "name": "Amount (GBP)",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "label",
+              "value": "Amount (GBP)",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "placeholder",
+              "value": "0.00",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"payment-amount\"",
+        "value": "burst-4",
+        "url": "http://localhost:4200/payments",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "c36dc131-48db-4cb5-90f5-34644dd25caf",
+        "order": 11,
+        "description": "Enter \"burst-5\" in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "payment-reference",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "textbox",
+              "name": "Reference",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "label",
+              "value": "Reference",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "placeholder",
+              "value": "Up to 18 characters",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"payment-reference\"",
+        "value": "burst-5",
+        "url": "http://localhost:4200/payments",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "a3878e62-57c5-4eb3-afa2-22af2c10c9a6",
+        "order": 12,
+        "description": "Enter \"burst-6\" in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "payment-amount",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "textbox",
+              "name": "Amount (GBP)",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "label",
+              "value": "Amount (GBP)",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "placeholder",
+              "value": "0.00",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"payment-amount\"",
+        "value": "burst-6",
+        "url": "http://localhost:4200/payments",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "a3caa692-bd94-4838-b5d1-0477481d12db",
+        "order": 13,
+        "description": "Enter \"burst-7\" in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "payment-reference",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "textbox",
+              "name": "Reference",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "label",
+              "value": "Reference",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "placeholder",
+              "value": "Up to 18 characters",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"payment-reference\"",
+        "value": "burst-7",
+        "url": "http://localhost:4200/payments",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "8e424144-2d92-4932-a468-a033b2c1295f",
+        "order": 14,
+        "description": "Enter \"burst-8\" in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "payment-amount",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "textbox",
+              "name": "Amount (GBP)",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "label",
+              "value": "Amount (GBP)",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "placeholder",
+              "value": "0.00",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"payment-amount\"",
+        "value": "burst-8",
+        "url": "http://localhost:4200/payments",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      },
+      {
+        "id": "6e032c12-dd71-412e-8858-bed981e20def",
+        "order": 15,
+        "description": "Enter \"corrected-3\" in the input",
+        "action": "fill",
+        "target": {
+          "strategy": "testId",
+          "value": "payment-reference",
+          "exact": false,
+          "fallbacks": [
+            {
+              "strategy": "role",
+              "value": "textbox",
+              "name": "Reference",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "label",
+              "value": "Reference",
+              "exact": false,
+              "fallbacks": []
+            },
+            {
+              "strategy": "placeholder",
+              "value": "Up to 18 characters",
+              "exact": false,
+              "fallbacks": []
+            }
+          ]
+        },
+        "targetDescription": "testId=\"payment-reference\"",
+        "value": "corrected-3",
+        "url": "http://localhost:4200/payments",
+        "isCritical": true,
+        "continueOnFailure": false,
+        "healCount": 0,
+        "assertions": []
+      }
+    ]
+  }
+}

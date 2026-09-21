@@ -4,7 +4,7 @@ Generated from `reports/results.jsonl`. Each row is the most recent execution of
 check. Hashes are SHA-256 of the artifact as it is on disk now, recomputed when this index
 was generated — a mismatch would mean the file changed after the check recorded it.
 
-Generated 2026-09-20T20:21:57.514Z.
+Generated 2026-09-21T01:51:00.382Z.
 
 | Test ID | Capability | Result | Ran at | Evidence (SHA-256, first 16) |
 | --- | --- | --- | --- | --- |
@@ -14,6 +14,13 @@ Generated 2026-09-20T20:21:57.514Z.
 | CONC-001 | Twenty-five runs started at once all reach a verdict without interference | **PASS** | 2026-09-20 20:21:26Z | `performance/CONC-001-reverify.json` (c802ee8ce2a23481) |
 | CONC-002 | No worker request was throttled during the parallel run | **PASS** | 2026-09-20 20:21:46Z | `failures/BUG-0004/logs/after-fix-worker-window.log` (a215888db11fa7bc) |
 | EXEC-001 | The same test executes on Chromium, Firefox and WebKit | **PASS** | 2026-09-20 16:39:23Z | `reports/EXEC-001-browsers.json` (4b41ba65d06ce043) |
+| EXT-001 | The real extension records a real journey through a real browser | **PASS** | 2026-09-21 01:50:59Z | `evidence/extension/recorded-journey.json` (cba9828f00910232) |
+| EXT-002 | No step is lost when events arrive in the same tick | **PASS** | 2026-09-21 01:50:59Z | `evidence/extension/recorded-journey.json` (cba9828f00910232) |
+| EXT-003 | A typed password is not readable from the export, the extension storage or the popup | **PASS** | 2026-09-21 01:50:59Z | `evidence/extension/recorded-journey.json` (cba9828f00910232)<br>`evidence/extension/session-storage.json` (a5bf600b423a5d12) |
+| EXT-004 | Every recorded locator resolves to exactly one element in a fresh browser | **PASS** | 2026-09-21 01:50:59Z | `evidence/extension/locator-resolution.json` (1e33ecb3efdb0006) |
+| EXT-005 | The recorder neither alters the page nor swallows the interaction | **PASS** | 2026-09-21 01:50:59Z | `evidence/extension/page-fingerprints.json` (843cfcaf208d568a) |
+| EXT-006 | The imported recording is stored with a secret reference, never the password | **PASS** | 2026-09-21 01:51:00Z | `evidence/extension/imported-test-case.json` (e68fb1d43f38041e) |
+| EXT-007 | Consecutive edits to one field are recorded as the one step the user performed | **PASS** | 2026-09-21 01:50:59Z | `evidence/extension/recorded-journey.json` (cba9828f00910232) |
 | FLAKE-001 | A genuinely unstable application yields unstable results | **PASS** | 2026-09-20 16:39:33Z | `reports/FLAKE-001-twenty-runs.json` (9b77a2bc60651ebe) |
 | FN-001 | A known-good test passes repeatedly without random failures | **PASS** | 2026-09-20 16:21:09Z | `reports/FN-001-repeatability.json` (74dfd9531de54c8b) |
 | FP-001 | A false assertion produces a failure, never a pass | **PASS** | 2026-09-20 16:21:03Z | `reports/FP-001-false-assertion.json` (23cb0691043de247) |
@@ -49,4 +56,4 @@ Generated 2026-09-20T20:21:57.514Z.
 | SEC-052 | A token in a query string does not authenticate | **PASS** | 2026-09-20 16:36:04Z | inline in `results.jsonl` |
 | SEC-060 | Path traversal in an artifact id does not read the filesystem | **PASS** | 2026-09-20 16:36:04Z | inline in `results.jsonl` |
 
-**40 passed, 0 failed** of 40 checks.
+**47 passed, 0 failed** of 47 checks.

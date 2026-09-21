@@ -1,0 +1,14 @@
+Mutation: the recorder captures the password it typed
+Applied to dist/content.js
+  value: isSecret ? "${secret:app_password}" : input.value,
+→ value: input.value,
+
+
+=== Browser extension recorder ===
+PASS  EXT-001  The real extension records a real journey through a real browser — 15 step(s), orders contiguous, recording started: true, recorder armed within 266ms of the navigation
+PASS  EXT-002  No step is lost when events arrive in the same tick — 8 of 8 captured
+PASS  EXT-007  Consecutive edits to one field are recorded as the one step the user performed — 3 edit(s) to one field recorded as 1 step(s) holding corrected-3
+FAIL  EXT-003  A typed password is not readable from the export, the extension storage or the popup — the password appears in: exported journey, extension session storage, popup window
+PASS  EXT-004  Every recorded locator resolves to exactly one element in a fresh browser — 14 of 14 recorded locator(s) resolved uniquely
+PASS  EXT-005  The recorder neither alters the page nor swallows the interaction — page skeleton identical with and without the recorder; 0 overlay element(s) while recording; sign-in proceeded
+FAIL  EXT-006  The imported recording is stored with a secret reference, never the password — 15 of 15 step(s) imported as TC-0001; password PRESENT in the stored test case; secret reference MISSING

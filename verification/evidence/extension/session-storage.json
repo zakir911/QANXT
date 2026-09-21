@@ -1,0 +1,707 @@
+{
+  "aira.recording": {
+    "name": "Independent verification journey",
+    "paused": false,
+    "recording": false,
+    "startUrl": "http://localhost:4200/login",
+    "startedAt": "2026-09-21T01:50:54.364Z",
+    "steps": [
+      {
+        "action": "navigate",
+        "description": "Go to /login",
+        "order": 1,
+        "timestampMs": 1789955454364,
+        "url": "http://localhost:4200/login"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "username"
+          },
+          {
+            "name": "Username",
+            "strategy": "role",
+            "value": "textbox"
+          },
+          {
+            "strategy": "label",
+            "value": "Username"
+          },
+          {
+            "strategy": "css",
+            "value": "#username"
+          },
+          {
+            "strategy": "css",
+            "value": "input[name=\"username\"]"
+          }
+        ],
+        "description": "Enter \"alice\" in the input",
+        "order": 2,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Username",
+              "strategy": "role",
+              "value": "textbox"
+            },
+            {
+              "strategy": "label",
+              "value": "Username"
+            },
+            {
+              "strategy": "css",
+              "value": "#username"
+            }
+          ],
+          "strategy": "testId",
+          "value": "username"
+        },
+        "timestampMs": 1789955454830,
+        "url": "http://localhost:4200/login",
+        "value": "alice"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "password"
+          },
+          {
+            "strategy": "label",
+            "value": "Password"
+          },
+          {
+            "strategy": "css",
+            "value": "#password"
+          },
+          {
+            "strategy": "css",
+            "value": "input[name=\"password\"]"
+          }
+        ],
+        "description": "Enter the password in the input",
+        "order": 3,
+        "target": {
+          "fallbacks": [
+            {
+              "strategy": "label",
+              "value": "Password"
+            },
+            {
+              "strategy": "css",
+              "value": "#password"
+            },
+            {
+              "strategy": "css",
+              "value": "input[name=\"password\"]"
+            }
+          ],
+          "strategy": "testId",
+          "value": "password"
+        },
+        "timestampMs": 1789955454874,
+        "url": "http://localhost:4200/login",
+        "value": "${secret:app_password}"
+      },
+      {
+        "action": "click",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "login-submit"
+          },
+          {
+            "name": "Sign in",
+            "strategy": "role",
+            "value": "button"
+          },
+          {
+            "exact": true,
+            "strategy": "text",
+            "value": "Sign in"
+          },
+          {
+            "strategy": "css",
+            "value": "main > div > div > form > div:nth-of-type(2) > button"
+          }
+        ],
+        "description": "Click \"Sign in\"",
+        "order": 4,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Sign in",
+              "strategy": "role",
+              "value": "button"
+            },
+            {
+              "exact": true,
+              "strategy": "text",
+              "value": "Sign in"
+            },
+            {
+              "strategy": "css",
+              "value": "main > div > div > form > div:nth-of-type(2) > button"
+            }
+          ],
+          "strategy": "testId",
+          "value": "login-submit"
+        },
+        "timestampMs": 1789955454875,
+        "url": "http://localhost:4200/login"
+      },
+      {
+        "action": "click",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "nav-payments"
+          },
+          {
+            "name": "Payments",
+            "strategy": "role",
+            "value": "link"
+          },
+          {
+            "exact": true,
+            "strategy": "text",
+            "value": "Payments"
+          },
+          {
+            "strategy": "css",
+            "value": "html > body > nav > a:nth-of-type(4)"
+          }
+        ],
+        "description": "Click \"Payments\"",
+        "order": 5,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Payments",
+              "strategy": "role",
+              "value": "link"
+            },
+            {
+              "exact": true,
+              "strategy": "text",
+              "value": "Payments"
+            },
+            {
+              "strategy": "css",
+              "value": "html > body > nav > a:nth-of-type(4)"
+            }
+          ],
+          "strategy": "testId",
+          "value": "nav-payments"
+        },
+        "timestampMs": 1789955454974,
+        "url": "http://localhost:4200/dashboard"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "payment-amount"
+          },
+          {
+            "name": "Amount (GBP)",
+            "strategy": "role",
+            "value": "textbox"
+          },
+          {
+            "strategy": "label",
+            "value": "Amount (GBP)"
+          },
+          {
+            "strategy": "placeholder",
+            "value": "0.00"
+          },
+          {
+            "strategy": "css",
+            "value": "#amount"
+          }
+        ],
+        "description": "Enter \"arming-probe\" in the input",
+        "order": 6,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Amount (GBP)",
+              "strategy": "role",
+              "value": "textbox"
+            },
+            {
+              "strategy": "label",
+              "value": "Amount (GBP)"
+            },
+            {
+              "strategy": "placeholder",
+              "value": "0.00"
+            }
+          ],
+          "strategy": "testId",
+          "value": "payment-amount"
+        },
+        "timestampMs": 1789955455009,
+        "url": "http://localhost:4200/payments",
+        "value": "arming-probe"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "payment-reference"
+          },
+          {
+            "name": "Reference",
+            "strategy": "role",
+            "value": "textbox"
+          },
+          {
+            "strategy": "label",
+            "value": "Reference"
+          },
+          {
+            "strategy": "placeholder",
+            "value": "Up to 18 characters"
+          },
+          {
+            "strategy": "css",
+            "value": "#reference"
+          }
+        ],
+        "description": "Enter \"burst-1\" in the input",
+        "order": 7,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Reference",
+              "strategy": "role",
+              "value": "textbox"
+            },
+            {
+              "strategy": "label",
+              "value": "Reference"
+            },
+            {
+              "strategy": "placeholder",
+              "value": "Up to 18 characters"
+            }
+          ],
+          "strategy": "testId",
+          "value": "payment-reference"
+        },
+        "timestampMs": 1789955455273,
+        "url": "http://localhost:4200/payments",
+        "value": "burst-1"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "payment-amount"
+          },
+          {
+            "name": "Amount (GBP)",
+            "strategy": "role",
+            "value": "textbox"
+          },
+          {
+            "strategy": "label",
+            "value": "Amount (GBP)"
+          },
+          {
+            "strategy": "placeholder",
+            "value": "0.00"
+          },
+          {
+            "strategy": "css",
+            "value": "#amount"
+          }
+        ],
+        "description": "Enter \"burst-2\" in the input",
+        "order": 8,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Amount (GBP)",
+              "strategy": "role",
+              "value": "textbox"
+            },
+            {
+              "strategy": "label",
+              "value": "Amount (GBP)"
+            },
+            {
+              "strategy": "placeholder",
+              "value": "0.00"
+            }
+          ],
+          "strategy": "testId",
+          "value": "payment-amount"
+        },
+        "timestampMs": 1789955455273,
+        "url": "http://localhost:4200/payments",
+        "value": "burst-2"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "payment-reference"
+          },
+          {
+            "name": "Reference",
+            "strategy": "role",
+            "value": "textbox"
+          },
+          {
+            "strategy": "label",
+            "value": "Reference"
+          },
+          {
+            "strategy": "placeholder",
+            "value": "Up to 18 characters"
+          },
+          {
+            "strategy": "css",
+            "value": "#reference"
+          }
+        ],
+        "description": "Enter \"burst-3\" in the input",
+        "order": 9,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Reference",
+              "strategy": "role",
+              "value": "textbox"
+            },
+            {
+              "strategy": "label",
+              "value": "Reference"
+            },
+            {
+              "strategy": "placeholder",
+              "value": "Up to 18 characters"
+            }
+          ],
+          "strategy": "testId",
+          "value": "payment-reference"
+        },
+        "timestampMs": 1789955455274,
+        "url": "http://localhost:4200/payments",
+        "value": "burst-3"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "payment-amount"
+          },
+          {
+            "name": "Amount (GBP)",
+            "strategy": "role",
+            "value": "textbox"
+          },
+          {
+            "strategy": "label",
+            "value": "Amount (GBP)"
+          },
+          {
+            "strategy": "placeholder",
+            "value": "0.00"
+          },
+          {
+            "strategy": "css",
+            "value": "#amount"
+          }
+        ],
+        "description": "Enter \"burst-4\" in the input",
+        "order": 10,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Amount (GBP)",
+              "strategy": "role",
+              "value": "textbox"
+            },
+            {
+              "strategy": "label",
+              "value": "Amount (GBP)"
+            },
+            {
+              "strategy": "placeholder",
+              "value": "0.00"
+            }
+          ],
+          "strategy": "testId",
+          "value": "payment-amount"
+        },
+        "timestampMs": 1789955455274,
+        "url": "http://localhost:4200/payments",
+        "value": "burst-4"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "payment-reference"
+          },
+          {
+            "name": "Reference",
+            "strategy": "role",
+            "value": "textbox"
+          },
+          {
+            "strategy": "label",
+            "value": "Reference"
+          },
+          {
+            "strategy": "placeholder",
+            "value": "Up to 18 characters"
+          },
+          {
+            "strategy": "css",
+            "value": "#reference"
+          }
+        ],
+        "description": "Enter \"burst-5\" in the input",
+        "order": 11,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Reference",
+              "strategy": "role",
+              "value": "textbox"
+            },
+            {
+              "strategy": "label",
+              "value": "Reference"
+            },
+            {
+              "strategy": "placeholder",
+              "value": "Up to 18 characters"
+            }
+          ],
+          "strategy": "testId",
+          "value": "payment-reference"
+        },
+        "timestampMs": 1789955455274,
+        "url": "http://localhost:4200/payments",
+        "value": "burst-5"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "payment-amount"
+          },
+          {
+            "name": "Amount (GBP)",
+            "strategy": "role",
+            "value": "textbox"
+          },
+          {
+            "strategy": "label",
+            "value": "Amount (GBP)"
+          },
+          {
+            "strategy": "placeholder",
+            "value": "0.00"
+          },
+          {
+            "strategy": "css",
+            "value": "#amount"
+          }
+        ],
+        "description": "Enter \"burst-6\" in the input",
+        "order": 12,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Amount (GBP)",
+              "strategy": "role",
+              "value": "textbox"
+            },
+            {
+              "strategy": "label",
+              "value": "Amount (GBP)"
+            },
+            {
+              "strategy": "placeholder",
+              "value": "0.00"
+            }
+          ],
+          "strategy": "testId",
+          "value": "payment-amount"
+        },
+        "timestampMs": 1789955455275,
+        "url": "http://localhost:4200/payments",
+        "value": "burst-6"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "payment-reference"
+          },
+          {
+            "name": "Reference",
+            "strategy": "role",
+            "value": "textbox"
+          },
+          {
+            "strategy": "label",
+            "value": "Reference"
+          },
+          {
+            "strategy": "placeholder",
+            "value": "Up to 18 characters"
+          },
+          {
+            "strategy": "css",
+            "value": "#reference"
+          }
+        ],
+        "description": "Enter \"burst-7\" in the input",
+        "order": 13,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Reference",
+              "strategy": "role",
+              "value": "textbox"
+            },
+            {
+              "strategy": "label",
+              "value": "Reference"
+            },
+            {
+              "strategy": "placeholder",
+              "value": "Up to 18 characters"
+            }
+          ],
+          "strategy": "testId",
+          "value": "payment-reference"
+        },
+        "timestampMs": 1789955455275,
+        "url": "http://localhost:4200/payments",
+        "value": "burst-7"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "payment-amount"
+          },
+          {
+            "name": "Amount (GBP)",
+            "strategy": "role",
+            "value": "textbox"
+          },
+          {
+            "strategy": "label",
+            "value": "Amount (GBP)"
+          },
+          {
+            "strategy": "placeholder",
+            "value": "0.00"
+          },
+          {
+            "strategy": "css",
+            "value": "#amount"
+          }
+        ],
+        "description": "Enter \"burst-8\" in the input",
+        "order": 14,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Amount (GBP)",
+              "strategy": "role",
+              "value": "textbox"
+            },
+            {
+              "strategy": "label",
+              "value": "Amount (GBP)"
+            },
+            {
+              "strategy": "placeholder",
+              "value": "0.00"
+            }
+          ],
+          "strategy": "testId",
+          "value": "payment-amount"
+        },
+        "timestampMs": 1789955455276,
+        "url": "http://localhost:4200/payments",
+        "value": "burst-8"
+      },
+      {
+        "action": "fill",
+        "candidates": [
+          {
+            "strategy": "testId",
+            "value": "payment-reference"
+          },
+          {
+            "name": "Reference",
+            "strategy": "role",
+            "value": "textbox"
+          },
+          {
+            "strategy": "label",
+            "value": "Reference"
+          },
+          {
+            "strategy": "placeholder",
+            "value": "Up to 18 characters"
+          },
+          {
+            "strategy": "css",
+            "value": "#reference"
+          }
+        ],
+        "description": "Enter \"corrected-3\" in the input",
+        "order": 15,
+        "target": {
+          "fallbacks": [
+            {
+              "name": "Reference",
+              "strategy": "role",
+              "value": "textbox"
+            },
+            {
+              "strategy": "label",
+              "value": "Reference"
+            },
+            {
+              "strategy": "placeholder",
+              "value": "Up to 18 characters"
+            }
+          ],
+          "strategy": "testId",
+          "value": "payment-reference"
+        },
+        "timestampMs": 1789955457989,
+        "url": "http://localhost:4200/payments",
+        "value": "corrected-3"
+      }
+    ],
+    "tabId": 2024804819
+  }
+}

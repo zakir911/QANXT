@@ -48,6 +48,31 @@ async function tell(tabId: number, message: BackgroundToContent): Promise<void> 
 }
 
 /**
+ * Compares two locators by what they describe rather than by how they serialise.
+ *
+ * The previous step comes back out of `chrome.storage.session`, which returns an object's
+ * keys in sorted order rather than the order they were written; the step that has just
+ * arrived is in insertion order. Comparing their `JSON.stringify` output therefore never
+ * matched, for any step — see verification/failures/BUG-0006. A canonical form makes the
+ * comparison independent of a storage backend's habits.
+ */
+function canonical(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'null';
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  return `{${Object.entries(value as Record<string, unknown>)
+    .filter(([, item]) => item !== undefined)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, item]) => `${JSON.stringify(key)}:${canonical(item)}`)
+    .join(',')}}`;
+}
+
+/** Two steps merge only if both name the same element; a step with no locator never merges. */
+function sameTarget(a: RecordedStep['target'], b: RecordedStep['target']): boolean {
+  if (!a || !b) return false;
+  return canonical(a) === canonical(b);
+}
+
+/**
  * Runs the stored-state handlers one at a time.
  *
  * Every handler below is a read-modify-write over a single stored recording, and MV3
@@ -82,7 +107,7 @@ chrome.runtime.onMessage.addListener((
       // think of it as one action per keystroke, and neither should the generated test.
       const previous = state.steps[state.steps.length - 1];
       if (previous && previous.action === 'fill' && step.action === 'fill'
-        && JSON.stringify(previous.target) === JSON.stringify(step.target)) {
+        && sameTarget(previous.target, step.target)) {
         state.steps[state.steps.length - 1] = { ...step, order: previous.order };
       } else {
         state.steps.push(step);

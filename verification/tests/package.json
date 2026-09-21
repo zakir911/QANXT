@@ -1,0 +1,20 @@
+{
+  "name": "@aira/verification",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Independent verification suites: they drive the running product from outside and try to break it",
+  "scripts": {
+    "security": "node sec.mjs",
+    "healing": "node heal.mjs",
+    "trust": "node trust.mjs",
+    "ops": "node ops.mjs",
+    "execution": "node exec-flake.mjs",
+    "concurrency": "node conc-reverify.mjs",
+    "extension": "node ext.mjs",
+    "report": "node report.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.56.0"
+  }
+}

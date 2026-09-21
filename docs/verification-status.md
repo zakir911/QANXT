@@ -78,9 +78,14 @@ exist that do not yet.
 
 An adversarial verification pass was run against a live deployment and is recorded under
 `verification/`, with its own environment record, traceability matrix, evidence index
-(SHA-256 per artifact) and bug reports. Forty checks; all pass on the current build. It found
-five defects the 215-test product suite had not, including a rate limiter that had never
-partitioned as designed and an SSRF flag that unlocked the cloud metadata range.
+(SHA-256 per artifact) and bug reports. Forty-seven checks; all pass on the current build.
+It found six defects the 215-test product suite had not, including a rate limiter that had
+never partitioned as designed and an SSRF flag that unlocked the cloud metadata range.
+
+Seven of those checks (EXT-001 to EXT-007) drive the real browser extension in a real
+Chromium and are themselves checked: `node verification/tests/ext-negative-control.mjs`
+breaks the extension five different ways and requires each check to catch its own
+breakage.
 
 Run it with `make verify-all`. Its conclusion is **PARTIALLY VERIFIED** — see
 `verification/final-report/FINAL-VERIFICATION-REPORT.md` for exactly what that excludes and
@@ -108,4 +113,5 @@ and declaring it correct.
 | Docker work | `Dockerfile.worker` claimed the worker exposes no port and health-checked it with `kill -0 1`. The worker serves `/health` on 9091, and a consumer that has lost Redis looks perfectly alive to a PID check while doing no work at all. |
 | User management | Every access token carried a security stamp that nothing ever checked. Disabling an account, demoting someone or resetting a password left their existing session working for up to an hour — the token lifetime — while the UI reported success. Removing the new validator makes three tests fail, which is what that gap looked like. |
 | User management | Login refused any account whose status was not `Active`, so an invited user could never sign in and every invitation was a dead end. Login now accepts `Invited` and promotes it to `Active` on first use, which is also what makes the status worth recording. |
+| Extension verification | The service worker's de-duplication of consecutive edits to one field had never fired: it compared two locators by `JSON.stringify`, and `chrome.storage.session` returns keys in sorted order, so the stored locator and the incoming one never matched. Every change event became a step, corrected values included. The unit test covering it passed because its storage stub preserved key order; the stub now sorts keys as Chrome does. See `verification/failures/BUG-0006/`. |
 | Writing `setup.md` | The project-key field's `pattern` attribute was `[A-Za-z0-9_-]+`. Chrome compiles that attribute with the regular-expression `v` flag, where `_-` is a reserved double punctuator, so the browser rejected the pattern outright and it validated nothing — logging a console error on every render of the form. The server still validated the key, so this was a usability defect rather than a security one. |

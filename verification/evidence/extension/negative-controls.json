@@ -1,0 +1,108 @@
+{
+  "generatedAt": "2026-09-21T01:48:15.133Z",
+  "note": "Each mutation breaks one property of the real extension. A check that does not go red for its own mutation is not evidence of anything.",
+  "mutations": [
+    {
+      "id": "EXT-002",
+      "mutation": "the service worker stops serialising its handlers",
+      "why": "restores the read-modify-write race that used to drop steps arriving in one tick",
+      "applied": true,
+      "detected": true,
+      "verdicts": {
+        "EXT-001": "PASS",
+        "EXT-002": "FAIL",
+        "EXT-007": "PASS",
+        "EXT-003": "FAIL",
+        "EXT-004": "PASS",
+        "EXT-005": "PASS",
+        "EXT-006": "FAIL"
+      },
+      "alsoFailed": [
+        "EXT-003",
+        "EXT-006"
+      ]
+    },
+    {
+      "id": "EXT-003",
+      "mutation": "the recorder captures the password it typed",
+      "why": "the literal credential would reach the export, the extension storage and the platform",
+      "applied": true,
+      "detected": true,
+      "verdicts": {
+        "EXT-001": "PASS",
+        "EXT-002": "PASS",
+        "EXT-007": "PASS",
+        "EXT-003": "FAIL",
+        "EXT-004": "PASS",
+        "EXT-005": "PASS",
+        "EXT-006": "FAIL"
+      },
+      "alsoFailed": [
+        "EXT-006"
+      ]
+    },
+    {
+      "id": "EXT-004",
+      "mutation": "recorded test ids drift, and candidates are no longer checked against the page",
+      "why": "locators that look plausible but address nothing in a fresh browser",
+      "applied": true,
+      "detected": true,
+      "verdicts": {
+        "EXT-001": "PASS",
+        "EXT-002": "PASS",
+        "EXT-007": "PASS",
+        "EXT-003": "PASS",
+        "EXT-004": "FAIL",
+        "EXT-005": "PASS",
+        "EXT-006": "PASS"
+      },
+      "alsoFailed": []
+    },
+    {
+      "id": "EXT-005",
+      "mutation": "the recorder injects a node into the page it is recording",
+      "why": "a recorder that modifies the application is recording something the user never had",
+      "applied": true,
+      "detected": true,
+      "verdicts": {
+        "EXT-001": "PASS",
+        "EXT-002": "PASS",
+        "EXT-007": "PASS",
+        "EXT-003": "PASS",
+        "EXT-004": "PASS",
+        "EXT-005": "FAIL",
+        "EXT-006": "PASS"
+      },
+      "alsoFailed": []
+    },
+    {
+      "id": "EXT-007",
+      "mutation": "consecutive edits to one field are compared by their serialised form again",
+      "why": "the comparison BUG-0006 was about: never true, so every change event became a step",
+      "applied": true,
+      "detected": true,
+      "verdicts": {
+        "EXT-001": "PASS",
+        "EXT-002": "PASS",
+        "EXT-007": "FAIL",
+        "EXT-003": "PASS",
+        "EXT-004": "PASS",
+        "EXT-005": "PASS",
+        "EXT-006": "PASS"
+      },
+      "alsoFailed": []
+    }
+  ],
+  "cleanRebuild": {
+    "verdicts": {
+      "EXT-001": "PASS",
+      "EXT-002": "PASS",
+      "EXT-007": "PASS",
+      "EXT-003": "PASS",
+      "EXT-004": "PASS",
+      "EXT-005": "PASS",
+      "EXT-006": "PASS"
+    },
+    "exitCode": 0
+  }
+}

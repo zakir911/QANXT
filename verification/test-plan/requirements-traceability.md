@@ -37,7 +37,10 @@ are not independent evidence.
 | R-26 | CLI | Exit codes distinguish failure kinds; JUnit is well-formed | CLI-001, CLI-002 | `reports/CLI-*.json`, `reports/CLI-002-junit.xml` | **VERIFIED** |
 | R-27 | Quality gates | A failing gate blocks a pipeline | Project suite (`tests/e2e/cli-check.mjs`) | `docs/verification-status.md` | **PARTIALLY VERIFIED** — verified by the project's own e2e check, not independently re-run here |
 | R-28 | Autonomous agent | A bounded pass proposes without acting | Project suite (`AgentTests`) | 52 integration tests | **PARTIALLY VERIFIED** — bounds and absence of authority covered by the project suite; not independently re-executed |
-| R-29 | Browser extension | A journey is recorded in a real browser | Project suite (`extension-check.mjs`) | `docs/verification-status.md` | **NOT INDEPENDENTLY VERIFIED** — see limitations |
+| R-29 | Browser extension | A journey is recorded in a real browser | EXT-001, EXT-002, EXT-007 | `evidence/extension/recorded-journey.json` | **VERIFIED** |
+| R-33 | Recorder fidelity | Recorded locators address real elements in a fresh browser | EXT-004 | `evidence/extension/locator-resolution.json` | **VERIFIED** |
+| R-34 | Recorder transparency | The recorder does not alter or intercept the application it records | EXT-005 | `evidence/extension/page-fingerprints.json` | **VERIFIED** |
+| R-35 | Recorded credentials | A typed password is unreadable in the export, the extension's storage, the popup and the platform's database | EXT-003, EXT-006 | `evidence/extension/session-storage.json`, `evidence/extension/imported-test-case.json` | **VERIFIED** |
 | R-30 | CI/CD pipelines | Pipelines run the product and publish results | — | — | **NOT VERIFIED** — no runner available; see limitations |
 | R-31 | Docker deployment | The platform runs from one compose file | Project verification | `docs/verification-status.md` | **PARTIALLY VERIFIED** — API and worker images built and run; console and demo-bank images unbuildable here |
 | R-32 | Manual test authoring | A test can be written by hand | BUG-0002 | `failures/BUG-0002/` | **NOT IMPLEMENTED** — no endpoint exists |

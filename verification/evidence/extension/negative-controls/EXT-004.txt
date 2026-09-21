@@ -1,0 +1,16 @@
+Mutation: recorded test ids drift, and candidates are no longer checked against the page
+Applied to dist/content.js
+  if (value) return value;
+→ if (value) return value + "-drifted";
+  if (found.length === 0) return;
+→ if (found.length === 0) { candidates.push(candidate); return; }
+
+
+=== Browser extension recorder ===
+PASS  EXT-001  The real extension records a real journey through a real browser — 15 step(s), orders contiguous, recording started: true, recorder armed within 277ms of the navigation
+PASS  EXT-002  No step is lost when events arrive in the same tick — 8 of 8 captured
+PASS  EXT-007  Consecutive edits to one field are recorded as the one step the user performed — 3 edit(s) to one field recorded as 1 step(s) holding corrected-3
+PASS  EXT-003  A typed password is not readable from the export, the extension storage or the popup — absent from all 3 readable surfaces; recorded as ${secret:app_password}
+FAIL  EXT-004  Every recorded locator resolves to exactly one element in a fresh browser — 0 of 14 recorded locator(s) resolved uniquely; failed: #2 testId=username-drifted matched 0; #3 testId=password-drifted matched 0; #4 testId=login-submit-drifted matched 0; #5 testId=nav-payments-drifted matched 0; #6 testId=payment-amount-drifted matched 0; #7 testId=payment-reference-drifted matched 0; #8 testId=payment-amount-drifted matched 0; #9 testId=payment-reference-drifted matched 0; #10 testId=payment-amount-drifted matched 0; #11 testId=payment-reference-drifted matched 0; #12 testId=payment-amount-drifted matched 0; #13 testId=payment-reference-drifted matched 0; #14 testId=payment-amount-drifted matched 0; #15 testId=payment-reference-drifted matched 0
+PASS  EXT-005  The recorder neither alters the page nor swallows the interaction — page skeleton identical with and without the recorder; 0 overlay element(s) while recording; sign-in proceeded
+PASS  EXT-006  The imported recording is stored with a secret reference, never the password — 15 of 15 step(s) imported as TC-0001; password absent; secret reference stored

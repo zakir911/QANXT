@@ -20,13 +20,16 @@ bash scripts/worker-ctl.sh start
 section "Building the CLI (CLI-001 and CLI-002 execute it)"
 pnpm --filter @aira/cli... build >/dev/null
 
+section "Building the browser extension (the EXT checks load it into Chromium)"
+pnpm --filter @aira/browser-extension build >/dev/null
+
 section "Product test suites (regression baseline)"
 bash scripts/test.sh
 
 section "Independent verification suites"
 cd verification/tests
 failed=()
-for suite in sec.mjs heal.mjs trust.mjs ops.mjs exec-flake.mjs conc-reverify.mjs; do
+for suite in sec.mjs heal.mjs trust.mjs ops.mjs exec-flake.mjs conc-reverify.mjs ext.mjs; do
   printf '\n\033[1m-- %s\033[0m\n' "$suite"
   node "$suite" || failed+=("$suite")
 done

@@ -17,7 +17,14 @@ export const API = (process.env.AIRA_API_URL ?? 'http://127.0.0.1:5080').replace
 export const CONSOLE_URL = (process.env.AIRA_CONSOLE_URL ?? 'http://127.0.0.1:5173').replace(/\/+$/, '');
 export const BANK = (process.env.AIRA_DEMO_BANK_URL ?? 'http://localhost:4200').replace(/\/+$/, '');
 
-const RESULTS = resolve(EVIDENCE, 'reports/results.jsonl');
+/**
+ * The ledger every check appends to. It is redirectable so that a deliberate negative
+ * control — a suite run against a broken build, to prove the check can fail — records its
+ * result somewhere other than the ledger that describes the product as it stands.
+ */
+const RESULTS = process.env.AIRA_VERIFY_RESULTS
+  ? resolve(EVIDENCE, process.env.AIRA_VERIFY_RESULTS)
+  : resolve(EVIDENCE, 'reports/results.jsonl');
 
 export function evidencePath(...parts) {
   const path = resolve(EVIDENCE, ...parts);

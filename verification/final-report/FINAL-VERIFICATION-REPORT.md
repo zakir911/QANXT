@@ -24,18 +24,18 @@ Read this report as a structured invitation to disprove it, not as a certificate
 
 ## Executive summary
 
-Forty independent checks were executed against a running deployment. All forty pass on the
-current build. Getting there required finding and fixing five defects, two of which were
-serious and neither of which the product's own 215-test suite had caught.
+Forty-seven independent checks were executed against a running deployment. All forty-seven
+pass on the current build. Getting there required finding and fixing six defects, two of
+which were serious and none of which the product's own 215-test suite had caught.
 
 | | |
 | --- | --- |
-| **Build verified** | `db15fa6` plus the five fixes below |
-| **Independent checks** | 40 — all passing |
-| **Defects found** | 5 (1 HIGH security, 2 HIGH reliability, 1 MEDIUM privacy, 1 MEDIUM missing capability) |
-| **Defects fixed and re-verified** | 4 |
+| **Build verified** | `082c85b` plus the six fixes below |
+| **Independent checks** | 47 — all passing |
+| **Defects found** | 6 (1 HIGH security, 2 HIGH reliability, 1 MEDIUM privacy, 1 MEDIUM missing capability, 1 LOW recorder fidelity) |
+| **Defects fixed and re-verified** | 5 |
 | **Defects recorded, not fixed** | 1 (BUG-0002, a missing feature) |
-| **Regressions introduced** | 0 — 215 product tests still pass |
+| **Regressions introduced** | 0 — the product's own tests still pass |
 
 The most important findings were not in the features. They were in the seams: a security
 flag that unlocked more than it claimed, a rate limiter that had never worked as designed,
@@ -109,6 +109,34 @@ number of tests it contains (CLI-001, CLI-002).
 zero throttled worker requests and zero dropped artifacts (CONC-001, CONC-002) — after the
 fixes below.
 
+**The browser extension records faithfully.** Seven checks (EXT-001 to EXT-007) load the
+real MV3 extension into a real Chromium, drive its popup as a person does, and record a
+real journey through the demo bank. The suite does not reuse the product's own extension
+check and does not assert the same things:
+
+- Every recorded locator was re-resolved **in a separate browser session** that had no part
+  in the recording: 14 of 14 addressed exactly one element (EXT-004). A recording whose
+  locators only work in the browser that made them is not a test.
+- The page's element skeleton is **byte-identical** with the recorder attached and in a
+  browser with no extension at all, no overlay is present while merely recording, and the
+  recorded sign-in still signed in (EXT-005). The recorder observes; it does not intervene.
+- A typed password is absent from the export, from the extension's own
+  `chrome.storage.session`, from the popup window, and from the platform's database after
+  import — checked by reading each surface back, not by trusting the substitution
+  (EXT-003, EXT-006).
+- Eight change events fired into a single tick all survive (EXT-002), and three edits to one
+  field arrive as the one step the person performed (EXT-007) — the defect below.
+
+**These checks were themselves tested.** `ext-negative-control.mjs` breaks one property of
+the real extension at a time — removes the service worker's serialisation, records the
+password literally, emits unvalidated locators, injects a node into the page, restores the
+broken comparison — rebuilds, and re-runs the suite. Each of the five mutations turned its
+own check red, and the clean rebuild returns every check to green
+(`evidence/extension/negative-controls.json`). One mutation had to be rewritten to get
+there, which is itself a finding: drifting a recorded test id alone changes nothing
+observable, because the recorder checks every candidate locator against the live document
+and silently drops one that matches nothing.
+
 ### Partially verified
 
 | Capability | What is missing |
@@ -124,7 +152,6 @@ fixes below.
 | Capability | Why |
 | --- | --- |
 | **CI/CD pipelines** | No GitHub Actions or Azure DevOps runner is reachable. The workflow files parse and their embedded logic was run locally, but no pipeline has ever executed. |
-| **Browser extension** | Covered by the product's own check, which loads the real extension into Chromium. I did not re-derive it independently, so it is not independent evidence. |
 | **Manual test authoring** | Not implemented — see BUG-0002. |
 | **Performance baselines** | Latencies were observed incidentally (runs 1.1–2.0s, 25 parallel without degradation) but no load test was designed, so no baseline is claimed. |
 | **Recovery testing** | Killing the API, Redis or the database mid-execution was not exercised. BUG-0005's fix addresses the worker case specifically. |
@@ -183,6 +210,35 @@ masked, so the scope was narrow — but the product's stated rule is that creden
 stored readably. Import now compares values against the application's stored credentials and
 substitutes a `${secret:...}` reference.
 
+### BUG-0006 — the recorder's step de-duplication never fired · LOW · fixed
+
+The service worker collapses consecutive edits to one field into a single step — or says it
+does. It compared `JSON.stringify(previous.target)` with `JSON.stringify(step.target)`,
+where the first object came back out of `chrome.storage.session`. That API returns an
+object's keys in sorted order, not in the order they were written, measured directly in the
+extension's own service worker:
+
+```
+written:   {"strategy":"testId","value":"username","fallbacks":[{"strategy":"role", ...}]}
+read back: {"fallbacks":[{"name":"Username","strategy":"role", ...}],"strategy":"testId", ...}
+equal:     false
+```
+
+The two strings never matched, for any step, so every change event became a step: three
+edits to one field recorded three times, including values the person had corrected and
+deleted. Reproduced 2 of 2 in a real browser, then a third time at unit level.
+
+The unit test that covers this behaviour **passed throughout**, because the test's storage
+stub cloned with `structuredClone`, which preserves key order. The stub now sorts keys the
+way Chrome does, which made the existing test fail; the fix — comparing the descriptors
+canonically rather than by their serialised form — turns it green again. The stub was the
+more valuable half of this fix: it was the reason a defect in shipped code looked tested.
+
+Impact is small — the last write wins at run time, so a generated test still passes — but
+the recording misrepresents what the person did, and intermediate values reach the database.
+
+---
+
 ### BUG-0002 — a test cannot be authored by hand · MEDIUM · recorded, not fixed
 
 `POST /api/v1/testcases` returns 405. Tests can only be generated or imported, though
@@ -191,7 +247,7 @@ schedule rather than fixed opportunistically during verification.
 
 ---
 
-## Four mistakes I made while verifying
+## Six mistakes I made while verifying
 
 Recorded because a verification report that only documents the product's failures is not
 being honest about its own reliability.
@@ -211,9 +267,23 @@ being honest about its own reliability.
    cannot fail is not a check. It now reads Docker logs where appropriate and treats an empty
    window as a failure to prove, not a proof of absence.
 
-All four would have produced a wrong conclusion had I not chased them. The fourth is the one
+5. **I wrote a check that contradicted the product's documented behaviour.** EXT-002 fired
+   eight change events into one field and demanded all eight back. On a build where the
+   recorder's de-duplication worked, seven would have been collapsed correctly and my check
+   would have called that a defect. It passed only because of BUG-0006. The burst now
+   alternates between two fields, so it measures step loss and nothing else — and EXT-007
+   was added to assert the collapsing that EXT-002 used to contradict.
+6. **I nearly dismissed a real intermittency as flake.** EXT-002 failed on some runs with
+   *zero* of eight steps captured. After a navigation the content script is re-injected and
+   only starts recording once it has announced itself, so my burst was racing that window.
+   The check now measures how long arming takes and waits for it — 276ms on this machine,
+   recorded in EXT-001's evidence rather than assumed. Had I re-run until green instead of
+   chasing it, I would have shipped a check that passes three times in four.
+
+All six would have produced a wrong conclusion had I not chased them. The fourth is the one
 that worries me most: it was passing, and only looked wrong because the line count in its own
-output was implausible.
+output was implausible. The fifth is a close second: it was *green because the product was
+broken*.
 
 ---
 
@@ -223,12 +293,17 @@ output was implausible.
 make verify-all
 ```
 
-Starts the stack, runs the product's own suites as a regression baseline, then runs the six
-independent suites in `verification/tests/` and regenerates the evidence index. It exits
-non-zero if any check fails.
+Starts the stack, runs the product's own suites as a regression baseline, then runs the
+seven independent suites in `verification/tests/` and regenerates the evidence index. It
+exits non-zero if any check fails.
 
 Individual suites: `sec.mjs`, `heal.mjs`, `trust.mjs`, `ops.mjs`, `exec-flake.mjs`,
-`conc-reverify.mjs`.
+`conc-reverify.mjs`, `ext.mjs`.
+
+To check the extension suite itself rather than the extension:
+`node verification/tests/ext-negative-control.mjs`. It breaks the real extension five
+different ways and requires each check to notice its own breakage. It takes about twenty
+minutes and leaves the extension rebuilt and re-verified.
 
 ---
 
@@ -238,9 +313,9 @@ The gates in the brief that are met: critical workflows, critical security, self
 both directions, AI failure handling, no-false-positive, no-false-negative, multi-tenancy,
 RBAC, browser execution, and evidence for each.
 
-The gate that is not: **CI/CD execution has never happened.** No pipeline has run. Two more
-areas — the browser extension and quality gates — rest on the product's own checks rather
-than independent ones, and discovery completeness and generation quality are unmeasured.
+The gate that is not: **CI/CD execution has never happened.** No pipeline has run. Quality
+gates and the autonomous agent still rest on the product's own checks rather than
+independent ones, and discovery completeness and generation quality are unmeasured.
 
 Those are not small. A platform whose purpose is to run in a pipeline, verified without ever
 running in one, has an untested claim at its centre. VERIFIED would overstate what the

@@ -1,0 +1,36 @@
+{
+  "bug": "BUG-0006",
+  "summary": "Consecutive edits to the same field are recorded as one step per change event; the de-duplication in the service worker never matches.",
+  "expected": "3 edits to one field → 1 fill step holding \"three\"",
+  "attempts": [
+    {
+      "run": 1,
+      "totalSteps": 4,
+      "fillSteps": 3,
+      "values": [
+        "one",
+        "two",
+        "three"
+      ],
+      "targetsIdentical": true
+    },
+    {
+      "run": 2,
+      "totalSteps": 4,
+      "fillSteps": 3,
+      "values": [
+        "one",
+        "two",
+        "three"
+      ],
+      "targetsIdentical": true
+    }
+  ],
+  "reproducedIn": 2,
+  "of": 2,
+  "rootCause": {
+    "written": "{\"strategy\":\"testId\",\"value\":\"username\",\"fallbacks\":[{\"strategy\":\"role\",\"value\":\"textbox\",\"name\":\"Username\"}]}",
+    "readBack": "{\"fallbacks\":[{\"name\":\"Username\",\"strategy\":\"role\",\"value\":\"textbox\"}],\"strategy\":\"testId\",\"value\":\"username\"}",
+    "stringifyEqual": false
+  }
+}
