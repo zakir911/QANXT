@@ -12,6 +12,7 @@ pipeline {
   environment {
     AIRA_API_URL    = "${env.AIRA_API_URL}"
     AIRA_PROJECT_ID = "${env.AIRA_PROJECT_ID}"
+    AIRA_ENVIRONMENT_ID = "${env.AIRA_ENVIRONMENT_ID}"
     AIRA_TOKEN      = credentials('aira-token')
     ARTIFACTS       = 'aira-artifacts'
   }

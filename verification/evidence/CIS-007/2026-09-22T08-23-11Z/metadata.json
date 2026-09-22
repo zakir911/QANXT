@@ -1,0 +1,37 @@
+{
+  "testId": "CIS-007",
+  "suite": "CI simulation",
+  "runId": "2026-09-22T08-23-11Z",
+  "objective": "A failed health check stops the pipeline before any test runs",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"deployment-never-came-up\"",
+  "expected": "Exit 5, no test stage in the log at all, and no artifacts — the negative is the point: a run against a half-started application reports the deployment as defects",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "exit 5; stages checkout → deploy → health; 0 artifact(s) — the run never started",
+  "metrics": {
+    "airaExit": -1,
+    "pipelineExit": 5
+  },
+  "startedAt": "2026-09-22T08:23:22.280Z",
+  "durationMs": 4041,
+  "build": {
+    "commit": "2250b03",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-007/2026-09-22T08-23-11Z/pipeline.log",
+      "bytes": 401,
+      "sha256": "dc6b8d20c8ecb9931c2c2600fb6672f66847dc74b381504434d44e0d10b5457d"
+    }
+  ]
+}

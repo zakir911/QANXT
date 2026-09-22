@@ -29,6 +29,10 @@ public sealed record TestRunSummary(
     string? CiBuildId, string? CiBranch, string? CiProvider = null, string? CiCommitSha = null,
     string? ApplicationBuildRef = null,
     Guid? EnvironmentId = null,
+    /// <summary>The environment by the name a person uses for it. The id alone makes a
+    /// report unreadable without a second lookup, and a reader asking "which deployment did
+    /// this evidence come from?" is asking about "staging", not about a UUID.</summary>
+    string? EnvironmentKey = null, string? EnvironmentName = null,
     /// <summary>When a contract check ran against this run's evidence, and what it found.
     /// Null means no check ran, which is a different statement from "no breaking changes".</summary>
     DateTimeOffset? ContractCheckedAt = null,
@@ -230,6 +234,8 @@ public sealed class TestRunService : ITestRunService
                 r.DurationMs, r.TotalCount, r.PassedCount, r.FailedCount, r.SkippedCount, r.BlockedCount,
                 r.HealedCount, r.FlakyCount, r.QualityGatePassed, r.CiBuildId, r.CiBranch,
                 r.CiProvider, r.CiCommitSha, r.ApplicationBuildRef, r.EnvironmentId,
+                _db.Environments.Where(e => e.Id == r.EnvironmentId).Select(e => e.Key).FirstOrDefault(),
+                _db.Environments.Where(e => e.Id == r.EnvironmentId).Select(e => e.Name).FirstOrDefault(),
                 r.ContractCheckedAt, r.ContractBreakingChangeCount,
                 r.ContractPotentiallyBreakingChangeCount))
             .ToListAsync(ct);
@@ -238,7 +244,13 @@ public sealed class TestRunService : ITestRunService
     public async Task<Result<TestRunSummary>> GetAsync(Guid id, CancellationToken ct = default)
     {
         var run = await _db.TestRuns.FirstOrDefaultAsync(r => r.Id == id, ct);
-        return run is null ? Error.NotFound("The test run") : Result<TestRunSummary>.Success(Map(run));
+        if (run is null) return Error.NotFound("The test run");
+
+        var environment = run.EnvironmentId is null
+            ? null
+            : await _db.Environments.FirstOrDefaultAsync(e => e.Id == run.EnvironmentId, ct);
+
+        return Result<TestRunSummary>.Success(Map(run, environment));
     }
 
     public async Task<Result> CancelAsync(Guid id, CancellationToken ct = default)
@@ -588,10 +600,11 @@ public sealed class TestRunService : ITestRunService
 
     private static string ToCamel(string value) => char.ToLowerInvariant(value[0]) + value[1..];
 
-    private static TestRunSummary Map(TestRun r) => new(
+    private static TestRunSummary Map(TestRun r, Domain.Projects.Environment? environment = null) => new(
         r.Id, r.ProjectId, r.Name, r.Status, r.Trigger, r.Browser, r.CreatedAt, r.StartedAt, r.CompletedAt,
         r.DurationMs, r.TotalCount, r.PassedCount, r.FailedCount, r.SkippedCount, r.BlockedCount,
         r.HealedCount, r.FlakyCount, r.QualityGatePassed, r.CiBuildId, r.CiBranch,
         r.CiProvider, r.CiCommitSha, r.ApplicationBuildRef, r.EnvironmentId,
+        environment?.Key, environment?.Name,
         r.ContractCheckedAt, r.ContractBreakingChangeCount, r.ContractPotentiallyBreakingChangeCount);
 }

@@ -9,7 +9,7 @@ import type { RunReport, RunSummary } from '../types.js';
 import { qualification, verdictOf } from '../verdict.js';
 
 export const RUN_FLAGS = [
-  'project', 'suite', 'test', 'browser', 'headed', 'parallelism', 'retries', 'name',
+  'project', 'environment', 'suite', 'test', 'browser', 'headed', 'parallelism', 'retries', 'name',
   'timeout', 'poll', 'no-wait', 'junit', 'json', 'html', 'markdown', 'report-dir',
   'ci-provider', 'ci-build', 'ci-commit', 'ci-branch', 'app-build'
 ] as const;
@@ -18,6 +18,7 @@ export const RUN_HELP = `
 ${bold('aira run')} — start a test run and wait for its verdict
 
   --project <id>         Project to run in (or AIRA_PROJECT_ID)
+  --environment <id>     Environment to run against (or AIRA_ENVIRONMENT_ID)
   --suite <id>           Run a whole suite
   --test <id>            Run one test; repeat for several
   --browser <name>       chromium | firefox | webkit
@@ -75,6 +76,11 @@ export async function runCommand(args: ParsedArgs): Promise<number> {
     projectId: context.projectId,
     testSuiteId: suiteId,
     testCaseIds: testCaseIds.length > 0 ? testCaseIds : undefined,
+    // The environment carries the base URL, the allowed domains, the rate limit and the
+    // production guard. Omitting it does not mean "no environment" — it means the run
+    // silently falls back to the application's own URL and none of those controls apply,
+    // which is why it is worth passing even when a project has only one.
+    environmentId: environmentFlag(args),
     browser: browserFlag(args),
     headless: boolFlag(args, 'headed') ? false : undefined,
     parallelism: intFlag(args, 'parallelism'),
@@ -146,6 +152,23 @@ function browserFlag(args: ParsedArgs): BrowserType | undefined {
     throw usage(`--browser expects one of ${BROWSER_TYPES.join(', ')}, got "${value}".`);
   }
   return value as BrowserType;
+}
+
+/**
+ * Which environment to run against.
+ *
+ * Also read from the environment variable, because a pipeline usually sets it once for the
+ * whole job rather than repeating it on every command. Validated as a UUID here so a typo
+ * fails before a run is started rather than as a 404 halfway through.
+ */
+export function environmentFlag(args: ParsedArgs): string | undefined {
+  const value = flag(args, 'environment') ?? process.env.AIRA_ENVIRONMENT_ID;
+  if (value === undefined || value.trim() === '') return undefined;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.trim())) {
+    throw usage(`--environment expects an environment id, got "${value}".`,
+      'List them with "aira environments".');
+  }
+  return value.trim();
 }
 
 export function ciContext(args: ParsedArgs): unknown {

@@ -72,7 +72,17 @@ export function renderMarkdown(report: RunReport): string {
     lines.push('');
   }
 
-  for (const reason of qualityGate.reviewReasons ?? []) {
+  // A review verdict already surfaces its reasons below; a blocking one did not, so the
+  // sentence the team wrote to explain the rule — the most useful line on the comment —
+  // was dropped exactly when the build was stopped. Quoted here, and de-duplicated against
+  // the review reasons so a rule that appears in both is not printed twice.
+  const reviewReasons = qualityGate.reviewReasons ?? [];
+  const blockingReasons = unsatisfied
+    .filter(rule => (rule.action ?? (rule.isBlocking ? 'fail' : 'warn')) === 'fail')
+    .map(rule => rule.explanation)
+    .filter(explanation => explanation && !reviewReasons.includes(explanation));
+
+  for (const reason of [...blockingReasons, ...reviewReasons]) {
     lines.push(`> ${reason}`);
     lines.push('');
   }
@@ -106,7 +116,11 @@ export function renderMarkdown(report: RunReport): string {
     lines.push('');
   }
 
-  lines.push(`<sub>${run.name} · run \`${run.id}\` · generated ${report.generatedAt}</sub>`);
+  const where = run.environmentName ?? run.environmentKey;
+  lines.push(`<sub>${run.name} · run \`${run.id}\``
+    + `${where ? ` · ${where}` : ''}`
+    + `${run.ciCommitSha ? ` · \`${run.ciCommitSha.slice(0, 8)}\`` : ''}`
+    + ` · generated ${report.generatedAt}</sub>`);
 
   return lines.join('\n');
 }

@@ -45,6 +45,17 @@ export class ApiClient {
         'The token has expired or was revoked. Run "aira login" again, or refresh AIRA_TOKEN.');
     }
     if (response.status === 403) {
+      // Two different refusals arrive as 403, and they go to different people. "Your role
+      // does not allow this" is resolved by granting a role. "A policy refuses this
+      // regardless of your role" must not be, and a pipeline told only that it lacks
+      // permission will try to resolve it by widening the service account — which is the
+      // opposite of the correct response. The error code on the wire separates them.
+      if (problemCode(text) === 'security_policy') {
+        throw new CliError(describeProblem(text), ExitCode.SecurityPolicyViolation,
+          'A security policy refused this run. It did not happen, and that is the correct '
+          + 'outcome. Do not retry until you have read why — in particular, do not widen '
+          + "the service account's permissions, which will not change this answer.");
+      }
       throw new CliError('The account is not permitted to do that.', ExitCode.AuthenticationError,
         'Ask an organization administrator for the required role.');
     }
@@ -59,18 +70,26 @@ export class ApiClient {
         problemDetails(text));
     }
     if (!response.ok) {
+      // A 500 is AIRA failing, not AIRA being unreachable, and the two go to different
+      // people: one is a defect to file, the other is a deployment to check. A gateway
+      // error in front of AIRA stays infrastructure, because that is exactly what it is.
+      const internal = response.status === 500;
       throw new CliError(
         `${method} ${path} failed (${response.status}).`,
-        ExitCode.InfrastructureError,
-        describeProblem(text));
+        internal ? ExitCode.AiraInternalError : ExitCode.InfrastructureError,
+        internal
+          ? `${describeProblem(text)} This is a defect in AIRA. Report it with the `
+            + 'correlation id above; the application under test is not implicated.'
+          : describeProblem(text));
     }
 
     if (!text) return undefined as T;
     try {
       return JSON.parse(text) as T;
     } catch {
+      // AIRA's own API produced this. Nothing about the application under test is known.
       throw new CliError(`The platform returned a response that is not JSON.`,
-        ExitCode.InfrastructureError, text.slice(0, 200));
+        ExitCode.AiraInternalError, text.slice(0, 200));
     }
   }
 }
@@ -85,6 +104,15 @@ function describeProblem(text: string): string {
     return problem.correlationId ? `${message} (correlation ${problem.correlationId})` : message;
   } catch {
     return text.slice(0, 300);
+  }
+}
+
+/** The machine-readable code the API puts on a problem document, when it parses. */
+function problemCode(text: string): string | undefined {
+  try {
+    return (JSON.parse(text) as { code?: string }).code;
+  } catch {
+    return undefined;
   }
 }
 

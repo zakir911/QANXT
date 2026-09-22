@@ -5,7 +5,8 @@
 # exit codes, the artifact layout, the summary, the selection — is executed by the golden
 # suite, and the whole sequence is executed locally by test-lab/ci-simulation.
 #
-# Secrets this needs: AIRA_TOKEN. Variables: AIRA_API_URL, AIRA_PROJECT_ID.
+# Secrets this needs: AIRA_TOKEN. Variables: AIRA_API_URL, AIRA_PROJECT_ID,
+# AIRA_ENVIRONMENT_ID.
 
 name: Quality
 
@@ -26,6 +27,9 @@ jobs:
       AIRA_API_URL: ${{ vars.AIRA_API_URL }}
       AIRA_TOKEN: ${{ secrets.AIRA_TOKEN }}
       AIRA_PROJECT_ID: ${{ vars.AIRA_PROJECT_ID }}
+      # The environment carries the base URL, the allowed domains, the rate limit and the
+      # production guard. Omitting it does not mean "no environment" — it means none apply.
+      AIRA_ENVIRONMENT_ID: ${{ vars.AIRA_ENVIRONMENT_ID }}
 
     steps:
       - uses: actions/checkout@v4

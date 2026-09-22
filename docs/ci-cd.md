@@ -73,6 +73,26 @@ deployment of AIRA it can reach, and neither exists in this repository. What is 
 everything they depend on — the exit codes, the artifact layout, the summary, the selection
 — and the whole sequence end to end, locally, in `test-lab/ci-simulation/`.
 
+## The local simulation
+
+`test-lab/ci-simulation/pipeline.sh` runs those same six stages, in the same order, with
+the same commands, against the lab bank. Twelve scenarios put it through every exit code
+above, both quality gate outcomes that are not a plain pass, and both answers a pipeline can
+give to a review verdict.
+
+```bash
+node test-lab/ci-simulation/run.mjs                    # all twelve, with a report
+node verification/golden-tests/run.mjs --suite ci-simulation   # the same, with evidence
+```
+
+If you are adapting a pipeline for a CI system that is not one of the four, read
+`pipeline.sh` rather than the YAML: it is the part that has actually been run.
+
+Building it found three defects, each a control that existed, was correct and was never
+reached — a security refusal reported as an authentication failure, a defect in AIRA
+reported as the platform being down, and a production guard with no caller. See BUG-0026 to
+BUG-0028 in `verification/bugs/`.
+
 ## Authentication
 
 Never run `aira login` in a pipeline. Create a token once and store it as a secret:

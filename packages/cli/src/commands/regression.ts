@@ -10,12 +10,12 @@ import { ExitCode, usage } from '../exit-codes.js';
 import { bold, dim, green, note, out, red, yellow } from '../output.js';
 import { gatherReport, writeReports } from '../report-gather.js';
 import type { RunSummary } from '../types.js';
-import { ciContext, printSummary, reportTargets, verdictExitCode, waitForRun } from './run.js';
+import { ciContext, environmentFlag, printSummary, reportTargets, verdictExitCode, waitForRun } from './run.js';
 
 const run = promisify(execFile);
 
 export const REGRESSION_FLAGS = [
-  'project', 'app', 'since', 'changed', 'changed-file', 'mode', 'max', 'min-score',
+  'project', 'environment', 'app', 'since', 'changed', 'changed-file', 'mode', 'max', 'min-score',
   'include-tag', 'exclude-tag', 'name', 'timeout', 'poll', 'parallelism', 'retries',
   'junit', 'json', 'html', 'markdown', 'report-dir', 'selection-out', 'explain', 'dry-run',
   'ci-provider', 'ci-build', 'ci-commit', 'ci-branch', 'app-build'
@@ -37,6 +37,7 @@ ${bold('aira regression')} — run the tests a change needs, and say why
       rule declared rather than AIRA inferring.
 
   --project <id>         Project to work in (or AIRA_PROJECT_ID)
+  --environment <id>     Environment to run against (or AIRA_ENVIRONMENT_ID)
   --app <id>             Restrict to one application
   --since <ref>          Compare against this git ref to find changed files
   --changed <path>       A changed path; repeat for several (instead of --since)
@@ -338,6 +339,7 @@ async function executeSelection(
   const started = await api.post<RunSummary>('/api/v1/testruns', {
     projectId: context.projectId,
     testCaseIds,
+    environmentId: environmentFlag(args),
     name: flag(args, 'name') ?? `Regression (${selection.mode})`,
     parallelism: intFlag(args, 'parallelism'),
     maxRetries: intFlag(args, 'retries'),

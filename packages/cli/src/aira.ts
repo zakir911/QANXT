@@ -115,10 +115,11 @@ try {
     if (error.hint) process.stderr.write(`${dim(error.hint)}\n`);
     process.exitCode = error.code;
   } else {
-    // Not a test failure. Something in the tooling broke, and the message must say so
-    // clearly rather than leaving a team looking for a defect that is not there.
-    process.stderr.write(`${red('error')} The command did not complete.\n`);
+    // Not a test failure, and not the platform being unreachable either: something in the
+    // tooling broke. Reporting it as infrastructure sent an unhandled exception to whoever
+    // runs the deployment, who checks it, finds it healthy, and hands it back.
+    process.stderr.write(`${red('error')} The command did not complete. This is a defect in AIRA.\n`);
     process.stderr.write(`${dim(error instanceof Error ? (error.stack ?? error.message) : String(error))}\n`);
-    process.exitCode = ExitCode.InfrastructureError;
+    process.exitCode = ExitCode.AiraInternalError;
   }
 }

@@ -30,6 +30,9 @@ export interface RunSummary {
   ciProvider?: string | null;
   ciCommitSha?: string | null;
   applicationBuildRef?: string | null;
+  environmentId?: string | null;
+  environmentKey?: string | null;
+  environmentName?: string | null;
   contractCheckedAt?: string | null;
   contractBreakingChangeCount?: number;
   contractPotentiallyBreakingChangeCount?: number;

@@ -190,7 +190,7 @@ public sealed class EnvironmentService : IEnvironmentService
         if (request.AllowDestructiveTests is not null)
         {
             if (request.AllowDestructiveTests.Value && environment.IsProduction)
-                return Result<EnvironmentSummary>.Failure(Error.Forbidden("Destructive tests cannot be enabled on a production environment."));
+                return Result<EnvironmentSummary>.Failure(Error.SecurityPolicy("Destructive tests cannot be enabled on a production environment."));
             environment.AllowDestructiveTests = request.AllowDestructiveTests.Value;
         }
 
@@ -257,11 +257,11 @@ public sealed class EnvironmentService : IEnvironmentService
         var environment = result.Value!;
 
         if (!environment.IsEnabled)
-            return Result<EnvironmentSummary>.Failure(Error.Forbidden($"Environment '{environment.Key}' is disabled."));
+            return Result<EnvironmentSummary>.Failure(Error.SecurityPolicy($"Environment '{environment.Key}' is disabled."));
 
         if (environment.IsProduction && !environment.ProductionTestingAuthorized)
         {
-            return Result<EnvironmentSummary>.Failure(Error.Forbidden(
+            return Result<EnvironmentSummary>.Failure(Error.SecurityPolicy(
                 $"Environment '{environment.Key}' is production and testing it has not been authorized. "
                 + "Authorize it explicitly with POST /api/v1/environments/{id}/authorize-production, "
                 + "with a note saying why."));

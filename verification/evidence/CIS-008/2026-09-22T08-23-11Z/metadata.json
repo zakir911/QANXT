@@ -1,0 +1,37 @@
+{
+  "testId": "CIS-008",
+  "suite": "CI simulation",
+  "runId": "2026-09-22T08-23-11Z",
+  "objective": "A run against an unauthorized production environment is refused under the security exit code",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"production-refused\"",
+  "expected": "Exit 6, the reason quoted, and no suggestion that a wider role would help",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "exit 6; a security policy refused this run",
+  "metrics": {
+    "airaExit": 6,
+    "pipelineExit": 6
+  },
+  "startedAt": "2026-09-22T08:23:26.322Z",
+  "durationMs": 153,
+  "build": {
+    "commit": "2250b03",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-008/2026-09-22T08-23-11Z/pipeline.log",
+      "bytes": 1114,
+      "sha256": "04bae711cbeb26bc0e410dff34e1bc755c95cc301765e5f925694b4ba527c14a"
+    }
+  ]
+}

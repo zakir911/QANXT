@@ -39,6 +39,12 @@ export function buildJsonReport(report: RunReport): unknown {
           applicationBuildRef: run.applicationBuildRef ?? null
         }
         : null,
+      // Which deployment the evidence came from. Without it a report cannot answer the
+      // first question anyone asks of a failure — "was that staging or production?" — and
+      // the run has always known the answer.
+      environment: run.environmentId
+        ? { id: run.environmentId, key: run.environmentKey ?? null, name: run.environmentName ?? null }
+        : null,
       contracts: run.contractCheckedAt
         ? {
           checkedAt: run.contractCheckedAt,

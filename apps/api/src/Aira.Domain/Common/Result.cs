@@ -24,6 +24,18 @@ public sealed record Error(ErrorKind Kind, string Code, string Message, IReadOnl
     public static Error Conflict(string code, string message) => new(ErrorKind.Conflict, code, message);
     public static Error Forbidden(string message = "You do not have permission to perform this action.")
         => new(ErrorKind.Forbidden, "forbidden", message);
+
+    /// <summary>A safety policy refused, regardless of who asked: an unauthorized production
+    /// environment, a disabled one, a destructive action a policy forbids.</summary>
+    /// <remarks>
+    /// Separate from <see cref="Forbidden"/> because the two go to different people. A
+    /// <c>forbidden</c> is resolved by granting a role; a <c>security_policy</c> must not be,
+    /// and a caller told only "you do not have permission" will try to resolve it that way.
+    /// Both are 403 — the server understood, and signing in again will not help — so the code
+    /// is what carries the distinction to the CLI's exit status.
+    /// </remarks>
+    public static Error SecurityPolicy(string message)
+        => new(ErrorKind.Forbidden, "security_policy", message);
     public static Error Unauthorized(string message = "Authentication is required.")
         => new(ErrorKind.Unauthorized, "unauthorized", message);
     public static Error Dependency(string code, string message) => new(ErrorKind.Dependency, code, message);

@@ -4,7 +4,8 @@
 # of AIRA it can reach. The CLI behaviour it depends on is executed by the golden suite, and
 # the whole sequence is executed locally by test-lab/ci-simulation.
 #
-# Variables this needs: AIRA_API_URL, AIRA_PROJECT_ID, and AIRA_TOKEN as a secret.
+# Variables this needs: AIRA_API_URL, AIRA_PROJECT_ID, AIRA_ENVIRONMENT_ID, and AIRA_TOKEN
+# as a secret.
 
 trigger:
   branches: { include: [main] }
@@ -81,6 +82,7 @@ steps:
       AIRA_API_URL: $(AIRA_API_URL)
       AIRA_TOKEN: $(AIRA_TOKEN)
       AIRA_PROJECT_ID: $(AIRA_PROJECT_ID)
+      AIRA_ENVIRONMENT_ID: $(AIRA_ENVIRONMENT_ID)
 
   # Always: a failed run is the one whose evidence somebody needs.
   - task: PublishTestResults@2
