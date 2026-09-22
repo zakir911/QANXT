@@ -118,7 +118,51 @@ public sealed record ActionResultPayload
     [JsonPropertyName("healingConfidence")] public int? HealingConfidence { get; init; }
     [JsonPropertyName("errorMessage")] public string? ErrorMessage { get; init; }
     [JsonPropertyName("screenshotKeys")] public ScreenshotKeysPayload? ScreenshotKeys { get; init; }
+    [JsonPropertyName("accessibility")] public AccessibilityResultPayload? Accessibility { get; init; }
 }
+
+/// <summary>
+/// What an accessibility check found.
+/// </summary>
+/// <remarks>
+/// Stored whole, as the worker reported it, because a count without the findings is not
+/// actionable and a finding without its help URL is not either. The counts are also
+/// projected onto the action so a quality gate can read a number without parsing JSON.
+/// </remarks>
+public sealed record AccessibilityResultPayload
+{
+    [JsonPropertyName("url")] public string Url { get; init; } = string.Empty;
+    [JsonPropertyName("standards")] public List<string> Standards { get; init; } = [];
+    [JsonPropertyName("violations")] public List<AccessibilityViolationPayload> Violations { get; init; } = [];
+    [JsonPropertyName("passCount")] public int PassCount { get; init; }
+    /// <summary>Checks axe could not decide, which a person must. Never counted as a pass.</summary>
+    [JsonPropertyName("incompleteCount")] public int IncompleteCount { get; init; }
+    [JsonPropertyName("counts")] public Dictionary<string, int> Counts { get; init; } = [];
+    [JsonPropertyName("excluded")] public List<string> Excluded { get; init; } = [];
+    [JsonPropertyName("engine")] public AccessibilityEnginePayload? Engine { get; init; }
+    [JsonPropertyName("scannedAt")] public DateTimeOffset? ScannedAt { get; init; }
+}
+
+public sealed record AccessibilityViolationPayload
+{
+    [JsonPropertyName("id")] public string Id { get; init; } = string.Empty;
+    [JsonPropertyName("impact")] public string? Impact { get; init; }
+    [JsonPropertyName("help")] public string Help { get; init; } = string.Empty;
+    [JsonPropertyName("helpUrl")] public string HelpUrl { get; init; } = string.Empty;
+    [JsonPropertyName("tags")] public List<string> Tags { get; init; } = [];
+    [JsonPropertyName("nodes")] public List<AccessibilityNodePayload> Nodes { get; init; } = [];
+}
+
+public sealed record AccessibilityNodePayload
+{
+    [JsonPropertyName("target")] public string Target { get; init; } = string.Empty;
+    [JsonPropertyName("failureSummary")] public string? FailureSummary { get; init; }
+    [JsonPropertyName("html")] public string? Html { get; init; }
+}
+
+public sealed record AccessibilityEnginePayload(
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("version")] string Version);
 
 public sealed record ScreenshotKeysPayload(
     [property: JsonPropertyName("before")] string? Before,

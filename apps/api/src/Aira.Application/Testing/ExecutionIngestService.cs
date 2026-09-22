@@ -199,6 +199,17 @@ public sealed class ExecutionIngestService : IExecutionIngestService
         action.WasHealed = payload.WasHealed;
         action.HealingConfidence = payload.HealingConfidence;
         action.ErrorMessage = Truncate(_masker.MaskText(payload.ErrorMessage), 4000);
+
+        if (payload.Accessibility is { } accessibility)
+        {
+            action.AccessibilityJson = JsonSerializer.Serialize(accessibility, JsonDefaults.Options);
+            action.AccessibilityViolationCount = accessibility.Violations.Count;
+            // Critical and serious together, because that is the band a team acts on and
+            // the one the step's default threshold fails at. Counting every impact would
+            // make the metric move on advisory findings nobody agreed to fix.
+            action.AccessibilitySeriousCount = accessibility.Violations
+                .Count(violation => violation.Impact is "critical" or "serious");
+        }
     }
 
     private async Task RecordArtifactsAsync(TestExecution execution, ExecutionCompletionPayload completion, CancellationToken ct)

@@ -5,3 +5,4 @@ export * from './api.js';
 export * from './jobs.js';
 export * from './discovery.js';
 export * from './journey.js';
+export * from './accessibility.js';

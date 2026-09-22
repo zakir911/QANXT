@@ -60,6 +60,15 @@ public enum BrowserActionType
     /// evidence, failure analysis, healing policy and quality gates all apply unchanged.
     /// Its request is described by <c>TestStep.ApiRequestJson</c>.</summary>
     ApiRequest = 30,
+    /// <summary>Runs axe-core against the page and reports what it finds.
+    ///
+    /// A step verb rather than a separate mode, for the same reason as ApiRequest: runs,
+    /// evidence, failure analysis and quality gates all apply unchanged. Its configuration
+    /// is described by <c>TestStep.AccessibilityJson</c>.
+    ///
+    /// Automated checks find roughly a third of WCAG issues, so a clean result is reported
+    /// as "no violations found by these rules" and never as "accessible".</summary>
+    CheckAccessibility = 31,
     /// <summary>Only permitted when the project explicitly allows scripting AND the caller
     /// holds the execution:script permission. Rejected by default.</summary>
     ExecuteScript = 90
@@ -203,7 +212,18 @@ public enum QualityGateMetric
     // guarantee and is not one.
     HighFailedCount = 9, MediumFailedCount = 10, FlakyRatePercent = 11,
     ApiFailedCount = 12, ContractBreakingChangeCount = 13, SecurityFailedCount = 14,
-    RegressionFailedCount = 15, BlockedCount = 16
+    RegressionFailedCount = 15, BlockedCount = 16,
+    /// <summary>Accessibility violations found across this run, at critical or serious impact.</summary>
+    /// <remarks>
+    /// Critical and serious rather than every impact, because that is the band a team acts
+    /// on. A metric that moved on advisory findings nobody agreed to fix would make the
+    /// rule noise, and a noisy rule gets switched off.
+    ///
+    /// Measured only from steps that actually ran a check. A run with no accessibility
+    /// step measures zero and says so — the gate reports the metric as unmeasured rather
+    /// than passing a rule nothing tested.
+    /// </remarks>
+    AccessibilitySeriousCount = 17
 }
 
 /// <summary>What a failing rule should do to the pipeline.

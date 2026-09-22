@@ -2,6 +2,7 @@ import { mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { BrowserContext, Page } from 'playwright';
 import type {
+  AccessibilityResult,
   ActionResultReport, ExecutionCompletionReport, ExecutionJob, ExecutionStatus,
   ExecutionStepPlan, HealingEventReport, LocatorDescriptor
 } from '@aira/shared-types';
@@ -260,8 +261,37 @@ export class TestExecutor {
     };
   }
 
-  /** Runs one step: action, healing if the locator broke, then its assertions. */
+  /**
+   * Runs one step and attaches anything the step produced on the side.
+   *
+   * A wrapper rather than an attachment at each return site: `runStepInner` returns from a
+   * dozen places, and one of them forgetting to carry the finding would mean an
+   * accessibility result that exists in the log and not in the report — the kind of gap
+   * nobody notices until they go looking for evidence that is not there.
+   */
   private async runStep(
+    page: Page | undefined,
+    step: ExecutionStepPlan,
+    context: ActionContext,
+    apiOptions: ApiRequestContextOptions,
+    apiSession: ApiRequestSession,
+    job: ExecutionJob,
+    collector: EvidenceCollector,
+    healer: LocatorHealer,
+    masker: SecretMasker
+  ): Promise<{ report: ActionResultReport; healingEvent?: HealingEventReport }> {
+    const found: { accessibility?: AccessibilityResult } = {};
+    const outcome = await this.runStepInner(
+      page, step, { ...context, onAccessibilityResult: result => { found.accessibility = result; } },
+      apiOptions, apiSession, job, collector, healer, masker);
+
+    return found.accessibility === undefined
+      ? outcome
+      : { ...outcome, report: { ...outcome.report, accessibility: found.accessibility } };
+  }
+
+  /** Runs one step: action, healing if the locator broke, then its assertions. */
+  private async runStepInner(
     page: Page | undefined,
     step: ExecutionStepPlan,
     context: ActionContext,

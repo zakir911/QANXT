@@ -23,7 +23,26 @@ const FAULTS = [
   { id: 'FAULT_SLOW_ELEMENT', description: 'The submit control is rendered after a delay.' },
   { id: 'FAULT_DYNAMIC_LOCATOR', description: 'Test ids carry a per-request suffix.' },
   { id: 'FAULT_JS_ERROR', description: 'The dependent-field script throws.' },
-  { id: 'FAULT_ACCEPT_INVALID', description: 'The server accepts a submission it should reject.' }
+  { id: 'FAULT_ACCEPT_INVALID', description: 'The server accepts a submission it should reject.' },
+
+  // Accessibility faults. Each names the axe-core rule it is built to trip, so a check can
+  // be measured against ground truth rather than against itself — "the scanner found
+  // something" is not evidence that it finds the right things, and a scanner that reports
+  // violations on a clean page is as broken as one that reports none on a bad page.
+  { id: 'FAULT_A11Y_MISSING_LABEL', description: 'The full-name input loses its label. Trips axe rule "label" (critical).' },
+  { id: 'FAULT_A11Y_MISSING_ALT', description: 'The logo image loses its alt text. Trips axe rule "image-alt" (critical).' },
+  { id: 'FAULT_A11Y_LOW_CONTRAST', description: 'Helper text is rendered at a contrast ratio below 4.5:1. Trips axe rule "color-contrast" (serious).' },
+  { id: 'FAULT_A11Y_EMPTY_BUTTON', description: 'The submit control renders with no accessible name. Trips axe rule "button-name" (critical).' },
+  // The one that is deliberately NOT a violation. axe reports a dangling ARIA reference as
+  // *incomplete* — a check a person must make — because the target element might be added
+  // by script after the scan. Measured, not assumed: axe 4.13 answers
+  //   "ARIA attribute element ID does not exist on the page: aria-describedby=\"nameHelp\""
+  // under `incomplete`, with zero violations.
+  //
+  // It is here so that ground truth covers the distinction AIRA has to preserve. A tool
+  // that promoted this to a violation would fail builds on something it cannot know, and
+  // one that dropped it would report a page as clean when twelve things need a human.
+  { id: 'FAULT_A11Y_DANGLING_ARIA', description: 'The full-name input describes itself by an id that does not exist. axe reports this as INCOMPLETE (rule "aria-valid-attr-value"), not as a violation.' }
 ];
 
 const faults = createFaultEngine(FAULTS, { parameters: { slowElementMs: 4000 } });
@@ -64,9 +83,19 @@ ${Object.keys(errors).length ? `<p class="notice" role="alert" ${tid('form-error
 
 <form method="post" action="/submit" enctype="multipart/form-data" class="card" novalidate ${tid('application-form')}>
   <h2>About you</h2>
+  ${faults.on('FAULT_A11Y_MISSING_ALT')
+    ? `<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="24" height="24" ${tid('logo')} />`
+    : `<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="24" height="24" alt="Bank logo" ${tid('logo')} />`}
+  ${faults.on('FAULT_A11Y_LOW_CONTRAST')
+    ? `<p style="color:#c8c8c8;background:#ffffff" ${tid('helper-text')}>All fields are required unless marked optional.</p>`
+    : `<p style="color:#444444;background:#ffffff" ${tid('helper-text')}>All fields are required unless marked optional.</p>`}
   <div class="field">
-    <label for="fullName">Full name</label>
-    <input id="fullName" name="fullName" value="${value('fullName')}" ${tid('full-name')} />
+    ${faults.on('FAULT_A11Y_MISSING_LABEL') ? '' : '<label for="fullName">Full name</label>'}
+    <input id="fullName" name="fullName" aria-describedby="nameHelp" value="${value('fullName')}" ${tid('full-name')} />
+    ${faults.on('FAULT_A11Y_DANGLING_ARIA')
+      // The description the input points at is gone, so a screen reader announces the
+      // field with no hint and the author has no way to tell from looking at the page.
+      ? '' : `<p id="nameHelp" class="muted" ${tid('name-help')}>As it appears on your passport.</p>`}
     ${error('fullName')}
   </div>
   <div class="field">
@@ -163,7 +192,11 @@ ${Object.keys(errors).length ? `<p class="notice" role="alert" ${tid('form-error
 
   ${faults.on('FAULT_SLOW_ELEMENT')
     ? `<span class="muted" ${tid('submit-pending')}>Preparing…</span><span id="late"></span>`
-    : `<button type="submit" class="primary" ${tid('submit')}>Submit application</button>`}
+    : faults.on('FAULT_A11Y_EMPTY_BUTTON')
+      // A button with no text and no aria-label: a screen reader announces "button" and
+      // nothing else, so the user cannot know what it does.
+      ? `<button type="submit" class="primary" ${tid('submit')}></button>`
+      : `<button type="submit" class="primary" ${tid('submit')}>Submit application</button>`}
 </form>`,
     script: CLIENT_SCRIPT(faults.on('FAULT_SLOW_ELEMENT') ? faults.parameter('slowElementMs') : 0,
       faults.on('FAULT_JS_ERROR'), faults.on('FAULT_DYNAMIC_LOCATOR') ? `--${counter % 97}` : '')

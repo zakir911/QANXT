@@ -36,4 +36,22 @@ public class TestAction : BaseEntity, ITenantOwned
     public Guid? AfterScreenshotId { get; set; }
     /// <summary>Short justification when the action came from an AI plan; links to the AI request.</summary>
     public Guid? AiRequestId { get; set; }
+
+    /// <summary>The whole accessibility result, when this step was a check.</summary>
+    /// <remarks>
+    /// Kept whole because a count is not actionable: somebody fixing a violation needs the
+    /// rule, the element and the help URL. The counts below are projected out of it so a
+    /// quality gate can read a number without parsing JSON on every evaluation.
+    /// </remarks>
+    public string? AccessibilityJson { get; set; }
+
+    /// <summary>Violations found, at any impact. Null when this step was not a check.</summary>
+    /// <remarks>
+    /// Nullable on purpose. Zero means a check ran and found nothing; null means no check
+    /// ran, and a gate that treated the two alike would report an unchecked page as clean.
+    /// </remarks>
+    public int? AccessibilityViolationCount { get; set; }
+
+    /// <summary>Violations at critical or serious impact.</summary>
+    public int? AccessibilitySeriousCount { get; set; }
 }

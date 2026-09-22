@@ -13,6 +13,7 @@ export const BROWSER_ACTION_TYPES = [
   'assertText', 'assertVisible', 'assertHidden', 'assertUrl', 'assertValue',
   'assertCount', 'assertAttribute', 'assertEnabled', 'assertDisabled',
   'apiRequest',
+  'checkAccessibility',
   'executeScript'
 ] as const;
 export type BrowserActionType = (typeof BROWSER_ACTION_TYPES)[number];

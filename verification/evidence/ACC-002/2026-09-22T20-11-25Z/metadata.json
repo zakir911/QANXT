@@ -1,0 +1,35 @@
+{
+  "testId": "ACC-002",
+  "suite": "Accessibility",
+  "runId": "2026-09-22T20-11-25Z",
+  "objective": "Every accessibility fault in the lab is found, and found as the rule it is",
+  "preconditions": [
+    "the lab's ground truth names the axe rule each fault trips"
+  ],
+  "input": "Each of the 5 accessibility faults, injected one at a time",
+  "expected": "Each fault produces exactly the rule its ground truth names, at the impact it names — \"the scanner found something\" is not evidence it finds the right things",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "5 fault(s), each producing exactly what its ground truth names",
+  "metrics": {
+    "faults": 5,
+    "mismatches": 0
+  },
+  "startedAt": "2026-09-22T20:11:29.562Z",
+  "durationMs": 10283,
+  "build": {
+    "commit": "67f890f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "measured.json",
+      "path": "evidence/ACC-002/2026-09-22T20-11-25Z/measured.json",
+      "bytes": 1471,
+      "sha256": "d7f7a11bf7f06e1e428ba7dfd7e7f534fa8de62b3fdc6ebc1e8d959acc69b972"
+    }
+  ]
+}

@@ -31,6 +31,7 @@ const SUITES = {
   notifications: () => import('./suites/notifications.mjs'),
   'test-data': () => import('./suites/test-data.mjs'),
   release: () => import('./suites/release.mjs'),
+  accessibility: () => import('./suites/accessibility.mjs'),
   security: () => import('./suites/security.mjs'),
   reliability: () => import('./suites/reliability.mjs'),
   performance: () => import('./suites/performance.mjs')

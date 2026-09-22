@@ -3,87 +3,434 @@
   "baseUrl": "http://127.0.0.1:4320",
   "version": "1.0.0",
   "description": "Every input type with real server-side validation and two dependent-field rules. The target for measuring whether generated tests discover the rules rather than only the fields.",
-  "authentication": { "strategy": "none" },
+  "authentication": {
+    "strategy": "none"
+  },
   "pages": [
-    { "path": "/", "title": "Open an account", "requiresAuth": false, "forms": ["application-form"],
-      "elements": ["page-title", "full-name", "email", "quantity", "account-type", "account-personal", "account-business",
-        "country", "interests", "start-date", "end-date", "contact-methods", "contact-email", "contact-phone", "contact-post",
-        "document", "notes", "notes-count", "terms", "submit"] },
-    { "path": "/submissions", "title": "Submissions", "requiresAuth": false, "forms": [],
-      "elements": ["page-title"] }
+    {
+      "path": "/",
+      "title": "Open an account",
+      "requiresAuth": false,
+      "forms": [
+        "application-form"
+      ],
+      "elements": [
+        "page-title",
+        "full-name",
+        "email",
+        "quantity",
+        "account-type",
+        "account-personal",
+        "account-business",
+        "country",
+        "interests",
+        "start-date",
+        "end-date",
+        "contact-methods",
+        "contact-email",
+        "contact-phone",
+        "contact-post",
+        "document",
+        "notes",
+        "notes-count",
+        "terms",
+        "submit"
+      ]
+    },
+    {
+      "path": "/submissions",
+      "title": "Submissions",
+      "requiresAuth": false,
+      "forms": [],
+      "elements": [
+        "page-title"
+      ]
+    }
   ],
   "navigation": [
-    { "from": "/", "to": "/submissions", "via": "submit" },
-    { "from": "/submissions", "to": "/", "via": "nav-form" }
+    {
+      "from": "/",
+      "to": "/submissions",
+      "via": "submit"
+    },
+    {
+      "from": "/submissions",
+      "to": "/",
+      "via": "nav-form"
+    }
   ],
   "elements": [
-    { "testId": "full-name", "role": "textbox", "name": "Full name", "kind": "input", "required": true, "rule": "at least 2 characters" },
-    { "testId": "email", "role": "textbox", "name": "Email address", "kind": "email", "required": true, "rule": "must look like an email address" },
-    { "testId": "quantity", "role": "spinbutton", "name": "Number of cards", "kind": "number", "required": true, "rule": "an integer from 1 to 5" },
-    { "testId": "account-personal", "role": "radio", "name": "Personal", "kind": "radio" },
-    { "testId": "account-business", "role": "radio", "name": "Business", "kind": "radio" },
-    { "testId": "company-name", "role": "textbox", "name": "Company name", "kind": "input", "conditional": "only when the business account type is chosen", "rule": "required for a business account" },
-    { "testId": "country", "role": "combobox", "name": "Country", "kind": "select", "required": true },
-    { "testId": "state", "role": "combobox", "name": "State", "kind": "select", "conditional": "only when the country is United States", "rule": "required for the United States" },
-    { "testId": "interests", "role": "listbox", "name": "Products you are interested in", "kind": "multiselect", "required": true, "rule": "at least one" },
-    { "testId": "start-date", "role": "textbox", "name": "Start date", "kind": "date", "required": true },
-    { "testId": "end-date", "role": "textbox", "name": "End date", "kind": "date", "required": true, "rule": "on or after the start date" },
-    { "testId": "contact-email", "role": "checkbox", "name": "Email", "kind": "checkbox", "rule": "at least one contact method" },
-    { "testId": "document", "role": "button", "name": "Proof of address", "kind": "file", "required": true, "rule": "at most 1 MB" },
-    { "testId": "notes", "role": "textbox", "name": "Anything else?", "kind": "textarea", "rule": "at most 200 characters" },
-    { "testId": "terms", "role": "checkbox", "name": "I accept the terms", "kind": "checkbox", "required": true },
-    { "testId": "submit", "role": "button", "name": "Submit application", "kind": "button" }
+    {
+      "testId": "full-name",
+      "role": "textbox",
+      "name": "Full name",
+      "kind": "input",
+      "required": true,
+      "rule": "at least 2 characters"
+    },
+    {
+      "testId": "email",
+      "role": "textbox",
+      "name": "Email address",
+      "kind": "email",
+      "required": true,
+      "rule": "must look like an email address"
+    },
+    {
+      "testId": "quantity",
+      "role": "spinbutton",
+      "name": "Number of cards",
+      "kind": "number",
+      "required": true,
+      "rule": "an integer from 1 to 5"
+    },
+    {
+      "testId": "account-personal",
+      "role": "radio",
+      "name": "Personal",
+      "kind": "radio"
+    },
+    {
+      "testId": "account-business",
+      "role": "radio",
+      "name": "Business",
+      "kind": "radio"
+    },
+    {
+      "testId": "company-name",
+      "role": "textbox",
+      "name": "Company name",
+      "kind": "input",
+      "conditional": "only when the business account type is chosen",
+      "rule": "required for a business account"
+    },
+    {
+      "testId": "country",
+      "role": "combobox",
+      "name": "Country",
+      "kind": "select",
+      "required": true
+    },
+    {
+      "testId": "state",
+      "role": "combobox",
+      "name": "State",
+      "kind": "select",
+      "conditional": "only when the country is United States",
+      "rule": "required for the United States"
+    },
+    {
+      "testId": "interests",
+      "role": "listbox",
+      "name": "Products you are interested in",
+      "kind": "multiselect",
+      "required": true,
+      "rule": "at least one"
+    },
+    {
+      "testId": "start-date",
+      "role": "textbox",
+      "name": "Start date",
+      "kind": "date",
+      "required": true
+    },
+    {
+      "testId": "end-date",
+      "role": "textbox",
+      "name": "End date",
+      "kind": "date",
+      "required": true,
+      "rule": "on or after the start date"
+    },
+    {
+      "testId": "contact-email",
+      "role": "checkbox",
+      "name": "Email",
+      "kind": "checkbox",
+      "rule": "at least one contact method"
+    },
+    {
+      "testId": "document",
+      "role": "button",
+      "name": "Proof of address",
+      "kind": "file",
+      "required": true,
+      "rule": "at most 1 MB"
+    },
+    {
+      "testId": "notes",
+      "role": "textbox",
+      "name": "Anything else?",
+      "kind": "textarea",
+      "rule": "at most 200 characters"
+    },
+    {
+      "testId": "terms",
+      "role": "checkbox",
+      "name": "I accept the terms",
+      "kind": "checkbox",
+      "required": true
+    },
+    {
+      "testId": "submit",
+      "role": "button",
+      "name": "Submit application",
+      "kind": "button"
+    }
   ],
   "workflows": [
-    { "id": "WF-FORM-01", "name": "A complete personal application is accepted",
+    {
+      "id": "WF-FORM-01",
+      "name": "A complete personal application is accepted",
       "requirement": "A customer can apply for a personal account.",
       "steps": [
-        { "action": "fill", "target": "full-name", "value": "Alice Fernsby" },
-        { "action": "fill", "target": "email", "value": "alice@example.test" },
-        { "action": "fill", "target": "quantity", "value": "2" },
-        { "action": "select", "target": "country", "value": "United Kingdom" },
-        { "action": "select", "target": "interests", "value": "Savings" },
-        { "action": "fill", "target": "start-date", "value": "2026-10-01" },
-        { "action": "fill", "target": "end-date", "value": "2027-10-01" },
-        { "action": "check", "target": "contact-email" },
-        { "action": "upload", "target": "document", "value": "proof.pdf" },
-        { "action": "check", "target": "terms" },
-        { "action": "click", "target": "submit" },
-        { "action": "assertVisible", "target": "submission-confirmation" }
+        {
+          "action": "fill",
+          "target": "full-name",
+          "value": "Alice Fernsby"
+        },
+        {
+          "action": "fill",
+          "target": "email",
+          "value": "alice@example.test"
+        },
+        {
+          "action": "fill",
+          "target": "quantity",
+          "value": "2"
+        },
+        {
+          "action": "select",
+          "target": "country",
+          "value": "United Kingdom"
+        },
+        {
+          "action": "select",
+          "target": "interests",
+          "value": "Savings"
+        },
+        {
+          "action": "fill",
+          "target": "start-date",
+          "value": "2026-10-01"
+        },
+        {
+          "action": "fill",
+          "target": "end-date",
+          "value": "2027-10-01"
+        },
+        {
+          "action": "check",
+          "target": "contact-email"
+        },
+        {
+          "action": "upload",
+          "target": "document",
+          "value": "proof.pdf"
+        },
+        {
+          "action": "check",
+          "target": "terms"
+        },
+        {
+          "action": "click",
+          "target": "submit"
+        },
+        {
+          "action": "assertVisible",
+          "target": "submission-confirmation"
+        }
       ],
-      "expectedOutcome": "The application is listed on the submissions page." },
-    { "id": "WF-FORM-02", "name": "A business application without a company name is refused",
+      "expectedOutcome": "The application is listed on the submissions page."
+    },
+    {
+      "id": "WF-FORM-02",
+      "name": "A business application without a company name is refused",
       "requirement": "A business account requires a company name.",
       "steps": [
-        { "action": "check", "target": "account-business" },
-        { "action": "click", "target": "submit" },
-        { "action": "assertText", "target": "error-companyName", "expected": "A business account needs a company name." }
+        {
+          "action": "check",
+          "target": "account-business"
+        },
+        {
+          "action": "click",
+          "target": "submit"
+        },
+        {
+          "action": "assertText",
+          "target": "error-companyName",
+          "expected": "A business account needs a company name."
+        }
       ],
-      "expectedOutcome": "The form is redisplayed with the company-name error." },
-    { "id": "WF-FORM-03", "name": "An end date before the start date is refused",
+      "expectedOutcome": "The form is redisplayed with the company-name error."
+    },
+    {
+      "id": "WF-FORM-03",
+      "name": "An end date before the start date is refused",
       "requirement": "The end date must be on or after the start date.",
       "steps": [
-        { "action": "fill", "target": "start-date", "value": "2026-10-10" },
-        { "action": "fill", "target": "end-date", "value": "2026-10-01" },
-        { "action": "click", "target": "submit" },
-        { "action": "assertText", "target": "error-endDate", "expected": "The end date must be on or after the start date." }
+        {
+          "action": "fill",
+          "target": "start-date",
+          "value": "2026-10-10"
+        },
+        {
+          "action": "fill",
+          "target": "end-date",
+          "value": "2026-10-01"
+        },
+        {
+          "action": "click",
+          "target": "submit"
+        },
+        {
+          "action": "assertText",
+          "target": "error-endDate",
+          "expected": "The end date must be on or after the start date."
+        }
       ],
-      "expectedOutcome": "The form is redisplayed with the date error." }
+      "expectedOutcome": "The form is redisplayed with the date error."
+    }
   ],
   "expectedApiCalls": [
-    { "method": "GET", "path": "/api/submissions", "purpose": "list submissions" }
+    {
+      "method": "GET",
+      "path": "/api/submissions",
+      "purpose": "list submissions"
+    }
   ],
   "knownFaults": [
-    { "id": "FAULT_INVALID_VALIDATION", "affects": ["/"], "healable": false, "reason": "The message states 1 to 50 while the server enforces 1 to 5." },
-    { "id": "FAULT_SLOW_ELEMENT", "affects": ["/"], "healable": false },
-    { "id": "FAULT_DYNAMIC_LOCATOR", "affects": ["/"], "healable": true },
-    { "id": "FAULT_JS_ERROR", "affects": ["/"], "healable": false },
-    { "id": "FAULT_ACCEPT_INVALID", "affects": ["/"], "healable": false, "reason": "The server accepts a submission it should refuse: a false pass generator." }
+    {
+      "id": "FAULT_INVALID_VALIDATION",
+      "affects": [
+        "/"
+      ],
+      "healable": false,
+      "reason": "The message states 1 to 50 while the server enforces 1 to 5."
+    },
+    {
+      "id": "FAULT_SLOW_ELEMENT",
+      "affects": [
+        "/"
+      ],
+      "healable": false
+    },
+    {
+      "id": "FAULT_DYNAMIC_LOCATOR",
+      "affects": [
+        "/"
+      ],
+      "healable": true
+    },
+    {
+      "id": "FAULT_JS_ERROR",
+      "affects": [
+        "/"
+      ],
+      "healable": false
+    },
+    {
+      "id": "FAULT_ACCEPT_INVALID",
+      "affects": [
+        "/"
+      ],
+      "healable": false,
+      "reason": "The server accepts a submission it should refuse: a false pass generator."
+    },
+    {
+      "id": "FAULT_A11Y_MISSING_LABEL",
+      "affects": [
+        "/"
+      ],
+      "healable": false,
+      "reason": "The full-name input loses its label.",
+      "accessibility": {
+        "expectedRule": "label",
+        "expectedImpact": "critical",
+        "outcome": "violation"
+      }
+    },
+    {
+      "id": "FAULT_A11Y_MISSING_ALT",
+      "affects": [
+        "/"
+      ],
+      "healable": false,
+      "reason": "The logo image loses its alt text.",
+      "accessibility": {
+        "expectedRule": "image-alt",
+        "expectedImpact": "critical",
+        "outcome": "violation"
+      }
+    },
+    {
+      "id": "FAULT_A11Y_LOW_CONTRAST",
+      "affects": [
+        "/"
+      ],
+      "healable": false,
+      "reason": "Helper text is rendered below a 4.5:1 contrast ratio.",
+      "accessibility": {
+        "expectedRule": "color-contrast",
+        "expectedImpact": "serious",
+        "outcome": "violation"
+      }
+    },
+    {
+      "id": "FAULT_A11Y_EMPTY_BUTTON",
+      "affects": [
+        "/"
+      ],
+      "healable": false,
+      "reason": "The submit control renders with no accessible name.",
+      "accessibility": {
+        "expectedRule": "button-name",
+        "expectedImpact": "critical",
+        "outcome": "violation"
+      }
+    },
+    {
+      "id": "FAULT_A11Y_DANGLING_ARIA",
+      "affects": [
+        "/"
+      ],
+      "healable": false,
+      "reason": "The full-name input describes itself by an id that does not exist.",
+      "accessibility": {
+        "expectedRule": "aria-valid-attr-value",
+        "expectedImpact": null,
+        "outcome": "incomplete",
+        "note": "axe reports this as a check a person must make, not a violation, because the target element could be added by script after the scan. Measured against axe-core 4.13.0."
+      }
+    }
   ],
   "expectedFailures": [
-    { "fault": "FAULT_INVALID_VALIDATION", "classification": "assertionFailed", "mustNotHeal": true },
-    { "fault": "FAULT_JS_ERROR", "classification": "javascriptError", "mustNotHeal": true },
-    { "fault": "FAULT_ACCEPT_INVALID", "classification": "assertionFailed", "mustNotHeal": true,
-      "reason": "A test that asserts the refusal must fail when the submission is wrongly accepted." }
-  ]
+    {
+      "fault": "FAULT_INVALID_VALIDATION",
+      "classification": "assertionFailed",
+      "mustNotHeal": true
+    },
+    {
+      "fault": "FAULT_JS_ERROR",
+      "classification": "javascriptError",
+      "mustNotHeal": true
+    },
+    {
+      "fault": "FAULT_ACCEPT_INVALID",
+      "classification": "assertionFailed",
+      "mustNotHeal": true,
+      "reason": "A test that asserts the refusal must fail when the submission is wrongly accepted."
+    }
+  ],
+  "accessibilityBaseline": {
+    "page": "/",
+    "standards": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21aa"
+    ],
+    "violations": 0,
+    "rulesPassed": 21,
+    "note": "With no faults on. 21 rules passing is not a claim that the page is accessible \u2014 automated checks find roughly a third of WCAG issues. It is the baseline a fault is measured against."
+  }
 }

@@ -113,7 +113,14 @@ public sealed class ExecutionsController : ApiControllerBase
                 locatorUsed = LocatorDescriptor.FromJson(a.LocatorUsedJson),
                 locatorDescription = LocatorDescriptor.FromJson(a.LocatorUsedJson) != null
                     ? LocatorDescriptor.FromJson(a.LocatorUsedJson)!.Describe() : null,
-                a.LocatorAlternativesJson
+                a.LocatorAlternativesJson,
+                // What an accessibility check found, beside the step it came from. The
+                // counts are projected out for a reader who wants a number; the whole
+                // result is there for somebody who has to fix a violation and needs the
+                // rule, the element and the help URL.
+                a.AccessibilityViolationCount,
+                a.AccessibilitySeriousCount,
+                accessibility = a.AccessibilityJson
             })
             .ToListAsync(ct);
 

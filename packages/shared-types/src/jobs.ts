@@ -1,3 +1,4 @@
+import type { AccessibilityResult } from './accessibility.js';
 import type { BrowserAction } from './actions.js';
 import type {
   AuthenticationStrategy, BrowserName, ExecutionStatus, HealingPolicy, TestCaseKind
@@ -153,6 +154,15 @@ export interface ActionResultReport {
   healingConfidence?: number;
   errorMessage?: string;
   screenshotKeys?: { before?: string; after?: string };
+  /**
+   * What an accessibility check found, when this step was one.
+   *
+   * Travels with the action rather than as a separate message so that a finding and the
+   * step it came from cannot disagree about whether the step passed. Reported whether or
+   * not the step failed on it: a failure that says "7 violations" and keeps the list is
+   * half a report.
+   */
+  accessibility?: AccessibilityResult;
 }
 
 export interface RankedLocator {

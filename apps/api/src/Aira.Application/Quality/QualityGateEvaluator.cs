@@ -248,6 +248,15 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
                         && e.TestCase!.Kind == TestCaseKind.Api)
             .CountAsync(ct);
 
+        // Only steps that actually ran a check. AccessibilitySeriousCount is null on every
+        // other step, so summing it counts findings rather than assuming absence is a pass.
+        var accessibilitySerious = await _db.TestActions
+            .Where(a => executionIds.Contains(a.TestExecutionId) && a.AccessibilitySeriousCount != null)
+            .SumAsync(a => a.AccessibilitySeriousCount!.Value, ct);
+
+        var accessibilityChecked = await _db.TestActions
+            .AnyAsync(a => executionIds.Contains(a.TestExecutionId) && a.AccessibilityViolationCount != null, ct);
+
         var flakyRate = finished == 0 ? 0m : run.FlakyCount * 100m / finished;
 
         var metrics = new Dictionary<QualityGateMetric, decimal>
@@ -268,6 +277,13 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
             [QualityGateMetric.HealedCount] = run.HealedCount,
             [QualityGateMetric.AverageDurationMs] = Math.Round(averageDuration, 0)
         };
+
+        // Added only when a check actually ran. The evaluator reports a rule whose metric
+        // is absent as unmeasured, which is the honest answer: a run with no accessibility
+        // step has not been shown to have zero violations, and a rule that passed because
+        // nothing looked reads as a guarantee.
+        if (accessibilityChecked)
+            metrics[QualityGateMetric.AccessibilitySeriousCount] = accessibilitySerious;
 
         // Added only when a contract check actually ran against this run's evidence.
         // "No breaking changes" and "nobody looked" are different statements, and a rule
@@ -337,6 +353,7 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
         QualityGateMetric.ApiFailedCount => "The number of failed API tests",
         QualityGateMetric.ContractBreakingChangeCount => "The number of breaking API contract changes",
         QualityGateMetric.SecurityFailedCount => "The number of failed security checks",
+        QualityGateMetric.AccessibilitySeriousCount => "The number of critical or serious accessibility violations",
         QualityGateMetric.RegressionFailedCount => "The number of regressions",
         QualityGateMetric.BlockedCount => "The number of blocked tests",
         _ => metric.ToString()

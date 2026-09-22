@@ -1,5 +1,9 @@
 import type { Locator, Page } from 'playwright';
-import type { BrowserAction, LocatorDescriptor, PlannedAssertion } from '@aira/shared-types';
+import type {
+  AccessibilityCheckDescriptor, AccessibilityResult, BrowserAction, LocatorDescriptor,
+  PlannedAssertion
+} from '@aira/shared-types';
+import { AccessibilityError, runAccessibilityCheck } from './accessibility-runner.js';
 import { buildLocator, resolveLocator } from '../browser/locator-resolver.js';
 import { isUrlAllowed } from '../security/url-guard.js';
 
@@ -30,6 +34,25 @@ export interface ActionContext {
    * is exactly what happened the first time this ran.
    */
   resolveTemplate(raw: string | undefined): string | undefined;
+  /** Called with what an accessibility check found, whether or not the step failed on it. */
+  onAccessibilityResult?(result: AccessibilityResult): void;
+}
+
+/**
+ * Reads a check's configuration from a step's value.
+ *
+ * A malformed descriptor falls back to the defaults rather than failing the step. The
+ * alternative reports a configuration mistake as an application defect, which sends the
+ * reader to look at code that is working.
+ */
+function parseAccessibility(value: string | undefined): AccessibilityCheckDescriptor {
+  if (!value || value.trim().length === 0) return {};
+  try {
+    const parsed = JSON.parse(value);
+    return parsed !== null && typeof parsed === 'object' ? parsed as AccessibilityCheckDescriptor : {};
+  } catch {
+    return {};
+  }
 }
 
 export class ActionError extends Error {
@@ -139,6 +162,26 @@ export async function runAction(
       // Capture is handled by the evidence collector; the verb exists so a plan can ask
       // for a screenshot at a specific point.
       return;
+
+    case 'checkAccessibility': {
+      // The descriptor travels in the action's value as JSON, the same way an API
+      // request's does. A malformed one falls back to the defaults rather than failing:
+      // the alternative is a configuration mistake reported as an application defect.
+      const descriptor = parseAccessibility(action.value);
+      try {
+        const result = await runAccessibilityCheck(page, descriptor);
+        context.onAccessibilityResult?.(result);
+      } catch (error) {
+        // The findings are recorded even when the step fails on them — especially then.
+        // A failure that says "7 violations" and keeps the list is half a report.
+        if (error instanceof AccessibilityError) {
+          context.onAccessibilityResult?.(error.result);
+          throw new ActionError(error.message, false);
+        }
+        throw error;
+      }
+      return;
+    }
 
     case 'executeScript': {
       if (!context.allowScriptExecution) {
