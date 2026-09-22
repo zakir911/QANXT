@@ -59,6 +59,7 @@ already have the toolchain, and `docs/implementation-plan.md` has the build plan
 - [Running from a pipeline](docs/ci-cd.md) — the `aira` CLI, exit codes, reports and quality gates
 - [API testing](docs/api-testing.md) · [Contract testing](docs/contract-testing.md) · [Regression selection](docs/regression-selection.md) · [Failure diagnosis](docs/failure-diagnosis.md)
 - [Scheduled regression](docs/scheduling.md) — the tests that run when nobody commits
+- [Notifications](docs/notifications.md) — telling somebody, and being able to show that you did
 - [Setup](docs/setup.md) — from a clone to a working platform, and what to do when it is not
 - [Deploying with Docker](docs/deployment.md) — one compose file for the whole platform
 - [The database](docs/database.md) — schema, tenant isolation, migrations

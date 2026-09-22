@@ -1,0 +1,34 @@
+{
+  "testId": "NOT-003",
+  "suite": "Notifications",
+  "runId": "2026-09-22T14-42-08Z",
+  "objective": "A green run sends nothing unless somebody asked for it",
+  "preconditions": [
+    "a webhook with no explicit event list"
+  ],
+  "input": "A run in which every test passes",
+  "expected": "No delivery at all. A channel that posts every success is one nobody reads by the second week, and the failure they needed scrolls past with it",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "nothing was sent, as intended",
+  "metrics": {
+    "deliveries": 0
+  },
+  "startedAt": "2026-09-22T14:42:11.739Z",
+  "durationMs": 7066,
+  "build": {
+    "commit": "3f071af",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "received.json",
+      "path": "evidence/NOT-003/2026-09-22T14-42-08Z/received.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ]
+}

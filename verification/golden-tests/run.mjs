@@ -28,6 +28,7 @@ const SUITES = {
   'ci-integration': () => import('./suites/ci-integration.mjs'),
   'ci-simulation': () => import('./suites/ci-simulation.mjs'),
   scheduling: () => import('./suites/scheduling.mjs'),
+  notifications: () => import('./suites/notifications.mjs'),
   security: () => import('./suites/security.mjs'),
   reliability: () => import('./suites/reliability.mjs'),
   performance: () => import('./suites/performance.mjs')

@@ -79,6 +79,20 @@ public class ScheduleConfiguration : IEntityTypeConfiguration<Schedule>
     }
 }
 
+public class NotificationDeliveryConfiguration : IEntityTypeConfiguration<NotificationDelivery>
+{
+    public void Configure(EntityTypeBuilder<NotificationDelivery> b)
+    {
+        b.ToTable("notification_deliveries");
+        b.Property(x => x.Title).HasMaxLength(300).IsRequired();
+        b.Property(x => x.Detail).HasMaxLength(500);
+        // The question this table answers is "was anybody told about this run?", so that
+        // is the index it gets.
+        b.HasIndex(x => new { x.ProjectId, x.AttemptedAt });
+        b.HasIndex(x => x.TestRunId);
+    }
+}
+
 public class ChangeImpactRuleConfiguration : IEntityTypeConfiguration<ChangeImpactRule>
 {
     public void Configure(EntityTypeBuilder<ChangeImpactRule> b)

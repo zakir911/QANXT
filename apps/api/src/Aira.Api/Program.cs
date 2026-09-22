@@ -74,6 +74,12 @@ builder.Services.AddHostedService<Aira.Api.Services.StrandedExecutionReaper>();
 // Regression that happens without anybody asking. Off with Scheduling:Enabled=false.
 builder.Services.AddHostedService<Aira.Api.Services.ScheduleRunnerService>();
 
+// The console's own address, so a notification can link to the run it is about. Read here
+// because the Application layer does not read configuration; null is valid and means
+// messages carry no link rather than a link to nowhere.
+builder.Services.AddSingleton(new Aira.Application.Notifications.NotificationOptions(
+    builder.Configuration["Console:BaseUrl"] ?? Environment.GetEnvironmentVariable("AIRA_CONSOLE_URL")));
+
 // ---- Authentication -------------------------------------------------------
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtSecret = jwtSection["Secret"] ?? string.Empty;

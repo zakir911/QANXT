@@ -176,6 +176,21 @@ public enum AiRequestStatus { Pending = 0, Succeeded = 1, Failed = 2, SchemaReje
 
 public enum IntegrationKind { GitHubActions = 0, AzureDevOps = 1, Jira = 2, Slack = 3, Webhook = 4 }
 
+/// <summary>What happened that somebody might want to be told about.</summary>
+/// <remarks>
+/// Kept short on purpose. Every value here is a message somebody receives, and a channel
+/// carrying an event nobody acts on trains its readers to ignore the ones they should.
+/// </remarks>
+public enum NotificationEventKind
+{
+    RunFailed = 0,
+    QualityGateBlocked = 1,
+    BreakingContractChange = 2,
+    ScheduleDisabled = 3,
+    /// <summary>Off by default: for most teams a green build is not news.</summary>
+    RunPassed = 4
+}
+
 public enum QualityGateOperator { LessThan = 0, LessThanOrEqual = 1, GreaterThan = 2, GreaterThanOrEqual = 3, Equal = 4, NotEqual = 5 }
 
 public enum QualityGateMetric

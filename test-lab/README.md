@@ -16,9 +16,16 @@ test-lab/
   dynamic-app/       built to defeat brittle locators         127.0.0.1:4330
   failure-app/       one page per failure class               127.0.0.1:4340
   self-healing-app/  one control, eight ways                  127.0.0.1:4350
+  notification-sink/ a receiver, so delivery can be observed      127.0.0.1:4360
   ci-simulation/     a CI pipeline, with no CI system
   scripts/           start, stop, smoke, audit
 ```
+
+`notification-sink/` is not an application under test either. It is an HTTP server that
+accepts AIRA's notification deliveries and keeps them, so that "AIRA sent the message" is
+something a test observes rather than infers from the sending code. It is deliberately not
+a mock of Slack: it does not pretend to be any particular service, and nothing it records
+licenses a claim about how a real service would respond.
 
 `ci-simulation/` is not an application under test. It is a pipeline that drives AIRA
 against the applications above, so that the CI integration is something that has been run

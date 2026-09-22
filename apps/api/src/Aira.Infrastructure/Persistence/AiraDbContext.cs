@@ -40,6 +40,7 @@ public class AiraDbContext : DbContext, IAiraDbContext
     public DbSet<QualityGateRule> QualityGateRules => Set<QualityGateRule>();
     public DbSet<Integration> Integrations => Set<Integration>();
     public DbSet<Schedule> Schedules => Set<Schedule>();
+    public DbSet<NotificationDelivery> NotificationDeliveries => Set<NotificationDelivery>();
 
     public DbSet<Domain.Applications.Application> Applications => Set<Domain.Applications.Application>();
     public DbSet<DiscoveryRun> DiscoveryRuns => Set<DiscoveryRun>();

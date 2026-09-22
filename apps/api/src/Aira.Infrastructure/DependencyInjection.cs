@@ -1,4 +1,5 @@
 using Aira.Application.Abstractions;
+using Aira.Application.Notifications;
 using Aira.Application.Ai;
 using Aira.Infrastructure.Ai;
 using Aira.Infrastructure.Ai.Providers;
@@ -85,6 +86,17 @@ public static class DependencyInjection
         services.AddScoped<ILlmProvider, LocalProvider>();
         services.AddScoped<ILlmProviderFactory, LlmProviderFactory>();
         services.AddScoped<IAiBudget, AiBudget>();
+
+        // One named client for every outbound notification, so a deployment can set its
+        // proxy, its certificate handling and its connection limits once rather than per
+        // provider. Redirects are off: a receiver that 302s is pointing the request
+        // somewhere the target policy never checked, which is how an allowlisted webhook
+        // URL becomes a request to anywhere.
+        services.AddHttpClient("notifications")
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
+
+        services.AddScoped<INotificationProvider, Notifications.WebhookNotificationProvider>();
+        services.AddScoped<INotificationProvider, Notifications.SlackNotificationProvider>();
 
         return services;
     }

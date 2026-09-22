@@ -38,11 +38,13 @@ public sealed class ExecutionIngestService : IExecutionIngestService
     private readonly IFailureAnalysisService _failureAnalysis;
     private readonly IQualityGateEvaluator _qualityGates;
     private readonly Applications.IApiContractService _contracts;
+    private readonly Notifications.INotificationService _notifications;
     private readonly ILogger<ExecutionIngestService> _logger;
 
     public ExecutionIngestService(IAiraDbContext db, IClock clock, SecretMasker masker,
         IExecutionEventPublisher events, IFailureAnalysisService failureAnalysis,
         IQualityGateEvaluator qualityGates, Applications.IApiContractService contracts,
+        Notifications.INotificationService notifications,
         ILogger<ExecutionIngestService> logger)
     {
         _db = db;
@@ -52,6 +54,7 @@ public sealed class ExecutionIngestService : IExecutionIngestService
         _failureAnalysis = failureAnalysis;
         _qualityGates = qualityGates;
         _contracts = contracts;
+        _notifications = notifications;
         _logger = logger;
     }
 
@@ -421,13 +424,43 @@ public sealed class ExecutionIngestService : IExecutionIngestService
             return;
         }
 
-        run.CompletedAt = _clock.UtcNow;
-        run.DurationMs = run.StartedAt is null ? 0 : (int)(run.CompletedAt.Value - run.StartedAt.Value).TotalMilliseconds;
-        run.Status = run.FailedCount > 0 ? ExecutionStatus.Failed
+        var completedAt = _clock.UtcNow;
+        var durationMs = run.StartedAt is null ? 0 : (int)(completedAt - run.StartedAt.Value).TotalMilliseconds;
+        var status = run.FailedCount > 0 ? ExecutionStatus.Failed
             : run.BlockedCount > 0 && run.PassedCount == 0 && run.HealedCount == 0 ? ExecutionStatus.Blocked
             : ExecutionStatus.Passed;
 
+        // The counts first, unconditionally. They are computed from the same query over the
+        // same rows by every caller, so writing them twice writes the same numbers, and
+        // writing them before the claim means the run's figures are right even for the
+        // caller that loses it.
         await _db.SaveChangesAsync(ct);
+
+        // Claiming completion. Every execution reports independently and the worker runs
+        // them in parallel, so when the last two finish close enough together both see
+        // every execution as terminal and both reach here (BUG-0031). Without this, the
+        // gate was evaluated twice, the contract check ran twice, the completion event was
+        // published twice and two identical notifications went out.
+        //
+        // The database serialises the two updates: exactly one caller sees a row affected.
+        var claimed = await _db.TestRuns
+            .Where(r => r.Id == run.Id && r.CompletedAt == null)
+            .ExecuteUpdateAsync(set => set
+                .SetProperty(r => r.CompletedAt, completedAt)
+                .SetProperty(r => r.Status, status)
+                .SetProperty(r => r.DurationMs, durationMs), ct);
+
+        if (claimed == 0)
+        {
+            _logger.LogDebug("Run {RunId} is already being finished by another callback", run.Id);
+            return;
+        }
+
+        // ExecuteUpdate does not touch the change tracker, so the tracked entity is brought
+        // in line with what was just written. Everything below reads these.
+        run.CompletedAt = completedAt;
+        run.DurationMs = durationMs;
+        run.Status = status;
 
         // Contract checking happens before the gate, because the gate has a rule about what
         // it finds. It is skipped silently when the application has no baselines: a check
@@ -450,6 +483,76 @@ public sealed class ExecutionIngestService : IExecutionIngestService
 
         _logger.LogInformation("Run {RunId} finished: {Passed} passed, {Failed} failed, {Healed} healed; gate {Gate}",
             run.Id, run.PassedCount, run.FailedCount, run.HealedCount, gate.Passed ? "passed" : "failed");
+
+        // Last, and never in a way that can fail the run. NotifyAsync does not throw; the
+        // ordering is what matters — the run is already saved with its verdict, so a
+        // message and the record it links to cannot disagree.
+        await NotifyAsync(run, gate, ct);
+    }
+
+
+    /// <summary>
+    /// Tells whoever asked to be told, once the run's verdict is final.
+    /// </summary>
+    /// <remarks>
+    /// One message per run, not one per condition. A run that failed tests <em>and</em> was
+    /// blocked by the gate is one event to a reader, and sending both would train them to
+    /// skim. Failure wins over a block, because "three tests failed" is the more actionable
+    /// sentence and the gate's reasons travel in the body either way.
+    /// </remarks>
+    private async Task NotifyAsync(TestRun run, Quality.QualityGateResult gate, CancellationToken ct)
+    {
+        var project = await _db.Projects
+            .Where(p => p.Id == run.ProjectId)
+            .Select(p => p.Name)
+            .FirstOrDefaultAsync(ct) ?? "Unknown project";
+
+        var outcome = gate.Outcome;
+        var blocked = outcome is QualityGateOutcome.Fail or QualityGateOutcome.Review;
+
+        var (kind, title) = run.FailedCount > 0
+            ? (NotificationEventKind.RunFailed,
+               $"{run.FailedCount} test(s) failed in {project}")
+            : blocked
+                ? (NotificationEventKind.QualityGateBlocked,
+                   outcome == QualityGateOutcome.Review
+                       ? $"A run in {project} needs a person to look at it"
+                       : $"The quality gate blocked a run in {project}")
+                : (NotificationEventKind.RunPassed, $"All tests passed in {project}");
+
+        var facts = new Dictionary<string, object?>
+        {
+            ["passed"] = run.PassedCount,
+            ["failed"] = run.FailedCount,
+            ["blocked"] = run.BlockedCount,
+            ["healed"] = run.HealedCount,
+            ["flaky"] = run.FlakyCount,
+            ["qualityGate"] = outcome.ToString(),
+            ["branch"] = run.CiBranch,
+            ["commit"] = run.CiCommitSha is { Length: > 8 } sha ? sha[..8] : run.CiCommitSha
+        };
+
+        await _notifications.NotifyAsync(new Notifications.NotificationMessage(
+            kind, title, gate.Summary, run.ProjectId, project, run.Id, run.Name, Facts: facts), ct);
+
+        // A breaking contract change is its own event, because it reaches a different
+        // audience: whoever owns the callers of that API, who may not be watching this
+        // project's runs at all.
+        if (run.ContractBreakingChangeCount > 0)
+        {
+            await _notifications.NotifyAsync(new Notifications.NotificationMessage(
+                NotificationEventKind.BreakingContractChange,
+                $"{run.ContractBreakingChangeCount} breaking API change(s) in {project}",
+                $"A contract check on this run found {run.ContractBreakingChangeCount} breaking "
+                + $"and {run.ContractPotentiallyBreakingChangeCount} potentially breaking change(s) "
+                + "against the stored baselines. Callers of those endpoints may already be broken.",
+                run.ProjectId, project, run.Id, run.Name,
+                Facts: new Dictionary<string, object?>
+                {
+                    ["breaking"] = run.ContractBreakingChangeCount,
+                    ["potentiallyBreaking"] = run.ContractPotentiallyBreakingChangeCount
+                }), ct);
+        }
     }
 
     /// <summary>Compares the responses this run observed against the stored contract

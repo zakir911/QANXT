@@ -1,4 +1,5 @@
 using Aira.Application.Abstractions;
+using Aira.Application.Notifications;
 using Aira.Application.Scheduling;
 using Aira.Application.Testing;
 using Aira.Domain.Enums;
@@ -265,6 +266,10 @@ public sealed class ScheduleRunnerService : BackgroundService
 
             _logger.LogError("Schedule {ScheduleId} '{Name}' disabled itself: {Reason}",
                 schedule.Id, schedule.Name, row.DisabledReason);
+
+            // The one case where silence is the worst outcome: the nightly has stopped, and
+            // the only signal is its absence. Nobody notices an absence.
+            await NotifyDisabledAsync(db, schedule, row.DisabledReason!, ct);
             return;
         }
 
@@ -290,6 +295,37 @@ public sealed class ScheduleRunnerService : BackgroundService
 
         _logger.LogError("Schedule {ScheduleId} '{Name}' disabled: {Reason}",
             schedule.Id, schedule.Name, reason);
+
+        await NotifyDisabledAsync(db, schedule, reason, ct);
+    }
+
+    /// <summary>Tells the project that one of its schedules has stopped running.</summary>
+    private async Task NotifyDisabledAsync(IAiraDbContext db, Domain.Projects.Schedule schedule,
+        string reason, CancellationToken ct)
+    {
+        using var scope = _scopes.CreateScope();
+        var tenant = scope.ServiceProvider.GetRequiredService<ITenantContext>();
+        using var _ = tenant.EnterSystemContext("notifying that a schedule disabled itself");
+
+        var notifications = scope.ServiceProvider.GetRequiredService<INotificationService>();
+        var scoped = scope.ServiceProvider.GetRequiredService<IAiraDbContext>();
+
+        var project = await scoped.Projects
+            .Where(p => p.Id == schedule.ProjectId)
+            .Select(p => p.Name)
+            .FirstOrDefaultAsync(ct) ?? "Unknown project";
+
+        await notifications.NotifyAsync(new NotificationMessage(
+            NotificationEventKind.ScheduleDisabled,
+            $"Schedule '{schedule.Name}' has stopped running",
+            reason + " Nothing scheduled will run for it until somebody re-enables it.",
+            schedule.ProjectId, project,
+            Facts: new Dictionary<string, object?>
+            {
+                ["schedule"] = schedule.Name,
+                ["cron"] = schedule.CronExpression,
+                ["timeZone"] = schedule.TimeZone
+            }), ct);
     }
 
     private static TimeZoneInfo Zone(string? id)

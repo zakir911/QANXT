@@ -3077,6 +3077,87 @@ namespace Aira.Infrastructure.Persistence.Migrations
                     b.ToTable("integrations", (string)null);
                 });
 
+            modelBuilder.Entity("Aira.Domain.Projects.NotificationDelivery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("AttemptedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("attempted_at");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<int>("Channel")
+                        .HasColumnType("integer")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("Delivered")
+                        .HasColumnType("boolean")
+                        .HasColumnName("delivered");
+
+                    b.Property<string>("Detail")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("detail");
+
+                    b.Property<int>("Event")
+                        .HasColumnType("integer")
+                        .HasColumnName("event");
+
+                    b.Property<Guid>("IntegrationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("integration_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("project_id");
+
+                    b.Property<int?>("StatusCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("status_code");
+
+                    b.Property<Guid?>("TestRunId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("test_run_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_deliveries");
+
+                    b.HasIndex("IntegrationId")
+                        .HasDatabaseName("ix_notification_deliveries_integration_id");
+
+                    b.HasIndex("TestRunId")
+                        .HasDatabaseName("ix_notification_deliveries_test_run_id");
+
+                    b.HasIndex("ProjectId", "AttemptedAt")
+                        .HasDatabaseName("ix_notification_deliveries_project_id_attempted_at");
+
+                    b.ToTable("notification_deliveries", (string)null);
+                });
+
             modelBuilder.Entity("Aira.Domain.Projects.Project", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4651,6 +4732,18 @@ namespace Aira.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_integrations_projects_project_id");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Aira.Domain.Projects.NotificationDelivery", b =>
+                {
+                    b.HasOne("Aira.Domain.Projects.Integration", "Integration")
+                        .WithMany()
+                        .HasForeignKey("IntegrationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notification_deliveries_integrations_integration_id");
+
+                    b.Navigation("Integration");
                 });
 
             modelBuilder.Entity("Aira.Domain.Projects.Project", b =>

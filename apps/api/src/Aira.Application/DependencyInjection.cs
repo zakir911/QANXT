@@ -7,6 +7,7 @@ using Aira.Application.Discovery;
 using Aira.Application.Identity;
 using Aira.Application.Journeys;
 using Aira.Application.Quality;
+using Aira.Application.Notifications;
 using Aira.Application.Scheduling;
 using Aira.Application.Testing;
 using Aira.Application.Projects;
@@ -39,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<IQualityGateService, QualityGateService>();
         services.AddScoped<IRegressionSelectionService, RegressionSelectionService>();
         services.AddScoped<IScheduleService, ScheduleService>();
+        services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAgentService, AgentService>();
         services.AddScoped<IAgentLoop, AgentLoop>();

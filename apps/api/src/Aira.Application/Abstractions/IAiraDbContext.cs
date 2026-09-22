@@ -31,6 +31,7 @@ public interface IAiraDbContext
     DbSet<QualityGateRule> QualityGateRules { get; }
     DbSet<Integration> Integrations { get; }
     DbSet<Schedule> Schedules { get; }
+    DbSet<NotificationDelivery> NotificationDeliveries { get; }
 
     DbSet<Domain.Applications.Application> Applications { get; }
     DbSet<DiscoveryRun> DiscoveryRuns { get; }

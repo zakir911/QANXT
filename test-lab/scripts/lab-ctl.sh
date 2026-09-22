@@ -18,6 +18,9 @@ APPS=(
   "dynamic-app|dynamic-app|4330"
   "failure-app|failure-app|4340"
   "self-healing-app|self-healing-app|4350"
+  # Not an application under test: a receiver, so that "AIRA sent the notification" is
+  # something a test can observe rather than infer from the sending code.
+  "notification-sink|notification-sink|4360"
 )
 
 pid_file() { echo "$RUN/$1.pid"; }
