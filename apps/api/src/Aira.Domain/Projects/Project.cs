@@ -26,6 +26,11 @@ public class Project : BaseEntity, ITenantOwned, IAuditable, ISoftDeletable
     /// <summary>0-100. Candidates scoring below this are never used, whatever the policy.</summary>
     public int HealingConfidenceThreshold { get; set; } = 85;
 
+    /// <summary>What the quality gate does about a test that only passed because a locator
+    /// was repaired. Defaults to PassWithWarning: a healed run is a pass, and it is never
+    /// silent about it.</summary>
+    public SelfHealingGatePolicy SelfHealingGatePolicy { get; set; } = SelfHealingGatePolicy.PassWithWarning;
+
     // ---- AI configuration ---------------------------------------------------
     public LlmProviderKind AiProvider { get; set; } = LlmProviderKind.Local;
     public string? AiModel { get; set; }

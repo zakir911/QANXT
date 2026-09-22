@@ -40,7 +40,7 @@ export async function statusCommand(args: ParsedArgs): Promise<number> {
 
   if (boolFlag(args, 'json')) {
     out(JSON.stringify(buildJsonReport(report), null, 2));
-    return report.qualityGate.passed ? ExitCode.Success : ExitCode.QualityGateFailed;
+    return report.qualityGate.passed ? ExitCode.Success : ExitCode.QualityGateFailure;
   }
 
   const { run } = report;
@@ -59,7 +59,7 @@ export async function statusCommand(args: ParsedArgs): Promise<number> {
     ? green(`  Quality gate passed. ${report.qualityGate.summary}`)
     : red(`  Quality gate failed. ${report.qualityGate.summary}`));
 
-  return report.qualityGate.passed ? ExitCode.Success : ExitCode.QualityGateFailed;
+  return report.qualityGate.passed ? ExitCode.Success : ExitCode.QualityGateFailure;
 }
 
 async function listRuns(api: ApiClient, args: ParsedArgs, projectId?: string): Promise<number> {

@@ -34,7 +34,7 @@ describe('argument parsing', () => {
     try {
       rejectUnknownFlags(args, ['junit']);
     } catch (error) {
-      expect((error as { code: number }).code).toBe(ExitCode.UsageError);
+      expect((error as { code: number }).code).toBe(ExitCode.ConfigurationError);
     }
   });
 

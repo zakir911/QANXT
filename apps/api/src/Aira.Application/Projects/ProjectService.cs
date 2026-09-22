@@ -12,7 +12,8 @@ public sealed record UpdateProjectRequest(
     string? Name, string? Description, BrowserType? DefaultBrowser, int? DefaultRetries,
     int? MaxParallelExecutions, int? DefaultActionTimeoutMs, bool? CaptureVideo, bool? CaptureTrace,
     bool? CaptureHar, HealingPolicy? HealingPolicy, int? HealingConfidenceThreshold,
-    LlmProviderKind? AiProvider, string? AiModel, bool? AiEnabled, bool? AllowScriptExecution);
+    LlmProviderKind? AiProvider, string? AiModel, bool? AiEnabled, bool? AllowScriptExecution,
+    SelfHealingGatePolicy? SelfHealingGatePolicy = null);
 
 public sealed record ProjectSummary(Guid Id, string Name, string Key, string Description,
     int ApplicationCount, int TestCaseCount, int OpenDefectCount, DateTimeOffset CreatedAt);
@@ -21,7 +22,8 @@ public sealed record ProjectDetail(Guid Id, string Name, string Key, string Desc
     BrowserType DefaultBrowser, int DefaultRetries, int MaxParallelExecutions, int DefaultActionTimeoutMs,
     bool CaptureVideo, bool CaptureTrace, bool CaptureHar, HealingPolicy HealingPolicy,
     int HealingConfidenceThreshold, LlmProviderKind AiProvider, string? AiModel, bool AiEnabled,
-    bool AllowScriptExecution, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt);
+    bool AllowScriptExecution, SelfHealingGatePolicy SelfHealingGatePolicy,
+    DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt);
 
 public interface IProjectService
 {
@@ -148,6 +150,19 @@ public sealed class ProjectService : IProjectService
                 projectId: project.Id, ct: ct);
         }
 
+        // What a healed test does to the quality gate is a release-policy decision, so a
+        // change to it is audited in its own right rather than folded into "settings changed".
+        if (request.SelfHealingGatePolicy is not null
+            && request.SelfHealingGatePolicy.Value != project.SelfHealingGatePolicy)
+        {
+            var was = project.SelfHealingGatePolicy;
+            project.SelfHealingGatePolicy = request.SelfHealingGatePolicy.Value;
+            await _audit.LogAsync(AuditAction.ConfigurationChanged, nameof(Project), project.Id,
+                $"Self-healing quality gate policy changed from {was} to {project.SelfHealingGatePolicy} "
+                + $"for project '{project.Name}'.",
+                projectId: project.Id, ct: ct);
+        }
+
         project.UpdatedByUserId = _currentUser.UserId;
         await _db.SaveChangesAsync(ct);
 
@@ -178,5 +193,5 @@ public sealed class ProjectService : IProjectService
         p.Id, p.Name, p.Key, p.Description, p.DefaultBrowser, p.DefaultRetries, p.MaxParallelExecutions,
         p.DefaultActionTimeoutMs, p.CaptureVideo, p.CaptureTrace, p.CaptureHar, p.HealingPolicy,
         p.HealingConfidenceThreshold, p.AiProvider, p.AiModel, p.AiEnabled, p.AllowScriptExecution,
-        p.CreatedAt, p.UpdatedAt);
+        p.SelfHealingGatePolicy, p.CreatedAt, p.UpdatedAt);
 }

@@ -26,7 +26,13 @@ public class EnvironmentConfiguration : IEntityTypeConfiguration<Domain.Projects
         b.ToTable("environments");
         b.Property(x => x.Name).HasMaxLength(100).IsRequired();
         b.Property(x => x.BaseUrl).HasMaxLength(2048).IsRequired();
+        b.Property(x => x.Key).HasMaxLength(40).IsRequired();
+        b.Property(x => x.ApiBaseUrl).HasMaxLength(2048);
+        b.Property(x => x.AllowedDomains).HasMaxLength(2048);
+        b.Property(x => x.ProductionAuthorizationNote).HasMaxLength(1000);
         b.HasIndex(x => new { x.ProjectId, x.Name }).IsUnique();
+        // The key is what `--environment` takes, so it has to be unambiguous per project.
+        b.HasIndex(x => new { x.ProjectId, x.Key }).IsUnique();
         b.HasOne(x => x.Project).WithMany(p => p.Environments)
             .HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Cascade);
     }
@@ -39,6 +45,8 @@ public class QualityGateRuleConfiguration : IEntityTypeConfiguration<QualityGate
         b.ToTable("quality_gate_rules");
         b.Property(x => x.Name).HasMaxLength(200).IsRequired();
         b.Property(x => x.Threshold).HasPrecision(12, 2);
+        b.Property(x => x.Environment).HasMaxLength(40);
+        b.Property(x => x.Message).HasMaxLength(500);
         b.HasIndex(x => x.ProjectId);
         b.HasOne(x => x.Project).WithMany(p => p.QualityGateRules)
             .HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Cascade);

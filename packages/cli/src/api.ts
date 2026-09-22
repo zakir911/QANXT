@@ -34,7 +34,7 @@ export class ApiClient {
     } catch (error) {
       throw new CliError(
         `Could not reach the platform at ${this.baseUrl}.`,
-        ExitCode.PlatformError,
+        ExitCode.InfrastructureError,
         `${String(error)}. Check AIRA_API_URL and that the API is running.`);
     }
 
@@ -51,7 +51,7 @@ export class ApiClient {
     if (!response.ok) {
       throw new CliError(
         `${method} ${path} failed (${response.status}).`,
-        ExitCode.PlatformError,
+        ExitCode.InfrastructureError,
         describeProblem(text));
     }
 
@@ -60,7 +60,7 @@ export class ApiClient {
       return JSON.parse(text) as T;
     } catch {
       throw new CliError(`The platform returned a response that is not JSON.`,
-        ExitCode.PlatformError, text.slice(0, 200));
+        ExitCode.InfrastructureError, text.slice(0, 200));
     }
   }
 }
@@ -90,7 +90,7 @@ export async function login(apiUrl: string, body: {
       body: JSON.stringify(body)
     });
   } catch (error) {
-    throw new CliError(`Could not reach the platform at ${apiUrl}.`, ExitCode.PlatformError, String(error));
+    throw new CliError(`Could not reach the platform at ${apiUrl}.`, ExitCode.InfrastructureError, String(error));
   }
 
   const text = await response.text();
@@ -99,7 +99,7 @@ export async function login(apiUrl: string, body: {
       'Check the email, password and organization.');
   }
   if (!response.ok) {
-    throw new CliError(`Sign-in failed (${response.status}).`, ExitCode.PlatformError, describeProblem(text));
+    throw new CliError(`Sign-in failed (${response.status}).`, ExitCode.InfrastructureError, describeProblem(text));
   }
   return JSON.parse(text) as { accessToken: string; refreshToken?: string; expiresAt?: string };
 }

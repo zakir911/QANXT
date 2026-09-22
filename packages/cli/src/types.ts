@@ -63,10 +63,19 @@ export interface QualityGateRuleResult {
   passed: boolean;
   isBlocking: boolean;
   explanation: string;
+  /** What a failure of this rule does. Absent on a platform older than gate actions. */
+  action?: 'fail' | 'review' | 'warn' | null;
 }
 
+export type QualityGateOutcome = 'pass' | 'review' | 'fail';
+
 export interface QualityGateResult {
+  /** True for PASS and for REVIEW. A pipeline that must stop on REVIEW reads `outcome`. */
   passed: boolean;
+  /** Absent on a platform older than three-outcome gates; treat as pass/fail then. */
+  outcome?: QualityGateOutcome | null;
+  reviewReasons?: string[] | null;
+  metrics?: Record<string, number> | null;
   rules: QualityGateRuleResult[];
   summary: string;
 }

@@ -7,6 +7,8 @@ import { LOGIN_HELP, loginCommand } from './commands/login.js';
 import { REPORT_HELP, reportCommand } from './commands/report.js';
 import { RUN_HELP, runCommand } from './commands/run.js';
 import { STATUS_HELP, statusCommand } from './commands/status.js';
+import { QUALITY_GATE_HELP, qualityGateCommand } from './commands/quality-gate.js';
+import { appsCommand, environmentsCommand, LIST_HELP, projectsCommand } from './commands/list.js';
 
 /**
  * The entry point.
@@ -24,9 +26,13 @@ const HELP = `
 ${bold(`${PRODUCT} command line`)} ${dim(`v${VERSION}`)}
 
   aira login                Store a session
+  aira projects             List the projects this account can see
+  aira apps                 List the applications in a project
+  aira environments         List a project's environments
   aira discover             Crawl an application and refresh its knowledge graph
   aira run                  Start a test run, wait for it, write reports
   aira status [run-id]      What a run did, or what the recent runs did
+  aira quality-gate         Evaluate a finished run against its gate
   aira report <run-id>      Write reports for a run that already finished
 
   --api-url <url>           The control plane (or AIRA_API_URL)
@@ -35,8 +41,12 @@ ${bold(`${PRODUCT} command line`)} ${dim(`v${VERSION}`)}
   -h, --help                Show help for a command
   -v, --version             Print the version
 
-Exit status: 0 success · 1 quality gate failed · 2 bad usage
-             3 not authorized · 4 platform error · 5 timed out
+Exit status
+  0 PASS                        5 INFRASTRUCTURE_ERROR
+  1 TEST_FAILURE                6 SECURITY_POLICY_VIOLATION
+  2 QUALITY_GATE_FAILURE        7 HUMAN_REVIEW_REQUIRED
+  3 CONFIGURATION_ERROR         8 AIRA_INTERNAL_ERROR
+  4 AUTHENTICATION_ERROR
 
 In a pipeline, set AIRA_API_URL and AIRA_TOKEN and skip "aira login".
 `;
@@ -46,6 +56,10 @@ const COMMAND_HELP: Record<string, string> = {
   discover: DISCOVER_HELP,
   run: RUN_HELP,
   status: STATUS_HELP,
+  'quality-gate': QUALITY_GATE_HELP,
+  projects: LIST_HELP,
+  apps: LIST_HELP,
+  environments: LIST_HELP,
   report: REPORT_HELP
 };
 
@@ -54,6 +68,10 @@ const COMMANDS: Record<string, (args: ReturnType<typeof parseArgs>) => Promise<n
   discover: discoverCommand,
   run: runCommand,
   status: statusCommand,
+  'quality-gate': qualityGateCommand,
+  projects: projectsCommand,
+  apps: appsCommand,
+  environments: environmentsCommand,
   report: reportCommand
 };
 
@@ -63,13 +81,13 @@ async function main(argv: readonly string[]): Promise<number> {
 
   if (boolFlag(args, 'version') && !args.command) { out(VERSION); return ExitCode.Success; }
 
-  if (!args.command) { note(HELP); return boolFlag(args, 'help') ? ExitCode.Success : ExitCode.UsageError; }
+  if (!args.command) { note(HELP); return boolFlag(args, 'help') ? ExitCode.Success : ExitCode.ConfigurationError; }
 
   const command = COMMANDS[args.command];
   if (!command) {
     note(red(`Unknown command "${args.command}".`));
     note(HELP);
-    return ExitCode.UsageError;
+    return ExitCode.ConfigurationError;
   }
 
   if (boolFlag(args, 'help')) { note(COMMAND_HELP[args.command] ?? HELP); return ExitCode.Success; }
@@ -89,6 +107,6 @@ try {
     // clearly rather than leaving a team looking for a defect that is not there.
     process.stderr.write(`${red('error')} The command did not complete.\n`);
     process.stderr.write(`${dim(error instanceof Error ? (error.stack ?? error.message) : String(error))}\n`);
-    process.exitCode = ExitCode.PlatformError;
+    process.exitCode = ExitCode.InfrastructureError;
   }
 }

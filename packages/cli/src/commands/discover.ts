@@ -76,7 +76,7 @@ export async function discoverCommand(args: ParsedArgs): Promise<number> {
     if (Date.now() > deadline) {
       throw new CliError(
         `Discovery did not finish within ${Math.round(timeoutMs / 1000)}s (last status: ${run.status}).`,
-        ExitCode.Timeout,
+        ExitCode.InfrastructureError,
         `It may still be running. Check with "aira discover" again once it settles.`);
     }
     await new Promise(resolve => setTimeout(resolve, pollMs));
@@ -105,7 +105,7 @@ export async function discoverCommand(args: ParsedArgs): Promise<number> {
 
   if (run.status !== 'completed' && run.status !== 'partial') {
     note(red(`\n  Discovery ended as "${run.status}". ${run.errorMessage ?? ''}`.trimEnd()));
-    return ExitCode.PlatformError;
+    return ExitCode.InfrastructureError;
   }
 
   return ExitCode.Success;

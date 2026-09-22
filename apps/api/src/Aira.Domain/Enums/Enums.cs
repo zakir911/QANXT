@@ -127,7 +127,43 @@ public enum QualityGateMetric
 {
     PassRatePercent = 0, FailedCount = 1, CriticalFailedCount = 2, FlakyCount = 3,
     NewFailureCount = 4, HighConfidenceDefectCount = 5, CriticalJourneyFailedCount = 6,
-    HealedCount = 7, AverageDurationMs = 8
+    HealedCount = 7, AverageDurationMs = 8,
+    // Added for continuous quality. Each is measured from stored results; a metric nothing
+    // can measure yet is not added, because a rule over an always-zero value reads like a
+    // guarantee and is not one.
+    HighFailedCount = 9, MediumFailedCount = 10, FlakyRatePercent = 11,
+    ApiFailedCount = 12, ContractBreakingChangeCount = 13, SecurityFailedCount = 14,
+    RegressionFailedCount = 15, BlockedCount = 16
+}
+
+/// <summary>What a failing rule should do to the pipeline.
+///
+/// REVIEW exists because "a person must look at this" is a real third answer, and folding it
+/// into either PASS or FAIL loses information a release decision needs. A rule that heals
+/// tests is the obvious case: the journey completed, so failing the build would be wrong,
+/// and passing silently would hide that a locator was rewritten.</summary>
+public enum QualityGateAction { Fail = 0, Review = 1, Warn = 2 }
+
+/// <summary>Where an application is deployed. Production is refused by default and needs a
+/// deliberate, recorded authorization on the environment itself.</summary>
+public enum EnvironmentKind { Development = 0, Qa = 1, Staging = 2, Uat = 3, Production = 4 }
+
+/// <summary>The gate's verdict for a whole run.</summary>
+public enum QualityGateOutcome { Pass = 0, Review = 1, Fail = 2 }
+
+/// <summary>What a project wants to happen when a test only passed because a locator was
+/// repaired. Configurable because the right answer differs between a team that wants speed
+/// and a team that wants every rewrite seen.</summary>
+public enum SelfHealingGatePolicy
+{
+    /// <summary>A healed test counts as a pass and nothing is said about it in the gate.</summary>
+    Pass = 0,
+    /// <summary>Counts as a pass, and the gate records a warning naming the healed tests.</summary>
+    PassWithWarning = 1,
+    /// <summary>The gate returns REVIEW: the build need not stop, but a person must look.</summary>
+    RequireReview = 2,
+    /// <summary>The gate fails. For teams that treat any silent locator change as a defect.</summary>
+    Fail = 3
 }
 
 /// <summary>Where a bounded agent pass has got to.</summary>

@@ -48,5 +48,5 @@ export async function reportCommand(args: ParsedArgs): Promise<number> {
   const written = await writeReports(report, targets);
   note(`Wrote ${written.length} report(s) for ${report.run.name}.`);
 
-  return report.qualityGate.passed ? ExitCode.Success : ExitCode.QualityGateFailed;
+  return report.qualityGate.passed ? ExitCode.Success : ExitCode.QualityGateFailure;
 }

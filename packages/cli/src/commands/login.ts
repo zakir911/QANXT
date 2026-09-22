@@ -34,7 +34,7 @@ export async function loginCommand(args: ParsedArgs): Promise<number> {
   const password = flag(args, 'password') ?? process.env.AIRA_PASSWORD ?? await askSecret('Password: ');
 
   if (!email || !password) {
-    throw new CliError('An email and a password are required.', ExitCode.UsageError);
+    throw new CliError('An email and a password are required.', ExitCode.ConfigurationError);
   }
 
   const session = await login(apiUrl, { email, password, organizationSlug: organizationSlug || undefined });
@@ -64,7 +64,7 @@ export async function loginCommand(args: ParsedArgs): Promise<number> {
 async function ask(prompt: string): Promise<string> {
   if (!process.stdin.isTTY) {
     throw new CliError(`${prompt.trim()} is required and there is no terminal to ask on.`,
-      ExitCode.UsageError, 'Pass it as a flag or an environment variable.');
+      ExitCode.ConfigurationError, 'Pass it as a flag or an environment variable.');
   }
   const rl = createInterface({ input: process.stdin, output: process.stderr });
   try {
@@ -78,7 +78,7 @@ async function ask(prompt: string): Promise<string> {
 async function askSecret(prompt: string): Promise<string> {
   if (!process.stdin.isTTY) {
     throw new CliError('A password is required and there is no terminal to ask on.',
-      ExitCode.UsageError, 'Set AIRA_PASSWORD, or use AIRA_TOKEN instead of logging in.');
+      ExitCode.ConfigurationError, 'Set AIRA_PASSWORD, or use AIRA_TOKEN instead of logging in.');
   }
 
   process.stderr.write(prompt);
@@ -99,7 +99,7 @@ async function askSecret(prompt: string): Promise<string> {
         if (character === '\u0003') {           // Ctrl-C
           cleanup();
           process.stderr.write('\n');
-          rejectPromise(new CliError('Cancelled.', ExitCode.UsageError));
+          rejectPromise(new CliError('Cancelled.', ExitCode.ConfigurationError));
           return;
         }
         if (character === '\u007f' || character === '\b') value = value.slice(0, -1);

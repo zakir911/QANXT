@@ -2,10 +2,10 @@ import { BROWSER_TYPES, type BrowserType, type RunTrigger } from '@aira/shared-t
 import { ApiClient } from '../api.js';
 import { boolFlag, flag, flagAll, intFlag, rejectUnknownFlags, type ParsedArgs } from '../args.js';
 import { resolveContext } from '../config.js';
-import { CliError, ExitCode, usage } from '../exit-codes.js';
+import { CliError, ExitCode, type ExitCodeValue, usage } from '../exit-codes.js';
 import { bold, dim, duration, green, note, out, red, yellow } from '../output.js';
 import { gatherReport, writeReports } from '../report-gather.js';
-import type { RunSummary } from '../types.js';
+import type { RunReport, RunSummary } from '../types.js';
 import { qualification, verdictOf } from '../verdict.js';
 
 export const RUN_FLAGS = [
@@ -105,10 +105,32 @@ export async function runCommand(args: ParsedArgs): Promise<number> {
   // A run that never reached a verdict is not a pass, whatever the gate says about it.
   if (!['passed', 'failed', 'completed'].includes(run.status)) {
     note(red(`\nThe run ended as "${run.status}" rather than producing a verdict.`));
-    return ExitCode.PlatformError;
+    return ExitCode.InfrastructureError;
   }
 
-  return report.qualityGate.passed ? ExitCode.Success : ExitCode.QualityGateFailed;
+  return verdictExitCode(report);
+}
+
+/**
+ * Turns a finished run into the status a pipeline branches on.
+ *
+ * The order matters. A failed test is reported as a test failure even when a gate also
+ * blocked, because "six tests failed" is what someone needs to read first; a gate failure
+ * is reserved for a run whose tests were within tolerance and which a rule stopped anyway.
+ * REVIEW is its own code so a pipeline can choose to proceed on it.
+ */
+export function verdictExitCode(report: RunReport): ExitCodeValue {
+  const gate = report.qualityGate;
+  // Older platforms answer without an outcome; a boolean is all there is to go on.
+  const outcome = gate.outcome ?? (gate.passed ? 'pass' : 'fail');
+
+  const failed = report.executions.filter(execution =>
+    ['failed', 'error', 'timedOut'].includes(execution.status)).length;
+
+  if (failed > 0) return ExitCode.TestFailure;
+  if (outcome === 'fail') return ExitCode.QualityGateFailure;
+  if (outcome === 'review') return ExitCode.HumanReviewRequired;
+  return ExitCode.Success;
 }
 
 /** Validated here rather than at the API, so a typo fails immediately and says what is valid. */
@@ -170,7 +192,7 @@ async function waitForRun(
       // person running the pipeline should make deliberately.
       throw new CliError(
         `The run did not finish within ${Math.round(options.timeoutMs / 1000)}s (last status: ${run.status}).`,
-        ExitCode.Timeout,
+        ExitCode.InfrastructureError,
         `It is still running. Follow it with "aira status ${runId}", or stop it with "aira cancel ${runId}".`);
     }
 
