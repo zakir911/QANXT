@@ -51,8 +51,8 @@ Stated plainly, because these are the gaps this phase is judged against.
 | **API testing of any kind** | Nothing can send a request and assert on the response. `ApiEndpoint` is an inventory, not a test target. |
 | **API contract testing** | No schema comparison, no breaking-change classification. |
 | ~~**UI/API correlation in diagnosis**~~ | **Done.** The classifier reads what the API was doing when the step failed, and names the call. Closing it found [BUG-0025](../verification/bugs/BUG-0025/bug.md): the failing step had never been identified at all, because the worker streams its actions and the analyser read the completion's empty list. |
-| **Change impact analysis** | No notion of a commit, a changed file, or what a change reaches. |
-| **Smart regression selection** | A run executes the tests it is given. There is no selection, no scoring, no explanation of why a test was chosen. |
+| ~~**Change impact analysis**~~ | **Done.** Rules a team writes, plus name-based inference labelled as inference. See [`regression-selection.md`](regression-selection.md). |
+| ~~**Smart regression selection**~~ | **Done.** A five-component score, every component capped and explained, and three loud fallbacks so that an uncertain selection runs more rather than nothing. |
 | **Environments as first-class** | An application has one base URL. There is no Development/QA/Staging/UAT/Production distinction and so no production safeguard. |
 | **Test data abstraction** | Secrets resolve through `${secret:…}`; there is no `{{TEST_USER}}` layer, no generated data, no cleanup. |
 | **Scheduled regression** | No scheduler. |

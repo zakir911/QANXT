@@ -11,7 +11,7 @@
  * evaluate, a request outside the authorization boundary, a credential inlined where it
  * will end up in a report — are exactly the ways an API suite quietly becomes decoration.
  */
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -60,30 +60,37 @@ function signInThenRead({ capture = true } = {}) {
   ];
 }
 
-/** Runs the CLI as a pipeline would, and reports its exit status rather than throwing. */
-function cli(args, { token, projectId, cwd = ROOT } = {}) {
+/**
+ * Runs the CLI as a pipeline would, and reports its exit status rather than throwing.
+ *
+ * Both streams are captured. The CLI writes results to stdout and progress to stderr on
+ * purpose, so that `--json` output stays machine-readable — a test that read only stdout
+ * would see an empty transcript for every command whose output is meant for a person.
+ */
+function cli(args, { token, projectId } = {}) {
   const binary = resolve(ROOT, 'packages/cli/dist/aira.js');
-  try {
-    const stdout = execFileSync(process.execPath, [binary, ...args], {
-      cwd,
-      encoding: 'utf8',
-      timeout: 300_000,
-      env: {
-        ...process.env,
-        AIRA_API_URL: API,
-        AIRA_TOKEN: token ?? '',
-        AIRA_PROJECT_ID: projectId ?? '',
-        NO_COLOR: '1'
-      }
-    });
-    return { code: 0, stdout, stderr: '' };
-  } catch (error) {
-    return {
-      code: typeof error.status === 'number' ? error.status : -1,
-      stdout: String(error.stdout ?? ''),
-      stderr: String(error.stderr ?? error.message ?? '')
-    };
-  }
+  const result = spawnSync(process.execPath, [binary, ...args], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    timeout: 300_000,
+    env: {
+      ...process.env,
+      AIRA_API_URL: API,
+      AIRA_TOKEN: token ?? '',
+      AIRA_PROJECT_ID: projectId ?? '',
+      NO_COLOR: '1'
+    }
+  });
+
+  const stdout = result.stdout ?? '';
+  const stderr = result.stderr ?? '';
+  return {
+    code: result.status ?? -1,
+    stdout,
+    stderr,
+    /** What a person watching the pipeline would see, in order. */
+    output: `${stdout}${stderr}`
+  };
 }
 
 export default async function run() {
@@ -653,10 +660,10 @@ export default async function run() {
       await lab.reset(BANK);
 
       const transcript = [
-        `$ aira api-test add --file api-tests.json   (exit ${added.code})`, added.stdout, added.stderr,
-        `$ aira api-test list                        (exit ${listed.code})`, listed.stdout, listed.stderr,
-        `$ aira api-test run     [API healthy]       (exit ${green.code})`, green.stdout, green.stderr,
-        `$ aira api-test run     [FAULT_API_500]     (exit ${red.code})`, red.stdout, red.stderr
+        `$ aira api-test add --file api-tests.json   (exit ${added.code})`, added.output,
+        `$ aira api-test list                        (exit ${listed.code})`, listed.output,
+        `$ aira api-test run     [API healthy]       (exit ${green.code})`, green.output,
+        `$ aira api-test run     [FAULT_API_500]     (exit ${red.code})`, red.output
       ].join('\n');
 
       return {

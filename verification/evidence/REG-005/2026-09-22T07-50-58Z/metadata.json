@@ -1,0 +1,32 @@
+{
+  "testId": "REG-005",
+  "suite": "Regression selection",
+  "runId": "2026-09-22T07-50-58Z",
+  "objective": "A selection with no changed paths at all runs everything rather than nothing",
+  "preconditions": [
+    "none"
+  ],
+  "input": "A selection request with an empty change set",
+  "expected": "The whole suite, the fallback reported",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "fellBack=true, 5/5 selected",
+  "metrics": null,
+  "startedAt": "2026-09-22T07:51:15.620Z",
+  "durationMs": 8,
+  "build": {
+    "commit": "9c99059",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "selection.json",
+      "path": "evidence/REG-005/2026-09-22T07-50-58Z/selection.json",
+      "bytes": 7214,
+      "sha256": "a3f03537a46675383f24d1e4a8e99d1d9491545b9f5bddbf2322d4dee41b03e3"
+    }
+  ]
+}

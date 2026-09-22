@@ -239,6 +239,35 @@ public enum ContractChangeKind
     Breaking = 2
 }
 
+/// <summary>What a changed file is taken to affect.</summary>
+public enum ImpactKind
+{
+    /// <summary>A page route in the application under test: <c>/accounts</c>.</summary>
+    Route = 0,
+    /// <summary>An API path template: <c>/api/accounts/{id}</c>.</summary>
+    ApiEndpoint = 1,
+    /// <summary>A tag on the tests that cover this area.</summary>
+    Tag = 2,
+    /// <summary>One named test, by reference. The blunt instrument, for the cases a
+    /// pattern cannot express.</summary>
+    TestCase = 3,
+    /// <summary>Everything. For a change to shared infrastructure, where narrowing the
+    /// regression set would be a guess dressed up as an optimisation.</summary>
+    Everything = 4
+}
+
+/// <summary>How a regression set was chosen.</summary>
+public enum RegressionMode
+{
+    /// <summary>Tests the change reaches, plus the ones a project always runs.</summary>
+    Impacted = 0,
+    /// <summary>The smoke set only.</summary>
+    Smoke = 1,
+    /// <summary>Every enabled test. What a nightly run does, and what an impacted
+    /// selection falls back to when it cannot establish what a change reaches.</summary>
+    Full = 2
+}
+
 /// <summary>Where a stored contract came from.</summary>
 public enum ApiContractSource
 {

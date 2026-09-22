@@ -1,0 +1,284 @@
+{
+  "mode": "impacted",
+  "requestedMode": "impacted",
+  "totalCandidates": 5,
+  "selectedCount": 3,
+  "minScore": 40,
+  "impact": {
+    "changedPathCount": 2,
+    "matchedPathCount": 2,
+    "unmatchedPaths": [],
+    "affectedRoutes": [
+      "/accounts"
+    ],
+    "affectedApiPaths": [
+      "/api/accounts"
+    ],
+    "affectedTags": [],
+    "affectedTestReferences": [],
+    "affectsEverything": false,
+    "impacts": [
+      {
+        "path": "src/pages/accounts/List.tsx",
+        "kind": "route",
+        "value": "/accounts",
+        "isDeclared": true,
+        "reason": "src/pages/accounts/List.tsx matches the rule \"src/pages/accounts/**\": The accounts screens."
+      },
+      {
+        "path": "src/api/accounts/service.ts",
+        "kind": "apiEndpoint",
+        "value": "/api/accounts",
+        "isDeclared": true,
+        "reason": "src/api/accounts/service.ts matches the rule \"src/api/accounts/**\": The accounts service."
+      }
+    ],
+    "notes": []
+  },
+  "selected": [
+    {
+      "testCaseId": "bd124e0a-34df-4360-8103-18c540f61308",
+      "reference": "TC-0001",
+      "name": "Accounts list opens",
+      "kind": "ui",
+      "priority": "medium",
+      "risk": "medium",
+      "score": 70,
+      "components": [
+        {
+          "name": "impact",
+          "points": 40,
+          "maximum": 40,
+          "reason": "This test exercises /accounts, which the change affects."
+        },
+        {
+          "name": "risk",
+          "points": 10,
+          "maximum": 20,
+          "reason": "Priority medium, risk medium."
+        },
+        {
+          "name": "history",
+          "points": 10,
+          "maximum": 20,
+          "reason": "This test has never run, so nothing is known about it."
+        },
+        {
+          "name": "staleness",
+          "points": 10,
+          "maximum": 10,
+          "reason": "It has never been run."
+        },
+        {
+          "name": "always",
+          "points": 0,
+          "maximum": 10,
+          "reason": "Not part of the always-run set."
+        }
+      ],
+      "reasons": [
+        "This test exercises /accounts, which the change affects.",
+        "Priority medium, risk medium.",
+        "This test has never run, so nothing is known about it.",
+        "It has never been run."
+      ],
+      "isImpacted": true
+    },
+    {
+      "testCaseId": "4a5f4699-e700-44b4-b88d-59ed531d5dce",
+      "reference": "TC-0004",
+      "name": "The accounts endpoint answers",
+      "kind": "api",
+      "priority": "medium",
+      "risk": "medium",
+      "score": 70,
+      "components": [
+        {
+          "name": "impact",
+          "points": 40,
+          "maximum": 40,
+          "reason": "This test exercises /api/accounts, which the change affects."
+        },
+        {
+          "name": "risk",
+          "points": 10,
+          "maximum": 20,
+          "reason": "Priority medium, risk medium."
+        },
+        {
+          "name": "history",
+          "points": 10,
+          "maximum": 20,
+          "reason": "This test has never run, so nothing is known about it."
+        },
+        {
+          "name": "staleness",
+          "points": 10,
+          "maximum": 10,
+          "reason": "It has never been run."
+        },
+        {
+          "name": "always",
+          "points": 0,
+          "maximum": 10,
+          "reason": "Not part of the always-run set."
+        }
+      ],
+      "reasons": [
+        "This test exercises /api/accounts, which the change affects.",
+        "Priority medium, risk medium.",
+        "This test has never run, so nothing is known about it.",
+        "It has never been run."
+      ],
+      "isImpacted": true
+    },
+    {
+      "testCaseId": "05bde92f-282b-45c1-bcff-8a2b687a5ade",
+      "reference": "TC-0005",
+      "name": "The application is up",
+      "kind": "api",
+      "priority": "medium",
+      "risk": "medium",
+      "score": 40,
+      "components": [
+        {
+          "name": "impact",
+          "points": 0,
+          "maximum": 40,
+          "reason": "The change does not reach anything this test exercises."
+        },
+        {
+          "name": "risk",
+          "points": 10,
+          "maximum": 20,
+          "reason": "Priority medium, risk medium."
+        },
+        {
+          "name": "history",
+          "points": 10,
+          "maximum": 20,
+          "reason": "This test has never run, so nothing is known about it."
+        },
+        {
+          "name": "staleness",
+          "points": 10,
+          "maximum": 10,
+          "reason": "It has never been run."
+        },
+        {
+          "name": "always",
+          "points": 10,
+          "maximum": 10,
+          "reason": "Tagged smoke, which this project always runs."
+        }
+      ],
+      "reasons": [
+        "Priority medium, risk medium.",
+        "This test has never run, so nothing is known about it.",
+        "It has never been run.",
+        "Tagged smoke, which this project always runs."
+      ],
+      "isImpacted": false
+    }
+  ],
+  "excluded": [
+    {
+      "testCaseId": "fdc68e94-476f-4906-af09-a81e6201c438",
+      "reference": "TC-0002",
+      "name": "Payments page opens",
+      "kind": "ui",
+      "priority": "medium",
+      "risk": "medium",
+      "score": 30,
+      "components": [
+        {
+          "name": "impact",
+          "points": 0,
+          "maximum": 40,
+          "reason": "The change does not reach anything this test exercises."
+        },
+        {
+          "name": "risk",
+          "points": 10,
+          "maximum": 20,
+          "reason": "Priority medium, risk medium."
+        },
+        {
+          "name": "history",
+          "points": 10,
+          "maximum": 20,
+          "reason": "This test has never run, so nothing is known about it."
+        },
+        {
+          "name": "staleness",
+          "points": 10,
+          "maximum": 10,
+          "reason": "It has never been run."
+        },
+        {
+          "name": "always",
+          "points": 0,
+          "maximum": 10,
+          "reason": "Not part of the always-run set."
+        }
+      ],
+      "reasons": [
+        "Priority medium, risk medium.",
+        "This test has never run, so nothing is known about it.",
+        "It has never been run."
+      ],
+      "isImpacted": false
+    },
+    {
+      "testCaseId": "b6150542-175d-481f-b4a0-43ae6a480069",
+      "reference": "TC-0003",
+      "name": "Profile page opens",
+      "kind": "ui",
+      "priority": "medium",
+      "risk": "medium",
+      "score": 30,
+      "components": [
+        {
+          "name": "impact",
+          "points": 0,
+          "maximum": 40,
+          "reason": "The change does not reach anything this test exercises."
+        },
+        {
+          "name": "risk",
+          "points": 10,
+          "maximum": 20,
+          "reason": "Priority medium, risk medium."
+        },
+        {
+          "name": "history",
+          "points": 10,
+          "maximum": 20,
+          "reason": "This test has never run, so nothing is known about it."
+        },
+        {
+          "name": "staleness",
+          "points": 10,
+          "maximum": 10,
+          "reason": "It has never been run."
+        },
+        {
+          "name": "always",
+          "points": 0,
+          "maximum": 10,
+          "reason": "Not part of the always-run set."
+        }
+      ],
+      "reasons": [
+        "Priority medium, risk medium.",
+        "This test has never run, so nothing is known about it.",
+        "It has never been run."
+      ],
+      "isImpacted": false
+    }
+  ],
+  "fellBackToFull": false,
+  "notes": [
+    "3 of 5 test(s) selected; 2 because the change reaches them."
+  ]
+}

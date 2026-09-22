@@ -76,3 +76,18 @@ public class ScheduleConfiguration : IEntityTypeConfiguration<Schedule>
         b.HasIndex(x => new { x.IsEnabled, x.NextRunAt });
     }
 }
+
+public class ChangeImpactRuleConfiguration : IEntityTypeConfiguration<ChangeImpactRule>
+{
+    public void Configure(EntityTypeBuilder<ChangeImpactRule> b)
+    {
+        b.ToTable("change_impact_rules");
+        b.Property(x => x.PathPattern).HasMaxLength(500).IsRequired();
+        b.Property(x => x.Value).HasMaxLength(500);
+        b.Property(x => x.Notes).HasMaxLength(1000);
+        // Every selection reads the whole enabled set for a project, once.
+        b.HasIndex(x => new { x.ProjectId, x.IsEnabled });
+        b.HasOne(x => x.Project).WithMany()
+            .HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Cascade);
+    }
+}

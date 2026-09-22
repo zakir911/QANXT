@@ -43,6 +43,7 @@ public interface IAiraDbContext
     DbSet<ApplicationElement> ApplicationElements { get; }
     DbSet<ApiEndpoint> ApiEndpoints { get; }
     DbSet<ApiContract> ApiContracts { get; }
+    DbSet<ChangeImpactRule> ChangeImpactRules { get; }
     DbSet<ApiContractChange> ApiContractChanges { get; }
     DbSet<Journey> Journeys { get; }
     DbSet<JourneyStep> JourneySteps { get; }

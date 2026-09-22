@@ -1,0 +1,32 @@
+{
+  "testId": "REG-008",
+  "suite": "Regression selection",
+  "runId": "2026-09-22T07-49-06Z",
+  "objective": "A mapping AIRA inferred from a file name is reported as inferred, not declared",
+  "preconditions": [
+    "no rule covers the changed path, but its name resembles a route"
+  ],
+  "input": "A change to app/screens/payments/PaymentsScreen.tsx",
+  "expected": "The payments route affected, marked as inferred, with a reason saying so",
+  "severity": "high",
+  "result": "FAIL",
+  "detail": "0 inferred mapping(s): ",
+  "metrics": null,
+  "startedAt": "2026-09-22T07:49:23.360Z",
+  "durationMs": 7,
+  "build": {
+    "commit": "9c99059",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "impact.json",
+      "path": "evidence/REG-008/2026-09-22T07-49-06Z/impact.json",
+      "bytes": 503,
+      "sha256": "dab8423fe02ecd05a16501aecbd8ee19828fefb9e238fd3d173ced51b4a3885c"
+    }
+  ]
+}
