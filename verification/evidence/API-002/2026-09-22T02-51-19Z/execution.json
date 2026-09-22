@@ -1,0 +1,86 @@
+{
+  "id": "e8125923-5df2-4d5d-a7c0-450ff877600b",
+  "testRunId": "c377fb4c-4893-4d8b-9e24-3592a56bdfa6",
+  "testCaseId": "14b620fa-79ed-4f6d-96a5-35065472a343",
+  "reference": "TC-0002",
+  "name": "Accounts endpoint answers for a signed-in session",
+  "objective": "",
+  "expectedResults": "",
+  "status": "passed",
+  "startedAt": "2026-09-22T02:51:21.993606+00:00",
+  "completedAt": "2026-09-22T02:51:22.305+00:00",
+  "durationMs": 277,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-14912",
+  "correlationId": "3f4d0fc6d68a46ea8072fccb941b7638",
+  "stepsTotal": 2,
+  "stepsPassed": 2,
+  "stepsFailed": 0,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 0,
+  "actions": [
+    {
+      "id": "60fa9e14-daa5-407d-8845-9f161043bb39",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "Sign in through the API — 200 in 13ms",
+      "status": "passed",
+      "startedAt": "2026-09-22T02:51:22.116+00:00",
+      "durationMs": 23,
+      "url": "http://localhost:4300/api/session",
+      "wasHealed": false
+    },
+    {
+      "id": "140766fc-8f68-406d-8977-22da3be744e0",
+      "order": 2,
+      "action": "apiRequest",
+      "description": "Read the accounts that session can see — 200 in 4ms",
+      "status": "passed",
+      "startedAt": "2026-09-22T02:51:22.263+00:00",
+      "durationMs": 6,
+      "url": "http://localhost:4300/api/accounts",
+      "wasHealed": false
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "27a7aebf-fe57-4a06-8a2f-331e13144759",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 2287,
+      "isMasked": true
+    },
+    {
+      "id": "8954e935-d0a6-45e9-86fd-7c0e477ad97f",
+      "kind": "other",
+      "name": "step-2-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 1203,
+      "isMasked": true,
+      "testActionId": "140766fc-8f68-406d-8977-22da3be744e0"
+    },
+    {
+      "id": "9f18c644-ada1-4dfb-a246-d7be59a32297",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 992,
+      "isMasked": false
+    },
+    {
+      "id": "ad4f4171-93c5-48fe-8f94-03de6657250a",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 773,
+      "isMasked": true,
+      "testActionId": "60fa9e14-daa5-407d-8845-9f161043bb39"
+    }
+  ],
+  "healingEvents": []
+}

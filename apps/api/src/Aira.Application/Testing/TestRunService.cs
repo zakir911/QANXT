@@ -46,6 +46,7 @@ public sealed class TestRunService : ITestRunService
     private readonly IClock _clock;
     private readonly ITokenService _tokens;
     private readonly IApplicationService _applications;
+    private readonly Projects.IEnvironmentService _environments;
     private readonly ISecretProtector _protector;
     private readonly ITargetPolicy _targetPolicy;
     private readonly ICorrelationContext _correlation;
@@ -55,7 +56,8 @@ public sealed class TestRunService : ITestRunService
     private readonly ILogger<TestRunService> _logger;
 
     public TestRunService(IAiraDbContext db, IJobQueue queue, ICurrentUser currentUser, IClock clock,
-        ITokenService tokens, IApplicationService applications, ISecretProtector protector,
+        ITokenService tokens, IApplicationService applications,
+        Projects.IEnvironmentService environments, ISecretProtector protector,
         ITargetPolicy targetPolicy, ICorrelationContext correlation, IPlatformUrls urls,
         IAuditLogger audit, IExecutionEventPublisher events, ILogger<TestRunService> logger)
     {
@@ -65,6 +67,7 @@ public sealed class TestRunService : ITestRunService
         _clock = clock;
         _tokens = tokens;
         _applications = applications;
+        _environments = environments;
         _protector = protector;
         _targetPolicy = targetPolicy;
         _correlation = correlation;
@@ -89,6 +92,16 @@ public sealed class TestRunService : ITestRunService
 
         if (request.EnvironmentId is not null && environment is null)
             return Error.NotFound("The environment");
+
+        if (environment is not null)
+        {
+            // Checked at the moment a run is asked for, not only when the environment was
+            // configured. The environment model already knew how to refuse production; it
+            // was not being asked, so a run against an unauthorized production environment
+            // would have been accepted.
+            var testable = await _environments.EnsureTestableAsync(environment.Id, ct);
+            if (!testable.IsSuccess) return Result<TestRunSummary>.Failure(testable.Error!);
+        }
 
         var run = new TestRun
         {

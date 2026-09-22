@@ -13,8 +13,9 @@ import { SecretMasker } from '../security/masker.js';
 import type { Logger } from '../util/logger.js';
 import { ActionError, evaluateAssertion, runAction, type ActionContext } from './action-runner.js';
 import {
-  ApiStatusError, ApiTransportError, evaluateResponseAssertion, isResponseAssertion,
-  performApiRequest, type ApiRequestContextOptions, type ApiRequestOutcome
+  ApiRequestSession, ApiStatusError, ApiTransportError, evaluateResponseAssertion,
+  isResponseAssertion, performApiRequest,
+  type ApiRequestContextOptions, type ApiRequestOutcome
 } from './api-runner.js';
 import { EvidenceCollector } from './evidence-collector.js';
 
@@ -57,6 +58,9 @@ export class TestExecutor {
 
     let context: BrowserContext | undefined;
     let page: Page | undefined;
+    // One HTTP client for the whole test, so a sequence of API calls behaves like a
+    // sequence of calls from one client rather than from a dozen strangers.
+    const apiSession = new ApiRequestSession();
     let status: ExecutionStatus = 'running';
     let errorMessage: string | undefined;
     let errorStack: string | undefined;
@@ -163,7 +167,7 @@ export class TestExecutor {
         collector.setCurrentAction(step.order);
         await options.onProgress?.(step.action.description, index + 1, job.steps.length);
 
-        const result = await this.runStep(page, step, actionContext, apiOptions, job, collector, healer, masker);
+        const result = await this.runStep(page, step, actionContext, apiOptions, apiSession, job, collector, healer, masker);
         actions.push(result.report);
         if (result.healingEvent) healingEvents.push(result.healingEvent);
         await options.onActionCompleted?.(result.report);
@@ -197,6 +201,7 @@ export class TestExecutor {
       }
     } finally {
       collector.setCurrentAction(undefined);
+      await apiSession.dispose();
 
       if (context && job.capture.trace) {
         try {
@@ -261,6 +266,7 @@ export class TestExecutor {
     step: ExecutionStepPlan,
     context: ActionContext,
     apiOptions: ApiRequestContextOptions,
+    apiSession: ApiRequestSession,
     job: ExecutionJob,
     collector: EvidenceCollector,
     healer: LocatorHealer,
@@ -296,7 +302,9 @@ export class TestExecutor {
     // An API step has no locator, nothing to heal and a different kind of evidence, so it
     // is handled whole rather than threaded through the browser path with null checks.
     if (step.action.action === 'apiRequest') {
-      return { report: await this.runApiStep(step, context, apiOptions, job, collector, masker, base, started) };
+      return {
+        report: await this.runApiStep(step, context, apiOptions, apiSession, job, collector, masker, base, started)
+      };
     }
 
     if (!page) {
@@ -460,6 +468,7 @@ export class TestExecutor {
     step: ExecutionStepPlan,
     context: ActionContext,
     apiOptions: ApiRequestContextOptions,
+    apiSession: ApiRequestSession,
     job: ExecutionJob,
     collector: EvidenceCollector,
     masker: SecretMasker,
@@ -492,7 +501,7 @@ export class TestExecutor {
 
     let outcome: ApiRequestOutcome;
     try {
-      outcome = await performApiRequest(descriptor, context, apiOptions);
+      outcome = await performApiRequest(descriptor, context, apiOptions, apiSession);
     } catch (error) {
       // A status the test did not expect, and a request that never completed, both carry
       // the exchange with them so the failure is explainable.

@@ -6,13 +6,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aira.Application.Quality;
 
+/// <summary>One rule, as a team configures it.
+///
+/// <paramref name="Action"/> is what a breach should do — fail the pipeline, send the run
+/// for review, or record a warning. <paramref name="Environment"/> restricts the rule to
+/// one environment key, so staging can be stricter than development without a second
+/// project. <paramref name="Message"/> is what the team wants said when the rule fires,
+/// because "PassRatePercent < 95" explains a number and not a decision.</summary>
 public sealed record QualityGateRuleRequest(
     string Name, QualityGateMetric Metric, QualityGateOperator Operator,
-    decimal Threshold, bool? IsBlocking, bool? IsEnabled);
+    decimal Threshold, bool? IsBlocking, bool? IsEnabled,
+    QualityGateAction? Action = null, string? Environment = null, string? Message = null);
 
 public sealed record QualityGateRuleDetail(
     Guid Id, Guid ProjectId, string Name, QualityGateMetric Metric, QualityGateOperator Operator,
-    decimal Threshold, bool IsBlocking, bool IsEnabled, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt);
+    decimal Threshold, bool IsBlocking, bool IsEnabled, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt,
+    QualityGateAction Action = QualityGateAction.Fail, string? Environment = null, string? Message = null);
 
 public interface IQualityGateService
 {
@@ -57,7 +66,8 @@ public sealed class QualityGateService : IQualityGateService
             .OrderBy(r => r.Name)
             .Select(r => new QualityGateRuleDetail(
                 r.Id, r.ProjectId, r.Name, r.Metric, r.Operator, r.Threshold,
-                r.IsBlocking, r.IsEnabled, r.CreatedAt, r.UpdatedAt))
+                r.IsBlocking, r.IsEnabled, r.CreatedAt, r.UpdatedAt,
+                r.Action, r.Environment, r.Message))
             .ToListAsync(ct);
 
         return Result<IReadOnlyList<QualityGateRuleDetail>>.Success(rules);
@@ -83,6 +93,11 @@ public sealed class QualityGateService : IQualityGateService
             Threshold = request.Threshold,
             IsBlocking = request.IsBlocking ?? true,
             IsEnabled = request.IsEnabled ?? true,
+            // A rule that says nothing about what a breach should do fails the pipeline,
+            // which is the safe reading of "this must be true".
+            Action = request.Action ?? QualityGateAction.Fail,
+            Environment = string.IsNullOrWhiteSpace(request.Environment) ? null : request.Environment.Trim(),
+            Message = string.IsNullOrWhiteSpace(request.Message) ? null : request.Message.Trim(),
             CreatedByUserId = _currentUser.UserId,
             CreatedAt = _clock.UtcNow
         };
@@ -92,7 +107,7 @@ public sealed class QualityGateService : IQualityGateService
 
         await _audit.LogAsync(AuditAction.QualityGateChanged, nameof(QualityGateRule), rule.Id,
             $"Quality gate rule '{rule.Name}' created: {rule.Metric} {rule.Operator} {rule.Threshold}"
-            + $" ({(rule.IsBlocking ? "blocking" : "warning")}).",
+            + $" (action {rule.Action}{(rule.Environment is null ? string.Empty : $", environment {rule.Environment}")}).",
             projectId: projectId, ct: ct);
 
         return Result<QualityGateRuleDetail>.Success(Map(rule));
@@ -105,8 +120,7 @@ public sealed class QualityGateService : IQualityGateService
 
         if (Validate(request) is { } invalid) return Result<QualityGateRuleDetail>.Failure(invalid);
 
-        var before = $"{rule.Metric} {rule.Operator} {rule.Threshold} "
-            + $"({(rule.IsBlocking ? "blocking" : "warning")}, {(rule.IsEnabled ? "enabled" : "disabled")})";
+        var before = Describe(rule);
 
         rule.Name = request.Name.Trim();
         rule.Metric = request.Metric;
@@ -114,13 +128,17 @@ public sealed class QualityGateService : IQualityGateService
         rule.Threshold = request.Threshold;
         rule.IsBlocking = request.IsBlocking ?? rule.IsBlocking;
         rule.IsEnabled = request.IsEnabled ?? rule.IsEnabled;
+        rule.Action = request.Action ?? rule.Action;
+        if (request.Environment is not null)
+            rule.Environment = string.IsNullOrWhiteSpace(request.Environment) ? null : request.Environment.Trim();
+        if (request.Message is not null)
+            rule.Message = string.IsNullOrWhiteSpace(request.Message) ? null : request.Message.Trim();
         rule.UpdatedByUserId = _currentUser.UserId;
         rule.UpdatedAt = _clock.UtcNow;
 
         await _db.SaveChangesAsync(ct);
 
-        var after = $"{rule.Metric} {rule.Operator} {rule.Threshold} "
-            + $"({(rule.IsBlocking ? "blocking" : "warning")}, {(rule.IsEnabled ? "enabled" : "disabled")})";
+        var after = Describe(rule);
 
         // The before and after both go into the audit entry: "who weakened this gate, and
         // from what" is the question that gets asked after a bad release.
@@ -146,6 +164,11 @@ public sealed class QualityGateService : IQualityGateService
         return Result.Success();
     }
 
+    private static string Describe(QualityGateRule rule) =>
+        $"{rule.Metric} {rule.Operator} {rule.Threshold} "
+        + $"(action {rule.Action}, {(rule.IsEnabled ? "enabled" : "disabled")}"
+        + $"{(rule.Environment is null ? string.Empty : $", environment {rule.Environment}")})";
+
     private static Error? Validate(QualityGateRuleRequest request)
     {
         var errors = new Dictionary<string, string[]>();
@@ -165,10 +188,20 @@ public sealed class QualityGateService : IQualityGateService
         else if (Percentages.Contains(request.Metric) && request.Threshold > 100)
             errors["threshold"] = new[] { "A percentage threshold cannot be above 100." };
 
+        if (request.Action is { } action && !Enum.IsDefined(action))
+            errors["action"] = new[] { "That is not something a rule can do. Use fail, review or warn." };
+
+        if (request.Environment is { Length: > 40 })
+            errors["environment"] = new[] { "An environment key is 40 characters or fewer." };
+
+        if (request.Message is { Length: > 500 })
+            errors["message"] = new[] { "A rule message is 500 characters or fewer." };
+
         return errors.Count == 0 ? null : Error.Validation("The quality gate rule is not valid.", errors);
     }
 
     private static QualityGateRuleDetail Map(QualityGateRule rule) => new(
         rule.Id, rule.ProjectId, rule.Name, rule.Metric, rule.Operator, rule.Threshold,
-        rule.IsBlocking, rule.IsEnabled, rule.CreatedAt, rule.UpdatedAt);
+        rule.IsBlocking, rule.IsEnabled, rule.CreatedAt, rule.UpdatedAt,
+        rule.Action, rule.Environment, rule.Message);
 }

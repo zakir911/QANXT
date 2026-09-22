@@ -1,0 +1,21 @@
+{
+  "literalHeader": {
+    "status": 400,
+    "errors": {
+      "requests": [
+        "Request 1: The header 'authorization' appears to contain a literal credential. Use a ${secret:name} reference."
+      ]
+    }
+  },
+  "literalToken": {
+    "status": 400,
+    "errors": {
+      "requests": [
+        "Request 1: A bearer token must be a ${secret:name} reference rather than a literal."
+      ]
+    }
+  },
+  "referenced": {
+    "status": 200
+  }
+}

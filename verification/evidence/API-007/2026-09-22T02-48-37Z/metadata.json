@@ -1,0 +1,32 @@
+{
+  "testId": "API-007",
+  "suite": "API testing",
+  "runId": "2026-09-22T02-48-37Z",
+  "objective": "The platform refuses a page assertion attached to an API request",
+  "preconditions": [
+    "none"
+  ],
+  "input": "An API test whose assertion is \"the element is visible\"",
+  "expected": "A 400 explaining that a page assertion cannot be evaluated against a response",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "status 400; Request 1: 'visible' is a page assertion and cannot be evaluated against an HTTP response. Use a response assertion instead.",
+  "metrics": null,
+  "startedAt": "2026-09-22T02:48:48.936Z",
+  "durationMs": 8,
+  "build": {
+    "commit": "585c679",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/API-007/2026-09-22T02-48-37Z/refusal.json",
+      "bytes": 352,
+      "sha256": "e73b4fbf66b1b96c7487bccaf5bf1eb434bb07918615414c84d504a0afc59d13"
+    }
+  ]
+}

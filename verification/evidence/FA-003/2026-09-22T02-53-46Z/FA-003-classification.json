@@ -1,0 +1,34 @@
+{
+  "case": "http-401",
+  "lab": "authenticationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "d30d859b-372d-433c-a59f-af17e77006ec",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15071ms).",
+    "signature": "876c56935aa4afb69b0a89377c10cd706430035b0af4368dbfdbf1094c2e8657",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-22T02:54:49.049669+00:00",
+    "lastSeenAt": "2026-09-22T02:54:49.04967+00:00",
+    "analysis": {
+      "summary": "The session was not authorised.",
+      "likelyCause": "The application rejected requests as unauthenticated or forbidden — the session expired, or the account lacks a required permission.",
+      "evidence": "1 request(s) returned 401 or 403.",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"01ab2eb0-d19f-4196-a970-151fc2f15134\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"57fe0871-556b-413c-9efc-8788ea17ff0e\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"5a97f0d8-abe2-48fa-b30f-ee69a77773e5\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"7648d480-3a32-4d6b-a2ca-4a6750965dc3\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"b385b67c-10f9-4561-86e7-86e5e11007ba\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"c36aee9b-9be2-43c1-b0f7-5134f80d5ec4\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"d1f5a7be-842c-4b57-b3f5-d2013b075ea0\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"dbac1a6d-e30f-480b-ab91-95f680ed225b\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"e61b52a5-67dd-4ca6-a394-6804a0ee2667\"}"
+    }
+  }
+}

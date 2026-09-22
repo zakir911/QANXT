@@ -157,7 +157,14 @@ public sealed class ExecutionsController : ApiControllerBase
         => Ok(await _db.ConsoleEvents
             .Where(e => e.TestExecutionId == id)
             .OrderBy(e => e.OccurredAt)
-            .Select(e => new { e.Id, e.Level, e.Message, e.StackTrace, e.Url, e.OccurredAt })
+            .Select(e => new
+            {
+                e.Id, e.Level, e.Message, e.StackTrace, e.Url, e.OccurredAt,
+                e.TestActionId,
+                // The step number, not only its id: a reader of the log needs to know which
+                // step this happened during without a second lookup.
+                actionOrder = _db.TestActions.Where(a => a.Id == e.TestActionId).Select(a => (int?)a.Order).FirstOrDefault()
+            })
             .ToListAsync(ct));
 
     [HttpGet("{id:guid}/network")]
@@ -169,7 +176,9 @@ public sealed class ExecutionsController : ApiControllerBase
             {
                 e.Id, e.Method, e.Url, e.ResourceType, e.StatusCode, e.DurationMs,
                 e.RequestSizeBytes, e.ResponseSizeBytes, e.IsFailed, e.FailureText, e.OccurredAt,
-                e.RequestHeadersJson, e.ResponseHeadersJson, e.RequestBodyExcerpt, e.ResponseBodyExcerpt
+                e.RequestHeadersJson, e.ResponseHeadersJson, e.RequestBodyExcerpt, e.ResponseBodyExcerpt,
+                e.TestActionId,
+                actionOrder = _db.TestActions.Where(a => a.Id == e.TestActionId).Select(a => (int?)a.Order).FirstOrDefault()
             })
             .ToListAsync(ct));
 }

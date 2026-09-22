@@ -1,0 +1,34 @@
+{
+  "case": "connection-reset",
+  "lab": "networkError",
+  "accept": [
+    "networkIssue"
+  ],
+  "actual": "networkIssue",
+  "failure": {
+    "id": "e475af5b-f328-48b5-a494-4e87f739ba30",
+    "category": "networkIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15007ms).",
+    "signature": "c393e0a2e8b0cf56d1d7120de2589b1b3c07c0125f1895114f7b1e51321341b6",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-22T02:56:30.113399+00:00",
+    "lastSeenAt": "2026-09-22T02:56:30.113399+00:00",
+    "analysis": {
+      "summary": "The application could not be reached.",
+      "likelyCause": "A network-level failure stopped the browser from loading the application.",
+      "evidence": "1 request(s) failed at the network layer. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15007ms).",
+      "suggestedAction": "Confirm the environment is running and reachable from the worker, then re-run.",
+      "category": "networkIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"099822ea-2d57-4aea-a521-be93b0614ec0\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"2ca587f3-f8f0-4610-983a-b68078aa5c9e\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"2e5f5d97-5630-4bb1-856a-9640a7e906d5\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"632c60e7-3da5-4541-85cd-c65e4f4d32db\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"9d7feb72-150d-42fb-bd47-f978930ec76d\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"ba83c6d4-6779-40f5-bf8d-d5ee3c9c8a69\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"f3b58533-1817-4906-8731-d0f93b90dd90\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"fc601eb9-809d-40d3-bba4-430fde9cc782\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"a2354313-705a-4e16-b22b-6f57ca7db20b\"}"
+    }
+  }
+}

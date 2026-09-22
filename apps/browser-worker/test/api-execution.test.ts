@@ -223,6 +223,39 @@ describe('API tests execute in the same engine as UI tests', () => {
     expect(report.errorMessage).toContain('401');
   }, 120_000);
 
+  test('an API-only test can sign in through the API and then read what that session sees', async () => {
+    await bank.reset();
+
+    // No browser at all: the cookie comes from the API call, and the next request has to
+    // still hold it. This is why the isolated client lasts for the test rather than for
+    // one request.
+    const job = apiJob([
+      apiStep('Sign in', {
+        method: 'POST', path: '/login',
+        contentType: 'application/x-www-form-urlencoded',
+        body: 'username=alice&password=${secret:bank_password}',
+        auth: { mode: 'none' }
+      }, [{ type: 'responseStatusIn', expected: '2xx,3xx' }]),
+      apiStep('Read the accounts that session can see', {
+        method: 'GET', path: '/api/accounts', auth: { mode: 'none' },
+        capture: { accountId: 'accounts[0].id' }
+      }, [
+        { type: 'httpStatusEquals', expected: '200' },
+        { type: 'responseJsonPathExists', attribute: 'accounts[0].balance' }
+      ])
+    ], { secrets: { bank_password: 'Password123!' } });
+
+    expect(needsPage(job)).toBe(false);
+
+    const report = await run(job);
+
+    expect(report.status, report.errorMessage).toBe('passed');
+    expect(report.stepsPassed).toBe(2);
+
+    const serialized = JSON.stringify(report);
+    expect(serialized).not.toContain('Password123!');
+  }, 120_000);
+
   test('a real server fault is reported as a failure with the response body', async () => {
     await bank.reset();
     await bank.setScenario({ breakTransactionsApi: true });

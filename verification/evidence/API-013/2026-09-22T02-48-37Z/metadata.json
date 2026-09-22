@@ -1,0 +1,26 @@
+{
+  "testId": "API-013",
+  "suite": "API testing",
+  "runId": "2026-09-22T02-48-37Z",
+  "objective": "A pipeline can author and run API tests through the CLI, and branch on its exit status",
+  "preconditions": [
+    "the CLI is built",
+    "the lab bank is running"
+  ],
+  "input": "\"aira api-test add --file\", then \"aira api-test run\" against a working API and again against a broken one",
+  "expected": "add exits 0 and creates the tests; run exits 0 while the API works and 1 (TEST_FAILURE) while it is broken",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "threw: TypeError: fetch failed     at node:internal/deps/undici/undici:14976:13; declared evidence never produced: definition.json, cli-output.txt",
+  "metrics": null,
+  "startedAt": "2026-09-22T02:48:55.318Z",
+  "durationMs": 7074,
+  "build": {
+    "commit": "585c679",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": []
+}

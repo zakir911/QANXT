@@ -234,6 +234,21 @@ public sealed class ExecutionIngestService : IExecutionIngestService
 
     private async Task RecordEventsAsync(TestExecution execution, ExecutionCompletionPayload completion, CancellationToken ct)
     {
+        // Which action each event belongs to.
+        //
+        // The worker has always reported an action order on console and network events, and
+        // the columns to hold the link have always existed — but nothing wrote them, so
+        // every stored event was orphaned. Diagnosis could therefore never say "this step
+        // failed and here is the request underneath it", which is the single most useful
+        // thing the evidence can say.
+        var actionsByOrder = await _db.TestActions
+            .Where(a => a.TestExecutionId == execution.Id)
+            .Select(a => new { a.Id, a.Order })
+            .ToDictionaryAsync(a => a.Order, a => a.Id, ct);
+
+        Guid? actionFor(int? order) =>
+            order is not null && actionsByOrder.TryGetValue(order.Value, out var id) ? id : null;
+
         // Bounded: a page in a redirect loop can produce tens of thousands of events, and
         // the first few hundred carry the signal.
         foreach (var console in completion.ConsoleEvents.Take(500))
@@ -242,6 +257,7 @@ public sealed class ExecutionIngestService : IExecutionIngestService
             {
                 OrganizationId = execution.OrganizationId,
                 TestExecutionId = execution.Id,
+                TestActionId = actionFor(console.ActionOrder),
                 Level = Truncate(console.Level, 20) ?? "log",
                 Message = Truncate(_masker.MaskText(console.Message), 8000) ?? string.Empty,
                 StackTrace = Truncate(_masker.MaskText(console.StackTrace), 20_000),
@@ -257,6 +273,7 @@ public sealed class ExecutionIngestService : IExecutionIngestService
             {
                 OrganizationId = execution.OrganizationId,
                 TestExecutionId = execution.Id,
+                TestActionId = actionFor(network.ActionOrder),
                 Method = Truncate(network.Method, 10) ?? "GET",
                 Url = Truncate(network.Url, 2048) ?? string.Empty,
                 ResourceType = Truncate(network.ResourceType, 40),

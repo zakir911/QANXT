@@ -39,6 +39,37 @@ export interface ApiRequestContextOptions {
   page?: Page;
 }
 
+/**
+ * The HTTP client a test's API requests share, for the life of that one execution.
+ *
+ * Two jars, deliberately. `inheritSession` requests go through the page's own context, so
+ * they carry the cookies a UI login established. Every other mode goes through this
+ * isolated context, which starts empty — which is what makes "send no credentials and
+ * assert a 401" a test that can actually pass rather than one the browser's session
+ * quietly satisfies.
+ *
+ * The isolated context is kept for the whole test rather than made per request, because an
+ * API test that signs in through the API — `POST /api/session`, then read what that session
+ * can see — is an ordinary thing to want, and a client that forgot its cookie between two
+ * calls could not express it. Within one test, then, the isolated jar behaves like one
+ * HTTP client: AIRA adds no credentials of its own to a `none` request, but a cookie the
+ * test itself obtained still applies, exactly as it would for any client.
+ */
+export class ApiRequestSession {
+  private isolated: APIRequestContext | undefined;
+
+  async isolatedContext(): Promise<APIRequestContext> {
+    this.isolated ??= await playwrightRequest.newContext({ ignoreHTTPSErrors: false });
+    return this.isolated;
+  }
+
+  async dispose(): Promise<void> {
+    const context = this.isolated;
+    this.isolated = undefined;
+    await context?.dispose().catch(() => undefined);
+  }
+}
+
 export interface ApiRequestOutcome {
   record: ApiResponseRecord;
   /** The parsed body when the response was JSON; undefined otherwise. */
@@ -53,7 +84,8 @@ const MAX_BODY_EXCERPT = 8000;
 export async function performApiRequest(
   descriptor: ApiRequestDescriptor,
   context: ActionContext,
-  options: ApiRequestContextOptions
+  options: ApiRequestContextOptions,
+  session: ApiRequestSession
 ): Promise<ApiRequestOutcome> {
   const method = (descriptor.method ?? 'GET').toUpperCase() as HttpMethod;
 
@@ -80,7 +112,7 @@ export async function performApiRequest(
   const body = context.resolveTemplate(descriptor.body);
   const timeout = descriptor.timeoutMs ?? context.defaultTimeoutMs;
 
-  const { api, dispose } = await acquireContext(auth, url, context, options);
+  const api = await acquireContext(auth, context, options, session);
 
   const startedAt = Date.now();
   let record: ApiResponseRecord;
@@ -131,7 +163,7 @@ export async function performApiRequest(
       durationMs
     };
   } catch (error) {
-    if (error instanceof ActionError) { await dispose(); throw error; }
+    if (error instanceof ActionError) throw error;
 
     // No response at all: DNS, connection refused, TLS, timeout. Recorded as an exchange
     // with a transport error so the evidence shows the attempt rather than a silent gap.
@@ -148,13 +180,10 @@ export async function performApiRequest(
       durationMs: Date.now() - startedAt,
       transportError: options.masker.maskText(message)
     };
-    await dispose();
     const outcome: ApiRequestOutcome = { record, captured: {} };
     throw new ApiTransportError(
       `${method} ${record.requestUrl} did not complete: ${record.transportError}`, outcome);
   }
-
-  await dispose();
 
   const captured = captureValues(descriptor.capture, parsedBody, bodyText);
 
@@ -423,10 +452,10 @@ function hasHeader(headers: Record<string, string>, name: string): boolean {
  */
 async function acquireContext(
   auth: ResolvedAuth | undefined,
-  url: string,
   context: ActionContext,
-  options: ApiRequestContextOptions
-): Promise<{ api: APIRequestContext; dispose: () => Promise<void> }> {
+  options: ApiRequestContextOptions,
+  session: ApiRequestSession
+): Promise<APIRequestContext> {
   const mode = auth?.mode ?? 'inheritSession';
 
   if (mode === 'inheritSession') {
@@ -435,18 +464,14 @@ async function acquireContext(
         'This request reuses the browser session, but the test has no page open.',
         false);
     }
-    return { api: options.page.request, dispose: async () => undefined };
+    return options.page.request;
   }
 
   if (mode === 'oAuth2ClientCredentials' && auth) {
     auth.token = await exchangeClientCredentials(auth, context, options);
   }
 
-  const api = await playwrightRequest.newContext({
-    baseURL: new URL(url).origin,
-    ignoreHTTPSErrors: false
-  });
-  return { api, dispose: () => api.dispose() };
+  return session.isolatedContext();
 }
 
 /**

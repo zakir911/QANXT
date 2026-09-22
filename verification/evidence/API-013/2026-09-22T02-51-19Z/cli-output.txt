@@ -1,0 +1,22 @@
+$ aira api-test add --file api-tests.json   (exit 0)
+
+
+$ aira api-test list                        (exit 0)
+
+
+$ aira api-test run     [API healthy]       (exit 0)
+
+
+$ aira api-test run     [FAULT_API_500]     (exit 1)
+
+Running 1 API test(s)
+Run queued API tests b1ae3cf7-ad62-40c0-8c14-5de42d1fa086
+  running — 0/1 finished
+  failed — 1/1 finished
+
+  ✗ TC-0001 Dashboard totals answer for a signed-in session 33ms
+      POST http://localhost:4300/api/session returned 500 Internal Server Error.
+
+  0 passed · 1 failed · 0 blocked · 0 healed · 0 flaky · 183ms
+
+  Quality gate passed. No quality gates are configured for this project, so the run does not block.

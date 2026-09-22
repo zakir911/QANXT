@@ -21,6 +21,7 @@ const SUITES = {
   'failure-detection': () => import('./suites/failure-detection.mjs'),
   'failure-analysis': () => import('./suites/failure-analysis.mjs'),
   healing: () => import('./suites/self-healing.mjs'),
+  'api-testing': () => import('./suites/api-testing.mjs'),
   security: () => import('./suites/security.mjs'),
   reliability: () => import('./suites/reliability.mjs'),
   performance: () => import('./suites/performance.mjs')

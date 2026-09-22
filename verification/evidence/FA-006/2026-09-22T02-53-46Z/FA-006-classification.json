@@ -1,0 +1,34 @@
+{
+  "case": "http-500",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "4f9a7a5f-d131-44c6-ae15-a999ca8cc072",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15085ms).",
+    "signature": "a6a3f97d32ab9c086c9dbaba5086ef643a368a94a07639583e7fd3039bc9db8d",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-22T02:55:49.415014+00:00",
+    "lastSeenAt": "2026-09-22T02:55:49.415015+00:00",
+    "analysis": {
+      "summary": "The application returned server errors during this execution.",
+      "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on.",
+      "evidence": "1 server error response(s) recorded in the network evidence.",
+      "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0a81baed-651c-4373-b779-f8449050770d\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"3a7dfa89-a2bc-4a7a-9d2c-ddec8b94f44a\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"a24c0a29-78e8-471c-a69a-50f09be56093\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"a8175261-0695-4610-91ee-f3eddcfc032e\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"bd1fc482-0cf9-4b11-91b6-4dfd53284bae\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"ca45f839-24ae-4037-81ba-c5c8afe46e8c\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"e94b8723-1923-41cd-8784-b4a63657c62e\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"efb8c6e7-b2f7-4bee-858d-2a2d5784f40a\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"1f333b1d-e536-4cef-8b56-7b455520522a\"}"
+    }
+  }
+}

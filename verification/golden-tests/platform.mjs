@@ -270,10 +270,55 @@ export const step = {
   })
 };
 
-export async function startRun(tenant, { projectId, testCaseIds, name, browser, headless = true, maxRetries }) {
+/**
+ * Authors an API test through the platform's own endpoint.
+ *
+ * Returns the raw response rather than throwing, because several golden tests are about
+ * what the platform *refuses* to store, and a helper that threw would make a refusal
+ * indistinguishable from a broken harness.
+ */
+export async function createApiTest(tenant, body) {
+  return request('/api/v1/testcases/api-tests', { token: tenant.token, method: 'POST', body });
+}
+
+/** Creates an API test and fails loudly if the platform would not store it. */
+export async function requireApiTest(tenant, body) {
+  const response = await createApiTest(tenant, body);
+  if (!response.ok) {
+    throw new Error(`the platform refused an API test it should have stored: `
+      + `${response.status} ${response.text.slice(0, 400)}`);
+  }
+  return response.json;
+}
+
+/** One environment for a project, so an API test has an API base URL to resolve against. */
+export async function createEnvironment(tenant, projectId, body) {
+  const response = await request('/api/v1/environments', {
+    token: tenant.token, method: 'POST', body: { projectId, ...body }
+  });
+  if (!response.ok) throw new Error(`could not create an environment: ${response.status} ${response.text.slice(0, 300)}`);
+  return response.json;
+}
+
+/** The gate's own verdict for a run, as the CLI and the console both read it. */
+export async function qualityGate(tenant, runId) {
+  const response = await request(`/api/v1/testruns/${runId}/quality-gate`, { token: tenant.token });
+  return response.json;
+}
+
+/** Adds a quality gate rule to a project. */
+export async function createGateRule(tenant, projectId, body) {
+  const response = await request(`/api/v1/quality-gates?projectId=${projectId}`, {
+    token: tenant.token, method: 'POST', body
+  });
+  if (!response.ok) throw new Error(`could not create a gate rule: ${response.status} ${response.text.slice(0, 300)}`);
+  return response.json;
+}
+
+export async function startRun(tenant, { projectId, testCaseIds, name, browser, headless = true, maxRetries, environmentId }) {
   const response = await request('/api/v1/testruns', {
     token: tenant.token, method: 'POST',
-    body: { projectId, testCaseIds, name, headless, browser, maxRetries }
+    body: { projectId, testCaseIds, name, headless, browser, maxRetries, environmentId }
   });
   if (!response.ok) throw new Error(`run refused: ${response.status} ${response.text.slice(0, 300)}`);
   return response.json;
@@ -292,8 +337,8 @@ export async function waitForRun(tenant, runId, timeoutMs = 240_000) {
 }
 
 /** Runs a test case and returns the run, its executions and the first execution's detail. */
-export async function execute(tenant, { projectId, testCaseId, name, browser, maxRetries, timeoutMs }) {
-  const started = await startRun(tenant, { projectId, testCaseIds: [testCaseId], name, browser, maxRetries });
+export async function execute(tenant, { projectId, testCaseId, name, browser, maxRetries, timeoutMs, environmentId }) {
+  const started = await startRun(tenant, { projectId, testCaseIds: [testCaseId], name, browser, maxRetries, environmentId });
   const run = await waitForRun(tenant, started.id, timeoutMs);
   if (!run) return { run: null, executions: [], detail: null };
 
@@ -328,26 +373,46 @@ export async function healingEvents(tenant, { testCaseId } = {}) {
 // The lab
 // ---------------------------------------------------------------------------
 
+/**
+ * A fetch that survives a connection the other end has already closed.
+ *
+ * The lab applications keep connections alive for five seconds. A test that blocks for
+ * longer than that — one that shells out to the CLI and waits for a whole run, say — comes
+ * back to a pooled socket the server has since dropped, and the next request fails with a
+ * bare "fetch failed" that looks like the application is down. One retry on a transport
+ * error tells the two apart: a real outage fails twice.
+ */
+async function labFetch(url, options = {}) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fetch(url, options);
+    } catch (error) {
+      if (attempt >= 2) throw new Error(`${options.method ?? 'GET'} ${url} failed twice: ${error}`);
+      await sleep(250);
+    }
+  }
+}
+
 export const lab = {
   async faults(baseUrl) {
-    const response = await fetch(`${baseUrl}/__faults`);
+    const response = await labFetch(`${baseUrl}/__faults`);
     return (await response.json()).faults;
   },
   async set(baseUrl, patch) {
-    const response = await fetch(`${baseUrl}/__faults`, {
+    const response = await labFetch(`${baseUrl}/__faults`, {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(patch)
     });
     return response.json();
   },
   async reset(baseUrl) {
-    const response = await fetch(`${baseUrl}/__reset`, { method: 'POST' });
+    const response = await labFetch(`${baseUrl}/__reset`, { method: 'POST' });
     return response.json();
   },
   async resetAll() {
     return Promise.all(Object.values(LAB).map(url => lab.reset(url).catch(() => null)));
   },
   async health(baseUrl) {
-    const response = await fetch(`${baseUrl}/health`);
+    const response = await labFetch(`${baseUrl}/health`);
     return response.json();
   }
 };

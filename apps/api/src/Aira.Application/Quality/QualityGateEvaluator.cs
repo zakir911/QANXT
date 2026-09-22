@@ -58,9 +58,33 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
         var run = await _db.TestRuns.FirstOrDefaultAsync(r => r.Id == testRunId, ct);
         if (run is null) return new QualityGateResult(true, Array.Empty<QualityGateRuleResult>(), "The run was not found.");
 
-        var rules = await _db.QualityGateRules
+        // The environment key of the run, so a rule scoped to one environment applies only
+        // there. A rule with no environment applies everywhere, which is what most are.
+        var environmentKey = run.EnvironmentId is null
+            ? null
+            : await _db.Environments
+                .Where(e => e.Id == run.EnvironmentId)
+                .Select(e => e.Key)
+                .FirstOrDefaultAsync(ct);
+
+        var allRules = await _db.QualityGateRules
             .Where(r => r.ProjectId == run.ProjectId && r.IsEnabled)
             .ToListAsync(ct);
+
+        var rules = allRules
+            .Where(r => r.Environment is null
+                        || string.Equals(r.Environment, environmentKey, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        var skippedForEnvironment = allRules.Count - rules.Count;
+        if (skippedForEnvironment > 0)
+        {
+            // Logged rather than silent: "the gate passed" and "the gate passed because
+            // four of its rules were for another environment" are different statements.
+            _logger.LogInformation(
+                "Run {RunId}: {Skipped} quality gate rule(s) do not apply to environment '{Environment}'.",
+                run.Id, skippedForEnvironment, environmentKey ?? "(none)");
+        }
 
         var metrics = await GatherMetricsAsync(run, ct);
         var named = metrics.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value);

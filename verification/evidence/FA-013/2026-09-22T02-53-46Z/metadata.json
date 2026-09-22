@@ -1,0 +1,32 @@
+{
+  "testId": "FA-013",
+  "suite": "Failure analysis",
+  "runId": "2026-09-22T02-53-46Z",
+  "objective": "A failure carries an explanation a person can act on, and says what produced it",
+  "preconditions": [
+    "the ten failures above were analysed"
+  ],
+  "input": "The analysis attached to each failure",
+  "expected": "Summary, likely cause and suggested action are present, and the producer is named",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "10/10 failure(s) analysed; 10 carry a summary, likely cause and suggested action; providers: local (deterministic)",
+  "metrics": null,
+  "startedAt": "2026-09-22T02:57:31.683Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "585c679",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "analyses.json",
+      "path": "evidence/FA-013/2026-09-22T02-53-46Z/analyses.json",
+      "bytes": 17020,
+      "sha256": "75dc47cee9e4eb9af0e7a418122249d27e551b9649b47a55b9f8669698a83ab0"
+    }
+  ]
+}

@@ -32,7 +32,7 @@ difference between extending AIRA and forking it.
 | To build | Reuse |
 | --- | --- |
 | API testing | `ApiEndpoint` already carries method, URL template, sample request/response, content types, `RequiresAuthentication`, observed count and average duration — populated by discovery from real traffic. |
-| UI/API correlation | `NetworkEvent` already records `ActionOrder`, so every request is already attributable to the step that caused it. The link exists; nothing reads it yet. |
+| UI/API correlation | `NetworkEvent` has a `TestActionId` column and the worker has always reported an action order, so the link *looked* available. **Correction, found by executing it:** nothing ever wrote that column — every stored event was orphaned ([BUG-0020](../verification/bugs/BUG-0020/bug.md)). Reuse here meant fixing the write, not reading an existing join. Fixed; the join is now populated and returned. |
 | Contract testing | `ApiEndpoint.ResponseSampleJson` is a real observed response, which is the natural baseline for a contract. |
 | Quality gate PASS/FAIL/REVIEW | `QualityGateRule` rows, `QualityGateOperator` and the evaluator's per-rule explanation already exist; they need a third outcome and a severity, not a rewrite. |
 | Change impact | The knowledge graph (`ApplicationPage`, `ApplicationElement`, `PageTransition`, `ApiEndpoint`) is the dependency graph a change-impact engine needs. |
@@ -50,7 +50,7 @@ Stated plainly, because these are the gaps this phase is judged against.
 | --- | --- |
 | **API testing of any kind** | Nothing can send a request and assert on the response. `ApiEndpoint` is an inventory, not a test target. |
 | **API contract testing** | No schema comparison, no breaking-change classification. |
-| **UI/API correlation in diagnosis** | The data is joined by `ActionOrder` but no analyser consults it, so a wrong balance cannot yet be attributed to the API rather than the rendering. |
+| **UI/API correlation in diagnosis** | The events now carry the step they belong to (BUG-0020), but no analyser consults the link yet, so a wrong balance cannot yet be attributed to the API rather than the rendering. |
 | **Change impact analysis** | No notion of a commit, a changed file, or what a change reaches. |
 | **Smart regression selection** | A run executes the tests it is given. There is no selection, no scoring, no explanation of why a test was chosen. |
 | **Environments as first-class** | An application has one base URL. There is no Development/QA/Staging/UAT/Production distinction and so no production safeguard. |
