@@ -1,0 +1,34 @@
+{
+  "case": "http-404",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "27a58f0d-07c9-489e-9d32-a04da01c65e6",
+    "category": "applicationDefect",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15089ms).",
+    "signature": "79c904731b7310239dbadaeca7d310f262c733b61556152e69c44224925d5409",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-22T07:33:07.862807+00:00",
+    "lastSeenAt": "2026-09-22T07:33:07.862807+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made was rejected with 404.",
+      "likelyCause": "GET /api/answer → 404 in 0ms — either the request the application sent was wrong, or the data the test used is not acceptable to this endpoint.",
+      "evidence": "GET /api/answer → 404 in 0ms. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15089ms).",
+      "suggestedAction": "Read the request in the network evidence. A 4xx here is usually the application sending something the service will not accept.",
+      "category": "applicationDefect",
+      "confidence": 85,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"4646dfd1-0699-4d31-a59b-e81b8b8fc573\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"67567698-056d-4711-8f95-03052c9296ca\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"68838d12-4203-40d5-b109-cff628037216\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"85291aed-e23d-4bb7-9f3b-e1d52d802f2e\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"9a56c9c9-9bac-46da-afed-3b83fdd40de5\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"ad91642b-fde6-4472-a4b5-3b9dcebeab28\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"c0b89b8d-8d05-4b55-9ef5-67dfcacda8db\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"d57aa401-7e09-4b1e-a7f0-a898737f2a20\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"9b6e5d36-1b22-41f5-9145-48246dbe13c3\"}"
+    }
+  }
+}

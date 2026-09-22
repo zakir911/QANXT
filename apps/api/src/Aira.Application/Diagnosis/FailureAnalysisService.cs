@@ -60,7 +60,16 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
     public async Task<Failure> RecordFailureAsync(
         TestExecution execution, TestRun run, ExecutionCompletionPayload completion, CancellationToken ct)
     {
-        var failedAction = completion.Actions.FirstOrDefault(a => a.Status == ExecutionStatus.Failed);
+        // The worker streams its actions as they finish, so by the time a completion
+        // arrives the actions are rows in the database and the completion's own list is
+        // empty. Reading only the payload meant the failing step was never identified:
+        // the failure's signature was computed without it, its TestActionId was always
+        // null, the classifier fell back to matching message prose, and the API
+        // correlation had no step to correlate to (BUG-0025).
+        var failedAction = completion.Actions.FirstOrDefault(a => a.Status == ExecutionStatus.Failed)
+            ?? completion.Actions.FirstOrDefault(a =>
+                a.Status is ExecutionStatus.Error or ExecutionStatus.TimedOut)
+            ?? await StoredFailingActionAsync(execution.Id, ct);
         var rawMessage = _masker.MaskText(completion.ErrorMessage ?? failedAction?.ErrorMessage ?? "The execution failed without an error message.");
         var signature = ComputeSignature(execution.TestCaseId, failedAction?.Order, rawMessage);
 
@@ -91,6 +100,8 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
             CreatedAt = _clock.UtcNow
         };
 
+        var correlation = ApiCorrelation.Build(completion, failedAction?.Order);
+
         var deterministic = DeterministicFailureClassifier.Classify(new ClassificationInput(
             Status: completion.Status,
             ErrorMessage: rawMessage,
@@ -100,8 +111,8 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
             ServerErrorCount: completion.NetworkEvents.Count(n => n.StatusCode >= 500),
             AuthErrorCount: completion.NetworkEvents.Count(n => n.StatusCode is 401 or 403),
             NetworkFailureCount: completion.NetworkEvents.Count(n => n.IsFailed && n.StatusCode is null),
-            FailingAction: completion.Actions
-                .FirstOrDefault(a => a.Status is not ExecutionStatus.Passed and not ExecutionStatus.Healed)?.Action));
+            FailingAction: failedAction?.Action,
+            Api: correlation));
 
         failure.Category = deterministic.Category;
         failure.CategoryConfidence = deterministic.Confidence;
@@ -109,7 +120,7 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
         _db.Failures.Add(failure);
         await _db.SaveChangesAsync(ct);
 
-        await AnalyseAsync(failure, execution, run, completion, deterministic, ct);
+        await AnalyseAsync(failure, execution, run, completion, deterministic, failedAction, ct);
         return failure;
     }
 
@@ -125,16 +136,26 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
         if (run is null) return Error.NotFound("The test run");
 
         var completion = await ReconstructCompletionAsync(execution, ct);
+        var failedOnReanalysis = completion.Actions
+            .FirstOrDefault(a => a.Status is not ExecutionStatus.Passed and not ExecutionStatus.Healed);
+
+        // Rebuilt from the stored evidence rather than carried forward, so re-analysing an
+        // older failure gains the correlation rather than repeating the verdict it was
+        // given before the link existed.
         var deterministic = DeterministicFailureClassifier.Classify(new ClassificationInput(
             execution.Status, failure.RawMessage, false, null,
-            execution.ConsoleErrorCount, 0, 0, execution.NetworkErrorCount,
-            FailingAction: completion.Actions
-                .FirstOrDefault(a => a.Status is not ExecutionStatus.Passed and not ExecutionStatus.Healed)?.Action));
+            execution.ConsoleErrorCount,
+            ServerErrorCount: completion.NetworkEvents.Count(n => n.StatusCode >= 500),
+            AuthErrorCount: completion.NetworkEvents.Count(n => n.StatusCode is 401 or 403),
+            NetworkFailureCount: completion.NetworkEvents.Count(n => n.IsFailed && n.StatusCode is null),
+            FailingAction: failedOnReanalysis?.Action,
+            Api: ApiCorrelation.Build(completion, failedOnReanalysis?.Order)));
 
         if (failure.Analysis is not null) _db.FailureAnalyses.Remove(failure.Analysis);
         await _db.SaveChangesAsync(ct);
 
-        var analysis = await AnalyseAsync(failure, execution, run, completion, deterministic, ct);
+        var analysis = await AnalyseAsync(
+            failure, execution, run, completion, deterministic, failedOnReanalysis, ct);
         return analysis is null
             ? Error.Dependency("analysis_failed", "The failure could not be analysed.")
             : Result<FailureAnalysis>.Success(analysis);
@@ -142,7 +163,7 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
 
     private async Task<FailureAnalysis?> AnalyseAsync(
         Failure failure, TestExecution execution, TestRun run, ExecutionCompletionPayload completion,
-        DeterministicVerdict deterministic, CancellationToken ct)
+        DeterministicVerdict deterministic, ActionResultPayload? failedAction, CancellationToken ct)
     {
         var project = await _db.Projects.FirstOrDefaultAsync(p => p.Id == run.ProjectId, ct);
         var useAi = project?.AiEnabled == true && deterministic.Confidence < DeterministicConfidenceFloor;
@@ -177,7 +198,7 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
         else
         {
             var testCase = await _db.TestCases.FirstOrDefaultAsync(tc => tc.Id == execution.TestCaseId, ct);
-            var context = BuildAnalysisContext(execution, testCase, completion, deterministic);
+            var context = BuildAnalysisContext(execution, testCase, completion, deterministic, failedAction);
 
             var result = await _ai.ExecuteAsync<GeneratedFailureAnalysis>(new AiCallOptions
             {
@@ -280,9 +301,9 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
         """;
 
     private object BuildAnalysisContext(
-        TestExecution execution, TestCase? testCase, ExecutionCompletionPayload completion, DeterministicVerdict deterministic)
+        TestExecution execution, TestCase? testCase, ExecutionCompletionPayload completion,
+        DeterministicVerdict deterministic, ActionResultPayload? failedAction)
     {
-        var failedAction = completion.Actions.FirstOrDefault(a => a.Status == ExecutionStatus.Failed);
 
         return new
         {
@@ -317,7 +338,50 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
             networkFailures = completion.NetworkEvents
                 .Where(n => n.IsFailed || n.StatusCode >= 400)
                 .Take(10)
-                .Select(n => new { n.Method, url = _masker.MaskText(n.Url), n.StatusCode, n.FailureText })
+                .Select(n => new { n.Method, url = _masker.MaskText(n.Url), n.StatusCode, n.FailureText }),
+            // Separated from the list above on purpose: which of these calls the failing
+            // step itself made is the single most useful fact in the evidence, and a flat
+            // list of requests does not carry it.
+            apiDuringFailingStep = ApiCorrelation.Build(completion, failedAction?.Order)
+                .DuringFailingStep
+                .Take(10)
+                .Select(c => new
+                {
+                    c.Method, path = _masker.MaskText(c.Path), c.StatusCode, c.DurationMs,
+                    failed = c.IsFailed || c.StatusCode >= 400
+                })
+        };
+    }
+
+    /// <summary>The failing step as the engine recorded it, read back from storage.
+    ///
+    /// Returns the first non-passing action by order, so a test that failed at step four
+    /// and was then abandoned is attributed to step four rather than to whatever was
+    /// written last.</summary>
+    private async Task<ActionResultPayload?> StoredFailingActionAsync(Guid executionId, CancellationToken ct)
+    {
+        var stored = await _db.TestActions
+            .Where(a => a.TestExecutionId == executionId
+                        && a.Status != ExecutionStatus.Passed
+                        && a.Status != ExecutionStatus.Healed
+                        && a.Status != ExecutionStatus.Skipped)
+            .OrderBy(a => a.Order)
+            .FirstOrDefaultAsync(ct);
+
+        if (stored is null) return null;
+
+        return new ActionResultPayload
+        {
+            Order = stored.Order,
+            TestStepId = stored.TestStepId,
+            Action = stored.Action.ToString(),
+            Description = stored.Description,
+            Status = stored.Status,
+            DurationMs = stored.DurationMs,
+            Url = stored.Url,
+            ErrorMessage = stored.ErrorMessage,
+            WasHealed = stored.WasHealed,
+            HealingConfidence = stored.HealingConfidence
         };
     }
 
@@ -393,7 +457,13 @@ public sealed class FailureAnalysisService : IFailureAnalysisService
             NetworkEvents = network.Select(e => new NetworkEventPayload
             {
                 Method = e.Method, Url = e.Url, StatusCode = e.StatusCode,
-                IsFailed = e.IsFailed, FailureText = e.FailureText, OccurredAt = e.OccurredAt
+                ResourceType = e.ResourceType, DurationMs = e.DurationMs,
+                IsFailed = e.IsFailed, FailureText = e.FailureText, OccurredAt = e.OccurredAt,
+                // Rebuilt from the stored link, so a re-analysis can say which step made
+                // the call rather than only that the call happened somewhere.
+                ActionOrder = e.TestActionId is null
+                    ? null
+                    : actions.FirstOrDefault(a => a.Id == e.TestActionId)?.Order
             }).ToList()
         };
     }

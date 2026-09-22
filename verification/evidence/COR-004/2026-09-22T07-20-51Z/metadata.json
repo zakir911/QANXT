@@ -1,0 +1,32 @@
+{
+  "testId": "COR-004",
+  "suite": "UI/API correlation",
+  "runId": "2026-09-22T07-20-51Z",
+  "objective": "A request that never completed is diagnosed as a network issue and named",
+  "preconditions": [
+    "FAULT_NETWORK_ERROR is enabled"
+  ],
+  "input": "An API test whose request is destroyed at the network layer",
+  "expected": "A networkIssue diagnosis naming the endpoint, not an application defect",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "networkIssue at 85%: \"The application could not be reached.\"",
+  "metrics": null,
+  "startedAt": "2026-09-22T07:21:06.009Z",
+  "durationMs": 2054,
+  "build": {
+    "commit": "fbe49d1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "analysis.json",
+      "path": "evidence/COR-004/2026-09-22T07-20-51Z/analysis.json",
+      "bytes": 1041,
+      "sha256": "0dd943fd123ee50cd08dabc9d56eb90b03814898c7595bcb4fe178ff19518a83"
+    }
+  ]
+}

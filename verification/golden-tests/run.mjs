@@ -23,6 +23,7 @@ const SUITES = {
   healing: () => import('./suites/self-healing.mjs'),
   'api-testing': () => import('./suites/api-testing.mjs'),
   'api-contracts': () => import('./suites/api-contracts.mjs'),
+  correlation: () => import('./suites/correlation.mjs'),
   security: () => import('./suites/security.mjs'),
   reliability: () => import('./suites/reliability.mjs'),
   performance: () => import('./suites/performance.mjs')

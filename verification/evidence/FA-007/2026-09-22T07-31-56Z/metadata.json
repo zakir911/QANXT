@@ -1,0 +1,34 @@
+{
+  "testId": "FA-007",
+  "suite": "Failure analysis",
+  "runId": "2026-09-22T07-31-56Z",
+  "objective": "A timeout failure is classified as timingIssue or applicationDefect",
+  "preconditions": [
+    "the timeout case failed"
+  ],
+  "input": "The failure category the platform assigned to /case/timeout",
+  "expected": "One of: timingIssue, applicationDefect — the lab calls this timeout",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "classified \"applicationDefect\" at 70% confidence; the lab expects timeout (accepting timingIssue or applicationDefect)",
+  "metrics": {
+    "correct": 1
+  },
+  "startedAt": "2026-09-22T07:34:57.218Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fbe49d1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "FA-007-classification.json",
+      "path": "evidence/FA-007/2026-09-22T07-31-56Z/FA-007-classification.json",
+      "bytes": 2325,
+      "sha256": "e8c8d2981f659e27cfe5d020e220a6c82948a8617b54f4fbc268e1d9c310ccfe"
+    }
+  ]
+}

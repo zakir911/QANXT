@@ -38,7 +38,12 @@ const FAULTS = [
   { id: 'FAULT_API_FIELD_REMOVED', description: 'The accounts API stops returning sortCode. Breaking: a caller reading it finds nothing.' },
   { id: 'FAULT_API_FIELD_TYPE_CHANGED', description: 'The accounts API returns balance as a string instead of a number. Breaking: a caller parsing it as a number fails.' },
   { id: 'FAULT_API_FIELD_NULLABLE', description: 'The accounts API returns null for one account\'s sortCode. Potentially breaking: only callers without a null check fail.' },
-  { id: 'FAULT_API_FIELD_ADDED', description: 'The accounts API gains a nickname field. Non-breaking: nobody was reading it.' }
+  { id: 'FAULT_API_FIELD_ADDED', description: 'The accounts API gains a nickname field. Non-breaking: nobody was reading it.' },
+
+  // Unlike FAULT_API_500, which breaks sign-in and so blocks a test before it starts, this
+  // one lets a customer sign in and reach the page and then fails the call that page makes.
+  // That is the shape of failure UI/API correlation exists to explain.
+  { id: 'FAULT_TRANSACTIONS_API_500', description: 'The transactions API answers HTTP 500, after sign-in has succeeded.' }
 ];
 
 const faults = createFaultEngine(FAULTS);
@@ -266,6 +271,12 @@ app.get('/api/accounts/:id', authenticated((ctx) => {
 }));
 
 app.get('/api/accounts/:id/transactions', authenticated((ctx) => {
+  if (faults.on('FAULT_TRANSACTIONS_API_500')) {
+    return ctx.json(500, {
+      error: 'transaction_service_unavailable',
+      message: 'The transaction service is temporarily unavailable.'
+    });
+  }
   const account = accountsFor(ctx.user.id).find(candidate => candidate.id === ctx.params.id);
   if (!account) return ctx.json(404, { error: 'not_found' });
   return ctx.json(200, filterTransactions(transactionsFor(account.id), ctx.query));

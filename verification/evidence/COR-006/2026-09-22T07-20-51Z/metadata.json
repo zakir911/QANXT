@@ -1,0 +1,25 @@
+{
+  "testId": "COR-006",
+  "suite": "UI/API correlation",
+  "runId": "2026-09-22T07-20-51Z",
+  "objective": "A signed-out page's own 401 never becomes the explanation for a removed control",
+  "preconditions": [
+    "FAULT_LOGIN_BUTTON_REMOVED is enabled"
+  ],
+  "input": "A journey that clicks the sign-in control, which is not rendered",
+  "expected": "A locatorChange diagnosis; the 401 is reported as context, not as the cause — the guard BUG-0015 added, now also at the correlated level",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "run blocked with no analysis; declared evidence never produced: analysis.json",
+  "metrics": null,
+  "startedAt": "2026-09-22T07:21:30.171Z",
+  "durationMs": 16093,
+  "build": {
+    "commit": "fbe49d1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": []
+}

@@ -1,0 +1,42 @@
+{
+  "id": "DET-008",
+  "case": "connection-reset",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "a516668a-e234-4072-9da8-0b50d194919a",
+    "category": "networkIssue",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15053ms).",
+    "signature": "80924da838996a243f0beb600ffc7133090c37f9011495236b0ce7d0fdaf38d9",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-22T07:37:59.6482+00:00",
+    "lastSeenAt": "2026-09-22T07:37:59.6482+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made never completed.",
+      "likelyCause": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE) — the request did not reach the service, or the service did not answer.",
+      "evidence": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE). Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15053ms).",
+      "suggestedAction": "Confirm the service is running and reachable from the worker, then re-run.",
+      "category": "networkIssue",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0c31994a-2786-4422-a88d-ed47c6c05036\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"0d89f515-af5c-4b17-a913-a12a4a84e015\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"0f97a66a-38fa-4425-85e1-fa1ddda6adb0\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"46e2ae14-973c-4618-8135-54fd6b0cb712\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"4b287ee1-dd9e-4e52-9fba-95fa0a292947\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"ad43702e-be60-4c5c-a4a0-ea28919fc2cd\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"afbccaaf-42a1-4995-aad7-587ef923e8ed\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"eacf1e38-a2b6-47c4-a72e-5fdd8d5f828b\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"90319399-a71f-4da4-8752-bae485b0f3c4\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15053ms)."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

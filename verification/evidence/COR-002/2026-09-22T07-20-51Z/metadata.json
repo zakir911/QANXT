@@ -1,0 +1,34 @@
+{
+  "testId": "COR-002",
+  "suite": "UI/API correlation",
+  "runId": "2026-09-22T07-20-51Z",
+  "objective": "A UI step that fails because its own API call returned 500 is diagnosed as that",
+  "preconditions": [
+    "FAULT_API_500 is enabled on the lab bank"
+  ],
+  "input": "The same journey while the API answers 500",
+  "expected": "A diagnosis naming the endpoint and the status, not a count of errors somewhere in the execution",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "run blocked with no analysis recorded; declared evidence never produced: analysis.json",
+  "metrics": {
+    "confidence": null
+  },
+  "startedAt": "2026-09-22T07:20:59.814Z",
+  "durationMs": 4071,
+  "build": {
+    "commit": "fbe49d1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "api-calls.json",
+      "path": "evidence/COR-002/2026-09-22T07-20-51Z/api-calls.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ]
+}

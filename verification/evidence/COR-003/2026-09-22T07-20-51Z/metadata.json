@@ -1,0 +1,34 @@
+{
+  "testId": "COR-003",
+  "suite": "UI/API correlation",
+  "runId": "2026-09-22T07-20-51Z",
+  "objective": "An API test's failure is diagnosed from the call the failing step made",
+  "preconditions": [
+    "FAULT_API_500 is enabled"
+  ],
+  "input": "An API test whose sign-in request is answered 500",
+  "expected": "A diagnosis at high confidence naming the method, the path and the status",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "applicationDefect at 90%: \"The application returned server errors during this execution.\" / \"1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on. These were not made b\"",
+  "metrics": {
+    "confidence": 90
+  },
+  "startedAt": "2026-09-22T07:21:03.885Z",
+  "durationMs": 2124,
+  "build": {
+    "commit": "fbe49d1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "analysis.json",
+      "path": "evidence/COR-003/2026-09-22T07-20-51Z/analysis.json",
+      "bytes": 1155,
+      "sha256": "1138a35ce91bf2941ca58553603605163e84246386e1b0d15bab5a5e64087a92"
+    }
+  ]
+}

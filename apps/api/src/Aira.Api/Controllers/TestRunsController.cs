@@ -128,6 +128,23 @@ public sealed class ExecutionsController : ApiControllerBase
             })
             .FirstOrDefaultAsync(ct);
 
+        // The API calls each step made, beside the step that made them. This is what the
+        // correlation the diagnosis reads looks like to a person: a failing step and the
+        // request underneath it, in one place rather than in two lists sharing a timestamp.
+        var apiCalls = await _db.NetworkEvents
+            .Where(e => e.TestExecutionId == id && e.TestActionId != null)
+            .Where(e => e.ResourceType == "xhr" || e.ResourceType == "fetch" || e.ResourceType == "apiTest")
+            .OrderBy(e => e.OccurredAt)
+            .Select(e => new
+            {
+                e.Id, e.Method, e.Url, e.StatusCode, e.DurationMs, e.IsFailed, e.FailureText,
+                e.ResourceType, e.TestActionId,
+                actionOrder = _db.TestActions.Where(a => a.Id == e.TestActionId)
+                    .Select(a => (int?)a.Order).FirstOrDefault()
+            })
+            .Take(500)
+            .ToListAsync(ct);
+
         var healingEvents = await _db.HealingEvents
             .Where(h => h.TestExecutionId == id)
             .Select(h => new
@@ -148,7 +165,7 @@ public sealed class ExecutionsController : ApiControllerBase
             execution.StepsTotal, execution.StepsPassed, execution.StepsFailed, execution.StepsHealed,
             execution.ConsoleErrorCount, execution.NetworkErrorCount,
             execution.ErrorMessage, execution.ErrorStack,
-            actions, artifacts, failure, healingEvents
+            actions, artifacts, apiCalls, failure, healingEvents
         });
     }
 

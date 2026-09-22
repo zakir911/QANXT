@@ -1,0 +1,32 @@
+{
+  "testId": "FA-016",
+  "suite": "Failure analysis",
+  "runId": "2026-09-22T07-31-56Z",
+  "objective": "A confirmation shown for something that never happened is detected",
+  "preconditions": [
+    "the bank confirms a payment it never records (FAULT_PAYMENT_SILENT_FAILURE)"
+  ],
+  "input": "A journey that makes a payment and then checks the payment list",
+  "expected": "The run FAILS — the confirmation banner is not enough",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failed; the confirmation banner passed, the payment list assertion failed",
+  "metrics": null,
+  "startedAt": "2026-09-22T07:35:33.380Z",
+  "durationMs": 18110,
+  "build": {
+    "commit": "fbe49d1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "silent-failure.json",
+      "path": "evidence/FA-016/2026-09-22T07-31-56Z/silent-failure.json",
+      "bytes": 3997,
+      "sha256": "3f9914b11261c471dc17270727c7d1f1cfa57becb8544f30cf734428565c21ad"
+    }
+  ]
+}

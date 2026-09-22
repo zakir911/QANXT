@@ -1,0 +1,42 @@
+{
+  "id": "DET-004",
+  "case": "http-403",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "09f27c54-67c2-45af-9e6c-edeaaa7de155",
+    "category": "authenticationIssue",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15098ms).",
+    "signature": "ae1fca7110bbbd152955b046cf422f7bb2cff5431cb358311b0b1e92effd3705",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-22T07:36:47.344395+00:00",
+    "lastSeenAt": "2026-09-22T07:36:47.344395+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made was refused with 403.",
+      "likelyCause": "GET /api/answer → 403 in 0ms — the session was not accepted, or the account lacks a permission this endpoint requires.",
+      "evidence": "GET /api/answer → 403 in 0ms. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15098ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"343113a4-ae5f-4ed8-a2c5-10cf3e7c255e\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"76a2b237-89ff-4cc4-b0dd-883b30f76ad5\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"9cd2fd19-0fe7-44cd-b2e3-0e72299ad6ca\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"9f7ae3ac-5844-4b8c-8545-354df0ae53a2\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"d20317e0-a35b-4974-8636-c90e13575590\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"e61010e2-34e6-4946-825f-a627a60cea83\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"ef05298c-78d1-4e7a-8ad7-9b79fc4610a3\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"fbb8bc45-1e57-4532-a805-b59d22c23c9e\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}], \"executionId\": \"b2c311b6-9c8d-4ce1-ab04-ab2a842eae9d\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15098ms)."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

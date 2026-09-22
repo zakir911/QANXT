@@ -1,0 +1,14 @@
+{
+  "summary": "The application returned server errors during this execution.",
+  "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on. These were not made by the step that failed, so they are a cause rather than the immediate one.",
+  "evidence": "1 server error response(s) recorded in the network evidence: POST /api/session → 500 in 8ms.",
+  "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+  "category": "applicationDefect",
+  "confidence": 90,
+  "isLikelyApplicationDefect": true,
+  "isHealable": false,
+  "producedByAi": false,
+  "provider": "local",
+  "model": "aira-rules-v1",
+  "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"8f8fc1f6-f9b3-4c1b-a845-9fe0d4d88268\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"c318b2b9-6627-4526-83c0-74de304e9606\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"f2d7463c-d4e7-44c6-a37b-eb53e387110f\", \"kind\": \"Other\", \"name\": \"step-1-request.http.json\"}], \"executionId\": \"05b8b7d7-121b-4721-a033-468778fb25ad\"}"
+}

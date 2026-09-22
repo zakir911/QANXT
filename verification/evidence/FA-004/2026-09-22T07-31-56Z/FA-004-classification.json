@@ -1,0 +1,34 @@
+{
+  "case": "http-403",
+  "lab": "authorizationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "9ff85ee7-3237-4630-98e6-e2f63cb265ab",
+    "category": "authenticationIssue",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15049ms).",
+    "signature": "de3963889dd33281800ebab0521b0268afec178160ef6c9c24ed810a9fa9fdec",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-22T07:32:49.727839+00:00",
+    "lastSeenAt": "2026-09-22T07:32:49.727839+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made was refused with 403.",
+      "likelyCause": "GET /api/answer → 403 in 0ms — the session was not accepted, or the account lacks a permission this endpoint requires.",
+      "evidence": "GET /api/answer → 403 in 0ms. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15049ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"3aa94f60-f41f-4942-9c8a-7205775922bc\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"44108884-e80b-4dec-b741-1fcbfa695889\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"58ca5ce7-8dbb-4bdb-9530-13bfab920d1c\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"627656a9-cf89-414d-8bf6-c313dc82debe\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"6673e566-eef7-4905-8281-27e149c5d151\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"7f6891fe-dedb-4e4a-b9fb-e2319a27b528\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"f9f3f524-e256-446f-9b55-09d5766b86ad\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"fd22c89b-f4d7-47c3-a69f-f3a476adbeb8\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"05502813-5fe1-4e11-940c-b1d1e912d21e\"}"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "testId": "COR-005",
+  "suite": "UI/API correlation",
+  "runId": "2026-09-22T07-20-51Z",
+  "objective": "A failure where the API answered correctly is attributed to the front end",
+  "preconditions": [
+    "FAULT_WRONG_BALANCE is enabled: the accounts are right and the total is not"
+  ],
+  "input": "A UI assertion on the dashboard total while every API call succeeds",
+  "expected": "A diagnosis saying the API answered correctly and the page showed something else, rather than a generic assertion failure",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "0 API call(s), 0 failed; authenticationIssue at 85%: \"The session was not authorised.\"",
+  "metrics": {
+    "calls": 0,
+    "failedCalls": 0
+  },
+  "startedAt": "2026-09-22T07:21:08.063Z",
+  "durationMs": 22108,
+  "build": {
+    "commit": "fbe49d1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "analysis.json",
+      "path": "evidence/COR-005/2026-09-22T07-20-51Z/analysis.json",
+      "bytes": 1541,
+      "sha256": "3369ba5b556afe3dcef7d862443c963d0e286757f4a8bc29aab999e82d0546e9"
+    },
+    {
+      "file": "api-calls.json",
+      "path": "evidence/COR-005/2026-09-22T07-20-51Z/api-calls.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ]
+}

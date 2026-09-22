@@ -1,0 +1,36 @@
+{
+  "testId": "DET-001",
+  "suite": "Failure detection",
+  "runId": "2026-09-22T07-31-56Z",
+  "objective": "A working application produces a passing run",
+  "preconditions": [
+    "the failure lab is running",
+    "the test targets /case/healthy"
+  ],
+  "input": "The same four-step test: open /case/healthy, press the button, expect \"OK 42\"",
+  "expected": "The run passes and every step passes",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "passed, 4/4 steps; 1 screenshot(s)",
+  "metrics": {
+    "screenshots": 1,
+    "consoleErrors": 0
+  },
+  "startedAt": "2026-09-22T07:35:51.742Z",
+  "durationMs": 2054,
+  "build": {
+    "commit": "fbe49d1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DET-001-execution.json",
+      "path": "evidence/DET-001/2026-09-22T07-31-56Z/DET-001-execution.json",
+      "bytes": 213,
+      "sha256": "44f93fd2cf1d18eff37bdc4c9ba0359666d7604340c56d6c4be4af78489d85f6"
+    }
+  ]
+}

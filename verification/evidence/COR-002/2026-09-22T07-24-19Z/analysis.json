@@ -1,0 +1,14 @@
+{
+  "summary": "The application returned server errors during this execution.",
+  "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on. These were not made by the step that failed, so they are a cause rather than the immediate one.",
+  "evidence": "1 server error response(s) recorded in the network evidence: GET /api/session → 401 in 0ms; GET /api/accounts/acc-1001/transactions → 500 in 0ms.",
+  "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+  "category": "applicationDefect",
+  "confidence": 90,
+  "isLikelyApplicationDefect": true,
+  "isHealable": false,
+  "producedByAi": false,
+  "provider": "local",
+  "model": "aira-rules-v1",
+  "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"25ccdce4-2818-456d-a966-672e018ebd19\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"4b81e1cc-6b6f-45b0-89d4-fd2f79f5b9a1\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"71443cfd-a017-4f1b-a359-0e15344d2668\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"7a9e4d32-4eb1-46d7-b909-c1e476e89586\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"81c6e1b4-aa6d-450b-b312-b067611c48ec\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"a1d322fd-1973-4675-9284-98384d183812\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"b33a98e4-e247-448d-8346-b370784131e2\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"d01bbe5d-8fd5-4e40-9e75-43049bfee4b1\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}], \"executionId\": \"5e929382-6f14-42dc-9bfe-f58c7609f23b\"}"
+}

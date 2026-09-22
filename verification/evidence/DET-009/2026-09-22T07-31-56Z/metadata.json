@@ -1,0 +1,36 @@
+{
+  "testId": "DET-009",
+  "suite": "Failure detection",
+  "runId": "2026-09-22T07-31-56Z",
+  "objective": "A js error failure is detected and reported as a failure",
+  "preconditions": [
+    "the failure lab is running",
+    "the test targets /case/js-error"
+  ],
+  "input": "The same four-step test: open /case/js-error, press the button, expect \"OK 42\"",
+  "expected": "The run FAILS, with the failing step, an error message and a screenshot",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15097ms).; 2 screenshot(s); classified applicationDefect",
+  "metrics": {
+    "screenshots": 2,
+    "consoleErrors": 1
+  },
+  "startedAt": "2026-09-22T07:38:00.533Z",
+  "durationMs": 18074,
+  "build": {
+    "commit": "fbe49d1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DET-009-execution.json",
+      "path": "evidence/DET-009/2026-09-22T07-31-56Z/DET-009-execution.json",
+      "bytes": 2672,
+      "sha256": "ac7bfdcf30d843ff885aa46293513cc9464360fbfcad40f37e5acac6a7de27a8"
+    }
+  ]
+}

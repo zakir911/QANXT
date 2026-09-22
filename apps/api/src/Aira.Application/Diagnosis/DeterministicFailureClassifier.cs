@@ -15,7 +15,11 @@ public sealed record ClassificationInput(
     /// Structured, because identifying an assertion by the prose of its error message
     /// drifts the moment the message is reworded, which is how assertion failures came to
     /// be classified as Unknown (BUG-0012).</summary>
-    string? FailingAction = null);
+    string? FailingAction = null,
+    /// <summary>What the API was doing when this step failed. Absent for an execution
+    /// recorded before the evidence carried the link between a request and the step that
+    /// made it.</summary>
+    ApiCorrelation? Api = null);
 
 public sealed record DeterministicVerdict(
     FailureCategory Category,
@@ -54,13 +58,160 @@ public static class DeterministicFailureClassifier
                 IsLikelyApplicationDefect: false, IsHealable: false);
         }
 
+        // ---- What the API was doing when this step failed ------------------
+        //
+        // These run before the counts below because they are the stronger statement. "The
+        // application returned server errors somewhere during these twenty steps" and "the
+        // step that failed asked for /api/accounts and was answered 500" are different
+        // findings, and only the second tells someone where to look. The join that makes
+        // this possible was a column nothing wrote until BUG-0020.
+
+        var api = input.Api ?? ApiCorrelation.None;
+
+        if (api.FailedDuringFailingStep.FirstOrDefault(c => c.IsServerError) is { } serverError)
+        {
+            return new DeterministicVerdict(
+                FailureCategory.ApplicationDefect, 95,
+                $"The step failed because the API call it made returned {serverError.StatusCode}.",
+                $"{serverError.Describe()} — the fault is in the application or a service it "
+                + "depends on, not in the test.",
+                $"The failing step made {api.DuringFailingStep.Count} API call(s); "
+                + $"{Cite(api.FailedDuringFailingStep)}. Engine message: {message}",
+                "Take this request to the team that owns the endpoint. Re-running will not help "
+                + "until the service is fixed.",
+                IsLikelyApplicationDefect: true, IsHealable: false);
+        }
+
+        if (api.FailedDuringFailingStep.FirstOrDefault(c => c.IsTransportFailure) is { } transportFailure)
+        {
+            return new DeterministicVerdict(
+                FailureCategory.NetworkIssue, 90,
+                "The step failed because the API call it made never completed.",
+                $"{transportFailure.Describe()} — the request did not reach the service, or the "
+                + "service did not answer.",
+                $"{Cite(api.FailedDuringFailingStep)}. Engine message: {message}",
+                "Confirm the service is running and reachable from the worker, then re-run.",
+                IsLikelyApplicationDefect: false, IsHealable: false);
+        }
+
+        // Gated exactly as the whole-execution rule below is. A single-page application asks
+        // "is anyone signed in?" as it loads and is answered 401 when nobody is; on a step
+        // whose locator matched nothing, that 401 is the sign-in page working rather than a
+        // symptom (BUG-0015). The call is still named in the locator verdict further down.
+        if (!IsLocatorMiss(lowered)
+            && api.FailedDuringFailingStep.FirstOrDefault(c => c.IsAuthError) is { } authFailure)
+        {
+            return new DeterministicVerdict(
+                FailureCategory.AuthenticationIssue, 90,
+                $"The step failed because the API call it made was refused with {authFailure.StatusCode}.",
+                $"{authFailure.Describe()} — the session was not accepted, or the account lacks "
+                + "a permission this endpoint requires.",
+                $"{Cite(api.FailedDuringFailingStep)}. Engine message: {message}",
+                "Check the test account's permissions and this environment's session lifetime.",
+                IsLikelyApplicationDefect: false, IsHealable: false);
+        }
+
+        if (!IsLocatorMiss(lowered)
+            && api.FailedDuringFailingStep.FirstOrDefault(c => c.IsClientError) is { } clientError)
+        {
+            return new DeterministicVerdict(
+                FailureCategory.ApplicationDefect, 85,
+                $"The step failed because the API call it made was rejected with {clientError.StatusCode}.",
+                $"{clientError.Describe()} — either the request the application sent was wrong, "
+                + "or the data the test used is not acceptable to this endpoint.",
+                $"{Cite(api.FailedDuringFailingStep)}. Engine message: {message}",
+                "Read the request in the network evidence. A 4xx here is usually the application "
+                + "sending something the service will not accept.",
+                IsLikelyApplicationDefect: true, IsHealable: false);
+        }
+
+        // The same findings, one step earlier. A click starts a fetch and moves on; the
+        // assertion that follows is what notices the page is empty. The causal link is
+        // inferred rather than direct, so the confidence is a little lower and the wording
+        // says which step made the call.
+        if (api.FailedDuringPrecedingStep.FirstOrDefault(c => c.IsServerError) is { } precedingServerError)
+        {
+            return new DeterministicVerdict(
+                FailureCategory.ApplicationDefect, 90,
+                $"The step before this one made an API call that returned {precedingServerError.StatusCode}.",
+                $"{precedingServerError.Describe()} — the page had nothing to render, so the step "
+                + "that followed found nothing. The fault is in the application or a service it "
+                + "depends on, not in the test.",
+                $"{Cite(api.FailedDuringPrecedingStep)}, made by step "
+                + $"{api.FailingActionOrder - 1}. Engine message: {message}",
+                "Take this request to the team that owns the endpoint. The failing assertion is "
+                + "the symptom; this call is the cause.",
+                IsLikelyApplicationDefect: true, IsHealable: false);
+        }
+
+        if (api.FailedDuringPrecedingStep.FirstOrDefault(c => c.IsTransportFailure) is { } precedingTransport)
+        {
+            return new DeterministicVerdict(
+                FailureCategory.NetworkIssue, 85,
+                "The step before this one made an API call that never completed.",
+                $"{precedingTransport.Describe()} — the request did not reach the service, so the "
+                + "page had nothing to render.",
+                $"{Cite(api.FailedDuringPrecedingStep)}, made by step "
+                + $"{api.FailingActionOrder - 1}. Engine message: {message}",
+                "Confirm the service is running and reachable from the worker, then re-run.",
+                IsLikelyApplicationDefect: false, IsHealable: false);
+        }
+
+        if (!IsLocatorMiss(lowered)
+            && api.FailedDuringPrecedingStep.FirstOrDefault(c => c.IsAuthError) is { } precedingAuth)
+        {
+            return new DeterministicVerdict(
+                FailureCategory.AuthenticationIssue, 85,
+                $"The step before this one made an API call that was refused with {precedingAuth.StatusCode}.",
+                $"{precedingAuth.Describe()} — the session was not accepted, so the page had "
+                + "nothing to render.",
+                $"{Cite(api.FailedDuringPrecedingStep)}, made by step "
+                + $"{api.FailingActionOrder - 1}. Engine message: {message}",
+                "Check the test account's permissions and this environment's session lifetime.",
+                IsLikelyApplicationDefect: false, IsHealable: false);
+        }
+
+        if (!IsLocatorMiss(lowered)
+            && api.FailedDuringPrecedingStep.FirstOrDefault(c => c.IsClientError) is { } precedingClient)
+        {
+            return new DeterministicVerdict(
+                FailureCategory.ApplicationDefect, 80,
+                $"The step before this one made an API call that was rejected with {precedingClient.StatusCode}.",
+                $"{precedingClient.Describe()} — either the request the application sent was wrong, "
+                + "or the data the test used is not acceptable to this endpoint.",
+                $"{Cite(api.FailedDuringPrecedingStep)}, made by step "
+                + $"{api.FailingActionOrder - 1}. Engine message: {message}",
+                "Read the request in the network evidence before looking at the failing step.",
+                IsLikelyApplicationDefect: true, IsHealable: false);
+        }
+
+        // The interesting negative. The data arrived correctly and the page still showed
+        // something else, which points at the front end rather than the service — and
+        // saves whoever reads this from starting with the API.
+        if (api.EveryCallDuringFailingStepSucceeded && IsAssertionFailure(input.FailingAction, lowered))
+        {
+            return new DeterministicVerdict(
+                FailureCategory.ApplicationDefect, 80,
+                "The API answered correctly and the page showed something else.",
+                $"Every API call the failing step made succeeded ({Cite(api.DuringFailingStep)}), "
+                + "so the data was right and what was rendered from it was not. The defect is in "
+                + "the front end rather than the service.",
+                $"{api.DuringFailingStep.Count} API call(s) during the failing step, all successful. "
+                + $"Engine message: {message}",
+                "Compare the response body in the network evidence with what the failure "
+                + "screenshot shows. Start with the rendering, not the endpoint.",
+                IsLikelyApplicationDefect: true, IsHealable: false);
+        }
+
         if (input.ServerErrorCount > 0)
         {
             return new DeterministicVerdict(
                 FailureCategory.ApplicationDefect, 90,
                 "The application returned server errors during this execution.",
-                $"{input.ServerErrorCount} request(s) failed with a 5xx status. The fault is in the application or a service it depends on.",
-                $"{input.ServerErrorCount} server error response(s) recorded in the network evidence.",
+                $"{input.ServerErrorCount} request(s) failed with a 5xx status. The fault is in the application or a service it depends on. "
+                + "These were not made by the step that failed, so they are a cause rather than the immediate one.",
+                $"{input.ServerErrorCount} server error response(s) recorded in the network evidence"
+                + (api.FailedElsewhere.Count > 0 ? $": {Cite(api.FailedElsewhere)}." : "."),
                 "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
                 IsLikelyApplicationDefect: true, IsHealable: false);
         }
@@ -128,8 +279,12 @@ public static class DeterministicFailureClassifier
             // expire produces this same symptom — the page becomes the sign-in page and
             // the element vanishes — and they deserve both facts rather than one of them
             // chosen for them.
+            var refusedDuringThisStep = api.FailedDuringFailingStep.Where(c => c.IsAuthError).ToList();
             var authNote = input.AuthErrorCount > 0
                 ? $" {input.AuthErrorCount} request(s) also returned 401 or 403, which is ordinary on a signed-out page but would also follow a session that expired mid-test."
+                  + (refusedDuringThisStep.Count > 0
+                      ? $" The failing step itself made {Cite(refusedDuringThisStep)}."
+                      : string.Empty)
                 : string.Empty;
 
             return new DeterministicVerdict(
@@ -193,6 +348,15 @@ public static class DeterministicFailureClassifier
             string.IsNullOrWhiteSpace(message) ? "No error message was recorded." : message,
             "Review the failure screenshot, DOM snapshot and trace for this execution.",
             IsLikelyApplicationDefect: false, IsHealable: false);
+    }
+
+    /// <summary>Names the calls a verdict is talking about, so a reader can find them.
+    /// At most three: a verdict that lists twenty requests is not a verdict.</summary>
+    private static string Cite(IReadOnlyList<CorrelatedApiCall> calls)
+    {
+        if (calls.Count == 0) return "no API calls";
+        var named = string.Join("; ", calls.Take(3).Select(c => c.Describe()));
+        return calls.Count > 3 ? $"{named}; and {calls.Count - 3} more" : named;
     }
 
     /// <summary>True when the step that failed was an assertion.

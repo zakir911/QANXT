@@ -1,0 +1,36 @@
+{
+  "testId": "DET-011",
+  "suite": "Failure detection",
+  "runId": "2026-09-22T07-31-56Z",
+  "objective": "A missing element failure is detected and reported as a failure",
+  "preconditions": [
+    "the failure lab is running",
+    "the test targets /case/missing-element"
+  ],
+  "input": "The same four-step test: open /case/missing-element, press the button, expect \"OK 42\"",
+  "expected": "The run FAILS, with the failing step, an error message and a screenshot",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failed, 3/4 steps; failed at step 4 (assertText): testId=\"outcome\" could not be used: No element matched testId=\"outcome\".; 2 screenshot(s); classified locatorChange",
+  "metrics": {
+    "screenshots": 2,
+    "consoleErrors": 0
+  },
+  "startedAt": "2026-09-22T07:38:36.702Z",
+  "durationMs": 18074,
+  "build": {
+    "commit": "fbe49d1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DET-011-execution.json",
+      "path": "evidence/DET-011/2026-09-22T07-31-56Z/DET-011-execution.json",
+      "bytes": 2388,
+      "sha256": "9fcd079d5955d3f25fa6f745e7cee73eef61d6507adf22fed6e32c8a16db5b28"
+    }
+  ]
+}

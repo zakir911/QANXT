@@ -861,6 +861,15 @@
       "healable": false,
       "contractChange": "nonBreaking",
       "detail": "Each account gains a nickname field."
+    },
+    {
+      "id": "FAULT_TRANSACTIONS_API_500",
+      "affects": [
+        "/accounts/:id",
+        "/api/accounts/{id}/transactions"
+      ],
+      "healable": false,
+      "detail": "Sign-in still works; the transactions call the account page makes answers 500."
     }
   ],
   "expectedFailures": [

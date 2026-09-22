@@ -1,0 +1,14 @@
+{
+  "summary": "The step failed because the API call it made returned 500.",
+  "likelyCause": "POST /api/session → 500 in 4ms — the fault is in the application or a service it depends on, not in the test.",
+  "evidence": "The failing step made 1 API call(s); POST /api/session → 500 in 4ms. Engine message: POST http://localhost:4300/api/session returned 500 Internal Server Error.",
+  "suggestedAction": "Take this request to the team that owns the endpoint. Re-running will not help until the service is fixed.",
+  "category": "applicationDefect",
+  "confidence": 95,
+  "isLikelyApplicationDefect": true,
+  "isHealable": false,
+  "producedByAi": false,
+  "provider": "local",
+  "model": "aira-rules-v1",
+  "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"508df59d-0a50-49c4-abdb-5f9c08cc46f6\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"afb46a24-e345-434b-8fe6-7f2e3efafa42\", \"kind\": \"Other\", \"name\": \"step-1-request.http.json\"}, {\"id\": \"c96ea56b-af98-49fd-84f0-5ce588700bbd\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"3ddc7a40-781f-4c0a-a62a-3536bafa36c3\"}"
+}
