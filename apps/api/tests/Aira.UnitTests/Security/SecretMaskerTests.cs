@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Aira.Application.Security;
 using FluentAssertions;
 using Xunit;
@@ -107,6 +108,53 @@ public class SecretMaskerTests
         var masked = _masker.MaskJson(json);
         masked.Should().NotContain("sk_live_abcdef1234567890");
         masked.Should().Contain("fine");
+    }
+
+    [Fact]
+    public void MaskJson_keeps_the_type_of_every_value_it_redacts()
+    {
+        // Masking hides values; it does not change shapes. The contract check compares
+        // masked bodies, so a masker that rewrote a null as a string made a field becoming
+        // nullable invisible and would have invented type changes where there were none
+        // (BUG-0024).
+        const string json = @"{""sortCode"":null,""secret"":42,""pin"":true,""visible"":true,""apiKey"":""sk_live_abc"",""note"":""fine""}";
+
+        using var masked = JsonDocument.Parse(_masker.MaskJson(json));
+        var root = masked.RootElement;
+
+        root.GetProperty("sortCode").ValueKind.Should().Be(JsonValueKind.Null);
+        root.GetProperty("secret").ValueKind.Should().Be(JsonValueKind.Number);
+        root.GetProperty("secret").GetInt32().Should().Be(0);
+        root.GetProperty("pin").ValueKind.Should().Be(JsonValueKind.False);
+        root.GetProperty("visible").ValueKind.Should().Be(JsonValueKind.True);
+        root.GetProperty("apiKey").ValueKind.Should().Be(JsonValueKind.String);
+        root.GetProperty("apiKey").GetString().Should().NotContain("sk_live_abc");
+        root.GetProperty("note").GetString().Should().Be("fine");
+    }
+
+    [Fact]
+    public void MaskJson_redacts_everything_inside_a_sensitive_object_while_keeping_its_shape()
+    {
+        const string json = @"{""credentials"":{""user"":""alice"",""rotations"":7,""active"":true,""expiresAt"":null},""safe"":""value""}";
+
+        using var masked = JsonDocument.Parse(_masker.MaskJson(json));
+        var credentials = masked.RootElement.GetProperty("credentials");
+
+        // Every value under a sensitive key is gone, and the structure someone reading the
+        // evidence needs is still there.
+        credentials.ValueKind.Should().Be(JsonValueKind.Object);
+        credentials.GetProperty("user").GetString().Should().NotBe("alice");
+        credentials.GetProperty("rotations").GetInt32().Should().Be(0);
+        credentials.GetProperty("active").ValueKind.Should().Be(JsonValueKind.False);
+        credentials.GetProperty("expiresAt").ValueKind.Should().Be(JsonValueKind.Null);
+        masked.RootElement.GetProperty("safe").GetString().Should().Be("value");
+    }
+
+    [Fact]
+    public void MaskJson_redacts_a_sensitive_field_nested_below_another_sensitive_one()
+    {
+        const string json = @"{""token"":{""inner"":{""value"":""leaky-value""}}}";
+        _masker.MaskJson(json).Should().NotContain("leaky-value");
     }
 
     [Fact]

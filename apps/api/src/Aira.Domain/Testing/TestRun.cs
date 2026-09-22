@@ -33,6 +33,13 @@ public class TestRun : BaseEntity, ITenantOwned, IAuditable
 
     /// <summary>Null until the run completes and the gates are evaluated.</summary>
     public bool? QualityGatePassed { get; set; }
+
+    /// <summary>When a contract check was performed against this run's evidence, and what
+    /// it found. Null means no check ran — which is a different statement from "no breaking
+    /// changes", and the quality gate treats it as one.</summary>
+    public DateTimeOffset? ContractCheckedAt { get; set; }
+    public int ContractBreakingChangeCount { get; set; }
+    public int ContractPotentiallyBreakingChangeCount { get; set; }
     public string? QualityGateSummaryJson { get; set; }
 
     // ---- CI/CD provenance ----------------------------------------------------

@@ -119,6 +119,49 @@ public class ApiEndpointConfiguration : IEntityTypeConfiguration<ApiEndpoint>
     }
 }
 
+public class ApiContractConfiguration : IEntityTypeConfiguration<ApiContract>
+{
+    public void Configure(EntityTypeBuilder<ApiContract> b)
+    {
+        b.ToTable("api_contracts");
+        b.Property(x => x.Method).HasMaxLength(10).IsRequired();
+        b.Property(x => x.UrlTemplate).HasMaxLength(2048).IsRequired();
+        b.Property(x => x.ResponseSchemaJson).HasColumnType("jsonb").IsRequired();
+        b.Property(x => x.RequestSchemaJson).HasColumnType("jsonb");
+        b.Property(x => x.ResponseContentType).HasMaxLength(120);
+        b.Property(x => x.SourceSampleSha256).HasMaxLength(64);
+        b.Property(x => x.Note).HasMaxLength(1000);
+        // The comparison always asks for one endpoint's current baseline, and a filtered
+        // index keeps that a single-row lookup however much history accumulates.
+        b.HasIndex(x => new { x.ApplicationId, x.Method, x.UrlTemplate, x.IsBaseline });
+        b.HasIndex(x => x.ApiEndpointId);
+        b.HasOne(x => x.Application).WithMany()
+            .HasForeignKey(x => x.ApplicationId).OnDelete(DeleteBehavior.Cascade);
+        b.HasOne(x => x.ApiEndpoint).WithMany()
+            .HasForeignKey(x => x.ApiEndpointId).OnDelete(DeleteBehavior.SetNull);
+    }
+}
+
+public class ApiContractChangeConfiguration : IEntityTypeConfiguration<ApiContractChange>
+{
+    public void Configure(EntityTypeBuilder<ApiContractChange> b)
+    {
+        b.ToTable("api_contract_changes");
+        b.Property(x => x.Method).HasMaxLength(10).IsRequired();
+        b.Property(x => x.UrlTemplate).HasMaxLength(2048).IsRequired();
+        b.Property(x => x.Path).HasMaxLength(500).IsRequired();
+        b.Property(x => x.BaselineType).HasMaxLength(120);
+        b.Property(x => x.ObservedType).HasMaxLength(120);
+        b.Property(x => x.Description).HasMaxLength(2000).IsRequired();
+        b.Property(x => x.AcknowledgementNote).HasMaxLength(1000);
+        // The gate asks "how many breaking changes did this run find?" on every evaluation.
+        b.HasIndex(x => new { x.TestRunId, x.Kind });
+        b.HasIndex(x => new { x.ApplicationId, x.DetectedAt });
+        b.HasOne(x => x.BaselineContract).WithMany()
+            .HasForeignKey(x => x.BaselineContractId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
 public class JourneyConfiguration : IEntityTypeConfiguration<Journey>
 {
     public void Configure(EntityTypeBuilder<Journey> b)

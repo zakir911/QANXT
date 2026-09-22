@@ -1,0 +1,55 @@
+{
+  "applicationId": "01c4a6c8-0311-4d32-9d66-d04b2b8883bb",
+  "suiteName": "API — from the pipeline",
+  "tests": [
+    {
+      "name": "Dashboard totals answer for a signed-in session",
+      "objective": "The dashboard endpoint answers and reports a balance",
+      "priority": "high",
+      "steps": [
+        {
+          "description": "Sign in",
+          "request": {
+            "method": "POST",
+            "path": "/api/session",
+            "contentType": "application/json",
+            "body": "{\"username\":\"alice\",\"password\":\"${secret:app_password}\"}",
+            "auth": {
+              "mode": "none"
+            }
+          },
+          "assertions": [
+            {
+              "type": "httpStatusEquals",
+              "expected": "200"
+            }
+          ]
+        },
+        {
+          "description": "Read the dashboard",
+          "request": {
+            "method": "GET",
+            "path": "/api/dashboard",
+            "auth": {
+              "mode": "none"
+            }
+          },
+          "assertions": [
+            {
+              "type": "httpStatusEquals",
+              "expected": "200"
+            },
+            {
+              "type": "responseJsonPathExists",
+              "subject": "totalBalance"
+            },
+            {
+              "type": "responseJsonPathExists",
+              "subject": "accounts[0].name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

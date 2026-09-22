@@ -1,0 +1,73 @@
+{
+  "id": "1a65b6ae-6e21-4965-90be-775d6bbb6bc9",
+  "reference": "TC-0002",
+  "name": "GET http://localhost:4300/api/session answers as observed",
+  "objective": "The endpoint answers 200 with the fields it carried when discovery saw it 13 time(s).",
+  "preconditions": "",
+  "expectedResults": "",
+  "kind": "api",
+  "priority": "medium",
+  "risk": "medium",
+  "tags": "api,generated,smoke",
+  "source": "manual",
+  "isEnabled": true,
+  "version": 1,
+  "requirementReference": "",
+  "testSuiteId": "7e1f880c-dc6c-4f8c-85e2-882a869ad8bb",
+  "applicationId": "32f54426-b2bd-4b32-aae4-2e707598b874",
+  "statistics": {
+    "executionCount": 0,
+    "passCount": 0,
+    "failCount": 0,
+    "healCount": 0,
+    "flakinessScore": 0,
+    "averageDurationMs": 0
+  },
+  "steps": [
+    {
+      "id": "3c874a48-4096-4e1b-b40a-2da1ef81610d",
+      "order": 1,
+      "description": "GET http://localhost:4300/api/session",
+      "action": "apiRequest",
+      "isCritical": true,
+      "continueOnFailure": false,
+      "healCount": 0,
+      "apiRequest": {
+        "method": "GET",
+        "path": "/api/session",
+        "auth": {
+          "mode": "none"
+        }
+      },
+      "assertions": [
+        {
+          "id": "3e8565f1-fb0c-4e97-93e6-5425dd5d2872",
+          "type": "responseJsonPathExists",
+          "expectedValue": "",
+          "attributeName": "error",
+          "negate": false,
+          "isSoft": false,
+          "description": "\"error\" is still present in the response"
+        },
+        {
+          "id": "574b00f9-3786-4e8c-b928-99b37302b4fa",
+          "type": "responseTimeUnderMs",
+          "expectedValue": "2000",
+          "attributeName": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The response arrives within 2000ms (ten times the 0ms observed, floored at 2000ms)"
+        },
+        {
+          "id": "5a29f41a-f6eb-4af7-bbc3-0f82e7c935cf",
+          "type": "httpStatusEquals",
+          "expectedValue": "200",
+          "attributeName": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The endpoint still answers 200, as it did when it was observed"
+        }
+      ]
+    }
+  ]
+}

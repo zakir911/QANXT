@@ -291,6 +291,40 @@ export async function requireApiTest(tenant, body) {
   return response.json;
 }
 
+/** The observed API surface, with coverage and baseline status per endpoint. */
+export async function apiInventory(tenant, applicationId) {
+  const response = await request(`/api/v1/api-contracts/inventory?applicationId=${applicationId}`, {
+    token: tenant.token
+  });
+  if (!response.ok) throw new Error(`could not read the API inventory: ${response.status} ${response.text.slice(0, 200)}`);
+  return response.json;
+}
+
+/** Accepts the currently observed response shapes as the contract to compare against. */
+export async function captureBaselines(tenant, body) {
+  const response = await request('/api/v1/api-contracts/baselines', {
+    token: tenant.token, method: 'POST', body
+  });
+  if (!response.ok) throw new Error(`could not capture baselines: ${response.status} ${response.text.slice(0, 300)}`);
+  return response.json;
+}
+
+/** What a run's contract check found. */
+export async function contractChanges(tenant, testRunId) {
+  const response = await request(`/api/v1/api-contracts/changes/run/${testRunId}`, { token: tenant.token });
+  if (!response.ok) throw new Error(`could not read contract changes: ${response.status} ${response.text.slice(0, 200)}`);
+  return response.json;
+}
+
+/** Writes API tests from the observed inventory. */
+export async function generateApiTests(tenant, body) {
+  const response = await request('/api/v1/testcases/api-tests/generate', {
+    token: tenant.token, method: 'POST', body
+  });
+  if (!response.ok) throw new Error(`could not generate API tests: ${response.status} ${response.text.slice(0, 300)}`);
+  return response.json;
+}
+
 /** One environment for a project, so an API test has an API base URL to resolve against. */
 export async function createEnvironment(tenant, projectId, body) {
   const response = await request('/api/v1/environments', {

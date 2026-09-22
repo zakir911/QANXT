@@ -9,6 +9,7 @@ import { RUN_HELP, runCommand } from './commands/run.js';
 import { STATUS_HELP, statusCommand } from './commands/status.js';
 import { QUALITY_GATE_HELP, qualityGateCommand } from './commands/quality-gate.js';
 import { API_TEST_HELP, apiTestCommand } from './commands/api-test.js';
+import { CONTRACT_HELP, contractCommand } from './commands/contract.js';
 import { appsCommand, environmentsCommand, LIST_HELP, projectsCommand } from './commands/list.js';
 
 /**
@@ -31,7 +32,8 @@ ${bold(`${PRODUCT} command line`)} ${dim(`v${VERSION}`)}
   aira apps                 List the applications in a project
   aira environments         List a project's environments
   aira discover             Crawl an application and refresh its knowledge graph
-  aira api-test             Author and run API tests
+  aira api-test             Author, generate and run API tests
+  aira contract             API contract baselines, and what has moved since
   aira run                  Start a test run, wait for it, write reports
   aira status [run-id]      What a run did, or what the recent runs did
   aira quality-gate         Evaluate a finished run against its gate
@@ -57,6 +59,7 @@ const COMMAND_HELP: Record<string, string> = {
   login: LOGIN_HELP,
   discover: DISCOVER_HELP,
   'api-test': API_TEST_HELP,
+  contract: CONTRACT_HELP,
   run: RUN_HELP,
   status: STATUS_HELP,
   'quality-gate': QUALITY_GATE_HELP,
@@ -70,6 +73,7 @@ const COMMANDS: Record<string, (args: ReturnType<typeof parseArgs>) => Promise<n
   login: loginCommand,
   discover: discoverCommand,
   'api-test': apiTestCommand,
+  contract: contractCommand,
   run: runCommand,
   status: statusCommand,
   'quality-gate': qualityGateCommand,

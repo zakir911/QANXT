@@ -30,7 +30,15 @@ const FAULTS = [
   { id: 'FAULT_SESSION_TIMEOUT', description: 'The next authenticated request finds the session expired.' },
   { id: 'FAULT_PAYMENT_SILENT_FAILURE', description: 'A payment reports success but is never applied.' },
   { id: 'FAULT_EMPTY_TRANSACTIONS', description: 'Transaction lists come back empty.' },
-  { id: 'FAULT_PROMPT_INJECTION', description: 'The application renders text that tries to give instructions to whatever is reading the page.' }
+  { id: 'FAULT_PROMPT_INJECTION', description: 'The application renders text that tries to give instructions to whatever is reading the page.' },
+
+  // Contract faults. These change the *shape* of a response rather than its values, which
+  // is the class of change a contract check exists to find: the endpoint still answers 200,
+  // every UI assertion still passes, and a caller parsing the response has broken.
+  { id: 'FAULT_API_FIELD_REMOVED', description: 'The accounts API stops returning sortCode. Breaking: a caller reading it finds nothing.' },
+  { id: 'FAULT_API_FIELD_TYPE_CHANGED', description: 'The accounts API returns balance as a string instead of a number. Breaking: a caller parsing it as a number fails.' },
+  { id: 'FAULT_API_FIELD_NULLABLE', description: 'The accounts API returns null for one account\'s sortCode. Potentially breaking: only callers without a null check fail.' },
+  { id: 'FAULT_API_FIELD_ADDED', description: 'The accounts API gains a nickname field. Non-breaking: nobody was reading it.' }
 ];
 
 const faults = createFaultEngine(FAULTS);
@@ -216,7 +224,38 @@ app.get('/api/dashboard', authenticated((ctx) => {
   });
 }));
 
-app.get('/api/accounts', authenticated(ctx => ctx.json(200, { accounts: accountsFor(ctx.user.id) })));
+app.get('/api/accounts', authenticated(ctx => ctx.json(200, {
+  accounts: accountsFor(ctx.user.id).map(contractFaults)
+})));
+
+/**
+ * Applies whichever contract fault is switched on to one account.
+ *
+ * Each of these keeps the status at 200 and the endpoint working. That is the point: a
+ * contract change is invisible to a status check and to every assertion about the page, and
+ * is the thing a caller notices in production.
+ */
+function contractFaults(account, index) {
+  let result = { ...account };
+
+  if (faults.on('FAULT_API_FIELD_REMOVED')) {
+    const { sortCode, ...withoutSortCode } = result;
+    result = withoutSortCode;
+  }
+  if (faults.on('FAULT_API_FIELD_TYPE_CHANGED')) {
+    result = { ...result, balance: result.balance.toFixed(2) };
+  }
+  if (faults.on('FAULT_API_FIELD_NULLABLE') && index === 0) {
+    // One account only, so the response holds both a string and a null at the same path —
+    // which is what makes the field nullable rather than simply changed.
+    result = { ...result, sortCode: null };
+  }
+  if (faults.on('FAULT_API_FIELD_ADDED')) {
+    result = { ...result, nickname: `${result.name} (nickname)` };
+  }
+
+  return result;
+}
 
 app.get('/api/accounts/:id', authenticated((ctx) => {
   const account = accountsFor(ctx.user.id).find(candidate => candidate.id === ctx.params.id);

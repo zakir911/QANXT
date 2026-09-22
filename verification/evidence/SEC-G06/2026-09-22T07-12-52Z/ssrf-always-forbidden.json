@@ -1,0 +1,32 @@
+[
+  {
+    "url": "http://169.254.169.254/latest/meta-data/",
+    "status": 400,
+    "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target\",\"status\":400,"
+  },
+  {
+    "url": "http://metadata.google.internal/computeMetadata/v1/",
+    "status": 400,
+    "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: the host is a cloud metadata endpoint\",\"status\":400,\"correlationId\":\"ae19adc561d64194957efac"
+  },
+  {
+    "url": "http://0.0.0.0:5080/",
+    "status": 400,
+    "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 0.0.0.0/8 is reserved and is never a permitted target\",\"status\":400,\"correlationId\":\"91a27e7"
+  },
+  {
+    "url": "file:///etc/passwd",
+    "status": 400,
+    "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: scheme 'file' is not permitted (http and https only)\",\"status\":400,\"correlationId\":\"dca39ca4"
+  },
+  {
+    "url": "ftp://example.com/",
+    "status": 400,
+    "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: scheme 'ftp' is not permitted (http and https only)\",\"status\":400,\"correlationId\":\"b24b78abb"
+  },
+  {
+    "url": "gopher://127.0.0.1:11211/",
+    "status": 400,
+    "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: scheme 'gopher' is not permitted (http and https only)\",\"status\":400,\"correlationId\":\"aeaebb"
+  }
+]

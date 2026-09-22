@@ -1,0 +1,94 @@
+{
+  "id": "ae83ecbc-39b7-4c12-acd7-f7eac57b6f70",
+  "testRunId": "920b5866-6190-4de5-a0a4-9cebad0657b5",
+  "testCaseId": "bc127374-3848-4d79-9cca-0e2da14250a4",
+  "reference": "TC-0002",
+  "name": "Accounts endpoint answers for a signed-in session",
+  "objective": "",
+  "expectedResults": "",
+  "status": "failed",
+  "startedAt": "2026-09-22T07:13:01.608668+00:00",
+  "completedAt": "2026-09-22T07:13:01.629+00:00",
+  "durationMs": 18,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-2107",
+  "correlationId": "581212c0d66b46ebb67fbc86a102b171",
+  "stepsTotal": 2,
+  "stepsPassed": 0,
+  "stepsFailed": 1,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 1,
+  "errorMessage": "POST http://localhost:4300/api/session returned 500 Internal Server Error.",
+  "actions": [
+    {
+      "id": "6fdf3dfb-119d-488b-984d-b7716c18c280",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "Sign in through the API",
+      "status": "failed",
+      "startedAt": "2026-09-22T07:13:01.615+00:00",
+      "durationMs": 4,
+      "url": "http://localhost:4300/api/session",
+      "wasHealed": false,
+      "errorMessage": "POST http://localhost:4300/api/session returned 500 Internal Server Error."
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "1b149402-fbaf-40ec-8997-9d39bd767015",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 989,
+      "isMasked": false
+    },
+    {
+      "id": "3792baf5-2197-4ffe-a9cd-c3e00ac61226",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 736,
+      "isMasked": true,
+      "testActionId": "6fdf3dfb-119d-488b-984d-b7716c18c280"
+    },
+    {
+      "id": "49b47af2-bf4f-4214-8993-1aa2b073de30",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 874,
+      "isMasked": true
+    }
+  ],
+  "failure": {
+    "id": "941953df-712d-4977-bd44-f071df0d0702",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "POST http://localhost:4300/api/session returned 500 Internal Server Error.",
+    "signature": "b7a13b71f0d1af1778ce59e281cba3e9c45c2b0d57a892c50a5c5397d7484424",
+    "isNewFailure": true,
+    "isRegression": true,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-22T07:13:01.646818+00:00",
+    "lastSeenAt": "2026-09-22T07:13:01.646819+00:00",
+    "analysis": {
+      "summary": "The application returned server errors during this execution.",
+      "likelyCause": "1 request(s) failed with a 5xx status. The fault is in the application or a service it depends on.",
+      "evidence": "1 server error response(s) recorded in the network evidence.",
+      "suggestedAction": "Take the network evidence to the application team. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1b149402-fbaf-40ec-8997-9d39bd767015\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"3792baf5-2197-4ffe-a9cd-c3e00ac61226\", \"kind\": \"Other\", \"name\": \"step-1-request.http.json\"}, {\"id\": \"49b47af2-bf4f-4214-8993-1aa2b073de30\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"ae83ecbc-39b7-4c12-acd7-f7eac57b6f70\"}"
+    }
+  },
+  "healingEvents": []
+}

@@ -42,6 +42,8 @@ public interface IAiraDbContext
     DbSet<PageTransition> PageTransitions { get; }
     DbSet<ApplicationElement> ApplicationElements { get; }
     DbSet<ApiEndpoint> ApiEndpoints { get; }
+    DbSet<ApiContract> ApiContracts { get; }
+    DbSet<ApiContractChange> ApiContractChanges { get; }
     DbSet<Journey> Journeys { get; }
     DbSet<JourneyStep> JourneySteps { get; }
 

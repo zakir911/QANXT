@@ -250,7 +250,7 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
 
         var flakyRate = finished == 0 ? 0m : run.FlakyCount * 100m / finished;
 
-        return new Dictionary<QualityGateMetric, decimal>
+        var metrics = new Dictionary<QualityGateMetric, decimal>
         {
             [QualityGateMetric.HighFailedCount] = highFailed,
             [QualityGateMetric.MediumFailedCount] = mediumFailed,
@@ -268,6 +268,16 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
             [QualityGateMetric.HealedCount] = run.HealedCount,
             [QualityGateMetric.AverageDurationMs] = Math.Round(averageDuration, 0)
         };
+
+        // Added only when a contract check actually ran against this run's evidence.
+        // "No breaking changes" and "nobody looked" are different statements, and a rule
+        // that cannot tell them apart is a rule that always passes (BUG-0021).
+        if (run.ContractCheckedAt is not null)
+        {
+            metrics[QualityGateMetric.ContractBreakingChangeCount] = run.ContractBreakingChangeCount;
+        }
+
+        return metrics;
     }
 
     /// <summary>What the project's self-healing policy says about this run.

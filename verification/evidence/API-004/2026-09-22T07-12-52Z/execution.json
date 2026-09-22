@@ -1,0 +1,66 @@
+{
+  "id": "8002808d-fcf1-460c-8818-fa482e6a99d0",
+  "testRunId": "1b3dedde-53a3-4744-be46-7015d278b45a",
+  "testCaseId": "b43ec52f-2ed3-4de9-bfc5-29a4cb10e24a",
+  "reference": "TC-0003",
+  "name": "The accounts endpoint refuses an unauthenticated caller",
+  "objective": "",
+  "expectedResults": "",
+  "status": "passed",
+  "startedAt": "2026-09-22T07:12:59.564675+00:00",
+  "completedAt": "2026-09-22T07:12:59.583+00:00",
+  "durationMs": 16,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-2107",
+  "correlationId": "f422ef42e8a94188b1fedf329a7638c6",
+  "stepsTotal": 1,
+  "stepsPassed": 1,
+  "stepsFailed": 0,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 1,
+  "actions": [
+    {
+      "id": "8d6fb2a2-3967-4578-af78-8f225df42d2d",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "Read the accounts with no credentials at all — 401 in 1ms",
+      "status": "passed",
+      "startedAt": "2026-09-22T07:12:59.57+00:00",
+      "durationMs": 3,
+      "url": "http://localhost:4300/api/accounts",
+      "wasHealed": false
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "48a6078b-b4c6-4b94-88d2-aebd8e522812",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 573,
+      "isMasked": true,
+      "testActionId": "8d6fb2a2-3967-4578-af78-8f225df42d2d"
+    },
+    {
+      "id": "4e673df6-590b-42e8-b815-c0c499cd3533",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 987,
+      "isMasked": false
+    },
+    {
+      "id": "aee05e5b-0830-45a1-beef-d26667982e87",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 715,
+      "isMasked": true
+    }
+  ],
+  "healingEvents": []
+}

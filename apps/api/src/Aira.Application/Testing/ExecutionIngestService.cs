@@ -37,11 +37,13 @@ public sealed class ExecutionIngestService : IExecutionIngestService
     private readonly IExecutionEventPublisher _events;
     private readonly IFailureAnalysisService _failureAnalysis;
     private readonly IQualityGateEvaluator _qualityGates;
+    private readonly Applications.IApiContractService _contracts;
     private readonly ILogger<ExecutionIngestService> _logger;
 
     public ExecutionIngestService(IAiraDbContext db, IClock clock, SecretMasker masker,
         IExecutionEventPublisher events, IFailureAnalysisService failureAnalysis,
-        IQualityGateEvaluator qualityGates, ILogger<ExecutionIngestService> logger)
+        IQualityGateEvaluator qualityGates, Applications.IApiContractService contracts,
+        ILogger<ExecutionIngestService> logger)
     {
         _db = db;
         _clock = clock;
@@ -49,6 +51,7 @@ public sealed class ExecutionIngestService : IExecutionIngestService
         _events = events;
         _failureAnalysis = failureAnalysis;
         _qualityGates = qualityGates;
+        _contracts = contracts;
         _logger = logger;
     }
 
@@ -426,6 +429,12 @@ public sealed class ExecutionIngestService : IExecutionIngestService
 
         await _db.SaveChangesAsync(ct);
 
+        // Contract checking happens before the gate, because the gate has a rule about what
+        // it finds. It is skipped silently when the application has no baselines: a check
+        // with nothing to compare against would record "no breaking changes", and that
+        // sentence would be read as an assurance rather than as an absence of information.
+        await CheckContractsAsync(run, ct);
+
         var gate = await _qualityGates.EvaluateAsync(run.Id, ct);
         run.QualityGatePassed = gate.Passed;
         run.QualityGateSummaryJson = JsonSerializer.Serialize(gate, JsonDefaults.Options);
@@ -441,6 +450,61 @@ public sealed class ExecutionIngestService : IExecutionIngestService
 
         _logger.LogInformation("Run {RunId} finished: {Passed} passed, {Failed} failed, {Healed} healed; gate {Gate}",
             run.Id, run.PassedCount, run.FailedCount, run.HealedCount, gate.Passed ? "passed" : "failed");
+    }
+
+    /// <summary>Compares the responses this run observed against the stored contract
+    /// baselines, and records on the run that it did.
+    ///
+    /// A failure here never fails the run. The contract check is an observation about the
+    /// application's interface; if it cannot be made, the right outcome is that the run
+    /// says so, not that a working release is reported as broken.</summary>
+    private async Task CheckContractsAsync(TestRun run, CancellationToken ct)
+    {
+        try
+        {
+            var applicationIds = await _db.TestExecutions
+                .Where(e => e.TestRunId == run.Id)
+                .Select(e => e.TestCase!.ApplicationId)
+                .Where(id => id != null)
+                .Distinct()
+                .ToListAsync(ct);
+
+            var hasBaseline = await _db.ApiContracts
+                .AnyAsync(c => c.IsBaseline && applicationIds.Contains(c.ApplicationId), ct);
+
+            if (!hasBaseline)
+            {
+                _logger.LogDebug("Run {RunId}: no contract baselines, so no contract check was performed.", run.Id);
+                return;
+            }
+
+            var result = await _contracts.CheckRunAsync(run.Id, ct);
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Run {RunId}: the contract check could not be performed: {Error}",
+                    run.Id, result.Error!.Message);
+                return;
+            }
+
+            run.ContractCheckedAt = _clock.UtcNow;
+            run.ContractBreakingChangeCount = result.Value!.BreakingCount;
+            run.ContractPotentiallyBreakingChangeCount = result.Value.PotentiallyBreakingCount;
+            await _db.SaveChangesAsync(ct);
+
+            if (result.Value.BreakingCount > 0)
+            {
+                _logger.LogWarning(
+                    "Run {RunId}: the contract check found {Breaking} breaking and {Potential} potentially "
+                    + "breaking change(s) across {Endpoints} endpoint(s).",
+                    run.Id, result.Value.BreakingCount, result.Value.PotentiallyBreakingCount,
+                    result.Value.EndpointsWithBaseline);
+            }
+        }
+        catch (Exception error)
+        {
+            // Reported, not swallowed, and not turned into a test failure.
+            _logger.LogError(error, "Run {RunId}: the contract check threw.", run.Id);
+        }
     }
 
     private static bool IsPass(ExecutionStatus status)

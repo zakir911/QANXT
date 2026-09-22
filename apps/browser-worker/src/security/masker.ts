@@ -97,16 +97,31 @@ export class SecretMasker {
     }
   }
 
-  private maskValue(value: unknown): unknown {
-    if (Array.isArray(value)) return value.map(item => this.maskValue(item));
+  /**
+   * Masks a parsed value, hiding what it holds without changing what shape it is.
+   *
+   * A redacted string stays a string, a redacted number stays a number, a null stays null,
+   * and a sensitive object keeps its structure with every value inside it redacted. The
+   * control plane's contract check compares masked bodies, so a masker that rewrote
+   * `"sortCode": null` as a string made a field becoming nullable invisible and would have
+   * invented type changes where there were none (BUG-0024).
+   */
+  private maskValue(value: unknown, forceRedact = false): unknown {
+    if (Array.isArray(value)) return value.map(item => this.maskValue(item, forceRedact));
+
     if (value && typeof value === 'object') {
       const out: Record<string, unknown> = {};
       for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
-        out[key] = isSensitiveField(key) ? REDACTED : this.maskValue(item);
+        // Once inside a sensitive subtree, everything below it is redacted too.
+        out[key] = this.maskValue(item, forceRedact || isSensitiveField(key));
       }
       return out;
     }
-    if (typeof value === 'string') return this.maskText(value);
+
+    if (value === null) return null;
+    if (typeof value === 'string') return forceRedact ? REDACTED : this.maskText(value);
+    if (typeof value === 'number') return forceRedact ? 0 : value;
+    if (typeof value === 'boolean') return forceRedact ? false : value;
     return value;
   }
 

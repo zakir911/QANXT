@@ -1,0 +1,35 @@
+{
+  "testId": "CON-002",
+  "suite": "API contracts",
+  "runId": "2026-09-22T07-04-25Z",
+  "objective": "Contract baselines are inferred from responses the application actually gave",
+  "preconditions": [
+    "discovery has observed the API"
+  ],
+  "input": "Capture baselines for every discovered endpoint",
+  "expected": "A baseline per endpoint with a usable JSON sample, each recording the fields that response carried; endpoints with no usable sample skipped rather than baselined as empty",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "14 baseline(s) captured, 0 skipped; GET /api/accounts v1 with 12 field(s)",
+  "metrics": {
+    "captured": 14,
+    "skipped": 0
+  },
+  "startedAt": "2026-09-22T07:04:55.374Z",
+  "durationMs": 391,
+  "build": {
+    "commit": "18918d1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "baselines.json",
+      "path": "evidence/CON-002/2026-09-22T07-04-25Z/baselines.json",
+      "bytes": 3395,
+      "sha256": "8b347c04367ff4846c573db52d0a4d7689903d8b2838a897b74f814dc117aaff"
+    }
+  ]
+}

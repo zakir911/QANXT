@@ -493,6 +493,226 @@ namespace Aira.Infrastructure.Persistence.Migrations
                     b.ToTable("ai_responses", (string)null);
                 });
 
+            modelBuilder.Entity("Aira.Domain.Applications.ApiContract", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("accepted_at");
+
+                    b.Property<Guid?>("AcceptedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("accepted_by_user_id");
+
+                    b.Property<Guid?>("ApiEndpointId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("api_endpoint_id");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("DiscoveryRunId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("discovery_run_id");
+
+                    b.Property<bool>("IsBaseline")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_baseline");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("method");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("note");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("RequestSchemaJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("request_schema_json");
+
+                    b.Property<string>("ResponseContentType")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("response_content_type");
+
+                    b.Property<string>("ResponseSchemaJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("response_schema_json");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer")
+                        .HasColumnName("source");
+
+                    b.Property<string>("SourceSampleSha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("source_sample_sha256");
+
+                    b.Property<int?>("StatusCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("status_code");
+
+                    b.Property<Guid?>("TestRunId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("test_run_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UrlTemplate")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("url_template");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_api_contracts");
+
+                    b.HasIndex("ApiEndpointId")
+                        .HasDatabaseName("ix_api_contracts_api_endpoint_id");
+
+                    b.HasIndex("ApplicationId", "Method", "UrlTemplate", "IsBaseline")
+                        .HasDatabaseName("ix_api_contracts_application_id_method_url_template_is_baseline");
+
+                    b.ToTable("api_contracts", (string)null);
+                });
+
+            modelBuilder.Entity("Aira.Domain.Applications.ApiContractChange", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("AcknowledgedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("acknowledged_at");
+
+                    b.Property<Guid?>("AcknowledgedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("acknowledged_by_user_id");
+
+                    b.Property<string>("AcknowledgementNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("acknowledgement_note");
+
+                    b.Property<Guid?>("ApiEndpointId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("api_endpoint_id");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
+                    b.Property<Guid>("BaselineContractId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("baseline_contract_id");
+
+                    b.Property<string>("BaselineType")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("baseline_type");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTimeOffset>("DetectedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("detected_at");
+
+                    b.Property<Guid?>("DiscoveryRunId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("discovery_run_id");
+
+                    b.Property<bool>("IsAcknowledged")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_acknowledged");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("method");
+
+                    b.Property<string>("ObservedType")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("observed_type");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("path");
+
+                    b.Property<Guid?>("TestRunId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("test_run_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UrlTemplate")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("url_template");
+
+                    b.HasKey("Id")
+                        .HasName("pk_api_contract_changes");
+
+                    b.HasIndex("BaselineContractId")
+                        .HasDatabaseName("ix_api_contract_changes_baseline_contract_id");
+
+                    b.HasIndex("ApplicationId", "DetectedAt")
+                        .HasDatabaseName("ix_api_contract_changes_application_id_detected_at");
+
+                    b.HasIndex("TestRunId", "Kind")
+                        .HasDatabaseName("ix_api_contract_changes_test_run_id_kind");
+
+                    b.ToTable("api_contract_changes", (string)null);
+                });
+
             modelBuilder.Entity("Aira.Domain.Applications.ApiEndpoint", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3695,6 +3915,18 @@ namespace Aira.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("completed_at");
 
+                    b.Property<int>("ContractBreakingChangeCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("contract_breaking_change_count");
+
+                    b.Property<DateTimeOffset?>("ContractCheckedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("contract_checked_at");
+
+                    b.Property<int>("ContractPotentiallyBreakingChangeCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("contract_potentially_breaking_change_count");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -4005,6 +4237,38 @@ namespace Aira.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_ai_responses_ai_requests_ai_request_id");
 
                     b.Navigation("Request");
+                });
+
+            modelBuilder.Entity("Aira.Domain.Applications.ApiContract", b =>
+                {
+                    b.HasOne("Aira.Domain.Applications.ApiEndpoint", "ApiEndpoint")
+                        .WithMany()
+                        .HasForeignKey("ApiEndpointId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_api_contracts_api_endpoints_api_endpoint_id");
+
+                    b.HasOne("Aira.Domain.Applications.Application", "Application")
+                        .WithMany()
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_api_contracts_applications_application_id");
+
+                    b.Navigation("ApiEndpoint");
+
+                    b.Navigation("Application");
+                });
+
+            modelBuilder.Entity("Aira.Domain.Applications.ApiContractChange", b =>
+                {
+                    b.HasOne("Aira.Domain.Applications.ApiContract", "BaselineContract")
+                        .WithMany()
+                        .HasForeignKey("BaselineContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_api_contract_changes_api_contracts_baseline_contract_id");
+
+                    b.Navigation("BaselineContract");
                 });
 
             modelBuilder.Entity("Aira.Domain.Applications.ApiEndpoint", b =>

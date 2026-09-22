@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { RunTrigger } from '@aira/shared-types';
 import { ApiClient } from '../api.js';
-import { boolFlag, flag, intFlag, rejectUnknownFlags, type ParsedArgs } from '../args.js';
+import { boolFlag, flag, flagAll, intFlag, rejectUnknownFlags, type ParsedArgs } from '../args.js';
 import { resolveContext } from '../config.js';
 import { ExitCode, usage } from '../exit-codes.js';
 import { bold, dim, green, note, out, red, yellow } from '../output.js';
@@ -14,7 +14,8 @@ import {
 export const API_TEST_FLAGS = [
   'project', 'file', 'suite', 'name', 'timeout', 'poll', 'parallelism', 'retries',
   'junit', 'json', 'html', 'report-dir', 'ci-provider', 'ci-build', 'ci-commit',
-  'ci-branch', 'app-build', 'dry-run'
+  'ci-branch', 'app-build', 'dry-run',
+  'app', 'endpoint', 'max', 'include-mutating', 'no-negative'
 ] as const;
 
 export const API_TEST_HELP = `
@@ -24,12 +25,25 @@ ${bold('aira api-test')} — author and run API tests
       Creates API tests from a definition file (JSON). One or more tests, each a
       sequence of HTTP requests with assertions over their responses.
 
+  ${bold('aira api-test generate --app <id>')}
+      Writes API tests from the endpoints discovery observed: that each still
+      answers as it did, that each that required credentials still refuses
+      without them, and that a templated endpoint answers 404 for an identifier
+      nothing owns. Deterministic — no model is involved, and everything a
+      generated test asserts is something AIRA watched the application do.
+
   ${bold('aira api-test run')}
       Runs every enabled API test in the project and waits for the verdict.
 
   --project <id>         Project to work in (or AIRA_PROJECT_ID)
   --file <path>          The definition file, for "add"
   --dry-run              Validate the file against the platform without saving
+  --app <id>             Application to generate for
+  --endpoint <id>        Generate for one endpoint; repeat for several
+  --max <n>              Generate at most n tests
+  --no-negative          Positive tests only
+  --include-mutating     Also generate tests for POST/PUT/PATCH/DELETE endpoints.
+                         Off by default: such a test changes the application's data
   --suite <id>           For "run", restrict to one suite
   --name <text>          Name the run
   --timeout <seconds>    Give up waiting (default 1800)
@@ -115,8 +129,9 @@ export async function apiTestCommand(args: ParsedArgs): Promise<number> {
   rejectUnknownFlags(args, API_TEST_FLAGS);
 
   const sub = args.positionals[0] ?? 'run';
-  if (sub !== 'add' && sub !== 'run' && sub !== 'list') {
-    throw usage(`"aira api-test ${sub}" is not a subcommand.`, 'Use "add", "run" or "list".');
+  if (sub !== 'add' && sub !== 'run' && sub !== 'list' && sub !== 'generate') {
+    throw usage(`"aira api-test ${sub}" is not a subcommand.`,
+      'Use "add", "generate", "run" or "list".');
   }
 
   const context = await resolveContext({
@@ -131,6 +146,7 @@ export async function apiTestCommand(args: ParsedArgs): Promise<number> {
   }
 
   if (sub === 'add') return addTests(api, context.projectId, args);
+  if (sub === 'generate') return generateTests(api, args);
   if (sub === 'list') return listTests(api, context.projectId, args);
   return runTests(api, context, args);
 }
@@ -196,6 +212,58 @@ async function addTests(api: ApiClient, projectId: string, args: ParsedArgs): Pr
   // A rejected definition is a configuration error: the file, not the application,
   // is what needs fixing.
   return rejected > 0 ? ExitCode.ConfigurationError : ExitCode.Success;
+}
+
+interface GeneratedApiTests {
+  testSuiteId: string;
+  testSuiteName: string;
+  endpointsConsidered: number;
+  endpointsSkipped: number;
+  testsCreated: number;
+  tests: ApiTestCreated[];
+  notes: string[];
+}
+
+/**
+ * Generates tests from what discovery observed.
+ *
+ * Mutating endpoints are excluded unless asked for, and the reason is printed rather than
+ * left implicit: a generated POST against an application changes that application's data,
+ * and someone running this for the first time should find that out from the output and not
+ * from their staging database.
+ */
+async function generateTests(api: ApiClient, args: ParsedArgs): Promise<number> {
+  const applicationId = flag(args, 'app');
+  if (!applicationId) {
+    throw usage('An application is required.', 'Pass --app <id>. "aira apps" lists them.');
+  }
+
+  const negative = !boolFlag(args, 'no-negative');
+  const result = await api.post<GeneratedApiTests>('/api/v1/testcases/api-tests/generate', {
+    applicationId,
+    apiEndpointIds: flagAll(args, 'endpoint'),
+    includePositive: true,
+    includeUnauthenticated: negative,
+    includeNotFound: negative,
+    includeMutating: boolFlag(args, 'include-mutating'),
+    maxTests: intFlag(args, 'max')
+  });
+
+  if (boolFlag(args, 'json')) { out(JSON.stringify(result, null, 2)); return ExitCode.Success; }
+
+  for (const test of result.tests) {
+    note(`  ${green('✓')} ${bold(test.reference)} ${test.name} `
+      + dim(`${test.assertionCount} assertion(s)`));
+  }
+  for (const advisory of result.notes) note(`      ${dim(advisory)}`);
+
+  note('');
+  note(`  ${result.testsCreated} test(s) written from ${result.endpointsConsidered} observed endpoint(s)`
+    + (result.endpointsSkipped > 0 ? `, ${result.endpointsSkipped} endpoint(s) skipped` : '')
+    + ` → ${result.testSuiteName}`);
+  note(dim('  Read them before you trust them: they assert what the application was observed to do.'));
+
+  return ExitCode.Success;
 }
 
 async function listTests(api: ApiClient, projectId: string, args: ParsedArgs): Promise<number> {

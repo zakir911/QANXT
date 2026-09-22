@@ -51,6 +51,8 @@ public class AiraDbContext : DbContext, IAiraDbContext
     public DbSet<PageTransition> PageTransitions => Set<PageTransition>();
     public DbSet<ApplicationElement> ApplicationElements => Set<ApplicationElement>();
     public DbSet<ApiEndpoint> ApiEndpoints => Set<ApiEndpoint>();
+    public DbSet<ApiContract> ApiContracts => Set<ApiContract>();
+    public DbSet<ApiContractChange> ApiContractChanges => Set<ApiContractChange>();
     public DbSet<Journey> Journeys => Set<Journey>();
     public DbSet<JourneyStep> JourneySteps => Set<JourneyStep>();
 

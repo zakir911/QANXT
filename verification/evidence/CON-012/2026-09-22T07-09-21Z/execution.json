@@ -1,0 +1,94 @@
+{
+  "id": "11512faf-09e3-4b85-b04c-4cfc72b955dc",
+  "testRunId": "c71a95ed-e224-439e-972e-d4333431af70",
+  "testCaseId": "860c242d-f2a3-48e4-83ea-08b4b22a7942",
+  "reference": "TC-0031",
+  "name": "A public endpoint is required to refuse, and does not",
+  "objective": "",
+  "expectedResults": "",
+  "status": "failed",
+  "startedAt": "2026-09-22T07:09:57.48782+00:00",
+  "completedAt": "2026-09-22T07:09:57.51+00:00",
+  "durationMs": 19,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-2107",
+  "correlationId": "97d4be63e4e24028b26b523c157e45e3",
+  "stepsTotal": 1,
+  "stepsPassed": 0,
+  "stepsFailed": 1,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 0,
+  "errorMessage": "The endpoint refuses a caller with no credentials: Expected a status in \"401,403\" but the response was 200 OK.",
+  "actions": [
+    {
+      "id": "9b521d67-4d29-4e29-aa63-e7f9011f188c",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "Call an endpoint that needs no credentials, requiring a refusal",
+      "status": "failed",
+      "startedAt": "2026-09-22T07:09:57.495+00:00",
+      "durationMs": 3,
+      "url": "http://localhost:4300/health",
+      "wasHealed": false,
+      "errorMessage": "The endpoint refuses a caller with no credentials: Expected a status in \"401,403\" but the response was 200 OK."
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "1dfe7a77-7be3-45c0-8dda-dc2fe6c06ec2",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 988,
+      "isMasked": false
+    },
+    {
+      "id": "643c7f80-74cc-47c6-95fb-500c0182576e",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 1375,
+      "isMasked": true
+    },
+    {
+      "id": "f8725af4-5185-4466-9a21-1ba0e564b801",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 1222,
+      "isMasked": true,
+      "testActionId": "9b521d67-4d29-4e29-aa63-e7f9011f188c"
+    }
+  ],
+  "failure": {
+    "id": "a0497b5b-193d-4430-adfa-2535b7cd9ded",
+    "category": "unknown",
+    "categoryConfidence": 30,
+    "rawMessage": "The endpoint refuses a caller with no credentials: Expected a status in \"401,403\" but the response was 200 OK.",
+    "signature": "9b05fa941e0bcff204024d14e8599dcd49f0f7749e30fdfc8279bfbcba60cc4d",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-22T07:09:57.731985+00:00",
+    "lastSeenAt": "2026-09-22T07:09:57.732006+00:00",
+    "analysis": {
+      "summary": "The failing step failed.",
+      "likelyCause": "The available evidence does not identify a cause. The engine error is reproduced verbatim below.",
+      "evidence": "The endpoint refuses a caller with no credentials: Expected a status in \"401,403\" but the response was 200 OK.",
+      "suggestedAction": "Review the failure screenshot, DOM snapshot and trace for this execution. Configure a model provider for a deeper analysis of failures like this one.",
+      "category": "unknown",
+      "confidence": 30,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1dfe7a77-7be3-45c0-8dda-dc2fe6c06ec2\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"643c7f80-74cc-47c6-95fb-500c0182576e\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"f8725af4-5185-4466-9a21-1ba0e564b801\", \"kind\": \"Other\", \"name\": \"step-1-request.http.json\"}], \"executionId\": \"11512faf-09e3-4b85-b04c-4cfc72b955dc\"}"
+    }
+  },
+  "healingEvents": []
+}

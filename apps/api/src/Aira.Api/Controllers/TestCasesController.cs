@@ -131,6 +131,20 @@ public sealed class TestCasesController : ApiControllerBase
     public async Task<IActionResult> CreateApiTest([FromBody] CreateApiTestRequest request, CancellationToken ct)
         => FromResult(await _apiTests.CreateAsync(request, ct));
 
+    /// <summary>Generates API tests from the endpoints discovery observed: one that the
+    /// endpoint still answers as it did, one that it still refuses an unauthenticated
+    /// caller, and one that an identifier nothing owns produces a not-found.
+    ///
+    /// Deterministic — no model is involved. Everything a generated test asserts is
+    /// something AIRA watched the application do.</summary>
+    [HttpPost("api-tests/generate")]
+    [RequirePermission(Permissions.TestGenerate)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GenerateApiTests(
+        [FromBody] GenerateApiTestsRequest request, CancellationToken ct)
+        => FromResult(await _apiTests.GenerateAsync(request, ct));
+
     public sealed record UpdateTestCaseBody(
         string? Name, string? Objective, string? Preconditions, string? ExpectedResults,
         TestPriority? Priority, RiskLevel? Risk, string? Tags, bool? IsEnabled);

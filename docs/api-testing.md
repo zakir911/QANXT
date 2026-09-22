@@ -225,6 +225,10 @@ concern:
 "The UI is fine but two endpoints are broken" and "two UI journeys are broken" are
 different releases, and a gate should be able to say which it is looking at.
 
+`contractBreakingChangeCount` is measured for the same run when a contract check ran against
+it, so a release can be stopped by an API changing shape even though every test passed.
+See [`docs/contract-testing.md`](contract-testing.md).
+
 A rule over a metric this release could not measure is **never** reported as satisfied. It
 comes back as REVIEW with an explanation saying the metric was not measured — see
 [BUG-0021](../verification/bugs/BUG-0021/bug.md) for why that matters more than it sounds.
@@ -275,11 +279,11 @@ Stated rather than implied:
 - **REST and JSON.** There is no GraphQL, gRPC or SOAP support. A GraphQL endpoint can be
   called as a `POST` with a JSON body, and its response asserted with JSON paths, but there
   is no query-aware handling.
-- **Schema comparison is not implemented.** The `responseSchemaMatches` assertion type
-  exists in the enum for contract testing and the executor answers it honestly: "Schema
-  comparison is performed by the contract check, not by the executor." Contract testing
-  itself is the next phase; until it lands, no rule over
-  `contractBreakingChangeCount` is measured, and such a rule comes back as REVIEW.
+- **Schema comparison is not an assertion.** The `responseSchemaMatches` assertion type
+  exists in the enum, and the executor answers it honestly: "Schema comparison is performed
+  by the contract check, not by the executor." Contract testing is implemented — see
+  [`docs/contract-testing.md`](contract-testing.md) — but it runs in the control plane over
+  the evidence a run produced, where the baseline lives, rather than inside a step.
 - **No request retry inside a step.** The run-level retry applies to the whole test.
 - **Bodies are stored as excerpts** — the first 8000 bytes, masked. A larger response is
   asserted on in full but not archived in full.
@@ -289,6 +293,7 @@ Stated rather than implied:
 
 ## See also
 
+- [`docs/contract-testing.md`](contract-testing.md) — API contracts and breaking-change detection
 - [`docs/ci-cd.md`](ci-cd.md) — the exit-code contract and pipeline configuration
 - [`docs/user-manual.md`](user-manual.md) — the console, screen by screen
 - `verification/evidence/API-*/` — the executed evidence behind every claim here

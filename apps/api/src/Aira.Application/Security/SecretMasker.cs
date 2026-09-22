@@ -100,7 +100,19 @@ public sealed partial class SecretMasker
         }
     }
 
-    private void WriteMasked(JsonElement element, Utf8JsonWriter writer, string? propertyName)
+    /// <summary>Writes a masked copy of a JSON document.
+    ///
+    /// Masking hides values; it does not change shapes. A redacted string stays a string, a
+    /// redacted number stays a number, a null stays null, and a sensitive object keeps its
+    /// structure with every value inside it redacted.
+    ///
+    /// That distinction is not cosmetic. Masked evidence is what the contract check
+    /// compares, so a masker that rewrote <c>"sortCode": null</c> as a string made a field
+    /// becoming nullable invisible, and would equally have invented a type change where
+    /// there was none (BUG-0024). It is also simply more honest evidence: a report saying a
+    /// balance was <c>"***REDACTED***"</c> when the API returned a number misdescribes the
+    /// response.</summary>
+    private void WriteMasked(JsonElement element, Utf8JsonWriter writer, string? propertyName, bool forceRedact = false)
     {
         switch (element.ValueKind)
         {
@@ -109,19 +121,44 @@ public sealed partial class SecretMasker
                 foreach (var property in element.EnumerateObject())
                 {
                     writer.WritePropertyName(property.Name);
-                    if (IsSensitiveField(property.Name)) writer.WriteStringValue(Redacted);
-                    else WriteMasked(property.Value, writer, property.Name);
+                    // Once inside a sensitive subtree, everything below is redacted too:
+                    // a field is not made safe by being nested under one that is not.
+                    WriteMasked(property.Value, writer, property.Name,
+                        forceRedact || IsSensitiveField(property.Name));
                 }
                 writer.WriteEndObject();
                 break;
+
             case JsonValueKind.Array:
                 writer.WriteStartArray();
-                foreach (var item in element.EnumerateArray()) WriteMasked(item, writer, propertyName);
+                foreach (var item in element.EnumerateArray())
+                    WriteMasked(item, writer, propertyName, forceRedact);
                 writer.WriteEndArray();
                 break;
+
             case JsonValueKind.String:
-                writer.WriteStringValue(MaskText(element.GetString()));
+                writer.WriteStringValue(forceRedact ? Redacted : MaskText(element.GetString()));
                 break;
+
+            case JsonValueKind.Number:
+                // Zero rather than a string. The value is gone either way; only one of the
+                // two keeps the response's shape readable.
+                if (forceRedact) writer.WriteNumberValue(0);
+                else element.WriteTo(writer);
+                break;
+
+            case JsonValueKind.True:
+            case JsonValueKind.False:
+                if (forceRedact) writer.WriteBooleanValue(false);
+                else element.WriteTo(writer);
+                break;
+
+            case JsonValueKind.Null:
+                // A null holds no secret, so there is nothing to redact — and rewriting it
+                // as a string would say the field had a value when it did not.
+                writer.WriteNullValue();
+                break;
+
             default:
                 element.WriteTo(writer);
                 break;

@@ -1,0 +1,66 @@
+{
+  "id": "364c7e22-15ca-40ed-87a4-9c98543d6f41",
+  "testRunId": "ade79d75-92dc-4103-aaf7-374b9449ba43",
+  "testCaseId": "19fa1fed-f122-49a8-84cf-8b0c94dc3643",
+  "reference": "TC-0004",
+  "name": "GET http://localhost:4300/api/accounts refuses an unauthenticated caller",
+  "objective": "The endpoint was observed to require authentication. This asserts it still does. Authorization being removed is the failure nobody notices, because every signed-in test carries on passing.",
+  "expectedResults": "",
+  "status": "passed",
+  "startedAt": "2026-09-22T07:05:15.908644+00:00",
+  "completedAt": "2026-09-22T07:05:16+00:00",
+  "durationMs": 20,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-911",
+  "correlationId": "5f16dff53f454d7ea066311934ceb082",
+  "stepsTotal": 1,
+  "stepsPassed": 1,
+  "stepsFailed": 0,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 1,
+  "actions": [
+    {
+      "id": "bb757b70-8c7b-488b-983d-c67dc9d59618",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "GET http://localhost:4300/api/accounts with no credentials — 401 in 1ms",
+      "status": "passed",
+      "startedAt": "2026-09-22T07:05:15.985+00:00",
+      "durationMs": 4,
+      "url": "http://localhost:4300/api/accounts",
+      "wasHealed": false
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "0e37c6d9-261b-4da7-9b69-06fdeeee79ff",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 987,
+      "isMasked": false
+    },
+    {
+      "id": "725a2f85-d517-4525-ae9d-242f9e71e0b2",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 715,
+      "isMasked": true
+    },
+    {
+      "id": "fb2817c5-afe0-40ae-b04f-f4fdc90a3917",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 573,
+      "isMasked": true,
+      "testActionId": "bb757b70-8c7b-488b-983d-c67dc9d59618"
+    }
+  ],
+  "healingEvents": []
+}

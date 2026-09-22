@@ -1,0 +1,73 @@
+{
+  "id": "f2c526e3-1e55-4c81-8b5a-865607151a64",
+  "reference": "TC-0002",
+  "name": "GET http://localhost:4300/api/session answers as observed",
+  "objective": "The endpoint answers 200 with the fields it carried when discovery saw it 13 time(s).",
+  "preconditions": "",
+  "expectedResults": "",
+  "kind": "api",
+  "priority": "medium",
+  "risk": "medium",
+  "tags": "api,generated,smoke",
+  "source": "manual",
+  "isEnabled": true,
+  "version": 1,
+  "requirementReference": "",
+  "testSuiteId": "76abce8d-187d-497c-b8fe-f34da4c21a64",
+  "applicationId": "ffa735f5-2c22-411e-b6c8-7513b4ce6ab3",
+  "statistics": {
+    "executionCount": 0,
+    "passCount": 0,
+    "failCount": 0,
+    "healCount": 0,
+    "flakinessScore": 0,
+    "averageDurationMs": 0
+  },
+  "steps": [
+    {
+      "id": "d66dd367-9b06-433b-b513-a52422651cd1",
+      "order": 1,
+      "description": "GET http://localhost:4300/api/session",
+      "action": "apiRequest",
+      "isCritical": true,
+      "continueOnFailure": false,
+      "healCount": 0,
+      "apiRequest": {
+        "method": "GET",
+        "path": "/api/session",
+        "auth": {
+          "mode": "none"
+        }
+      },
+      "assertions": [
+        {
+          "id": "774fa709-6bff-41a1-a36c-8831fc7c39d8",
+          "type": "httpStatusEquals",
+          "expectedValue": "200",
+          "attributeName": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The endpoint still answers 200, as it did when it was observed"
+        },
+        {
+          "id": "a5370e3f-1f22-41dc-af06-7bba26c3c0fc",
+          "type": "responseJsonPathExists",
+          "expectedValue": "",
+          "attributeName": "error",
+          "negate": false,
+          "isSoft": false,
+          "description": "\"error\" is still present in the response"
+        },
+        {
+          "id": "aea1ac76-c339-4a59-8eff-2d6f31498274",
+          "type": "responseTimeUnderMs",
+          "expectedValue": "2000",
+          "attributeName": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The response arrives within 2000ms (ten times the 0ms observed, floored at 2000ms)"
+        }
+      ]
+    }
+  ]
+}

@@ -221,6 +221,35 @@ public enum SelfHealingGatePolicy
     Fail = 3
 }
 
+/// <summary>What a difference between a stored API contract and an observed response means
+/// for the people calling that API.
+///
+/// Three values rather than two, because "this might break a caller" is a real answer and
+/// folding it into either of the others loses the information a release decision needs. A
+/// field that can now be null is the clear case: every caller that null-checks is fine and
+/// every caller that does not is broken, and which of those a team has is not something the
+/// platform can know.</summary>
+public enum ContractChangeKind
+{
+    /// <summary>Safe for every existing caller. A new field, most often.</summary>
+    NonBreaking = 0,
+    /// <summary>Safe for some callers and not others.</summary>
+    PotentiallyBreaking = 1,
+    /// <summary>No reading of this is safe for someone who was using the old shape.</summary>
+    Breaking = 2
+}
+
+/// <summary>Where a stored contract came from.</summary>
+public enum ApiContractSource
+{
+    /// <summary>Inferred from a response observed while crawling the application.</summary>
+    Discovery = 0,
+    /// <summary>Inferred from a response an API test received.</summary>
+    TestRun = 1,
+    /// <summary>Supplied by a person or a pipeline.</summary>
+    Declared = 2
+}
+
 /// <summary>Where a bounded agent pass has got to.</summary>
 public enum AgentPhase
 {

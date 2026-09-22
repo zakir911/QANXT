@@ -46,9 +46,36 @@ public sealed record ApiTestSummary(
     Guid TestCaseId, string Reference, string Name, Guid TestSuiteId, string TestSuiteName,
     int StepCount, int AssertionCount, IReadOnlyList<string> Notes);
 
+/// <summary>Generates API tests from the endpoints discovery has observed.
+///
+/// <paramref name="IncludeMutating"/> is false by default and stays that way unless a caller
+/// asks: a generated <c>POST</c> or <c>DELETE</c> against an application changes that
+/// application's data, and nobody should get one by accident.</summary>
+public sealed record GenerateApiTestsRequest(
+    Guid ApplicationId,
+    Guid[]? ApiEndpointIds = null,
+    Guid? TestSuiteId = null,
+    string? SuiteName = null,
+    bool IncludePositive = true,
+    /// <summary>For an endpoint that requires authentication, a test that calls it with no
+    /// credentials and requires a refusal.</summary>
+    bool IncludeUnauthenticated = true,
+    /// <summary>For a templated endpoint, a test that asks for an identifier that does not
+    /// exist and requires a 404 rather than a 500 or somebody else's data.</summary>
+    bool IncludeNotFound = true,
+    bool IncludeMutating = false,
+    int? MaxTests = null);
+
+public sealed record GeneratedApiTests(
+    Guid TestSuiteId, string TestSuiteName,
+    int EndpointsConsidered, int EndpointsSkipped, int TestsCreated,
+    IReadOnlyList<ApiTestSummary> Tests,
+    IReadOnlyList<string> Notes);
+
 public interface IApiTestService
 {
     Task<Result<ApiTestSummary>> CreateAsync(CreateApiTestRequest request, CancellationToken ct = default);
+    Task<Result<GeneratedApiTests>> GenerateAsync(GenerateApiTestsRequest request, CancellationToken ct = default);
 }
 
 /// <summary>Authors API tests.
@@ -67,7 +94,7 @@ public interface IApiTestService
 ///    assertion that cannot be evaluated is a test that cannot fail — which is what
 ///    BUG-0016 and BUG-0017 both were.
 ///  - A test with no assertions at all is refused for the same reason.</summary>
-public sealed class ApiTestService : IApiTestService
+public sealed partial class ApiTestService : IApiTestService
 {
     /// <summary>Assertion types the executor evaluates against a response. Mirrors
     /// `RESPONSE_ASSERTION_TYPES` in the worker; the contract test keeps the enum itself in

@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<IDiscoveryIngestService, DiscoveryIngestService>();
         services.AddScoped<ITestGenerationService, TestGenerationService>();
         services.AddScoped<IApiTestService, ApiTestService>();
+        services.AddScoped<IApiContractService, ApiContractService>();
         services.AddScoped<ITestRunService, TestRunService>();
         services.AddScoped<IExecutionIngestService, ExecutionIngestService>();
         services.AddScoped<IFailureAnalysisService, FailureAnalysisService>();
