@@ -61,6 +61,7 @@ already have the toolchain, and `docs/implementation-plan.md` has the build plan
 - [Scheduled regression](docs/scheduling.md) — the tests that run when nobody commits
 - [Notifications](docs/notifications.md) — telling somebody, and being able to show that you did
 - [Test data](docs/test-data.md) — seeded values, and why a credential is never a literal
+- [Release quality](docs/release-quality.md) — what changed between runs, and whether to ship
 - [Setup](docs/setup.md) — from a clone to a working platform, and what to do when it is not
 - [Deploying with Docker](docs/deployment.md) — one compose file for the whole platform
 - [The database](docs/database.md) — schema, tenant isolation, migrations

@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IScheduleService, ScheduleService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<ITestDataService, TestDataService>();
+        services.AddScoped<IRunComparisonService, RunComparisonService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAgentService, AgentService>();
         services.AddScoped<IAgentLoop, AgentLoop>();

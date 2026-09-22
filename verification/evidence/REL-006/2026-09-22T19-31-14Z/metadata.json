@@ -1,0 +1,32 @@
+{
+  "testId": "REL-006",
+  "suite": "Release quality",
+  "runId": "2026-09-22T19-31-14Z",
+  "objective": "A run with nothing to compare against says so rather than reporting zeros",
+  "preconditions": [
+    "a project whose first run has just finished"
+  ],
+  "input": "A comparison of the first run in a fresh project",
+  "expected": "Refused with an explanation. Zeros would read as \"nothing changed\", which is a claim, and \"there is nothing to compare with\" is the truth",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "400: There is no earlier finished run in this project to compare against. A first run has nothing to have changed from.",
+  "metrics": null,
+  "startedAt": "2026-09-22T19:31:31.161Z",
+  "durationMs": 2089,
+  "build": {
+    "commit": "20cf7c1",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/REL-006/2026-09-22T19-31-14Z/refusal.json",
+      "bytes": 275,
+      "sha256": "6ec0af32443510487788612d31242ec38a769c51bb4813a42909460cceed6f19"
+    }
+  ]
+}
