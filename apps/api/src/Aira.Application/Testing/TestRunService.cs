@@ -22,7 +22,18 @@ public sealed record TestRunSummary(
     Guid Id, Guid ProjectId, string Name, ExecutionStatus Status, RunTrigger Trigger, BrowserType Browser,
     DateTimeOffset CreatedAt, DateTimeOffset? StartedAt, DateTimeOffset? CompletedAt, int DurationMs,
     int TotalCount, int PassedCount, int FailedCount, int SkippedCount, int BlockedCount,
-    int HealedCount, int FlakyCount, bool? QualityGatePassed, string? CiBuildId, string? CiBranch);
+    int HealedCount, int FlakyCount, bool? QualityGatePassed,
+    /// <summary>Where this run came from. Recorded so a failure months later can be traced
+    /// to the commit that produced it, which is only possible if these survive to a
+    /// reader — storing them and not returning them is the same as not storing them.</summary>
+    string? CiBuildId, string? CiBranch, string? CiProvider = null, string? CiCommitSha = null,
+    string? ApplicationBuildRef = null,
+    Guid? EnvironmentId = null,
+    /// <summary>When a contract check ran against this run's evidence, and what it found.
+    /// Null means no check ran, which is a different statement from "no breaking changes".</summary>
+    DateTimeOffset? ContractCheckedAt = null,
+    int ContractBreakingChangeCount = 0,
+    int ContractPotentiallyBreakingChangeCount = 0);
 
 public interface ITestRunService
 {
@@ -217,7 +228,10 @@ public sealed class TestRunService : ITestRunService
             .Select(r => new TestRunSummary(
                 r.Id, r.ProjectId, r.Name, r.Status, r.Trigger, r.Browser, r.CreatedAt, r.StartedAt, r.CompletedAt,
                 r.DurationMs, r.TotalCount, r.PassedCount, r.FailedCount, r.SkippedCount, r.BlockedCount,
-                r.HealedCount, r.FlakyCount, r.QualityGatePassed, r.CiBuildId, r.CiBranch))
+                r.HealedCount, r.FlakyCount, r.QualityGatePassed, r.CiBuildId, r.CiBranch,
+                r.CiProvider, r.CiCommitSha, r.ApplicationBuildRef, r.EnvironmentId,
+                r.ContractCheckedAt, r.ContractBreakingChangeCount,
+                r.ContractPotentiallyBreakingChangeCount))
             .ToListAsync(ct);
     }
 
@@ -577,5 +591,7 @@ public sealed class TestRunService : ITestRunService
     private static TestRunSummary Map(TestRun r) => new(
         r.Id, r.ProjectId, r.Name, r.Status, r.Trigger, r.Browser, r.CreatedAt, r.StartedAt, r.CompletedAt,
         r.DurationMs, r.TotalCount, r.PassedCount, r.FailedCount, r.SkippedCount, r.BlockedCount,
-        r.HealedCount, r.FlakyCount, r.QualityGatePassed, r.CiBuildId, r.CiBranch);
+        r.HealedCount, r.FlakyCount, r.QualityGatePassed, r.CiBuildId, r.CiBranch,
+        r.CiProvider, r.CiCommitSha, r.ApplicationBuildRef, r.EnvironmentId,
+        r.ContractCheckedAt, r.ContractBreakingChangeCount, r.ContractPotentiallyBreakingChangeCount);
 }

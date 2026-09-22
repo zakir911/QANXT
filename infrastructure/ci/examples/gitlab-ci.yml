@@ -1,0 +1,85 @@
+# AIRA validating an application on every merge request.
+#
+# NOT VERIFIED in this repository: running it needs a GitLab runner and a deployment of AIRA
+# it can reach. The CLI behaviour it depends on is executed by the golden suite, and the
+# whole sequence is executed locally by test-lab/ci-simulation.
+#
+# CI/CD variables this needs: AIRA_TOKEN (masked), AIRA_API_URL, AIRA_PROJECT_ID.
+
+stages: [deploy, quality]
+
+variables:
+  # `aira regression --since` needs the base branch to diff against.
+  GIT_DEPTH: "0"
+  ARTIFACTS_DIR: aira-artifacts
+
+deploy:review:
+  stage: deploy
+  script:
+    - echo "APP_URL=https://app-$CI_COMMIT_REF_SLUG.example.com" >> deploy.env
+  artifacts:
+    reports:
+      dotenv: deploy.env
+
+quality:aira:
+  stage: quality
+  image: node:22
+  needs: [deploy:review]
+  before_script:
+    - npm install -g @aira/cli
+    - |
+      # Health check before any test runs. A run against an application that has not
+      # finished starting reports failures that belong to the deployment.
+      for _ in $(seq 1 60); do
+        curl -fsS --max-time 5 "$APP_URL/health" > /dev/null && break
+        sleep 3
+      done
+  script:
+    - |
+      set +e
+      aira regression run \
+        --since "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" \
+        --mode "${AIRA_MODE:-impacted}" \
+        --explain \
+        --report-dir "$ARTIFACTS_DIR" \
+        --ci-provider gitlab \
+        --ci-build "$CI_PIPELINE_ID" \
+        --ci-commit "$CI_COMMIT_SHA" \
+        --ci-branch "$CI_COMMIT_REF_NAME"
+      status=$?
+      set -e
+
+      case $status in
+        0) echo "PASS" ;;
+        1) echo "Tests failed. See $ARTIFACTS_DIR/summary.md." ;;
+        2) echo "The quality gate blocked this run." ;;
+        3) echo "AIRA was configured wrongly — whoever edited this pipeline should look." ;;
+        4) echo "AIRA rejected the credentials." ;;
+        5) echo "AIRA could not be used. The platform operator should look." ;;
+        6) echo "A security policy refused this run. Do not retry without reading why." ;;
+        7)
+          # REVIEW is not a failure. Whether it stops the pipeline is this team's decision.
+          echo "This run needs a person to look at it."
+          [ "${AIRA_REVIEW_BLOCKS:-false}" = "true" ] || status=0
+          ;;
+        8) echo "AIRA failed internally. This is a defect in AIRA." ;;
+      esac
+
+      # Posted by GitLab, because GitLab already has the credentials to comment.
+      if [ -n "${CI_MERGE_REQUEST_IID:-}" ] && [ -f "$ARTIFACTS_DIR/summary.md" ]; then
+        curl -sS --request POST \
+          --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+          --form "body=<$ARTIFACTS_DIR/summary.md" \
+          "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes" \
+          > /dev/null || echo "The summary could not be posted; it is in the artifacts."
+      fi
+
+      exit $status
+  artifacts:
+    # Always: a failed run is the one whose evidence somebody needs.
+    when: always
+    paths:
+      - $ARTIFACTS_DIR/
+    reports:
+      junit: $ARTIFACTS_DIR/junit.xml
+    expire_in: 30 days

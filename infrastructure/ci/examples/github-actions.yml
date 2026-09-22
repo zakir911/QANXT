@@ -1,0 +1,133 @@
+# AIRA validating an application on every pull request.
+#
+# NOT VERIFIED in this repository: running it needs a GitHub Actions runner and a deployment
+# of AIRA it can reach, neither of which exists here. The CLI behaviour it depends on — the
+# exit codes, the artifact layout, the summary, the selection — is executed by the golden
+# suite, and the whole sequence is executed locally by test-lab/ci-simulation.
+#
+# Secrets this needs: AIRA_TOKEN. Variables: AIRA_API_URL, AIRA_PROJECT_ID.
+
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write       # only for posting the summary
+      checks: write              # only for publishing the JUnit results
+
+    env:
+      AIRA_API_URL: ${{ vars.AIRA_API_URL }}
+      AIRA_TOKEN: ${{ secrets.AIRA_TOKEN }}
+      AIRA_PROJECT_ID: ${{ vars.AIRA_PROJECT_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # `aira regression --since` diffs against the base branch. The default shallow
+          # clone has no history to diff against, and the command fails loudly rather than
+          # selecting nothing — but fetching here is the fix.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install the AIRA CLI
+        run: npm install -g @aira/cli
+
+      # 1. Deploy. Replace with however this application is deployed for review.
+      - name: Deploy to a review environment
+        id: deploy
+        run: |
+          echo "url=https://app-pr-${{ github.event.number || 'main' }}.example.com" >> "$GITHUB_OUTPUT"
+
+      # 2. Health check, before any test runs. A run against an application that has not
+      #    finished starting reports failures that belong to the deployment.
+      - name: Wait for the deployment
+        run: |
+          for _ in $(seq 1 60); do
+            curl -fsS --max-time 5 "${{ steps.deploy.outputs.url }}/health" >/dev/null && exit 0
+            sleep 3
+          done
+          echo "::error::The deployment did not become healthy. Not running any tests."
+          exit 1
+
+      # 3 & 4. Select and run. On main, run everything; on a pull request, run what the
+      #        change reaches.
+      #
+      #        The exit code is captured rather than allowed to fail the step, because each
+      #        code goes to different people and `continue-on-error` collapses them all
+      #        into "something went wrong".
+      - name: Run the tests this change needs
+        id: aira
+        run: |
+          set +e
+          aira regression run \
+            --since "origin/${{ github.base_ref || 'main' }}" \
+            --mode "${{ github.event_name == 'push' && 'full' || 'impacted' }}" \
+            --explain \
+            --report-dir aira-artifacts \
+            --ci-provider github \
+            --ci-build "${{ github.run_id }}" \
+            --ci-commit "${{ github.sha }}" \
+            --ci-branch "${{ github.head_ref || github.ref_name }}"
+          echo "status=$?" >> "$GITHUB_OUTPUT"
+
+      # 5. Publish. Always — a failed run is the one whose evidence somebody needs.
+      - name: Publish the artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aira-artifacts
+          path: aira-artifacts/
+
+      - name: Publish the test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: AIRA
+          path: aira-artifacts/junit.xml
+          reporter: java-junit
+
+      # 6. Post the summary. AIRA writes the file; GitHub posts it, because GitHub already
+      #    has the credentials to comment and AIRA should not need a second set.
+      - name: Comment on the pull request
+        if: always() && github.event_name == 'pull_request'
+        run: gh pr comment "${{ github.event.number }}" --body-file aira-artifacts/summary.md
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      # Decide, on AIRA's exit code. Each one goes to different people, which is why the
+      # CLI separates them instead of returning zero or one.
+      - name: Decide
+        if: always()
+        env:
+          AIRA_REVIEW_BLOCKS: ${{ vars.AIRA_REVIEW_BLOCKS || 'false' }}
+        run: |
+          status="${{ steps.aira.outputs.status }}"
+          case "$status" in
+            0) echo "PASS" ;;
+            1) echo "::error::Tests failed. See aira-artifacts/summary.md." ;;
+            2) echo "::error::The quality gate blocked this run. Every test was within tolerance and a rule stopped it anyway." ;;
+            3) echo "::error::AIRA was configured wrongly. Whoever edited this workflow should look." ;;
+            4) echo "::error::AIRA rejected the credentials. Whoever holds AIRA_TOKEN should look." ;;
+            5) echo "::error::AIRA could not be used. The platform operator should look." ;;
+            6) echo "::error::A security policy refused this run. Do not retry without reading why." ;;
+            7)
+              # REVIEW is not a failure. Whether it stops the pipeline is this team's
+              # decision, which is why AIRA gives it a code of its own rather than folding
+              # it into pass or fail.
+              echo "::warning::This run needs a person to look at it. See the summary."
+              [ "$AIRA_REVIEW_BLOCKS" = "true" ] || status=0
+              ;;
+            8) echo "::error::AIRA failed internally. This is a defect in AIRA, not in the application." ;;
+            *) echo "::error::AIRA exited $status, which is not a code it documents." ;;
+          esac
+          exit "$status"

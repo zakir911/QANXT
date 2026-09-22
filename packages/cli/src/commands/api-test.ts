@@ -13,7 +13,7 @@ import {
 
 export const API_TEST_FLAGS = [
   'project', 'file', 'suite', 'name', 'timeout', 'poll', 'parallelism', 'retries',
-  'junit', 'json', 'html', 'report-dir', 'ci-provider', 'ci-build', 'ci-commit',
+  'junit', 'json', 'html', 'markdown', 'report-dir', 'ci-provider', 'ci-build', 'ci-commit',
   'ci-branch', 'app-build', 'dry-run',
   'app', 'endpoint', 'max', 'include-mutating', 'no-negative'
 ] as const;
@@ -54,7 +54,8 @@ ${bold('aira api-test')} — author and run API tests
   --junit <path>         Write JUnit XML
   --json <path>          Write the machine-readable report
   --html <path>          Write the human-readable report
-  --report-dir <dir>     Write all three into a directory
+  --markdown <path>      Write a summary a pipeline can post on a pull request
+  --report-dir <dir>     Write all four into a directory, in the CI artifact layout
 
 The definition file:
 
@@ -324,7 +325,7 @@ async function runTests(
 
   const report = await gatherReport(api, run.id, context.consoleUrl);
   const targets = reportTargets(args);
-  if (targets.junit || targets.json || targets.html) {
+  if (targets.junit || targets.json || targets.html || targets.markdown) {
     note('');
     await writeReports(report, targets);
   }

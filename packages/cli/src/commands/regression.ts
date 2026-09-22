@@ -17,7 +17,7 @@ const run = promisify(execFile);
 export const REGRESSION_FLAGS = [
   'project', 'app', 'since', 'changed', 'changed-file', 'mode', 'max', 'min-score',
   'include-tag', 'exclude-tag', 'name', 'timeout', 'poll', 'parallelism', 'retries',
-  'junit', 'json', 'html', 'report-dir', 'selection-out', 'explain', 'dry-run',
+  'junit', 'json', 'html', 'markdown', 'report-dir', 'selection-out', 'explain', 'dry-run',
   'ci-provider', 'ci-build', 'ci-commit', 'ci-branch', 'app-build'
 ] as const;
 
@@ -354,7 +354,7 @@ async function executeSelection(
 
   const report = await gatherReport(api, finished.id, context.consoleUrl);
   const targets = reportTargets(args);
-  if (targets.junit || targets.json || targets.html) {
+  if (targets.junit || targets.json || targets.html || targets.markdown) {
     note('');
     await writeReports(report, targets);
   }

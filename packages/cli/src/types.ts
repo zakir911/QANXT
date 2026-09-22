@@ -27,6 +27,12 @@ export interface RunSummary {
   qualityGatePassed?: boolean | null;
   ciBuildId?: string | null;
   ciBranch?: string | null;
+  ciProvider?: string | null;
+  ciCommitSha?: string | null;
+  applicationBuildRef?: string | null;
+  contractCheckedAt?: string | null;
+  contractBreakingChangeCount?: number;
+  contractPotentiallyBreakingChangeCount?: number;
 }
 
 export interface ExecutionSummary {
@@ -51,6 +57,11 @@ export interface ExecutionSummary {
   browserVersion?: string | null;
   correlationId?: string | null;
   priority: string;
+  kind?: string;
+  /** What the platform concluded about this failure. Absent on a passing execution. */
+  failureCategory?: string | null;
+  failureConfidence?: number | null;
+  failureSummary?: string | null;
 }
 
 export interface QualityGateRuleResult {
@@ -65,6 +76,8 @@ export interface QualityGateRuleResult {
   explanation: string;
   /** What a failure of this rule does. Absent on a platform older than gate actions. */
   action?: 'fail' | 'review' | 'warn' | null;
+  /** False when this run could not measure the rule's metric at all. */
+  measured?: boolean;
 }
 
 export type QualityGateOutcome = 'pass' | 'review' | 'fail';

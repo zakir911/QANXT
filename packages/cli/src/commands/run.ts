@@ -10,7 +10,7 @@ import { qualification, verdictOf } from '../verdict.js';
 
 export const RUN_FLAGS = [
   'project', 'suite', 'test', 'browser', 'headed', 'parallelism', 'retries', 'name',
-  'timeout', 'poll', 'no-wait', 'junit', 'json', 'html', 'report-dir',
+  'timeout', 'poll', 'no-wait', 'junit', 'json', 'html', 'markdown', 'report-dir',
   'ci-provider', 'ci-build', 'ci-commit', 'ci-branch', 'app-build'
 ] as const;
 
@@ -32,7 +32,8 @@ ${bold('aira run')} — start a test run and wait for its verdict
   --junit <path>         Write JUnit XML
   --json <path>          Write the machine-readable report
   --html <path>          Write the human-readable report
-  --report-dir <dir>     Write all three into a directory
+  --markdown <path>      Write a summary a pipeline can post on a pull request
+  --report-dir <dir>     Write all four into a directory, in the CI artifact layout
 
   --ci-provider <name>   Record where this run came from
   --ci-build <id>        Build identifier
@@ -40,8 +41,12 @@ ${bold('aira run')} — start a test run and wait for its verdict
   --ci-branch <name>     Branch under test
   --app-build <ref>      The application build being tested
 
-Exit status: 0 the gate passed · 1 the gate failed · 2 bad usage · 3 not authorized
-             4 the platform could not be used · 5 timed out waiting
+Exit status
+  0 PASS                        5 INFRASTRUCTURE_ERROR
+  1 TEST_FAILURE                6 SECURITY_POLICY_VIOLATION
+  2 QUALITY_GATE_FAILURE        7 HUMAN_REVIEW_REQUIRED
+  3 CONFIGURATION_ERROR         8 AIRA_INTERNAL_ERROR
+  4 AUTHENTICATION_ERROR
 `;
 
 const TERMINAL = new Set(['passed', 'failed', 'cancelled', 'error', 'blocked', 'completed', 'timedOut']);
@@ -95,7 +100,7 @@ export async function runCommand(args: ParsedArgs): Promise<number> {
 
   const report = await gatherReport(api, run.id, context.consoleUrl);
   const targets = reportTargets(args);
-  if (targets.junit || targets.json || targets.html) {
+  if (targets.junit || targets.json || targets.html || targets.markdown) {
     note('');
     await writeReports(report, targets);
   }
@@ -161,12 +166,27 @@ export function ciContext(args: ParsedArgs): unknown {
   return { provider, buildId, commitSha, branch, applicationBuildRef };
 }
 
-export function reportTargets(args: ParsedArgs): { junit?: string; json?: string; html?: string } {
+/**
+ * Where the reports go.
+ *
+ * `--report-dir` produces the CI artifact layout: fixed names, so a pipeline can publish
+ * the directory without knowing what is in it, and so the next pipeline that reads it does
+ * not have to be told either.
+ *
+ *   junit.xml      the test result format every CI system already understands
+ *   report.json    the whole run, for anything that wants to read it
+ *   report.html    the run as a person reads it
+ *   summary.md     a pull request comment
+ */
+export function reportTargets(args: ParsedArgs): {
+  junit?: string; json?: string; html?: string; markdown?: string;
+} {
   const dir = flag(args, 'report-dir');
   return {
     junit: flag(args, 'junit') ?? (dir ? `${dir}/junit.xml` : undefined),
     json: flag(args, 'json') ?? (dir ? `${dir}/report.json` : undefined),
-    html: flag(args, 'html') ?? (dir ? `${dir}/report.html` : undefined)
+    html: flag(args, 'html') ?? (dir ? `${dir}/report.html` : undefined),
+    markdown: flag(args, 'markdown') ?? (dir ? `${dir}/summary.md` : undefined)
   };
 }
 

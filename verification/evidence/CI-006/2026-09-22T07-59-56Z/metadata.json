@@ -1,0 +1,25 @@
+{
+  "testId": "CI-006",
+  "suite": "CI integration",
+  "runId": "2026-09-22T07-59-56Z",
+  "objective": "The JUnit XML reports the same counts as the run it came from",
+  "preconditions": [
+    "a run with one pass and one failure"
+  ],
+  "input": "A run of both tests",
+  "expected": "A testsuites element whose tests and failures counts match the run, so the CI system's own test view agrees with AIRA's",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "threw: TypeError: Cannot read properties of undefined (reading 'length')     at Object.run (file:///home/user/AIRA/verification/golden-tests/suites/ci-integration.mjs:333:42); declared evidence never produced: junit.xml, run.json",
+  "metrics": null,
+  "startedAt": "2026-09-22T08:00:10.319Z",
+  "durationMs": 3193,
+  "build": {
+    "commit": "9e61d1e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": []
+}

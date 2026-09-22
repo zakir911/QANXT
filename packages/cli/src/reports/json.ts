@@ -28,8 +28,25 @@ export function buildJsonReport(report: RunReport): unknown {
       startedAt: run.startedAt ?? null,
       completedAt: run.completedAt ?? null,
       durationMs: run.durationMs,
-      ci: run.ciBuildId || run.ciBranch
-        ? { buildId: run.ciBuildId ?? null, branch: run.ciBranch ?? null }
+      // Everything a pipeline told AIRA about where this run came from, returned so a
+      // failure months later can be traced to the commit that produced it.
+      ci: run.ciBuildId || run.ciBranch || run.ciProvider || run.ciCommitSha
+        ? {
+          provider: run.ciProvider ?? null,
+          buildId: run.ciBuildId ?? null,
+          branch: run.ciBranch ?? null,
+          commitSha: run.ciCommitSha ?? null,
+          applicationBuildRef: run.applicationBuildRef ?? null
+        }
+        : null,
+      contracts: run.contractCheckedAt
+        ? {
+          checkedAt: run.contractCheckedAt,
+          breakingChanges: run.contractBreakingChangeCount ?? 0,
+          potentiallyBreakingChanges: run.contractPotentiallyBreakingChangeCount ?? 0
+        }
+        // Absent rather than zero: "no breaking changes" and "nobody looked" are
+        // different statements, and a pipeline reading this should be able to tell.
         : null,
       url: report.consoleUrl ? `${report.consoleUrl.replace(/\/+$/, '')}/runs/${run.id}` : null
     },

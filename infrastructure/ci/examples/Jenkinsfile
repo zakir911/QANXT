@@ -1,0 +1,110 @@
+// AIRA validating an application on every build.
+//
+// NOT VERIFIED in this repository: running it needs a Jenkins controller and a deployment of
+// AIRA it can reach. The CLI behaviour it depends on is executed by the golden suite, and
+// the whole sequence is executed locally by test-lab/ci-simulation.
+//
+// Credentials this needs: a secret text credential holding the AIRA token.
+
+pipeline {
+  agent { docker { image 'node:22' } }
+
+  environment {
+    AIRA_API_URL    = "${env.AIRA_API_URL}"
+    AIRA_PROJECT_ID = "${env.AIRA_PROJECT_ID}"
+    AIRA_TOKEN      = credentials('aira-token')
+    ARTIFACTS       = 'aira-artifacts'
+  }
+
+  options {
+    timeout(time: 60, unit: 'MINUTES')
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        // `aira regression --since` needs history to diff against; a shallow clone has none.
+        checkout scmGit(
+          branches: scm.branches,
+          extensions: [cloneOption(shallow: false, noTags: false)],
+          userRemoteConfigs: scm.userRemoteConfigs)
+      }
+    }
+
+    stage('Install') {
+      steps { sh 'npm install -g @aira/cli' }
+    }
+
+    stage('Deploy') {
+      steps {
+        script { env.APP_URL = "https://app-${env.BUILD_NUMBER}.example.com" }
+      }
+    }
+
+    stage('Wait for the deployment') {
+      steps {
+        // Before any test runs. A run against an application that has not finished
+        // starting reports failures that belong to the deployment.
+        sh '''
+          for _ in $(seq 1 60); do
+            curl -fsS --max-time 5 "$APP_URL/health" > /dev/null && exit 0
+            sleep 3
+          done
+          echo "The deployment did not become healthy."
+          exit 1
+        '''
+      }
+    }
+
+    stage('Run the tests this change needs') {
+      steps {
+        script {
+          def status = sh(returnStatus: true, script: '''
+            aira regression run \
+              --since "origin/${CHANGE_TARGET:-main}" \
+              --mode "${AIRA_MODE:-impacted}" \
+              --explain \
+              --report-dir "$ARTIFACTS" \
+              --ci-provider jenkins \
+              --ci-build "$BUILD_NUMBER" \
+              --ci-commit "$GIT_COMMIT" \
+              --ci-branch "$BRANCH_NAME"
+          ''')
+
+          // The exit code decides, and each code goes to different people.
+          switch (status) {
+            case 0: echo 'PASS'; break
+            case 1: error 'Tests failed. See summary.md in the artifacts.'
+            case 2: error 'The quality gate blocked this run.'
+            case 3: error 'AIRA was configured wrongly — whoever edited this pipeline should look.'
+            case 4: error 'AIRA rejected the credentials.'
+            case 5: error 'AIRA could not be used. The platform operator should look.'
+            case 6: error 'A security policy refused this run. Do not retry without reading why.'
+            case 7:
+              // REVIEW is not a failure. Whether it stops the pipeline is this team's
+              // decision, which is why AIRA gives it a code of its own.
+              unstable 'This run needs a person to look at it. See summary.md.'
+              break
+            case 8: error 'AIRA failed internally. This is a defect in AIRA.'
+            default: error "AIRA exited ${status}, which is not a code it documents."
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    // Always: a failed run is the one whose evidence somebody needs.
+    always {
+      junit allowEmptyResults: true, testResults: "${ARTIFACTS}/junit.xml"
+      archiveArtifacts artifacts: "${ARTIFACTS}/**", allowEmptyArchive: true
+
+      script {
+        if (env.CHANGE_ID && fileExists("${ARTIFACTS}/summary.md")) {
+          // Posted by Jenkins, because it already has the credentials to comment.
+          pullRequest.comment(readFile("${ARTIFACTS}/summary.md"))
+        }
+      }
+    }
+  }
+}

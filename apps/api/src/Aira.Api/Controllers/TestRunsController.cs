@@ -61,7 +61,19 @@ public sealed class TestRunsController : ApiControllerBase
                 e.StepsTotal, e.StepsPassed, e.StepsFailed, e.StepsHealed,
                 e.ConsoleErrorCount, e.NetworkErrorCount, e.ErrorMessage, e.WorkerId,
                 browser = e.Browser, e.BrowserVersion, e.CorrelationId,
-                priority = e.TestCase.Priority
+                priority = e.TestCase.Priority, kind = e.TestCase.Kind,
+                // What the platform concluded about the failure, beside the failure. A CI
+                // summary that says "assertion failed" where it could say "the API call
+                // this step made returned 500" is throwing away the useful half.
+                failureCategory = _db.Failures
+                    .Where(f => f.TestExecutionId == e.Id)
+                    .Select(f => (Aira.Domain.Enums.FailureCategory?)f.Category).FirstOrDefault(),
+                failureConfidence = _db.Failures
+                    .Where(f => f.TestExecutionId == e.Id)
+                    .Select(f => (int?)f.CategoryConfidence).FirstOrDefault(),
+                failureSummary = _db.Failures
+                    .Where(f => f.TestExecutionId == e.Id && f.Analysis != null)
+                    .Select(f => f.Analysis!.Summary).FirstOrDefault()
             })
             .ToListAsync(ct));
 

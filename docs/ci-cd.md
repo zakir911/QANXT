@@ -14,25 +14,64 @@ AIRA_TOKEN="$AIRA_TOKEN" \
 node packages/cli/dist/aira.js run --suite "$SUITE_ID" --report-dir reports
 ```
 
-The command exits `0` if the run's quality gate passed and `1` if it did not, so a pipeline
-needs no extra logic to decide whether to stop.
+The command's exit code is the verdict, so a pipeline needs no extra logic to decide
+whether to stop.
 
 ## Exit codes
 
-A pipeline usually only distinguishes zero from non-zero, but "your application is broken"
-and "the tooling could not run" go to different people, so the CLI separates them.
+A pipeline usually only distinguishes zero from non-zero, but "your application is broken",
+"a rule stopped the release" and "the tooling could not run" go to three different people,
+so the CLI separates them.
 
-| Code | Meaning | Who should look |
-| --- | --- | --- |
-| `0` | The run finished and the quality gate passed | Nobody |
-| `1` | Tests failed, or a blocking gate rule was not met | The team that owns the application |
-| `2` | The command was used wrongly — a missing argument, a mistyped flag | Whoever edited the pipeline |
-| `3` | Not signed in, the token expired, or the account lacks the permission | Whoever holds the credentials |
-| `4` | The platform refused, or could not be reached | Whoever operates the deployment |
-| `5` | The run did not reach a verdict within `--timeout` | Start here, then the platform operator |
+| Code | Name | Meaning | Who should look |
+| --- | --- | --- | --- |
+| `0` | PASS | The run finished and the quality gate passed | Nobody |
+| `1` | TEST_FAILURE | One or more tests failed | The team that owns the application |
+| `2` | QUALITY_GATE_FAILURE | Every test was within tolerance and a rule stopped it anyway | The team, and whoever set the rule |
+| `3` | CONFIGURATION_ERROR | A missing argument, a mistyped flag, a project with no tests | Whoever edited the pipeline |
+| `4` | AUTHENTICATION_ERROR | Not signed in, the token expired, or the account lacks the permission | Whoever holds the credentials |
+| `5` | INFRASTRUCTURE_ERROR | The platform could not be reached, or the run never reached a verdict | Whoever operates the deployment |
+| `6` | SECURITY_POLICY_VIOLATION | A policy refused the run — an unauthorized production environment, a target outside the boundary | Read why before retrying |
+| `7` | HUMAN_REVIEW_REQUIRED | The gate's third answer: not a pass, not a failure | A person, before the release |
+| `8` | AIRA_INTERNAL_ERROR | AIRA itself failed | Report it; this is a defect in AIRA |
+
+`1` and `2` are separate because the conversation is different. "Six tests failed" is a
+defect; "every test passed and the pass rate rule was set to 100%" is a policy argument.
+
+`7` exists because REVIEW is a real third answer, and folding it into either of the others
+loses what a release decision needs. Whether it stops a pipeline is the team's choice:
+every example pipeline treats it as a warning unless `AIRA_REVIEW_BLOCKS` is set.
 
 A mistyped option is an error rather than something silently ignored: a `--juint` that is
 quietly dropped produces a green build with no report, which looks exactly like success.
+
+## Artifacts
+
+`--report-dir <dir>` writes the CI artifact layout — fixed names, so a pipeline can publish
+the directory without knowing what is in it:
+
+| File | What it is |
+| --- | --- |
+| `junit.xml` | The test result format every CI system already understands |
+| `report.json` | The whole run: every test, every gate rule with the number it measured, the CI context and the contract check |
+| `report.html` | The run as a person reads it |
+| `summary.md` | A pull request comment: the verdict first, the failures with their diagnosis next, the rest collapsed |
+| `regression-selection.json` | What `aira regression` chose and what it left out, with the reasoning — written when that command produced the run |
+
+AIRA writes `summary.md`; your CI system posts it. It already has the credentials to comment
+on a pull request, and an integration needing a second set would be another thing to grant,
+rotate and audit for no capability the pipeline does not have.
+
+## Example pipelines
+
+`infrastructure/ci/examples/` holds one per system — GitHub Actions, Azure DevOps, GitLab
+CI, Jenkins, and a plain shell script the others are variations of. Each does the same six
+things: deploy, wait for health, select, run, publish, comment.
+
+They are **not verified**: running them needs credentials for that CI system and a
+deployment of AIRA it can reach, and neither exists in this repository. What is verified is
+everything they depend on — the exit codes, the artifact layout, the summary, the selection
+— and the whole sequence end to end, locally, in `test-lab/ci-simulation/`.
 
 ## Authentication
 

@@ -3,6 +3,7 @@ import type { ExecutionSummary, QualityGateResult, RunReport, RunSummary } from 
 import { renderHtml } from './reports/html.js';
 import { renderJson } from './reports/json.js';
 import { renderJUnit } from './reports/junit.js';
+import { renderMarkdown } from './reports/markdown.js';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { note } from './output.js';
@@ -32,6 +33,8 @@ export interface ReportTargets {
   junit?: string | undefined;
   json?: string | undefined;
   html?: string | undefined;
+  /** A pull request comment: the verdict first, the failures next, the rest collapsed. */
+  markdown?: string | undefined;
 }
 
 /** Writes whichever reports were asked for, creating directories as needed. */
@@ -49,6 +52,7 @@ export async function writeReports(report: RunReport, targets: ReportTargets): P
   if (targets.junit) await write(targets.junit, renderJUnit(report));
   if (targets.json) await write(targets.json, renderJson(report));
   if (targets.html) await write(targets.html, renderHtml(report));
+  if (targets.markdown) await write(targets.markdown, renderMarkdown(report));
 
   return written;
 }

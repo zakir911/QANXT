@@ -1,0 +1,111 @@
+# AIRA validating an application on every pull request.
+#
+# NOT VERIFIED in this repository: running it needs an Azure DevOps agent and a deployment
+# of AIRA it can reach. The CLI behaviour it depends on is executed by the golden suite, and
+# the whole sequence is executed locally by test-lab/ci-simulation.
+#
+# Variables this needs: AIRA_API_URL, AIRA_PROJECT_ID, and AIRA_TOKEN as a secret.
+
+trigger:
+  branches: { include: [main] }
+pr:
+  branches: { include: [main] }
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  artifactsDir: $(Build.ArtifactStagingDirectory)/aira
+  # A pull request build diffs against the target branch; a branch build runs everything.
+  airaMode: $[ coalesce(variables['System.PullRequest.PullRequestId'], '') != '' && 'impacted' || 'full' ]
+
+steps:
+  - checkout: self
+    # `aira regression --since` needs history to diff against.
+    fetchDepth: 0
+
+  - task: NodeTool@0
+    inputs: { versionSpec: '22.x' }
+
+  - script: npm install -g @aira/cli
+    displayName: Install the AIRA CLI
+
+  - script: |
+      echo "##vso[task.setvariable variable=appUrl]https://app-$(Build.BuildId).example.com"
+    displayName: Deploy to a review environment
+
+  - script: |
+      # Health check before any test runs. A run against an application that has not
+      # finished starting reports failures that belong to the deployment.
+      for _ in $(seq 1 60); do
+        curl -fsS --max-time 5 "$(appUrl)/health" > /dev/null && exit 0
+        sleep 3
+      done
+      echo "##vso[task.logissue type=error]The deployment did not become healthy."
+      exit 1
+    displayName: Wait for the deployment
+
+  - script: |
+      set +e
+      mkdir -p "$(artifactsDir)"
+      aira regression run \
+        --since "origin/$(System.PullRequest.TargetBranchName)" \
+        --mode "$(airaMode)" \
+        --explain \
+        --report-dir "$(artifactsDir)" \
+        --ci-provider azure-devops \
+        --ci-build "$(Build.BuildId)" \
+        --ci-commit "$(Build.SourceVersion)" \
+        --ci-branch "$(Build.SourceBranchName)"
+      status=$?
+      set -e
+
+      case $status in
+        0) echo "PASS" ;;
+        1) echo "##vso[task.logissue type=error]Tests failed. See summary.md in the artifacts." ;;
+        2) echo "##vso[task.logissue type=error]The quality gate blocked this run." ;;
+        3) echo "##vso[task.logissue type=error]AIRA was configured wrongly." ;;
+        4) echo "##vso[task.logissue type=error]AIRA rejected the credentials." ;;
+        5) echo "##vso[task.logissue type=error]AIRA could not be used." ;;
+        6) echo "##vso[task.logissue type=error]A security policy refused this run." ;;
+        7)
+          # REVIEW is not a failure. Whether it stops the pipeline is this team's decision.
+          echo "##vso[task.logissue type=warning]This run needs a person to look at it."
+          [ "$(AIRA_REVIEW_BLOCKS)" = "true" ] || status=0
+          ;;
+        8) echo "##vso[task.logissue type=error]AIRA failed internally." ;;
+      esac
+      exit $status
+    displayName: Run the tests this change needs
+    env:
+      AIRA_API_URL: $(AIRA_API_URL)
+      AIRA_TOKEN: $(AIRA_TOKEN)
+      AIRA_PROJECT_ID: $(AIRA_PROJECT_ID)
+
+  # Always: a failed run is the one whose evidence somebody needs.
+  - task: PublishTestResults@2
+    condition: always()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: $(artifactsDir)/junit.xml
+      testRunTitle: AIRA
+
+  - task: PublishBuildArtifacts@1
+    condition: always()
+    inputs:
+      pathToPublish: $(artifactsDir)
+      artifactName: aira-artifacts
+
+  # Posted by Azure DevOps, because it already has the credentials to comment.
+  - script: |
+      if [ -f "$(artifactsDir)/summary.md" ] && [ -n "$(System.PullRequest.PullRequestId)" ]; then
+        body=$(jq -Rs . < "$(artifactsDir)/summary.md")
+        curl -sS -X POST \
+          -H "Authorization: Bearer $(System.AccessToken)" \
+          -H "Content-Type: application/json" \
+          -d "{\"comments\":[{\"parentCommentId\":0,\"content\":$body,\"commentType\":1}],\"status\":1}" \
+          "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_apis/git/repositories/$(Build.Repository.ID)/pullRequests/$(System.PullRequest.PullRequestId)/threads?api-version=7.0" \
+          > /dev/null || echo "The summary could not be posted; it is in the artifacts."
+      fi
+    condition: always()
+    displayName: Comment on the pull request
