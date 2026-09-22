@@ -308,5 +308,9 @@ public enum AuditAction
     TestRunStarted = 16, TestRunCompleted = 17, HealingProposed = 18, HealingApproved = 19,
     HealingRejected = 20, HealingApplied = 21, AiGeneration = 22, IntegrationConfigured = 23,
     SecretConfigured = 24, ConfigurationChanged = 25, QualityGateChanged = 26, DefectCreated = 27,
-    AgentRunStarted = 28, AgentRunCompleted = 29
+    AgentRunStarted = 28, AgentRunCompleted = 29,
+    // Schedules run without anybody present, so who changed one and when it fired are the
+    // only record of why a run exists at all.
+    ScheduleCreated = 30, ScheduleUpdated = 31, ScheduleDeleted = 32,
+    ScheduleFired = 33, ScheduleDisabledAutomatically = 34
 }

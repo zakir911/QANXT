@@ -71,6 +71,8 @@ builder.Services.AddHostedService<Aira.Api.Services.AgentRunnerService>();
 // Executions whose worker stopped reporting are ended rather than left running for
 // ever; without this a caller waits on a run that will never finish.
 builder.Services.AddHostedService<Aira.Api.Services.StrandedExecutionReaper>();
+// Regression that happens without anybody asking. Off with Scheduling:Enabled=false.
+builder.Services.AddHostedService<Aira.Api.Services.ScheduleRunnerService>();
 
 // ---- Authentication -------------------------------------------------------
 var jwtSection = builder.Configuration.GetSection("Jwt");

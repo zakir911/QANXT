@@ -27,6 +27,7 @@ const SUITES = {
   'regression-selection': () => import('./suites/regression-selection.mjs'),
   'ci-integration': () => import('./suites/ci-integration.mjs'),
   'ci-simulation': () => import('./suites/ci-simulation.mjs'),
+  scheduling: () => import('./suites/scheduling.mjs'),
   security: () => import('./suites/security.mjs'),
   reliability: () => import('./suites/reliability.mjs'),
   performance: () => import('./suites/performance.mjs')

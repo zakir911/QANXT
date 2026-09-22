@@ -73,6 +73,8 @@ public class ScheduleConfiguration : IEntityTypeConfiguration<Schedule>
         b.Property(x => x.Name).HasMaxLength(200).IsRequired();
         b.Property(x => x.CronExpression).HasMaxLength(120).IsRequired();
         b.Property(x => x.TimeZone).HasMaxLength(64);
+        b.Property(x => x.IncludeTags).HasMaxLength(500);
+        b.Property(x => x.DisabledReason).HasMaxLength(500);
         b.HasIndex(x => new { x.IsEnabled, x.NextRunAt });
     }
 }

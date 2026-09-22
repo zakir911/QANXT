@@ -36,4 +36,29 @@ public class Schedule : BaseEntity, ITenantOwned, IAuditable
     public DateTimeOffset? NextRunAt { get; set; }
     public Guid? CreatedByUserId { get; set; }
     public Guid? UpdatedByUserId { get; set; }
+
+    /// <summary>Only tests carrying one of these tags, comma separated. Empty means all.</summary>
+    /// <remarks>
+    /// The usual shape of a schedule is "the smoke tests, hourly" and "everything,
+    /// nightly", and both are tag selections rather than suites. Suite and tags are
+    /// intersected when both are set.
+    /// </remarks>
+    public string? IncludeTags { get; set; }
+
+    /// <summary>The run this schedule most recently started, so its result is one click away.</summary>
+    public Guid? LastRunId { get; set; }
+
+    /// <summary>
+    /// How many times in a row starting a run failed.
+    /// </summary>
+    /// <remarks>
+    /// A schedule pointed at a project whose application was deleted fails every hour for
+    /// ever, and each failure is a row in the log nobody reads. After enough of them the
+    /// schedule disables itself and records why, which turns an endless drip into one
+    /// thing to fix.
+    /// </remarks>
+    public int ConsecutiveFailureCount { get; set; }
+
+    /// <summary>Why the platform disabled this schedule. Null when a person disabled it.</summary>
+    public string? DisabledReason { get; set; }
 }

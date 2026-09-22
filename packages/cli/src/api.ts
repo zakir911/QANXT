@@ -19,6 +19,14 @@ export class ApiClient {
     return this.send<T>('POST', path, body);
   }
 
+  async patch<T>(path: string, body?: unknown): Promise<T> {
+    return this.send<T>('PATCH', path, body);
+  }
+
+  async delete<T = void>(path: string): Promise<T> {
+    return this.send<T>('DELETE', path);
+  }
+
   private async send<T>(method: string, path: string, body?: unknown): Promise<T> {
     let response: Response;
     try {
