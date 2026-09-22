@@ -1,0 +1,32 @@
+{
+  "testId": "DAT-006",
+  "suite": "Test data",
+  "runId": "2026-09-22T19-13-59Z",
+  "objective": "Deleting a data set a test case uses is refused rather than cascaded",
+  "preconditions": [
+    "a test case pointed at a data set"
+  ],
+  "input": "DELETE the data set",
+  "expected": "Refused with a count. Cascading would leave the tests running with no data, which reads as an application defect",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "attach 204; in use: 409 \"1 test case(s) use this data set. Point them elsewhere first — deleting it would leave them running with no data, which reads as an application defect.\"; detach 204; once freed: 204",
+  "metrics": null,
+  "startedAt": "2026-09-22T19:14:00.949Z",
+  "durationMs": 524,
+  "build": {
+    "commit": "c6b6883",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/DAT-006/2026-09-22T19-13-59Z/refusal.json",
+      "bytes": 342,
+      "sha256": "f4ab5b97d799a8e233693ef51f64cb0c2fb7bb96e2c86e43138a91491b919074"
+    }
+  ]
+}

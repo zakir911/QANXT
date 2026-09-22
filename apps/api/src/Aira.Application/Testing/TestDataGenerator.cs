@@ -20,6 +20,24 @@ public static class TestDataGenerator
     private static readonly string[] Cities =
         { "Ashford", "Brentwood", "Carlisle", "Dunstable", "Elmwood", "Fairview" };
 
+    /// <summary>
+    /// Every generator type, by name.
+    /// </summary>
+    /// <remarks>
+    /// Public so three things can share one list rather than three copies that drift: the
+    /// API validates a submitted spec against it, the CLI prints it, and the reproducibility
+    /// test enumerates it. That last one is the reason it is a set and not a comment — a
+    /// type added later is automatically covered by the test that says every seeded type
+    /// produces the same value twice, and cannot quietly opt out of the contract the way
+    /// <c>uuid</c> did (BUG-0032).
+    /// </remarks>
+    public static readonly IReadOnlySet<string> SupportedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "email", "firstName", "lastName", "fullName", "phone", "address", "postcode",
+        "number", "amount", "date", "futureDate", "uuid", "reference", "boolean",
+        "longText", "text"
+    };
+
     /// <summary>Generates a value for a field. The spec is JSON, e.g.
     /// <c>{"type":"email","domain":"example.test"}</c>; when absent, the field's own name
     /// decides, which is what makes generated tests usable without configuration.</summary>
@@ -42,9 +60,12 @@ public static class TestDataGenerator
                 int.TryParse(spec.GetValueOrDefault("min", "1"), out var min) ? min : 1,
                 int.TryParse(spec.GetValueOrDefault("max", "1000"), out var max) ? max : 1000).ToString(),
             "amount" => (random.Next(100, 100_000) / 100m).ToString("F2"),
-            "date" => DateTime.UtcNow.AddDays(random.Next(-365, 0)).ToString("yyyy-MM-dd"),
-            "futuredate" => DateTime.UtcNow.AddDays(random.Next(1, 365)).ToString("yyyy-MM-dd"),
-            "uuid" => Guid.NewGuid().ToString(),
+            // Counted from a fixed epoch when seeded and from today when not. Both halves
+            // matter: a seeded field has to give the same date next month, and an unseeded
+            // one is asking for "a date in the last year", which has to move with the year.
+            "date" => Base(seed).AddDays(random.Next(-365, 0)).ToString("yyyy-MM-dd"),
+            "futuredate" => Base(seed).AddDays(random.Next(1, 365)).ToString("yyyy-MM-dd"),
+            "uuid" => Uuid(random, seed),
             "reference" => $"AIRA-{random.Next(100_000, 999_999)}",
             "boolean" => (random.Next(2) == 1).ToString().ToLowerInvariant(),
             // A deliberately long value, for boundary tests.
@@ -52,6 +73,42 @@ public static class TestDataGenerator
                 ? Math.Clamp(len, 1, 10_000) : 256),
             "text" or _ => $"AIRA {fieldKey} {random.Next(1000, 9999)}"
         };
+    }
+
+    /// <summary>
+    /// The date a seeded field counts from.
+    /// </summary>
+    /// <remarks>
+    /// A seeded field's whole purpose is that a failure can be reproduced, so it cannot be
+    /// anchored to "today" — the value would be stable within a day and different the next,
+    /// which is the exact failure this class's summary warns about (BUG-0032). The epoch is
+    /// arbitrary and fixed; what matters is that it never moves.
+    /// </remarks>
+    private static readonly DateTime SeededEpoch = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+    private static DateTime Base(int? seed) => seed is null ? DateTime.UtcNow : SeededEpoch;
+
+    /// <summary>
+    /// A v4 UUID, drawn from the seeded generator when there is a seed.
+    /// </summary>
+    /// <remarks>
+    /// <c>Guid.NewGuid()</c> cannot be seeded, so a seeded uuid field used to produce a
+    /// different value on every call — and an identifier is exactly the sort of field a
+    /// test asserts on. The bytes come from the seeded <see cref="Random"/> and the version
+    /// and variant bits are set afterwards, so the result is still a well-formed v4.
+    ///
+    /// Without a seed it stays <c>Guid.NewGuid()</c>: nothing was promised, and a
+    /// cryptographically random identifier is the better default.
+    /// </remarks>
+    private static string Uuid(Random random, int? seed)
+    {
+        if (seed is null) return Guid.NewGuid().ToString();
+
+        var bytes = new byte[16];
+        random.NextBytes(bytes);
+        bytes[7] = (byte)((bytes[7] & 0x0F) | 0x40);   // version 4
+        bytes[8] = (byte)((bytes[8] & 0x3F) | 0x80);   // variant 1
+        return new Guid(bytes).ToString();
     }
 
     /// <summary>A cryptographically random value, for data that must not repeat between

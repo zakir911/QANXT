@@ -147,7 +147,14 @@ public sealed class TestCasesController : ApiControllerBase
 
     public sealed record UpdateTestCaseBody(
         string? Name, string? Objective, string? Preconditions, string? ExpectedResults,
-        TestPriority? Priority, RiskLevel? Risk, string? Tags, bool? IsEnabled);
+        TestPriority? Priority, RiskLevel? Risk, string? Tags, bool? IsEnabled,
+        /// <summary>The named data this test uses. An empty guid detaches it.</summary>
+        /// <remarks>
+        /// Without this, a data set could be created and never used: AI generation was the
+        /// only thing that ever set it, so a hand-authored or imported test had no way to
+        /// reach one (BUG-0033).
+        /// </remarks>
+        Guid? TestDataSetId = null);
 
     [HttpPatch("{id:guid}")]
     [RequirePermission(Permissions.TestWrite)]
@@ -164,6 +171,24 @@ public sealed class TestCasesController : ApiControllerBase
         if (body.Risk is not null) testCase.Risk = body.Risk.Value;
         if (body.Tags is not null) testCase.Tags = body.Tags.Trim();
         if (body.IsEnabled is not null) testCase.IsEnabled = body.IsEnabled.Value;
+
+        if (body.TestDataSetId is { } setId)
+        {
+            if (setId == Guid.Empty)
+            {
+                testCase.TestDataSetId = null;
+            }
+            else
+            {
+                // Scoped to the project: a data set from elsewhere would resolve to values
+                // nobody here has seen, and the resulting failure would look like a defect
+                // in the application rather than a misconfigured test.
+                var exists = await _db.TestDataSets
+                    .AnyAsync(s => s.Id == setId && s.ProjectId == testCase.ProjectId, ct);
+                if (!exists) return Problem(Error.NotFound("The test data set"));
+                testCase.TestDataSetId = setId;
+            }
+        }
 
         testCase.UpdatedByUserId = _currentUser.UserId;
         await _db.SaveChangesAsync(ct);

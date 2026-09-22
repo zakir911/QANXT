@@ -12,6 +12,7 @@ import { API_TEST_HELP, apiTestCommand } from './commands/api-test.js';
 import { CONTRACT_HELP, contractCommand } from './commands/contract.js';
 import { REGRESSION_HELP, regressionCommand } from './commands/regression.js';
 import { SCHEDULE_HELP, scheduleCommand } from './commands/schedule.js';
+import { TEST_DATA_HELP, testDataCommand } from './commands/test-data.js';
 import { appsCommand, environmentsCommand, LIST_HELP, projectsCommand } from './commands/list.js';
 
 /**
@@ -38,6 +39,7 @@ ${bold(`${PRODUCT} command line`)} ${dim(`v${VERSION}`)}
   aira contract             API contract baselines, and what has moved since
   aira regression           Run the tests a change needs, and say why
   aira schedule             Regression that happens without anybody asking
+  aira test-data            The named data a test case uses
   aira run                  Start a test run, wait for it, write reports
   aira status [run-id]      What a run did, or what the recent runs did
   aira quality-gate         Evaluate a finished run against its gate
@@ -66,6 +68,7 @@ const COMMAND_HELP: Record<string, string> = {
   contract: CONTRACT_HELP,
   regression: REGRESSION_HELP,
   schedule: SCHEDULE_HELP,
+  'test-data': TEST_DATA_HELP,
   run: RUN_HELP,
   status: STATUS_HELP,
   'quality-gate': QUALITY_GATE_HELP,
@@ -82,6 +85,7 @@ const COMMANDS: Record<string, (args: ReturnType<typeof parseArgs>) => Promise<n
   contract: contractCommand,
   regression: regressionCommand,
   schedule: scheduleCommand,
+  'test-data': testDataCommand,
   run: runCommand,
   status: statusCommand,
   'quality-gate': qualityGateCommand,
