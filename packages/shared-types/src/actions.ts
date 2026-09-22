@@ -1,3 +1,4 @@
+import type { ApiRequestDescriptor } from './api.js';
 import type { BrowserActionType } from './enums.js';
 import { ASSERTION_ACTIONS } from './enums.js';
 import type { LocatorDescriptor } from './locator.js';
@@ -20,8 +21,15 @@ export interface BrowserAction {
   count?: number;
   key?: string;
   filePath?: string;
+  /** Required by, and only meaningful for, the `apiRequest` verb. */
+  apiRequest?: ApiRequestDescriptor;
   /** When false, a failure records but does not stop the test. */
   critical?: boolean;
+}
+
+/** True when the step talks to an API instead of driving the page. */
+export function isApiAction(action: BrowserAction): boolean {
+  return action.action === 'apiRequest';
 }
 
 export function isAssertion(action: BrowserAction): boolean {

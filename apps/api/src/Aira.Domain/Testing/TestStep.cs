@@ -21,6 +21,13 @@ public class TestStep : BaseEntity, ITenantOwned
     /// Literal credentials are rejected at validation time.</summary>
     public string? Value { get; set; }
     public string? Url { get; set; }
+
+    /// <summary>Serialized <c>ApiRequestDescriptor</c>, for the <c>ApiRequest</c> verb:
+    /// method, path, headers, body, auth mode and captures. Stored as the platform's
+    /// declarative request grammar for the same reason the target is — it can be
+    /// validated, replayed and diffed, and it holds references rather than credentials.</summary>
+    public string? ApiRequestJson { get; set; }
+
     public int? TimeoutMs { get; set; }
     /// <summary>A failure here blocks the rest of the case rather than merely failing this step.</summary>
     public bool IsCritical { get; set; } = true;

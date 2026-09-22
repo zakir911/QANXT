@@ -416,7 +416,7 @@ public sealed class JourneyImportService : IJourneyImportService
     private static bool Matches(string value, string? credential)
         => !string.IsNullOrEmpty(credential) && string.Equals(value, credential, StringComparison.Ordinal);
 
-    private static bool IsAssertion(BrowserActionType action) => (int)action >= 20 && (int)action < 90;
+    private static bool IsAssertion(BrowserActionType action) => BrowserActionVerbs.IsAssertion(action);
 
     /// <summary>The planned assertion that mirrors an assertion-typed step, or null when
     /// there is no honest equivalent.

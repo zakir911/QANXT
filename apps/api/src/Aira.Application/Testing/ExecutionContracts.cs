@@ -16,10 +16,14 @@ public sealed record ExecutionJobPayload
     [JsonPropertyName("testCaseId")] public Guid TestCaseId { get; init; }
     [JsonPropertyName("testCaseName")] public string TestCaseName { get; init; } = string.Empty;
     [JsonPropertyName("testCaseVersion")] public int TestCaseVersion { get; init; }
+    [JsonPropertyName("testCaseKind")] public string TestCaseKind { get; init; } = "ui";
     [JsonPropertyName("attempt")] public int Attempt { get; init; } = 1;
     [JsonPropertyName("browser")] public string Browser { get; init; } = "chromium";
     [JsonPropertyName("headless")] public bool Headless { get; init; } = true;
     [JsonPropertyName("baseUrl")] public string BaseUrl { get; init; } = string.Empty;
+    /// <summary>Where relative API paths resolve. Equal to <see cref="BaseUrl"/> when the
+    /// API is served from the same origin as the UI.</summary>
+    [JsonPropertyName("apiBaseUrl")] public string ApiBaseUrl { get; init; } = string.Empty;
     [JsonPropertyName("auth")] public Discovery.AuthConfigPayload Auth { get; init; } = new();
     [JsonPropertyName("steps")] public List<ExecutionStepPayload> Steps { get; init; } = new();
     [JsonPropertyName("data")] public Dictionary<string, string> Data { get; init; } = new();
@@ -27,6 +31,9 @@ public sealed record ExecutionJobPayload
     [JsonPropertyName("capture")] public CaptureSettingsPayload Capture { get; init; } = new();
     [JsonPropertyName("healing")] public HealingSettingsPayload Healing { get; init; } = new();
     [JsonPropertyName("allowScriptExecution")] public bool AllowScriptExecution { get; init; }
+    /// <summary>False in an environment that refuses writes; the worker then refuses
+    /// POST, PUT, PATCH and DELETE rather than attempting them.</summary>
+    [JsonPropertyName("allowMutatingApiRequests")] public bool AllowMutatingApiRequests { get; init; } = true;
     [JsonPropertyName("allowedHosts")] public string[] AllowedHosts { get; init; } = Array.Empty<string>();
     [JsonPropertyName("allowPrivateNetworks")] public bool AllowPrivateNetworks { get; init; }
     [JsonPropertyName("defaultTimeoutMs")] public int DefaultTimeoutMs { get; init; } = 15000;

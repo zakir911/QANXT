@@ -263,10 +263,20 @@ public sealed class ApplicationService : IApplicationService
     private static string NormalizeAllowlist(string? allowedDomains, string baseUrl)
         => string.Join(',', ParseAllowlist(allowedDomains, baseUrl));
 
-    public static IReadOnlyList<string> ParseAllowlist(string? allowedDomains, string baseUrl)
+    /// <param name="extraUrls">Further URLs whose hosts belong in the list — an
+    /// environment's API base URL, say, when the API is not on the UI's origin. Hosts, not
+    /// wildcards: this widens the allowlist by exactly the origins the configuration
+    /// already names.</param>
+    public static IReadOnlyList<string> ParseAllowlist(string? allowedDomains, string baseUrl, params string[] extraUrls)
     {
         var hosts = new List<string>();
         if (Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri)) hosts.Add(uri.Host);
+
+        foreach (var extra in extraUrls)
+        {
+            if (!string.IsNullOrWhiteSpace(extra) && Uri.TryCreate(extra, UriKind.Absolute, out var extraUri))
+                hosts.Add(extraUri.Host);
+        }
 
         if (!string.IsNullOrWhiteSpace(allowedDomains))
         {

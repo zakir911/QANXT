@@ -75,7 +75,13 @@ export const EXIT_CODE_TABLE: ReadonlyArray<{ code: ExitCodeValue; name: string;
 
 /** An error that carries the exit status it should produce. */
 export class CliError extends Error {
-  constructor(message: string, readonly code: ExitCodeValue, readonly hint?: string) {
+  constructor(
+    message: string,
+    readonly code: ExitCodeValue,
+    readonly hint?: string,
+    /** Field-level problems from a validation failure, so each can be printed on its own line. */
+    readonly details?: Record<string, string[]>
+  ) {
     super(message);
     this.name = 'CliError';
   }

@@ -16,15 +16,17 @@ public sealed class TestCasesController : ApiControllerBase
 {
     private readonly IAiraDbContext _db;
     private readonly ITestGenerationService _generation;
+    private readonly IApiTestService _apiTests;
     private readonly IClock _clock;
     private readonly ICurrentUser _currentUser;
     private readonly IAuditLogger _audit;
 
     public TestCasesController(IAiraDbContext db, ITestGenerationService generation,
-        IClock clock, ICurrentUser currentUser, IAuditLogger audit)
+        IApiTestService apiTests, IClock clock, ICurrentUser currentUser, IAuditLogger audit)
     {
         _db = db;
         _generation = generation;
+        _apiTests = apiTests;
         _clock = clock;
         _currentUser = currentUser;
         _audit = audit;
@@ -33,19 +35,22 @@ public sealed class TestCasesController : ApiControllerBase
     [HttpGet]
     public async Task<IActionResult> List(
         [FromQuery] Guid? projectId, [FromQuery] Guid? testSuiteId,
-        [FromQuery] TestPriority? priority, [FromQuery] string? tag, CancellationToken ct)
+        [FromQuery] TestPriority? priority, [FromQuery] string? tag,
+        [FromQuery] TestCaseKind? kind, CancellationToken ct)
     {
         var query = _db.TestCases.AsQueryable();
         if (projectId is not null) query = query.Where(tc => tc.ProjectId == projectId);
         if (testSuiteId is not null) query = query.Where(tc => tc.TestSuiteId == testSuiteId);
         if (priority is not null) query = query.Where(tc => tc.Priority == priority);
+        if (kind is not null) query = query.Where(tc => tc.Kind == kind);
         if (!string.IsNullOrWhiteSpace(tag)) query = query.Where(tc => tc.Tags.Contains(tag));
 
         return Ok(await query
             .OrderBy(tc => tc.Reference)
             .Select(tc => new
             {
-                id = tc.Id, tc.Reference, tc.Name, tc.Objective, priority = tc.Priority, risk = tc.Risk,
+                id = tc.Id, tc.Reference, tc.Name, tc.Objective, kind = tc.Kind,
+                priority = tc.Priority, risk = tc.Risk,
                 tc.Tags, source = tc.Source, tc.IsEnabled, tc.Version, tc.TestSuiteId,
                 suiteName = tc.TestSuite!.Name, tc.ExecutionCount, tc.PassCount, tc.FailCount,
                 tc.HealCount, tc.FlakinessScore, tc.LastExecutedAt, lastStatus = tc.LastStatus,
@@ -78,7 +83,8 @@ public sealed class TestCasesController : ApiControllerBase
         return Ok(new
         {
             testCase.Id, testCase.Reference, testCase.Name, testCase.Objective, testCase.Preconditions,
-            testCase.ExpectedResults, priority = testCase.Priority, risk = testCase.Risk, testCase.Tags,
+            testCase.ExpectedResults, kind = testCase.Kind,
+            priority = testCase.Priority, risk = testCase.Risk, testCase.Tags,
             source = testCase.Source, testCase.IsEnabled, testCase.Version, testCase.RequirementReference,
             testCase.GeneratedByAiRequestId, testCase.TestSuiteId, testCase.ApplicationId,
             statistics = new
@@ -94,6 +100,10 @@ public sealed class TestCasesController : ApiControllerBase
                 target = LocatorDescriptor.FromJson(s.TargetJson),
                 targetDescription = LocatorDescriptor.FromJson(s.TargetJson)?.Describe(),
                 s.Value, s.Url, s.TimeoutMs, s.IsCritical, s.ContinueOnFailure, s.HealCount,
+                // The stored request, parsed back into its shape rather than handed over
+                // as a JSON string, so a reader of an API test sees the same structure its
+                // author wrote.
+                apiRequest = ApiRequestValidator.Deserialize(s.ApiRequestJson),
                 assertions = s.Assertions.Select(a => new
                 {
                     a.Id, type = a.Type, target = LocatorDescriptor.FromJson(a.TargetJson),
@@ -110,6 +120,16 @@ public sealed class TestCasesController : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Generate([FromBody] GenerateTestsRequest request, CancellationToken ct)
         => FromResult(await _generation.GenerateAsync(request, ct));
+
+    /// <summary>Authors an API test: one or more HTTP requests with assertions over their
+    /// responses. It is stored as an ordinary test case, so it runs in the same runs, under
+    /// the same quality gates, with the same evidence as a UI test.</summary>
+    [HttpPost("api-tests")]
+    [RequirePermission(Permissions.TestWrite)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateApiTest([FromBody] CreateApiTestRequest request, CancellationToken ct)
+        => FromResult(await _apiTests.CreateAsync(request, ct));
 
     public sealed record UpdateTestCaseBody(
         string? Name, string? Objective, string? Preconditions, string? ExpectedResults,

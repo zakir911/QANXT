@@ -268,9 +268,20 @@ public sealed class TestRunService : ITestRunService
             return Error.Validation($"{testCase.Reference} has no application to run against.");
 
         var baseUrl = environment?.BaseUrl ?? application.BaseUrl;
+        // The API is often on another origin. It is added to the allowlist explicitly
+        // rather than by widening the guard, so an API test still cannot reach a host
+        // nobody configured.
+        var apiBaseUrl = string.IsNullOrWhiteSpace(environment?.ApiBaseUrl) ? baseUrl : environment!.ApiBaseUrl!;
         var allowlist = ApplicationService.ParseAllowlist(application.AllowedDomains, baseUrl);
         if (!_targetPolicy.IsAllowed(baseUrl, allowlist, out var reason))
             return Error.Validation($"{testCase.Reference} cannot run: {reason}");
+
+        if (!string.Equals(apiBaseUrl, baseUrl, StringComparison.OrdinalIgnoreCase))
+        {
+            allowlist = ApplicationService.ParseAllowlist(application.AllowedDomains, baseUrl, apiBaseUrl);
+            if (!_targetPolicy.IsAllowed(apiBaseUrl, allowlist, out var apiReason))
+                return Error.Validation($"{testCase.Reference} cannot run: its API base URL {apiReason}");
+        }
 
         var steps = await _db.TestSteps
             .Where(s => s.TestCaseId == testCase.Id)
@@ -296,10 +307,12 @@ public sealed class TestRunService : ITestRunService
             TestCaseId = testCase.Id,
             TestCaseName = testCase.Name,
             TestCaseVersion = testCase.Version,
+            TestCaseKind = ToCamel(testCase.Kind.ToString()),
             Attempt = execution.Attempt,
             Browser = run.Browser.ToString().ToLowerInvariant(),
             Headless = run.Headless,
             BaseUrl = baseUrl,
+            ApiBaseUrl = apiBaseUrl,
             Auth = new AuthConfigPayload
             {
                 Strategy = application.AuthStrategy,
@@ -323,6 +336,7 @@ public sealed class TestRunService : ITestRunService
                     Url = step.Url,
                     TimeoutMs = step.TimeoutMs,
                     Critical = step.IsCritical,
+                    ApiRequest = ApiRequestValidator.Deserialize(step.ApiRequestJson),
                     // A step has no expected-value column of its own: the expectation lives
                     // on its assertion. The engine evaluates an assertion-typed action as
                     // well as the planned assertions, so without this the action is judged
@@ -375,6 +389,9 @@ public sealed class TestRunService : ITestRunService
                 ConfidenceThreshold = project.HealingConfidenceThreshold
             },
             AllowScriptExecution = project.AllowScriptExecution,
+            // Production refuses writes unless the environment says otherwise, and an
+            // environment with no record at all is treated as the safer case.
+            AllowMutatingApiRequests = environment is null || !environment.IsProduction || environment.AllowDestructiveTests,
             AllowedHosts = allowlist.ToArray(),
             AllowPrivateNetworks = _targetPolicy.AllowPrivateNetworks,
             DefaultTimeoutMs = project.DefaultActionTimeoutMs,

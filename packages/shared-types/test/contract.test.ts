@@ -4,10 +4,11 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
+  API_AUTH_MODES, ASSERTION_TYPES,
   BROWSER_ACTION_TYPES, BROWSER_TYPES, LOCATOR_STRATEGIES, EXECUTION_STATUSES,
-  FAILURE_CATEGORIES, RUN_TRIGGERS,
+  FAILURE_CATEGORIES, RUN_TRIGGERS, TEST_CASE_KINDS,
   ELEMENT_KINDS, PAGE_KINDS, describeLocator, locatorStability, isReference,
-  isRecordedJourney
+  isRecordedJourney, readJsonPath, statusMatches, describeJsonValue
 } from '../src/index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -70,6 +71,64 @@ test('ElementKind matches the server enum', () => {
 
 test('PageKind matches the server enum', () => {
   assert.deepEqual([...PAGE_KINDS].sort(), membersOf('PageKind').map(camel).sort());
+});
+
+test('AssertionType matches the server enum', () => {
+  // Dead assertion types are not a theoretical risk: BUG-0017 shipped two that the
+  // executor silently turned into "visible". Parity is checked so that adding one on
+  // either side without the other fails here instead of in a test report.
+  assert.deepEqual([...ASSERTION_TYPES].sort(), membersOf('AssertionType').map(camel).sort());
+});
+
+test('TestCaseKind matches the server enum', () => {
+  assert.deepEqual([...TEST_CASE_KINDS].sort(), membersOf('TestCaseKind').map(camel).sort());
+});
+
+test('ApiAuthMode matches the server enum', () => {
+  assert.deepEqual([...API_AUTH_MODES].sort(), membersOf('ApiAuthMode').map(camel).sort());
+});
+
+test('readJsonPath walks objects, arrays and indexes, and reports absence', () => {
+  const body = { data: { accounts: [{ id: 'a-1', balance: 1250.5 }, { id: 'a-2' }] }, ok: true };
+
+  assert.deepEqual(readJsonPath(body, 'data.accounts[0].id'), { found: true, value: 'a-1' });
+  assert.deepEqual(readJsonPath(body, '$.data.accounts.1.id'), { found: true, value: 'a-2' });
+  assert.deepEqual(readJsonPath(body, 'ok'), { found: true, value: true });
+  assert.deepEqual(readJsonPath(body, ''), { found: true, value: body });
+
+  // Absent is distinguished from present-and-null, because "the field is gone" and "the
+  // field is empty" are different findings about an API.
+  assert.equal(readJsonPath(body, 'data.accounts[9].id').found, false);
+  assert.equal(readJsonPath(body, 'data.missing').found, false);
+  assert.equal(readJsonPath({ a: null }, 'a').found, true);
+  assert.equal(readJsonPath({ a: null }, 'a.b').found, false);
+});
+
+test('readJsonPath does not reach inherited properties', () => {
+  // A generated path must not be able to read toString or __proto__ off a body and
+  // report it as data the API returned.
+  assert.equal(readJsonPath({}, 'toString').found, false);
+  assert.equal(readJsonPath({}, 'constructor').found, false);
+});
+
+test('statusMatches understands codes, ranges and families', () => {
+  assert.equal(statusMatches('200', 200), true);
+  assert.equal(statusMatches('200', 201), false);
+  assert.equal(statusMatches('200,201,204', 204), true);
+  assert.equal(statusMatches('200-204', 203), true);
+  assert.equal(statusMatches('200-204', 205), false);
+  assert.equal(statusMatches('2xx', 299), true);
+  assert.equal(statusMatches('2xx', 300), false);
+  assert.equal(statusMatches('4xx,5xx', 503), true);
+  assert.equal(statusMatches('', 200), false);
+});
+
+test('describeJsonValue renders values a failure message can print', () => {
+  assert.equal(describeJsonValue(undefined), '(absent)');
+  assert.equal(describeJsonValue(null), 'null');
+  assert.equal(describeJsonValue('abc'), 'abc');
+  assert.equal(describeJsonValue({ a: 1 }), '{"a":1}');
+  assert.equal(describeJsonValue('x'.repeat(200)).length, 121);
 });
 
 test('locator stability ranks semantic strategies above structural ones', () => {

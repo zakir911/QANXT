@@ -18,8 +18,18 @@ export interface ActionContext {
   allowedHosts: string[];
   allowPrivateNetworks: boolean;
   baseUrl: string;
-  /** Resolves ${secret:...} and ${data:...} references to their values. */
+  /** Resolves a value that is entirely one ${secret:...} or ${data:...} reference. */
   resolveValue(raw: string | undefined): string | undefined;
+  /**
+   * Substitutes every ${secret:...} and ${data:...} reference inside a string.
+   *
+   * Separate from resolveValue because the two are needed in different places and mean
+   * different things. A step value is the whole field, so whole-string replacement is
+   * right there. A request path is a template — `/api/accounts/${data:id}/transactions` —
+   * and treating it as a whole-string reference leaves the placeholder in the URL, which
+   * is exactly what happened the first time this ran.
+   */
+  resolveTemplate(raw: string | undefined): string | undefined;
 }
 
 export class ActionError extends Error {

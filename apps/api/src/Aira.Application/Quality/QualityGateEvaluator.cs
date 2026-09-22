@@ -25,7 +25,11 @@ public sealed record QualityGateResult(
 public sealed record QualityGateRuleResult(
     Guid RuleId, string Name, QualityGateMetric Metric, QualityGateOperator Operator,
     decimal Threshold, decimal ActualValue, bool Passed, bool IsBlocking, string Explanation,
-    QualityGateAction Action = QualityGateAction.Fail);
+    QualityGateAction Action = QualityGateAction.Fail,
+    /// <summary>False when this run could not measure the rule's metric at all. Such a
+    /// rule is never reported as satisfied: a threshold compared against a value nobody
+    /// measured reads as a guarantee and is not one.</summary>
+    bool Measured = true);
 
 public interface IQualityGateEvaluator
 {
@@ -85,7 +89,22 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
 
         foreach (var rule in rules)
         {
-            var actual = metrics.GetValueOrDefault(rule.Metric, 0m);
+            // Absent, not zero. A metric this run had no way to measure must not be
+            // silently compared as 0 — that is how a rule intended to stop a release
+            // becomes a rule that always passes.
+            var measured = metrics.TryGetValue(rule.Metric, out var actual);
+
+            if (!measured)
+            {
+                results.Add(new QualityGateRuleResult(
+                    rule.Id, rule.Name, rule.Metric, rule.Operator, rule.Threshold, 0m,
+                    Passed: false, rule.IsBlocking,
+                    $"{Describe(rule.Metric)} was not measured for this run, so this rule could not be "
+                    + "evaluated. It is reported for review rather than treated as satisfied.",
+                    QualityGateAction.Review, Measured: false));
+                continue;
+            }
+
             var passed = Compare(actual, rule.Operator, rule.Threshold);
             // A rule with no Action set at all came from before actions existed; a blocking
             // rule meant fail and a non-blocking one meant warn.
@@ -197,6 +216,14 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
             .Where(f => f.TestExecutionId != null && executionIds.Contains(f.TestExecutionId) && f.IsRegression)
             .CountAsync(ct);
 
+        // Measurable now that a test case records what it drives. Counted separately from
+        // FailedCount because "the UI is fine but two endpoints are broken" and "two UI
+        // journeys are broken" are different releases.
+        var apiFailed = await _db.TestExecutions
+            .Where(e => e.TestRunId == run.Id && failedStatuses.Contains(e.Status)
+                        && e.TestCase!.Kind == TestCaseKind.Api)
+            .CountAsync(ct);
+
         var flakyRate = finished == 0 ? 0m : run.FlakyCount * 100m / finished;
 
         return new Dictionary<QualityGateMetric, decimal>
@@ -205,6 +232,7 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
             [QualityGateMetric.MediumFailedCount] = mediumFailed,
             [QualityGateMetric.BlockedCount] = blocked,
             [QualityGateMetric.RegressionFailedCount] = regressionFailed,
+            [QualityGateMetric.ApiFailedCount] = apiFailed,
             [QualityGateMetric.FlakyRatePercent] = Math.Round(flakyRate, 2),
             [QualityGateMetric.PassRatePercent] = Math.Round(passRate, 2),
             [QualityGateMetric.FailedCount] = run.FailedCount,

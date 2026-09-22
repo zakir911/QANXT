@@ -1,5 +1,7 @@
 import type { BrowserAction } from './actions.js';
-import type { AuthenticationStrategy, BrowserName, ExecutionStatus, HealingPolicy } from './enums.js';
+import type {
+  AuthenticationStrategy, BrowserName, ExecutionStatus, HealingPolicy, TestCaseKind
+} from './enums.js';
 import type { ElementFingerprint, LocatorDescriptor } from './locator.js';
 
 /** Queue names, mirrored from the control plane so producers and consumers agree. */
@@ -93,10 +95,14 @@ export interface ExecutionJob {
   testCaseId: string;
   testCaseName: string;
   testCaseVersion: number;
+  /** 'api' cases need no page; a browser is still opened when the plan mixes the two. */
+  testCaseKind?: TestCaseKind;
   attempt: number;
   browser: BrowserName;
   headless: boolean;
   baseUrl: string;
+  /** Where relative API paths resolve. Falls back to baseUrl when the API shares the origin. */
+  apiBaseUrl?: string;
   auth: AuthConfig;
   steps: ExecutionStepPlan[];
   /** Values for `${data:...}` references, already resolved and, where sensitive, masked in logs. */
@@ -106,6 +112,8 @@ export interface ExecutionJob {
   capture: CaptureSettings;
   healing: HealingSettings;
   allowScriptExecution: boolean;
+  /** False in an environment that refuses writes: POST/PUT/PATCH/DELETE are then refused. */
+  allowMutatingApiRequests?: boolean;
   allowedHosts: string[];
   allowPrivateNetworks: boolean;
   defaultTimeoutMs: number;

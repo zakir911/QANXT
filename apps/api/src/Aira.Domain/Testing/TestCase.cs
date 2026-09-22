@@ -22,6 +22,12 @@ public class TestCase : BaseEntity, ITenantOwned, IAuditable, ISoftDeletable
     public string Preconditions { get; set; } = string.Empty;
     public string ExpectedResults { get; set; } = string.Empty;
 
+    /// <summary>Whether this test drives a UI, calls an API, or both. An API test is a
+    /// test case like any other — same suites, runs, evidence and gates — but a run needs
+    /// to count API failures separately, and a regression selector needs to know which
+    /// tests need no browser.</summary>
+    public TestCaseKind Kind { get; set; } = TestCaseKind.Ui;
+
     public TestPriority Priority { get; set; } = TestPriority.Medium;
     public RiskLevel Risk { get; set; } = RiskLevel.Medium;
     public string Tags { get; set; } = string.Empty;

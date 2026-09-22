@@ -12,6 +12,7 @@ export const BROWSER_ACTION_TYPES = [
   'hover', 'press', 'upload', 'download', 'wait', 'screenshot', 'scroll',
   'assertText', 'assertVisible', 'assertHidden', 'assertUrl', 'assertValue',
   'assertCount', 'assertAttribute', 'assertEnabled', 'assertDisabled',
+  'apiRequest',
   'executeScript'
 ] as const;
 export type BrowserActionType = (typeof BROWSER_ACTION_TYPES)[number];
@@ -62,7 +63,28 @@ export type HealingPolicy = 'never' | 'suggest' | 'auto';
 export type AuthenticationStrategy = 'none' | 'formLogin' | 'storageState' | 'bearerToken' | 'basicAuth';
 export type TestPriority = 'critical' | 'high' | 'medium' | 'low';
 export type RiskLevel = 'critical' | 'high' | 'medium' | 'low';
-export type AssertionType =
-  | 'textEquals' | 'textContains' | 'visible' | 'hidden' | 'urlEquals' | 'urlContains'
-  | 'valueEquals' | 'countEquals' | 'attributeEquals' | 'enabled' | 'disabled'
-  | 'httpStatusEquals' | 'noConsoleErrors';
+export const ASSERTION_TYPES = [
+  'textEquals', 'textContains', 'visible', 'hidden', 'urlEquals', 'urlContains',
+  'valueEquals', 'countEquals', 'attributeEquals', 'enabled', 'disabled',
+  'httpStatusEquals', 'noConsoleErrors',
+  'responseStatusIn', 'responseTimeUnderMs', 'responseBodyContains',
+  'responseJsonPathEquals', 'responseJsonPathExists', 'responseJsonPathMatches',
+  'responseHeaderEquals', 'responseSchemaMatches'
+] as const;
+export type AssertionType = (typeof ASSERTION_TYPES)[number];
+
+/** Assertion types evaluated against an HTTP response rather than a page. */
+export const RESPONSE_ASSERTION_TYPES: readonly AssertionType[] = [
+  'httpStatusEquals', 'responseStatusIn', 'responseTimeUnderMs', 'responseBodyContains',
+  'responseJsonPathEquals', 'responseJsonPathExists', 'responseJsonPathMatches',
+  'responseHeaderEquals', 'responseSchemaMatches'
+];
+
+export const TEST_CASE_KINDS = ['ui', 'api', 'mixed'] as const;
+export type TestCaseKind = (typeof TEST_CASE_KINDS)[number];
+
+export const API_AUTH_MODES = [
+  'none', 'inheritSession', 'bearer', 'basic', 'apiKeyHeader', 'apiKeyQuery',
+  'oAuth2ClientCredentials'
+] as const;
+export type ApiAuthMode = (typeof API_AUTH_MODES)[number];

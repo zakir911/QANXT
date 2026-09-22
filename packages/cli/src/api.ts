@@ -48,6 +48,16 @@ export class ApiClient {
       throw new CliError('The account is not permitted to do that.', ExitCode.AuthenticationError,
         'Ask an organization administrator for the required role.');
     }
+    if (response.status === 400 || response.status === 404 || response.status === 409 || response.status === 422) {
+      // The request was wrong, not the platform. Reporting this as an infrastructure
+      // error would send a pipeline's failure to whoever runs the platform instead of to
+      // whoever wrote the configuration that caused it.
+      throw new CliError(
+        describeProblem(text),
+        ExitCode.ConfigurationError,
+        undefined,
+        problemDetails(text));
+    }
     if (!response.ok) {
       throw new CliError(
         `${method} ${path} failed (${response.status}).`,
@@ -75,6 +85,16 @@ function describeProblem(text: string): string {
     return problem.correlationId ? `${message} (correlation ${problem.correlationId})` : message;
   } catch {
     return text.slice(0, 300);
+  }
+}
+
+/** The per-field problems a validation failure carries, when it carries any. */
+function problemDetails(text: string): Record<string, string[]> | undefined {
+  try {
+    const problem = JSON.parse(text) as { errors?: Record<string, string[]> };
+    return problem.errors && Object.keys(problem.errors).length > 0 ? problem.errors : undefined;
+  } catch {
+    return undefined;
   }
 }
 

@@ -143,7 +143,7 @@ function browserFlag(args: ParsedArgs): BrowserType | undefined {
   return value as BrowserType;
 }
 
-function ciContext(args: ParsedArgs): unknown {
+export function ciContext(args: ParsedArgs): unknown {
   // The common CI variables are read automatically, so a pipeline usually passes nothing.
   const provider = flag(args, 'ci-provider')
     ?? (process.env.GITHUB_ACTIONS ? 'github' : undefined)
@@ -161,7 +161,7 @@ function ciContext(args: ParsedArgs): unknown {
   return { provider, buildId, commitSha, branch, applicationBuildRef };
 }
 
-function reportTargets(args: ParsedArgs): { junit?: string; json?: string; html?: string } {
+export function reportTargets(args: ParsedArgs): { junit?: string; json?: string; html?: string } {
   const dir = flag(args, 'report-dir');
   return {
     junit: flag(args, 'junit') ?? (dir ? `${dir}/junit.xml` : undefined),
@@ -170,7 +170,7 @@ function reportTargets(args: ParsedArgs): { junit?: string; json?: string; html?
   };
 }
 
-async function waitForRun(
+export async function waitForRun(
   api: ApiClient,
   runId: string,
   options: { timeoutMs: number; pollMs: number }
@@ -200,7 +200,7 @@ async function waitForRun(
   }
 }
 
-function printSummary(run: RunSummary, report: Awaited<ReturnType<typeof gatherReport>>): void {
+export function printSummary(run: RunSummary, report: Awaited<ReturnType<typeof gatherReport>>): void {
   note('');
   for (const execution of report.executions) {
     const verdict = verdictOf(execution.status);

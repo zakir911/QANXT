@@ -12,6 +12,10 @@ import { LocatorHealer } from '../healing/healer.js';
 import { SecretMasker } from '../security/masker.js';
 import type { Logger } from '../util/logger.js';
 import { ActionError, evaluateAssertion, runAction, type ActionContext } from './action-runner.js';
+import {
+  ApiStatusError, ApiTransportError, evaluateResponseAssertion, isResponseAssertion,
+  performApiRequest, type ApiRequestContextOptions, type ApiRequestOutcome
+} from './api-runner.js';
 import { EvidenceCollector } from './evidence-collector.js';
 
 /**
@@ -94,8 +98,16 @@ export class TestExecutor {
         await context.tracing.start({ screenshots: true, snapshots: true, sources: false });
       }
 
-      page = await context.newPage();
-      collector.attach(page);
+      // A test that only calls APIs still runs in a browser context, because that is
+      // where the session, the allowlist and the evidence collector live. The page is
+      // what it can do without: opening one costs a second and a process, and an API
+      // test that never inherits a UI session has no use for it.
+      if (needsPage(job)) {
+        page = await context.newPage();
+        collector.attach(page);
+      } else {
+        this.logger.info('No page opened: every step in this test calls an API directly.', { executionId: job.executionId });
+      }
 
       // A test that signs in for itself must not be signed in for.
       //
@@ -113,7 +125,7 @@ export class TestExecutor {
         this.logger.info('Skipping the configured sign-in: this test starts at the login page and signs in itself.', { executionId: job.executionId });
       }
 
-      if (auth.strategy === 'formLogin' && !testSignsInItself) {
+      if (auth.strategy === 'formLogin' && !testSignsInItself && page) {
         const login = await performLogin(page, auth, {
           navigationTimeoutMs: Math.max(job.defaultTimeoutMs, 30_000),
           actionTimeoutMs: job.defaultTimeoutMs
@@ -134,7 +146,15 @@ export class TestExecutor {
         allowedHosts: job.allowedHosts,
         allowPrivateNetworks: job.allowPrivateNetworks,
         baseUrl: job.baseUrl,
-        resolveValue: raw => resolveReference(raw, job)
+        resolveValue: raw => resolveReference(raw, job),
+        resolveTemplate: raw => interpolateReferences(raw, job)
+      };
+
+      const apiOptions: ApiRequestContextOptions = {
+        apiBaseUrl: job.apiBaseUrl ?? job.baseUrl,
+        allowMutatingRequests: job.allowMutatingApiRequests !== false,
+        masker,
+        page
       };
 
       for (const [index, step] of job.steps.entries()) {
@@ -143,7 +163,7 @@ export class TestExecutor {
         collector.setCurrentAction(step.order);
         await options.onProgress?.(step.action.description, index + 1, job.steps.length);
 
-        const result = await this.runStep(page, step, actionContext, job, collector, healer, masker);
+        const result = await this.runStep(page, step, actionContext, apiOptions, job, collector, healer, masker);
         actions.push(result.report);
         if (result.healingEvent) healingEvents.push(result.healingEvent);
         await options.onActionCompleted?.(result.report);
@@ -237,9 +257,10 @@ export class TestExecutor {
 
   /** Runs one step: action, healing if the locator broke, then its assertions. */
   private async runStep(
-    page: Page,
+    page: Page | undefined,
     step: ExecutionStepPlan,
     context: ActionContext,
+    apiOptions: ApiRequestContextOptions,
     job: ExecutionJob,
     collector: EvidenceCollector,
     healer: LocatorHealer,
@@ -248,7 +269,7 @@ export class TestExecutor {
     const startedAt = new Date();
     const started = Date.now();
 
-    const before = job.capture.screenshotOnEveryAction
+    const before = job.capture.screenshotOnEveryAction && page
       ? await collector.screenshot(page, `step-${step.order}-before`)
       : undefined;
 
@@ -260,7 +281,7 @@ export class TestExecutor {
       status: 'running',
       startedAt: startedAt.toISOString(),
       durationMs: 0,
-      url: safeUrl(page),
+      url: page ? safeUrl(page) : step.action.apiRequest?.path,
       locatorUsed: step.action.target,
       maskedValue: masker.maskStepValue(step.action.value, isSensitiveStep(step)),
       wasHealed: false
@@ -271,6 +292,23 @@ export class TestExecutor {
     let healed = false;
     let healingConfidence: number | undefined;
     let alternatives = base.locatorAlternatives;
+
+    // An API step has no locator, nothing to heal and a different kind of evidence, so it
+    // is handled whole rather than threaded through the browser path with null checks.
+    if (step.action.action === 'apiRequest') {
+      return { report: await this.runApiStep(step, context, apiOptions, job, collector, masker, base, started) };
+    }
+
+    if (!page) {
+      return {
+        report: {
+          ...base,
+          status: 'error',
+          durationMs: Date.now() - started,
+          errorMessage: `The step "${step.action.action}" needs a browser page, but this test opened none.`
+        }
+      };
+    }
 
     try {
       await runAction(page, step.action, context);
@@ -409,6 +447,117 @@ export class TestExecutor {
     };
   }
 
+  /**
+   * Runs one `apiRequest` step: perform the call, record the exchange, evaluate the
+   * response assertions.
+   *
+   * The exchange is written as evidence on every path, including the failing ones. That is
+   * the whole point of an API test being a test case: when it fails, the report can show
+   * the request that was sent and the response that came back, rather than a message
+   * saying an assertion did not hold.
+   */
+  private async runApiStep(
+    step: ExecutionStepPlan,
+    context: ActionContext,
+    apiOptions: ApiRequestContextOptions,
+    job: ExecutionJob,
+    collector: EvidenceCollector,
+    masker: SecretMasker,
+    base: ActionResultReport,
+    started: number
+  ): Promise<ActionResultReport> {
+    const descriptor = step.action.apiRequest;
+    if (!descriptor) {
+      return {
+        ...base,
+        status: 'error',
+        durationMs: Date.now() - started,
+        errorMessage: 'This step is an API request but carries no request description.'
+      };
+    }
+
+    const fail = async (outcome: ApiRequestOutcome | undefined, message: string): Promise<ActionResultReport> => {
+      if (outcome) {
+        collector.recordApiExchange(outcome.record);
+        await collector.writeApiExchange(`step-${step.order}-request`, outcome.record);
+      }
+      return {
+        ...base,
+        status: 'failed',
+        durationMs: Date.now() - started,
+        url: outcome?.record.requestUrl ?? base.url,
+        errorMessage: masker.maskText(message)
+      };
+    };
+
+    let outcome: ApiRequestOutcome;
+    try {
+      outcome = await performApiRequest(descriptor, context, apiOptions);
+    } catch (error) {
+      // A status the test did not expect, and a request that never completed, both carry
+      // the exchange with them so the failure is explainable.
+      if (error instanceof ApiStatusError || error instanceof ApiTransportError) {
+        return fail(error.outcome, error.message);
+      }
+      const message = error instanceof Error ? error.message.split('\n')[0] ?? error.message : String(error);
+      return {
+        ...base,
+        status: 'failed',
+        durationMs: Date.now() - started,
+        errorMessage: masker.maskText(message)
+      };
+    }
+
+    // Captured values become test data for later steps, which is how a chain of calls —
+    // create, then read back what was created — is expressed without scripting.
+    for (const [name, value] of Object.entries(outcome.captured)) {
+      job.data[name] = value;
+    }
+
+    collector.recordApiExchange(outcome.record);
+    await collector.writeApiExchange(`step-${step.order}-request`, outcome.record);
+
+    for (const assertion of step.assertions) {
+      if (!isResponseAssertion(assertion.type)) {
+        // Not evaluated as if it had passed. An assertion about the page attached to a
+        // step that never touched the page is a defect in the test, and saying so is the
+        // only answer that does not hide it.
+        return {
+          ...base,
+          status: 'failed',
+          durationMs: Date.now() - started,
+          url: outcome.record.requestUrl,
+          errorMessage: `The assertion "${assertion.description || assertion.type}" is a page assertion `
+            + 'attached to an API request step, so there was nothing to evaluate it against.'
+        };
+      }
+
+      const result = evaluateResponseAssertion(assertion, outcome, context);
+      if (result.failure && !assertion.isSoft) {
+        return {
+          ...base,
+          status: 'failed',
+          durationMs: Date.now() - started,
+          url: outcome.record.requestUrl,
+          errorMessage: masker.maskText(`${assertion.description || 'Assertion failed'}: ${result.failure}`)
+        };
+      }
+      if (result.failure) {
+        this.logger.warn('A soft response assertion failed', { testStepId: step.testStepId, failure: result.failure });
+      }
+    }
+
+    return {
+      ...base,
+      status: 'passed',
+      durationMs: Date.now() - started,
+      url: outcome.record.requestUrl,
+      // The status and timing belong in the report line, because for an API test they are
+      // the result rather than a detail.
+      description: `${base.description} — ${outcome.record.statusCode} in ${outcome.record.durationMs}ms`
+    };
+  }
+
   private async failureEvidence(
     page: Page, step: ExecutionStepPlan, collector: EvidenceCollector,
     job: ExecutionJob, before?: { storageKey: string }
@@ -424,6 +573,21 @@ export class TestExecutor {
 }
 
 class PreconditionError extends Error {}
+
+/**
+ * Whether this job needs a browser page at all.
+ *
+ * Only a test whose every step is an API request can do without one, and only when none of
+ * those requests reuses the UI session — which is the case that needs a page to have signed
+ * in. A missing auth mode is treated as session-reuse, because that is the default the
+ * runner applies, and guessing the cheaper answer here would break the test instead.
+ */
+export function needsPage(job: ExecutionJob): boolean {
+  if (job.steps.length === 0) return true;
+  return job.steps.some(step =>
+    step.action.action !== 'apiRequest'
+    || (step.action.apiRequest?.auth?.mode ?? 'inheritSession') === 'inheritSession');
+}
 
 /** Resolves ${secret:x} and ${data:x} references against the job's resolved values. */
 export function resolveReference(raw: string | undefined, job: ExecutionJob): string | undefined {
@@ -448,6 +612,32 @@ export function resolveReference(raw: string | undefined, job: ExecutionJob): st
   }
 
   return raw;
+}
+
+/**
+ * Substitutes every reference inside a string.
+ *
+ * An unknown name throws rather than being left in place, for the same reason
+ * resolveReference throws: a request sent to `/api/accounts/${data:accountId}/transactions`
+ * with the placeholder intact produces a 404 that reads as an application defect, and the
+ * team spends the morning looking for a route that was never missing.
+ */
+export function interpolateReferences(raw: string | undefined, job: ExecutionJob): string | undefined {
+  if (raw === undefined) return undefined;
+  if (!raw.includes('${')) return raw;
+
+  return raw.replace(/\$\{(secret|data):([A-Za-z0-9_.-]+)\}/g, (_match, kind: string, name: string) => {
+    const source = kind === 'secret' ? job.secrets : job.data;
+    const value = source[name];
+    if (value === undefined) {
+      throw new ActionError(
+        kind === 'secret'
+          ? `The step references the secret "${name}", which is not configured for this environment.`
+          : `The step references the test data field "${name}", which is not present in the selected data set.`,
+        false);
+    }
+    return value;
+  });
 }
 
 function isSensitiveStep(step: ExecutionStepPlan): boolean {

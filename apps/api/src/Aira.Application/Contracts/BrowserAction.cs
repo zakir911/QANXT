@@ -23,9 +23,39 @@ public sealed record BrowserAction
     [JsonPropertyName("count")] public int? Count { get; init; }
     [JsonPropertyName("key")] public string? Key { get; init; }
     [JsonPropertyName("filePath")] public string? FilePath { get; init; }
+
+    /// <summary>Required by, and only meaningful for, <see cref="BrowserActionType.ApiRequest"/>.</summary>
+    [JsonPropertyName("apiRequest")] public ApiRequestDescriptor? ApiRequest { get; init; }
+
     [JsonPropertyName("critical")] public bool Critical { get; init; } = true;
 
-    public bool IsAssertion => (int)Action >= 20 && (int)Action < 90;
+    /// <summary>Whether this verb asserts rather than acts.
+    ///
+    /// An explicit set, not a numeric range. The range it used to be — 20 to 89 — meant
+    /// that adding any verb in that band silently became an assertion, and adding
+    /// <c>ApiRequest = 30</c> did exactly that: a request that performs a POST would have
+    /// been reported as a check that found nothing wrong.</summary>
+    public bool IsAssertion => BrowserActionVerbs.IsAssertion(Action);
+}
+
+/// <summary>The one place that knows which verbs assert.
+///
+/// It exists because three places used to know it independently, each by the same numeric
+/// range, and adding one verb inside that range would have been enough to make a request
+/// that performs a POST report itself as a check that found nothing wrong.</summary>
+public static class BrowserActionVerbs
+{
+    private static readonly HashSet<BrowserActionType> Assertions = new()
+    {
+        BrowserActionType.AssertText, BrowserActionType.AssertVisible, BrowserActionType.AssertHidden,
+        BrowserActionType.AssertUrl, BrowserActionType.AssertValue, BrowserActionType.AssertCount,
+        BrowserActionType.AssertAttribute, BrowserActionType.AssertEnabled, BrowserActionType.AssertDisabled
+    };
+
+    public static bool IsAssertion(BrowserActionType action) => Assertions.Contains(action);
+
+    /// <summary>Verbs that talk to an API instead of driving the page.</summary>
+    public static bool IsApi(BrowserActionType action) => action == BrowserActionType.ApiRequest;
 }
 
 public sealed record BrowserActionValidationResult(bool IsValid, IReadOnlyList<string> Errors)
@@ -99,6 +129,20 @@ public static class BrowserActionValidator
 
         if (action.Action == BrowserActionType.Upload && string.IsNullOrWhiteSpace(action.FilePath))
             errors.Add("upload requires a filePath from the managed test-file store.");
+
+        if (action.Action == BrowserActionType.ApiRequest)
+        {
+            if (action.ApiRequest is null)
+                errors.Add("apiRequest requires a request description.");
+            else
+                errors.AddRange(ApiRequestValidator.Validate(action.ApiRequest, policy).Errors);
+        }
+        else if (action.ApiRequest is not null)
+        {
+            // Not ignored. A request attached to a click would never be sent, and a test
+            // whose author believes otherwise is worse than one that fails to save.
+            errors.Add($"Action '{action.Action}' cannot carry a request description; only apiRequest can.");
+        }
 
         if (action.Target is not null)
             ValidateLocator(action.Target, policy, errors, depth: 0);

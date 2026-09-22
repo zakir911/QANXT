@@ -480,7 +480,7 @@ public sealed class TestGenerationService : ITestGenerationService
         return highest + 1;
     }
 
-    private static bool IsAssertionAction(BrowserActionType action) => (int)action >= 20 && (int)action < 90;
+    private static bool IsAssertionAction(BrowserActionType action) => BrowserActionVerbs.IsAssertion(action);
 
     private static AssertionType MapAssertionType(BrowserActionType action) => action switch
     {

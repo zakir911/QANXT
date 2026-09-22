@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import type { BrowserContext, ConsoleMessage, Page, Response } from 'playwright';
 import type {
-  ArtifactReport, ConsoleEventReport, NetworkEventReport
+  ApiResponseRecord, ArtifactReport, ConsoleEventReport, NetworkEventReport
 } from '@aira/shared-types';
 import type { SecretMasker } from '../security/masker.js';
 import type { Logger } from '../util/logger.js';
@@ -122,6 +122,54 @@ export class EvidenceCollector {
       occurredAt: new Date().toISOString(),
       actionOrder: this.currentActionOrder
     });
+  }
+
+  /**
+   * Records a request the API runner performed.
+   *
+   * It is stored as a network event rather than as a new kind of thing, because it is one:
+   * the same table already holds the calls the browser made, tagged with the action that
+   * caused them. Keeping both in one place is what lets a report say "this UI step failed
+   * and here is the API call underneath it" without a second join, and it means API
+   * evidence appears in the existing reports, the existing console and the existing
+   * correlation logic with nothing added.
+   *
+   * The record arrives already masked — masking here would be too late, because the caller
+   * has the unmasked values.
+   */
+  recordApiExchange(record: ApiResponseRecord): void {
+    this.networkEvents.push({
+      method: record.requestMethod,
+      url: record.requestUrl.slice(0, 2000),
+      // Distinguishes a call AIRA made deliberately from one the page happened to make.
+      resourceType: 'apiTest',
+      statusCode: record.transportError ? undefined : record.statusCode,
+      durationMs: record.durationMs,
+      requestSizeBytes: record.requestBodyExcerpt ? Buffer.byteLength(record.requestBodyExcerpt) : 0,
+      responseSizeBytes: record.responseSizeBytes,
+      requestHeaders: record.requestHeaders,
+      responseHeaders: record.responseHeaders,
+      requestBodyExcerpt: record.requestBodyExcerpt,
+      responseBodyExcerpt: record.responseBodyExcerpt,
+      isFailed: record.transportError !== undefined || record.statusCode >= 400,
+      failureText: record.transportError,
+      occurredAt: new Date().toISOString(),
+      actionOrder: this.currentActionOrder
+    });
+  }
+
+  /** Writes the full exchange as a file, so a failure can be read without the database. */
+  async writeApiExchange(name: string, record: ApiResponseRecord): Promise<ArtifactReport | undefined> {
+    try {
+      await mkdir(this.directory, { recursive: true });
+      const fileName = `${safeName(name)}.http.json`;
+      const path = join(this.directory, fileName);
+      await writeFile(path, JSON.stringify(record, null, 2), 'utf8');
+      return this.register('other', fileName, path, 'application/json', true);
+    } catch (error) {
+      this.logger.warn('Could not write an API exchange', { name, error: String(error) });
+      return undefined;
+    }
   }
 
   async screenshot(page: Page, name: string, fullPage = false): Promise<ArtifactReport | undefined> {

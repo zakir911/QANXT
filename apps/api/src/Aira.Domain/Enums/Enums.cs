@@ -55,6 +55,11 @@ public enum BrowserActionType
     Hover = 7, Press = 8, Upload = 9, Download = 10, Wait = 11, Screenshot = 12, Scroll = 13,
     AssertText = 20, AssertVisible = 21, AssertHidden = 22, AssertUrl = 23, AssertValue = 24,
     AssertCount = 25, AssertAttribute = 26, AssertEnabled = 27, AssertDisabled = 28,
+    /// <summary>Performs an HTTP request against the application's API rather than driving
+    /// the browser. It is a step verb rather than a separate execution model so that runs,
+    /// evidence, failure analysis, healing policy and quality gates all apply unchanged.
+    /// Its request is described by <c>TestStep.ApiRequestJson</c>.</summary>
+    ApiRequest = 30,
     /// <summary>Only permitted when the project explicitly allows scripting AND the caller
     /// holds the execution:script permission. Rejected by default.</summary>
     ExecuteScript = 90
@@ -64,7 +69,57 @@ public enum AssertionType
 {
     TextEquals = 0, TextContains = 1, Visible = 2, Hidden = 3, UrlEquals = 4, UrlContains = 5,
     ValueEquals = 6, CountEquals = 7, AttributeEquals = 8, Enabled = 9, Disabled = 10,
-    HttpStatusEquals = 11, NoConsoleErrors = 12
+    HttpStatusEquals = 11, NoConsoleErrors = 12,
+
+    // ---- Assertions over an HTTP response (the ApiRequest verb) ----
+    // Each of these is evaluated by the worker's API runner. Nothing is added here that the
+    // runner cannot evaluate: an assertion type that silently maps to "visible" is worse
+    // than one that does not exist, which is what BUG-0017 was.
+
+    /// <summary>The status is one of a comma-separated list, or within an <c>NNN-NNN</c>
+    /// range. Written separately from <see cref="HttpStatusEquals"/> because "any 2xx" is a
+    /// legitimate expectation and encoding it as six equality rules is not.</summary>
+    ResponseStatusIn = 13,
+    /// <summary>The response arrived within N milliseconds. This is a functional
+    /// expectation on one call, not a performance measurement.</summary>
+    ResponseTimeUnderMs = 14,
+    ResponseBodyContains = 15,
+    /// <summary>A JSON value at a path equals the expected value. The path grammar is a
+    /// deliberately small subset: <c>a.b[0].c</c>.</summary>
+    ResponseJsonPathEquals = 16,
+    /// <summary>A JSON value at a path is present and not null.</summary>
+    ResponseJsonPathExists = 17,
+    /// <summary>A JSON value at a path matches a regular expression.</summary>
+    ResponseJsonPathMatches = 18,
+    ResponseHeaderEquals = 19,
+    /// <summary>The response body's shape matches a stored baseline. What "matches" means
+    /// is the contract comparison: a field that vanished is a breaking change, a field that
+    /// appeared is not.</summary>
+    ResponseSchemaMatches = 20
+}
+
+/// <summary>What a test drives. An API test is still a <c>TestCase</c> — same suites, runs,
+/// evidence and gates — but a run needs to be able to count API failures separately, and a
+/// regression selector needs to know which tests do not need a browser.</summary>
+public enum TestCaseKind { Ui = 0, Api = 1, Mixed = 2 }
+
+/// <summary>How an API request authenticates. Separate from
+/// <see cref="AuthenticationStrategy"/>, which describes signing into a UI.</summary>
+public enum ApiAuthMode
+{
+    /// <summary>Send nothing. Used deliberately for negative tests that assert a 401.</summary>
+    None = 0,
+    /// <summary>Reuse the browser context's cookies — the session a UI login established.
+    /// This is what makes an API test able to follow a UI journey.</summary>
+    InheritSession = 1,
+    Bearer = 2,
+    Basic = 3,
+    /// <summary>A header whose name the application chooses (X-API-Key and friends).</summary>
+    ApiKeyHeader = 4,
+    ApiKeyQuery = 5,
+    /// <summary>OAuth2 client credentials, exchanged at execution time. The token is never
+    /// stored and never appears in evidence.</summary>
+    OAuth2ClientCredentials = 6
 }
 
 public enum ExecutionStatus

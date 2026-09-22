@@ -34,6 +34,9 @@ public class TestCaseConfiguration : IEntityTypeConfiguration<TestCase>
         b.HasIndex(x => x.TestSuiteId);
         // Dashboard queries slice by status and recency constantly.
         b.HasIndex(x => new { x.ProjectId, x.LastStatus, x.LastExecutedAt });
+        // Regression selection and the gate's API metric both ask "which of these are API
+        // tests?" over a whole project.
+        b.HasIndex(x => new { x.ProjectId, x.Kind });
         b.HasOne(x => x.TestSuite).WithMany(s => s.TestCases)
             .HasForeignKey(x => x.TestSuiteId).OnDelete(DeleteBehavior.Cascade);
         b.HasOne(x => x.TestDataSet).WithMany()
@@ -48,6 +51,7 @@ public class TestStepConfiguration : IEntityTypeConfiguration<TestStep>
         b.ToTable("test_steps");
         b.Property(x => x.Description).HasMaxLength(1000);
         b.Property(x => x.TargetJson).HasColumnType("jsonb");
+        b.Property(x => x.ApiRequestJson).HasColumnType("jsonb");
         b.Property(x => x.Value).HasMaxLength(4000);
         b.Property(x => x.Url).HasMaxLength(2048);
         b.HasIndex(x => new { x.TestCaseId, x.Order });
@@ -63,7 +67,9 @@ public class AssertionConfiguration : IEntityTypeConfiguration<Assertion>
         b.ToTable("assertions");
         b.Property(x => x.TargetJson).HasColumnType("jsonb");
         b.Property(x => x.ExpectedValue).HasMaxLength(4000);
-        b.Property(x => x.AttributeName).HasMaxLength(100);
+        // Wide enough for a JSON path as well as an HTML attribute name: a response
+        // assertion stores its path here, and the validator caps a path at 200.
+        b.Property(x => x.AttributeName).HasMaxLength(200);
         b.Property(x => x.Description).HasMaxLength(1000);
         b.HasIndex(x => x.TestStepId);
         b.HasOne(x => x.TestStep).WithMany(s => s.Assertions)
