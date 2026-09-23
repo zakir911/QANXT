@@ -36,8 +36,12 @@ app.get('/strict', ctx => {
 // ---- Deliberately weak ------------------------------------------------------
 
 app.get('/weak', ctx => {
-  if (!app.faults.on('VULN_NO_CSP') && !app.faults.on('REMOVE_SECURITY_HEADERS')) {
+  // VULN_NO_CSP removes exactly one header, because that is what it is called. It used to
+  // remove all of them, which made the ground truth under-describe the lab: a scanner
+  // finding four missing headers was correct and the file said one.
+  if (!app.faults.on('REMOVE_SECURITY_HEADERS')) {
     app.writeSecurityHeaders(ctx);
+    if (app.faults.on('VULN_NO_CSP')) ctx.res.removeHeader('content-security-policy');
   }
   const cookie = app.faults.on('VULN_WEAK_COOKIE') || app.faults.on('WEAK_COOKIE')
     ? 'session=synthetic; Path=/'
