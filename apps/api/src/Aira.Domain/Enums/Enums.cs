@@ -69,6 +69,13 @@ public enum BrowserActionType
     /// Automated checks find roughly a third of WCAG issues, so a clean result is reported
     /// as "no violations found by these rules" and never as "accessible".</summary>
     CheckAccessibility = 31,
+    /// <summary>Captures the page and compares it with a stored baseline.
+    ///
+    /// The verdict defaults to REVIEW rather than FAIL, because most visual differences
+    /// are intentional — somebody changed the design. A check that fails the build on every
+    /// deliberate change is one a team switches off within a fortnight, and a switched-off
+    /// check finds nothing.</summary>
+    CheckVisual = 32,
     /// <summary>Only permitted when the project explicitly allows scripting AND the caller
     /// holds the execution:script permission. Rejected by default.</summary>
     ExecuteScript = 90
@@ -223,7 +230,17 @@ public enum QualityGateMetric
     /// step measures zero and says so — the gate reports the metric as unmeasured rather
     /// than passing a rule nothing tested.
     /// </remarks>
-    AccessibilitySeriousCount = 17
+    AccessibilitySeriousCount = 17,
+    /// <summary>Visual checks whose verdict was not a match.</summary>
+    /// <remarks>
+    /// Counts differences and size changes together — both mean the page no longer looks
+    /// the way somebody agreed it should, and both need a person. A new baseline is not
+    /// counted: nothing was compared, so nothing changed.
+    ///
+    /// Measured only from steps that actually compared something. A run with no visual
+    /// step reports the metric as unmeasured rather than zero.
+    /// </remarks>
+    VisualDifferenceCount = 18
 }
 
 /// <summary>What a failing rule should do to the pipeline.

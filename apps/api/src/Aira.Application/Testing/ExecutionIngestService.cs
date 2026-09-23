@@ -210,6 +210,13 @@ public sealed class ExecutionIngestService : IExecutionIngestService
             action.AccessibilitySeriousCount = accessibility.Violations
                 .Count(violation => violation.Impact is "critical" or "serious");
         }
+
+        if (payload.Visual is { } visual)
+        {
+            action.VisualJson = JsonSerializer.Serialize(visual, JsonDefaults.Options);
+            action.VisualVerdict = visual.Verdict;
+            action.VisualDifferencePercent = visual.DifferencePercent;
+        }
     }
 
     private async Task RecordArtifactsAsync(TestExecution execution, ExecutionCompletionPayload completion, CancellationToken ct)

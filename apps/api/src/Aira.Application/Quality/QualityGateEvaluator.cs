@@ -257,6 +257,15 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
         var accessibilityChecked = await _db.TestActions
             .AnyAsync(a => executionIds.Contains(a.TestExecutionId) && a.AccessibilityViolationCount != null, ct);
 
+        // "differs" and "sizeChanged" both mean the page no longer looks the way somebody
+        // agreed it should. "newBaseline" is not counted: nothing was compared.
+        var visualDifferences = await _db.TestActions
+            .CountAsync(a => executionIds.Contains(a.TestExecutionId)
+                          && (a.VisualVerdict == "differs" || a.VisualVerdict == "sizeChanged"), ct);
+
+        var visualChecked = await _db.TestActions
+            .AnyAsync(a => executionIds.Contains(a.TestExecutionId) && a.VisualVerdict != null, ct);
+
         var flakyRate = finished == 0 ? 0m : run.FlakyCount * 100m / finished;
 
         var metrics = new Dictionary<QualityGateMetric, decimal>
@@ -284,6 +293,9 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
         // nothing looked reads as a guarantee.
         if (accessibilityChecked)
             metrics[QualityGateMetric.AccessibilitySeriousCount] = accessibilitySerious;
+
+        if (visualChecked)
+            metrics[QualityGateMetric.VisualDifferenceCount] = visualDifferences;
 
         // Added only when a contract check actually ran against this run's evidence.
         // "No breaking changes" and "nobody looked" are different statements, and a rule
@@ -354,6 +366,7 @@ public sealed class QualityGateEvaluator : IQualityGateEvaluator
         QualityGateMetric.ContractBreakingChangeCount => "The number of breaking API contract changes",
         QualityGateMetric.SecurityFailedCount => "The number of failed security checks",
         QualityGateMetric.AccessibilitySeriousCount => "The number of critical or serious accessibility violations",
+        QualityGateMetric.VisualDifferenceCount => "The number of visual checks that no longer match their baseline",
         QualityGateMetric.RegressionFailedCount => "The number of regressions",
         QualityGateMetric.BlockedCount => "The number of blocked tests",
         _ => metric.ToString()

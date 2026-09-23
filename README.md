@@ -63,6 +63,7 @@ already have the toolchain, and `docs/implementation-plan.md` has the build plan
 - [Test data](docs/test-data.md) — seeded values, and why a credential is never a literal
 - [Release quality](docs/release-quality.md) — what changed between runs, and whether to ship
 - [Accessibility](docs/accessibility.md) — axe-core as a step, and what a clean result does not mean
+- [Visual regression](docs/visual-regression.md) — baselines, masking, and why a difference asks rather than fails
 - [Setup](docs/setup.md) — from a clone to a working platform, and what to do when it is not
 - [Deploying with Docker](docs/deployment.md) — one compose file for the whole platform
 - [The database](docs/database.md) — schema, tenant isolation, migrations

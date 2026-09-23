@@ -120,7 +120,12 @@ public sealed class ExecutionsController : ApiControllerBase
                 // rule, the element and the help URL.
                 a.AccessibilityViolationCount,
                 a.AccessibilitySeriousCount,
-                accessibility = a.AccessibilityJson
+                accessibility = a.AccessibilityJson,
+                // The verdict and the difference for a reader who wants a number; the whole
+                // comparison for a reviewer, who needs the three image keys.
+                a.VisualVerdict,
+                a.VisualDifferencePercent,
+                visual = a.VisualJson
             })
             .ToListAsync(ct);
 

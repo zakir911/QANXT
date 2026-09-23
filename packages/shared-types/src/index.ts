@@ -6,3 +6,4 @@ export * from './jobs.js';
 export * from './discovery.js';
 export * from './journey.js';
 export * from './accessibility.js';
+export * from './visual.js';

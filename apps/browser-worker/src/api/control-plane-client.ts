@@ -111,6 +111,49 @@ export class ControlPlaneClient {
   }
 
   /**
+   * The stored visual baseline for one check, or null when there is none yet.
+   *
+   * A 404 is the ordinary answer on a first run, and is returned as null rather than
+   * thrown: "no baseline existed" is a verdict the caller reports, not an error.
+   */
+  async visualBaseline(executionId: string, query: {
+    name: string; browser: string; width: number; height: number;
+  }): Promise<Buffer | null> {
+    const url = `${this.baseUrl}/api/v1/worker/executions/${executionId}/visual-baseline`
+      + `?name=${encodeURIComponent(query.name)}&browser=${encodeURIComponent(query.browser)}`
+      + `&width=${query.width}&height=${query.height}`;
+
+    return this.withRetry(`read baseline ${query.name}`, this.maxAttempts, async () => {
+      const response = await fetch(url, { headers: { authorization: `Bearer ${this.token}` } });
+      if (response.status === 404) return null;
+      await this.ensureOk(response, `read baseline ${query.name}`);
+      return Buffer.from(await response.arrayBuffer());
+    });
+  }
+
+  /** Stores a capture as the baseline for one visual check. */
+  async putVisualBaseline(executionId: string, query: {
+    name: string; browser: string; width: number; height: number;
+    imageWidth: number; imageHeight: number;
+  }, png: Buffer): Promise<string> {
+    const url = `${this.baseUrl}/api/v1/worker/executions/${executionId}/visual-baseline`
+      + `?name=${encodeURIComponent(query.name)}&browser=${encodeURIComponent(query.browser)}`
+      + `&width=${query.width}&height=${query.height}`
+      + `&imageWidth=${query.imageWidth}&imageHeight=${query.imageHeight}`;
+
+    return this.withRetry(`store baseline ${query.name}`, this.maxAttempts, async () => {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: { authorization: `Bearer ${this.token}`, 'content-type': 'image/png' },
+        body: new Uint8Array(png)
+      });
+      await this.ensureOk(response, `store baseline ${query.name}`);
+      const body = await response.json() as { storageKey: string };
+      return body.storageKey;
+    });
+  }
+
+  /**
    * Uploads every artifact in a report and rewrites its storage keys in place. Artifacts
    * that cannot be uploaded are dropped from the report rather than left pointing at a
    * path on a worker that is about to disappear.

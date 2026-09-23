@@ -54,4 +54,19 @@ public class TestAction : BaseEntity, ITenantOwned
 
     /// <summary>Violations at critical or serious impact.</summary>
     public int? AccessibilitySeriousCount { get; set; }
+
+    /// <summary>The whole visual comparison, when this step was one.</summary>
+    public string? VisualJson { get; set; }
+
+    /// <summary>What the comparison decided. Null when this step was not a visual check.</summary>
+    /// <remarks>
+    /// Kept as its own column so a gate can count differences without parsing JSON, and
+    /// nullable for the same reason the accessibility counts are: "compared and matched"
+    /// and "never compared" are different, and a gate that treated them alike would report
+    /// an unchecked page as unchanged.
+    /// </remarks>
+    public string? VisualVerdict { get; set; }
+
+    /// <summary>Proportion of pixels that differed, when a comparison happened.</summary>
+    public decimal? VisualDifferencePercent { get; set; }
 }

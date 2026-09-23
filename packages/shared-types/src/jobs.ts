@@ -1,4 +1,5 @@
 import type { AccessibilityResult } from './accessibility.js';
+import type { VisualComparison } from './visual.js';
 import type { BrowserAction } from './actions.js';
 import type {
   AuthenticationStrategy, BrowserName, ExecutionStatus, HealingPolicy, TestCaseKind
@@ -163,6 +164,8 @@ export interface ActionResultReport {
    * half a report.
    */
   accessibility?: AccessibilityResult;
+  /** What a visual check compared, when this step was one. */
+  visual?: VisualComparison;
 }
 
 export interface RankedLocator {

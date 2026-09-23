@@ -4,9 +4,12 @@ using Aira.Application.Abstractions;
 using Aira.Application.Discovery;
 using Aira.Application.Testing;
 using Aira.Domain.Common;
+using Aira.Domain.Enums;
+using Aira.Domain.Testing;
 using Aira.Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aira.Api.Controllers;
 
@@ -25,15 +28,20 @@ public sealed class WorkerController : ApiControllerBase
     private readonly IExecutionIngestService _executionIngest;
     private readonly IArtifactStore _artifacts;
     private readonly ITenantContext _tenant;
+    private readonly IAiraDbContext _db;
+    private readonly IClock _clock;
     private readonly ILogger<WorkerController> _logger;
 
     public WorkerController(IDiscoveryIngestService discoveryIngest, IExecutionIngestService executionIngest,
-        IArtifactStore artifacts, ITenantContext tenant, ILogger<WorkerController> logger)
+        IArtifactStore artifacts, ITenantContext tenant, IAiraDbContext db, IClock clock,
+        ILogger<WorkerController> logger)
     {
         _discoveryIngest = discoveryIngest;
         _executionIngest = executionIngest;
         _artifacts = artifacts;
         _tenant = tenant;
+        _db = db;
+        _clock = clock;
         _logger = logger;
     }
 
@@ -113,6 +121,118 @@ public sealed class WorkerController : ApiControllerBase
                 Request.Body, ct);
 
             return Ok(new { stored.StorageKey, stored.SizeBytes, stored.Sha256, stored.ContentType });
+        }
+    }
+
+    // ---- Visual baselines ------------------------------------------------------
+
+    /// <summary>
+    /// The stored baseline for one visual check, or 404 when there is none.
+    /// </summary>
+    /// <remarks>
+    /// Identity is test case, name, browser and viewport together. Each genuinely changes
+    /// how a page looks, so a baseline from a different browser or width would report a
+    /// difference on every run — which is how a visual suite gets switched off.
+    /// </remarks>
+    [HttpGet("executions/{executionId:guid}/visual-baseline")]
+    public async Task<IActionResult> GetVisualBaseline(
+        Guid executionId, [FromQuery] string name, [FromQuery] BrowserType browser,
+        [FromQuery] int width, [FromQuery] int height, CancellationToken ct)
+    {
+        if (!Authorize(executionId, "execution", out var failure)) return failure!;
+        if (string.IsNullOrWhiteSpace(name)) return Problem(Error.Validation("A baseline name is required."));
+
+        using (_tenant.EnterSystemContext("worker reading a visual baseline"))
+        {
+            var testCaseId = await _db.TestExecutions
+                .Where(e => e.Id == executionId).Select(e => e.TestCaseId).FirstOrDefaultAsync(ct);
+            if (testCaseId == Guid.Empty) return Problem(Error.NotFound("The execution"));
+
+            var baseline = await _db.VisualBaselines.FirstOrDefaultAsync(
+                v => v.TestCaseId == testCaseId && v.Name == name && v.Browser == browser
+                  && v.ViewportWidth == width && v.ViewportHeight == height, ct);
+
+            // 404 is the answer a first run gets, and the worker turns it into
+            // "no baseline existed, so this capture became one" rather than a failure.
+            if (baseline is null) return NotFound();
+
+            var content = await _artifacts.GetAsync(baseline.StorageKey, ct);
+            if (content is null)
+            {
+                // The row says there is a baseline and the store disagrees. Reported as
+                // absent rather than as an error, so the run recovers by making a new one
+                // — but logged loudly, because it means evidence was lost.
+                _logger.LogError("Visual baseline {BaselineId} points at missing content {Key}",
+                    baseline.Id, baseline.StorageKey);
+                return NotFound();
+            }
+
+            return File(content, "image/png");
+        }
+    }
+
+    /// <summary>Stores a capture as the baseline for one visual check.</summary>
+    /// <remarks>
+    /// Called by the worker only when there was no baseline, or when a person asked for an
+    /// update. It never happens because a run decided its own appearance was acceptable:
+    /// a run that updates its own baselines cannot regress, because it agrees with itself
+    /// every time.
+    /// </remarks>
+    [HttpPut("executions/{executionId:guid}/visual-baseline")]
+    [RequestSizeLimit(64 * 1024 * 1024)]
+    public async Task<IActionResult> PutVisualBaseline(
+        Guid executionId, [FromQuery] string name, [FromQuery] BrowserType browser,
+        [FromQuery] int width, [FromQuery] int height,
+        [FromQuery] int imageWidth, [FromQuery] int imageHeight, CancellationToken ct)
+    {
+        if (!Authorize(executionId, "execution", out var failure)) return failure!;
+        if (string.IsNullOrWhiteSpace(name)) return Problem(Error.Validation("A baseline name is required."));
+
+        var organizationId = OrganizationFromToken();
+        if (organizationId is null) return Problem(Error.Unauthorized("The worker token carries no organization."));
+
+        using (_tenant.EnterSystemContext("worker writing a visual baseline"))
+        {
+            var execution = await _db.TestExecutions
+                .Where(e => e.Id == executionId)
+                .Select(e => new { e.TestCaseId, e.TestRunId, ProjectId = e.TestCase!.ProjectId })
+                .FirstOrDefaultAsync(ct);
+            if (execution is null) return Problem(Error.NotFound("The execution"));
+
+            var stored = await _artifacts.PutAsync(organizationId.Value,
+                $"baseline-{name}.png", "image/png", Request.Body, ct);
+
+            var baseline = await _db.VisualBaselines.FirstOrDefaultAsync(
+                v => v.TestCaseId == execution.TestCaseId && v.Name == name && v.Browser == browser
+                  && v.ViewportWidth == width && v.ViewportHeight == height, ct);
+
+            if (baseline is null)
+            {
+                baseline = new VisualBaseline
+                {
+                    OrganizationId = organizationId.Value,
+                    ProjectId = execution.ProjectId,
+                    TestCaseId = execution.TestCaseId,
+                    Name = name,
+                    Browser = browser,
+                    ViewportWidth = width,
+                    ViewportHeight = height
+                };
+                _db.VisualBaselines.Add(baseline);
+            }
+
+            baseline.StorageKey = stored.StorageKey;
+            baseline.Width = imageWidth;
+            baseline.Height = imageHeight;
+            baseline.SizeBytes = stored.SizeBytes;
+            baseline.SourceTestRunId = execution.TestRunId;
+            // ApprovedByUserId stays null: a worker is not a person, and a baseline nobody
+            // approved records what the page happened to look like rather than what
+            // anybody decided it should look like.
+            baseline.UpdatedAt = _clock.UtcNow;
+
+            await _db.SaveChangesAsync(ct);
+            return Ok(new { baseline.Id, stored.StorageKey });
         }
     }
 

@@ -1,0 +1,38 @@
+{
+  "testId": "VIS-003",
+  "suite": "Visual regression",
+  "runId": "2026-09-23T01-58-06Z",
+  "objective": "A difference does not fail the step by default; it asks for a person",
+  "preconditions": [
+    "a baseline, and a page that has visibly changed"
+  ],
+  "input": "The same change with the default policy and with onDifference \"fail\"",
+  "expected": "The default run passes its step with a \"differs\" verdict recorded, and the run configured to fail does fail — most visual differences are intentional, and a check that fails the build on every redesign is one a team switches off",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "default: run passed, verdict differs; onDifference=fail: run failed, verdict differs",
+  "metrics": null,
+  "startedAt": "2026-09-23T01:58:26.217Z",
+  "durationMs": 8243,
+  "build": {
+    "commit": "8ce5025",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "review.json",
+      "path": "evidence/VIS-003/2026-09-23T01-58-06Z/review.json",
+      "bytes": 723,
+      "sha256": "1377ffab1f7959084ec5736d0eebd6fe4d2c0be80395c4e8b8530ca114cb5d9a"
+    },
+    {
+      "file": "strict.json",
+      "path": "evidence/VIS-003/2026-09-23T01-58-06Z/strict.json",
+      "bytes": 723,
+      "sha256": "cfbd5a89e32060d5d21b46ccf2b004cb241ee759c26121f4f063058c6088010c"
+    }
+  ]
+}

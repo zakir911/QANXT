@@ -41,6 +41,7 @@ public class AiraDbContext : DbContext, IAiraDbContext
     public DbSet<Integration> Integrations => Set<Integration>();
     public DbSet<Schedule> Schedules => Set<Schedule>();
     public DbSet<NotificationDelivery> NotificationDeliveries => Set<NotificationDelivery>();
+    public DbSet<VisualBaseline> VisualBaselines => Set<VisualBaseline>();
 
     public DbSet<Domain.Applications.Application> Applications => Set<Domain.Applications.Application>();
     public DbSet<DiscoveryRun> DiscoveryRuns => Set<DiscoveryRun>();

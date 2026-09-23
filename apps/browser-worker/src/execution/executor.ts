@@ -2,7 +2,7 @@ import { mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { BrowserContext, Page } from 'playwright';
 import type {
-  AccessibilityResult,
+  AccessibilityResult, VisualComparison,
   ActionResultReport, ExecutionCompletionReport, ExecutionJob, ExecutionStatus,
   ExecutionStepPlan, HealingEventReport, LocatorDescriptor
 } from '@aira/shared-types';
@@ -13,6 +13,7 @@ import { LocatorHealer } from '../healing/healer.js';
 import { SecretMasker } from '../security/masker.js';
 import type { Logger } from '../util/logger.js';
 import { ActionError, evaluateAssertion, runAction, type ActionContext } from './action-runner.js';
+import type { BaselineStore } from './visual-runner.js';
 import {
   ApiRequestSession, ApiStatusError, ApiTransportError, evaluateResponseAssertion,
   isResponseAssertion, performApiRequest,
@@ -34,6 +35,14 @@ export interface ExecutorOptions {
   artifactRoot: string;
   onActionCompleted?: (result: ActionResultReport) => void | Promise<void>;
   onProgress?: (message: string, stepIndex: number, stepCount: number) => void | Promise<void>;
+  /**
+   * Where visual baselines live.
+   *
+   * Passed in rather than built here because it talks to the control plane, and an
+   * executor that knew how to do that would be an executor that could not be run against
+   * a local directory in a test.
+   */
+  visualStore?: BaselineStore;
 }
 
 export class TestExecutor {
@@ -152,7 +161,9 @@ export class TestExecutor {
         allowPrivateNetworks: job.allowPrivateNetworks,
         baseUrl: job.baseUrl,
         resolveValue: raw => resolveReference(raw, job),
-        resolveTemplate: raw => interpolateReferences(raw, job)
+        resolveTemplate: raw => interpolateReferences(raw, job),
+        visualStore: options.visualStore,
+        browserName: job.browser
       };
 
       const apiOptions: ApiRequestContextOptions = {
@@ -280,14 +291,25 @@ export class TestExecutor {
     healer: LocatorHealer,
     masker: SecretMasker
   ): Promise<{ report: ActionResultReport; healingEvent?: HealingEventReport }> {
-    const found: { accessibility?: AccessibilityResult } = {};
+    const found: { accessibility?: AccessibilityResult; visual?: VisualComparison } = {};
     const outcome = await this.runStepInner(
-      page, step, { ...context, onAccessibilityResult: result => { found.accessibility = result; } },
+      page, step, {
+        ...context,
+        onAccessibilityResult: result => { found.accessibility = result; },
+        onVisualResult: comparison => { found.visual = comparison; }
+      },
       apiOptions, apiSession, job, collector, healer, masker);
 
-    return found.accessibility === undefined
-      ? outcome
-      : { ...outcome, report: { ...outcome.report, accessibility: found.accessibility } };
+    if (found.accessibility === undefined && found.visual === undefined) return outcome;
+
+    return {
+      ...outcome,
+      report: {
+        ...outcome.report,
+        ...(found.accessibility === undefined ? {} : { accessibility: found.accessibility }),
+        ...(found.visual === undefined ? {} : { visual: found.visual })
+      }
+    };
   }
 
   /** Runs one step: action, healing if the locator broke, then its assertions. */

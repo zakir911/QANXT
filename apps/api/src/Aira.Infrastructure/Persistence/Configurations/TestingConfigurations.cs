@@ -18,6 +18,22 @@ public class TestSuiteConfiguration : IEntityTypeConfiguration<TestSuite>
     }
 }
 
+public class VisualBaselineConfiguration : IEntityTypeConfiguration<VisualBaseline>
+{
+    public void Configure(EntityTypeBuilder<VisualBaseline> b)
+    {
+        b.ToTable("visual_baselines");
+        b.Property(x => x.Name).HasMaxLength(200).IsRequired();
+        b.Property(x => x.StorageKey).HasMaxLength(500).IsRequired();
+
+        // The identity of a baseline. Unique because a second row for the same test, name,
+        // browser and viewport would make "the baseline" ambiguous, and whichever one the
+        // query happened to return would decide whether a run passed.
+        b.HasIndex(x => new { x.TestCaseId, x.Name, x.Browser, x.ViewportWidth, x.ViewportHeight })
+            .IsUnique();
+    }
+}
+
 public class TestCaseConfiguration : IEntityTypeConfiguration<TestCase>
 {
     public void Configure(EntityTypeBuilder<TestCase> b)

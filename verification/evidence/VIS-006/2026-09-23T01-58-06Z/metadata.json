@@ -1,0 +1,34 @@
+{
+  "testId": "VIS-006",
+  "suite": "Visual regression",
+  "runId": "2026-09-23T01-58-06Z",
+  "objective": "Masking a region that changes every run removes the difference entirely",
+  "preconditions": [
+    "the page renders a live timestamp whose digits change on every request"
+  ],
+  "input": "Repeated runs with the timestamp masked",
+  "expected": "Exactly zero differing pixels, and the masked selector recorded in the result — masking the region that keeps failing is the obvious way to make a visual check useless while appearing to run it, so what was hidden is on the record",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "two masked comparisons: 0 and 0 differing pixels; recorded as masked: [\"[data-testid=\\\"generated-at\\\"]\"]",
+  "metrics": {
+    "differingPixels": 0
+  },
+  "startedAt": "2026-09-23T01:58:42.900Z",
+  "durationMs": 6181,
+  "build": {
+    "commit": "8ce5025",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "masked.json",
+      "path": "evidence/VIS-006/2026-09-23T01-58-06Z/masked.json",
+      "bytes": 372,
+      "sha256": "fdc7d6f25b3dd173f574dad759802ce14a19ca23b4506bb83c4bd51e6e1b3986"
+    }
+  ]
+}

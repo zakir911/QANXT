@@ -42,7 +42,15 @@ const FAULTS = [
   // It is here so that ground truth covers the distinction AIRA has to preserve. A tool
   // that promoted this to a violation would fail builds on something it cannot know, and
   // one that dropped it would report a page as clean when twelve things need a human.
-  { id: 'FAULT_A11Y_DANGLING_ARIA', description: 'The full-name input describes itself by an id that does not exist. axe reports this as INCOMPLETE (rule "aria-valid-attr-value"), not as a violation.' }
+  { id: 'FAULT_A11Y_DANGLING_ARIA', description: 'The full-name input describes itself by an id that does not exist. axe reports this as INCOMPLETE (rule "aria-valid-attr-value"), not as a violation.' },
+
+  // Visual faults, in three deliberate sizes. A visual check has to distinguish a change
+  // worth reporting from noise, and it can only be shown to do that against changes of
+  // known magnitude — one below any sensible threshold, one clearly above it, and one that
+  // changes the page's dimensions rather than its pixels.
+  { id: 'FAULT_VISUAL_TINY', description: 'One word of helper text changes. A real but very small repaint, below a 0.1% threshold.' },
+  { id: 'FAULT_VISUAL_OBVIOUS', description: 'The submit button turns bright red. Changes many pixels without moving anything, so it is a pixel difference and not a size change.' },
+  { id: 'FAULT_VISUAL_TALLER', description: 'An extra block is added, so the page is taller. Changes the image size rather than its pixels.' },
 ];
 
 const faults = createFaultEngine(FAULTS, { parameters: { slowElementMs: 4000 } });
@@ -88,7 +96,12 @@ ${Object.keys(errors).length ? `<p class="notice" role="alert" ${tid('form-error
     : `<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="24" height="24" alt="Bank logo" ${tid('logo')} />`}
   ${faults.on('FAULT_A11Y_LOW_CONTRAST')
     ? `<p style="color:#c8c8c8;background:#ffffff" ${tid('helper-text')}>All fields are required unless marked optional.</p>`
-    : `<p style="color:#444444;background:#ffffff" ${tid('helper-text')}>All fields are required unless marked optional.</p>`}
+    : `<p style="color:#444444;background:#ffffff" ${tid('helper-text')}>All fields are required unless marked ${faults.on('FAULT_VISUAL_TINY') ? 'elective' : 'optional'}.</p>`}
+  <p class="muted" ${tid('generated-at')}>Generated at ${new Date().toISOString()}</p>
+  ${faults.on('FAULT_VISUAL_TALLER')
+    ? `<div class="card" ${tid('extra-block')}><h2>Additional information</h2>
+       <p>This block did not exist when the baseline was taken, so the page is taller.</p>
+       <p>An image of a different size cannot be compared pixel by pixel.</p></div>` : ''}
   <div class="field">
     ${faults.on('FAULT_A11Y_MISSING_LABEL') ? '' : '<label for="fullName">Full name</label>'}
     <input id="fullName" name="fullName" aria-describedby="nameHelp" value="${value('fullName')}" ${tid('full-name')} />
@@ -196,7 +209,9 @@ ${Object.keys(errors).length ? `<p class="notice" role="alert" ${tid('form-error
       // A button with no text and no aria-label: a screen reader announces "button" and
       // nothing else, so the user cannot know what it does.
       ? `<button type="submit" class="primary" ${tid('submit')}></button>`
-      : `<button type="submit" class="primary" ${tid('submit')}>Submit application</button>`}
+      : faults.on('FAULT_VISUAL_OBVIOUS')
+        ? `<button type="submit" class="primary" style="background:#ff0000" ${tid('submit')}>Submit application</button>`
+        : `<button type="submit" class="primary" ${tid('submit')}>Submit application</button>`}
 </form>`,
     script: CLIENT_SCRIPT(faults.on('FAULT_SLOW_ELEMENT') ? faults.parameter('slowElementMs') : 0,
       faults.on('FAULT_JS_ERROR'), faults.on('FAULT_DYNAMIC_LOCATOR') ? `--${counter % 97}` : '')

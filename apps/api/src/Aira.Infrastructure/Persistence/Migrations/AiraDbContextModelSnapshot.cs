@@ -3623,6 +3623,18 @@ namespace Aira.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(2048)")
                         .HasColumnName("url");
 
+                    b.Property<decimal?>("VisualDifferencePercent")
+                        .HasColumnType("numeric")
+                        .HasColumnName("visual_difference_percent");
+
+                    b.Property<string>("VisualJson")
+                        .HasColumnType("text")
+                        .HasColumnName("visual_json");
+
+                    b.Property<string>("VisualVerdict")
+                        .HasColumnType("text")
+                        .HasColumnName("visual_verdict");
+
                     b.Property<bool>("WasHealed")
                         .HasColumnType("boolean")
                         .HasColumnName("was_healed");
@@ -4367,6 +4379,91 @@ namespace Aira.Infrastructure.Persistence.Migrations
                     b.ToTable("test_suites", (string)null);
                 });
 
+            modelBuilder.Entity("Aira.Domain.Testing.VisualBaseline", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("approved_at");
+
+                    b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("approved_by_user_id");
+
+                    b.Property<int>("Browser")
+                        .HasColumnType("integer")
+                        .HasColumnName("browser");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("integer")
+                        .HasColumnName("height");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("project_id");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<Guid?>("SourceTestRunId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_test_run_id");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("storage_key");
+
+                    b.Property<Guid>("TestCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("test_case_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("ViewportHeight")
+                        .HasColumnType("integer")
+                        .HasColumnName("viewport_height");
+
+                    b.Property<int>("ViewportWidth")
+                        .HasColumnType("integer")
+                        .HasColumnName("viewport_width");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("integer")
+                        .HasColumnName("width");
+
+                    b.HasKey("Id")
+                        .HasName("pk_visual_baselines");
+
+                    b.HasIndex("TestCaseId", "Name", "Browser", "ViewportWidth", "ViewportHeight")
+                        .IsUnique()
+                        .HasDatabaseName("ix_visual_baselines_test_case_id_name_browser_viewport_width_v~");
+
+                    b.ToTable("visual_baselines", (string)null);
+                });
+
             modelBuilder.Entity("Aira.Domain.Agent.AgentFinding", b =>
                 {
                     b.HasOne("Aira.Domain.Agent.AgentRun", "AgentRun")
@@ -4881,6 +4978,18 @@ namespace Aira.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_test_suites_projects_project_id");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Aira.Domain.Testing.VisualBaseline", b =>
+                {
+                    b.HasOne("Aira.Domain.Testing.TestCase", "TestCase")
+                        .WithMany()
+                        .HasForeignKey("TestCaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_visual_baselines_test_cases_test_case_id");
+
+                    b.Navigation("TestCase");
                 });
 
             modelBuilder.Entity("Aira.Domain.Agent.AgentRun", b =>

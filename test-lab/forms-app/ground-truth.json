@@ -402,6 +402,45 @@
         "outcome": "incomplete",
         "note": "axe reports this as a check a person must make, not a violation, because the target element could be added by script after the scan. Measured against axe-core 4.13.0."
       }
+    },
+    {
+      "id": "FAULT_VISUAL_TINY",
+      "affects": [
+        "/"
+      ],
+      "healable": false,
+      "reason": "One word of helper text changes from 'optional' to 'elective'.",
+      "visual": {
+        "outcome": "match",
+        "measuredDifferencePercent": 0.0218,
+        "note": "A real change, deliberately below the 0.1% default threshold. It is here to show that the threshold tolerates small repaints rather than that the check misses things."
+      }
+    },
+    {
+      "id": "FAULT_VISUAL_OBVIOUS",
+      "affects": [
+        "/"
+      ],
+      "healable": false,
+      "reason": "The submit button turns bright red.",
+      "visual": {
+        "outcome": "differs",
+        "measuredDifferencePercent": 0.292,
+        "note": "Colour only, so the layout does not move. That keeps it a pixel difference rather than a size change, which is a different verdict."
+      }
+    },
+    {
+      "id": "FAULT_VISUAL_TALLER",
+      "affects": [
+        "/"
+      ],
+      "healable": false,
+      "reason": "An extra block is added, so the page is taller.",
+      "visual": {
+        "outcome": "sizeChanged",
+        "measuredSize": "1280x1881 against a 1280x1694 baseline",
+        "note": "Images of different sizes cannot be compared pixel by pixel. Scaling one to fit the other would hide the change, so this is its own verdict and goes to a person."
+      }
     }
   ],
   "expectedFailures": [
@@ -432,5 +471,19 @@
     "violations": 0,
     "rulesPassed": 21,
     "note": "With no faults on. 21 rules passing is not a claim that the page is accessible \u2014 automated checks find roughly a third of WCAG issues. It is the baseline a fault is measured against."
+  },
+  "visualBaseline": {
+    "page": "/",
+    "capture": "fullPage at 1280x720 viewport",
+    "baselineSize": "1280x1694",
+    "noiseFloor": {
+      "measured": "0.0026% to 0.0039% (56 to 85 pixels) across three unchanged captures",
+      "cause": "The page renders a live 'Generated at' timestamp, whose digits change on every request.",
+      "note": "This is why the default threshold is 0.1% and not zero. Masking the timestamp removes it entirely: three captures with [data-testid=\"generated-at\"] masked differ by exactly 0 pixels."
+    },
+    "masked": {
+      "selector": "[data-testid=\"generated-at\"]",
+      "measured": "0.0000% (0 pixels) across repeated captures"
+    }
   }
 }

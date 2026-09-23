@@ -32,6 +32,7 @@ const SUITES = {
   'test-data': () => import('./suites/test-data.mjs'),
   release: () => import('./suites/release.mjs'),
   accessibility: () => import('./suites/accessibility.mjs'),
+  visual: () => import('./suites/visual.mjs'),
   security: () => import('./suites/security.mjs'),
   reliability: () => import('./suites/reliability.mjs'),
   performance: () => import('./suites/performance.mjs')

@@ -235,6 +235,13 @@ export const step = {
     target: { strategy: 'testId', value: testId, exact: false, fallbacks: [] }, url
   }),
   clickBy: (target, url, description) => ({ action: 'click', description: description ?? 'Press a control', target, url }),
+  /** A visual comparison of the page the journey is currently on. */
+  checkVisual: (options, url, description) => ({
+    action: 'checkVisual',
+    description: description ?? 'Compare this page with its baseline',
+    value: options === undefined ? undefined : JSON.stringify(options),
+    url
+  }),
   /** An accessibility scan of the page the journey is currently on. */
   checkAccessibility: (options, url, description) => ({
     action: 'checkAccessibility',

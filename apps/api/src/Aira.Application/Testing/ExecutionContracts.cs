@@ -119,6 +119,43 @@ public sealed record ActionResultPayload
     [JsonPropertyName("errorMessage")] public string? ErrorMessage { get; init; }
     [JsonPropertyName("screenshotKeys")] public ScreenshotKeysPayload? ScreenshotKeys { get; init; }
     [JsonPropertyName("accessibility")] public AccessibilityResultPayload? Accessibility { get; init; }
+    [JsonPropertyName("visual")] public VisualComparisonPayload? Visual { get; init; }
+}
+
+/// <summary>What a visual check compared, and what it decided.</summary>
+public sealed record VisualViewportPayload(
+    [property: JsonPropertyName("width")] int Width,
+    [property: JsonPropertyName("height")] int Height);
+
+public sealed record VisualComparisonPayload
+{
+    [JsonPropertyName("name")] public string Name { get; init; } = string.Empty;
+    /// <summary>match, differs, newBaseline or sizeChanged.</summary>
+    [JsonPropertyName("verdict")] public string Verdict { get; init; } = string.Empty;
+    [JsonPropertyName("differingPixels")] public int DifferingPixels { get; init; }
+    [JsonPropertyName("totalPixels")] public int TotalPixels { get; init; }
+    [JsonPropertyName("differencePercent")] public decimal DifferencePercent { get; init; }
+    [JsonPropertyName("maxDifferencePercent")] public decimal MaxDifferencePercent { get; init; }
+    [JsonPropertyName("width")] public int Width { get; init; }
+    [JsonPropertyName("height")] public int Height { get; init; }
+    [JsonPropertyName("baselineWidth")] public int? BaselineWidth { get; init; }
+    [JsonPropertyName("baselineHeight")] public int? BaselineHeight { get; init; }
+    [JsonPropertyName("baselineKey")] public string? BaselineKey { get; init; }
+    [JsonPropertyName("actualKey")] public string? ActualKey { get; init; }
+    [JsonPropertyName("diffKey")] public string? DiffKey { get; init; }
+    /// <summary>What was painted over before comparing. Recorded so a reader can see what
+    /// was not looked at — masking the region that keeps failing is the obvious way to make
+    /// a visual check useless while appearing to run it.</summary>
+    [JsonPropertyName("masked")] public List<string> Masked { get; init; } = [];
+    /// <summary>The viewport this was captured at.</summary>
+    /// <remarks>
+    /// Part of a baseline's identity, and therefore part of what a reader needs: a
+    /// comparison that does not say which size it was taken at cannot be reconciled with
+    /// the baseline it used. Dropping it was caught by VIS-007.
+    /// </remarks>
+    [JsonPropertyName("viewport")] public VisualViewportPayload? Viewport { get; init; }
+    [JsonPropertyName("browser")] public string? Browser { get; init; }
+    [JsonPropertyName("capturedAt")] public DateTimeOffset? CapturedAt { get; init; }
 }
 
 /// <summary>

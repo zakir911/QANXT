@@ -1,9 +1,10 @@
 import type { Locator, Page } from 'playwright';
 import type {
   AccessibilityCheckDescriptor, AccessibilityResult, BrowserAction, LocatorDescriptor,
-  PlannedAssertion
+  PlannedAssertion, VisualCheckDescriptor, VisualComparison
 } from '@aira/shared-types';
 import { AccessibilityError, runAccessibilityCheck } from './accessibility-runner.js';
+import { VisualError, runVisualStep, type BaselineStore } from './visual-runner.js';
 import { buildLocator, resolveLocator } from '../browser/locator-resolver.js';
 import { isUrlAllowed } from '../security/url-guard.js';
 
@@ -36,6 +37,12 @@ export interface ActionContext {
   resolveTemplate(raw: string | undefined): string | undefined;
   /** Called with what an accessibility check found, whether or not the step failed on it. */
   onAccessibilityResult?(result: AccessibilityResult): void;
+  /** Called with what a visual check compared, whether or not the step failed on it. */
+  onVisualResult?(comparison: VisualComparison): void;
+  /** Where visual baselines are read from and written to. */
+  visualStore?: BaselineStore;
+  /** The browser this run is using. Part of a baseline's identity. */
+  browserName?: string;
 }
 
 /**
@@ -46,12 +53,17 @@ export interface ActionContext {
  * reader to look at code that is working.
  */
 function parseAccessibility(value: string | undefined): AccessibilityCheckDescriptor {
-  if (!value || value.trim().length === 0) return {};
+  return parseJsonValue<AccessibilityCheckDescriptor>(value);
+}
+
+/** The same rule for any step whose configuration travels as JSON in its value. */
+function parseJsonValue<T extends object>(value: string | undefined): T {
+  if (!value || value.trim().length === 0) return {} as T;
   try {
     const parsed = JSON.parse(value);
-    return parsed !== null && typeof parsed === 'object' ? parsed as AccessibilityCheckDescriptor : {};
+    return parsed !== null && typeof parsed === 'object' ? parsed as T : {} as T;
   } catch {
-    return {};
+    return {} as T;
   }
 }
 
@@ -176,6 +188,34 @@ export async function runAction(
         // A failure that says "7 violations" and keeps the list is half a report.
         if (error instanceof AccessibilityError) {
           context.onAccessibilityResult?.(error.result);
+          throw new ActionError(error.message, false);
+        }
+        throw error;
+      }
+      return;
+    }
+
+    case 'checkVisual': {
+      if (!context.visualStore) {
+        throw new ActionError(
+          'This step compares the page with a stored baseline, and no baseline store is '
+          + 'available to this run. That is a platform problem, not a problem with the page.',
+          false);
+      }
+      const descriptor = parseJsonValue<VisualCheckDescriptor>(action.value);
+      try {
+        const comparison = await runVisualStep(page, {
+          descriptor,
+          store: context.visualStore,
+          browser: context.browserName ?? 'chromium',
+          defaultName: action.description || 'page'
+        });
+        context.onVisualResult?.(comparison);
+      } catch (error) {
+        // The comparison is recorded even when the step fails on it — especially then,
+        // because the three images are the whole point of a visual failure.
+        if (error instanceof VisualError) {
+          context.onVisualResult?.(error.comparison);
           throw new ActionError(error.message, false);
         }
         throw error;

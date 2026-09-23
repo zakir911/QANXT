@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { ExecutionJob } from '@aira/shared-types';
 import { ControlPlaneClient } from '../api/control-plane-client.js';
+import { createBaselineStore } from './baseline-store.js';
 import type { BrowserPool } from '../browser/browser-pool.js';
 import type { WorkerConfig } from '../config.js';
 import type { Logger } from '../util/logger.js';
@@ -46,7 +47,11 @@ export async function handleExecutionJob(
     const report = await executor.execute(job, {
       workerId: config.workerId,
       artifactRoot,
-      onActionCompleted: action => client.executionAction(job.executionId, action)
+      onActionCompleted: action => client.executionAction(job.executionId, action),
+      // Baselines outlive a run, so they live in the control plane rather than beside the
+      // run's evidence. The three images a reviewer needs on a difference are ordinary
+      // artifacts; only the agreed appearance is kept separately.
+      visualStore: createBaselineStore(client, job)
     }, signal);
 
     report.artifacts = await client.uploadArtifacts(report.artifacts);
