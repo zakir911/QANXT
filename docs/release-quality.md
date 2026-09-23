@@ -85,12 +85,12 @@ a missing comparison section reads as "nothing changed".
 node verification/golden-tests/run.mjs --suite release
 ```
 
-Seven tests (REL-001…REL-007) against real pairs of runs whose results genuinely differ —
+Seven tests (RLS-001…RLS-007) against real pairs of runs whose results genuinely differ —
 made to differ by **injecting a fault into the deployment between them**, not by editing
 the tests. A comparison that only ever sees identical runs proves nothing about the thing
 it exists to detect.
 
-REL-003 and REL-007 are the pair that matter: a failure present in both runs must be
+RLS-003 and RLS-007 are the pair that matter: a failure present in both runs must be
 `stillFailing` and must not fire the gate, or `--fail-on-new-failures` is just
 `--fail-on-failures` with extra steps.
 
@@ -98,4 +98,4 @@ Building this found a defect in the CLI before it was committed: the API emits e
 and dictionary keys in camelCase, and the CLI read them as PascalCase. `counts.NewlyFailing`
 on a camelCase payload is `undefined`, `undefined > 0` is false — so the gate reported no
 regressions and every headline read "nothing changed". The only symptom was silence, which
-is why REL-007 checks the exit code rather than the output.
+is why RLS-007 checks the exit code rather than the output.

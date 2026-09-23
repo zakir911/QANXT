@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+# Continuous quality, from nothing to a traceability matrix.
+#
+#   ./scripts/verify-continuous-quality
+#   ./scripts/verify-continuous-quality --quick     # skip the slow suites
+#
+#   infrastructure → test lab → AIRA → CQ suites → CI simulation → reports → traceability
+#
+# Narrower than ./scripts/verify-product on purpose. That one proves the platform can test
+# an application; this one proves it can do so continuously — on a pipeline, on a schedule,
+# against contracts, appearances and accessibility — and that every requirement making that
+# claim is tied to a test that ran.
+#
+# Exits non-zero if any suite failed or any requirement is unverified.
+set -uo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+section() { printf '\n\033[1m── %s ──\033[0m\n' "$1"; }
+fail() { printf '\n\033[31m%s\033[0m\n' "$1"; exit 1; }
+note() { printf '\033[2m%s\033[0m\n' "$1"; }
+
+QUICK=false
+for arg in "$@"; do [[ "$arg" == "--quick" ]] && QUICK=true; done
+
+export GOLDEN_RUN_ID="${GOLDEN_RUN_ID:-$(date -u +%Y-%m-%dT%H-%M-%SZ)}"
+
+# The suites that make the continuous-quality claim. Listed explicitly rather than taken
+# from --all, so that adding a suite is a deliberate decision about what this script
+# asserts rather than something that happens by accident.
+SUITES=(
+  api-testing          # endpoints as first-class test cases
+  api-contracts        # what moved since the baseline
+  correlation          # a UI failure explained by the API call under it
+  regression-selection # what a change reaches, and why
+  ci-integration       # the artifact and exit-code contract
+  scheduling           # regression nobody asked for
+  notifications        # telling somebody, and showing that you did
+  test-data            # reproducible values, and no literal credentials
+  release              # what changed, rather than what is broken
+  accessibility        # measured against named rules
+  visual               # baselines, masking, and a noise floor
+)
+
+# The CI simulation runs a real pipeline per scenario and takes minutes. It is the slowest
+# thing here and the closest to what a team actually does, so it is in by default and
+# --quick is the escape hatch rather than the other way round.
+$QUICK || SUITES+=(ci-simulation)
+
+section "Infrastructure"
+bash scripts/services-ctl.sh --with-database || fail "PostgreSQL and Redis did not start."
+
+section "AIRA"
+bash scripts/api-ctl.sh start && bash scripts/api-ctl.sh wait || fail "The API did not start."
+bash scripts/worker-ctl.sh start || fail "The worker did not start."
+
+section "Test lab"
+if [[ ! -f test-lab/banking-app/dist/index.html ]]; then
+  pnpm --filter @aira/test-lab build >/dev/null || fail "The banking application did not build."
+fi
+bash test-lab/scripts/lab-ctl.sh start || fail "The test lab did not start."
+bash test-lab/scripts/lab-ctl.sh reset >/dev/null
+
+section "Ground truth"
+# The accessibility and visual suites measure against recorded magnitudes. If the lab and
+# its ground truth disagree, every number below is measured against the wrong thing.
+node test-lab/scripts/audit-ground-truth.mjs \
+  test-lab/banking-app/ground-truth.json \
+  test-lab/forms-app/ground-truth.json \
+  || fail "Ground truth does not match the applications. Nothing measured against it would mean anything."
+
+section "Continuous quality suites"
+note "${#SUITES[@]} suite(s): ${SUITES[*]}"
+suite_args=()
+for suite in "${SUITES[@]}"; do suite_args+=(--suite "$suite"); done
+
+node verification/golden-tests/run.mjs "${suite_args[@]}"
+golden_status=$?
+
+section "Reports"
+node verification/golden-tests/report.mjs --run "$GOLDEN_RUN_ID"
+report_status=$?
+
+section "Traceability"
+node verification/golden-tests/traceability.mjs --run "$GOLDEN_RUN_ID"
+traceability_status=$?
+
+printf '\n'
+if [[ $golden_status -ne 0 ]]; then
+  printf '\033[31mContinuous quality verification FAILED: a suite did not pass.\033[0m\n'
+  printf '  Report:       verification/reports/GOLDEN-TEST-REPORT.md\n'
+  printf '  Traceability: verification/reports/TRACEABILITY.md\n'
+  exit 1
+fi
+if [[ $traceability_status -ne 0 ]]; then
+  printf '\033[31mContinuous quality verification FAILED: a requirement is not verified.\033[0m\n'
+  printf '  Traceability: verification/reports/TRACEABILITY.md\n'
+  exit 1
+fi
+# Exit 3 from the report means INCOMPLETE: nothing failed, but a gate had no tests in this
+# run. That is the expected verdict here, because this script runs the continuous-quality
+# suites and not the whole golden suite — the product certification gates (Discovery, AI,
+# self-healing, failure detection, security) measure suites it deliberately does not run.
+# It is reported rather than swallowed: a reader must not take this script's green as a
+# product certification. `./scripts/verify-product` is the one that makes that claim.
+if [[ $report_status -eq 3 ]]; then
+  note 'Certification gates for the suites this script does not run are NOT MEASURED, not failed.'
+  note 'For the full product certification, run ./scripts/verify-product.'
+elif [[ $report_status -ne 0 ]]; then
+  printf '\033[31mA quality gate did not pass.\033[0m See verification/reports/GOLDEN-TEST-REPORT.md\n'
+  exit $report_status
+fi
+
+printf '\033[32mContinuous quality verified.\033[0m\n'
+printf '  Report:       verification/reports/GOLDEN-TEST-REPORT.md\n'
+printf '  Traceability: verification/reports/TRACEABILITY.md\n'
+printf '  Evidence:     verification/evidence/<TEST-ID>/%s/\n' "$GOLDEN_RUN_ID"

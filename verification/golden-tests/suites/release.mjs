@@ -118,9 +118,9 @@ export default async function run() {
   const fixedRun = await runNow([health.testCaseId, accounts.testCaseId],
     { name: 'Release fixed', buildRef: 'v2.4.2' });
 
-  // ---- REL-001: a regression is named as a regression ---------------------
+  // ---- RLS-001: a regression is named as a regression ---------------------
   await golden({
-    id: 'REL-001',
+    id: 'RLS-001',
     objective: 'A test that passed before and fails now is reported as newly failing',
     preconditions: ['two runs of the same tests, with a defect deployed between them'],
     input: 'GET /api/v1/release/compare for the second run',
@@ -149,9 +149,9 @@ export default async function run() {
     }
   }, context);
 
-  // ---- REL-002: a fix is named as a fix -----------------------------------
+  // ---- RLS-002: a fix is named as a fix -----------------------------------
   await golden({
-    id: 'REL-002',
+    id: 'RLS-002',
     objective: 'A test that failed before and passes now is reported as fixed',
     preconditions: ['a broken run followed by a healthy one'],
     input: 'GET /api/v1/release/compare for the third run against the second',
@@ -174,9 +174,9 @@ export default async function run() {
     }
   }, context);
 
-  // ---- REL-003: an old failure is not a new one ---------------------------
+  // ---- RLS-003: an old failure is not a new one ---------------------------
   await golden({
-    id: 'REL-003',
+    id: 'RLS-003',
     objective: 'A failure present in both runs is still failing, never newly failing',
     preconditions: ['two runs against the same broken deployment'],
     input: 'A comparison of two runs that both failed the same way',
@@ -206,9 +206,9 @@ export default async function run() {
     }
   }, context);
 
-  // ---- REL-004: a test that stopped running is visible --------------------
+  // ---- RLS-004: a test that stopped running is visible --------------------
   await golden({
-    id: 'REL-004',
+    id: 'RLS-004',
     objective: 'A test that ran before and not this time is reported, not silently dropped',
     preconditions: ['a run of two tests followed by a run of one'],
     input: 'A comparison where the second run selected fewer tests',
@@ -234,9 +234,9 @@ export default async function run() {
     }
   }, context);
 
-  // ---- REL-005: the release report over a whole build ---------------------
+  // ---- RLS-005: the release report over a whole build ---------------------
   await golden({
-    id: 'REL-005',
+    id: 'RLS-005',
     objective: 'A release report covers every run that tested one build and says what changed',
     preconditions: ['runs tagged with an application build reference'],
     input: 'GET /api/v1/release/quality for build v2.4.1',
@@ -265,9 +265,9 @@ export default async function run() {
     }
   }, context);
 
-  // ---- REL-006: no comparison is said, not implied ------------------------
+  // ---- RLS-006: no comparison is said, not implied ------------------------
   await golden({
-    id: 'REL-006',
+    id: 'RLS-006',
     objective: 'A run with nothing to compare against says so rather than reporting zeros',
     preconditions: ['a project whose first run has just finished'],
     input: 'A comparison of the first run in a fresh project',
@@ -310,9 +310,9 @@ export default async function run() {
     }
   }, context);
 
-  // ---- REL-007: the CLI gates on regressions, not on failures -------------
+  // ---- RLS-007: the CLI gates on regressions, not on failures -------------
   await golden({
-    id: 'REL-007',
+    id: 'RLS-007',
     objective: 'aira release compare --fail-on-new-failures exits 1 on a regression and 0 on a known failure',
     preconditions: ['the CLI is built', 'a regression pair and a both-broken pair'],
     input: 'The CLI against each pair',

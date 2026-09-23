@@ -1,0 +1,34 @@
+{
+  "testId": "ACC-006",
+  "suite": "Accessibility",
+  "runId": "CQ10-2026-09-23T02-21-33Z",
+  "objective": "A run that does check reports the number it found, and the gate acts on it",
+  "preconditions": [
+    "a gate rule on accessibility, and a run that scans a broken page"
+  ],
+  "input": "A report-only scan of a page with two critical violations",
+  "expected": "The metric is measured at 2 and the rule blocks — report-only means the step does not fail, not that the finding disappears",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run passed; metric measured 2; rule passed=false; gate fail",
+  "metrics": {
+    "measured": 2
+  },
+  "startedAt": "2026-09-23T02:28:11.644Z",
+  "durationMs": 2115,
+  "build": {
+    "commit": "72e2987",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/ACC-006/CQ10-2026-09-23T02-21-33Z/gate.json",
+      "bytes": 1169,
+      "sha256": "528c265a0ce2ff227f43df415cfe33fd92f557855e550beb727b756c28e99efd"
+    }
+  ]
+}

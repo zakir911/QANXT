@@ -81,6 +81,8 @@ export function saveEvidence(testId, name, content) {
 // ---------------------------------------------------------------------------
 
 const state = { suite: 'unknown', results: [], startedAt: null };
+/** Every test id seen in this process, and the suite that declared it. */
+const seenIds = new Map();
 
 export function suite(name) {
   state.suite = name;
@@ -107,6 +109,18 @@ export async function golden(test, context = {}) {
   if (!test.id || !test.objective || !test.expected || !test.severity) {
     throw new Error(`Golden test ${test.id ?? '(no id)'} is missing a required declaration field.`);
   }
+  // Two suites sharing a test id share an evidence directory and overwrite each other's
+  // results, and a certification gate selecting tests by id prefix then measures the wrong
+  // suite. That is how the release suite's REL-001..007 made the Reliability gate report
+  // PASS in a run containing no reliability test at all (BUG-0035). Caught here rather than
+  // left to be noticed, because the symptom is a false green.
+  if (seenIds.has(test.id)) {
+    throw new Error(
+      `Duplicate golden test id ${test.id}: declared in suite "${seenIds.get(test.id)}" and again in `
+      + `"${state.suite}". Test ids are the evidence namespace and the certification gates' `
+      + 'selector, so they must be unique across every suite.');
+  }
+  seenIds.set(test.id, state.suite);
   if (!SEVERITIES.includes(test.severity)) {
     throw new Error(`Golden test ${test.id} has an unknown severity: ${test.severity}`);
   }

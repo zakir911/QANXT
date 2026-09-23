@@ -1,0 +1,32 @@
+{
+  "testId": "API-011",
+  "suite": "API testing",
+  "runId": "CQ10-2026-09-23T02-21-33Z",
+  "objective": "A gate rule over a metric the run could not measure is sent for review, never reported as satisfied",
+  "preconditions": [
+    "a rule over contractBreakingChangeCount, which nothing measures yet"
+  ],
+  "input": "A passing run of TC-0002 with that rule enabled",
+  "expected": "The rule reports \"not measured\" and the outcome is REVIEW, not PASS",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run passed; rule measured=false passed=false; outcome review",
+  "metrics": null,
+  "startedAt": "2026-09-23T02:21:52.670Z",
+  "durationMs": 2116,
+  "build": {
+    "commit": "72e2987",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/API-011/CQ10-2026-09-23T02-21-33Z/gate.json",
+      "bytes": 1464,
+      "sha256": "042f49033abd67f4005045c822e0709f7255633b8864f6d365cc3173e4bcd62a"
+    }
+  ]
+}

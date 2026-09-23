@@ -1,0 +1,35 @@
+{
+  "testId": "NOT-005",
+  "suite": "Notifications",
+  "runId": "CQ10-2026-09-23T02-21-33Z",
+  "objective": "No notification body contains a credential, checked against the bytes sent",
+  "preconditions": [
+    "an integration with a signing secret, and an application with a password"
+  ],
+  "input": "Every delivery made during this suite",
+  "expected": "The signing secret, the application password and the session token appear nowhere in any body — the signature header is derived from the secret and is not the secret",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 delivery(ies) scanned for 3 secret(s): none present; 1 signed",
+  "metrics": {
+    "scanned": 1,
+    "leaks": 0
+  },
+  "startedAt": "2026-09-23T02:27:21.261Z",
+  "durationMs": 2055,
+  "build": {
+    "commit": "72e2987",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "scanned.json",
+      "path": "evidence/NOT-005/CQ10-2026-09-23T02-21-33Z/scanned.json",
+      "bytes": 749,
+      "sha256": "2b11745d2df03b07298768798d288b6fef904d3dd1ff095d95eca583679904f8"
+    }
+  ]
+}

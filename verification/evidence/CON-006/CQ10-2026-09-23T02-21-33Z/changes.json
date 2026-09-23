@@ -1,0 +1,23 @@
+{
+  "testRunId": "a0d6793e-3ce6-44e7-b83d-17eb5d2fb4f3",
+  "endpointsObserved": 1,
+  "endpointsWithBaseline": 1,
+  "endpointsWithoutBaseline": 0,
+  "breakingCount": 0,
+  "potentiallyBreakingCount": 1,
+  "nonBreakingCount": 0,
+  "changes": [
+    {
+      "id": "9d597813-73d9-49e1-a064-067d99f73ca5",
+      "method": "GET",
+      "urlTemplate": "http://localhost:4300/api/accounts",
+      "kind": "potentiallyBreaking",
+      "path": "$.accounts[].sortCode",
+      "baselineType": "string",
+      "observedType": "null|string",
+      "description": "\"accounts[].sortCode\" can now be null. A caller that reads it without a null check will fail on the values where it is.",
+      "isAcknowledged": false
+    }
+  ],
+  "notes": []
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "because": "a signing secret",
+    "status": 400,
+    "message": "signingSecret looks like a credential and settings are readable by anyone who can view this project. Send it in \"credentials\" instead, where it is encrypted and never returned."
+  },
+  {
+    "because": "an api key",
+    "status": 400,
+    "message": "apiKey looks like a credential and settings are readable by anyone who can view this project. Send it in \"credentials\" instead, where it is encrypted and never returned."
+  },
+  {
+    "because": "a Slack webhook URL",
+    "status": 400,
+    "message": "webhookUrl looks like a credential and settings are readable by anyone who can view this project. Send it in \"credentials\" instead, where it is encrypted and never returned."
+  },
+  {
+    "because": "nothing sensitive",
+    "status": 201,
+    "message": "{\"id\":\"8d82b328-af7b-4996-8ed3-ebe400a3ec0e\",\"kind\":\"webhook\",\"name\":\"NOT-007 nothing sensitive\",\"isEnabled\":true}"
+  }
+]

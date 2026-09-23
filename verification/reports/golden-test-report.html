@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AIRA golden test report — 2026-09-21T14-41-46Z</title>
+<title>AIRA golden test report — CQ10-2026-09-23T02-21-33Z</title>
 <style>
 :root { --ink:#101a2b; --muted:#5b6b82; --line:#e2e8f2; --bg:#f6f8fb; --ok:#12855a; --bad:#c02626; --warn:#b26b00; --accent:#0b5fff; }
 *{box-sizing:border-box}
@@ -25,6 +25,7 @@ tr:last-child td{border-bottom:0}
 .metric{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:13px}
 .metric span{color:var(--muted)}
 .gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px}
+.gate.unmeasured{opacity:.75;border-style:dashed}
 .gate{background:#fff;border:1px solid var(--line);border-left-width:4px;border-radius:8px;padding:12px 14px}
 .gate.ok{border-left-color:var(--ok)} .gate.bad{border-left-color:var(--bad)}
 .gate strong{display:block;font-size:14px} .gate span{font-size:12px;color:var(--muted)}
@@ -37,81 +38,81 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
 <body>
 <header>
   <h1>AIRA — golden test report</h1>
-  <p>Run 2026-09-21T14-41-46Z · build 8b1d8d4 (working tree dirty) · generated 2026-09-21T15:02:25.300Z</p>
+  <p>Run CQ10-2026-09-23T02-21-33Z · build 72e2987 (working tree dirty) · generated 2026-09-23T02:34:25.521Z</p>
 </header>
 <main>
-  <div class="overall ok">
-    Overall: PASS —
-    126 passed, 0 failed,
-    4 not verified of 130;
+  <div class="overall bad">
+    Overall: FAIL —
+    109 passed, 0 failed,
+    0 not verified of 109;
     0 critical failure(s)
   </div>
 
   <h2>Quality gates</h2>
   <div class="gates">
-    <div class="gate ok">
-      <strong>Functional: PASS</strong>
-      <span>28/30 executed · not verified: EXEC-015, EXEC-016</span>
-    </div><div class="gate ok">
-      <strong>Discovery: PASS</strong>
-      <span>15/15 executed</span>
-    </div><div class="gate ok">
-      <strong>AI: PASS</strong>
-      <span>31/32 executed · not verified: GEN-016</span>
-    </div><div class="gate ok">
-      <strong>Self-healing: PASS</strong>
-      <span>20/20 executed</span>
-    </div><div class="gate ok">
-      <strong>Security: PASS</strong>
-      <span>11/11 executed</span>
-    </div><div class="gate ok">
-      <strong>Reliability: PASS</strong>
-      <span>6/7 executed · not verified: REL-007</span>
-    </div><div class="gate ok">
-      <strong>Failure detection: PASS</strong>
-      <span>12/12 executed</span>
+    <div class="gate unmeasured">
+      <strong>Functional: NOT MEASURED</strong>
+      <span>0/0 executed</span>
+    </div><div class="gate unmeasured">
+      <strong>Discovery: NOT MEASURED</strong>
+      <span>0/0 executed</span>
+    </div><div class="gate unmeasured">
+      <strong>AI: NOT MEASURED</strong>
+      <span>0/0 executed</span>
+    </div><div class="gate unmeasured">
+      <strong>Self-healing: NOT MEASURED</strong>
+      <span>0/0 executed</span>
+    </div><div class="gate unmeasured">
+      <strong>Security: NOT MEASURED</strong>
+      <span>0/0 executed</span>
+    </div><div class="gate unmeasured">
+      <strong>Reliability: NOT MEASURED</strong>
+      <span>0/0 executed</span>
+    </div><div class="gate unmeasured">
+      <strong>Failure detection: NOT MEASURED</strong>
+      <span>0/0 executed</span>
     </div><div class="gate ok">
       <strong>Evidence: PASS</strong>
-      <span>126/130 executed</span>
+      <span>109/109 executed</span>
     </div>
   </div>
 
   <h2>Metrics</h2>
   <div class="cards">
     <div class="card"><h3>Discovery</h3>
-      <div class="metric"><span>Page recall</span><strong>100.0%</strong></div>
-      <div class="metric"><span>Page precision</span><strong>100.0%</strong></div>
-      <div class="metric"><span>API recall</span><strong>83.3%</strong></div>
-      <div class="metric"><span>Stable locators</span><strong>100.0%</strong></div>
+      <div class="metric"><span>Page recall</span><strong>not measured</strong></div>
+      <div class="metric"><span>Page precision</span><strong>not measured</strong></div>
+      <div class="metric"><span>API recall</span><strong>not measured</strong></div>
+      <div class="metric"><span>Stable locators</span><strong>not measured</strong></div>
     </div>
     <div class="card"><h3>Self-healing</h3>
-      <div class="metric"><span>Opportunities</span><strong>12</strong></div>
-      <div class="metric"><span>Correct heals</span><strong>2</strong></div>
-      <div class="metric"><span>Correct rejections</span><strong>10</strong></div>
-      <div class="metric"><span>Incorrect heals</span><strong>0</strong></div>
-      <div class="metric"><span>False-healing rate</span><strong>0.0%</strong></div>
-      <div class="metric"><span>Confidence margin</span><strong>16 pts</strong></div>
+      <div class="metric"><span>Opportunities</span><strong>—</strong></div>
+      <div class="metric"><span>Correct heals</span><strong>—</strong></div>
+      <div class="metric"><span>Correct rejections</span><strong>—</strong></div>
+      <div class="metric"><span>Incorrect heals</span><strong>—</strong></div>
+      <div class="metric"><span>False-healing rate</span><strong>not measured</strong></div>
+      <div class="metric"><span>Confidence margin</span><strong>— pts</strong></div>
     </div>
     <div class="card"><h3>Generation</h3>
-      <div class="metric"><span>Page coverage</span><strong>66.7%</strong></div>
-      <div class="metric"><span>Stable locators</span><strong>100.0%</strong></div>
-      <div class="metric"><span>Executed / passed</span><strong>5 / 5</strong></div>
-      <div class="metric"><span>Failed when broken</span><strong>1</strong></div>
+      <div class="metric"><span>Page coverage</span><strong>not measured</strong></div>
+      <div class="metric"><span>Stable locators</span><strong>not measured</strong></div>
+      <div class="metric"><span>Executed / passed</span><strong>— / —</strong></div>
+      <div class="metric"><span>Failed when broken</span><strong>—</strong></div>
     </div>
     <div class="card"><h3>Failure analysis</h3>
-      <div class="metric"><span>Classification accuracy</span><strong>100.0%</strong></div>
-      <div class="metric"><span>Correct</span><strong>10/10</strong></div>
-      <div class="metric"><span>Unknown</span><strong>0</strong></div>
+      <div class="metric"><span>Classification accuracy</span><strong>not measured</strong></div>
+      <div class="metric"><span>Correct</span><strong>—/—</strong></div>
+      <div class="metric"><span>Unknown</span><strong>—</strong></div>
     </div>
     <div class="card"><h3>Reliability</h3>
-      <div class="metric"><span>Repeatability</span><strong>10 runs, 1 verdict(s)</strong></div>
-      <div class="metric"><span>Flaky app</span><strong>7 / 13 of 20</strong></div>
-      <div class="metric"><span>Concurrency</span><strong>10/10</strong></div>
+      <div class="metric"><span>Repeatability</span><strong>— runs, — verdict(s)</strong></div>
+      <div class="metric"><span>Flaky app</span><strong>— / — of —</strong></div>
+      <div class="metric"><span>Concurrency</span><strong>—/—</strong></div>
     </div>
     <div class="card"><h3>Result integrity</h3>
       <div class="metric"><span>False passes</span><strong>0</strong></div>
       <div class="metric"><span>False failures</span><strong>0</strong></div>
-      <div class="metric"><span>Evidence artifacts</span><strong>128</strong></div>
+      <div class="metric"><span>Evidence artifacts</span><strong>143</strong></div>
       <div class="metric"><span>Missing / changed</span><strong>0 / 0</strong></div>
     </div>
   </div>
@@ -121,1045 +122,1021 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
     <thead><tr><th>ID</th><th>Suite</th><th>Severity</th><th>Result</th><th>Objective</th><th>Detail</th></tr></thead>
     <tbody>
       <tr>
-        <td><code>ASRT-001</code></td><td>Assertions</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>assertVisible holds when it should and fails when it should not</td>
-        <td class="muted">holds → passed; breaks → failed; message: testId=&quot;no-such-element-anywhere&quot; could not be used: No element matched testId=&quot;no-such-element-anywhere&quot;.</td>
-      </tr><tr>
-        <td><code>ASRT-002</code></td><td>Assertions</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>assertText holds when it should and fails when it should not</td>
-        <td class="muted">holds → passed; breaks → failed; message: Expected the element to contain &quot;Something Else Entirely&quot; but it read &quot;Dashboard&quot; (waited 15016ms).</td>
-      </tr><tr>
-        <td><code>ASRT-003</code></td><td>Assertions</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>assertUrl holds when it should and fails when it should not</td>
-        <td class="muted">holds → passed; breaks → failed; message: Expected the URL to contain &quot;/nowhere-at-all&quot; but it was &quot;http://localhost:4300/dashboard&quot;.</td>
-      </tr><tr>
-        <td><code>ASRT-004</code></td><td>Assertions</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>assertValue holds when it should and fails when it should not</td>
-        <td class="muted">holds → passed; breaks → failed; message: Expected the value &quot;999&quot; but found &quot;250&quot; (waited 15107ms).</td>
-      </tr><tr>
-        <td><code>ASRT-005</code></td><td>Assertions</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>assertHidden holds when it should and fails when it should not</td>
-        <td class="muted">holds → passed; breaks → failed; message: The element was expected to be hidden but was visible.</td>
-      </tr><tr>
-        <td><code>ASRT-006</code></td><td>Assertions</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A failed assertion on an element that exists does not trigger healing</td>
-        <td class="muted">0 healing event(s) on a failed text assertion</td>
-      </tr><tr>
-        <td><code>ASRT-007</code></td><td>Assertions</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A failed assertion reports what it expected and what it found</td>
-        <td class="muted">7/7 failing assertion(s) name expected and actual</td>
-      </tr><tr>
-        <td><code>ASRT-008</code></td><td>Assertions</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Assertions run after a healed step, so a heal that reaches the wrong element is caught</td>
-        <td class="muted">the click healed at 93%; the assertion that followed passed</td>
-      </tr><tr>
-        <td><code>ASRT-009</code></td><td>Assertions</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>assertCount holds when it should and fails when it should not</td>
-        <td class="muted">holds → passed; breaks → failed; message: Expected 10 matching elements but found 3.</td>
-      </tr><tr>
-        <td><code>ASRT-010</code></td><td>Assertions</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>assertAttribute holds when it should and fails when it should not</td>
-        <td class="muted">holds → passed; breaks → failed; message: Expected attribute &quot;name&quot; to be &quot;account-number&quot; but it was &quot;username&quot; (waited 15023ms).</td>
-      </tr><tr>
-        <td><code>DET-001</code></td><td>Failure detection</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A working application produces a passing run</td>
-        <td class="muted">passed, 4/4 steps; 1 screenshot(s)</td>
-      </tr><tr>
-        <td><code>DET-002</code></td><td>Failure detection</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A http 400 failure is detected and reported as a failure</td>
-        <td class="muted">failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain &quot;OK 42&quot; but it read &quot;failed&quot; (waited 15074ms).; 2 screenshot(s); classified applicationDefect</td>
-      </tr><tr>
-        <td><code>DET-003</code></td><td>Failure detection</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A http 401 failure is detected and reported as a failure</td>
-        <td class="muted">failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain &quot;OK 42&quot; but it read &quot;failed&quot; (waited 15020ms).; 2 screenshot(s); classified authenticationIssue</td>
-      </tr><tr>
-        <td><code>DET-004</code></td><td>Failure detection</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A http 403 failure is detected and reported as a failure</td>
-        <td class="muted">failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain &quot;OK 42&quot; but it read &quot;failed&quot; (waited 15038ms).; 2 screenshot(s); classified authenticationIssue</td>
-      </tr><tr>
-        <td><code>DET-005</code></td><td>Failure detection</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A http 404 failure is detected and reported as a failure</td>
-        <td class="muted">failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain &quot;OK 42&quot; but it read &quot;failed&quot; (waited 15003ms).; 2 screenshot(s); classified applicationDefect</td>
-      </tr><tr>
-        <td><code>DET-006</code></td><td>Failure detection</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A http 500 failure is detected and reported as a failure</td>
-        <td class="muted">failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain &quot;OK 42&quot; but it read &quot;failed&quot; (waited 15102ms).; 2 screenshot(s); classified applicationDefect</td>
-      </tr><tr>
-        <td><code>DET-007</code></td><td>Failure detection</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A timeout failure is detected and reported as a failure</td>
-        <td class="muted">failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain &quot;OK 42&quot; but it read &quot;calculating…&quot; (waited 15088ms).; 2 screenshot(s); classified applicationDefect</td>
-      </tr><tr>
-        <td><code>DET-008</code></td><td>Failure detection</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A connection reset failure is detected and reported as a failure</td>
-        <td class="muted">failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain &quot;OK 42&quot; but it read &quot;failed&quot; (waited 15042ms).; 2 screenshot(s); classified networkIssue</td>
-      </tr><tr>
-        <td><code>DET-009</code></td><td>Failure detection</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A js error failure is detected and reported as a failure</td>
-        <td class="muted">failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain &quot;OK 42&quot; but it read &quot;calculating…&quot; (waited 15014ms).; 2 screenshot(s); classified applicationDefect</td>
-      </tr><tr>
-        <td><code>DET-010</code></td><td>Failure detection</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A wrong value failure is detected and reported as a failure</td>
-        <td class="muted">failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain &quot;OK 42&quot; but it read &quot;OK 99&quot; (waited 15070ms).; 2 screenshot(s); classified applicationDefect</td>
-      </tr><tr>
-        <td><code>DET-011</code></td><td>Failure detection</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A missing element failure is detected and reported as a failure</td>
-        <td class="muted">failed, 3/4 steps; failed at step 4 (assertText): testId=&quot;outcome&quot; could not be used: No element matched testId=&quot;outcome&quot;.; 2 screenshot(s); classified locatorChange</td>
-      </tr><tr>
-        <td><code>DET-012</code></td><td>Failure detection</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>With every case made healthy, none of the tests fails</td>
-        <td class="muted">http-500: passed, timeout: passed, connection-reset: passed</td>
-      </tr><tr>
-        <td><code>DISC-001</code></td><td>Discovery</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Discovery completes against a real single-page application</td>
-        <td class="muted">status completed, 11 page(s) in 15s</td>
-      </tr><tr>
-        <td><code>DISC-002</code></td><td>Discovery</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Every page the application has is discovered</td>
-        <td class="muted">recall 100.0% (9/9)</td>
-      </tr><tr>
-        <td><code>DISC-003</code></td><td>Discovery</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Nothing is discovered that the application does not have</td>
-        <td class="muted">precision 100.0%</td>
-      </tr><tr>
-        <td><code>DISC-004</code></td><td>Discovery</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>The sign-in page is discovered and recognised as public</td>
-        <td class="muted">found, requiresAuthentication=false</td>
-      </tr><tr>
-        <td><code>DISC-005</code></td><td>Discovery</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>Pages behind the sign-in are marked as requiring authentication</td>
-        <td class="muted">8/8 marked private</td>
-      </tr><tr>
-        <td><code>DISC-006</code></td><td>Discovery</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Discovery finds the application's form fields</td>
-        <td class="muted">5/5 found; classified as passwordInput/textInput; 8 element(s) of that kind</td>
-      </tr><tr>
-        <td><code>DISC-007</code></td><td>Discovery</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Discovery finds the application's buttons</td>
-        <td class="muted">5/5 found; classified as button; 24 element(s) of that kind</td>
-      </tr><tr>
-        <td><code>DISC-008</code></td><td>Discovery</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Discovery finds the application's links</td>
-        <td class="muted">4/4 found; classified as link; 93 element(s) of that kind</td>
-      </tr><tr>
-        <td><code>DISC-009</code></td><td>Discovery</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Discovery finds the application's select controls</td>
-        <td class="muted">3/3 found; classified as select; 4 element(s) of that kind</td>
-      </tr><tr>
-        <td><code>DISC-010</code></td><td>Discovery</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>Tabular content is discovered on the pages that have it</td>
-        <td class="muted">/accounts:19 /transactions:35 /dashboard:39 /beneficiaries:17</td>
-      </tr><tr>
-        <td><code>DISC-011</code></td><td>Discovery</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>The application's own API calls are observed while the UI is driven</td>
-        <td class="muted">recall 83% of 12 browsable endpoint(s); sign-in POST observed: true; missing DELETE /api/session, GET /api/statements/:id/download</td>
-      </tr><tr>
-        <td><code>DISC-012</code></td><td>Discovery</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>Navigation between pages is recorded as transitions</td>
-        <td class="muted">9 transition(s), 0 dangling</td>
-      </tr><tr>
-        <td><code>DISC-013</code></td><td>Discovery</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Discovered elements carry a stable preferred locator, not a structural path</td>
-        <td class="muted">100.0% stable of 259 element(s): testId=240 role=19</td>
-      </tr><tr>
-        <td><code>DISC-014</code></td><td>Discovery</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>Discovery captures a screenshot of each page it maps</td>
-        <td class="muted">11/11 page(s) have a screenshot</td>
-      </tr><tr>
-        <td><code>DISC-015</code></td><td>Discovery</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Discovery copes with an application whose ids change on every render</td>
-        <td class="muted">6 page(s) (recall 100%), 111 element(s), 0 locator(s) bound to a generated id</td>
-      </tr><tr>
-        <td><code>EXEC-001</code></td><td>Browser execution</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A twenty-step journey through a real application passes end to end</td>
-        <td class="muted">run passed, 20/20 step(s) passed on chromium 141.0.7390.37 in 1470ms</td>
-      </tr><tr>
-        <td><code>EXEC-002</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>The browser navigates to the start URL (navigate)</td>
-        <td class="muted">navigate passed in 70ms on about:blank</td>
-      </tr><tr>
-        <td><code>EXEC-003</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Text is typed into a field (fill)</td>
-        <td class="muted">fill passed in 63ms on http://localhost:4300/login via testId=&quot;username&quot;</td>
-      </tr><tr>
-        <td><code>EXEC-004</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A checkbox is ticked (check)</td>
-        <td class="muted">check passed in 63ms on http://localhost:4300/login via testId=&quot;remember-me&quot;</td>
-      </tr><tr>
-        <td><code>EXEC-005</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A control is pressed (click)</td>
-        <td class="muted">click passed in 74ms on http://localhost:4300/login via testId=&quot;login-submit&quot;</td>
-      </tr><tr>
-        <td><code>EXEC-006</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>An option is chosen from a select (select)</td>
-        <td class="muted">select passed in 53ms on http://localhost:4300/transactions via testId=&quot;filter-category&quot;</td>
-      </tr><tr>
-        <td><code>EXEC-007</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A visibility assertion is evaluated (assertVisible)</td>
-        <td class="muted">assertVisible passed in 65ms on http://localhost:4300/dashboard via testId=&quot;total-balance&quot;</td>
-      </tr><tr>
-        <td><code>EXEC-008</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A URL assertion is evaluated (assertUrl)</td>
-        <td class="muted">assertUrl passed in 28ms on http://localhost:4300/dashboard</td>
-      </tr><tr>
-        <td><code>EXEC-009</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A value assertion compares what is in the field, not what was typed</td>
-        <td class="muted">assertValue passed</td>
-      </tr><tr>
-        <td><code>EXEC-010</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A text assertion reads the rendered text of an element</td>
-        <td class="muted">assertText passed — page-title reads &quot;Statements&quot;</td>
-      </tr><tr>
-        <td><code>EXEC-011</code></td><td>Browser execution</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A password typed during execution is never stored in readable form</td>
-        <td class="muted">literal present: false; password step records &quot;***REDACTED***&quot;</td>
-      </tr><tr>
-        <td><code>EXEC-012</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A screenshot is captured for the execution</td>
-        <td class="muted">1 screenshot(s), 5 artifact(s) in total</td>
-      </tr><tr>
-        <td><code>EXEC-013</code></td><td>Browser execution</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>A Playwright trace is captured for the execution</td>
-        <td class="muted">1 trace(s), 955499 bytes</td>
-      </tr><tr>
-        <td><code>EXEC-014</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Console and network activity are recorded for the execution</td>
-        <td class="muted">8 network event(s) of which 7 are API calls; 1 console event(s)</td>
-      </tr><tr>
-        <td><code>EXEC-015</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge not-verified">NOT VERIFIED</span></td><td>The same unchanged test passes on firefox</td>
-        <td class="muted">firefox is not installed in this environment and cannot be downloaded (the Playwright CDN is unreachable); the platform reported: &quot;browserType.launch: Executable doesn't exist at /opt/pw-browsers/firefox-1495/firefox/firefox&quot;</td>
-      </tr><tr>
-        <td><code>EXEC-016</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge not-verified">NOT VERIFIED</span></td><td>The same unchanged test passes on webkit</td>
-        <td class="muted">webkit is not installed in this environment and cannot be downloaded (the Playwright CDN is unreachable); the platform reported: &quot;browserType.launch: Executable doesn't exist at /opt/pw-browsers/webkit-2215/pw_run.sh&quot;</td>
-      </tr><tr>
-        <td><code>EXEC-017</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Execution waits for an element that arrives late instead of failing immediately</td>
-        <td class="muted">passed; the assertion waited 6413ms for content the page renders after about 2.5 seconds</td>
-      </tr><tr>
-        <td><code>EXEC-018</code></td><td>Browser execution</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A modal dialog can be opened, filled and submitted</td>
-        <td class="muted">passed, 12/12 steps</td>
-      </tr><tr>
-        <td><code>EXEC-019</code></td><td>Browser execution</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>Paging through a table changes what the page shows</td>
-        <td class="muted">passed, 8/8 steps</td>
-      </tr><tr>
-        <td><code>EXEC-020</code></td><td>Browser execution</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A multi-step purchase journey completes, with each step depending on the last</td>
-        <td class="muted">passed, 21/21 steps; the shop's order endpoint answers 200</td>
-      </tr><tr>
-        <td><code>FA-001</code></td><td>Failure analysis</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Every failed run produces a failure record, not just a red verdict</td>
-        <td class="muted">10/10 failure(s) recorded with a category, message and signature</td>
-      </tr><tr>
-        <td><code>FA-002</code></td><td>Failure analysis</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>A http 400 failure is classified as applicationDefect</td>
-        <td class="muted">classified &quot;applicationDefect&quot; at 70% confidence; the lab expects applicationError (accepting applicationDefect)</td>
-      </tr><tr>
-        <td><code>FA-003</code></td><td>Failure analysis</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>A http 401 failure is classified as authenticationIssue</td>
-        <td class="muted">classified &quot;authenticationIssue&quot; at 85% confidence; the lab expects authenticationFailure (accepting authenticationIssue)</td>
-      </tr><tr>
-        <td><code>FA-004</code></td><td>Failure analysis</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>A http 403 failure is classified as authenticationIssue</td>
-        <td class="muted">classified &quot;authenticationIssue&quot; at 85% confidence; the lab expects authorizationFailure (accepting authenticationIssue)</td>
-      </tr><tr>
-        <td><code>FA-005</code></td><td>Failure analysis</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>A http 404 failure is classified as applicationDefect</td>
-        <td class="muted">classified &quot;applicationDefect&quot; at 70% confidence; the lab expects applicationError (accepting applicationDefect)</td>
-      </tr><tr>
-        <td><code>FA-006</code></td><td>Failure analysis</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>A http 500 failure is classified as applicationDefect</td>
-        <td class="muted">classified &quot;applicationDefect&quot; at 90% confidence; the lab expects applicationError (accepting applicationDefect)</td>
-      </tr><tr>
-        <td><code>FA-007</code></td><td>Failure analysis</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>A timeout failure is classified as timingIssue or applicationDefect</td>
-        <td class="muted">classified &quot;applicationDefect&quot; at 70% confidence; the lab expects timeout (accepting timingIssue or applicationDefect)</td>
-      </tr><tr>
-        <td><code>FA-008</code></td><td>Failure analysis</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>A connection reset failure is classified as networkIssue</td>
-        <td class="muted">classified &quot;networkIssue&quot; at 85% confidence; the lab expects networkError (accepting networkIssue)</td>
-      </tr><tr>
-        <td><code>FA-009</code></td><td>Failure analysis</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>A js error failure is classified as applicationDefect</td>
-        <td class="muted">classified &quot;applicationDefect&quot; at 70% confidence; the lab expects javascriptError (accepting applicationDefect)</td>
-      </tr><tr>
-        <td><code>FA-010</code></td><td>Failure analysis</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>A wrong value failure is classified as applicationDefect or dataIssue</td>
-        <td class="muted">classified &quot;applicationDefect&quot; at 70% confidence; the lab expects assertionFailed (accepting applicationDefect or dataIssue)</td>
-      </tr><tr>
-        <td><code>FA-011</code></td><td>Failure analysis</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>A missing element failure is classified as locatorChange or applicationDefect</td>
-        <td class="muted">classified &quot;locatorChange&quot; at 90% confidence; the lab expects elementNotFound (accepting locatorChange or applicationDefect)</td>
-      </tr><tr>
-        <td><code>FA-012</code></td><td>Failure analysis</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Classification accuracy across every failure class is measured, not assumed</td>
-        <td class="muted">10/10 correct (100%), 0 classified as unknown</td>
-      </tr><tr>
-        <td><code>FA-013</code></td><td>Failure analysis</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A failure carries an explanation a person can act on, and says what produced it</td>
-        <td class="muted">10/10 failure(s) analysed; 10 carry a summary, likely cause and suggested action; providers: local (deterministic)</td>
-      </tr><tr>
-        <td><code>FA-014</code></td><td>Failure analysis</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Analysis explains a failure; it never overturns the verdict</td>
-        <td class="muted">10/10 run(s) remained failed after analysis</td>
-      </tr><tr>
-        <td><code>FA-015</code></td><td>Failure analysis</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>The same failure seen twice is recognised rather than counted as new</td>
-        <td class="muted">signatures match; second run isNewFailure=false, occurrences 2</td>
-      </tr><tr>
-        <td><code>FA-016</code></td><td>Failure analysis</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A confirmation shown for something that never happened is detected</td>
-        <td class="muted">failed; the confirmation banner passed, the payment list assertion failed</td>
-      </tr><tr>
-        <td><code>GEN-001</code></td><td>AI test generation</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A requirement in plain English produces runnable test cases: &quot;Customer can login and view account balance.&quot;</td>
-        <td class="muted">5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: balance, dashboard</td>
-      </tr><tr>
-        <td><code>GEN-002</code></td><td>AI test generation</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A requirement in plain English produces runnable test cases: &quot;Customer can download account statement.&quot;</td>
-        <td class="muted">5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: statement, download</td>
-      </tr><tr>
-        <td><code>GEN-003</code></td><td>AI test generation</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A requirement in plain English produces runnable test cases: &quot;Customer can make a payment.&quot;</td>
-        <td class="muted">5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: payment, pay</td>
-      </tr><tr>
-        <td><code>GEN-004</code></td><td>AI test generation</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A requirement in plain English produces runnable test cases: &quot;Customer receives validation when payment amount is invalid.&quot;</td>
-        <td class="muted">5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: payment, amount, invalid, valid</td>
-      </tr><tr>
-        <td><code>GEN-005</code></td><td>AI test generation</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A requirement in plain English produces runnable test cases: &quot;Customer cannot login with invalid credentials.&quot;</td>
-        <td class="muted">5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: login, credential</td>
-      </tr><tr>
-        <td><code>GEN-006</code></td><td>AI test generation</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>The platform names the provider that generated a suite and does not invent usage it did not have</td>
-        <td class="muted">5 plan(s); providers local/aira-rules-v1; local fallback flagged: true; tokens reported 0</td>
-      </tr><tr>
-        <td><code>GEN-007</code></td><td>AI test generation</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Generated steps address elements by test id, role or label rather than a structural path</td>
-        <td class="muted">100.0% stable of 40 targeted step(s): testId=40</td>
-      </tr><tr>
-        <td><code>GEN-008</code></td><td>AI test generation</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>Every generated test carries the context a reviewer needs</td>
-        <td class="muted">25/25 case(s) carry an objective, preconditions and expected results</td>
-      </tr><tr>
-        <td><code>GEN-009</code></td><td>AI test generation</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>Generation respects the scenario budget it was given</td>
-        <td class="muted">asked for at most 2, created 2</td>
-      </tr><tr>
-        <td><code>GEN-010</code></td><td>AI test generation</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Generated tests execute in a real browser rather than merely reading well</td>
-        <td class="muted">5/5 generated test(s) passed: TC-0001 passed, TC-0002 passed, TC-0003 passed, TC-0004 passed, TC-0005 passed</td>
-      </tr><tr>
-        <td><code>GEN-011</code></td><td>AI test generation</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A generated test fails when the application it covers is broken</td>
-        <td class="muted">FAULT_EMPTY_TRANSACTIONS on /transactions (the transactions list renders nothing): 1/2 test(s) that visit that page failed (all 5 passed when it was healthy): TC-0001 passed, TC-0002 failed, TC-0003 passed, TC-0004 passed, TC-0005 passed</td>
-      </tr><tr>
-        <td><code>GEN-012</code></td><td>AI test generation</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>Generation reaches across the application rather than testing one page repeatedly</td>
-        <td class="muted">6/9 distinct page(s) appear in a generated step (67%), across 9 generated case(s); 8/11 before collapsing repeated routes; 9 case(s) from one unbudgeted generation</td>
-      </tr><tr>
-        <td><code>GEN-013</code></td><td>AI test generation</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Generation against an application that was never discovered does not invent tests</td>
-        <td class="muted">status 400, 0 case(s) created; 0 warning(s): {&quot;code&quot;:&quot;validation_failed&quot;,&quot;title&quot;:&quot;This application has no discovered pages yet. Run discovery before generating tests</td>
-      </tr><tr>
-        <td><code>GEN-014</code></td><td>AI test generation</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Text in the application under test cannot give instructions to the generator</td>
-        <td class="muted">3 case(s) generated from a page carrying an injected instruction; obeyed: false; credentials leaked: false</td>
-      </tr><tr>
-        <td><code>GEN-015</code></td><td>AI test generation</td><td>medium</td>
-        <td><span class="badge pass">PASS</span></td><td>Every generation is recorded as an auditable request</td>
-        <td class="muted">5/5 generation(s) recorded an AI request id</td>
-      </tr><tr>
-        <td><code>GEN-016</code></td><td>AI test generation</td><td>high</td>
-        <td><span class="badge not-verified">NOT VERIFIED</span></td><td>Generation quality with a hosted model provider (OpenAI, Anthropic or Gemini)</td>
-        <td class="muted">no model provider is configured in this environment (AI_PROVIDER=local) and no API key is available, so everything above measures the built-in rules engine, which the platform labels honestly as isLocalProvider=true</td>
-      </tr><tr>
-        <td><code>HEAL-G01</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>The test passes against the unmodified application</td>
-        <td class="muted">passed, 5/5 steps, reached /welcome: true</td>
-      </tr><tr>
-        <td><code>HEAL-G02</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Under the default policy a broken locator is proposed, never silently applied</td>
-        <td class="muted">failed; 1 healing event(s), 0 applied; confidence 79; proposals: proposed</td>
-      </tr><tr>
-        <td><code>HEAL-G03</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Under an opt-in Auto policy the same break is healed and the run continues</td>
-        <td class="muted">passed; 1 heal(s) applied at 79%; best candidate 79% against a threshold of 75; reached /welcome: true</td>
-      </tr><tr>
-        <td><code>HEAL-G04</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A healed run is reported as healed, not as a clean pass</td>
-        <td class="muted">run status &quot;passed&quot;; the click records wasHealed=true at 79% confidence</td>
-      </tr><tr>
-        <td><code>HEAL-G05</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing at run time does not rewrite the stored test</td>
-        <td class="muted">the stored click still targets {&quot;strategy&quot;:&quot;testId&quot;,&quot;value&quot;:&quot;login-submit&quot;,&quot;exact&quot;:false,&quot;fallbacks&quot;:[]}</td>
-      </tr><tr>
-        <td><code>HEAL-G06</code></td><td>Self-healing</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>A control whose test id changed but whose label did not is healed</td>
-        <td class="muted">passed; 1 heal(s) at 93%; best candidate 93%</td>
-      </tr><tr>
-        <td><code>HEAL-G07</code></td><td>Self-healing</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Every healing decision is recorded for a human to review</td>
-        <td class="muted">3 healing event(s) listed, 3 with confidence, outcome and both locators</td>
-      </tr><tr>
-        <td><code>HEAL-G08</code></td><td>Self-healing</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Raising the confidence threshold stops a heal that would otherwise be applied</td>
-        <td class="muted">at threshold 100: failed, 0 heal(s) applied, best candidate 79%</td>
-      </tr><tr>
-        <td><code>HEAL-M01</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing is measured as four counts, so a rate cannot hide a wrong heal</td>
-        <td class="muted">12 opportunities: 2 correctly healed, 10 correctly refused, 0 wrongly healed, 0 missed — false-healing rate 0.0%</td>
-      </tr><tr>
-        <td><code>HEAL-M02</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>The scorer separates a break that should heal from one that must not</td>
-        <td class="muted">healable: renamed control 79%, test id changed 93%; highest wrong-target candidate 63% (AMBIGUOUS_CONTROLS 51%, CONTROL_IS_LINK_ELSEWHERE 63%); margin +16 points. Findable-but-unusable controls scored 84%, 94%, 93%, 84% and all failed anyway.</td>
-      </tr><tr>
-        <td><code>HEAL-N01</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing is refused: no control performs the function any more</td>
-        <td class="muted">failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold</td>
-      </tr><tr>
-        <td><code>HEAL-N02</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing is refused: two equally plausible controls lead to different outcomes</td>
-        <td class="muted">failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 51%</td>
-      </tr><tr>
-        <td><code>HEAL-N03</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing is refused: a control with the same label now cancels the sign-in</td>
-        <td class="muted">failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold</td>
-      </tr><tr>
-        <td><code>HEAL-N04</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing is refused: an unrelated marketing button occupies the same position</td>
-        <td class="muted">failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold</td>
-      </tr><tr>
-        <td><code>HEAL-N05</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing is refused: the control exists but only behind an extra interaction</td>
-        <td class="muted">failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 84%</td>
-      </tr><tr>
-        <td><code>HEAL-N06</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing is refused: the control is present but disabled</td>
-        <td class="muted">failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 94%</td>
-      </tr><tr>
-        <td><code>HEAL-N07</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing is refused: the control is present but not visible</td>
-        <td class="muted">failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 93%</td>
-      </tr><tr>
-        <td><code>HEAL-N08</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing is refused: a link with the same words leads somewhere else</td>
-        <td class="muted">failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 63%</td>
-      </tr><tr>
-        <td><code>HEAL-N09</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing is refused: the page has been replaced by a maintenance notice</td>
-        <td class="muted">failed; heals applied: 0; reached /welcome: false; classified as locatorChange; no candidate reached the threshold</td>
-      </tr><tr>
-        <td><code>HEAL-N10</code></td><td>Self-healing</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Healing is refused: two controls share the label and do opposite things</td>
-        <td class="muted">failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 84%</td>
-      </tr><tr>
-        <td><code>PERF-001</code></td><td>Performance baseline</td><td>low</td>
-        <td><span class="badge pass">PASS</span></td><td>How long discovery of a nine-page single-page application takes</td>
-        <td class="muted">crawl: median 15070ms (min 15069ms, p95 15073ms, max 15073ms, n=3); 11 pages, 259 elements; about 1370ms per page</td>
-      </tr><tr>
-        <td><code>PERF-002</code></td><td>Performance baseline</td><td>low</td>
-        <td><span class="badge pass">PASS</span></td><td>How long a twelve-step journey takes from queued to verdict</td>
-        <td class="muted">queued to verdict: median 2051ms (min 2048ms, p95 2056ms, max 2056ms, n=10); in the browser: median 931ms (min 853ms, p95 1198ms, max 1198ms, n=10); platform overhead about 1120ms; about 78ms per step</td>
-      </tr><tr>
-        <td><code>PERF-003</code></td><td>Performance baseline</td><td>low</td>
-        <td><span class="badge pass">PASS</span></td><td>How long generating a suite from one requirement takes</td>
-        <td class="muted">generation: median 33ms (min 26ms, p95 82ms, max 82ms, n=3); 5/5/5 case(s) per attempt; provider local/aira-rules-v1 — the built-in rules, not a hosted model</td>
-      </tr><tr>
-        <td><code>REL-001</code></td><td>Reliability</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A deterministic test gives the same verdict ten times running</td>
-        <td class="muted">10/10 passed; verdicts: passed; duration 472–596ms (median 542ms)</td>
-      </tr><tr>
-        <td><code>REL-002</code></td><td>Reliability</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>An unstable application produces unstable results, and they are recorded</td>
-        <td class="muted">7 passed, 13 failed across 20 runs; delays the application served: 100ms, 800ms, 2500ms, 6000ms</td>
-      </tr><tr>
-        <td><code>REL-003</code></td><td>Reliability</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>The platform records instability against the test rather than leaving it to a reader</td>
-        <td class="muted">the platform records 20 execution(s): 7 passed, 13 failed, flakiness score 33; this suite observed 7/20 passing</td>
-      </tr><tr>
-        <td><code>REL-004</code></td><td>Reliability</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A test that only passes on a retry is not reported as a clean pass</td>
-        <td class="muted">0/6 run(s) needed a retry; verdicts: failed, failed, failed, failed, passed, failed</td>
-      </tr><tr>
-        <td><code>REL-005</code></td><td>Reliability</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Ten runs started at the same moment all reach a verdict</td>
-        <td class="muted">10/10 reached a verdict, 10 passed; statuses: passed</td>
-      </tr><tr>
-        <td><code>REL-006</code></td><td>Reliability</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>When the configured model provider cannot be reached, nothing is fabricated</td>
-        <td class="muted">run failed; analysis present, produced by local (deterministic rules)</td>
-      </tr><tr>
-        <td><code>REL-007</code></td><td>Reliability</td><td>high</td>
-        <td><span class="badge not-verified">NOT VERIFIED</span></td><td>An execution whose worker dies is reconciled rather than left running forever</td>
-        <td class="muted">this deployment reconciles stranded executions after 10 minutes, which is longer than this suite is willing to wait. Set Execution:StrandedAfterMinutes to 1 and AIRA_STRANDED_AFTER_MINUTES=1 to include it. The mechanism itself is covered by the product's own t</td>
-      </tr><tr>
-        <td><code>SEC-G01</code></td><td>Security and multi-tenancy</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Every data endpoint refuses an unauthenticated request</td>
-        <td class="muted">6/6 refused with 401; other statuses: none</td>
-      </tr><tr>
-        <td><code>SEC-G02</code></td><td>Security and multi-tenancy</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A forged or tampered token is refused</td>
-        <td class="muted">random: 401, flipped signature: 401, tampered payload with wildcard permissions: 401, empty: 401</td>
-      </tr><tr>
-        <td><code>SEC-G03</code></td><td>Security and multi-tenancy</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>One tenant cannot read another's data by knowing its identifier</td>
-        <td class="muted">7/7 refused for the other tenant; 7/7 readable by their owner; intruder statuses 404, 200</td>
-      </tr><tr>
-        <td><code>SEC-G04</code></td><td>Security and multi-tenancy</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>One tenant cannot start work inside another's project</td>
-        <td class="muted">the write answered 404; 0 intruder run(s) visible in the owner's project</td>
-      </tr><tr>
-        <td><code>SEC-G05</code></td><td>Security and multi-tenancy</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>SQL and script payloads in user input are stored as data, not executed</td>
-        <td class="muted">4/4 payload(s) stored verbatim; the project list still answers 200 with 5 project(s)</td>
-      </tr><tr>
-        <td><code>SEC-G06</code></td><td>Security and multi-tenancy</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>The platform refuses targets that are never legitimate, whatever it is configured to allow</td>
-        <td class="muted">6/6 refused; accepted: none</td>
-      </tr><tr>
-        <td><code>SEC-G07</code></td><td>Security and multi-tenancy</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A stored credential is never returned by the API</td>
-        <td class="muted">absent from all 6 surfaces; 2 action(s) record a masked value instead</td>
-      </tr><tr>
-        <td><code>SEC-G08</code></td><td>Security and multi-tenancy</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>Artifact identifiers cannot be turned into a path traversal</td>
-        <td class="muted">../../../../etc/passwd → 404, ..%2f..%2f..%2fetc%2fpas → 404, 00000000-0000-0000-0000- → 404</td>
-      </tr><tr>
-        <td><code>SEC-G09</code></td><td>Security and multi-tenancy</td><td>critical</td>
-        <td><span class="badge pass">PASS</span></td><td>A test cannot run arbitrary JavaScript in the browser unless the project allows it</td>
-        <td class="muted">refused at import: 200 Step 2 (“Read the session cookie”) was not imported: executeScript is not permitted: enable script execution on the project and grant execut</td>
-      </tr><tr>
-        <td><code>SEC-G10</code></td><td>Security and multi-tenancy</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>The API sets the browser security headers it claims to</td>
-        <td class="muted">all present: x-content-type-options, x-frame-options, referrer-policy</td>
-      </tr><tr>
-        <td><code>SEC-G11</code></td><td>Security and multi-tenancy</td><td>high</td>
-        <td><span class="badge pass">PASS</span></td><td>Loopback and private addresses are treated consistently with the deployment's configuration</td>
-        <td class="muted">IPv4 loopback: 201, IPv6 loopback: 201, private range: 201, link-local: 400; loopback and private treated consistently: true; link-local refused regardless: true</td>
+        <td><code>ACC-001</code></td><td>Accessibility</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A page with no violations passes, and the result says what was actually run</td>
+        <td class="muted">run passed; 0 violation(s), 21 rule(s) passed, 1 incomplete; axe-core 4.13.0</td>
+      </tr><tr>
+        <td><code>ACC-002</code></td><td>Accessibility</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>Every accessibility fault in the lab is found, and found as the rule it is</td>
+        <td class="muted">5 fault(s), each producing exactly what its ground truth names</td>
+      </tr><tr>
+        <td><code>ACC-003</code></td><td>Accessibility</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>failOn decides whether a violation fails the step, and the result is stored either way</td>
+        <td class="muted">failOn serious: run failed, 1 violation(s) stored; failOn null: run passed, 1 violation(s) stored</td>
+      </tr><tr>
+        <td><code>ACC-004</code></td><td>Accessibility</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A failing check names the rule, the element and where to read about it</td>
+        <td class="muted">2 violation(s); message 361B, names rules: true, carries help URL: true</td>
+      </tr><tr>
+        <td><code>ACC-005</code></td><td>Accessibility</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A run with no accessibility step reports the metric as unmeasured, never as zero</td>
+        <td class="muted">rule measured=false passed=false; outcome review; &quot;The number of critical or serious accessibility violations was not measured for this run, so this rule could not be eval&quot;</td>
+      </tr><tr>
+        <td><code>ACC-006</code></td><td>Accessibility</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A run that does check reports the number it found, and the gate acts on it</td>
+        <td class="muted">run passed; metric measured 2; rule passed=false; gate fail</td>
+      </tr><tr>
+        <td><code>API-001</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>An API test is authored through the platform and stored as a test case</td>
+        <td class="muted">stored as TC-0001 kind=api with 2 request(s) and 6 assertion(s)</td>
+      </tr><tr>
+        <td><code>API-002</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>An API test executes in the ordinary run pipeline and passes when the API works</td>
+        <td class="muted">run passed, execution passed, 2 action(s), 55ms</td>
+      </tr><tr>
+        <td><code>API-003</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>The request and the response are recorded as evidence, tagged with the step that made them</td>
+        <td class="muted">2 exchange(s) recorded: step 1 POST /api/session → 200 in 3ms; step 2 GET /api/accounts → 200 in 2ms</td>
+      </tr><tr>
+        <td><code>API-004</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A test that expects an unauthenticated call to be refused passes on the refusal</td>
+        <td class="muted">run passed; the call returned 401</td>
+      </tr><tr>
+        <td><code>API-005</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A switched-on server fault fails the API test, with the response as evidence</td>
+        <td class="muted">run failed; message &quot;POST http://localhost:4300/api/session returned 500 Internal Server Error.&quot;; evidence body &quot;{&quot;error&quot;:&quot;internal_error&quot;,&quot;message&quot;:&quot;The authentication service is unavailable.&quot;}&quot;</td>
+      </tr><tr>
+        <td><code>API-006</code></td><td>API testing</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>The platform refuses an API test that asserts nothing</td>
+        <td class="muted">status 400; 2 problem(s): Request 1 has no assertions and tolerates error statuses, so no result could make it fail. Add an assertion, or let an error status fail the step. | This test asserts nothing. A test that cannot fail is not a test.</td>
+      </tr><tr>
+        <td><code>API-007</code></td><td>API testing</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>The platform refuses a page assertion attached to an API request</td>
+        <td class="muted">status 400; Request 1: 'visible' is a page assertion and cannot be evaluated against an HTTP response. Use a response assertion instead.</td>
+      </tr><tr>
+        <td><code>API-008</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>The platform refuses an API test pointed at a host outside the application boundary</td>
+        <td class="muted">status 400; Request 1: The request to 'https://api.stripe.com/v1/charges' is not allowed: host 'api.stripe.com' is not in the application's allowed domains</td>
+      </tr><tr>
+        <td><code>API-009</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>The platform refuses an API test that inlines a credential instead of referencing one</td>
+        <td class="muted">literal header 400, literal token 400, reference 200</td>
+      </tr><tr>
+        <td><code>API-010</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>The quality gate measures API failures as their own metric, and a rule over it fires</td>
+        <td class="muted">ApiFailedCount=1, outcome fail, rule &quot;No failing API tests&quot; passed=false</td>
+      </tr><tr>
+        <td><code>API-011</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A gate rule over a metric the run could not measure is sent for review, never reported as satisfied</td>
+        <td class="muted">run passed; rule measured=false passed=false; outcome review</td>
+      </tr><tr>
+        <td><code>API-012</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A referenced secret is sent but never appears in the run's stored evidence</td>
+        <td class="muted">run passed; the password appears in none of execution, executions, network</td>
+      </tr><tr>
+        <td><code>API-013</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A pipeline can author and run API tests through the CLI, and branch on its exit status</td>
+        <td class="muted">add exit 0, list exit 0, healthy run exit 0 (expected 0), broken run exit 1 (expected 1)</td>
+      </tr><tr>
+        <td><code>API-014</code></td><td>API testing</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A mutating API request is refused in an environment that does not permit destructive tests</td>
+        <td class="muted">run failed; message &quot;A POST request is not permitted against this environment. Destructive API requests are disabled for it.&quot;; 0 request(s) recorded</td>
+      </tr><tr>
+        <td><code>CI-001</code></td><td>CI integration</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A run writes exactly the four documented artifacts, under fixed names</td>
+        <td class="muted">exit 0; files junit.xml, report.html, report.json, summary.md; junit 485B, json 1722B, html 4318B, summary 404B</td>
+      </tr><tr>
+        <td><code>CI-002</code></td><td>CI integration</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>The pull request summary names the failure, its message and its diagnosis</td>
+        <td class="muted">exit 1; summary 491B; headline &quot;### ❌ 1 test(s) failed&quot;</td>
+      </tr><tr>
+        <td><code>CI-003</code></td><td>CI integration</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A passing run produces a summary with no failure section at all</td>
+        <td class="muted">exit 0; headline &quot;### ✅ All tests passed&quot;</td>
+      </tr><tr>
+        <td><code>CI-004</code></td><td>CI integration</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A run the gate sends for review exits 7 and says so in the summary</td>
+        <td class="muted">exit 7 (expected 7); headline &quot;### ⚠️ This run needs a person to look at it&quot;</td>
+      </tr><tr>
+        <td><code>CI-005</code></td><td>CI integration</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>Every example pipeline passes only flags the CLI accepts and handles every exit code the CLI documents</td>
+        <td class="muted">5 pipeline file(s): no unknown flags, every exit code handled, each marked as not executed in its CI system</td>
+      </tr><tr>
+        <td><code>CI-006</code></td><td>CI integration</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>The JUnit XML reports the same counts as the run it came from</td>
+        <td class="muted">junit tests=2 failures=1; run 2 test(s), 1 failed</td>
+      </tr><tr>
+        <td><code>CI-007</code></td><td>CI integration</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>The build, commit and branch a pipeline passes are recorded on the run</td>
+        <td class="muted">provider github, build 99123, commit a1b2c3d4, branch feature/accounts-filter</td>
+      </tr><tr>
+        <td><code>CIS-001</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A healthy deployment and passing tests take the pipeline through every stage to a clean exit</td>
+        <td class="muted">exit 0; stages checkout → deploy → health → select → test → publish; artifacts junit.xml, report.html, report.json, summary.md; 2 passed, 0 failed</td>
+      </tr><tr>
+        <td><code>CIS-002</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A defect in the deployment fails the pipeline, and the evidence is still published</td>
+        <td class="muted">exit 1; 1 passed, 1 failed; artifacts published: ok</td>
+      </tr><tr>
+        <td><code>CIS-003</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A quality gate blocks a run in which no test failed, under its own exit code</td>
+        <td class="muted">exit 2; 0 test(s) failed and the gate blocked anyway; the quality gate blocked this run</td>
+      </tr><tr>
+        <td><code>CIS-004</code></td><td>CI simulation</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A pipeline naming a project that does not exist is a configuration error</td>
+        <td class="muted">exit 3; bad configuration</td>
+      </tr><tr>
+        <td><code>CIS-005</code></td><td>CI simulation</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A rejected token is an authentication error and never a security policy violation</td>
+        <td class="muted">exit 4; bad credentials</td>
+      </tr><tr>
+        <td><code>CIS-006</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>An unreachable platform is reported as knowing nothing, never as a pass</td>
+        <td class="muted">exit 5; the platform could not be reached</td>
+      </tr><tr>
+        <td><code>CIS-007</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A failed health check stops the pipeline before any test runs</td>
+        <td class="muted">exit 5; stages checkout → deploy → health; 0 artifact(s) — the run never started</td>
+      </tr><tr>
+        <td><code>CIS-008</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A run against an unauthorized production environment is refused under the security exit code</td>
+        <td class="muted">exit 6; a security policy refused this run</td>
+      </tr><tr>
+        <td><code>CIS-009</code></td><td>CI simulation</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>The same environment runs once somebody has authorized it in writing</td>
+        <td class="muted">exit 0; the run recorded environment prod</td>
+      </tr><tr>
+        <td><code>CIS-010</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A REVIEW verdict reaches the pipeline as its own exit code</td>
+        <td class="muted">AIRA exited 7, the pipeline exited 7; review required, and this pipeline blocks on review</td>
+      </tr><tr>
+        <td><code>CIS-011</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A team may choose to continue on REVIEW, and the log still says a person must look</td>
+        <td class="muted">AIRA exited 7, the pipeline exited 0; review required, and this pipeline does not block on review</td>
+      </tr><tr>
+        <td><code>CIS-012</code></td><td>CI simulation</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A failure inside AIRA is reported as a defect in AIRA, not as a finding about the application</td>
+        <td class="muted">exit 8; AIRA failed internally</td>
+      </tr><tr>
+        <td><code>CON-001</code></td><td>API contracts</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>The API inventory reports which observed endpoints nothing tests</td>
+        <td class="muted">14 endpoint(s) observed, 2 covered by an API test, 0 with a baseline; GET /api/accounts testCount=1</td>
+      </tr><tr>
+        <td><code>CON-002</code></td><td>API contracts</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>Contract baselines are inferred from responses the application actually gave</td>
+        <td class="muted">14 baseline(s) captured, 0 skipped; GET /api/accounts v1 with 12 field(s)</td>
+      </tr><tr>
+        <td><code>CON-003</code></td><td>API contracts</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>An unchanged API produces no contract differences at all</td>
+        <td class="muted">run passed; 0 breaking, 0 potentially breaking, 0 non-breaking</td>
+      </tr><tr>
+        <td><code>CON-004</code></td><td>API contracts</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A field the API stops returning is classified as a breaking change</td>
+        <td class="muted">the test passed while 1 breaking change(s) were found; $.accounts[].sortCode: &quot;accounts[].sortCode&quot; was present as string and is now absent. Any caller reading it will find nothing.</td>
+      </tr><tr>
+        <td><code>CON-005</code></td><td>API contracts</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A field whose type changes is classified as a breaking change</td>
+        <td class="muted">the test passed; $.accounts[].balance: number → string (breaking)</td>
+      </tr><tr>
+        <td><code>CON-006</code></td><td>API contracts</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A field that can now be null is classified as potentially breaking, not breaking</td>
+        <td class="muted">the test passed; $.accounts[].sortCode classified &quot;potentiallyBreaking&quot; (string → null|string); 0 breaking</td>
+      </tr><tr>
+        <td><code>CON-007</code></td><td>API contracts</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A new field is reported as non-breaking and does not fail anything</td>
+        <td class="muted">the test passed; $.accounts[].nickname classified &quot;nonBreaking&quot;; 0 breaking, 0 potentially breaking</td>
+      </tr><tr>
+        <td><code>CON-008</code></td><td>API contracts</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A quality gate rule over breaking contract changes fires when one is found</td>
+        <td class="muted">run passed; ContractBreakingChangeCount=1; rule measured=true passed=false; outcome fail</td>
+      </tr><tr>
+        <td><code>CON-009</code></td><td>API contracts</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A breaking change can be acknowledged, and the acknowledgement carries forward</td>
+        <td class="muted">without a reason: 400; with one: 204; the same change on the next run: acknowledged=true</td>
+      </tr><tr>
+        <td><code>CON-010</code></td><td>API contracts</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>API tests are generated from the observed inventory, including negative ones</td>
+        <td class="muted">29 test(s) from 14 endpoint(s): 13 positive, 12 unauthenticated, 4 not-found; 1 endpoint(s) skipped as mutating; the first test carries 3 assertion(s)</td>
+      </tr><tr>
+        <td><code>CON-011</code></td><td>API contracts</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A generated API test executes and passes against the application it was generated from</td>
+        <td class="muted">&quot;GET http://localhost:4300/api/accounts refuses an unauthenticated caller&quot; ran and passed in 22ms</td>
+      </tr><tr>
+        <td><code>CON-012</code></td><td>API contracts</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A generated unauthenticated-refusal test fails if the endpoint stops requiring credentials</td>
+        <td class="muted">run failed; &quot;The endpoint refuses a caller with no credentials: Expected a status in &quot;401,403&quot; but the response was 200 OK.&quot;</td>
+      </tr><tr>
+        <td><code>CON-013</code></td><td>API contracts</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>Accepting a new contract baseline requires a reason and is versioned</td>
+        <td class="muted">without a note: 400; with one: 14 captured, 14 replaced; GET /api/accounts is now v2</td>
+      </tr><tr>
+        <td><code>CON-014</code></td><td>API contracts</td><td>medium</td>
+        <td><span class="badge pass">PASS</span></td><td>A contract check can read what a crawl observed, not only what an API test called</td>
+        <td class="muted">14 endpoint(s) compared from the crawl, 0 breaking</td>
+      </tr><tr>
+        <td><code>COR-001</code></td><td>UI/API correlation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>Every recorded request is attributed to the step that made it</td>
+        <td class="muted">6 API call(s) recorded, 6 attributed to a step, across step(s) 1, 2, 4</td>
+      </tr><tr>
+        <td><code>COR-002</code></td><td>UI/API correlation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A UI step that fails because its own API call returned 500 is diagnosed as that</td>
+        <td class="muted">applicationDefect at 95%: &quot;The step failed because the API call it made returned 500.&quot; — 1 failed call(s) recorded</td>
+      </tr><tr>
+        <td><code>COR-003</code></td><td>UI/API correlation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>An API test's failure is diagnosed from the call the failing step made</td>
+        <td class="muted">applicationDefect at 95%: &quot;The step failed because the API call it made returned 500.&quot; / &quot;POST /api/session → 500 in 3ms — the fault is in the application or a service it depends on, not in the test.&quot;</td>
+      </tr><tr>
+        <td><code>COR-004</code></td><td>UI/API correlation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A request that never completed is diagnosed as a network issue and named</td>
+        <td class="muted">networkIssue at 90%: &quot;The step failed because the API call it made never completed.&quot;</td>
+      </tr><tr>
+        <td><code>COR-005</code></td><td>UI/API correlation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A failure where the API answered correctly is attributed to the front end</td>
+        <td class="muted">3 API call(s), 0 failed; applicationDefect at 80%: &quot;The API answered correctly and the page showed something else.&quot;</td>
+      </tr><tr>
+        <td><code>COR-006</code></td><td>UI/API correlation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A signed-out page's own 401 never becomes the explanation for a removed control</td>
+        <td class="muted">locatorChange at 35%: &quot;The element Press login-submit targets has changed.&quot;</td>
+      </tr><tr>
+        <td><code>COR-007</code></td><td>UI/API correlation</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>Re-analysing a stored failure rebuilds the correlation from the evidence</td>
+        <td class="muted">first: authenticationIssue at 90%; re-analysed: authenticationIssue at 90%</td>
+      </tr><tr>
+        <td><code>DAT-001</code></td><td>Test data</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A data set can be created with each kind of field and read back</td>
+        <td class="muted">4 field(s): bookingDate=seededRandom, customerEmail=generated, orderReference=static, password=secretReference</td>
+      </tr><tr>
+        <td><code>DAT-002</code></td><td>Test data</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A seeded field resolves to the same value every time, through the platform</td>
+        <td class="muted">16 generator type(s), every one reproducible</td>
+      </tr><tr>
+        <td><code>DAT-003</code></td><td>Test data</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A field whose name is a credential is refused unless it references a secret</td>
+        <td class="muted">4/4 credentials refused; 3/3 ordinary fields accepted</td>
+      </tr><tr>
+        <td><code>DAT-004</code></td><td>Test data</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A field declared as a secret reference must name a secret, not hold one</td>
+        <td class="muted">400: &quot;password&quot; is a secret reference, so its value must name a secret, as &quot;${secret:the_name}&quot;. It must not contain the secret itself.</td>
+      </tr><tr>
+        <td><code>DAT-005</code></td><td>Test data</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>Neither a read nor a preview ever returns a sensitive value</td>
+        <td class="muted">neither the read nor the preview returned the sensitive value</td>
+      </tr><tr>
+        <td><code>DAT-006</code></td><td>Test data</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>Deleting a data set a test case uses is refused rather than cascaded</td>
+        <td class="muted">attach 204; in use: 409 &quot;1 test case(s) use this data set. Point them elsewhere first — deleting it would leave them running with no data, which reads as an application defect.&quot;; detach 204; once freed: 204</td>
+      </tr><tr>
+        <td><code>DAT-007</code></td><td>Test data</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A data set exports to a file, imports back, and the export carries no secret</td>
+        <td class="muted">import 0, preview 0, re-import 0; exported 3 field(s), secret carried as &quot;${secret:app_password}&quot;</td>
+      </tr><tr>
+        <td><code>DAT-008</code></td><td>Test data</td><td>medium</td>
+        <td><span class="badge pass">PASS</span></td><td>A data set with several problems reports all of them at once</td>
+        <td class="muted">4 problem(s) reported at once</td>
+      </tr><tr>
+        <td><code>NOT-001</code></td><td>Notifications</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A webhook integration delivers, and the receiver gets a signed, well-formed body</td>
+        <td class="muted">delivered=true status=200; sink got 1 delivery, signature valid: true</td>
+      </tr><tr>
+        <td><code>NOT-002</code></td><td>Notifications</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A run with failing tests produces a notification naming the failure</td>
+        <td class="muted">1 delivery(ies): RunFailed; title &quot;1 test(s) failed in Golden notifications&quot;; facts {&quot;passed&quot;:1,&quot;failed&quot;:1,&quot;blocked&quot;:0,&quot;healed&quot;:0,&quot;flaky&quot;:0,&quot;qualityGate&quot;:&quot;Pass&quot;,&quot;branch&quot;:null,&quot;commit&quot;:null}</td>
+      </tr><tr>
+        <td><code>NOT-003</code></td><td>Notifications</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A green run sends nothing unless somebody asked for it</td>
+        <td class="muted">nothing was sent, as intended</td>
+      </tr><tr>
+        <td><code>NOT-004</code></td><td>Notifications</td><td>medium</td>
+        <td><span class="badge pass">PASS</span></td><td>A team that wants a heartbeat from a green run can have one</td>
+        <td class="muted">1 delivery(ies): RunPassed</td>
+      </tr><tr>
+        <td><code>NOT-005</code></td><td>Notifications</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>No notification body contains a credential, checked against the bytes sent</td>
+        <td class="muted">1 delivery(ies) scanned for 3 secret(s): none present; 1 signed</td>
+      </tr><tr>
+        <td><code>NOT-006</code></td><td>Notifications</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A failed delivery is recorded with the reason, and never fails the run</td>
+        <td class="muted">run ended &quot;failed&quot;; 1 delivery record(s); failed record: status 500, &quot;The receiver answered 500 Internal Server Error.&quot;</td>
+      </tr><tr>
+        <td><code>NOT-007</code></td><td>Notifications</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A credential submitted as a readable setting is refused, not quietly stored</td>
+        <td class="muted">3/3 refused; the harmless one returned 201</td>
+      </tr><tr>
+        <td><code>NOT-008</code></td><td>Notifications</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A webhook cannot be pointed at cloud metadata</td>
+        <td class="muted">delivered=false; &quot;The webhook URL was refused: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target.&quot;</td>
+      </tr><tr>
+        <td><code>REG-001</code></td><td>Regression selection</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A changed file is mapped to what a rule says it affects, and the mapping is marked as declared</td>
+        <td class="muted">1/1 path(s) mapped; routes [&quot;/accounts&quot;]; declared=true</td>
+      </tr><tr>
+        <td><code>REG-002</code></td><td>Regression selection</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A change a rule marks as shared selects the whole suite rather than a narrowed set</td>
+        <td class="muted">mode full, 5/5 selected</td>
+      </tr><tr>
+        <td><code>REG-003</code></td><td>Regression selection</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A change to one area selects the tests that reach it and leaves the others out</td>
+        <td class="muted">3/5 selected: TC-0001(70) TC-0004(70) TC-0005(40) | excluded: TC-0002(30) TC-0003(30)</td>
+      </tr><tr>
+        <td><code>REG-004</code></td><td>Regression selection</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A change AIRA cannot map to anything runs the whole suite, and says so</td>
+        <td class="muted">fellBack=true, mode full, 5/5 selected; unmatched: [&quot;infrastructure/terraform/main.tf&quot;]</td>
+      </tr><tr>
+        <td><code>REG-005</code></td><td>Regression selection</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A selection with no changed paths at all runs everything rather than nothing</td>
+        <td class="muted">fellBack=true, 5/5 selected</td>
+      </tr><tr>
+        <td><code>REG-006</code></td><td>Regression selection</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>Every selected test carries its score, the score's components and the reason for each</td>
+        <td class="muted">score 70 from 5 component(s); reasons: This test exercises /accounts, which the change affects. | Priority medium, risk medium. | This test has never run, so nothing is known about it. | It has never been run.</td>
+      </tr><tr>
+        <td><code>REG-007</code></td><td>Regression selection</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A test tagged smoke is selected even when the change does not reach it</td>
+        <td class="muted">selected at 40, impacted=false; Priority medium, risk medium. | This test has never run, so nothing is known about it. | It has never been run. | Tagged smoke, which this project always runs.</td>
+      </tr><tr>
+        <td><code>REG-008</code></td><td>Regression selection</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A mapping AIRA inferred from a file name is reported as inferred, not declared</td>
+        <td class="muted">1 inferred mapping(s): route /payments</td>
+      </tr><tr>
+        <td><code>REG-009</code></td><td>Regression selection</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A pipeline can select, inspect and run a regression set through the CLI</td>
+        <td class="muted">select exit 0, run exit 0; artifact: 3/5 test(s)</td>
+      </tr><tr>
+        <td><code>REG-010</code></td><td>Regression selection</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>The same change produces the same selection and the same scores</td>
+        <td class="muted">identical across both runs: 2 test(s)</td>
+      </tr><tr>
+        <td><code>REG-011</code></td><td>Regression selection</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A rule that would silently match nothing, or affect nothing, is refused</td>
+        <td class="muted">blank pattern: 400; missing value: 400</td>
+      </tr><tr>
+        <td><code>REG-012</code></td><td>Regression selection</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A selection that would contain no tests is refused rather than returned empty</td>
+        <td class="muted">status 400: No enabled tests matched this selection. A regression run with nothing in it would report success without testing anything.</td>
+      </tr><tr>
+        <td><code>RLS-001</code></td><td>Release quality</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A test that passed before and fails now is reported as newly failing</td>
+        <td class="muted">TC-0002: newlyFailing; TC-0001: stillPassing; &quot;1 test(s) that used to pass now fail.&quot;</td>
+      </tr><tr>
+        <td><code>RLS-002</code></td><td>Release quality</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A test that failed before and passes now is reported as fixed</td>
+        <td class="muted">TC-0002: fixed; &quot;1 that used to fail now pass.&quot;</td>
+      </tr><tr>
+        <td><code>RLS-003</code></td><td>Release quality</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A failure present in both runs is still failing, never newly failing</td>
+        <td class="muted">TC-0002: stillFailing; unchanged=true; &quot;Nothing changed. 1 test(s) are still failing, as they were before.&quot;</td>
+      </tr><tr>
+        <td><code>RLS-004</code></td><td>Release quality</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A test that ran before and not this time is reported, not silently dropped</td>
+        <td class="muted">TC-0002: removed; &quot;1 that ran before did not run this time.&quot;</td>
+      </tr><tr>
+        <td><code>RLS-005</code></td><td>Release quality</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A release report covers every run that tested one build and says what changed</td>
+        <td class="muted">build v2.4.1: 1 run(s), 1 failing, compared with v2.4.0; &quot;Build v2.4.1 was tested by 1 run(s). 1 test(s) are failing in the most recent one. Against Release green: 1 test(s) that used to pass now fail.&quot;</td>
+      </tr><tr>
+        <td><code>RLS-006</code></td><td>Release quality</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A run with nothing to compare against says so rather than reporting zeros</td>
+        <td class="muted">400: There is no earlier finished run in this project to compare against. A first run has nothing to have changed from.</td>
+      </tr><tr>
+        <td><code>RLS-007</code></td><td>Release quality</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>aira release compare --fail-on-new-failures exits 1 on a regression and 0 on a known failure</td>
+        <td class="muted">regression exit 1 (expected 1); already-failing exit 0 (expected 0); markdown headline &quot;#### ❌ 1 test(s) that used to pass now fail&quot;</td>
+      </tr><tr>
+        <td><code>SCH-001</code></td><td>Scheduling</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A schedule created through the API fires on its own and starts a real run</td>
+        <td class="muted">fired at 2026-09-23T02:25:06.330703+00:00, run a8f54a53-6ce0-4086-a86a-1f5602671a50 (passed, trigger scheduled, 1/1 passed); next run 2026-09-23T02:26:00+00:00</td>
+      </tr><tr>
+        <td><code>SCH-002</code></td><td>Scheduling</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A schedule restricted by tag runs only the tests carrying that tag</td>
+        <td class="muted">ran 1 test(s): TC-0002 (expected only TC-0002)</td>
+      </tr><tr>
+        <td><code>SCH-003</code></td><td>Scheduling</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>Firing moves the schedule forward, so one occurrence starts exactly one run</td>
+        <td class="muted">fired at 2026-09-23T02:27:06.38718+00:00, next 2026-09-23T02:28:00+00:00 (advanced: true); 1 run(s) started for this schedule</td>
+      </tr><tr>
+        <td><code>SCH-004</code></td><td>Scheduling</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A cron expression that cannot work is refused when it is written, not at 3am</td>
+        <td class="muted">5/5 refused with 400; the valid expression returned 201</td>
+      </tr><tr>
+        <td><code>SCH-005</code></td><td>Scheduling</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A schedule pointed at unauthorized production is refused when it is created</td>
+        <td class="muted">403 security_policy: Environment 'prod' is production and testing it has not been authorized. Authorize it explicitly with POST /api/v1/environments/{id}/authorize-production, with a note saying why.</td>
+      </tr><tr>
+        <td><code>SCH-006</code></td><td>Scheduling</td><td>medium</td>
+        <td><span class="badge pass">PASS</span></td><td>Preview reports the real occurrences, in the schedule's own time zone</td>
+        <td class="muted">5 occurrence(s), local times 02:30:00, ascending: true</td>
+      </tr><tr>
+        <td><code>SCH-007</code></td><td>Scheduling</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A schedule can be created, listed, previewed, disabled and removed from the CLI</td>
+        <td class="muted">add 0, list 0, preview 0, disable 0, remove 0; gone from the list afterwards: true</td>
+      </tr><tr>
+        <td><code>VIS-001</code></td><td>Visual regression</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A first run stores a baseline and reports that nothing was compared</td>
+        <td class="muted">first newBaseline (1280x1694); second match at 0.0035% — the live timestamp's own noise, tolerated by the default threshold</td>
+      </tr><tr>
+        <td><code>VIS-002</code></td><td>Visual regression</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>Every visual change in the lab produces the verdict its ground truth names</td>
+        <td class="muted">TINY: match 0.0220%; OBVIOUS: differs 0.2931%; TALLER: sizeChanged 0.0000%</td>
+      </tr><tr>
+        <td><code>VIS-003</code></td><td>Visual regression</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A difference does not fail the step by default; it asks for a person</td>
+        <td class="muted">default: run passed, verdict differs; onDifference=fail: run failed, verdict differs</td>
+      </tr><tr>
+        <td><code>VIS-004</code></td><td>Visual regression</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A difference stores the baseline, the capture and a diff; a match stores none</td>
+        <td class="muted">match: no images stored; differs: baseline=true actual=true diff=true</td>
+      </tr><tr>
+        <td><code>VIS-005</code></td><td>Visual regression</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A run with no visual step reports the metric as unmeasured, never as zero</td>
+        <td class="muted">rule measured=false passed=false; outcome review</td>
+      </tr><tr>
+        <td><code>VIS-006</code></td><td>Visual regression</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>Masking a region that changes every run removes the difference entirely</td>
+        <td class="muted">two masked comparisons: 0 and 0 differing pixels; recorded as masked: [&quot;[data-testid=\&quot;generated-at\&quot;]&quot;]</td>
+      </tr><tr>
+        <td><code>VIS-007</code></td><td>Visual regression</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A baseline taken at one viewport is not compared against another</td>
+        <td class="muted">1280: newBaseline then match; 800 with the same baseline name: newBaseline</td>
       </tr>
     </tbody>
   </table>
 
   <h2>Evidence</h2>
-  <p class="muted">128 artifact(s), 362 KiB, hashed with SHA-256 when written and re-hashed for this report.</p>
+  <p class="muted">143 artifact(s), 222 KiB, hashed with SHA-256 when written and re-hashed for this report.</p>
   <table>
     <thead><tr><th>Test</th><th>Artifact</th><th>Bytes</th><th>SHA-256</th><th>Unchanged</th></tr></thead>
     <tbody>
       <tr>
-        <td><code>ASRT-001</code></td><td><code>ASRT-001-both-directions.json</code></td><td>3959</td>
-        <td><code>a3a6504801a06aaf54deed09…</code></td>
+        <td><code>ACC-001</code></td><td><code>scan.json</code></td><td>389</td>
+        <td><code>88fec3e83b78fc9eca5da119…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>ASRT-002</code></td><td><code>ASRT-002-both-directions.json</code></td><td>3530</td>
-        <td><code>ccf8a4f2fab3c79f1e52d64b…</code></td>
+        <td><code>ACC-002</code></td><td><code>measured.json</code></td><td>1471</td>
+        <td><code>d7f7a11bf7f06e1e428ba7df…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>ASRT-003</code></td><td><code>ASRT-003-both-directions.json</code></td><td>3125</td>
-        <td><code>f1f20b50da0ee7e0980aa037…</code></td>
+        <td><code>ACC-003</code></td><td><code>strict.json</code></td><td>1558</td>
+        <td><code>335a18ce35c3562f11dd9e92…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>ASRT-004</code></td><td><code>ASRT-004-both-directions.json</code></td><td>3429</td>
-        <td><code>5543ae166ad8957ffcf7e737…</code></td>
+        <td><code>ACC-003</code></td><td><code>reportOnly.json</code></td><td>1558</td>
+        <td><code>21e86f39cf17be9811d2f84f…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>ASRT-005</code></td><td><code>ASRT-005-both-directions.json</code></td><td>3434</td>
-        <td><code>bcb8f8e63586dad39bc17fbe…</code></td>
+        <td><code>ACC-004</code></td><td><code>message.txt</code></td><td>365</td>
+        <td><code>efe7a47ec0afe167a9e3d43c…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>ASRT-006</code></td><td><code>no-healing-on-assertion.json</code></td><td>683</td>
-        <td><code>c50cce9fee598f0eaa85498e…</code></td>
+        <td><code>ACC-004</code></td><td><code>scan.json</code></td><td>2744</td>
+        <td><code>8fa29d177206c01b66ef547b…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>ASRT-007</code></td><td><code>assertion-messages.json</code></td><td>1098</td>
-        <td><code>5fb8e5f69d94144de8f4d8db…</code></td>
+        <td><code>ACC-005</code></td><td><code>gate.json</code></td><td>1515</td>
+        <td><code>2696a5050afa9d1be481d199…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>ASRT-008</code></td><td><code>assertion-after-heal.json</code></td><td>2215</td>
-        <td><code>8590b9ad197cb22150b1ceb9…</code></td>
+        <td><code>ACC-006</code></td><td><code>gate.json</code></td><td>1169</td>
+        <td><code>528c265a0ce2ff227f43df41…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>ASRT-009</code></td><td><code>ASRT-009-both-directions.json</code></td><td>3503</td>
-        <td><code>9974acef9987e11bff70bbd4…</code></td>
+        <td><code>API-001</code></td><td><code>created.json</code></td><td>435</td>
+        <td><code>c6f92e85143418f3bd7dc5f5…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>ASRT-010</code></td><td><code>ASRT-010-both-directions.json</code></td><td>3501</td>
-        <td><code>e22196b58290aa76c062beff…</code></td>
+        <td><code>API-001</code></td><td><code>stored-test-case.json</code></td><td>3592</td>
+        <td><code>0badcc62553ebf9bd81bfe1e…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-001</code></td><td><code>DET-001-execution.json</code></td><td>213</td>
-        <td><code>44f93fd2cf1d18eff37bdc4c…</code></td>
+        <td><code>API-002</code></td><td><code>run.json</code></td><td>622</td>
+        <td><code>7377486984d4c2b5a289dfa8…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-002</code></td><td><code>DET-002-execution.json</code></td><td>2641</td>
-        <td><code>15ccf4e269c8d86435d36e45…</code></td>
+        <td><code>API-002</code></td><td><code>execution.json</code></td><td>3207</td>
+        <td><code>0a1fa48c60908009f0a2e5da…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-003</code></td><td><code>DET-003-execution.json</code></td><td>2486</td>
-        <td><code>a30f24f8e8cd7c0cbfffe50d…</code></td>
+        <td><code>API-003</code></td><td><code>network.json</code></td><td>2488</td>
+        <td><code>e02910dce144c7c0788294d1…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-004</code></td><td><code>DET-004-execution.json</code></td><td>2486</td>
-        <td><code>82d180a936c8a544ba9c2cca…</code></td>
+        <td><code>API-004</code></td><td><code>execution.json</code></td><td>2250</td>
+        <td><code>f152ac7dd2fa7749ca7bcd4a…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-005</code></td><td><code>DET-005-execution.json</code></td><td>2641</td>
-        <td><code>476a21f043b801cafdb8c399…</code></td>
+        <td><code>API-004</code></td><td><code>network.json</code></td><td>818</td>
+        <td><code>3ae9b46d2ecc04725e90b4d0…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-006</code></td><td><code>DET-006-execution.json</code></td><td>2528</td>
-        <td><code>8137943dd332935b3c851264…</code></td>
+        <td><code>API-005</code></td><td><code>execution.json</code></td><td>4118</td>
+        <td><code>d94b146d37de9772e1d168b8…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-007</code></td><td><code>DET-007-execution.json</code></td><td>2548</td>
-        <td><code>278eeedfe64851e2dfa4ac02…</code></td>
+        <td><code>API-005</code></td><td><code>network.json</code></td><td>973</td>
+        <td><code>84e088a0048f6c2f3bb19dfb…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-008</code></td><td><code>DET-008-execution.json</code></td><td>2533</td>
-        <td><code>c3d44e53d83decb485deba9b…</code></td>
+        <td><code>API-006</code></td><td><code>refusal.json</code></td><td>449</td>
+        <td><code>1072878742b6d33bb5eaa51f…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-009</code></td><td><code>DET-009-execution.json</code></td><td>2665</td>
-        <td><code>2789ab87f39fa76a07698dd2…</code></td>
+        <td><code>API-007</code></td><td><code>refusal.json</code></td><td>352</td>
+        <td><code>117a3768784c47ca74700aed…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-010</code></td><td><code>DET-010-execution.json</code></td><td>2525</td>
-        <td><code>2b2e97e6e42386e13c101b39…</code></td>
+        <td><code>API-008</code></td><td><code>refusal.json</code></td><td>371</td>
+        <td><code>9beacc69c9eb3dfd83475cee…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-011</code></td><td><code>DET-011-execution.json</code></td><td>2386</td>
-        <td><code>fce6221d7fc2a0285504cfb3…</code></td>
+        <td><code>API-009</code></td><td><code>refusals.json</code></td><td>447</td>
+        <td><code>57500243a780fef7a3a21ba1…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DET-012</code></td><td><code>false-positive-control.json</code></td><td>385</td>
-        <td><code>f13522c4f2b6d5a7ba69605c…</code></td>
+        <td><code>API-010</code></td><td><code>gate.json</code></td><td>1051</td>
+        <td><code>ba9237437d81b93fcc966f3a…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-001</code></td><td><code>discovery-run.json</code></td><td>3066</td>
-        <td><code>4d155f3f03cc9886a8efd70a…</code></td>
+        <td><code>API-011</code></td><td><code>gate.json</code></td><td>1464</td>
+        <td><code>042f49033abd67f4005045c8…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-002</code></td><td><code>page-score.json</code></td><td>535</td>
-        <td><code>2556bac992ca7ccb3edeaf21…</code></td>
+        <td><code>API-012</code></td><td><code>searched.json</code></td><td>112</td>
+        <td><code>369d22ff685cd24ae171c037…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-003</code></td><td><code>page-precision.json</code></td><td>248</td>
-        <td><code>dca4e8cac503a4897a62f81f…</code></td>
+        <td><code>API-013</code></td><td><code>definition.json</code></td><td>1438</td>
+        <td><code>06478d08614cd5761f808341…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-004</code></td><td><code>login-page.json</code></td><td>602</td>
-        <td><code>b82d9b8f8ad5cdfbaf84481f…</code></td>
+        <td><code>API-013</code></td><td><code>cli-output.txt</code></td><td>1379</td>
+        <td><code>88d7f5e231a9d9d349e63939…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-005</code></td><td><code>auth-flags.json</code></td><td>769</td>
-        <td><code>574116ca0a1b794264c744af…</code></td>
+        <td><code>API-014</code></td><td><code>execution.json</code></td><td>3044</td>
+        <td><code>117c94e60b99f908566c549b…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-006</code></td><td><code>DISC-006-elements.json</code></td><td>9229</td>
-        <td><code>8d23d3aba24f019959aafce3…</code></td>
+        <td><code>API-014</code></td><td><code>network.json</code></td><td>2</td>
+        <td><code>4f53cda18c2baa0c0354bb5f…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-007</code></td><td><code>DISC-007-elements.json</code></td><td>11298</td>
-        <td><code>9ddcbfc5a1fbe81fe3ce8709…</code></td>
+        <td><code>CI-001</code></td><td><code>files.json</code></td><td>67</td>
+        <td><code>690876989443301f21c0ce3c…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-008</code></td><td><code>DISC-008-elements.json</code></td><td>11052</td>
-        <td><code>3a4873e835138f1bcdfad04b…</code></td>
+        <td><code>CI-001</code></td><td><code>junit.xml</code></td><td>489</td>
+        <td><code>012ccdab6938fad4533d0936…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-009</code></td><td><code>DISC-009-elements.json</code></td><td>4932</td>
-        <td><code>b9a611578777862146990078…</code></td>
+        <td><code>CI-001</code></td><td><code>summary.md</code></td><td>413</td>
+        <td><code>3695d715e7948f458001cf99…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-010</code></td><td><code>tables.json</code></td><td>340</td>
-        <td><code>a75e38b0f5d0732eb55bffb6…</code></td>
+        <td><code>CI-002</code></td><td><code>summary.md</code></td><td>500</td>
+        <td><code>241d10cf98a50f8a94120ef9…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-011</code></td><td><code>api-score.json</code></td><td>998</td>
-        <td><code>fb97d4390d74bc93a05aeffd…</code></td>
+        <td><code>CI-003</code></td><td><code>summary.md</code></td><td>413</td>
+        <td><code>17b6498d114e37718ec629aa…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-012</code></td><td><code>transitions.json</code></td><td>1415</td>
-        <td><code>041b040dd5a4284d88fab406…</code></td>
+        <td><code>CI-004</code></td><td><code>summary.md</code></td><td>730</td>
+        <td><code>38adae55cc716dbd47078bc9…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-013</code></td><td><code>locator-strategies.json</code></td><td>89</td>
-        <td><code>d7c22aa6d14d7438eb48d941…</code></td>
+        <td><code>CI-005</code></td><td><code>checked.json</code></td><td>608</td>
+        <td><code>9e5faf0303e6c94e976be309…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-014</code></td><td><code>screenshots.json</code></td><td>708</td>
-        <td><code>d2d30ed74e0c7466bd96c782…</code></td>
+        <td><code>CI-006</code></td><td><code>junit.xml</code></td><td>1034</td>
+        <td><code>9156ead9e299f483a2b3fccd…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>DISC-015</code></td><td><code>dynamic-model.json</code></td><td>267</td>
-        <td><code>a649e717d0ca8cbf3d5e1cad…</code></td>
+        <td><code>CI-006</code></td><td><code>run.json</code></td><td>357</td>
+        <td><code>f1d768390ae879310df9a171…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-001</code></td><td><code>run.json</code></td><td>550</td>
-        <td><code>2ed22e9ad9b2bc225eacfbb1…</code></td>
+        <td><code>CI-007</code></td><td><code>run.json</code></td><td>794</td>
+        <td><code>aa6a648ca277c3db432d0e2b…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-001</code></td><td><code>actions.json</code></td><td>9868</td>
-        <td><code>d6cb0a5ffdd88f177231a85b…</code></td>
+        <td><code>CIS-001</code></td><td><code>pipeline.log</code></td><td>1127</td>
+        <td><code>f5e8c6e6367134fb16eca91d…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-002</code></td><td><code>EXEC-002-action.json</code></td><td>663</td>
-        <td><code>1a8c6427d974407f2318f718…</code></td>
+        <td><code>CIS-001</code></td><td><code>summary.md</code></td><td>487</td>
+        <td><code>235d790d2a4fa923e984cf0b…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-003</code></td><td><code>EXEC-003-action.json</code></td><td>3376</td>
-        <td><code>b37fba128494078959689d34…</code></td>
+        <td><code>CIS-001</code></td><td><code>report.json</code></td><td>2656</td>
+        <td><code>b06104957a94ffb91a1f6d5d…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-004</code></td><td><code>EXEC-004-action.json</code></td><td>1033</td>
-        <td><code>b702f42d8704aab3ba8d9934…</code></td>
+        <td><code>CIS-002</code></td><td><code>pipeline.log</code></td><td>1340</td>
+        <td><code>e258fe707c49e041bd6aa1ea…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-005</code></td><td><code>EXEC-005-action.json</code></td><td>3186</td>
-        <td><code>6c8b71492c94db9ceb7cba27…</code></td>
+        <td><code>CIS-002</code></td><td><code>summary.md</code></td><td>630</td>
+        <td><code>edc273fca33d0e405818e978…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-006</code></td><td><code>EXEC-006-action.json</code></td><td>1757</td>
-        <td><code>a927918949cc8cff99728988…</code></td>
+        <td><code>CIS-003</code></td><td><code>pipeline.log</code></td><td>1311</td>
+        <td><code>9e53c7983057f20a14973d38…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-007</code></td><td><code>EXEC-007-action.json</code></td><td>2191</td>
-        <td><code>eee8c57fb8e6f7a23de17f4f…</code></td>
+        <td><code>CIS-003</code></td><td><code>summary.md</code></td><td>694</td>
+        <td><code>905b407d1b9183fb9b696ac6…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-008</code></td><td><code>EXEC-008-action.json</code></td><td>707</td>
-        <td><code>4f9725ee9baa56d3e55a20e8…</code></td>
+        <td><code>CIS-004</code></td><td><code>pipeline.log</code></td><td>664</td>
+        <td><code>c686f17566a6ae7a321f0bbf…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-009</code></td><td><code>EXEC-009-action.json</code></td><td>462</td>
-        <td><code>6fe03da7db9971645026fbd1…</code></td>
+        <td><code>CIS-005</code></td><td><code>pipeline.log</code></td><td>707</td>
+        <td><code>fe9e464f6da74708ee516ae6…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-010</code></td><td><code>EXEC-010-action.json</code></td><td>466</td>
-        <td><code>0e1d609e4bd67b1952603883…</code></td>
+        <td><code>CIS-006</code></td><td><code>pipeline.log</code></td><td>784</td>
+        <td><code>e9cd9eed0616ec9bd895bda7…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-011</code></td><td><code>EXEC-011-masking.json</code></td><td>65</td>
-        <td><code>20f7af9394b7b270a1fbc44b…</code></td>
+        <td><code>CIS-007</code></td><td><code>pipeline.log</code></td><td>401</td>
+        <td><code>dc6b8d20c8ecb9931c2c2600…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-012</code></td><td><code>artifacts.json</code></td><td>1247</td>
-        <td><code>93aa251bd8f84c9b081e811e…</code></td>
+        <td><code>CIS-008</code></td><td><code>pipeline.log</code></td><td>1114</td>
+        <td><code>cc93f95a14553fb35c861171…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-013</code></td><td><code>trace.json</code></td><td>245</td>
-        <td><code>ae85149be6aace22938781ec…</code></td>
+        <td><code>CIS-009</code></td><td><code>pipeline.log</code></td><td>1075</td>
+        <td><code>771a740d207d0dd9c5cfded0…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-014</code></td><td><code>console.json</code></td><td>275</td>
-        <td><code>4a941569a27fec81d49f65f8…</code></td>
+        <td><code>CIS-009</code></td><td><code>report.json</code></td><td>2008</td>
+        <td><code>6d7dacdd95c286cba49f2ca3…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-014</code></td><td><code>network.json</code></td><td>22780</td>
-        <td><code>dc3e720810f5e3502b5d132b…</code></td>
+        <td><code>CIS-010</code></td><td><code>pipeline.log</code></td><td>1386</td>
+        <td><code>860b69fb152f677abd06f15b…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-017</code></td><td><code>EXEC-017-run.json</code></td><td>1114</td>
-        <td><code>3d4dbf60272f63cad42b4f90…</code></td>
+        <td><code>CIS-010</code></td><td><code>summary.md</code></td><td>741</td>
+        <td><code>4aebd0d4239686a1b5330a63…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-018</code></td><td><code>EXEC-018-run.json</code></td><td>7070</td>
-        <td><code>31c2ba5dde1c5c7a75df8faa…</code></td>
+        <td><code>CIS-011</code></td><td><code>pipeline.log</code></td><td>1446</td>
+        <td><code>66afaeb929072985e96a874e…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-019</code></td><td><code>EXEC-019-run.json</code></td><td>4575</td>
-        <td><code>1dda5564955f2b67b50a4da2…</code></td>
+        <td><code>CIS-012</code></td><td><code>pipeline.log</code></td><td>809</td>
+        <td><code>eb68e96228c66f73a89b1f5a…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>EXEC-020</code></td><td><code>EXEC-020-run.json</code></td><td>12066</td>
-        <td><code>56c03573f0296f1417c41cf6…</code></td>
+        <td><code>CON-001</code></td><td><code>inventory.json</code></td><td>8024</td>
+        <td><code>7679e003a236e5899668e7bb…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-001</code></td><td><code>failure-records.json</code></td><td>3033</td>
-        <td><code>778fff5466e960d4c55e87d9…</code></td>
+        <td><code>CON-002</code></td><td><code>baselines.json</code></td><td>3395</td>
+        <td><code>148678b47a386b575abc007d…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-002</code></td><td><code>FA-002-classification.json</code></td><td>2410</td>
-        <td><code>b6b05e48ac994ffdaedca1ad…</code></td>
+        <td><code>CON-003</code></td><td><code>changes.json</code></td><td>258</td>
+        <td><code>7d9d01c8798cedfef5b4af58…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-003</code></td><td><code>FA-003-classification.json</code></td><td>2264</td>
-        <td><code>96b41f9c11df35f879921c8d…</code></td>
+        <td><code>CON-004</code></td><td><code>changes.json</code></td><td>664</td>
+        <td><code>e7d68324a4f84dafa2430912…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-004</code></td><td><code>FA-004-classification.json</code></td><td>2263</td>
-        <td><code>f32c513cd802e3a821b27c40…</code></td>
+        <td><code>CON-005</code></td><td><code>changes.json</code></td><td>694</td>
+        <td><code>74f43e5e5f42e727205e7677…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-005</code></td><td><code>FA-005-classification.json</code></td><td>2410</td>
-        <td><code>d81624dde0b93c63037d758b…</code></td>
+        <td><code>CON-006</code></td><td><code>changes.json</code></td><td>728</td>
+        <td><code>e0d9fcc39b86be8ff59e8197…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-006</code></td><td><code>FA-006-classification.json</code></td><td>2297</td>
-        <td><code>ec45d90773d2fe20b385f7f7…</code></td>
+        <td><code>CON-007</code></td><td><code>changes.json</code></td><td>637</td>
+        <td><code>59a7e2a8be5afab1582315a2…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-007</code></td><td><code>FA-007-classification.json</code></td><td>2317</td>
-        <td><code>a69aa49a5872a49016402741…</code></td>
+        <td><code>CON-008</code></td><td><code>gate.json</code></td><td>1158</td>
+        <td><code>ed46ec8beee02411dc01318c…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-008</code></td><td><code>FA-008-classification.json</code></td><td>2288</td>
-        <td><code>e987f8288b9df795bfe589ac…</code></td>
+        <td><code>CON-009</code></td><td><code>acknowledgement.json</code></td><td>345</td>
+        <td><code>3ec18b61f437dd091091881d…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-009</code></td><td><code>FA-009-classification.json</code></td><td>2425</td>
-        <td><code>e97506c19219c3c03bdff839…</code></td>
+        <td><code>CON-009</code></td><td><code>second-run-changes.json</code></td><td>663</td>
+        <td><code>9deb298840f791abfafed22e…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-010</code></td><td><code>FA-010-classification.json</code></td><td>2311</td>
-        <td><code>a8db194b8eefc0fd7e76133c…</code></td>
+        <td><code>CON-010</code></td><td><code>generated.json</code></td><td>11552</td>
+        <td><code>c8c4a49c7bf1e532fe8e5769…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-011</code></td><td><code>FA-011-classification.json</code></td><td>2179</td>
-        <td><code>1ab53544601ccc4848ebc4a7…</code></td>
+        <td><code>CON-010</code></td><td><code>sample-test.json</code></td><td>2186</td>
+        <td><code>ecb0a581516f39913953ace7…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-012</code></td><td><code>classification-accuracy.json</code></td><td>2019</td>
-        <td><code>59502c2e84721424749d9c09…</code></td>
+        <td><code>CON-011</code></td><td><code>execution.json</code></td><td>2469</td>
+        <td><code>eb82576e7bce4b36dbf39788…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-013</code></td><td><code>analyses.json</code></td><td>17020</td>
-        <td><code>723dd11f20730090769bd5cd…</code></td>
+        <td><code>CON-012</code></td><td><code>execution.json</code></td><td>4240</td>
+        <td><code>d091aba8b6cf4eb981298bef…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-014</code></td><td><code>verdict-integrity.json</code></td><td>1814</td>
-        <td><code>ed9de23b8cc69bb342aed0d3…</code></td>
+        <td><code>CON-013</code></td><td><code>refusal.json</code></td><td>276</td>
+        <td><code>5ab22d0d9ecaed5736dc89f1…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-015</code></td><td><code>recurrence.json</code></td><td>4336</td>
-        <td><code>ecb25809f074793e1a046e65…</code></td>
+        <td><code>CON-013</code></td><td><code>replacement.json</code></td><td>3396</td>
+        <td><code>4d0a61c481986e9106321222…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>FA-016</code></td><td><code>silent-failure.json</code></td><td>3986</td>
-        <td><code>8840769cf36d180b1db4bfb7…</code></td>
+        <td><code>CON-014</code></td><td><code>check.json</code></td><td>265</td>
+        <td><code>f42e783125b0cbb6064479ff…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-001</code></td><td><code>GEN-001-generated.json</code></td><td>6872</td>
-        <td><code>1049119157cc6c56d0873e81…</code></td>
+        <td><code>COR-001</code></td><td><code>api-calls.json</code></td><td>1889</td>
+        <td><code>1f5e492b55618864008ff939…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-002</code></td><td><code>GEN-002-generated.json</code></td><td>6864</td>
-        <td><code>b73f889db9dbdcdfccf6859c…</code></td>
+        <td><code>COR-002</code></td><td><code>analysis.json</code></td><td>1769</td>
+        <td><code>9ff148a4bef10e7ab6d48442…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-003</code></td><td><code>GEN-003-generated.json</code></td><td>6840</td>
-        <td><code>77154e41ee8c46bfea51c2f6…</code></td>
+        <td><code>COR-002</code></td><td><code>api-calls.json</code></td><td>2194</td>
+        <td><code>f1661db6b8138716c7d43950…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-004</code></td><td><code>GEN-004-generated.json</code></td><td>6904</td>
-        <td><code>c56ced544486b93ee2cd88d6…</code></td>
+        <td><code>COR-003</code></td><td><code>analysis.json</code></td><td>1141</td>
+        <td><code>76c198cdaa56f198d61027c3…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-005</code></td><td><code>GEN-005-generated.json</code></td><td>6878</td>
-        <td><code>20276dad1eb0f61759211d51…</code></td>
+        <td><code>COR-004</code></td><td><code>analysis.json</code></td><td>1174</td>
+        <td><code>884dc63d5840fda5747f0032…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-006</code></td><td><code>provider-disclosure.json</code></td><td>3426</td>
-        <td><code>510763eeaf21e01041fe4235…</code></td>
+        <td><code>COR-005</code></td><td><code>analysis.json</code></td><td>1855</td>
+        <td><code>f7546ab2dcd0335463c25439…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-007</code></td><td><code>generated-locators.json</code></td><td>74</td>
-        <td><code>c235323e55fcd8d85b9adc89…</code></td>
+        <td><code>COR-005</code></td><td><code>api-calls.json</code></td><td>921</td>
+        <td><code>36135b89bda1711e055ba9f9…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-008</code></td><td><code>reviewable.json</code></td><td>5278</td>
-        <td><code>4b6ed7d86ee08828f9638957…</code></td>
+        <td><code>COR-006</code></td><td><code>analysis.json</code></td><td>1672</td>
+        <td><code>2df40539a05c19bd48e2bf09…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-009</code></td><td><code>budget.json</code></td><td>640</td>
-        <td><code>dfd2b0c74b196609df6a0121…</code></td>
+        <td><code>COR-007</code></td><td><code>reanalysis.json</code></td><td>1826</td>
+        <td><code>7f48b0764703c3fc70ed6424…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-010</code></td><td><code>generated-execution.json</code></td><td>894</td>
-        <td><code>d733f2fda9c12a70a30fcfa3…</code></td>
+        <td><code>DAT-001</code></td><td><code>set.json</code></td><td>1020</td>
+        <td><code>4b8b4be9dbbefb1f6715583f…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-011</code></td><td><code>generated-under-fault.json</code></td><td>2520</td>
-        <td><code>432b16fb369dcbc2e0ca1d27…</code></td>
+        <td><code>DAT-002</code></td><td><code>first.json</code></td><td>2168</td>
+        <td><code>da2b7a5b2c9cdaa416db5b69…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-012</code></td><td><code>generation-coverage.json</code></td><td>1242</td>
-        <td><code>abb2070659e8b58ad6937578…</code></td>
+        <td><code>DAT-002</code></td><td><code>second.json</code></td><td>2168</td>
+        <td><code>da2b7a5b2c9cdaa416db5b69…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-013</code></td><td><code>no-model.json</code></td><td>245</td>
-        <td><code>2ee6ec9228c9a564a6c76120…</code></td>
+        <td><code>DAT-003</code></td><td><code>refusals.json</code></td><td>2436</td>
+        <td><code>b5fc882c6a5a438d906f3b5d…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-014</code></td><td><code>prompt-injection.json</code></td><td>699</td>
-        <td><code>f87cc8ae8e454dca7e6a336a…</code></td>
+        <td><code>DAT-004</code></td><td><code>refusal.json</code></td><td>489</td>
+        <td><code>0fbe2f3e505b984645f9ce4e…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>GEN-015</code></td><td><code>ai-requests.json</code></td><td>632</td>
-        <td><code>14ea89f2abe98d1ced2e6817…</code></td>
+        <td><code>DAT-005</code></td><td><code>read.json</code></td><td>593</td>
+        <td><code>be9da2498d03735666c23bf7…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-G01</code></td><td><code>baseline.json</code></td><td>766</td>
-        <td><code>bb5a205a5f689aba84beeb2d…</code></td>
+        <td><code>DAT-005</code></td><td><code>preview.json</code></td><td>241</td>
+        <td><code>a8dd8d120692746171b387df…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-G02</code></td><td><code>suggest.json</code></td><td>4820</td>
-        <td><code>512af97a291f5dfcfd4d2f3a…</code></td>
+        <td><code>DAT-006</code></td><td><code>refusal.json</code></td><td>342</td>
+        <td><code>cdf024e7b36b2295017ba90a…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-G03</code></td><td><code>auto.json</code></td><td>4287</td>
-        <td><code>a82421fcb000d30158e40c66…</code></td>
+        <td><code>DAT-007</code></td><td><code>exported.json</code></td><td>459</td>
+        <td><code>975bcdb34d4d3b7e52746881…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-G04</code></td><td><code>healed-verdict.json</code></td><td>1681</td>
-        <td><code>66bfffc3ecdeab9501a9798d…</code></td>
+        <td><code>DAT-007</code></td><td><code>cli.txt</code></td><td>2194</td>
+        <td><code>30cf79e59ace4e84d3e3deff…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-G05</code></td><td><code>stored-test.json</code></td><td>1664</td>
-        <td><code>29f08bd283d31254fdd5548b…</code></td>
+        <td><code>DAT-008</code></td><td><code>problems.json</code></td><td>368</td>
+        <td><code>f5e9afdb776ab7f9edb4a06d…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-G06</code></td><td><code>testid-only.json</code></td><td>4329</td>
-        <td><code>de89eb5b3298124963a35dc2…</code></td>
+        <td><code>NOT-001</code></td><td><code>delivery.json</code></td><td>1180</td>
+        <td><code>9232c520259e6e9ab21e7688…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-G07</code></td><td><code>healing-events.json</code></td><td>3087</td>
-        <td><code>f30df97658fd8b051790ca0e…</code></td>
+        <td><code>NOT-002</code></td><td><code>delivery.json</code></td><td>1510</td>
+        <td><code>bc9386bb5a425addb025f575…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-G08</code></td><td><code>threshold.json</code></td><td>4818</td>
-        <td><code>54ed7cdda57112304fbae93c…</code></td>
+        <td><code>NOT-003</code></td><td><code>received.json</code></td><td>2</td>
+        <td><code>4f53cda18c2baa0c0354bb5f…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-M01</code></td><td><code>healing-metrics.json</code></td><td>2441</td>
-        <td><code>4ccd7e8533823d2065518c23…</code></td>
+        <td><code>NOT-004</code></td><td><code>delivery.json</code></td><td>1518</td>
+        <td><code>26cb10ccdb1f090922086d13…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-M02</code></td><td><code>confidence-separation.json</code></td><td>987</td>
-        <td><code>d0076e62296b2829f9dc27ea…</code></td>
+        <td><code>NOT-005</code></td><td><code>scanned.json</code></td><td>749</td>
+        <td><code>2b11745d2df03b0729876879…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-N01</code></td><td><code>HEAL-N01.json</code></td><td>3149</td>
-        <td><code>ac40f1fe2d65fa798e4f482a…</code></td>
+        <td><code>NOT-006</code></td><td><code>deliveries.json</code></td><td>530</td>
+        <td><code>083dc33a14af91cb803ffa87…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-N02</code></td><td><code>HEAL-N02.json</code></td><td>5765</td>
-        <td><code>944e4201f26c974aeaf4a02f…</code></td>
+        <td><code>NOT-007</code></td><td><code>refusals.json</code></td><td>976</td>
+        <td><code>a1f33b958f21a00af401e068…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-N03</code></td><td><code>HEAL-N03.json</code></td><td>3146</td>
-        <td><code>9e4e527bdf804164258df480…</code></td>
+        <td><code>NOT-008</code></td><td><code>result.json</code></td><td>169</td>
+        <td><code>b891329496e0c7d1956ff7ff…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-N04</code></td><td><code>HEAL-N04.json</code></td><td>3144</td>
-        <td><code>fac86ef12655225d4ca44f64…</code></td>
+        <td><code>REG-001</code></td><td><code>impact.json</code></td><td>510</td>
+        <td><code>095d7bb391383389371a3619…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-N05</code></td><td><code>HEAL-N05.json</code></td><td>4797</td>
-        <td><code>3130a45e07f5733dfe61f100…</code></td>
+        <td><code>REG-002</code></td><td><code>selection.json</code></td><td>7596</td>
+        <td><code>b6e763fe3d85deddea7e31b7…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-N06</code></td><td><code>HEAL-N06.json</code></td><td>4809</td>
-        <td><code>98547aafec3c0eb254c42f30…</code></td>
+        <td><code>REG-003</code></td><td><code>selection.json</code></td><td>7618</td>
+        <td><code>8e5ce1459cb6c1f96a9de8b2…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-N07</code></td><td><code>HEAL-N07.json</code></td><td>4791</td>
-        <td><code>e212456e9a9a14a8c9c96bdb…</code></td>
+        <td><code>REG-004</code></td><td><code>selection.json</code></td><td>7333</td>
+        <td><code>74026b58d931d6a7adbaf399…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-N08</code></td><td><code>HEAL-N08.json</code></td><td>4773</td>
-        <td><code>5a6bca380f72949349242b18…</code></td>
+        <td><code>REG-005</code></td><td><code>selection.json</code></td><td>7214</td>
+        <td><code>7800783b918ea3e77ce28c07…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-N09</code></td><td><code>HEAL-N09.json</code></td><td>2480</td>
-        <td><code>a3a6a1071fe9781ffad1b5d6…</code></td>
+        <td><code>REG-006</code></td><td><code>explained.json</code></td><td>1126</td>
+        <td><code>ef03c48ff8f84d0e99f2fcf1…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>HEAL-N10</code></td><td><code>HEAL-N10.json</code></td><td>4867</td>
-        <td><code>3a9d2d9ffad1498118d23402…</code></td>
+        <td><code>REG-007</code></td><td><code>selection.json</code></td><td>7245</td>
+        <td><code>0c7f3656c708c7d0550adad9…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>PERF-001</code></td><td><code>discovery-timings.json</code></td><td>521</td>
-        <td><code>810c1690ae48d7d9c3dc9b24…</code></td>
+        <td><code>REG-008</code></td><td><code>impact.json</code></td><td>753</td>
+        <td><code>07403327f04587418e35f8b9…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>PERF-002</code></td><td><code>execution-timings.json</code></td><td>1496</td>
-        <td><code>ac7c3c2252e67d0777c81e90…</code></td>
+        <td><code>REG-009</code></td><td><code>cli-output.txt</code></td><td>2608</td>
+        <td><code>51cf223ab1f89affdba36a14…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>PERF-003</code></td><td><code>generation-timings.json</code></td><td>674</td>
-        <td><code>e02610fc81c5673e5ad7546e…</code></td>
+        <td><code>REG-009</code></td><td><code>regression-selection.json</code></td><td>7618</td>
+        <td><code>8e5ce1459cb6c1f96a9de8b2…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>REL-001</code></td><td><code>repeatability.json</code></td><td>953</td>
-        <td><code>015f5289a3e36e9c097c9d7c…</code></td>
+        <td><code>REG-010</code></td><td><code>first.json</code></td><td>6870</td>
+        <td><code>df267f307e86ce09028d0a29…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>REL-002</code></td><td><code>flakiness.json</code></td><td>4774</td>
-        <td><code>65a4c15c3904e8dfb5bf1939…</code></td>
+        <td><code>REG-010</code></td><td><code>second.json</code></td><td>6870</td>
+        <td><code>df267f307e86ce09028d0a29…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>REL-003</code></td><td><code>flakiness-score.json</code></td><td>842</td>
-        <td><code>79320ead6124b3577d1bbdd8…</code></td>
+        <td><code>REG-011</code></td><td><code>refusals.json</code></td><td>631</td>
+        <td><code>7f146e3805751639b0ceed3e…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>REL-004</code></td><td><code>retries.json</code></td><td>980</td>
-        <td><code>64561e0e73bea6b2f0a1fd3f…</code></td>
+        <td><code>REG-012</code></td><td><code>refusal.json</code></td><td>243</td>
+        <td><code>eb38cf4e2b909f7691c78340…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>REL-005</code></td><td><code>concurrency.json</code></td><td>713</td>
-        <td><code>de37ca0f2ac66f7114ee7fed…</code></td>
+        <td><code>RLS-001</code></td><td><code>comparison.json</code></td><td>1729</td>
+        <td><code>15a4c23e3ed09ef2debc2b99…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>REL-006</code></td><td><code>ai-unavailable.json</code></td><td>2192</td>
-        <td><code>bbe8b8586667bce7b5b8d372…</code></td>
+        <td><code>RLS-002</code></td><td><code>comparison.json</code></td><td>1556</td>
+        <td><code>4926079f21f86f61f6cfadd0…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SEC-G01</code></td><td><code>unauthenticated.json</code></td><td>614</td>
-        <td><code>ed887dd9e7c7ff95f6f39c39…</code></td>
+        <td><code>RLS-003</code></td><td><code>comparison.json</code></td><td>1747</td>
+        <td><code>5ea4b8eec3265fe84971f146…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SEC-G02</code></td><td><code>bad-tokens.json</code></td><td>248</td>
-        <td><code>77ca008b5fcd6f7dc1140302…</code></td>
+        <td><code>RLS-004</code></td><td><code>comparison.json</code></td><td>1536</td>
+        <td><code>06343d905b042c069044bfdf…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SEC-G03</code></td><td><code>tenant-isolation.json</code></td><td>2124</td>
-        <td><code>526c32834a82b4d174352fb4…</code></td>
+        <td><code>RLS-005</code></td><td><code>report.json</code></td><td>2975</td>
+        <td><code>4e639f6440e69d6e99ea1267…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SEC-G04</code></td><td><code>cross-tenant-write.json</code></td><td>190</td>
-        <td><code>cf5116240a542a2093ca95f5…</code></td>
+        <td><code>RLS-006</code></td><td><code>refusal.json</code></td><td>275</td>
+        <td><code>ce0e8a9dce72396fe2ea9b78…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SEC-G05</code></td><td><code>injection.json</code></td><td>693</td>
-        <td><code>ee8c506ca4518a44117cb871…</code></td>
+        <td><code>RLS-007</code></td><td><code>cli.txt</code></td><td>548</td>
+        <td><code>87b4879506ef239ab3ae5e5c…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SEC-G06</code></td><td><code>ssrf-always-forbidden.json</code></td><td>1575</td>
-        <td><code>632830ad16923e78c3ff08ef…</code></td>
+        <td><code>RLS-007</code></td><td><code>comparison.md</code></td><td>312</td>
+        <td><code>d653366859105b6f83760caa…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SEC-G07</code></td><td><code>credential-exposure.json</code></td><td>322</td>
-        <td><code>7dfb8a8284dc9b4d070e7935…</code></td>
+        <td><code>SCH-001</code></td><td><code>schedule.json</code></td><td>558</td>
+        <td><code>8f1b8984c411ce69ff872550…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SEC-G08</code></td><td><code>traversal.json</code></td><td>288</td>
-        <td><code>5f3b94ea0beb318f5ab7352e…</code></td>
+        <td><code>SCH-001</code></td><td><code>run.json</code></td><td>782</td>
+        <td><code>c05f9e55a036ed3dff3b0949…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SEC-G09</code></td><td><code>script-execution.json</code></td><td>406</td>
-        <td><code>f24cae7beca3278558cf3680…</code></td>
+        <td><code>SCH-002</code></td><td><code>executions.json</code></td><td>744</td>
+        <td><code>96b70045142cc0ec06c89316…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SEC-G10</code></td><td><code>headers.json</code></td><td>460</td>
-        <td><code>fd2d5f3353030bf78204f314…</code></td>
+        <td><code>SCH-003</code></td><td><code>schedule.json</code></td><td>554</td>
+        <td><code>6d328ec21aa67ccdc4a1e610…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SEC-G11</code></td><td><code>ssrf-private.json</code></td><td>1311</td>
-        <td><code>3139493b872af09050748c25…</code></td>
+        <td><code>SCH-003</code></td><td><code>runs.json</code></td><td>831</td>
+        <td><code>970216b326d723d7d6e3bc34…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>SCH-004</code></td><td><code>refusals.json</code></td><td>1382</td>
+        <td><code>5254589dc131dfbcafdf7b7d…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>SCH-005</code></td><td><code>refusal.json</code></td><td>337</td>
+        <td><code>df8d48d4efcdc0842bfc1ef0…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>SCH-006</code></td><td><code>preview.json</code></td><td>157</td>
+        <td><code>d512f06be8699107500106ea…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>SCH-007</code></td><td><code>cli.txt</code></td><td>1859</td>
+        <td><code>836950f5b18f1e70ecacea0b…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>VIS-001</code></td><td><code>first.json</code></td><td>463</td>
+        <td><code>93f60d4f79a5b723207f9c9c…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>VIS-001</code></td><td><code>second.json</code></td><td>353</td>
+        <td><code>e19e86bc1b83ea2bd5a9893d…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>VIS-002</code></td><td><code>measured.json</code></td><td>553</td>
+        <td><code>e2b89d248b2658be025feeae…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>VIS-003</code></td><td><code>review.json</code></td><td>723</td>
+        <td><code>7f15b405ece1e040b98a47fd…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>VIS-003</code></td><td><code>strict.json</code></td><td>723</td>
+        <td><code>5a6697f6cd200937b77bc68d…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>VIS-004</code></td><td><code>differs.json</code></td><td>721</td>
+        <td><code>83d07b57777a96b8eb2d523d…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>VIS-004</code></td><td><code>matches.json</code></td><td>353</td>
+        <td><code>2c34500bf627c7c64e04903e…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>VIS-005</code></td><td><code>gate.json</code></td><td>1514</td>
+        <td><code>68b5217c000e0138fdb92e11…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>VIS-006</code></td><td><code>masked.json</code></td><td>372</td>
+        <td><code>a39b98641560fc7b000e00dd…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>VIS-007</code></td><td><code>wide.json</code></td><td>359</td>
+        <td><code>b3ef89729e4f75b2847cde5f…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>VIS-007</code></td><td><code>narrow.json</code></td><td>467</td>
+        <td><code>fcc401c391ee346f16cf425b…</code></td>
         <td>yes</td>
       </tr>
     </tbody>

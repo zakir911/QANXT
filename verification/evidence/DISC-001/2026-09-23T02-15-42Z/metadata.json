@@ -1,0 +1,37 @@
+{
+  "testId": "DISC-001",
+  "suite": "Discovery",
+  "runId": "2026-09-23T02-15-42Z",
+  "objective": "Discovery completes against a real single-page application",
+  "preconditions": [
+    "the lab banking application is running",
+    "no faults are enabled"
+  ],
+  "input": "POST /api/v1/discovery/runs for http://localhost:4300",
+  "expected": "The run reaches completed or partiallyCompleted and reports pages",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status completed, 11 page(s) in 20s",
+  "metrics": {
+    "discoveryMs": 20334,
+    "pages": 11,
+    "elements": 259
+  },
+  "startedAt": "2026-09-23T02:16:03.632Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "72e2987",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "discovery-run.json",
+      "path": "evidence/DISC-001/2026-09-23T02-15-42Z/discovery-run.json",
+      "bytes": 3068,
+      "sha256": "d533d2197c91680d16237b60a00eb9a095d95a07a8e035cf09022b13f543a0e5"
+    }
+  ]
+}

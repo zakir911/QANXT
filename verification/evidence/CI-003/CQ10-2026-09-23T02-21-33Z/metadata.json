@@ -1,0 +1,32 @@
+{
+  "testId": "CI-003",
+  "suite": "CI integration",
+  "runId": "CQ10-2026-09-23T02-21-33Z",
+  "objective": "A passing run produces a summary with no failure section at all",
+  "preconditions": [
+    "a test that passes"
+  ],
+  "input": "A run of the health check",
+  "expected": "A pass headline, no \"What failed\" section, and the passing tests collapsed",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "exit 0; headline \"### ✅ All tests passed\"",
+  "metrics": null,
+  "startedAt": "2026-09-23T02:24:22.104Z",
+  "durationMs": 3532,
+  "build": {
+    "commit": "72e2987",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "summary.md",
+      "path": "evidence/CI-003/CQ10-2026-09-23T02-21-33Z/summary.md",
+      "bytes": 413,
+      "sha256": "17b6498d114e37718ec629aa8488e8370a4e2d067388ecc26a2a25c2684a275b"
+    }
+  ]
+}

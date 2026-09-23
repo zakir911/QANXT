@@ -135,12 +135,32 @@ metrics.integrity = {
 // ---------------------------------------------------------------------------
 
 const suiteOf = (prefix) => results.filter(record => record.testId.startsWith(prefix));
+
+/**
+ * A gate is PASS, FAIL, or NOT MEASURED — three states, not two.
+ *
+ * The distinction is the same one the product itself insists on: a rule whose metric the run
+ * could not measure is never reported as satisfied (API-011), and is sent to REVIEW rather
+ * than being failed (ACC-005). This report held itself to a lower standard than the thing it
+ * reports on: a gate with no tests in the run came out FAIL, indistinguishable from a gate
+ * whose tests ran and failed.
+ *
+ * That matters as soon as a run covers a subset of the suites, which
+ * `scripts/verify-continuous-quality` does deliberately. "The self-healing suite did not run"
+ * and "the self-healing suite failed" send a reader to completely different places, and only
+ * one of them is a defect.
+ */
 const gate = (name, tests, extra = true) => {
   const relevant = tests.filter(record => record.result !== 'NOT_VERIFIED');
   const failures = relevant.filter(record => record.result === 'FAIL');
+  const measured = relevant.length > 0;
   return {
     name,
-    passed: failures.length === 0 && relevant.length > 0 && extra,
+    measured,
+    status: !measured ? 'NOT_MEASURED' : failures.length === 0 && extra ? 'PASS' : 'FAIL',
+    // Retained so anything reading the JSON keeps working, and false for a gate that was
+    // not measured: not measured is not the same as satisfied.
+    passed: measured && failures.length === 0 && extra,
     total: tests.length,
     executed: relevant.length,
     failures: failures.map(record => record.testId),
@@ -158,7 +178,11 @@ const gates = [
   gate('Failure detection', suiteOf('DET-')),
   {
     name: 'Evidence',
-    passed: results.every(record => record.result === 'NOT_VERIFIED' || record.evidence.length > 0),
+    measured: results.length > 0,
+    status: results.length === 0 ? 'NOT_MEASURED'
+      : results.every(record => record.result === 'NOT_VERIFIED' || record.evidence.length > 0) ? 'PASS' : 'FAIL',
+    passed: results.length > 0
+      && results.every(record => record.result === 'NOT_VERIFIED' || record.evidence.length > 0),
     total: results.length,
     executed: results.filter(record => record.result !== 'NOT_VERIFIED').length,
     failures: results.filter(record => record.result !== 'NOT_VERIFIED' && record.evidence.length === 0)
@@ -167,7 +191,17 @@ const gates = [
   }
 ];
 
-const overall = gates.every(entry => entry.passed) && criticalFailures.length === 0;
+const failedGates = gates.filter(entry => entry.status === 'FAIL');
+const unmeasuredGates = gates.filter(entry => entry.status === 'NOT_MEASURED');
+
+/**
+ * FAIL if anything actually failed; INCOMPLETE if nothing failed but a gate had nothing to
+ * measure; PASS only when every gate was measured and green.
+ */
+const verdict = failedGates.length > 0 || criticalFailures.length > 0 ? 'FAIL'
+  : unmeasuredGates.length > 0 ? 'INCOMPLETE'
+  : 'PASS';
+const overall = verdict === 'PASS';
 
 // ---------------------------------------------------------------------------
 // Evidence index
@@ -219,6 +253,7 @@ const summary = {
     notVerified: results.filter(record => record.suite === name && record.result === 'NOT_VERIFIED').length
   })),
   metrics,
+  verdict,
   gates,
   overall,
   evidence: {
@@ -239,6 +274,7 @@ writeFileSync(join(REPORT_DIR, 'golden-test-report.json'), `${JSON.stringify(sum
 // ---- Markdown --------------------------------------------------------------
 const pct = (value) => (value === null || value === undefined ? 'not measured' : `${(value * 100).toFixed(1)}%`);
 const tick = (ok) => (ok ? 'PASS' : 'FAIL');
+const gateLabel = (entry) => (entry.status === 'NOT_MEASURED' ? 'NOT MEASURED' : entry.status);
 /** Milliseconds, read the way a person would say them. "not measured" is not zero. */
 const dur = (value) => (value === null || value === undefined ? 'not measured'
   : value >= 1000 ? `${(value / 1000).toFixed(1)}s` : `${value}ms`);
@@ -254,9 +290,16 @@ ${criticalFailures.length === 0 ? 'No critical test failed.' : `**${criticalFail
 
 | Gate | Result | Executed | Failures | Not verified |
 | --- | --- | --- | --- | --- |
-${gates.map(entry => `| ${entry.name} | **${tick(entry.passed)}** | ${entry.executed}/${entry.total} | ${entry.failures.join(', ') || '—'} | ${entry.notVerified.join(', ') || '—'} |`).join('\n')}
+${gates.map(entry => `| ${entry.name} | **${gateLabel(entry)}** | ${entry.executed}/${entry.total} | ${entry.failures.join(', ') || '—'} | ${entry.notVerified.join(', ') || '—'} |`).join('\n')}
 
-**Overall: ${overall ? 'PASS' : 'FAIL'}** — a gate is green only when every executed test in it passed.
+**Overall: ${verdict}** — a gate is green only when every executed test in it passed, and a
+gate with no tests in this run is NOT MEASURED rather than green or failed.
+${verdict === 'INCOMPLETE'
+  ? `Nothing failed. ${unmeasuredGates.length} gate(s) had no tests in this run: `
+    + `${unmeasuredGates.map(entry => entry.name).join(', ')}. `
+    + 'This is the expected verdict for a run that covers a subset of the suites; it is not a '
+    + 'pass, and it is not a defect.'
+  : ''}
 
 ## Metrics
 
@@ -363,12 +406,20 @@ writeFileSync(join(REPORT_DIR, 'golden-test-report.html'), html);
 
 console.log(`Golden test report for run ${runId}`);
 console.log(`  ${passed.length} passed, ${failed.length} failed, ${notVerified.length} not verified of ${results.length}`);
-console.log(`  gates: ${gates.map(entry => `${entry.name}=${tick(entry.passed)}`).join(' ')}`);
-console.log(`  overall: ${overall ? 'PASS' : 'FAIL'}`);
+console.log(`  gates: ${gates.map(entry => `${entry.name}=${gateLabel(entry)}`).join(' ')}`);
+console.log(`  overall: ${verdict}`);
+if (verdict === 'INCOMPLETE') {
+  console.log(`  ${unmeasuredGates.length} gate(s) had no tests in this run: `
+    + `${unmeasuredGates.map(entry => entry.name).join(', ')} — not measured, not failed.`);
+}
 console.log(`  evidence: ${evidenceRows.length} artifact(s), ${(evidenceBytes / 1024).toFixed(0)} KiB`);
 console.log(`  written: reports/golden-test-report.{json,html}, GOLDEN-TEST-REPORT.md, EVIDENCE-INDEX.md`);
 
-if (!overall) process.exitCode = 1;
+// 1 means something failed. 3 means nothing failed and something was not measured — a
+// distinct code so a caller that deliberately runs a subset can tell the two apart without
+// parsing output.
+if (verdict === 'FAIL') process.exitCode = 1;
+else if (verdict === 'INCOMPLETE') process.exitCode = 3;
 
 /** A single self-contained page: no network, no build step, opens from the filesystem. */
 function buildHtml(report, rows, qualityGates, artifacts) {
@@ -402,6 +453,7 @@ tr:last-child td{border-bottom:0}
 .metric{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:13px}
 .metric span{color:var(--muted)}
 .gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px}
+.gate.unmeasured{opacity:.75;border-style:dashed}
 .gate{background:#fff;border:1px solid var(--line);border-left-width:4px;border-radius:8px;padding:12px 14px}
 .gate.ok{border-left-color:var(--ok)} .gate.bad{border-left-color:var(--bad)}
 .gate strong{display:block;font-size:14px} .gate span{font-size:12px;color:var(--muted)}
@@ -426,8 +478,8 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
 
   <h2>Quality gates</h2>
   <div class="gates">
-    ${qualityGates.map(entry => `<div class="gate ${entry.passed ? 'ok' : 'bad'}">
-      <strong>${entry.name}: ${entry.passed ? 'PASS' : 'FAIL'}</strong>
+    ${qualityGates.map(entry => `<div class="gate ${entry.status === 'PASS' ? 'ok' : entry.status === 'FAIL' ? 'bad' : 'unmeasured'}">
+      <strong>${entry.name}: ${entry.status === 'NOT_MEASURED' ? 'NOT MEASURED' : entry.status}</strong>
       <span>${entry.executed}/${entry.total} executed${entry.failures.length ? ` · failed: ${entry.failures.join(', ')}` : ''}${entry.notVerified.length ? ` · not verified: ${entry.notVerified.join(', ')}` : ''}</span>
     </div>`).join('')}
   </div>

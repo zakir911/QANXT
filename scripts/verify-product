@@ -55,6 +55,14 @@ node verification/golden-tests/certify.mjs --run "$GOLDEN_RUN_ID"
 certify_status=$?
 
 printf '\n'
+if [[ $report_status -eq 3 ]]; then
+  # INCOMPLETE: nothing failed, but a certification gate had no tests in this run. For the
+  # full product run that is still not a certification — it means a suite did not produce
+  # results — so it stops here, but it is named for what it is rather than called a failure.
+  printf '\033[31mVerification INCOMPLETE: a certification gate was not measured.\033[0m\n'
+  printf '  Report: verification/reports/GOLDEN-TEST-REPORT.md names which.\n'
+  exit 1
+fi
 if [[ $golden_status -ne 0 || $report_status -ne 0 ]]; then
   printf '\033[31mVerification FAILED.\033[0m\n'
   printf '  Report:        verification/reports/GOLDEN-TEST-REPORT.md\n'

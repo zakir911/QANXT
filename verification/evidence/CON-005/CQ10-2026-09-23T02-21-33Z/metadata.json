@@ -1,0 +1,33 @@
+{
+  "testId": "CON-005",
+  "suite": "API contracts",
+  "runId": "CQ10-2026-09-23T02-21-33Z",
+  "objective": "A field whose type changes is classified as a breaking change",
+  "preconditions": [
+    "baselines captured",
+    "FAULT_API_FIELD_TYPE_CHANGED enabled"
+  ],
+  "input": "A run of the accounts test while balance is returned as a string",
+  "expected": "A breaking change naming both types",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "the test passed; $.accounts[].balance: number → string (breaking)",
+  "metrics": null,
+  "startedAt": "2026-09-23T02:22:25.616Z",
+  "durationMs": 2059,
+  "build": {
+    "commit": "72e2987",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "changes.json",
+      "path": "evidence/CON-005/CQ10-2026-09-23T02-21-33Z/changes.json",
+      "bytes": 694,
+      "sha256": "74f43e5e5f42e727205e7677fb5e086ba67d5b76d56d97d68e0778b9226633fd"
+    }
+  ]
+}

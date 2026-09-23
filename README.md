@@ -56,8 +56,12 @@ already have the toolchain, and `docs/implementation-plan.md` has the build plan
 - [Architecture](docs/architecture.md) · [Assessment](docs/architecture-assessment.md) · [ADRs](docs/adr)
 - [Implementation plan](docs/implementation-plan.md)
 - [Verification status](docs/verification-status.md) — what has actually been executed, and what has not
-- [Running from a pipeline](docs/ci-cd.md) — the `aira` CLI, exit codes, reports and quality gates
+- [Running from a pipeline](docs/ci-cd.md) — pipeline configuration for GitHub Actions, GitLab, Jenkins and Azure DevOps
+- [CLI reference](docs/cli.md) — every command, every flag, and what each of the nine exit codes means
+- [Quality gates](docs/quality-gates.md) — the metrics a rule can measure, and why an unmeasured rule is never satisfied
+- [Environments](docs/environments.md) — staging, production, and the authorization boundary a run cannot cross
 - [API testing](docs/api-testing.md) · [Contract testing](docs/contract-testing.md) · [Regression selection](docs/regression-selection.md) · [Failure diagnosis](docs/failure-diagnosis.md)
+- [Change impact analysis](docs/change-impact.md) — what a diff reaches, and why a test was selected
 - [Scheduled regression](docs/scheduling.md) — the tests that run when nobody commits
 - [Notifications](docs/notifications.md) — telling somebody, and being able to show that you did
 - [Test data](docs/test-data.md) — seeded values, and why a credential is never a literal
@@ -65,6 +69,8 @@ already have the toolchain, and `docs/implementation-plan.md` has the build plan
 - [Accessibility](docs/accessibility.md) — axe-core as a step, and what a clean result does not mean
 - [Visual regression](docs/visual-regression.md) — baselines, masking, and why a difference asks rather than fails
 - [Setup](docs/setup.md) — from a clone to a working platform, and what to do when it is not
+- [Troubleshooting](docs/troubleshooting.md) — the failures that come up in practice, and how to tell them apart
+- [Observability](docs/observability.md) — correlation ids, logs, health, the audit trail and what is not instrumented
 - [Deploying with Docker](docs/deployment.md) — one compose file for the whole platform
 - [The database](docs/database.md) — schema, tenant isolation, migrations
 - [The autonomous agent](docs/agent.md) — the bounded loop, risk scoring, regression intelligence, and what the agent is not allowed to do
@@ -73,14 +79,15 @@ already have the toolchain, and `docs/implementation-plan.md` has the build plan
 ## Proving it works
 
 ```bash
-./scripts/verify-product        # infrastructure → lab → golden suite → reports → certification
+./scripts/verify-product                # infrastructure → lab → golden suite → reports → certification
+./scripts/verify-continuous-quality     # the same, for the continuous-quality claim, ending in a traceability matrix
 ./scripts/run-golden-tests --all
-./scripts/run-product-demo      # the whole product in sixteen steps, recorded
+./scripts/run-product-demo              # the whole product in sixteen steps, recorded
 ```
 
-`test-lab/` holds six real applications with hand-written ground truth and switchable faults;
-`verification/golden-tests/` holds 125 tests that drive the product against them from the
-outside. The reports land in `verification/reports/`, the evidence — hashed — in
+`test-lab/` holds six real applications with hand-written ground truth and switchable
+faults, plus a notification sink that records what AIRA sends; `verification/golden-tests/` holds 239 tests across twenty-two suites that drive the
+product against them from the outside. The reports land in `verification/reports/`, the evidence — hashed — in
 `verification/evidence/`, and the console renders the last run at **Verification**.
 
 The headline number is the false-healing rate, and it is never folded into a success rate.

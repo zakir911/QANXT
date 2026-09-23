@@ -1,0 +1,35 @@
+{
+  "testId": "ACC-001",
+  "suite": "Accessibility",
+  "runId": "CQ10-2026-09-23T02-21-33Z",
+  "objective": "A page with no violations passes, and the result says what was actually run",
+  "preconditions": [
+    "the forms lab with no faults injected"
+  ],
+  "input": "A checkAccessibility step against the application form",
+  "expected": "The step passes, no violations, and the result records the rules that passed and the standards used — so a clean result is readable as \"no violations found by these rules\" rather than as \"accessible\"",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run passed; 0 violation(s), 21 rule(s) passed, 1 incomplete; axe-core 4.13.0",
+  "metrics": {
+    "violations": 0,
+    "rulesPassed": 21
+  },
+  "startedAt": "2026-09-23T02:27:50.909Z",
+  "durationMs": 2049,
+  "build": {
+    "commit": "72e2987",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "scan.json",
+      "path": "evidence/ACC-001/CQ10-2026-09-23T02-21-33Z/scan.json",
+      "bytes": 389,
+      "sha256": "88fec3e83b78fc9eca5da119c6aa1c0c02cfcf1e250c2c8f07ef4f5561f2d75d"
+    }
+  ]
+}

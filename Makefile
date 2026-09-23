@@ -25,6 +25,9 @@ verify-all: ## Independent verification: start the stack, run every verification
 verify-product: ## Prove the product against the test lab: golden suite, evidence, reports, certification
 	@bash scripts/verify-product
 
+verify-continuous-quality: ## Prove continuous quality: CI, contracts, schedules, gates, a11y, visual — and traceability
+	@bash scripts/verify-continuous-quality
+
 golden: ## Run the golden test suite against a running platform and test lab
 	@bash scripts/run-golden-tests --all
 

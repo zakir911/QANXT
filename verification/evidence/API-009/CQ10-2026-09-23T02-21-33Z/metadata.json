@@ -1,0 +1,32 @@
+{
+  "testId": "API-009",
+  "suite": "API testing",
+  "runId": "CQ10-2026-09-23T02-21-33Z",
+  "objective": "The platform refuses an API test that inlines a credential instead of referencing one",
+  "preconditions": [
+    "none"
+  ],
+  "input": "Three API tests: a literal bearer header, a literal bearer token, and a correctly referenced secret",
+  "expected": "The two literals refused, the reference accepted",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "literal header 400, literal token 400, reference 200",
+  "metrics": null,
+  "startedAt": "2026-09-23T02:21:50.546Z",
+  "durationMs": 33,
+  "build": {
+    "commit": "72e2987",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusals.json",
+      "path": "evidence/API-009/CQ10-2026-09-23T02-21-33Z/refusals.json",
+      "bytes": 447,
+      "sha256": "57500243a780fef7a3a21ba1a96d12591d74618b70c45758c1526614ceb95074"
+    }
+  ]
+}

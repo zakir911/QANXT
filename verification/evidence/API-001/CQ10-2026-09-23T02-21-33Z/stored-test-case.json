@@ -1,0 +1,123 @@
+{
+  "id": "2099c816-abd4-4ae1-bc91-a4f11d3f0b3c",
+  "reference": "TC-0001",
+  "name": "A signed-in customer can read their accounts over the API",
+  "objective": "The accounts endpoint answers for an authenticated session",
+  "preconditions": "",
+  "expectedResults": "",
+  "kind": "api",
+  "priority": "high",
+  "risk": "medium",
+  "tags": "api",
+  "source": "manual",
+  "isEnabled": true,
+  "version": 1,
+  "requirementReference": "",
+  "testSuiteId": "561ba426-8647-41a8-b8d8-47486c7347d2",
+  "applicationId": "6f4ec630-3f7e-458c-a37c-a1f41a2d12f1",
+  "statistics": {
+    "executionCount": 0,
+    "passCount": 0,
+    "failCount": 0,
+    "healCount": 0,
+    "flakinessScore": 0,
+    "averageDurationMs": 0
+  },
+  "steps": [
+    {
+      "id": "8acdbb06-481c-4274-a3d9-6c701ef9c22a",
+      "order": 1,
+      "description": "Sign in through the API",
+      "action": "apiRequest",
+      "isCritical": true,
+      "continueOnFailure": false,
+      "healCount": 0,
+      "apiRequest": {
+        "method": "POST",
+        "path": "/api/session",
+        "body": "{\"username\":\"alice\",\"password\":\"${secret:app_password}\"}",
+        "contentType": "application/json",
+        "auth": {
+          "mode": "none"
+        }
+      },
+      "assertions": [
+        {
+          "id": "12116403-6adc-4c8e-8a13-d896ebfe22b7",
+          "type": "responseJsonPathEquals",
+          "expectedValue": "alice",
+          "attributeName": "user.username",
+          "negate": false,
+          "isSoft": false,
+          "description": "user.username is alice"
+        },
+        {
+          "id": "535be729-a085-40a4-babc-3adfc0e7baa3",
+          "type": "httpStatusEquals",
+          "expectedValue": "200",
+          "attributeName": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The response status is 200"
+        }
+      ]
+    },
+    {
+      "id": "73189674-a2bf-436f-a863-32d429f6e1a3",
+      "order": 2,
+      "description": "Read the accounts that session can see",
+      "action": "apiRequest",
+      "isCritical": true,
+      "continueOnFailure": false,
+      "healCount": 0,
+      "apiRequest": {
+        "method": "GET",
+        "path": "/api/accounts",
+        "auth": {
+          "mode": "none"
+        },
+        "capture": {
+          "accountId": "accounts[0].id"
+        }
+      },
+      "assertions": [
+        {
+          "id": "2adf7f21-1d01-4bb4-ae7c-fd9bd77f9589",
+          "type": "responseTimeUnderMs",
+          "expectedValue": "5000",
+          "attributeName": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The response arrives within 5000ms"
+        },
+        {
+          "id": "5360d7ea-0609-4d23-a35f-ebd37c35b4b6",
+          "type": "httpStatusEquals",
+          "expectedValue": "200",
+          "attributeName": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The response status is 200"
+        },
+        {
+          "id": "b81d2d9e-1d04-4149-97d8-6132f630c27a",
+          "type": "responseJsonPathExists",
+          "expectedValue": "",
+          "attributeName": "accounts[0].balance",
+          "negate": false,
+          "isSoft": false,
+          "description": "accounts[0].balance is present"
+        },
+        {
+          "id": "d0cc19ea-2123-467b-a420-3f52cd5b7368",
+          "type": "responseJsonPathMatches",
+          "expectedValue": "^acc-\\d+$",
+          "attributeName": "accounts[0].id",
+          "negate": false,
+          "isSoft": false,
+          "description": "accounts[0].id matches /^acc-\\d+$/"
+        }
+      ]
+    }
+  ]
+}

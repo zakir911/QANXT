@@ -1,0 +1,38 @@
+{
+  "testId": "API-005",
+  "suite": "API testing",
+  "runId": "CQ10-2026-09-23T02-21-33Z",
+  "objective": "A switched-on server fault fails the API test, with the response as evidence",
+  "preconditions": [
+    "FAULT_API_500 is enabled on the lab bank"
+  ],
+  "input": "A run of TC-0002 while the sign-in endpoint returns 500",
+  "expected": "A failed execution whose message names the 500 and whose evidence carries the application's own error body",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run failed; message \"POST http://localhost:4300/api/session returned 500 Internal Server Error.\"; evidence body \"{\"error\":\"internal_error\",\"message\":\"The authentication service is unavailable.\"}\"",
+  "metrics": null,
+  "startedAt": "2026-09-23T02:21:48.458Z",
+  "durationMs": 2061,
+  "build": {
+    "commit": "72e2987",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "execution.json",
+      "path": "evidence/API-005/CQ10-2026-09-23T02-21-33Z/execution.json",
+      "bytes": 4118,
+      "sha256": "d94b146d37de9772e1d168b8c12e443255738e7a23a390624aa0731a0fe77f67"
+    },
+    {
+      "file": "network.json",
+      "path": "evidence/API-005/CQ10-2026-09-23T02-21-33Z/network.json",
+      "bytes": 973,
+      "sha256": "84e088a0048f6c2f3bb19dfbfc7bb51bb077e06ef110b36e23799b5d7e575b83"
+    }
+  ]
+}

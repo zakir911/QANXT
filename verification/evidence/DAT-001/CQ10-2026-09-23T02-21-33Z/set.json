@@ -1,0 +1,38 @@
+{
+  "id": "37df6d9a-7d30-4c0a-9a31-1aaa42245707",
+  "projectId": "1cfa6dac-c4c8-4e45-aaa4-4b1b1e0e2d40",
+  "name": "Every kind (DAT-001)",
+  "description": "One of each",
+  "fields": [
+    {
+      "id": "9d4f2eaf-f058-43a9-8562-feccfbe59982",
+      "key": "bookingDate",
+      "kind": "seededRandom",
+      "generatorJson": "{\"type\":\"date\"}",
+      "seed": 42,
+      "isSensitive": false
+    },
+    {
+      "id": "b9aed746-4458-4552-b42f-70a612dbc577",
+      "key": "customerEmail",
+      "kind": "generated",
+      "generatorJson": "{\"type\":\"email\"}",
+      "isSensitive": false
+    },
+    {
+      "id": "d6d4dd3a-74a9-4e6f-8887-f2df1bcda249",
+      "key": "orderReference",
+      "kind": "static",
+      "value": "AIRA-TEST-001",
+      "isSensitive": false
+    },
+    {
+      "id": "837fcff2-8c73-420d-bf84-a263224068ab",
+      "key": "password",
+      "kind": "secretReference",
+      "value": "${secret:app_password}",
+      "isSensitive": true
+    }
+  ],
+  "createdAt": "2026-09-23T02:27:28.6012381+00:00"
+}

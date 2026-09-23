@@ -1,0 +1,32 @@
+{
+  "testId": "DAT-003",
+  "suite": "Test data",
+  "runId": "CQ10-2026-09-23T02-21-33Z",
+  "objective": "A field whose name is a credential is refused unless it references a secret",
+  "preconditions": [
+    "none"
+  ],
+  "input": "Data sets with password, apiKey, clientSecret and pin as literal values",
+  "expected": "Each refused with the remedy named — a data set is readable by anyone who can read the project and is exported in plain text by the CLI",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "4/4 credentials refused; 3/3 ordinary fields accepted",
+  "metrics": null,
+  "startedAt": "2026-09-23T02:27:28.706Z",
+  "durationMs": 77,
+  "build": {
+    "commit": "72e2987",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusals.json",
+      "path": "evidence/DAT-003/CQ10-2026-09-23T02-21-33Z/refusals.json",
+      "bytes": 2436,
+      "sha256": "b5fc882c6a5a438d906f3b5d6294a7184a6b82f660983ffede7e551ae7c32455"
+    }
+  ]
+}

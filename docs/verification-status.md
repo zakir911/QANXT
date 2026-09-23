@@ -7,7 +7,7 @@ reader deserves to know which one applies to each part. Everything marked **veri
 run in this environment and observed to work; everything marked **unverified** may be
 correct but has not been proved, and should be treated as untested until it is.
 
-Last updated after the product test lab and golden test suite.
+Last updated after the continuous-quality phases (CQ-3 to CQ-10).
 
 ## Verified by automated tests
 
@@ -27,10 +27,12 @@ clearly if it is not running.
 
 ## Verified by the golden test suite
 
-A hundred and twenty-five tests that drive the product from outside — its HTTP API, its
-worker, a real browser — against six purpose-built applications in `test-lab/`, each with
-hand-written ground truth. They are the strongest evidence on this page, because the
-applications can be broken on demand and the expected answer was written down first.
+Two hundred and thirty-nine tests across twenty-two suites that drive the product from
+outside — its HTTP API, its worker, a real browser — against six purpose-built
+applications in `test-lab/`, each with hand-written ground truth, and a notification sink
+that records what the platform sends. They are the strongest
+evidence on this page, because the applications can be broken on demand and the expected
+answer was written down first.
 
 Run them with `./scripts/run-golden-tests --all`; the numbers below come from the report
 that run writes, not from this document.
@@ -47,6 +49,24 @@ that run writes, not from this document.
 | Security | 11 | Tenant isolation, credential handling, prompt injection, target policy — local applications only |
 | Reliability | 7 | Ten identical runs, twenty against a genuinely unstable application, ten started at once |
 | Performance baseline | 3 | Discovery, a twelve-step run and one generation, each timed several times on recorded hardware |
+
+The continuous-quality phases added twelve more suites, run together by
+`./scripts/verify-continuous-quality`:
+
+| Suite | Tests | What it establishes |
+| --- | --- | --- |
+| API testing | 14 | An endpoint is an ordinary test case: authored, executed, gated, with the exchange as evidence and a credential never inlined |
+| API contracts | 14 | Baselines inferred from responses the application actually gave, and each kind of change classified as breaking, potentially breaking or not |
+| UI/API correlation | 7 | A UI step that failed because its own API call returned 500 is diagnosed as that, not as a locator problem |
+| Regression selection | 12 | What a diff reaches, why each test was selected, and what happens when the impact cannot be determined |
+| CI integration | 7 | The four artifacts under fixed names, the exit-code contract, and the build metadata a pipeline passes |
+| CI simulation | 12 | A real pipeline per scenario against `test-lab/ci-simulation`, branching on all nine exit codes |
+| Scheduling | 7 | A schedule fires on its own, claims its slot exactly once under contention, and disables itself after repeated failure |
+| Notifications | 8 | A failure reaches a webhook or Slack, signed, with the delivery recorded — and a green run stays quiet |
+| Test data | 8 | The same seed gives the same values on a different day, and a literal credential is refused |
+| Release quality | 7 | What moved between two runs, by test case rather than by position, and gating on new failures |
+| Accessibility | 6 | axe-core against named WCAG rules, with violations, incomplete results and passes kept distinct |
+| Visual regression | 7 | Baselines per viewport, a measured noise floor, masking, and a difference that asks rather than fails |
 
 The headline number is the **false-healing rate**: incorrect heals divided by healing
 opportunities. It is never folded into a success rate, because a healer that repairs nine
@@ -102,11 +122,18 @@ pass.
 These are absences rather than untested code — things a reader might reasonably expect to
 exist that do not yet.
 
-- **Remaining documentation.** Nothing links to a page that does not exist any more.
-  `architecture.md`, `setup.md`, `deployment.md`, `database.md`, `ci-cd.md`, `agent.md`,
-  the ADRs and this page are written. Deeper pages on the AI architecture, the browser
-  engine, self-healing internals and a hand-written API reference are not; the API's own
-  reference is served at `/swagger`.
+- **Remaining documentation.** Nothing links to a page that does not exist any more; the
+  link check over `README.md` and `docs/*.md` finds no broken relative link. Deeper pages
+  on the AI architecture, the browser engine and self-healing internals are still not
+  written, and there is no hand-written API reference; the API's own reference is served
+  at `/swagger`.
+- **The audit trail cannot be read through the product.** Records are written for all 35
+  audit actions and no endpoint, command or screen queries them — reviewing the trail means
+  connecting to PostgreSQL. Recorded as BUG-0034 and stated in `docs/observability.md`.
+- **No metrics endpoint and no distributed tracing.** Correlation ids give log correlation
+  across the API, the queue and the worker; there is no Prometheus target, no
+  OpenTelemetry exporter and no span timing. `docs/observability.md` says so explicitly so
+  that nothing elsewhere reads as claiming them.
 - **No Kubernetes manifests.** `infrastructure/kubernetes` is an empty directory. The
   compose file is the deployment topology; nothing expresses it as a chart yet.
 - **The agent has not been run at scale.** Passes here covered an 8-page application. Nothing has been tried against a large knowledge graph, and no claim is made about how

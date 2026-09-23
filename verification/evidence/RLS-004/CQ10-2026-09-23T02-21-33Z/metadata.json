@@ -1,0 +1,32 @@
+{
+  "testId": "RLS-004",
+  "suite": "Release quality",
+  "runId": "CQ10-2026-09-23T02-21-33Z",
+  "objective": "A test that ran before and not this time is reported, not silently dropped",
+  "preconditions": [
+    "a run of two tests followed by a run of one"
+  ],
+  "input": "A comparison where the second run selected fewer tests",
+  "expected": "The absent test is reported as removed. Coverage that quietly stopped being selected is coverage nobody decided to drop, and it is invisible unless something says so",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "TC-0002: removed; \"1 that ran before did not run this time.\"",
+  "metrics": null,
+  "startedAt": "2026-09-23T02:32:31.656Z",
+  "durationMs": 4084,
+  "build": {
+    "commit": "72e2987",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "comparison.json",
+      "path": "evidence/RLS-004/CQ10-2026-09-23T02-21-33Z/comparison.json",
+      "bytes": 1536,
+      "sha256": "06343d905b042c069044bfdf25c68614f4da77d0340c6e2e9bec180b94b75b89"
+    }
+  ]
+}
