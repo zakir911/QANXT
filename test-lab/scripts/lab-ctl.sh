@@ -21,6 +21,17 @@ APPS=(
   # Not an application under test: a receiver, so that "AIRA sent the notification" is
   # something a test can observe rather than infer from the sending code.
   "notification-sink|notification-sink|4360"
+
+  # The security lab. Deliberately vulnerable, local only, synthetic data only. Kept in the
+  # same table as everything else so one command starts the whole lab and nothing has to
+  # remember a second way to do it.
+  "security-auth-lab|security/auth-lab|4400"
+  "security-access-control-lab|security/access-control-lab|4401"
+  "security-api-lab|security/api-lab|4402"
+  "security-xss-lab|security/xss-lab|4403"
+  "security-csrf-upload-lab|security/csrf-upload-lab|4404"
+  "security-headers-lab|security/headers-lab|4406"
+  "security-injection-lab|security/injection-lab|4408"
 )
 
 pid_file() { echo "$RUN/$1.pid"; }
