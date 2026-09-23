@@ -220,6 +220,14 @@ console.log('\nSecurity lab — ground truth audit\n');
   const redirect = await fetch(`${b}/redirect?next=https://evil.test/`, { redirect: 'manual' });
   report(redirect.headers.get('location') === 'https://evil.test/', 'VULN_OPEN_REDIRECT',
     `Location: ${redirect.headers.get('location')}`);
+
+  const ssrf = await json(`${b}/api/fetch?url=${encodeURIComponent('http://10.255.255.1/x')}`);
+  report(ssrf.status !== 400 && ssrf.json?.attempted === 'http://10.255.255.1/x', 'VULN_SSRF',
+    `a private-range destination was accepted (${ssrf.status})`);
+
+  const ownOrigin = await json(`${b}/api/fetch?url=${encodeURIComponent(`${b}/health`)}`);
+  reportSafe(ownOrigin.status === 200, 'GET /api/fetch?url=<same origin>',
+    `the application's own origin is accepted (${ownOrigin.status})`);
 }
 
 // ---- headers-lab --------------------------------------------------------------------

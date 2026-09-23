@@ -21,6 +21,7 @@ const app = createSecurityLab({
     { id: 'VULN_UPLOAD_ANY_TYPE', description: 'Uploads accept any extension and any declared content type.' },
     { id: 'VULN_UPLOAD_NO_SIZE_LIMIT', description: 'Uploads are never bounded by size.' },
     { id: 'VULN_UPLOAD_PATH_TRAVERSAL', description: 'The supplied filename is used unsanitised, so ../ survives.' },
+    { id: 'VULN_SSRF', description: 'GET /api/fetch takes a URL from the caller and never validates the destination.' },
     { id: 'VULN_OPEN_REDIRECT', description: '/redirect?next= sends the visitor to any absolute URL.' }
   ]
 });
@@ -120,6 +121,46 @@ app.get('/redirect', ctx => {
   // report.
   if (next.startsWith('/') && !next.startsWith('//')) return ctx.redirect(next);
   return ctx.json(400, { error: 'redirect_not_allowed', next });
+});
+
+// ---- SSRF ----------------------------------------------------------------------
+
+/**
+ * A "fetch this URL for me" endpoint, which is where SSRF lives.
+ *
+ * Nothing is ever actually fetched, by design. A lab that made real outbound requests on
+ * behalf of whatever a test put in a query string would be a tool for reaching things, and
+ * the point here is to reproduce the *decision* an application makes — accept the
+ * destination or refuse it — not the connection that follows.
+ *
+ * Vulnerable: any destination is taken seriously and a connection failure is reported.
+ * Correct: anything that is not this application's own origin is refused outright.
+ */
+app.get('/api/fetch', ctx => {
+  const target = String(ctx.query.url ?? '');
+  let parsed = null;
+  try { parsed = new URL(target); } catch { /* not absolute */ }
+
+  const sameOrigin = parsed !== null
+    && (parsed.hostname === '127.0.0.1' || parsed.hostname === 'localhost')
+    && parsed.port === String(PORT);
+
+  if (!app.faults.on('VULN_SSRF') && !sameOrigin) {
+    return ctx.json(400, { error: 'url_not_allowed', url: target || null });
+  }
+  if (parsed === null) return ctx.json(400, { error: 'invalid_url', url: target || null });
+
+  if (sameOrigin) {
+    return ctx.json(200, { fetched: target, status: 200, note: 'Synthetic. Nothing was actually fetched.' });
+  }
+  // The vulnerable path: the destination was accepted. The failure reported is synthetic —
+  // no socket was opened and nothing left this process.
+  return ctx.json(502, {
+    error: 'fetch_failed',
+    attempted: target,
+    message: `connect ECONNREFUSED ${parsed.hostname}:${parsed.port || (parsed.protocol === 'https:' ? 443 : 80)}`,
+    note: 'Synthetic. The destination was accepted but no request was made.'
+  });
 });
 
 app.get('/', ctx => ctx.html(200, `<!doctype html>

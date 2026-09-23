@@ -4,102 +4,413 @@
   "principles": [
     "Local only. Every application binds to 127.0.0.1 and none makes an outbound request.",
     "Synthetic only. No credential, account, balance or file here corresponds to anything real.",
-    "Nothing persists. No database, no shell, no filesystem writes — only the observable behaviour of applications that have them."
+    "Nothing persists. No database, no shell, no filesystem writes \u2014 only the observable behaviour of applications that have them."
   ],
   "applications": [
     {
       "application": "auth-lab",
       "baseUrl": "http://127.0.0.1:4400",
       "expectedFindings": [
-        { "id": "VULN_USER_ENUMERATION", "type": "UserEnumeration", "endpoint": "POST /api/session", "severity": "medium", "cwe": "CWE-204", "owaspWeb": "A07:2021", "detectBy": "The response distinguishes an unknown username from a wrong password." },
-        { "id": "VULN_NO_LOCKOUT", "type": "NoAccountLockout", "endpoint": "POST /api/session", "severity": "medium", "cwe": "CWE-307", "owaspWeb": "A07:2021", "detectBy": "Repeated failed sign-ins are never throttled." },
-        { "id": "VULN_SESSION_SURVIVES_LOGOUT", "type": "SessionNotInvalidatedOnLogout", "endpoint": "DELETE /api/session", "severity": "high", "cwe": "CWE-613", "owaspWeb": "A07:2021", "detectBy": "A token captured before sign-out still authenticates after it." },
-        { "id": "VULN_LONG_SESSION", "type": "ExcessiveSessionLifetime", "endpoint": "POST /api/session", "severity": "low", "cwe": "CWE-613", "owaspWeb": "A07:2021", "detectBy": "expiresInSeconds is 30 days." },
-        { "id": "VULN_RESET_TOKEN_REUSE", "type": "PasswordResetTokenReuse", "endpoint": "POST /api/password-reset/confirm", "severity": "high", "cwe": "CWE-640", "owaspWeb": "A07:2021", "detectBy": "The same reset token is accepted twice." }
+        {
+          "id": "VULN_USER_ENUMERATION",
+          "type": "UserEnumeration",
+          "endpoint": "POST /api/session",
+          "severity": "medium",
+          "cwe": "CWE-204",
+          "owaspWeb": "A07:2021",
+          "detectBy": "The response distinguishes an unknown username from a wrong password."
+        },
+        {
+          "id": "VULN_NO_LOCKOUT",
+          "type": "NoAccountLockout",
+          "endpoint": "POST /api/session",
+          "severity": "medium",
+          "cwe": "CWE-307",
+          "owaspWeb": "A07:2021",
+          "detectBy": "Repeated failed sign-ins are never throttled."
+        },
+        {
+          "id": "VULN_SESSION_SURVIVES_LOGOUT",
+          "type": "SessionNotInvalidatedOnLogout",
+          "endpoint": "DELETE /api/session",
+          "severity": "high",
+          "cwe": "CWE-613",
+          "owaspWeb": "A07:2021",
+          "detectBy": "A token captured before sign-out still authenticates after it."
+        },
+        {
+          "id": "VULN_LONG_SESSION",
+          "type": "ExcessiveSessionLifetime",
+          "endpoint": "POST /api/session",
+          "severity": "low",
+          "cwe": "CWE-613",
+          "owaspWeb": "A07:2021",
+          "detectBy": "expiresInSeconds is 30 days."
+        },
+        {
+          "id": "VULN_RESET_TOKEN_REUSE",
+          "type": "PasswordResetTokenReuse",
+          "endpoint": "POST /api/password-reset/confirm",
+          "severity": "high",
+          "cwe": "CWE-640",
+          "owaspWeb": "A07:2021",
+          "detectBy": "The same reset token is accepted twice."
+        }
       ],
       "safeEndpoints": [
-        { "endpoint": "POST /api/password-reset", "why": "Answers 202 whether or not the account exists, so it does not enumerate. Reporting enumeration here is a false positive." }
+        {
+          "endpoint": "POST /api/password-reset",
+          "why": "Answers 202 whether or not the account exists, so it does not enumerate. Reporting enumeration here is a false positive."
+        }
       ]
     },
     {
       "application": "access-control-lab",
       "baseUrl": "http://127.0.0.1:4401",
       "expectedFindings": [
-        { "id": "VULN_BOLA", "type": "BOLA", "endpoint": "GET /api/accounts/{id}", "severity": "high", "cwe": "CWE-639", "owaspApi": "API1:2023", "owaspWeb": "A01:2021", "detectBy": "alice receives acc-1002, which bob owns." },
-        { "id": "VULN_VERTICAL_ESCALATION", "type": "BrokenFunctionLevelAuthorization", "endpoint": "GET /api/admin/users", "severity": "high", "cwe": "CWE-285", "owaspApi": "API5:2023", "owaspWeb": "A01:2021", "detectBy": "A customer receives 200 from an admin route." },
-        { "id": "VULN_READONLY_CAN_WRITE", "type": "PrivilegeEscalation", "endpoint": "POST /api/transfers", "severity": "high", "cwe": "CWE-269", "owaspWeb": "A01:2021", "detectBy": "A readonly account receives 201." },
-        { "id": "VULN_MISSING_AUTHZ", "type": "MissingAuthorization", "endpoint": "GET /api/accounts/{id}/statement", "severity": "critical", "cwe": "CWE-862", "owaspApi": "API1:2023", "owaspWeb": "A01:2021", "detectBy": "An unauthenticated caller receives a statement." }
+        {
+          "id": "VULN_BOLA",
+          "type": "BOLA",
+          "endpoint": "GET /api/accounts/{id}",
+          "severity": "high",
+          "cwe": "CWE-639",
+          "owaspApi": "API1:2023",
+          "owaspWeb": "A01:2021",
+          "detectBy": "alice receives acc-1002, which bob owns."
+        },
+        {
+          "id": "VULN_VERTICAL_ESCALATION",
+          "type": "BrokenFunctionLevelAuthorization",
+          "endpoint": "GET /api/admin/users",
+          "severity": "high",
+          "cwe": "CWE-285",
+          "owaspApi": "API5:2023",
+          "owaspWeb": "A01:2021",
+          "detectBy": "A customer receives 200 from an admin route."
+        },
+        {
+          "id": "VULN_READONLY_CAN_WRITE",
+          "type": "PrivilegeEscalation",
+          "endpoint": "POST /api/transfers",
+          "severity": "high",
+          "cwe": "CWE-269",
+          "owaspWeb": "A01:2021",
+          "detectBy": "A readonly account receives 201."
+        },
+        {
+          "id": "VULN_MISSING_AUTHZ",
+          "type": "MissingAuthorization",
+          "endpoint": "GET /api/accounts/{id}/statement",
+          "severity": "critical",
+          "cwe": "CWE-862",
+          "owaspApi": "API1:2023",
+          "owaspWeb": "A01:2021",
+          "detectBy": "An unauthenticated caller receives a statement."
+        }
       ],
       "safeEndpoints": [
-        { "endpoint": "GET /api/accounts", "why": "Returns only the caller's own accounts. Reporting BOLA here is a false positive." }
+        {
+          "endpoint": "GET /api/accounts",
+          "why": "Returns only the caller's own accounts. Reporting BOLA here is a false positive."
+        }
       ]
     },
     {
       "application": "api-lab",
       "baseUrl": "http://127.0.0.1:4402",
       "expectedFindings": [
-        { "id": "VULN_UNVERIFIED_TOKEN", "type": "UnverifiedToken", "endpoint": "Authorization header", "severity": "critical", "cwe": "CWE-345", "owaspApi": "API2:2023", "detectBy": "A forged bearer value naming another user is accepted." },
-        { "id": "VULN_MASS_ASSIGNMENT", "type": "BrokenObjectPropertyLevelAuthorization", "endpoint": "PATCH /api/users/{id}", "severity": "high", "cwe": "CWE-915", "owaspApi": "API3:2023", "detectBy": "A customer sets their own role." },
-        { "id": "VULN_NO_INPUT_VALIDATION", "type": "MissingInputValidation", "endpoint": "POST /api/notes", "severity": "medium", "cwe": "CWE-20", "owaspApi": "API8:2023", "detectBy": "A non-string, an empty value and an oversized value are all accepted." },
-        { "id": "VULN_UNSAFE_METHODS", "type": "UnsafeMethodAllowed", "endpoint": "DELETE /api/notes/{id}", "severity": "high", "cwe": "CWE-650", "owaspApi": "API5:2023", "detectBy": "DELETE succeeds unauthenticated." },
-        { "id": "VULN_NO_RATE_LIMIT", "type": "NoRateLimit", "endpoint": "GET /api/search", "severity": "medium",
-        "severityNote": "Recorded as low when this file was first written, which was a casual label rather than a derived one. The severity model scores it medium from its factors: trivially exploitable, no account required, publicly reachable. The label was raised to match the factors rather than the factors bent to match the label.", "cwe": "CWE-770", "owaspApi": "API4:2023", "detectBy": "More than 10 requests are never refused." },
-        { "id": "VULN_EXCESSIVE_DATA", "type": "SensitiveDataExposure", "endpoint": "GET /api/users", "severity": "high", "cwe": "CWE-213", "owaspApi": "API3:2023", "detectBy": "Password hashes and API tokens appear in the response." }
+        {
+          "id": "VULN_UNVERIFIED_TOKEN",
+          "type": "UnverifiedToken",
+          "endpoint": "Authorization header",
+          "severity": "critical",
+          "cwe": "CWE-345",
+          "owaspApi": "API2:2023",
+          "detectBy": "A forged bearer value naming another user is accepted."
+        },
+        {
+          "id": "VULN_MASS_ASSIGNMENT",
+          "type": "BrokenObjectPropertyLevelAuthorization",
+          "endpoint": "PATCH /api/users/{id}",
+          "severity": "high",
+          "cwe": "CWE-915",
+          "owaspApi": "API3:2023",
+          "detectBy": "A customer sets their own role."
+        },
+        {
+          "id": "VULN_NO_INPUT_VALIDATION",
+          "type": "MissingInputValidation",
+          "endpoint": "POST /api/notes",
+          "severity": "medium",
+          "cwe": "CWE-20",
+          "owaspApi": "API8:2023",
+          "detectBy": "A non-string, an empty value and an oversized value are all accepted."
+        },
+        {
+          "id": "VULN_UNSAFE_METHODS",
+          "type": "UnsafeMethodAllowed",
+          "endpoint": "DELETE /api/notes/{id}",
+          "severity": "high",
+          "cwe": "CWE-650",
+          "owaspApi": "API5:2023",
+          "detectBy": "DELETE succeeds unauthenticated."
+        },
+        {
+          "id": "VULN_NO_RATE_LIMIT",
+          "type": "NoRateLimit",
+          "endpoint": "GET /api/search",
+          "severity": "medium",
+          "severityNote": "Recorded as low when this file was first written, which was a casual label rather than a derived one. The severity model scores it medium from its factors: trivially exploitable, no account required, publicly reachable. The label was raised to match the factors rather than the factors bent to match the label.",
+          "cwe": "CWE-770",
+          "owaspApi": "API4:2023",
+          "detectBy": "More than 10 requests are never refused."
+        },
+        {
+          "id": "VULN_EXCESSIVE_DATA",
+          "type": "SensitiveDataExposure",
+          "endpoint": "GET /api/users",
+          "severity": "high",
+          "cwe": "CWE-213",
+          "owaspApi": "API3:2023",
+          "detectBy": "Password hashes and API tokens appear in the response."
+        }
       ],
       "safeEndpoints": [
-        { "endpoint": "GET /api/accounts/{id}", "why": "Enforces ownership correctly. Reporting BOLA here is a false positive." }
+        {
+          "endpoint": "GET /api/accounts/{id}",
+          "why": "Enforces ownership correctly. Reporting BOLA here is a false positive."
+        }
       ]
     },
     {
       "application": "xss-lab",
       "baseUrl": "http://127.0.0.1:4403",
       "expectedFindings": [
-        { "id": "VULN_REFLECTED_XSS", "type": "ReflectedXSS", "endpoint": "GET /search?q=", "severity": "high", "cwe": "CWE-79", "owaspWeb": "A03:2021", "detectBy": "The marker is returned into an HTML context with its angle brackets intact." },
-        { "id": "VULN_STORED_XSS", "type": "StoredXSS", "endpoint": "POST then GET /profile", "severity": "high", "cwe": "CWE-79", "owaspWeb": "A03:2021", "detectBy": "A marker stored once is rendered unencoded on a later read." },
-        { "id": "VULN_DOM_XSS", "type": "DomXSS", "endpoint": "GET /dom#", "severity": "medium", "cwe": "CWE-79", "owaspWeb": "A03:2021", "detectBy": "location.hash reaches innerHTML; visible only in a browser, not in the response body." }
+        {
+          "id": "VULN_REFLECTED_XSS",
+          "type": "ReflectedXSS",
+          "endpoint": "GET /search?q=",
+          "severity": "high",
+          "cwe": "CWE-79",
+          "owaspWeb": "A03:2021",
+          "detectBy": "The marker is returned into an HTML context with its angle brackets intact."
+        },
+        {
+          "id": "VULN_STORED_XSS",
+          "type": "StoredXSS",
+          "endpoint": "POST then GET /profile",
+          "severity": "high",
+          "cwe": "CWE-79",
+          "owaspWeb": "A03:2021",
+          "detectBy": "A marker stored once is rendered unencoded on a later read."
+        },
+        {
+          "id": "VULN_DOM_XSS",
+          "type": "DomXSS",
+          "endpoint": "GET /dom#",
+          "severity": "medium",
+          "cwe": "CWE-79",
+          "owaspWeb": "A03:2021",
+          "detectBy": "location.hash reaches innerHTML; visible only in a browser, not in the response body."
+        }
       ],
       "safeEndpoints": [
-        { "endpoint": "GET /greet?name=", "why": "Reflects HTML-escaped. Reporting XSS on reflection alone is a false positive, and the brief names this case explicitly." },
-        { "endpoint": "GET /echo?value=", "why": "Reflects into JSON, which is not an HTML context. A scanner flagging it does not understand context." }
+        {
+          "endpoint": "GET /greet?name=",
+          "why": "Reflects HTML-escaped. Reporting XSS on reflection alone is a false positive, and the brief names this case explicitly."
+        },
+        {
+          "endpoint": "GET /echo?value=",
+          "why": "Reflects into JSON, which is not an HTML context. A scanner flagging it does not understand context."
+        }
       ]
     },
     {
       "application": "csrf-upload-lab",
       "baseUrl": "http://127.0.0.1:4404",
       "expectedFindings": [
-        { "id": "VULN_NO_CSRF_TOKEN", "type": "MissingCsrfToken", "endpoint": "POST /api/transfer", "severity": "high", "cwe": "CWE-352", "owaspWeb": "A01:2021", "detectBy": "A state-changing request succeeds with no anti-CSRF token." },
-        { "id": "VULN_NO_ORIGIN_CHECK", "type": "MissingOriginValidation", "endpoint": "POST /api/transfer", "severity": "medium", "cwe": "CWE-352", "owaspWeb": "A01:2021", "detectBy": "A cross-origin Origin header is accepted." },
-        { "id": "VULN_UPLOAD_ANY_TYPE", "type": "UnrestrictedFileUpload", "endpoint": "POST /api/upload", "severity": "high", "cwe": "CWE-434", "owaspWeb": "A04:2021", "detectBy": "An executable extension and a mismatched content type are accepted." },
-        { "id": "VULN_UPLOAD_NO_SIZE_LIMIT", "type": "NoUploadSizeLimit", "endpoint": "POST /api/upload", "severity": "low", "cwe": "CWE-770", "owaspWeb": "A04:2021", "detectBy": "A declared size far above the limit is accepted." },
-        { "id": "VULN_UPLOAD_PATH_TRAVERSAL", "type": "PathTraversalInFilename", "endpoint": "POST /api/upload", "severity": "high", "cwe": "CWE-22", "owaspWeb": "A01:2021", "detectBy": "storedAs retains ../ from the supplied filename." },
-        { "id": "VULN_OPEN_REDIRECT", "type": "OpenRedirect", "endpoint": "GET /redirect?next=", "severity": "medium", "cwe": "CWE-601", "owaspWeb": "A01:2021", "detectBy": "An absolute external URL is returned in Location." }
+        {
+          "id": "VULN_NO_CSRF_TOKEN",
+          "type": "MissingCsrfToken",
+          "endpoint": "POST /api/transfer",
+          "severity": "high",
+          "cwe": "CWE-352",
+          "owaspWeb": "A01:2021",
+          "detectBy": "A state-changing request succeeds with no anti-CSRF token."
+        },
+        {
+          "id": "VULN_NO_ORIGIN_CHECK",
+          "type": "MissingOriginValidation",
+          "endpoint": "POST /api/transfer",
+          "severity": "medium",
+          "cwe": "CWE-352",
+          "owaspWeb": "A01:2021",
+          "detectBy": "A cross-origin Origin header is accepted."
+        },
+        {
+          "id": "VULN_UPLOAD_ANY_TYPE",
+          "type": "UnrestrictedFileUpload",
+          "endpoint": "POST /api/upload",
+          "severity": "high",
+          "cwe": "CWE-434",
+          "owaspWeb": "A04:2021",
+          "detectBy": "An executable extension and a mismatched content type are accepted."
+        },
+        {
+          "id": "VULN_UPLOAD_NO_SIZE_LIMIT",
+          "type": "NoUploadSizeLimit",
+          "endpoint": "POST /api/upload",
+          "severity": "low",
+          "cwe": "CWE-770",
+          "owaspWeb": "A04:2021",
+          "detectBy": "A declared size far above the limit is accepted."
+        },
+        {
+          "id": "VULN_UPLOAD_PATH_TRAVERSAL",
+          "type": "PathTraversalInFilename",
+          "endpoint": "POST /api/upload",
+          "severity": "high",
+          "cwe": "CWE-22",
+          "owaspWeb": "A01:2021",
+          "detectBy": "storedAs retains ../ from the supplied filename."
+        },
+        {
+          "id": "VULN_OPEN_REDIRECT",
+          "type": "OpenRedirect",
+          "endpoint": "GET /redirect?next=",
+          "severity": "medium",
+          "cwe": "CWE-601",
+          "owaspWeb": "A01:2021",
+          "detectBy": "An absolute external URL is returned in Location."
+        },
+        {
+          "id": "VULN_SSRF",
+          "type": "ServerSideRequestForgery",
+          "endpoint": "GET /api/fetch?url=",
+          "severity": "high",
+          "cwe": "CWE-918",
+          "owaspWeb": "A10:2021",
+          "owaspApi": "API7:2023",
+          "detectBy": "A loopback and a private-range destination are both accepted rather than refused. Nothing is actually fetched by the lab, and the metadata endpoints are never probed by default."
+        }
       ],
-      "safeEndpoints": []
+      "safeEndpoints": [
+        {
+          "endpoint": "GET /api/fetch?url=<same origin>",
+          "why": "The application's own origin is a legitimate destination. Reporting SSRF for an endpoint that accepts only itself is a false positive."
+        }
+      ]
     },
     {
       "application": "headers-lab",
       "baseUrl": "http://127.0.0.1:4406",
       "expectedFindings": [
-        { "id": "VULN_NO_CSP", "type": "MissingSecurityHeader", "endpoint": "GET /weak", "severity": "medium", "cwe": "CWE-1021", "owaspWeb": "A05:2021", "detectBy": "No Content-Security-Policy on an HTML response." },
-        { "id": "VULN_WEAK_COOKIE", "type": "InsecureCookieAttributes", "endpoint": "GET /weak", "severity": "medium", "cwe": "CWE-1004", "owaspWeb": "A05:2021", "detectBy": "A session cookie with no HttpOnly, Secure or SameSite." },
-        { "id": "VULN_REFLECTED_CORS", "type": "DangerousCorsPolicy", "endpoint": "GET /api/data", "severity": "high", "cwe": "CWE-942", "owaspWeb": "A05:2021", "detectBy": "An arbitrary Origin is reflected while credentials are allowed. Both together, not either alone." },
-        { "id": "VULN_DIRECTORY_LISTING", "type": "DirectoryListing", "endpoint": "GET /files", "severity": "medium", "cwe": "CWE-548", "owaspWeb": "A05:2021", "detectBy": "A directory index naming backup.sql and .env." },
-        { "id": "VULN_VERBOSE_ERROR", "type": "VerboseErrorDisclosure", "endpoint": "GET /boom", "severity": "medium", "cwe": "CWE-209", "owaspWeb": "A05:2021", "detectBy": "A stack trace naming source paths, host and framework version." },
-        { "id": "VULN_SOURCE_MAP", "type": "SourceMapExposed", "endpoint": "GET /app.js.map", "severity": "low", "cwe": "CWE-540", "owaspWeb": "A05:2021", "detectBy": "A source map with sourcesContent is served." }
+        {
+          "id": "VULN_NO_CSP",
+          "type": "MissingSecurityHeader",
+          "endpoint": "GET /weak",
+          "severity": "medium",
+          "cwe": "CWE-1021",
+          "owaspWeb": "A05:2021",
+          "detectBy": "No Content-Security-Policy on an HTML response."
+        },
+        {
+          "id": "VULN_WEAK_COOKIE",
+          "type": "InsecureCookieAttributes",
+          "endpoint": "GET /weak",
+          "severity": "medium",
+          "cwe": "CWE-1004",
+          "owaspWeb": "A05:2021",
+          "detectBy": "A session cookie with no HttpOnly, Secure or SameSite."
+        },
+        {
+          "id": "VULN_REFLECTED_CORS",
+          "type": "DangerousCorsPolicy",
+          "endpoint": "GET /api/data",
+          "severity": "high",
+          "cwe": "CWE-942",
+          "owaspWeb": "A05:2021",
+          "detectBy": "An arbitrary Origin is reflected while credentials are allowed. Both together, not either alone."
+        },
+        {
+          "id": "VULN_DIRECTORY_LISTING",
+          "type": "DirectoryListing",
+          "endpoint": "GET /files",
+          "severity": "medium",
+          "cwe": "CWE-548",
+          "owaspWeb": "A05:2021",
+          "detectBy": "A directory index naming backup.sql and .env."
+        },
+        {
+          "id": "VULN_VERBOSE_ERROR",
+          "type": "VerboseErrorDisclosure",
+          "endpoint": "GET /boom",
+          "severity": "medium",
+          "cwe": "CWE-209",
+          "owaspWeb": "A05:2021",
+          "detectBy": "A stack trace naming source paths, host and framework version."
+        },
+        {
+          "id": "VULN_SOURCE_MAP",
+          "type": "SourceMapExposed",
+          "endpoint": "GET /app.js.map",
+          "severity": "low",
+          "cwe": "CWE-540",
+          "owaspWeb": "A05:2021",
+          "detectBy": "A source map with sourcesContent is served."
+        }
       ],
       "safeEndpoints": [
-        { "endpoint": "GET /strict", "why": "Every header set and the cookie correctly attributed. Any header or cookie finding here is a false positive." },
-        { "endpoint": "GET /api/public", "why": "A wildcard origin with no credentials on genuinely public data. Correct, and commonly mis-flagged — the brief says not to classify every permissive CORS policy as a vulnerability." }
+        {
+          "endpoint": "GET /strict",
+          "why": "Every header set and the cookie correctly attributed. Any header or cookie finding here is a false positive."
+        },
+        {
+          "endpoint": "GET /api/public",
+          "why": "A wildcard origin with no credentials on genuinely public data. Correct, and commonly mis-flagged \u2014 the brief says not to classify every permissive CORS policy as a vulnerability."
+        }
       ]
     },
     {
       "application": "injection-lab",
       "baseUrl": "http://127.0.0.1:4408",
       "expectedFindings": [
-        { "id": "VULN_SQL_INJECTION", "type": "SqlInjection", "endpoint": "GET /api/products?name=", "severity": "critical", "cwe": "CWE-89", "owaspWeb": "A03:2021", "detectBy": "An unbalanced quote produces a database error; a tautology widens the result from 0 rows to 3. Detection only — no extraction is attempted." },
-        { "id": "VULN_NOSQL_INJECTION", "type": "NoSqlInjection", "endpoint": "POST /api/login", "severity": "high", "cwe": "CWE-943", "owaspWeb": "A03:2021", "detectBy": "An operator object is accepted where a string belongs." },
-        { "id": "VULN_COMMAND_INJECTION", "type": "CommandInjection", "endpoint": "GET /api/ping?host=", "severity": "critical", "cwe": "CWE-78", "owaspWeb": "A03:2021", "detectBy": "A metacharacter produces a shell-shaped error. Nothing is executed." },
-        { "id": "VULN_TEMPLATE_INJECTION", "type": "TemplateInjection", "endpoint": "GET /api/render?template=", "severity": "high", "cwe": "CWE-1336", "owaspWeb": "A03:2021", "detectBy": "{{7*7}} renders as 49." }
+        {
+          "id": "VULN_SQL_INJECTION",
+          "type": "SqlInjection",
+          "endpoint": "GET /api/products?name=",
+          "severity": "critical",
+          "cwe": "CWE-89",
+          "owaspWeb": "A03:2021",
+          "detectBy": "An unbalanced quote produces a database error; a tautology widens the result from 0 rows to 3. Detection only \u2014 no extraction is attempted."
+        },
+        {
+          "id": "VULN_NOSQL_INJECTION",
+          "type": "NoSqlInjection",
+          "endpoint": "POST /api/login",
+          "severity": "high",
+          "cwe": "CWE-943",
+          "owaspWeb": "A03:2021",
+          "detectBy": "An operator object is accepted where a string belongs."
+        },
+        {
+          "id": "VULN_COMMAND_INJECTION",
+          "type": "CommandInjection",
+          "endpoint": "GET /api/ping?host=",
+          "severity": "critical",
+          "cwe": "CWE-78",
+          "owaspWeb": "A03:2021",
+          "detectBy": "A metacharacter produces a shell-shaped error. Nothing is executed."
+        },
+        {
+          "id": "VULN_TEMPLATE_INJECTION",
+          "type": "TemplateInjection",
+          "endpoint": "GET /api/render?template=",
+          "severity": "high",
+          "cwe": "CWE-1336",
+          "owaspWeb": "A03:2021",
+          "detectBy": "{{7*7}} renders as 49."
+        }
       ],
       "safeEndpoints": []
     }
