@@ -1,0 +1,32 @@
+{
+  "testId": "RLS-002",
+  "suite": "Release quality",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "A test that failed before and passes now is reported as fixed",
+  "preconditions": [
+    "a broken run followed by a healthy one"
+  ],
+  "input": "GET /api/v1/release/compare for the third run against the second",
+  "expected": "The test is fixed, nothing is newly failing, and the headline says so — evidence that a fix worked is worth as much as evidence that something broke",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "TC-0002: fixed; \"1 that used to fail now pass.\"",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:55:36.381Z",
+  "durationMs": 10,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "comparison.json",
+      "path": "evidence/RLS-002/CQ9F-V2-2026-09-23T12-49-53Z/comparison.json",
+      "bytes": 1555,
+      "sha256": "73545111577e662317b3de64ae17fc44dacb127ecf6315963827b6730a363035"
+    }
+  ]
+}

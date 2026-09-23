@@ -1,0 +1,42 @@
+{
+  "testId": "REG-009",
+  "suite": "Regression selection",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "A pipeline can select, inspect and run a regression set through the CLI",
+  "preconditions": [
+    "the CLI is built",
+    "the lab bank is running"
+  ],
+  "input": "\"aira regression select --explain\", then \"aira regression run\", on a change to the accounts area",
+  "expected": "select exits 0 and prints each test's components; run exits 0 and executes only the selected tests; the selection is written as an artifact",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "select exit 0, run exit 0; artifact: 3/5 test(s)",
+  "metrics": {
+    "selectExit": 0,
+    "runExit": 0
+  },
+  "startedAt": "2026-09-23T12:52:26.824Z",
+  "durationMs": 6445,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "cli-output.txt",
+      "path": "evidence/REG-009/CQ9F-V2-2026-09-23T12-49-53Z/cli-output.txt",
+      "bytes": 2608,
+      "sha256": "b6f4d644f7d7f94240c6001f51928ad59c61b5906ea3a7faec6faf13ef338364"
+    },
+    {
+      "file": "regression-selection.json",
+      "path": "evidence/REG-009/CQ9F-V2-2026-09-23T12-49-53Z/regression-selection.json",
+      "bytes": 7618,
+      "sha256": "015e7181890e84c78a94da3d1d67e9503443a6c368ab9379e3bee1fdff1cbb93"
+    }
+  ]
+}

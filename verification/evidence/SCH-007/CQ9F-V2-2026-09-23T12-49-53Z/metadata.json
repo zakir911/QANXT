@@ -1,0 +1,32 @@
+{
+  "testId": "SCH-007",
+  "suite": "Scheduling",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "A schedule can be created, listed, previewed, disabled and removed from the CLI",
+  "preconditions": [
+    "the CLI is built"
+  ],
+  "input": "aira schedule add / list / preview / disable / remove",
+  "expected": "Each command does what it says, and list shows the expression and the next run rather than only an id",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "add 0, list 0, preview 0, disable 0, remove 0; gone from the list afterwards: true",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:55:09.319Z",
+  "durationMs": 1090,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "cli.txt",
+      "path": "evidence/SCH-007/CQ9F-V2-2026-09-23T12-49-53Z/cli.txt",
+      "bytes": 1859,
+      "sha256": "5969758a0329b03d8b8e6843773b02db46a78af33912b0f4a40901e6c39944bf"
+    }
+  ]
+}

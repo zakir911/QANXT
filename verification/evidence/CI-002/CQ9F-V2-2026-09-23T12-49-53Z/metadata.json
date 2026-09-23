@@ -1,0 +1,32 @@
+{
+  "testId": "CI-002",
+  "suite": "CI integration",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "The pull request summary names the failure, its message and its diagnosis",
+  "preconditions": [
+    "a test that fails against the lab bank"
+  ],
+  "input": "A run of a test whose assertion does not hold",
+  "expected": "A summary opening with the verdict, naming the failing test, quoting the engine's message, and carrying the diagnosis beside it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "exit 1; summary 491B; headline \"### ❌ 1 test(s) failed\"",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:52:36.676Z",
+  "durationMs": 3246,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "summary.md",
+      "path": "evidence/CI-002/CQ9F-V2-2026-09-23T12-49-53Z/summary.md",
+      "bytes": 500,
+      "sha256": "478d50503ba13ad994f657c47907d66c7efecb4eb0b2a81d94f9c0991081c6d1"
+    }
+  ]
+}

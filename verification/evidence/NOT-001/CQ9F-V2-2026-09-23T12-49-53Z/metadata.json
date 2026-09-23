@@ -1,0 +1,32 @@
+{
+  "testId": "NOT-001",
+  "suite": "Notifications",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "A webhook integration delivers, and the receiver gets a signed, well-formed body",
+  "preconditions": [
+    "the notification sink is running"
+  ],
+  "input": "POST /api/v1/integrations/{id}/test",
+  "expected": "The sink receives one POST carrying the documented payload, with a signature that verifies against the configured secret",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "delivered=true status=200; sink got 1 delivery, signature valid: true",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:55:10.550Z",
+  "durationMs": 26,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "delivery.json",
+      "path": "evidence/NOT-001/CQ9F-V2-2026-09-23T12-49-53Z/delivery.json",
+      "bytes": 1180,
+      "sha256": "3f6e63f49425c0fb8f39a0664b5bf5d2a3c02466ee89c4b90a4f5ea73f42d7a0"
+    }
+  ]
+}

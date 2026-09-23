@@ -1,0 +1,32 @@
+{
+  "testId": "SCH-004",
+  "suite": "Scheduling",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "A cron expression that cannot work is refused when it is written, not at 3am",
+  "preconditions": [
+    "none"
+  ],
+  "input": "Schedules with a malformed expression, an out-of-range field, a six-field expression, an @daily shorthand, and one that parses but can never occur",
+  "expected": "Each refused with a 400 naming what is wrong — a schedule accepted and never fired looks armed in the console and is not",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "5/5 refused with 400; the valid expression returned 201",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:55:09.216Z",
+  "durationMs": 53,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusals.json",
+      "path": "evidence/SCH-004/CQ9F-V2-2026-09-23T12-49-53Z/refusals.json",
+      "bytes": 1382,
+      "sha256": "e6894236f534ebc819d9848a0e38415e9bd17f710e57300c9dcf0cd810b70290"
+    }
+  ]
+}
