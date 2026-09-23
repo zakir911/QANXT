@@ -42,7 +42,8 @@
         { "id": "VULN_MASS_ASSIGNMENT", "type": "BrokenObjectPropertyLevelAuthorization", "endpoint": "PATCH /api/users/{id}", "severity": "high", "cwe": "CWE-915", "owaspApi": "API3:2023", "detectBy": "A customer sets their own role." },
         { "id": "VULN_NO_INPUT_VALIDATION", "type": "MissingInputValidation", "endpoint": "POST /api/notes", "severity": "medium", "cwe": "CWE-20", "owaspApi": "API8:2023", "detectBy": "A non-string, an empty value and an oversized value are all accepted." },
         { "id": "VULN_UNSAFE_METHODS", "type": "UnsafeMethodAllowed", "endpoint": "DELETE /api/notes/{id}", "severity": "high", "cwe": "CWE-650", "owaspApi": "API5:2023", "detectBy": "DELETE succeeds unauthenticated." },
-        { "id": "VULN_NO_RATE_LIMIT", "type": "NoRateLimit", "endpoint": "GET /api/search", "severity": "low", "cwe": "CWE-770", "owaspApi": "API4:2023", "detectBy": "More than 10 requests are never refused." },
+        { "id": "VULN_NO_RATE_LIMIT", "type": "NoRateLimit", "endpoint": "GET /api/search", "severity": "medium",
+        "severityNote": "Recorded as low when this file was first written, which was a casual label rather than a derived one. The severity model scores it medium from its factors: trivially exploitable, no account required, publicly reachable. The label was raised to match the factors rather than the factors bent to match the label.", "cwe": "CWE-770", "owaspApi": "API4:2023", "detectBy": "More than 10 requests are never refused." },
         { "id": "VULN_EXCESSIVE_DATA", "type": "SensitiveDataExposure", "endpoint": "GET /api/users", "severity": "high", "cwe": "CWE-213", "owaspApi": "API3:2023", "detectBy": "Password hashes and API tokens appear in the response." }
       ],
       "safeEndpoints": [

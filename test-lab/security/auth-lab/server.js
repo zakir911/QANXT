@@ -97,14 +97,26 @@ app.get('/api/profile', ctx => {
 app.post('/api/password-reset', async ctx => {
   const { username } = await ctx.body();
   const identity = findIdentity(String(username ?? ''));
-  // Always 202, whether or not the account exists: not leaking here is correct behaviour,
-  // and a lab that got everything wrong would not test a detector's precision.
+
+  // Always 202, and always the same shape, whether or not the account exists.
+  //
+  // The first version of this endpoint returned the token only for a real account and a
+  // bare `{ accepted: true }` otherwise, which enumerated accounts just as loudly as the
+  // sign-in endpoint does — through the response shape rather than its status. The lab's
+  // ground truth called this endpoint non-enumerating, so the lab and its ground truth
+  // disagreed, and a precision test built on that claim would have been measuring nothing.
+  //
+  // An unknown account now also receives a token. It is inert: it is never registered, so
+  // /confirm rejects it. A caller cannot tell the two apart without trying it, which is the
+  // behaviour a real application should have.
+  const token = `reset-${Math.random().toString(36).slice(2, 18)}`;
   if (identity) {
-    const token = `reset-${Math.random().toString(36).slice(2, 18)}`;
     resetTokens.set(token, { user: identity.id, used: false, expiresAt: Date.now() + 15 * 60 * 1000 });
-    return ctx.json(202, { accepted: true, resetToken: token, note: 'Synthetic lab: the token is returned rather than emailed.' });
   }
-  return ctx.json(202, { accepted: true });
+  return ctx.json(202, {
+    accepted: true, resetToken: token,
+    note: 'Synthetic lab: the token is returned rather than emailed.'
+  });
 });
 
 app.post('/api/password-reset/confirm', async ctx => {

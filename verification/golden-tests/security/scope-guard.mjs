@@ -184,8 +184,15 @@ export function evaluateScope(scope, request, context = {}) {
   return { allowed: true, reason: DENIAL.NONE, explanation: 'Within scope.', checksPassed: passed };
 }
 
-/** A scope for the local security lab. Narrow on purpose: it names the hosts it needs. */
-export function labScope(ports, overrides = {}) {
+/**
+ * A scope for the local security lab. Narrow on purpose: it names the hosts it needs.
+ *
+ * It takes overrides as its only argument. It briefly took an unused `ports` argument
+ * first, which meant `labScope({ allowDestructiveTesting: true })` silently returned the
+ * default scope and the caller got a refusal it could not account for. A parameter that
+ * quietly swallows the one thing a caller is trying to say is worse than no parameter.
+ */
+export function labScope(overrides = {}) {
   return {
     enabled: true,
     allowedDomains: ['127.0.0.1', 'localhost'],

@@ -63,6 +63,22 @@ export class SecurityScanner {
    * crashes when the scope says no cannot tell you what it did not do.
    */
   async request({ url, method = 'GET', risk = SECURITY_RISK.PASSIVE, headers = {}, body, testId, as, note }) {
+    // Pace to the configured rate BEFORE asking the guard.
+    //
+    // This used to happen after, which made it useless: the guard's rate rung saw the
+    // burst, refused the request, and the pacing that would have prevented the burst never
+    // ran. A fifteen-request check came back as fifteen refusals, which in a report is
+    // indistinguishable from an endpoint that was never reached. The limit is meant to
+    // shape the scan, not abort it — so the scan waits for its own budget first, and the
+    // guard's rate rung stays as a backstop for anything that reaches it another way.
+    //
+    // The wait is bounded by construction: the window is one second wide and decays on its
+    // own, so this cannot spin for longer than that regardless of what the caller does.
+    const perSecond = this.scope?.maxRequestsPerSecond ?? 0;
+    if (perSecond > 0) {
+      while (this._requestsInLastSecond() >= perSecond) await sleep(25);
+    }
+
     const decision = evaluateScope(this.scope, {
       url, method, risk, profile: this.profile,
       environmentId: this.context.environmentId,
@@ -82,13 +98,6 @@ export class SecurityScanner {
         occurredAt: new Date().toISOString()
       });
       return { allowed: false, decision };
-    }
-
-    // Pace to the configured rate rather than racing it and being refused. The limit is a
-    // promise to the application under test, not an obstacle to work around.
-    const perSecond = this.scope.maxRequestsPerSecond ?? 0;
-    if (perSecond > 0) {
-      while (this._requestsInLastSecond() >= perSecond) await sleep(50);
     }
 
     this._inFlight++;

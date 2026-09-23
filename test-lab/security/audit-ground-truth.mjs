@@ -94,9 +94,22 @@ console.log('\nSecurity lab — ground truth audit\n');
   const second = await json(`${b}/api/password-reset/confirm`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token }) });
   report(first.status === 200 && second.status === 200, 'VULN_RESET_TOKEN_REUSE', `first=${first.status} second=${second.status}`);
 
+  // The safe claim is that this endpoint does not enumerate, and the test has to be the
+  // one an enumeration detector would actually run: same status, same fields. The earlier
+  // version asserted that an unknown account got *no* token, which was the enumerating
+  // behaviour — the shape of the response gave the account away as plainly as a 404 would.
+  const knownReset = await json(`${b}/api/password-reset`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: 'alice' }) });
   const unknownReset = await json(`${b}/api/password-reset`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: 'nobody-here' }) });
-  reportSafe(unknownReset.status === 202 && !unknownReset.json?.resetToken, 'POST /api/password-reset',
-    `202 with no token for an unknown account`);
+  const shape = r => `${r.status}:${Object.keys(r.json ?? {}).sort().join(',')}`;
+  reportSafe(shape(knownReset) === shape(unknownReset) && unknownReset.status === 202,
+    'POST /api/password-reset',
+    `known and unknown accounts both answered ${shape(unknownReset)}`);
+
+  // And the token an unknown account receives must be inert, or the endpoint would be
+  // handing out working reset tokens for accounts that do not exist.
+  const inert = await json(`${b}/api/password-reset/confirm`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token: unknownReset.json?.resetToken }) });
+  reportSafe(inert.status === 400, 'POST /api/password-reset/confirm',
+    `the token issued for an unknown account is rejected (${inert.status})`);
 }
 
 // ---- access-control-lab ------------------------------------------------------
