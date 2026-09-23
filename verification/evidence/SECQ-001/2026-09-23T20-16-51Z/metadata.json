@@ -1,0 +1,32 @@
+{
+  "testId": "SECQ-001",
+  "suite": "Security gate, regression and triage",
+  "runId": "2026-09-23T20-16-51Z",
+  "objective": "A scan that did not run is REVIEW, never a pass",
+  "preconditions": [
+    "no scan"
+  ],
+  "input": "Coverage with scanRan false",
+  "expected": "REVIEW, and a summary that says NOT SCANNED. A build that goes green because nobody scanned is the failure this gate exists to prevent",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "REVIEW: NOT SCANNED. No security tests were executed for this build, so nothing is known about its security posture from AIRA.",
+  "metrics": null,
+  "startedAt": "2026-09-23T20:16:52.038Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "b3a7546",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-001/2026-09-23T20-16-51Z/gate.json",
+      "bytes": 570,
+      "sha256": "dcbd429c689712f94bfe0198ad1427fe3c2dd8e18d790dbc668122903f55f922"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "SECT-002",
+  "suite": "Security gate, regression and triage",
+  "runId": "2026-09-23T20-16-51Z",
+  "objective": "Triage refuses a false positive with no named decision-maker",
+  "preconditions": [
+    "a confirmed finding from the live scan"
+  ],
+  "input": "a false positive with no named decision-maker",
+  "expected": "It throws. A suppression with no reason behind it is somebody switching the check off, and a workflow that accepts it quietly is how a gate becomes decoration",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Refusing to mark BOLA as FalsePositive with no named decision-maker. Somebody has to be accountable for a finding being set aside.",
+  "metrics": null,
+  "startedAt": "2026-09-23T20:16:52.054Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "b3a7546",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/SECT-002/2026-09-23T20-16-51Z/refusal.json",
+      "bytes": 206,
+      "sha256": "fd82d06fbaaccc0e08ae082bf696dfa8ba1a800755160efedae6de051646c28a"
+    }
+  ]
+}

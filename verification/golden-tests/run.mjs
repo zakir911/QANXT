@@ -37,6 +37,7 @@ const SUITES = {
   'ai-failure': () => import('./suites/ai-failure.mjs'),
   security: () => import('./suites/security.mjs'),
   'security-scan': () => import('./suites/security-scan.mjs'),
+  'security-gate': () => import('./suites/security-gate.mjs'),
   reliability: () => import('./suites/reliability.mjs'),
   performance: () => import('./suites/performance.mjs')
 };
@@ -69,7 +70,7 @@ console.log(`Golden tests — run ${RUN_ID}, build ${BUILD.commit}${BUILD.dirty 
 // Suites that drive the security scanner directly against the lab and never call the
 // platform. Requiring the API for these would stop a security scan because a service it
 // does not use is down.
-const NO_PLATFORM = new Set(['security-scan']);
+const NO_PLATFORM = new Set(['security-scan', 'security-gate']);
 const needsPlatform = [...new Set(requested)].some(name => !NO_PLATFORM.has(name));
 await requireEnvironment(undefined, { api: needsPlatform });
 

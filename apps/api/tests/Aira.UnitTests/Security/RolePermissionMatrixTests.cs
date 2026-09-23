@@ -82,6 +82,56 @@ public class RolePermissionMatrixTests
     }
 
     [Fact]
+    public void Nobody_below_a_qa_lead_can_read_a_security_finding_or_start_a_scan()
+    {
+        // A security finding is a working description of how to break the application.
+        // Read-only access to test results is not a reason to hold one, so security:read
+        // starts at QA lead rather than at Viewer.
+        foreach (var role in new[] { SystemRole.Viewer, SystemRole.Developer, SystemRole.QaEngineer })
+        {
+            var permissions = RolePermissionMatrix.For(role);
+            permissions.Should().NotContain(Permissions.SecurityRead, $"{role} must not read findings");
+            permissions.Should().NotContain(Permissions.SecurityScan, $"{role} must not start a scan");
+            permissions.Should().NotContain(Permissions.SecurityTriage, $"{role} must not triage a finding");
+        }
+
+        RolePermissionMatrix.For(SystemRole.QaLead).Should()
+            .Contain(new[] { Permissions.SecurityRead, Permissions.SecurityScan, Permissions.SecurityTriage });
+    }
+
+    [Fact]
+    public void Destructive_scanning_and_authorization_need_a_project_administrator()
+    {
+        // Holding security:scan does not imply holding security:scan:destructive. The scope
+        // has to permit destructive testing AND the caller has to hold the permission, and
+        // neither one grants the other.
+        foreach (var role in new[] { SystemRole.Viewer, SystemRole.Developer, SystemRole.QaEngineer, SystemRole.QaLead })
+        {
+            var permissions = RolePermissionMatrix.For(role);
+            permissions.Should().NotContain(Permissions.SecurityScanDestructive);
+            permissions.Should().NotContain(Permissions.SecurityAuthorize);
+        }
+
+        RolePermissionMatrix.For(SystemRole.ProjectAdmin).Should()
+            .Contain(new[] { Permissions.SecurityScanDestructive, Permissions.SecurityAuthorize });
+    }
+
+    [Fact]
+    public void Authorizing_a_production_scan_is_organization_level_only()
+    {
+        // Production security testing is disabled by default, and turning it on for a
+        // specific run is not a decision a project owner makes alone.
+        foreach (var role in new[]
+                 {
+                     SystemRole.Viewer, SystemRole.Developer, SystemRole.QaEngineer,
+                     SystemRole.QaLead, SystemRole.ProjectAdmin
+                 })
+            RolePermissionMatrix.For(role).Should().NotContain(Permissions.SecurityProduction);
+
+        RolePermissionMatrix.For(SystemRole.OrganizationAdmin).Should().Contain(Permissions.SecurityProduction);
+    }
+
+    [Fact]
     public void Every_role_has_a_description()
     {
         foreach (var role in Enum.GetValues<SystemRole>())

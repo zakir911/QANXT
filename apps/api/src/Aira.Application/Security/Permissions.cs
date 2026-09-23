@@ -50,6 +50,29 @@ public static class Permissions
     public const string AuditRead = "audit:read";
     public const string DashboardRead = "dashboard:read";
 
+    // Security testing. Deliberately six permissions rather than one, because the acts are
+    // different acts: reading a finding is not running a scan, running a passive scan is not
+    // running a destructive one, and stating that an application may be tested at all is a
+    // decision somebody has to be accountable for.
+    //
+    // None of these is in the Viewer set. A security finding is a working description of how
+    // to break the application, and read-only access to results is not a reason to hold one.
+    /// <summary>See security scans, findings and the evidence behind them.</summary>
+    public const string SecurityRead = "security:read";
+    /// <summary>Start a passive or standard security scan within an authorized scope.</summary>
+    public const string SecurityScan = "security:scan";
+    /// <summary>Start a scan that issues destructive requests. Separate on purpose: the scope
+    /// has to permit it AND the caller has to hold this, and neither implies the other.</summary>
+    public const string SecurityScanDestructive = "security:scan:destructive";
+    /// <summary>Write the authorization note and enable a security scope — the act of saying
+    /// this application may be security tested.</summary>
+    public const string SecurityAuthorize = "security:authorize";
+    /// <summary>Change a finding's status: accept it, mark it a false positive, accept the risk.</summary>
+    public const string SecurityTriage = "security:triage";
+    /// <summary>Authorize a scan against a production environment. Organization-level, because
+    /// production security testing is off by default and turning it on is not a project decision.</summary>
+    public const string SecurityProduction = "security:production";
+
     public static IReadOnlyList<(string Name, string Category, string Description)> All { get; } = new List<(string, string, string)>
     {
         (OrganizationRead, "Organization", "View organization settings"),
@@ -84,7 +107,13 @@ public static class Permissions
         (AiUse, "AI", "Use AI features"),
         (AgentRun, "AI", "Run the autonomous agent"),
         (AuditRead, "Security", "Read the audit log"),
-        (DashboardRead, "Quality", "View dashboards and reports")
+        (DashboardRead, "Quality", "View dashboards and reports"),
+        (SecurityRead, "Security testing", "View security scans, findings and evidence"),
+        (SecurityScan, "Security testing", "Run passive and standard security scans"),
+        (SecurityScanDestructive, "Security testing", "Run security scans that issue destructive requests"),
+        (SecurityAuthorize, "Security testing", "Authorize an application for security testing"),
+        (SecurityTriage, "Security testing", "Change a security finding's status"),
+        (SecurityProduction, "Security testing", "Authorize a security scan against production")
     };
 }
 
@@ -113,21 +142,29 @@ public static class RolePermissionMatrix
         .Concat(new[]
         {
             Permissions.TestDelete, Permissions.HealingApprove, Permissions.ApplicationWrite,
-            Permissions.QualityGateWrite, Permissions.AgentRun, Permissions.UserRead
+            Permissions.QualityGateWrite, Permissions.AgentRun, Permissions.UserRead,
+            // Security testing starts here rather than lower down. Nothing below QA lead can
+            // read a finding or start a scan.
+            Permissions.SecurityRead, Permissions.SecurityScan, Permissions.SecurityTriage
         }).ToArray();
 
     private static readonly string[] ProjectAdminSet = QaLeadSet
         .Concat(new[]
         {
             Permissions.ProjectWrite, Permissions.IntegrationWrite, Permissions.SecretWrite,
-            Permissions.ExecutionScript, Permissions.AuditRead
+            Permissions.ExecutionScript, Permissions.AuditRead,
+            // Authorizing an application for testing, and permitting destructive requests, are
+            // the project owner's calls — not the lead's.
+            Permissions.SecurityAuthorize, Permissions.SecurityScanDestructive
         }).ToArray();
 
     private static readonly string[] OrganizationAdminSet = ProjectAdminSet
         .Concat(new[]
         {
             Permissions.OrganizationRead, Permissions.OrganizationWrite, Permissions.UserWrite,
-            Permissions.RoleWrite, Permissions.ProjectDelete
+            Permissions.RoleWrite, Permissions.ProjectDelete,
+            // Production is organization-level. A project owner cannot decide to scan production.
+            Permissions.SecurityProduction
         }).ToArray();
 
     public static IReadOnlyCollection<string> For(SystemRole role) => role switch
