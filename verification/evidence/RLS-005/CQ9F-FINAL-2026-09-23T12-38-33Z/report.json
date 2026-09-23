@@ -1,0 +1,99 @@
+{
+  "projectId": "ce379bba-dc5b-40dc-ae78-13dd0c26d5a5",
+  "projectName": "Golden release",
+  "buildRef": "v2.4.1",
+  "runCount": 1,
+  "firstRunAt": "2026-09-23T12:44:31.288444+00:00",
+  "lastRunAt": "2026-09-23T12:44:31.288444+00:00",
+  "testsCovered": 2,
+  "passed": 1,
+  "failed": 1,
+  "blocked": 0,
+  "healed": 0,
+  "flaky": 0,
+  "passRatePercent": 50,
+  "outstandingFailures": [
+    {
+      "testCaseId": "5d5ecda5-f2e0-4999-ab4a-547b5a98eca5",
+      "reference": "TC-0002",
+      "name": "An account carries its sort code",
+      "suite": "Release",
+      "movement": "stillFailing",
+      "currentStatus": "Failed",
+      "currentDurationMs": 42,
+      "previousDurationMs": 0,
+      "errorMessage": "accounts[0].sortCode is present: Expected a value at \"accounts[0].sortCode\" but it was absent."
+    }
+  ],
+  "unstable": [],
+  "breakingContractChanges": 0,
+  "potentiallyBreakingContractChanges": 0,
+  "comparedWith": "v2.4.0",
+  "comparison": {
+    "current": {
+      "id": "a1759627-a339-4619-bd17-2070131316ce",
+      "name": "Release broken",
+      "status": "Failed",
+      "completedAt": "2026-09-23T12:44:31.288444+00:00",
+      "total": 2,
+      "passed": 1,
+      "failed": 1,
+      "blocked": 0,
+      "healed": 0,
+      "flaky": 0,
+      "durationMs": 95,
+      "qualityGatePassed": true
+    },
+    "previous": {
+      "id": "07ef3d79-bce6-4920-862a-d095edba4496",
+      "name": "Release green",
+      "status": "Passed",
+      "completedAt": "2026-09-23T12:44:29.227791+00:00",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "blocked": 0,
+      "healed": 0,
+      "flaky": 0,
+      "durationMs": 84,
+      "qualityGatePassed": true
+    },
+    "tests": [
+      {
+        "testCaseId": "5d5ecda5-f2e0-4999-ab4a-547b5a98eca5",
+        "reference": "TC-0002",
+        "name": "An account carries its sort code",
+        "suite": "Release",
+        "movement": "newlyFailing",
+        "currentStatus": "Failed",
+        "previousStatus": "Passed",
+        "currentDurationMs": 42,
+        "previousDurationMs": 37,
+        "errorMessage": "accounts[0].sortCode is present: Expected a value at \"accounts[0].sortCode\" but it was absent.",
+        "failureCategory": "Unknown"
+      },
+      {
+        "testCaseId": "b28c3756-4dd8-453a-89da-330f2bda3da8",
+        "reference": "TC-0001",
+        "name": "The application answers",
+        "suite": "Release",
+        "movement": "stillPassing",
+        "currentStatus": "Passed",
+        "previousStatus": "Passed",
+        "currentDurationMs": 30,
+        "previousDurationMs": 28
+      }
+    ],
+    "counts": {
+      "newlyFailing": 1,
+      "fixed": 0,
+      "stillFailing": 0,
+      "stillPassing": 1,
+      "added": 0,
+      "removed": 0
+    },
+    "unchanged": false,
+    "summary": "1 test(s) that used to pass now fail."
+  },
+  "summary": "Build v2.4.1 was tested by 1 run(s). 1 test(s) are failing in the most recent one. Against Release green: 1 test(s) that used to pass now fail."
+}

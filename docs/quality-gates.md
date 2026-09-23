@@ -33,6 +33,21 @@ should be arguing with the rule, and they cannot do that unless the rule is quot
 
 `action` is `fail`, `review` or `warn`.
 
+`operator` is `lessThan`, `lessThanOrEqual`, `greaterThan`, `greaterThanOrEqual`, `equal` or
+`notEqual`. **It has no default worth relying on.** A request that omits it, or spells the
+field something else, gets `lessThan` — and `lessThan 0` on a count is a rule nothing can
+satisfy, which is why the platform now refuses it:
+
+```
+400  No run can satisfy this rule: the metric is never negative, so "less than 0" can never
+     hold and the gate would block every build. Did you mean "lessThanOrEqual" with a
+     threshold of 0 — that is, none at all?
+```
+
+"No failing tests" is `failedCount` `lessThanOrEqual` `0`. The same refusal covers
+`passRatePercent greaterThan 100`. A gate nothing can pass is a permanent block wearing the
+costume of a check, and it gets switched off rather than fixed.
+
 ## Metrics
 
 | | |

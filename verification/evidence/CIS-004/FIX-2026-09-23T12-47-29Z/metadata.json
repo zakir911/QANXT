@@ -1,0 +1,37 @@
+{
+  "testId": "CIS-004",
+  "suite": "CI simulation",
+  "runId": "FIX-2026-09-23T12-47-29Z",
+  "objective": "A pipeline naming a project that does not exist is a configuration error",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"bad-configuration\"",
+  "expected": "Exit 3, and a message pointing at whoever edited the pipeline rather than at the platform",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "exit 3; bad configuration",
+  "metrics": {
+    "airaExit": 3,
+    "pipelineExit": 3
+  },
+  "startedAt": "2026-09-23T12:48:39.522Z",
+  "durationMs": 176,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-004/FIX-2026-09-23T12-47-29Z/pipeline.log",
+      "bytes": 664,
+      "sha256": "763032c9335104788fca763402b4d1b0ad6382aecbcceef0694b8ff454f3d685"
+    }
+  ]
+}

@@ -1,14 +1,14 @@
 {
-  "runId": "CQ9F-FULL-2026-09-23T04-54-10Z",
-  "generatedAt": "2026-09-23T05:01:56.379Z",
+  "runId": "CQ9F-FINAL-2026-09-23T12-38-33Z",
+  "generatedAt": "2026-09-23T12:46:14.759Z",
   "build": {
     "commit": "7f50d74",
     "branch": "claude/blissful-pasteur-qtbzbs",
     "dirty": true
   },
   "totals": {
-    "total": 117,
-    "passed": 117,
+    "total": 107,
+    "passed": 107,
     "failed": 0,
     "notVerified": 0,
     "criticalFailures": 0
@@ -16,12 +16,12 @@
   "bySeverity": [
     {
       "severity": "critical",
-      "total": 84,
+      "total": 78,
       "failed": 0
     },
     {
       "severity": "high",
-      "total": 29,
+      "total": 25,
       "failed": 0
     },
     {
@@ -44,6 +44,13 @@
       "notVerified": 0
     },
     {
+      "suite": "AI provider failure",
+      "total": 9,
+      "passed": 9,
+      "failed": 0,
+      "notVerified": 0
+    },
+    {
       "suite": "API testing",
       "total": 14,
       "passed": 14,
@@ -51,16 +58,9 @@
       "notVerified": 0
     },
     {
-      "suite": "Isolation, audit and observability",
-      "total": 20,
-      "passed": 20,
-      "failed": 0,
-      "notVerified": 0
-    },
-    {
       "suite": "CI integration",
-      "total": 7,
-      "passed": 7,
+      "total": 8,
+      "passed": 8,
       "failed": 0,
       "notVerified": 0
     },
@@ -266,16 +266,16 @@
       "measured": true,
       "status": "PASS",
       "passed": true,
-      "total": 117,
-      "executed": 117,
+      "total": 107,
+      "executed": 107,
       "failures": [],
       "notVerified": []
     }
   ],
   "overall": false,
   "evidence": {
-    "artifacts": 145,
-    "bytes": 214895,
+    "artifacts": 135,
+    "bytes": 215869,
     "missing": 0,
     "changed": 0
   },
@@ -287,9 +287,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run passed; 0 violation(s), 21 rule(s) passed, 1 incomplete; axe-core 4.13.0",
-      "durationMs": 2052,
+      "durationMs": 2060,
       "evidence": [
-        "evidence/ACC-001/CQ9F-FULL-2026-09-23T04-54-10Z/scan.json"
+        "evidence/ACC-001/CQ9F-FINAL-2026-09-23T12-38-33Z/scan.json"
       ]
     },
     {
@@ -299,9 +299,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "5 fault(s), each producing exactly what its ground truth names",
-      "durationMs": 10272,
+      "durationMs": 10274,
       "evidence": [
-        "evidence/ACC-002/CQ9F-FULL-2026-09-23T04-54-10Z/measured.json"
+        "evidence/ACC-002/CQ9F-FINAL-2026-09-23T12-38-33Z/measured.json"
       ]
     },
     {
@@ -311,10 +311,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "failOn serious: run failed, 1 violation(s) stored; failOn null: run passed, 1 violation(s) stored",
-      "durationMs": 4118,
+      "durationMs": 4385,
       "evidence": [
-        "evidence/ACC-003/CQ9F-FULL-2026-09-23T04-54-10Z/strict.json",
-        "evidence/ACC-003/CQ9F-FULL-2026-09-23T04-54-10Z/reportOnly.json"
+        "evidence/ACC-003/CQ9F-FINAL-2026-09-23T12-38-33Z/strict.json",
+        "evidence/ACC-003/CQ9F-FINAL-2026-09-23T12-38-33Z/reportOnly.json"
       ]
     },
     {
@@ -324,10 +324,10 @@
       "severity": "high",
       "result": "PASS",
       "detail": "2 violation(s); message 361B, names rules: true, carries help URL: true",
-      "durationMs": 2053,
+      "durationMs": 2057,
       "evidence": [
-        "evidence/ACC-004/CQ9F-FULL-2026-09-23T04-54-10Z/message.txt",
-        "evidence/ACC-004/CQ9F-FULL-2026-09-23T04-54-10Z/scan.json"
+        "evidence/ACC-004/CQ9F-FINAL-2026-09-23T12-38-33Z/message.txt",
+        "evidence/ACC-004/CQ9F-FINAL-2026-09-23T12-38-33Z/scan.json"
       ]
     },
     {
@@ -337,9 +337,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "rule measured=false passed=false; outcome review; \"The number of critical or serious accessibility violations was not measured for this run, so this rule could not be eval\"",
-      "durationMs": 2108,
+      "durationMs": 2106,
       "evidence": [
-        "evidence/ACC-005/CQ9F-FULL-2026-09-23T04-54-10Z/gate.json"
+        "evidence/ACC-005/CQ9F-FINAL-2026-09-23T12-38-33Z/gate.json"
       ]
     },
     {
@@ -349,9 +349,117 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run passed; metric measured 2; rule passed=false; gate fail",
-      "durationMs": 2168,
+      "durationMs": 2113,
       "evidence": [
-        "evidence/ACC-006/CQ9F-FULL-2026-09-23T04-54-10Z/gate.json"
+        "evidence/ACC-006/CQ9F-FINAL-2026-09-23T12-38-33Z/gate.json"
+      ]
+    },
+    {
+      "id": "AIF-001",
+      "suite": "AI provider failure",
+      "objective": "A provider that never answers fails the request visibly instead of returning nothing",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "status 503; 0 test case(s) created; model request recorded: true (status failed); message \"The request to the model provider timed out. (simulated)\"",
+      "durationMs": 202,
+      "evidence": [
+        "evidence/AIF-001/CQ9F-FINAL-2026-09-23T12-38-33Z/response.json"
+      ]
+    },
+    {
+      "id": "AIF-002",
+      "suite": "AI provider failure",
+      "objective": "A provider error fails the request visibly instead of being swallowed",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "status 503; 0 test case(s) created; model request recorded: true (status failed); message \"The model provider returned 503 Service Unavailable. (simulated)\"",
+      "durationMs": 55,
+      "evidence": [
+        "evidence/AIF-002/CQ9F-FINAL-2026-09-23T12-38-33Z/response.json"
+      ]
+    },
+    {
+      "id": "AIF-003",
+      "suite": "AI provider failure",
+      "objective": "A reply that is not JSON is refused rather than partially parsed",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "status 503; 0 test case(s) created; model request recorded: true (status schemaRejected); message \"The model's response did not satisfy the test_plan schema: The response was not valid JSON: 'C' is a\"",
+      "durationMs": 45,
+      "evidence": [
+        "evidence/AIF-003/CQ9F-FINAL-2026-09-23T12-38-33Z/response.json"
+      ]
+    },
+    {
+      "id": "AIF-004",
+      "suite": "AI provider failure",
+      "objective": "Valid JSON of the wrong shape is refused, not leniently deserialized",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "status 503; 0 test case(s) created; model request recorded: true (status schemaRejected); message \"The model's response did not satisfy the test_plan schema: : Required properties [\"summary\"] are not\"",
+      "durationMs": 55,
+      "evidence": [
+        "evidence/AIF-004/CQ9F-FINAL-2026-09-23T12-38-33Z/response.json"
+      ]
+    },
+    {
+      "id": "AIF-005",
+      "suite": "AI provider failure",
+      "objective": "An empty response is refused rather than treated as \"no scenarios\"",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "status 503; 0 test case(s) created; model request recorded: true (status schemaRejected); message \"The model's response did not satisfy the test_plan schema: The response was empty.\"",
+      "durationMs": 41,
+      "evidence": [
+        "evidence/AIF-005/CQ9F-FINAL-2026-09-23T12-38-33Z/response.json"
+      ]
+    },
+    {
+      "id": "AIF-006",
+      "suite": "AI provider failure",
+      "objective": "Model output carrying instructions is treated as data, and never reaches a test as an action",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "status 503; model request recorded: true; 0 test case(s) created; attacker host in stored tests: false; shell command in stored tests: false; existing tests deleted: false",
+      "durationMs": 40,
+      "evidence": [
+        "evidence/AIF-006/CQ9F-FINAL-2026-09-23T12-38-33Z/injection.json"
+      ]
+    },
+    {
+      "id": "AIF-007",
+      "suite": "AI provider failure",
+      "objective": "A provider outage does not stop a test run: the model plans, and something else executes",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "run passed with 1 passed / 0 failed, while every model request would have failed",
+      "durationMs": 2054,
+      "evidence": [
+        "evidence/AIF-007/CQ9F-FINAL-2026-09-23T12-38-33Z/run.json"
+      ]
+    },
+    {
+      "id": "AIF-008",
+      "suite": "AI provider failure",
+      "objective": "Every failed model request is recorded with the reason it failed, rather than vanishing",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "9 recorded request(s) after 3 injected fault(s); statuses: failed, schemaRejected",
+      "durationMs": 81,
+      "evidence": [
+        "evidence/AIF-008/CQ9F-FINAL-2026-09-23T12-38-33Z/ai-requests.json"
+      ]
+    },
+    {
+      "id": "AIF-009",
+      "suite": "AI provider failure",
+      "objective": "Fault injection cannot be armed by a caller who is not an organization administrator",
+      "severity": "critical",
+      "result": "PASS",
+      "detail": "a QA engineer arming a fault: 403; the same account reading projects: 200",
+      "durationMs": 208,
+      "evidence": [
+        "evidence/AIF-009/CQ9F-FINAL-2026-09-23T12-38-33Z/permission.json"
       ]
     },
     {
@@ -361,10 +469,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "stored as TC-0001 kind=api with 2 request(s) and 6 assertion(s)",
-      "durationMs": 30,
+      "durationMs": 86,
       "evidence": [
-        "evidence/API-001/CQ9F-FULL-2026-09-23T04-54-10Z/created.json",
-        "evidence/API-001/CQ9F-FULL-2026-09-23T04-54-10Z/stored-test-case.json"
+        "evidence/API-001/CQ9F-FINAL-2026-09-23T12-38-33Z/created.json",
+        "evidence/API-001/CQ9F-FINAL-2026-09-23T12-38-33Z/stored-test-case.json"
       ]
     },
     {
@@ -374,10 +482,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run passed, execution passed, 2 action(s), 36ms",
-      "durationMs": 2187,
+      "durationMs": 2230,
       "evidence": [
-        "evidence/API-002/CQ9F-FULL-2026-09-23T04-54-10Z/run.json",
-        "evidence/API-002/CQ9F-FULL-2026-09-23T04-54-10Z/execution.json"
+        "evidence/API-002/CQ9F-FINAL-2026-09-23T12-38-33Z/run.json",
+        "evidence/API-002/CQ9F-FINAL-2026-09-23T12-38-33Z/execution.json"
       ]
     },
     {
@@ -386,10 +494,10 @@
       "objective": "The request and the response are recorded as evidence, tagged with the step that made them",
       "severity": "critical",
       "result": "PASS",
-      "detail": "2 exchange(s) recorded: step 1 POST /api/session → 200 in 2ms; step 2 GET /api/accounts → 200 in 1ms",
-      "durationMs": 2073,
+      "detail": "2 exchange(s) recorded: step 1 POST /api/session → 200 in 3ms; step 2 GET /api/accounts → 200 in 2ms",
+      "durationMs": 2083,
       "evidence": [
-        "evidence/API-003/CQ9F-FULL-2026-09-23T04-54-10Z/network.json"
+        "evidence/API-003/CQ9F-FINAL-2026-09-23T12-38-33Z/network.json"
       ]
     },
     {
@@ -399,10 +507,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run passed; the call returned 401",
-      "durationMs": 2075,
+      "durationMs": 2081,
       "evidence": [
-        "evidence/API-004/CQ9F-FULL-2026-09-23T04-54-10Z/execution.json",
-        "evidence/API-004/CQ9F-FULL-2026-09-23T04-54-10Z/network.json"
+        "evidence/API-004/CQ9F-FINAL-2026-09-23T12-38-33Z/execution.json",
+        "evidence/API-004/CQ9F-FINAL-2026-09-23T12-38-33Z/network.json"
       ]
     },
     {
@@ -412,10 +520,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run failed; message \"POST http://localhost:4300/api/session returned 500 Internal Server Error.\"; evidence body \"{\"error\":\"internal_error\",\"message\":\"The authentication service is unavailable.\"}\"",
-      "durationMs": 2071,
+      "durationMs": 2082,
       "evidence": [
-        "evidence/API-005/CQ9F-FULL-2026-09-23T04-54-10Z/execution.json",
-        "evidence/API-005/CQ9F-FULL-2026-09-23T04-54-10Z/network.json"
+        "evidence/API-005/CQ9F-FINAL-2026-09-23T12-38-33Z/execution.json",
+        "evidence/API-005/CQ9F-FINAL-2026-09-23T12-38-33Z/network.json"
       ]
     },
     {
@@ -425,9 +533,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "status 400; 2 problem(s): Request 1 has no assertions and tolerates error statuses, so no result could make it fail. Add an assertion, or let an error status fail the step. | This test asserts nothing. A test that cannot fail is not a test.",
-      "durationMs": 10,
+      "durationMs": 14,
       "evidence": [
-        "evidence/API-006/CQ9F-FULL-2026-09-23T04-54-10Z/refusal.json"
+        "evidence/API-006/CQ9F-FINAL-2026-09-23T12-38-33Z/refusal.json"
       ]
     },
     {
@@ -439,7 +547,7 @@
       "detail": "status 400; Request 1: 'visible' is a page assertion and cannot be evaluated against an HTTP response. Use a response assertion instead.",
       "durationMs": 8,
       "evidence": [
-        "evidence/API-007/CQ9F-FULL-2026-09-23T04-54-10Z/refusal.json"
+        "evidence/API-007/CQ9F-FINAL-2026-09-23T12-38-33Z/refusal.json"
       ]
     },
     {
@@ -449,9 +557,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "status 400; Request 1: The request to 'https://api.stripe.com/v1/charges' is not allowed: host 'api.stripe.com' is not in the application's allowed domains",
-      "durationMs": 8,
+      "durationMs": 9,
       "evidence": [
-        "evidence/API-008/CQ9F-FULL-2026-09-23T04-54-10Z/refusal.json"
+        "evidence/API-008/CQ9F-FINAL-2026-09-23T12-38-33Z/refusal.json"
       ]
     },
     {
@@ -461,9 +569,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "literal header 400, literal token 400, reference 200",
-      "durationMs": 31,
+      "durationMs": 44,
       "evidence": [
-        "evidence/API-009/CQ9F-FULL-2026-09-23T04-54-10Z/refusals.json"
+        "evidence/API-009/CQ9F-FINAL-2026-09-23T12-38-33Z/refusals.json"
       ]
     },
     {
@@ -473,9 +581,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "ApiFailedCount=1, outcome fail, rule \"No failing API tests\" passed=false",
-      "durationMs": 2105,
+      "durationMs": 2120,
       "evidence": [
-        "evidence/API-010/CQ9F-FULL-2026-09-23T04-54-10Z/gate.json"
+        "evidence/API-010/CQ9F-FINAL-2026-09-23T12-38-33Z/gate.json"
       ]
     },
     {
@@ -485,9 +593,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run passed; rule measured=false passed=false; outcome review",
-      "durationMs": 2110,
+      "durationMs": 2131,
       "evidence": [
-        "evidence/API-011/CQ9F-FULL-2026-09-23T04-54-10Z/gate.json"
+        "evidence/API-011/CQ9F-FINAL-2026-09-23T12-38-33Z/gate.json"
       ]
     },
     {
@@ -499,7 +607,7 @@
       "detail": "run passed; the password appears in none of execution, executions, network",
       "durationMs": 2058,
       "evidence": [
-        "evidence/API-012/CQ9F-FULL-2026-09-23T04-54-10Z/searched.json"
+        "evidence/API-012/CQ9F-FINAL-2026-09-23T12-38-33Z/searched.json"
       ]
     },
     {
@@ -509,10 +617,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "add exit 0, list exit 0, healthy run exit 0 (expected 0), broken run exit 1 (expected 1)",
-      "durationMs": 7339,
+      "durationMs": 7092,
       "evidence": [
-        "evidence/API-013/CQ9F-FULL-2026-09-23T04-54-10Z/definition.json",
-        "evidence/API-013/CQ9F-FULL-2026-09-23T04-54-10Z/cli-output.txt"
+        "evidence/API-013/CQ9F-FINAL-2026-09-23T12-38-33Z/definition.json",
+        "evidence/API-013/CQ9F-FINAL-2026-09-23T12-38-33Z/cli-output.txt"
       ]
     },
     {
@@ -522,106 +630,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run failed; message \"A POST request is not permitted against this environment. Destructive API requests are disabled for it.\"; 0 request(s) recorded",
-      "durationMs": 2133,
+      "durationMs": 2146,
       "evidence": [
-        "evidence/API-014/CQ9F-FULL-2026-09-23T04-54-10Z/execution.json",
-        "evidence/API-014/CQ9F-FULL-2026-09-23T04-54-10Z/network.json"
-      ]
-    },
-    {
-      "id": "AUD-001",
-      "suite": "Isolation, audit and observability",
-      "objective": "Authorizing production testing is recorded, with the written reason that was given",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "authorization 200; 2 audit record(s) for the environment; the reason is on the trail: true",
-      "durationMs": 21,
-      "evidence": [
-        "evidence/AUD-001/CQ9F-FULL-2026-09-23T04-54-10Z/authorize-audit.json"
-      ]
-    },
-    {
-      "id": "AUD-002",
-      "suite": "Isolation, audit and observability",
-      "objective": "Creating, changing and deleting a schedule are each recorded separately",
-      "severity": "high",
-      "result": "PASS",
-      "detail": "actions recorded: scheduleCreated, scheduleDeleted, scheduleUpdated",
-      "durationMs": 22,
-      "evidence": [
-        "evidence/AUD-002/CQ9F-FULL-2026-09-23T04-54-10Z/schedule-audit.json"
-      ]
-    },
-    {
-      "id": "AUD-003",
-      "suite": "Isolation, audit and observability",
-      "objective": "Changing a quality gate is recorded, because it changes what the platform will let through",
-      "severity": "high",
-      "result": "PASS",
-      "detail": "2 qualityGateChanged record(s); the new rule is named: true",
-      "durationMs": 13,
-      "evidence": [
-        "evidence/AUD-003/CQ9F-FULL-2026-09-23T04-54-10Z/gate-audit.json"
-      ]
-    },
-    {
-      "id": "AUD-004",
-      "suite": "Isolation, audit and observability",
-      "objective": "A failed action is recorded as failed, not omitted",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "sign-in refused with 401; 1 loginFailed record(s) with succeeded=false; the attempted password appears in the trail: false",
-      "durationMs": 76,
-      "evidence": [
-        "evidence/AUD-004/CQ9F-FULL-2026-09-23T04-54-10Z/failed-logins.json"
-      ]
-    },
-    {
-      "id": "AUD-005",
-      "suite": "Isolation, audit and observability",
-      "objective": "The audit trail has no write path: it cannot be added to, edited or deleted through the API",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "postCollection 405, deleteCollection 405, patchRecord 404, putRecord 404, deleteRecord 404; total 18 → 18",
-      "durationMs": 29,
-      "evidence": [
-        "evidence/AUD-005/CQ9F-FULL-2026-09-23T04-54-10Z/append-only.json"
-      ]
-    },
-    {
-      "id": "AUD-006",
-      "suite": "Isolation, audit and observability",
-      "objective": "Reading the audit trail needs its own permission, which ordinary read access does not carry",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "viewer reading projects: 200; reading the audit trail: 403",
-      "durationMs": 141,
-      "evidence": [
-        "evidence/AUD-006/CQ9F-FULL-2026-09-23T04-54-10Z/permission.json"
-      ]
-    },
-    {
-      "id": "AUD-007",
-      "suite": "Isolation, audit and observability",
-      "objective": "Configuring a secret is audited without the secret being recorded",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "integration 201; the configuration is on the trail: true; the secret value appears in the trail: false",
-      "durationMs": 12,
-      "evidence": [
-        "evidence/AUD-007/CQ9F-FULL-2026-09-23T04-54-10Z/secret-audit.json"
-      ]
-    },
-    {
-      "id": "AUD-008",
-      "suite": "Isolation, audit and observability",
-      "objective": "A burst of credential attempts is refused, and the refusals are recorded as a security event rather than as ordinary traffic",
-      "severity": "high",
-      "result": "PASS",
-      "detail": "15 of 20 attempt(s) refused with 429; 15 limiter line(s) written — 15 at warning level, 15 named as a credential endpoint, 15 attributed to the limiter",
-      "durationMs": 337,
-      "evidence": [
-        "evidence/AUD-008/CQ9F-FULL-2026-09-23T04-54-10Z/rate-limit.json"
+        "evidence/API-014/CQ9F-FINAL-2026-09-23T12-38-33Z/execution.json",
+        "evidence/API-014/CQ9F-FINAL-2026-09-23T12-38-33Z/network.json"
       ]
     },
     {
@@ -631,11 +643,11 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "exit 0; files junit.xml, report.html, report.json, summary.md; junit 485B, json 1722B, html 4318B, summary 404B",
-      "durationMs": 3210,
+      "durationMs": 3232,
       "evidence": [
-        "evidence/CI-001/CQ9F-FULL-2026-09-23T04-54-10Z/files.json",
-        "evidence/CI-001/CQ9F-FULL-2026-09-23T04-54-10Z/junit.xml",
-        "evidence/CI-001/CQ9F-FULL-2026-09-23T04-54-10Z/summary.md"
+        "evidence/CI-001/CQ9F-FINAL-2026-09-23T12-38-33Z/files.json",
+        "evidence/CI-001/CQ9F-FINAL-2026-09-23T12-38-33Z/junit.xml",
+        "evidence/CI-001/CQ9F-FINAL-2026-09-23T12-38-33Z/summary.md"
       ]
     },
     {
@@ -645,9 +657,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "exit 1; summary 491B; headline \"### ❌ 1 test(s) failed\"",
-      "durationMs": 3217,
+      "durationMs": 3233,
       "evidence": [
-        "evidence/CI-002/CQ9F-FULL-2026-09-23T04-54-10Z/summary.md"
+        "evidence/CI-002/CQ9F-FINAL-2026-09-23T12-38-33Z/summary.md"
       ]
     },
     {
@@ -657,9 +669,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "exit 0; headline \"### ✅ All tests passed\"",
-      "durationMs": 3472,
+      "durationMs": 3480,
       "evidence": [
-        "evidence/CI-003/CQ9F-FULL-2026-09-23T04-54-10Z/summary.md"
+        "evidence/CI-003/CQ9F-FINAL-2026-09-23T12-38-33Z/summary.md"
       ]
     },
     {
@@ -669,9 +681,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "exit 7 (expected 7); headline \"### ⚠️ This run needs a person to look at it\"",
-      "durationMs": 3257,
+      "durationMs": 3300,
       "evidence": [
-        "evidence/CI-004/CQ9F-FULL-2026-09-23T04-54-10Z/summary.md"
+        "evidence/CI-004/CQ9F-FINAL-2026-09-23T12-38-33Z/summary.md"
       ]
     },
     {
@@ -681,9 +693,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "5 pipeline file(s): no unknown flags, every exit code handled, each marked as not executed in its CI system",
-      "durationMs": 160,
+      "durationMs": 146,
       "evidence": [
-        "evidence/CI-005/CQ9F-FULL-2026-09-23T04-54-10Z/checked.json"
+        "evidence/CI-005/CQ9F-FINAL-2026-09-23T12-38-33Z/checked.json"
       ]
     },
     {
@@ -693,10 +705,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "junit tests=2 failures=1; run 2 test(s), 1 failed",
-      "durationMs": 3230,
+      "durationMs": 3227,
       "evidence": [
-        "evidence/CI-006/CQ9F-FULL-2026-09-23T04-54-10Z/junit.xml",
-        "evidence/CI-006/CQ9F-FULL-2026-09-23T04-54-10Z/run.json"
+        "evidence/CI-006/CQ9F-FINAL-2026-09-23T12-38-33Z/junit.xml",
+        "evidence/CI-006/CQ9F-FINAL-2026-09-23T12-38-33Z/run.json"
       ]
     },
     {
@@ -706,9 +718,21 @@
       "severity": "high",
       "result": "PASS",
       "detail": "provider github, build 99123, commit a1b2c3d4, branch feature/accounts-filter",
-      "durationMs": 3489,
+      "durationMs": 3488,
       "evidence": [
-        "evidence/CI-007/CQ9F-FULL-2026-09-23T04-54-10Z/run.json"
+        "evidence/CI-007/CQ9F-FINAL-2026-09-23T12-38-33Z/run.json"
+      ]
+    },
+    {
+      "id": "CI-008",
+      "suite": "CI integration",
+      "objective": "A quality gate rule that no run could ever satisfy is refused, rather than blocking every build",
+      "severity": "high",
+      "result": "PASS",
+      "detail": "explicit lessThan 0: 400; operator omitted: 400; lessThanOrEqual 0: 200 stored as lessThanOrEqual; the refusal names the likely intention: true",
+      "durationMs": 18,
+      "evidence": [
+        "evidence/CI-008/CQ9F-FINAL-2026-09-23T12-38-33Z/rules.json"
       ]
     },
     {
@@ -718,9 +742,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "14 endpoint(s) observed, 2 covered by an API test, 0 with a baseline; GET /api/accounts testCount=1",
-      "durationMs": 20,
+      "durationMs": 70,
       "evidence": [
-        "evidence/CON-001/CQ9F-FULL-2026-09-23T04-54-10Z/inventory.json"
+        "evidence/CON-001/CQ9F-FINAL-2026-09-23T12-38-33Z/inventory.json"
       ]
     },
     {
@@ -730,9 +754,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "14 baseline(s) captured, 0 skipped; GET /api/accounts v1 with 12 field(s)",
-      "durationMs": 97,
+      "durationMs": 17,
       "evidence": [
-        "evidence/CON-002/CQ9F-FULL-2026-09-23T04-54-10Z/baselines.json"
+        "evidence/CON-002/CQ9F-FINAL-2026-09-23T12-38-33Z/baselines.json"
       ]
     },
     {
@@ -742,9 +766,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run passed; 0 breaking, 0 potentially breaking, 0 non-breaking",
-      "durationMs": 2080,
+      "durationMs": 2056,
       "evidence": [
-        "evidence/CON-003/CQ9F-FULL-2026-09-23T04-54-10Z/changes.json"
+        "evidence/CON-003/CQ9F-FINAL-2026-09-23T12-38-33Z/changes.json"
       ]
     },
     {
@@ -754,9 +778,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "the test passed while 1 breaking change(s) were found; $.accounts[].sortCode: \"accounts[].sortCode\" was present as string and is now absent. Any caller reading it will find nothing.",
-      "durationMs": 2061,
+      "durationMs": 2058,
       "evidence": [
-        "evidence/CON-004/CQ9F-FULL-2026-09-23T04-54-10Z/changes.json"
+        "evidence/CON-004/CQ9F-FINAL-2026-09-23T12-38-33Z/changes.json"
       ]
     },
     {
@@ -766,9 +790,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "the test passed; $.accounts[].balance: number → string (breaking)",
-      "durationMs": 2055,
+      "durationMs": 2056,
       "evidence": [
-        "evidence/CON-005/CQ9F-FULL-2026-09-23T04-54-10Z/changes.json"
+        "evidence/CON-005/CQ9F-FINAL-2026-09-23T12-38-33Z/changes.json"
       ]
     },
     {
@@ -778,9 +802,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "the test passed; $.accounts[].sortCode classified \"potentiallyBreaking\" (string → null|string); 0 breaking",
-      "durationMs": 2058,
+      "durationMs": 2057,
       "evidence": [
-        "evidence/CON-006/CQ9F-FULL-2026-09-23T04-54-10Z/changes.json"
+        "evidence/CON-006/CQ9F-FINAL-2026-09-23T12-38-33Z/changes.json"
       ]
     },
     {
@@ -790,9 +814,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "the test passed; $.accounts[].nickname classified \"nonBreaking\"; 0 breaking, 0 potentially breaking",
-      "durationMs": 2055,
+      "durationMs": 2063,
       "evidence": [
-        "evidence/CON-007/CQ9F-FULL-2026-09-23T04-54-10Z/changes.json"
+        "evidence/CON-007/CQ9F-FINAL-2026-09-23T12-38-33Z/changes.json"
       ]
     },
     {
@@ -802,9 +826,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run passed; ContractBreakingChangeCount=1; rule measured=true passed=false; outcome fail",
-      "durationMs": 2086,
+      "durationMs": 2089,
       "evidence": [
-        "evidence/CON-008/CQ9F-FULL-2026-09-23T04-54-10Z/gate.json"
+        "evidence/CON-008/CQ9F-FINAL-2026-09-23T12-38-33Z/gate.json"
       ]
     },
     {
@@ -814,10 +838,10 @@
       "severity": "high",
       "result": "PASS",
       "detail": "without a reason: 400; with one: 204; the same change on the next run: acknowledged=true",
-      "durationMs": 4165,
+      "durationMs": 4167,
       "evidence": [
-        "evidence/CON-009/CQ9F-FULL-2026-09-23T04-54-10Z/acknowledgement.json",
-        "evidence/CON-009/CQ9F-FULL-2026-09-23T04-54-10Z/second-run-changes.json"
+        "evidence/CON-009/CQ9F-FINAL-2026-09-23T12-38-33Z/acknowledgement.json",
+        "evidence/CON-009/CQ9F-FINAL-2026-09-23T12-38-33Z/second-run-changes.json"
       ]
     },
     {
@@ -826,11 +850,11 @@
       "objective": "API tests are generated from the observed inventory, including negative ones",
       "severity": "critical",
       "result": "PASS",
-      "detail": "29 test(s) from 14 endpoint(s): 13 positive, 12 unauthenticated, 4 not-found; 1 endpoint(s) skipped as mutating; the first test carries 3 assertion(s)",
-      "durationMs": 361,
+      "detail": "29 test(s) from 14 endpoint(s): 13 positive, 12 unauthenticated, 4 not-found; 1 endpoint(s) skipped as mutating; the first test carries 5 assertion(s)",
+      "durationMs": 373,
       "evidence": [
-        "evidence/CON-010/CQ9F-FULL-2026-09-23T04-54-10Z/generated.json",
-        "evidence/CON-010/CQ9F-FULL-2026-09-23T04-54-10Z/sample-test.json"
+        "evidence/CON-010/CQ9F-FINAL-2026-09-23T12-38-33Z/generated.json",
+        "evidence/CON-010/CQ9F-FINAL-2026-09-23T12-38-33Z/sample-test.json"
       ]
     },
     {
@@ -840,9 +864,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "\"GET http://localhost:4300/api/accounts refuses an unauthenticated caller\" ran and passed in 22ms",
-      "durationMs": 2062,
+      "durationMs": 2066,
       "evidence": [
-        "evidence/CON-011/CQ9F-FULL-2026-09-23T04-54-10Z/execution.json"
+        "evidence/CON-011/CQ9F-FINAL-2026-09-23T12-38-33Z/execution.json"
       ]
     },
     {
@@ -852,9 +876,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run failed; \"The endpoint refuses a caller with no credentials: Expected a status in \"401,403\" but the response was 200 OK.\"",
-      "durationMs": 2068,
+      "durationMs": 2061,
       "evidence": [
-        "evidence/CON-012/CQ9F-FULL-2026-09-23T04-54-10Z/execution.json"
+        "evidence/CON-012/CQ9F-FINAL-2026-09-23T12-38-33Z/execution.json"
       ]
     },
     {
@@ -864,10 +888,10 @@
       "severity": "high",
       "result": "PASS",
       "detail": "without a note: 400; with one: 14 captured, 14 replaced; GET /api/accounts is now v2",
-      "durationMs": 23,
+      "durationMs": 31,
       "evidence": [
-        "evidence/CON-013/CQ9F-FULL-2026-09-23T04-54-10Z/refusal.json",
-        "evidence/CON-013/CQ9F-FULL-2026-09-23T04-54-10Z/replacement.json"
+        "evidence/CON-013/CQ9F-FINAL-2026-09-23T12-38-33Z/refusal.json",
+        "evidence/CON-013/CQ9F-FINAL-2026-09-23T12-38-33Z/replacement.json"
       ]
     },
     {
@@ -877,9 +901,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "14 endpoint(s) compared from the crawl, 0 breaking",
-      "durationMs": 24,
+      "durationMs": 31,
       "evidence": [
-        "evidence/CON-014/CQ9F-FULL-2026-09-23T04-54-10Z/check.json"
+        "evidence/CON-014/CQ9F-FINAL-2026-09-23T12-38-33Z/check.json"
       ]
     },
     {
@@ -889,9 +913,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "7 API call(s) recorded, 7 attributed to a step, across step(s) 1, 2, 3",
-      "durationMs": 4104,
+      "durationMs": 4077,
       "evidence": [
-        "evidence/COR-001/CQ9F-FULL-2026-09-23T04-54-10Z/api-calls.json"
+        "evidence/COR-001/CQ9F-FINAL-2026-09-23T12-38-33Z/api-calls.json"
       ]
     },
     {
@@ -901,10 +925,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "applicationDefect at 90%: \"The step before this one made an API call that returned 500.\" — 1 failed call(s) recorded",
-      "durationMs": 22144,
+      "durationMs": 22152,
       "evidence": [
-        "evidence/COR-002/CQ9F-FULL-2026-09-23T04-54-10Z/analysis.json",
-        "evidence/COR-002/CQ9F-FULL-2026-09-23T04-54-10Z/api-calls.json"
+        "evidence/COR-002/CQ9F-FINAL-2026-09-23T12-38-33Z/analysis.json",
+        "evidence/COR-002/CQ9F-FINAL-2026-09-23T12-38-33Z/api-calls.json"
       ]
     },
     {
@@ -913,10 +937,10 @@
       "objective": "An API test's failure is diagnosed from the call the failing step made",
       "severity": "critical",
       "result": "PASS",
-      "detail": "applicationDefect at 95%: \"The step failed because the API call it made returned 500.\" / \"POST /api/session → 500 in 2ms — the fault is in the application or a service it depends on, not in the test.\"",
-      "durationMs": 2064,
+      "detail": "applicationDefect at 95%: \"The step failed because the API call it made returned 500.\" / \"POST /api/session → 500 in 3ms — the fault is in the application or a service it depends on, not in the test.\"",
+      "durationMs": 2065,
       "evidence": [
-        "evidence/COR-003/CQ9F-FULL-2026-09-23T04-54-10Z/analysis.json"
+        "evidence/COR-003/CQ9F-FINAL-2026-09-23T12-38-33Z/analysis.json"
       ]
     },
     {
@@ -928,7 +952,7 @@
       "detail": "networkIssue at 90%: \"The step failed because the API call it made never completed.\"",
       "durationMs": 2069,
       "evidence": [
-        "evidence/COR-004/CQ9F-FULL-2026-09-23T04-54-10Z/analysis.json"
+        "evidence/COR-004/CQ9F-FINAL-2026-09-23T12-38-33Z/analysis.json"
       ]
     },
     {
@@ -937,11 +961,11 @@
       "objective": "A failure where the API answered correctly is attributed to the front end",
       "severity": "critical",
       "result": "PASS",
-      "detail": "2 API call(s), 0 failed; applicationDefect at 80%: \"The API answered correctly and the page showed something else.\"",
-      "durationMs": 22142,
+      "detail": "4 API call(s), 0 failed; applicationDefect at 80%: \"The API answered correctly and the page showed something else.\"",
+      "durationMs": 22143,
       "evidence": [
-        "evidence/COR-005/CQ9F-FULL-2026-09-23T04-54-10Z/analysis.json",
-        "evidence/COR-005/CQ9F-FULL-2026-09-23T04-54-10Z/api-calls.json"
+        "evidence/COR-005/CQ9F-FINAL-2026-09-23T12-38-33Z/analysis.json",
+        "evidence/COR-005/CQ9F-FINAL-2026-09-23T12-38-33Z/api-calls.json"
       ]
     },
     {
@@ -951,9 +975,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "locatorChange at 35%: \"The element Press login-submit targets has changed.\"",
-      "durationMs": 18148,
+      "durationMs": 16124,
       "evidence": [
-        "evidence/COR-006/CQ9F-FULL-2026-09-23T04-54-10Z/analysis.json"
+        "evidence/COR-006/CQ9F-FINAL-2026-09-23T12-38-33Z/analysis.json"
       ]
     },
     {
@@ -963,9 +987,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "first: authenticationIssue at 90%; re-analysed: authenticationIssue at 90%",
-      "durationMs": 2150,
+      "durationMs": 2149,
       "evidence": [
-        "evidence/COR-007/CQ9F-FULL-2026-09-23T04-54-10Z/reanalysis.json"
+        "evidence/COR-007/CQ9F-FINAL-2026-09-23T12-38-33Z/reanalysis.json"
       ]
     },
     {
@@ -975,9 +999,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "4 field(s): bookingDate=seededRandom, customerEmail=generated, orderReference=static, password=secretReference",
-      "durationMs": 12,
+      "durationMs": 115,
       "evidence": [
-        "evidence/DAT-001/CQ9F-FULL-2026-09-23T04-54-10Z/set.json"
+        "evidence/DAT-001/CQ9F-FINAL-2026-09-23T12-38-33Z/set.json"
       ]
     },
     {
@@ -987,10 +1011,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "16 generator type(s), every one reproducible",
-      "durationMs": 28,
+      "durationMs": 52,
       "evidence": [
-        "evidence/DAT-002/CQ9F-FULL-2026-09-23T04-54-10Z/first.json",
-        "evidence/DAT-002/CQ9F-FULL-2026-09-23T04-54-10Z/second.json"
+        "evidence/DAT-002/CQ9F-FINAL-2026-09-23T12-38-33Z/first.json",
+        "evidence/DAT-002/CQ9F-FINAL-2026-09-23T12-38-33Z/second.json"
       ]
     },
     {
@@ -1000,9 +1024,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "4/4 credentials refused; 3/3 ordinary fields accepted",
-      "durationMs": 85,
+      "durationMs": 82,
       "evidence": [
-        "evidence/DAT-003/CQ9F-FULL-2026-09-23T04-54-10Z/refusals.json"
+        "evidence/DAT-003/CQ9F-FINAL-2026-09-23T12-38-33Z/refusals.json"
       ]
     },
     {
@@ -1012,9 +1036,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "400: \"password\" is a secret reference, so its value must name a secret, as \"${secret:the_name}\". It must not contain the secret itself.",
-      "durationMs": 5,
+      "durationMs": 4,
       "evidence": [
-        "evidence/DAT-004/CQ9F-FULL-2026-09-23T04-54-10Z/refusal.json"
+        "evidence/DAT-004/CQ9F-FINAL-2026-09-23T12-38-33Z/refusal.json"
       ]
     },
     {
@@ -1024,10 +1048,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "neither the read nor the preview returned the sensitive value",
-      "durationMs": 19,
+      "durationMs": 27,
       "evidence": [
-        "evidence/DAT-005/CQ9F-FULL-2026-09-23T04-54-10Z/read.json",
-        "evidence/DAT-005/CQ9F-FULL-2026-09-23T04-54-10Z/preview.json"
+        "evidence/DAT-005/CQ9F-FINAL-2026-09-23T12-38-33Z/read.json",
+        "evidence/DAT-005/CQ9F-FINAL-2026-09-23T12-38-33Z/preview.json"
       ]
     },
     {
@@ -1037,9 +1061,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "attach 204; in use: 409 \"1 test case(s) use this data set. Point them elsewhere first — deleting it would leave them running with no data, which reads as an application defect.\"; detach 204; once freed: 204",
-      "durationMs": 68,
+      "durationMs": 62,
       "evidence": [
-        "evidence/DAT-006/CQ9F-FULL-2026-09-23T04-54-10Z/refusal.json"
+        "evidence/DAT-006/CQ9F-FINAL-2026-09-23T12-38-33Z/refusal.json"
       ]
     },
     {
@@ -1049,10 +1073,10 @@
       "severity": "high",
       "result": "PASS",
       "detail": "import 0, preview 0, re-import 0; exported 3 field(s), secret carried as \"${secret:app_password}\"",
-      "durationMs": 839,
+      "durationMs": 911,
       "evidence": [
-        "evidence/DAT-007/CQ9F-FULL-2026-09-23T04-54-10Z/exported.json",
-        "evidence/DAT-007/CQ9F-FULL-2026-09-23T04-54-10Z/cli.txt"
+        "evidence/DAT-007/CQ9F-FINAL-2026-09-23T12-38-33Z/exported.json",
+        "evidence/DAT-007/CQ9F-FINAL-2026-09-23T12-38-33Z/cli.txt"
       ]
     },
     {
@@ -1062,93 +1086,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "4 problem(s) reported at once",
-      "durationMs": 6,
+      "durationMs": 7,
       "evidence": [
-        "evidence/DAT-008/CQ9F-FULL-2026-09-23T04-54-10Z/problems.json"
-      ]
-    },
-    {
-      "id": "ISO-001",
-      "suite": "Isolation, audit and observability",
-      "objective": "An API test belonging to another tenant cannot be read by identifier",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "intruder 404, owner 200",
-      "durationMs": 8,
-      "evidence": [
-        "evidence/ISO-001/CQ9F-FULL-2026-09-23T04-54-10Z/isolation.json"
-      ]
-    },
-    {
-      "id": "ISO-002",
-      "suite": "Isolation, audit and observability",
-      "objective": "Contract baselines and the API inventory are scoped to the owning tenant",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "intruder 404 with 0 endpoint(s), owner 200",
-      "durationMs": 11,
-      "evidence": [
-        "evidence/ISO-002/CQ9F-FULL-2026-09-23T04-54-10Z/inventory.json"
-      ]
-    },
-    {
-      "id": "ISO-003",
-      "suite": "Isolation, audit and observability",
-      "objective": "A schedule cannot be read, changed or deleted across a tenant boundary",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "read 404, patch 404, delete 404; afterwards name \"Tenant A nightly\" enabled=true",
-      "durationMs": 15,
-      "evidence": [
-        "evidence/ISO-003/CQ9F-FULL-2026-09-23T04-54-10Z/schedule-isolation.json"
-      ]
-    },
-    {
-      "id": "ISO-004",
-      "suite": "Isolation, audit and observability",
-      "objective": "Another tenant's notification integration is neither listed nor readable, and its secret never leaves the platform",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "tenant B list 200 (saw tenant A: false), by id 405; owner list 200; signing secret present in any response: false",
-      "durationMs": 10,
-      "evidence": [
-        "evidence/ISO-004/CQ9F-FULL-2026-09-23T04-54-10Z/integration-isolation.json"
-      ]
-    },
-    {
-      "id": "ISO-005",
-      "suite": "Isolation, audit and observability",
-      "objective": "A test data set cannot be read or previewed by another tenant",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "read: intruder 404, owner 200; preview: intruder 404, owner 200",
-      "durationMs": 16,
-      "evidence": [
-        "evidence/ISO-005/CQ9F-FULL-2026-09-23T04-54-10Z/test-data-isolation.json"
-      ]
-    },
-    {
-      "id": "ISO-006",
-      "suite": "Isolation, audit and observability",
-      "objective": "Quality gate rules are scoped to their project and tenant",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "tenant B list 404 (saw the rule: false), delete 404; rule still present for its owner: true",
-      "durationMs": 10,
-      "evidence": [
-        "evidence/ISO-006/CQ9F-FULL-2026-09-23T04-54-10Z/gate-isolation.json"
-      ]
-    },
-    {
-      "id": "ISO-007",
-      "suite": "Isolation, audit and observability",
-      "objective": "The audit trail is scoped to one organization, and there is no parameter that would widen it",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "tenant A sees 9 record(s) from 1 org(s); tenant B 1 from 1; forcing organizationId returned 1 org(s), tenant A's included: false",
-      "durationMs": 15,
-      "evidence": [
-        "evidence/ISO-007/CQ9F-FULL-2026-09-23T04-54-10Z/audit-isolation.json"
+        "evidence/DAT-008/CQ9F-FINAL-2026-09-23T12-38-33Z/problems.json"
       ]
     },
     {
@@ -1158,9 +1098,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "delivered=true status=200; sink got 1 delivery, signature valid: true",
-      "durationMs": 72,
+      "durationMs": 67,
       "evidence": [
-        "evidence/NOT-001/CQ9F-FULL-2026-09-23T04-54-10Z/delivery.json"
+        "evidence/NOT-001/CQ9F-FINAL-2026-09-23T12-38-33Z/delivery.json"
       ]
     },
     {
@@ -1170,9 +1110,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "1 delivery(ies): RunFailed; title \"1 test(s) failed in Golden notifications\"; facts {\"passed\":1,\"failed\":1,\"blocked\":0,\"healed\":0,\"flaky\":0,\"qualityGate\":\"Pass\",\"branch\":null,\"commit\":null}",
-      "durationMs": 2057,
+      "durationMs": 2063,
       "evidence": [
-        "evidence/NOT-002/CQ9F-FULL-2026-09-23T04-54-10Z/delivery.json"
+        "evidence/NOT-002/CQ9F-FINAL-2026-09-23T12-38-33Z/delivery.json"
       ]
     },
     {
@@ -1182,9 +1122,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "nothing was sent, as intended",
-      "durationMs": 7067,
+      "durationMs": 7060,
       "evidence": [
-        "evidence/NOT-003/CQ9F-FULL-2026-09-23T04-54-10Z/received.json"
+        "evidence/NOT-003/CQ9F-FINAL-2026-09-23T12-38-33Z/received.json"
       ]
     },
     {
@@ -1194,9 +1134,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "1 delivery(ies): RunPassed",
-      "durationMs": 2060,
+      "durationMs": 2056,
       "evidence": [
-        "evidence/NOT-004/CQ9F-FULL-2026-09-23T04-54-10Z/delivery.json"
+        "evidence/NOT-004/CQ9F-FINAL-2026-09-23T12-38-33Z/delivery.json"
       ]
     },
     {
@@ -1206,9 +1146,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "1 delivery(ies) scanned for 3 secret(s): none present; 1 signed",
-      "durationMs": 2060,
+      "durationMs": 2057,
       "evidence": [
-        "evidence/NOT-005/CQ9F-FULL-2026-09-23T04-54-10Z/scanned.json"
+        "evidence/NOT-005/CQ9F-FINAL-2026-09-23T12-38-33Z/scanned.json"
       ]
     },
     {
@@ -1218,9 +1158,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "run ended \"failed\"; 1 delivery record(s); failed record: status 500, \"The receiver answered 500 Internal Server Error.\"",
-      "durationMs": 5089,
+      "durationMs": 5074,
       "evidence": [
-        "evidence/NOT-006/CQ9F-FULL-2026-09-23T04-54-10Z/deliveries.json"
+        "evidence/NOT-006/CQ9F-FINAL-2026-09-23T12-38-33Z/deliveries.json"
       ]
     },
     {
@@ -1230,9 +1170,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "3/3 refused; the harmless one returned 201",
-      "durationMs": 26,
+      "durationMs": 31,
       "evidence": [
-        "evidence/NOT-007/CQ9F-FULL-2026-09-23T04-54-10Z/refusals.json"
+        "evidence/NOT-007/CQ9F-FINAL-2026-09-23T12-38-33Z/refusals.json"
       ]
     },
     {
@@ -1242,69 +1182,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "delivered=false; \"The webhook URL was refused: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target.\"",
-      "durationMs": 19,
+      "durationMs": 25,
       "evidence": [
-        "evidence/NOT-008/CQ9F-FULL-2026-09-23T04-54-10Z/result.json"
-      ]
-    },
-    {
-      "id": "OBS-001",
-      "suite": "Isolation, audit and observability",
-      "objective": "Every response carries a correlation id, and one supplied by the caller is honoured rather than replaced",
-      "severity": "high",
-      "result": "PASS",
-      "detail": "minted \"4d6af132d2bf40e8ac133ce40bd650dd\"; supplied \"golden-fcxjp83lvo\" came back as \"golden-fcxjp83lvo\"",
-      "durationMs": 9,
-      "evidence": [
-        "evidence/OBS-001/CQ9F-FULL-2026-09-23T04-54-10Z/correlation.json"
-      ]
-    },
-    {
-      "id": "OBS-002",
-      "suite": "Isolation, audit and observability",
-      "objective": "The correlation id on a response is the one on the audit record that request produced",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "1 record(s) carry correlation golden-trace-u185qgxdrh; the created project is among them: true (projectCreated)",
-      "durationMs": 11,
-      "evidence": [
-        "evidence/OBS-002/CQ9F-FULL-2026-09-23T04-54-10Z/correlation-to-audit.json"
-      ]
-    },
-    {
-      "id": "OBS-003",
-      "suite": "Isolation, audit and observability",
-      "objective": "A correlation id survives from the caller through the queue to the execution the worker ran",
-      "severity": "critical",
-      "result": "PASS",
-      "detail": "run passed; the execution carries correlation \"golden-run-uzfzg2b0ns\" (supplied \"golden-run-uzfzg2b0ns\")",
-      "durationMs": 2051,
-      "evidence": [
-        "evidence/OBS-003/CQ9F-FULL-2026-09-23T04-54-10Z/execution-correlation.json"
-      ]
-    },
-    {
-      "id": "OBS-004",
-      "suite": "Isolation, audit and observability",
-      "objective": "Liveness and readiness answer different questions, and liveness depends on nothing",
-      "severity": "high",
-      "result": "PASS",
-      "detail": "/live 200 \"Healthy\"; /ready 200 \"Healthy\"; /health 200 \"Healthy\"",
-      "durationMs": 55,
-      "evidence": [
-        "evidence/OBS-004/CQ9F-FULL-2026-09-23T04-54-10Z/health.json"
-      ]
-    },
-    {
-      "id": "OBS-005",
-      "suite": "Isolation, audit and observability",
-      "objective": "A correlation id a caller invents is bounded, so it cannot be used to write arbitrary text into every log line",
-      "severity": "high",
-      "result": "PASS",
-      "detail": "sent 500 characters; the platform used a 32-character id of its own: true",
-      "durationMs": 5,
-      "evidence": [
-        "evidence/OBS-005/CQ9F-FULL-2026-09-23T04-54-10Z/oversized-correlation.json"
+        "evidence/NOT-008/CQ9F-FINAL-2026-09-23T12-38-33Z/result.json"
       ]
     },
     {
@@ -1314,9 +1194,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "1/1 path(s) mapped; routes [\"/accounts\"]; declared=true",
-      "durationMs": 36,
+      "durationMs": 16,
       "evidence": [
-        "evidence/REG-001/CQ9F-FULL-2026-09-23T04-54-10Z/impact.json"
+        "evidence/REG-001/CQ9F-FINAL-2026-09-23T12-38-33Z/impact.json"
       ]
     },
     {
@@ -1326,9 +1206,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "mode full, 5/5 selected",
-      "durationMs": 86,
+      "durationMs": 10,
       "evidence": [
-        "evidence/REG-002/CQ9F-FULL-2026-09-23T04-54-10Z/selection.json"
+        "evidence/REG-002/CQ9F-FINAL-2026-09-23T12-38-33Z/selection.json"
       ]
     },
     {
@@ -1340,7 +1220,7 @@
       "detail": "3/5 selected: TC-0001(70) TC-0004(70) TC-0005(40) | excluded: TC-0002(30) TC-0003(30)",
       "durationMs": 13,
       "evidence": [
-        "evidence/REG-003/CQ9F-FULL-2026-09-23T04-54-10Z/selection.json"
+        "evidence/REG-003/CQ9F-FINAL-2026-09-23T12-38-33Z/selection.json"
       ]
     },
     {
@@ -1352,7 +1232,7 @@
       "detail": "fellBack=true, mode full, 5/5 selected; unmatched: [\"infrastructure/terraform/main.tf\"]",
       "durationMs": 13,
       "evidence": [
-        "evidence/REG-004/CQ9F-FULL-2026-09-23T04-54-10Z/selection.json"
+        "evidence/REG-004/CQ9F-FINAL-2026-09-23T12-38-33Z/selection.json"
       ]
     },
     {
@@ -1362,9 +1242,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "fellBack=true, 5/5 selected",
-      "durationMs": 8,
+      "durationMs": 9,
       "evidence": [
-        "evidence/REG-005/CQ9F-FULL-2026-09-23T04-54-10Z/selection.json"
+        "evidence/REG-005/CQ9F-FINAL-2026-09-23T12-38-33Z/selection.json"
       ]
     },
     {
@@ -1374,9 +1254,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "score 70 from 5 component(s); reasons: This test exercises /accounts, which the change affects. | Priority medium, risk medium. | This test has never run, so nothing is known about it. | It has never been run.",
-      "durationMs": 11,
+      "durationMs": 12,
       "evidence": [
-        "evidence/REG-006/CQ9F-FULL-2026-09-23T04-54-10Z/explained.json"
+        "evidence/REG-006/CQ9F-FINAL-2026-09-23T12-38-33Z/explained.json"
       ]
     },
     {
@@ -1386,9 +1266,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "selected at 40, impacted=false; Priority medium, risk medium. | This test has never run, so nothing is known about it. | It has never been run. | Tagged smoke, which this project always runs.",
-      "durationMs": 10,
+      "durationMs": 11,
       "evidence": [
-        "evidence/REG-007/CQ9F-FULL-2026-09-23T04-54-10Z/selection.json"
+        "evidence/REG-007/CQ9F-FINAL-2026-09-23T12-38-33Z/selection.json"
       ]
     },
     {
@@ -1398,9 +1278,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "1 inferred mapping(s): route /payments",
-      "durationMs": 10,
+      "durationMs": 7,
       "evidence": [
-        "evidence/REG-008/CQ9F-FULL-2026-09-23T04-54-10Z/impact.json"
+        "evidence/REG-008/CQ9F-FINAL-2026-09-23T12-38-33Z/impact.json"
       ]
     },
     {
@@ -1410,10 +1290,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "select exit 0, run exit 0; artifact: 3/5 test(s)",
-      "durationMs": 6417,
+      "durationMs": 6407,
       "evidence": [
-        "evidence/REG-009/CQ9F-FULL-2026-09-23T04-54-10Z/cli-output.txt",
-        "evidence/REG-009/CQ9F-FULL-2026-09-23T04-54-10Z/regression-selection.json"
+        "evidence/REG-009/CQ9F-FINAL-2026-09-23T12-38-33Z/cli-output.txt",
+        "evidence/REG-009/CQ9F-FINAL-2026-09-23T12-38-33Z/regression-selection.json"
       ]
     },
     {
@@ -1423,10 +1303,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "identical across both runs: 2 test(s)",
-      "durationMs": 25,
+      "durationMs": 24,
       "evidence": [
-        "evidence/REG-010/CQ9F-FULL-2026-09-23T04-54-10Z/first.json",
-        "evidence/REG-010/CQ9F-FULL-2026-09-23T04-54-10Z/second.json"
+        "evidence/REG-010/CQ9F-FINAL-2026-09-23T12-38-33Z/first.json",
+        "evidence/REG-010/CQ9F-FINAL-2026-09-23T12-38-33Z/second.json"
       ]
     },
     {
@@ -1436,9 +1316,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "blank pattern: 400; missing value: 400",
-      "durationMs": 12,
+      "durationMs": 8,
       "evidence": [
-        "evidence/REG-011/CQ9F-FULL-2026-09-23T04-54-10Z/refusals.json"
+        "evidence/REG-011/CQ9F-FINAL-2026-09-23T12-38-33Z/refusals.json"
       ]
     },
     {
@@ -1450,7 +1330,7 @@
       "detail": "status 400: No enabled tests matched this selection. A regression run with nothing in it would report success without testing anything.",
       "durationMs": 10,
       "evidence": [
-        "evidence/REG-012/CQ9F-FULL-2026-09-23T04-54-10Z/refusal.json"
+        "evidence/REG-012/CQ9F-FINAL-2026-09-23T12-38-33Z/refusal.json"
       ]
     },
     {
@@ -1460,9 +1340,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "TC-0002: newlyFailing; TC-0001: stillPassing; \"1 test(s) that used to pass now fail.\"",
-      "durationMs": 90,
+      "durationMs": 10,
       "evidence": [
-        "evidence/RLS-001/CQ9F-FULL-2026-09-23T04-54-10Z/comparison.json"
+        "evidence/RLS-001/CQ9F-FINAL-2026-09-23T12-38-33Z/comparison.json"
       ]
     },
     {
@@ -1474,7 +1354,7 @@
       "detail": "TC-0002: fixed; \"1 that used to fail now pass.\"",
       "durationMs": 10,
       "evidence": [
-        "evidence/RLS-002/CQ9F-FULL-2026-09-23T04-54-10Z/comparison.json"
+        "evidence/RLS-002/CQ9F-FINAL-2026-09-23T12-38-33Z/comparison.json"
       ]
     },
     {
@@ -1484,9 +1364,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "TC-0002: stillFailing; unchanged=true; \"Nothing changed. 1 test(s) are still failing, as they were before.\"",
-      "durationMs": 4101,
+      "durationMs": 4103,
       "evidence": [
-        "evidence/RLS-003/CQ9F-FULL-2026-09-23T04-54-10Z/comparison.json"
+        "evidence/RLS-003/CQ9F-FINAL-2026-09-23T12-38-33Z/comparison.json"
       ]
     },
     {
@@ -1496,9 +1376,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "TC-0002: removed; \"1 that ran before did not run this time.\"",
-      "durationMs": 4084,
+      "durationMs": 4089,
       "evidence": [
-        "evidence/RLS-004/CQ9F-FULL-2026-09-23T04-54-10Z/comparison.json"
+        "evidence/RLS-004/CQ9F-FINAL-2026-09-23T12-38-33Z/comparison.json"
       ]
     },
     {
@@ -1508,9 +1388,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "build v2.4.1: 1 run(s), 1 failing, compared with v2.4.0; \"Build v2.4.1 was tested by 1 run(s). 1 test(s) are failing in the most recent one. Against Release green: 1 test(s) that used to pass now fail.\"",
-      "durationMs": 52,
+      "durationMs": 50,
       "evidence": [
-        "evidence/RLS-005/CQ9F-FULL-2026-09-23T04-54-10Z/report.json"
+        "evidence/RLS-005/CQ9F-FINAL-2026-09-23T12-38-33Z/report.json"
       ]
     },
     {
@@ -1520,9 +1400,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "400: There is no earlier finished run in this project to compare against. A first run has nothing to have changed from.",
-      "durationMs": 2102,
+      "durationMs": 2093,
       "evidence": [
-        "evidence/RLS-006/CQ9F-FULL-2026-09-23T04-54-10Z/refusal.json"
+        "evidence/RLS-006/CQ9F-FINAL-2026-09-23T12-38-33Z/refusal.json"
       ]
     },
     {
@@ -1534,8 +1414,8 @@
       "detail": "regression exit 1 (expected 1); already-failing exit 0 (expected 0); markdown headline \"#### ❌ 1 test(s) that used to pass now fail\"",
       "durationMs": 4388,
       "evidence": [
-        "evidence/RLS-007/CQ9F-FULL-2026-09-23T04-54-10Z/cli.txt",
-        "evidence/RLS-007/CQ9F-FULL-2026-09-23T04-54-10Z/comparison.md"
+        "evidence/RLS-007/CQ9F-FINAL-2026-09-23T12-38-33Z/cli.txt",
+        "evidence/RLS-007/CQ9F-FINAL-2026-09-23T12-38-33Z/comparison.md"
       ]
     },
     {
@@ -1544,11 +1424,11 @@
       "objective": "A schedule created through the API fires on its own and starts a real run",
       "severity": "critical",
       "result": "PASS",
-      "detail": "fired at 2026-09-23T04:58:02.107904+00:00, run f8d9c365-d468-4e36-87a0-bcc9af8942fe (passed, trigger scheduled, 1/1 passed); next run 2026-09-23T04:59:00+00:00",
-      "durationMs": 48172,
+      "detail": "fired at 2026-09-23T12:42:06.934642+00:00, run 4542b7f2-ead5-4b4f-8b53-768a91335a57 (passed, trigger scheduled, 1/1 passed); next run 2026-09-23T12:43:00+00:00",
+      "durationMs": 33161,
       "evidence": [
-        "evidence/SCH-001/CQ9F-FULL-2026-09-23T04-54-10Z/schedule.json",
-        "evidence/SCH-001/CQ9F-FULL-2026-09-23T04-54-10Z/run.json"
+        "evidence/SCH-001/CQ9F-FINAL-2026-09-23T12-38-33Z/schedule.json",
+        "evidence/SCH-001/CQ9F-FINAL-2026-09-23T12-38-33Z/run.json"
       ]
     },
     {
@@ -1558,9 +1438,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "ran 1 test(s): TC-0002 (expected only TC-0002)",
-      "durationMs": 60214,
+      "durationMs": 60213,
       "evidence": [
-        "evidence/SCH-002/CQ9F-FULL-2026-09-23T04-54-10Z/executions.json"
+        "evidence/SCH-002/CQ9F-FINAL-2026-09-23T12-38-33Z/executions.json"
       ]
     },
     {
@@ -1569,11 +1449,11 @@
       "objective": "Firing moves the schedule forward, so one occurrence starts exactly one run",
       "severity": "critical",
       "result": "PASS",
-      "detail": "fired at 2026-09-23T05:00:02.165699+00:00, next 2026-09-23T05:01:00+00:00 (advanced: true); 1 run(s) started for this schedule",
-      "durationMs": 60241,
+      "detail": "fired at 2026-09-23T12:44:06.999251+00:00, next 2026-09-23T12:45:00+00:00 (advanced: true); 1 run(s) started for this schedule",
+      "durationMs": 60231,
       "evidence": [
-        "evidence/SCH-003/CQ9F-FULL-2026-09-23T04-54-10Z/schedule.json",
-        "evidence/SCH-003/CQ9F-FULL-2026-09-23T04-54-10Z/runs.json"
+        "evidence/SCH-003/CQ9F-FINAL-2026-09-23T12-38-33Z/schedule.json",
+        "evidence/SCH-003/CQ9F-FINAL-2026-09-23T12-38-33Z/runs.json"
       ]
     },
     {
@@ -1583,9 +1463,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "5/5 refused with 400; the valid expression returned 201",
-      "durationMs": 36,
+      "durationMs": 41,
       "evidence": [
-        "evidence/SCH-004/CQ9F-FULL-2026-09-23T04-54-10Z/refusals.json"
+        "evidence/SCH-004/CQ9F-FINAL-2026-09-23T12-38-33Z/refusals.json"
       ]
     },
     {
@@ -1595,9 +1475,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "403 security_policy: Environment 'prod' is production and testing it has not been authorized. Authorize it explicitly with POST /api/v1/environments/{id}/authorize-production, with a note saying why.",
-      "durationMs": 5,
+      "durationMs": 6,
       "evidence": [
-        "evidence/SCH-005/CQ9F-FULL-2026-09-23T04-54-10Z/refusal.json"
+        "evidence/SCH-005/CQ9F-FINAL-2026-09-23T12-38-33Z/refusal.json"
       ]
     },
     {
@@ -1607,9 +1487,9 @@
       "severity": "medium",
       "result": "PASS",
       "detail": "5 occurrence(s), local times 02:30:00, ascending: true",
-      "durationMs": 42,
+      "durationMs": 35,
       "evidence": [
-        "evidence/SCH-006/CQ9F-FULL-2026-09-23T04-54-10Z/preview.json"
+        "evidence/SCH-006/CQ9F-FINAL-2026-09-23T12-38-33Z/preview.json"
       ]
     },
     {
@@ -1619,9 +1499,9 @@
       "severity": "high",
       "result": "PASS",
       "detail": "add 0, list 0, preview 0, disable 0, remove 0; gone from the list afterwards: true",
-      "durationMs": 846,
+      "durationMs": 891,
       "evidence": [
-        "evidence/SCH-007/CQ9F-FULL-2026-09-23T04-54-10Z/cli.txt"
+        "evidence/SCH-007/CQ9F-FINAL-2026-09-23T12-38-33Z/cli.txt"
       ]
     },
     {
@@ -1630,11 +1510,11 @@
       "objective": "A first run stores a baseline and reports that nothing was compared",
       "severity": "critical",
       "result": "PASS",
-      "detail": "first newBaseline (1280x1694); second match at 0.0038% — the live timestamp's own noise, tolerated by the default threshold",
-      "durationMs": 4161,
+      "detail": "first newBaseline (1280x1694); second match at 0.0032% — the live timestamp's own noise, tolerated by the default threshold",
+      "durationMs": 4121,
       "evidence": [
-        "evidence/VIS-001/CQ9F-FULL-2026-09-23T04-54-10Z/first.json",
-        "evidence/VIS-001/CQ9F-FULL-2026-09-23T04-54-10Z/second.json"
+        "evidence/VIS-001/CQ9F-FINAL-2026-09-23T12-38-33Z/first.json",
+        "evidence/VIS-001/CQ9F-FINAL-2026-09-23T12-38-33Z/second.json"
       ]
     },
     {
@@ -1643,10 +1523,10 @@
       "objective": "Every visual change in the lab produces the verdict its ground truth names",
       "severity": "critical",
       "result": "PASS",
-      "detail": "TINY: match 0.0221%; OBVIOUS: differs 0.2940%; TALLER: sizeChanged 0.0000%",
-      "durationMs": 12380,
+      "detail": "TINY: match 0.0230%; OBVIOUS: differs 0.2937%; TALLER: sizeChanged 0.0000%",
+      "durationMs": 12365,
       "evidence": [
-        "evidence/VIS-002/CQ9F-FULL-2026-09-23T04-54-10Z/measured.json"
+        "evidence/VIS-002/CQ9F-FINAL-2026-09-23T12-38-33Z/measured.json"
       ]
     },
     {
@@ -1656,10 +1536,10 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "default: run passed, verdict differs; onDifference=fail: run failed, verdict differs",
-      "durationMs": 8241,
+      "durationMs": 8260,
       "evidence": [
-        "evidence/VIS-003/CQ9F-FULL-2026-09-23T04-54-10Z/review.json",
-        "evidence/VIS-003/CQ9F-FULL-2026-09-23T04-54-10Z/strict.json"
+        "evidence/VIS-003/CQ9F-FINAL-2026-09-23T12-38-33Z/review.json",
+        "evidence/VIS-003/CQ9F-FINAL-2026-09-23T12-38-33Z/strict.json"
       ]
     },
     {
@@ -1669,10 +1549,10 @@
       "severity": "high",
       "result": "PASS",
       "detail": "match: no images stored; differs: baseline=true actual=true diff=true",
-      "durationMs": 6192,
+      "durationMs": 6213,
       "evidence": [
-        "evidence/VIS-004/CQ9F-FULL-2026-09-23T04-54-10Z/differs.json",
-        "evidence/VIS-004/CQ9F-FULL-2026-09-23T04-54-10Z/matches.json"
+        "evidence/VIS-004/CQ9F-FINAL-2026-09-23T12-38-33Z/differs.json",
+        "evidence/VIS-004/CQ9F-FINAL-2026-09-23T12-38-33Z/matches.json"
       ]
     },
     {
@@ -1682,9 +1562,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "rule measured=false passed=false; outcome review",
-      "durationMs": 2112,
+      "durationMs": 2120,
       "evidence": [
-        "evidence/VIS-005/CQ9F-FULL-2026-09-23T04-54-10Z/gate.json"
+        "evidence/VIS-005/CQ9F-FINAL-2026-09-23T12-38-33Z/gate.json"
       ]
     },
     {
@@ -1694,9 +1574,9 @@
       "severity": "critical",
       "result": "PASS",
       "detail": "two masked comparisons: 0 and 0 differing pixels; recorded as masked: [\"[data-testid=\\\"generated-at\\\"]\"]",
-      "durationMs": 6190,
+      "durationMs": 6181,
       "evidence": [
-        "evidence/VIS-006/CQ9F-FULL-2026-09-23T04-54-10Z/masked.json"
+        "evidence/VIS-006/CQ9F-FINAL-2026-09-23T12-38-33Z/masked.json"
       ]
     },
     {
@@ -1706,10 +1586,10 @@
       "severity": "high",
       "result": "PASS",
       "detail": "1280: newBaseline then match; 800 with the same baseline name: newBaseline",
-      "durationMs": 6181,
+      "durationMs": 6222,
       "evidence": [
-        "evidence/VIS-007/CQ9F-FULL-2026-09-23T04-54-10Z/wide.json",
-        "evidence/VIS-007/CQ9F-FULL-2026-09-23T04-54-10Z/narrow.json"
+        "evidence/VIS-007/CQ9F-FINAL-2026-09-23T12-38-33Z/wide.json",
+        "evidence/VIS-007/CQ9F-FINAL-2026-09-23T12-38-33Z/narrow.json"
       ]
     }
   ]

@@ -1,0 +1,32 @@
+{
+  "testId": "REG-002",
+  "suite": "Regression selection",
+  "runId": "CQ9F-FINAL-2026-09-23T12-38-33Z",
+  "objective": "A change a rule marks as shared selects the whole suite rather than a narrowed set",
+  "preconditions": [
+    "a rule maps src/shared/** to everything"
+  ],
+  "input": "A change to src/shared/format.ts",
+  "expected": "Every enabled test selected, with a note saying why",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "mode full, 5/5 selected",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:41:07.524Z",
+  "durationMs": 10,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "selection.json",
+      "path": "evidence/REG-002/CQ9F-FINAL-2026-09-23T12-38-33Z/selection.json",
+      "bytes": 7596,
+      "sha256": "861e129cb8870da5eb9e69f9b9254bf4fe4caf4add4bf950d2a0f38beb264770"
+    }
+  ]
+}

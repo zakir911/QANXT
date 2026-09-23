@@ -1,0 +1,32 @@
+{
+  "testId": "REG-004",
+  "suite": "Regression selection",
+  "runId": "CQ9F-FINAL-2026-09-23T12-38-33Z",
+  "objective": "A change AIRA cannot map to anything runs the whole suite, and says so",
+  "preconditions": [
+    "no rule covers the changed path"
+  ],
+  "input": "A change to infrastructure/terraform/main.tf",
+  "expected": "Every test selected, the fallback reported, and the unmapped path named — never an empty selection, which a pipeline would read as a pass",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "fellBack=true, mode full, 5/5 selected; unmatched: [\"infrastructure/terraform/main.tf\"]",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:41:07.549Z",
+  "durationMs": 13,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "selection.json",
+      "path": "evidence/REG-004/CQ9F-FINAL-2026-09-23T12-38-33Z/selection.json",
+      "bytes": 7333,
+      "sha256": "3a58624ff68f5b55bf414cd1222374f611056861a87fc242b27de9d62e48d72f"
+    }
+  ]
+}

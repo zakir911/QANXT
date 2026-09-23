@@ -1,0 +1,32 @@
+{
+  "testId": "CI-005",
+  "suite": "CI integration",
+  "runId": "CQ9F-FINAL-2026-09-23T12-38-33Z",
+  "objective": "Every example pipeline passes only flags the CLI accepts and handles every exit code the CLI documents",
+  "preconditions": [
+    "the example pipelines exist"
+  ],
+  "input": "The five files in infrastructure/ci/examples",
+  "expected": "No unknown flags, every exit code handled in each, and each file carrying the note that it has not been run in its CI system",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "5 pipeline file(s): no unknown flags, every exit code handled, each marked as not executed in its CI system",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:41:27.432Z",
+  "durationMs": 146,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "checked.json",
+      "path": "evidence/CI-005/CQ9F-FINAL-2026-09-23T12-38-33Z/checked.json",
+      "bytes": 608,
+      "sha256": "9e5faf0303e6c94e976be309f253eaec082159d7a4dbe2c4acf9c59a329e7a76"
+    }
+  ]
+}

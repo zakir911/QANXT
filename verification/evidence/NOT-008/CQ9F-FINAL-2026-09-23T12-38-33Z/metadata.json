@@ -1,0 +1,32 @@
+{
+  "testId": "NOT-008",
+  "suite": "Notifications",
+  "runId": "CQ9F-FINAL-2026-09-23T12-38-33Z",
+  "objective": "A webhook cannot be pointed at cloud metadata",
+  "preconditions": [
+    "none"
+  ],
+  "input": "A delivery to http://169.254.169.254/latest/meta-data/",
+  "expected": "Refused by the target policy before any request is made. \"Configure a webhook\" must not mean \"ask AIRA to fetch a URL for you and tell you what it said\"",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "delivered=false; \"The webhook URL was refused: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target.\"",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:44:27.593Z",
+  "durationMs": 25,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "result.json",
+      "path": "evidence/NOT-008/CQ9F-FINAL-2026-09-23T12-38-33Z/result.json",
+      "bytes": 169,
+      "sha256": "b891329496e0c7d1956ff7ff1cab25edbc1b0f13f14669377f8fdf6d6cded850"
+    }
+  ]
+}

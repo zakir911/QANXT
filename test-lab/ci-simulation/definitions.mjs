@@ -22,12 +22,18 @@ export async function buildContext() {
   const blocking = await prepareGateProject(base.tenant, {
     name: 'CI simulation — blocking gate',
     rule: {
-      name: 'Every test must pass, twice over',
-      // Unsatisfiable on purpose, and unsatisfiable by a *passing* run in particular. The
-      // scenario has to show a gate blocking a run in which nothing failed, because that
-      // is exactly the case exit 2 exists to distinguish from exit 1.
-      metric: 'passRatePercent', operator: 'greaterThan', threshold: 100, action: 'fail',
-      message: 'This project requires a pass rate above 100%, which nothing can meet.'
+      name: 'Every run finishes instantly',
+      // Breached by a *passing* run in particular. The scenario has to show a gate blocking
+      // a run in which nothing failed, because that is exactly the case exit 2 exists to
+      // distinguish from exit 1.
+      //
+      // This used to be "passRatePercent greaterThan 100", which no run could satisfy in
+      // principle — and the platform now refuses such a rule, because a gate nothing can
+      // pass is a permanent block rather than a check (BUG-0039). A budget of zero
+      // milliseconds is satisfiable in principle and breached by every real execution,
+      // which is what this scenario needs.
+      metric: 'averageDurationMs', operator: 'lessThanOrEqual', threshold: 0, action: 'fail',
+      message: 'This project requires every run to finish instantly, which no real run does.'
     }
   });
 
@@ -35,7 +41,9 @@ export async function buildContext() {
     name: 'CI simulation — review gate',
     rule: {
       name: 'A person signs off every release',
-      metric: 'passRatePercent', operator: 'greaterThan', threshold: 100, action: 'review',
+      // Same shape as the blocking rule above, and for the same reason; the difference that
+      // matters to this scenario is the action.
+      metric: 'averageDurationMs', operator: 'lessThanOrEqual', threshold: 0, action: 'review',
       message: 'A person signs off every release in this project.'
     }
   });
@@ -154,7 +162,9 @@ export const scenarios = [
         && result.verdict?.code === 2
         && result.report?.totals?.failed === 0
         && result.report?.totals?.passed === 1
-        && result.summary.includes('pass rate above 100%');
+        // The rule's own message, quoted back. A team that disagrees with a block should
+        // be arguing with the rule, and they cannot do that unless the rule is quoted.
+        && result.summary.includes('finish instantly');
 
       return {
         pass, log: result.log, airaExit: 2, pipelineExit: result.code,

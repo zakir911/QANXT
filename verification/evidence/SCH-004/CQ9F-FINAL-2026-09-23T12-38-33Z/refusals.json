@@ -1,0 +1,38 @@
+[
+  {
+    "cron": "not a cron",
+    "because": "malformed",
+    "status": 400,
+    "message": "A cron expression has five fields (minute hour day-of-month month day-of-week); this has 3."
+  },
+  {
+    "cron": "99 * * * *",
+    "because": "minute out of range",
+    "status": 400,
+    "message": "99 is outside the minute field's range of 0 to 59."
+  },
+  {
+    "cron": "0 0 2 * * *",
+    "because": "six fields",
+    "status": 400,
+    "message": "This looks like a six-field expression with seconds. AIRA schedules have a resolution of one minute, so write five fields: minute hour day-of-month month day-of-week."
+  },
+  {
+    "cron": "@daily",
+    "because": "shorthand",
+    "status": 400,
+    "message": "\"@daily\" is not supported. Write it out as five fields — @daily is \"0 0 * * *\", @hourly is \"0 * * * *\"."
+  },
+  {
+    "cron": "0 0 30 2 *",
+    "because": "parses, can never occur",
+    "status": 400,
+    "message": "\"0 0 30 2 *\" is a valid cron expression that can never occur — check the day and month together."
+  },
+  {
+    "cron": "0 0 * * *",
+    "because": "valid — must be accepted",
+    "status": 201,
+    "message": "{\"id\":\"6a10e7bd-7d9f-47d5-a98e-d895aa67d896\",\"projectId\":\"32b35ef6-5e2a-41e6-a281-68bcd81a15d3\",\"name\":\"SCH-004 valid — must be accepted\",\"cronExpression\":\"0 0 * * *\",\"timeZone\":\"UTC\",\"environmentId\":"
+  }
+]

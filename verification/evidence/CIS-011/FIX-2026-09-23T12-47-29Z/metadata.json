@@ -1,0 +1,37 @@
+{
+  "testId": "CIS-011",
+  "suite": "CI simulation",
+  "runId": "FIX-2026-09-23T12-47-29Z",
+  "objective": "A team may choose to continue on REVIEW, and the log still says a person must look",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"review-does-not-block\"",
+  "expected": "AIRA exits 7, the pipeline exits 0, and the build log still carries HUMAN_REVIEW_REQUIRED — the decision is visible rather than silently swallowed",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "AIRA exited 7, the pipeline exited 0; review required, and this pipeline does not block on review",
+  "metrics": {
+    "airaExit": 7,
+    "pipelineExit": 0
+  },
+  "startedAt": "2026-09-23T12:48:50.834Z",
+  "durationMs": 3511,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-011/FIX-2026-09-23T12-47-29Z/pipeline.log",
+      "bytes": 1488,
+      "sha256": "40e2130c99af6d1acbd1e732a27ddd2bbce8a91d9e5771d847bf267ce694fe86"
+    }
+  ]
+}

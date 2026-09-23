@@ -108,7 +108,7 @@ export default async function run() {
   });
 
   const gateRuleA = await createGateRule(tenantA, projectA.id, {
-    name: 'Tenant A rule', metric: 'failedCount', comparison: 'lessThanOrEqual',
+    name: 'Tenant A rule', metric: 'failedCount', operator: 'lessThanOrEqual',
     threshold: 0, onBreach: 'fail'
   });
 
@@ -444,7 +444,7 @@ export default async function run() {
     run: async () => {
       const rule = await createGateRule(tenantA, projectA.id, {
         name: 'Audited gate rule', metric: 'passRatePercent',
-        comparison: 'greaterThanOrEqual', threshold: 95, onBreach: 'fail'
+        operator: 'greaterThanOrEqual', threshold: 95, onBreach: 'fail'
       });
       const trail = await audit(tenantA, '?action=qualityGateChanged&limit=50');
       const entries = trail.json?.entries ?? [];

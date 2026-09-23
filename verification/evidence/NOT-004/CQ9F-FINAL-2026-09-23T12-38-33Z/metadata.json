@@ -1,0 +1,32 @@
+{
+  "testId": "NOT-004",
+  "suite": "Notifications",
+  "runId": "CQ9F-FINAL-2026-09-23T12-38-33Z",
+  "objective": "A team that wants a heartbeat from a green run can have one",
+  "preconditions": [
+    "a webhook whose events include runPassed"
+  ],
+  "input": "A run in which every test passes",
+  "expected": "A RunPassed delivery — the default is quiet, not incapable",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "1 delivery(ies): RunPassed",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:44:18.374Z",
+  "durationMs": 2056,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "delivery.json",
+      "path": "evidence/NOT-004/CQ9F-FINAL-2026-09-23T12-38-33Z/delivery.json",
+      "bytes": 1518,
+      "sha256": "10a66359e055992a044363e2c841d6a71433ca80261f547bad0ef4b5ba54c217"
+    }
+  ]
+}
