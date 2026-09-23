@@ -1,0 +1,32 @@
+{
+  "testId": "API-008",
+  "suite": "API testing",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "The platform refuses an API test pointed at a host outside the application boundary",
+  "preconditions": [
+    "the application's allowed domains are the lab bank's host only"
+  ],
+  "input": "An API test whose request path is an absolute URL on another host",
+  "expected": "A 400 naming the allowlist",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 400; Request 1: The request to 'https://api.stripe.com/v1/charges' is not allowed: host 'api.stripe.com' is not in the application's allowed domains",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:50:08.931Z",
+  "durationMs": 6,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/API-008/CQ9F-V2-2026-09-23T12-49-53Z/refusal.json",
+      "bytes": 371,
+      "sha256": "d7c4fb3c1fdbb8f53d9d4a00e9a8a0951deca96389d6405e58cfa0904f17be18"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "4927cd6f-1749-49ff-93e3-dafc379b0516",
+  "testRunId": "5b15b849-27c6-4229-9bd3-b0304980790a",
+  "testCaseId": "8032c2b3-cdf0-4ead-8230-d566991bc70d",
+  "reference": "TC-0001",
+  "name": "Creating a beneficiary is refused in production",
+  "objective": "",
+  "expectedResults": "",
+  "status": "failed",
+  "startedAt": "2026-09-23T12:50:22.328132+00:00",
+  "completedAt": "2026-09-23T12:50:22.348+00:00",
+  "durationMs": 16,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-11638",
+  "correlationId": "2c0fcc72997049aeaf1f53f4c92078c4",
+  "stepsTotal": 1,
+  "stepsPassed": 0,
+  "stepsFailed": 1,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 0,
+  "errorMessage": "A POST request is not permitted against this environment. Destructive API requests are disabled for it.",
+  "actions": [
+    {
+      "id": "e9763744-e7e2-4bfb-941b-dedfdc027f81",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "Create a beneficiary",
+      "status": "failed",
+      "startedAt": "2026-09-23T12:50:22.337+00:00",
+      "durationMs": 0,
+      "url": "/api/beneficiaries",
+      "wasHealed": false,
+      "errorMessage": "A POST request is not permitted against this environment. Destructive API requests are disabled for it."
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "eb1a556c-58b4-473d-b23d-25e14eaad17d",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 638,
+      "isMasked": false
+    }
+  ],
+  "apiCalls": [],
+  "failure": {
+    "id": "1a452780-02ed-4385-88bc-d495ad1a9cb0",
+    "category": "unknown",
+    "categoryConfidence": 30,
+    "rawMessage": "A POST request is not permitted against this environment. Destructive API requests are disabled for it.",
+    "signature": "a83f0083ed715dea355888e0f5da68ab4f049f09eb5b30c705ffc7c0f7a83f09",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-23T12:50:22.37228+00:00",
+    "lastSeenAt": "2026-09-23T12:50:22.372281+00:00",
+    "analysis": {
+      "summary": "Create a beneficiary failed.",
+      "likelyCause": "The available evidence does not identify a cause. The engine error is reproduced verbatim below.",
+      "evidence": "A POST request is not permitted against this environment. Destructive API requests are disabled for it.",
+      "suggestedAction": "Review the failure screenshot, DOM snapshot and trace for this execution. Configure a model provider for a deeper analysis of failures like this one.",
+      "category": "unknown",
+      "confidence": 30,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"eb1a556c-58b4-473d-b23d-25e14eaad17d\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"4927cd6f-1749-49ff-93e3-dafc379b0516\"}"
+    }
+  },
+  "healingEvents": []
+}

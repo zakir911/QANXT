@@ -1,0 +1,33 @@
+{
+  "testId": "CON-007",
+  "suite": "API contracts",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "A new field is reported as non-breaking and does not fail anything",
+  "preconditions": [
+    "baselines captured",
+    "FAULT_API_FIELD_ADDED enabled"
+  ],
+  "input": "A run of the accounts test while each account carries a new nickname field",
+  "expected": "A non-breaking change, zero breaking, zero potentially breaking",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "the test passed; $.accounts[].nickname classified \"nonBreaking\"; 0 breaking, 0 potentially breaking",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:50:47.839Z",
+  "durationMs": 2061,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "changes.json",
+      "path": "evidence/CON-007/CQ9F-V2-2026-09-23T12-49-53Z/changes.json",
+      "bytes": 637,
+      "sha256": "348b236b6640a7a622ed8f04c40633efb577b9adfb2f6044eab5087e2de0aded"
+    }
+  ]
+}
