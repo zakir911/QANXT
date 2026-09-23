@@ -1,0 +1,32 @@
+{
+  "testId": "COR-006",
+  "suite": "UI/API correlation",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "A signed-out page's own 401 never becomes the explanation for a removed control",
+  "preconditions": [
+    "FAULT_LOGIN_BUTTON_REMOVED is enabled"
+  ],
+  "input": "A journey that clicks the sign-in control, which is not rendered",
+  "expected": "A locatorChange diagnosis; the 401 is reported as context, not as the cause — the guard BUG-0015 added, now also at the correlated level",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "locatorChange at 35%: \"The element Press login-submit targets has changed.\"",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:51:53.235Z",
+  "durationMs": 16119,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "analysis.json",
+      "path": "evidence/COR-006/CQ9F-V2-2026-09-23T12-49-53Z/analysis.json",
+      "bytes": 1672,
+      "sha256": "7cc9f9a7f28d225832333dd770d8593fd98d8342c8dbe851646284b72af1d24a"
+    }
+  ]
+}

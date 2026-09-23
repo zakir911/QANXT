@@ -1,0 +1,14 @@
+{
+  "summary": "The step failed because the API call it made returned 500.",
+  "likelyCause": "GET /api/accounts/acc-1001/transactions → 500 in 0ms — the fault is in the application or a service it depends on, not in the test.",
+  "evidence": "The failing step made 2 API call(s); GET /api/accounts/acc-1001/transactions → 500 in 0ms. Engine message: testId=\"transactions-table\" could not be used: No element matched testId=\"transactions-table\".",
+  "suggestedAction": "Take this request to the team that owns the endpoint. Re-running will not help until the service is fixed.",
+  "category": "applicationDefect",
+  "confidence": 95,
+  "isLikelyApplicationDefect": true,
+  "isHealable": false,
+  "producedByAi": false,
+  "provider": "local",
+  "model": "aira-rules-v1",
+  "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"205c9e2c-612a-4b56-8dad-cd18f0e6430d\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"79981ed7-c356-4396-b4a3-eb5090ecc600\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"7b1bbcd0-e4f3-4093-b2ed-5d1ac2bbb067\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"7ef9f33d-dce6-45c6-99bb-b03d3adfa83e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"823cfd4f-8f9a-4f02-a07a-8af9372a73fb\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"c2ef2222-717c-4220-944d-8432abab3552\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"da2c0798-1c5d-4302-9d68-3a9d77c7733a\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"f953f1bf-710e-41d6-a8be-4ddec6f876fb\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}], \"executionId\": \"376fea8e-75f7-4de0-bcfa-d285768db360\"}"
+}
