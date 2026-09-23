@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# Re-read the OWASP taxonomies from owasp.org and mark them verified.
+#
+#   ./scripts/refresh-owasp-taxonomy            # both
+#   ./scripts/refresh-owasp-taxonomy --api      # API Security Top 10 only
+#   ./scripts/refresh-owasp-taxonomy --web      # Web Top 10 only
+#
+# The taxonomy files ship with verifiedAgainstSource=false because the environment they were
+# authored in denies outbound access to owasp.org. This is the thing that changes that.
+#
+# It fails rather than silently keeping the old data when the host is unreachable. A taxonomy
+# that quietly stays stale while a report claims OWASP coverage is exactly the failure this
+# arrangement exists to prevent — better a loud error than a confident wrong answer.
+set -uo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+DIR="verification/security/taxonomy"
+WANT_API=true
+WANT_WEB=true
+for arg in "$@"; do
+  case "$arg" in
+    --api) WANT_WEB=false ;;
+    --web) WANT_API=false ;;
+    *) echo "Unknown flag: $arg" >&2; exit 2 ;;
+  esac
+done
+
+fail() { printf '\033[31m%s\033[0m\n' "$1" >&2; exit 1; }
+note() { printf '\033[2m%s\033[0m\n' "$1"; }
+
+# Reachability first, so an egress block is reported as an egress block rather than as a
+# parse failure ten lines later.
+probe() {
+  local url="$1"
+  if ! curl -fsS --max-time 20 -o /dev/null "$url" 2>/dev/null; then
+    fail "Cannot reach $url.
+
+The taxonomy has NOT been refreshed and still reads verifiedAgainstSource=false.
+
+If this is an egress policy, allow owasp.org for this environment and run again. Until then
+every security report will keep saying the edition it used was not verified, which is the
+honest answer rather than a broken one."
+  fi
+}
+
+refresh() {
+  local kind="$1" url="$2" file="$3"
+  probe "$url"
+  note "Reading $url"
+
+  local body; body="$(curl -fsS --max-time 30 "$url")" || fail "Fetched $url but could not read the body."
+
+  # The page is HTML; the identifiers are what we anchor on, because titles get reworded
+  # between editions far more often than ids do.
+  local pattern
+  case "$kind" in
+    api) pattern='API[0-9]{1,2}:[0-9]{4}' ;;
+    web) pattern='A[0-9]{2}:[0-9]{4}' ;;
+  esac
+
+  local ids; ids="$(printf '%s' "$body" | grep -oE "$pattern" | sort -u)"
+  local count; count="$(printf '%s' "$ids" | grep -c . || true)"
+  if [[ "$count" -lt 10 ]]; then
+    fail "Read $url but found only $count category identifier(s), expected at least 10.
+The page layout has probably changed. $file is unchanged and still unverified; update this
+script's parser rather than hand-editing the taxonomy, so the next refresh stays honest."
+  fi
+
+  local edition; edition="$(printf '%s' "$ids" | head -1 | grep -oE '[0-9]{4}')"
+  note "Found $count categories, edition $edition"
+
+  python3 - "$file" "$url" "$edition" <<'PY'
+import json, sys, datetime
+path, url, edition = sys.argv[1], sys.argv[2], sys.argv[3]
+data = json.load(open(path))
+previous = data.get('edition')
+data['edition'] = edition
+data['source'] = url
+data['verifiedAgainstSource'] = True
+data['verifiedAt'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+data['note'] = (f'Verified against {url}.'
+                + (f' The edition moved from {previous} to {edition}; the category list below '
+                   'is the previous one and must be reconciled with the source before any '
+                   'report claims coverage against it.' if previous != edition else ''))
+json.dump(data, open(path, 'w'), indent=2)
+print(f'  {path}: edition {previous} -> {edition}, verified')
+if previous != edition:
+    print(f'  WARNING: the edition changed. The category list in {path} has NOT been rewritten '
+          'automatically — mapping tests to categories is a judgement, not a scrape. Reconcile '
+          'it by hand before trusting a coverage report.')
+PY
+}
+
+$WANT_API && refresh api "https://owasp.org/API-Security/editions/2023/en/0x11-t10/" "$DIR/owasp-api-top10.json"
+$WANT_WEB && refresh web "https://owasp.org/Top10/" "$DIR/owasp-web-top10.json"
+
+printf '\033[32mTaxonomy refreshed.\033[0m\n'
