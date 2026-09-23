@@ -1,0 +1,43 @@
+{
+  "testId": "API-013",
+  "suite": "API testing",
+  "runId": "SEC2-2026-09-23T18-00-59Z",
+  "objective": "A pipeline can author and run API tests through the CLI, and branch on its exit status",
+  "preconditions": [
+    "the CLI is built",
+    "the lab bank is running"
+  ],
+  "input": "\"aira api-test add --file\", then \"aira api-test run\" against a working API and again against a broken one",
+  "expected": "add exits 0 and creates the tests; run exits 0 while the API works and 1 (TEST_FAILURE) while it is broken",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "add exit 0, list exit 0, healthy run exit 0 (expected 0), broken run exit 1 (expected 1)",
+  "metrics": {
+    "addExit": 0,
+    "passExit": 0,
+    "failExit": 1
+  },
+  "startedAt": "2026-09-23T18:01:31.302Z",
+  "durationMs": 7444,
+  "build": {
+    "commit": "90d7c12",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "definition.json",
+      "path": "evidence/API-013/SEC2-2026-09-23T18-00-59Z/definition.json",
+      "bytes": 1438,
+      "sha256": "44e0c38dbef8d0198ae9fa674c2ebb57c7600dcc121866165f422228ca461d33"
+    },
+    {
+      "file": "cli-output.txt",
+      "path": "evidence/API-013/SEC2-2026-09-23T18-00-59Z/cli-output.txt",
+      "bytes": 1379,
+      "sha256": "71408a4cffe3e964d982bb51e747d522f530e0aaf282db26fd5983e37e97c238"
+    }
+  ]
+}

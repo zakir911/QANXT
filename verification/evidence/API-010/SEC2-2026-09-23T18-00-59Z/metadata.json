@@ -1,0 +1,35 @@
+{
+  "testId": "API-010",
+  "suite": "API testing",
+  "runId": "SEC2-2026-09-23T18-00-59Z",
+  "objective": "The quality gate measures API failures as their own metric, and a rule over it fires",
+  "preconditions": [
+    "a rule \"no failing API tests\" on the project",
+    "FAULT_API_500 enabled"
+  ],
+  "input": "A run of TC-0002 against a broken API",
+  "expected": "The gate reports ApiFailedCount = 1 and fails on the rule that covers it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "ApiFailedCount=1, outcome fail, rule \"No failing API tests\" passed=false",
+  "metrics": {
+    "apiFailedCount": 1
+  },
+  "startedAt": "2026-09-23T18:01:24.616Z",
+  "durationMs": 2186,
+  "build": {
+    "commit": "90d7c12",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/API-010/SEC2-2026-09-23T18-00-59Z/gate.json",
+      "bytes": 1051,
+      "sha256": "56e726ec88770b16ddee1ee56e279cc2bfec4ba3d92f296ca929f0f076c31b7f"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "testId": "API-003",
+  "suite": "API testing",
+  "runId": "SEC2-2026-09-23T18-00-59Z",
+  "objective": "The request and the response are recorded as evidence, tagged with the step that made them",
+  "preconditions": [
+    "API-002 executed"
+  ],
+  "input": "A fresh run of TC-0002",
+  "expected": "Network events of type apiTest carrying method, URL, status, duration and the response body, each attributed to its step",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "2 exchange(s) recorded: step 1 POST /api/session → 200 in 8ms; step 2 GET /api/accounts → 200 in 4ms",
+  "metrics": {
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-23T18:01:18.200Z",
+  "durationMs": 2191,
+  "build": {
+    "commit": "90d7c12",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "network.json",
+      "path": "evidence/API-003/SEC2-2026-09-23T18-00-59Z/network.json",
+      "bytes": 2488,
+      "sha256": "2c26cd9c9a2f3c8a8d93a8b0c5ef70afd4e09abca29959fe7c23d9b34a9a578a"
+    }
+  ]
+}

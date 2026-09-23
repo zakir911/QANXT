@@ -1,0 +1,32 @@
+{
+  "testId": "API-006",
+  "suite": "API testing",
+  "runId": "SEC2-2026-09-23T18-00-59Z",
+  "objective": "The platform refuses an API test that asserts nothing",
+  "preconditions": [
+    "none"
+  ],
+  "input": "An API test with one request and no assertions, tolerating error statuses",
+  "expected": "A 400 naming the problem: no result could make the test fail",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "status 400; 2 problem(s): Request 1 has no assertions and tolerates error statuses, so no result could make it fail. Add an assertion, or let an error status fail the step. | This test asserts nothing. A test that cannot fail is not a test.",
+  "metrics": null,
+  "startedAt": "2026-09-23T18:01:24.540Z",
+  "durationMs": 15,
+  "build": {
+    "commit": "90d7c12",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/API-006/SEC2-2026-09-23T18-00-59Z/refusal.json",
+      "bytes": 449,
+      "sha256": "3835526d66ebfc46b0ebb589cd930318235c04a2fab2e4f4c14c290f617cbebc"
+    }
+  ]
+}

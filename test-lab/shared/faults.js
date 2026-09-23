@@ -39,9 +39,13 @@ export function createFaultEngine(catalogue, options = {}) {
   const registry = new Map();
   for (const entry of catalogue) {
     const fromEnvironment = process.env[entry.id];
+    // `defaultEnabled` exists for the security lab, whose applications are deliberately
+    // vulnerable: the flaw is the application's normal state, not a deviation from it.
+    // Everything else omits it and defaults to false, as it always has.
+    const fallback = entry.defaultEnabled === true;
     registry.set(entry.id, {
       ...entry,
-      enabled: fromEnvironment === undefined ? false : TRUTHY.has(String(fromEnvironment).toLowerCase())
+      enabled: fromEnvironment === undefined ? fallback : TRUTHY.has(String(fromEnvironment).toLowerCase())
     });
   }
 
@@ -79,8 +83,17 @@ export function createFaultEngine(catalogue, options = {}) {
       }
       return { applied, unknown };
     },
+    /**
+     * Back to each fault's declared default, which is not the same as "all off".
+     *
+     * It used to be all off, and for the ordinary labs that is the same thing. It is not
+     * the same thing for the security lab, where the planted vulnerabilities are on by
+     * default: resetting there quietly patched every flaw the suite was about to look for,
+     * so a test that reset between cases would have found a correct application and either
+     * failed for the wrong reason or, worse, passed one.
+     */
     reset() {
-      for (const entry of registry.values()) entry.enabled = false;
+      for (const entry of registry.values()) entry.enabled = entry.defaultEnabled === true;
       parameters.slowElementMs = 6000;
       parameters.apiTimeoutMs = 30_000;
       return engine.state();

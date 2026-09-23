@@ -1,0 +1,42 @@
+{
+  "testId": "API-001",
+  "suite": "API testing",
+  "runId": "SEC2-2026-09-23T18-00-59Z",
+  "objective": "An API test is authored through the platform and stored as a test case",
+  "preconditions": [
+    "the lab bank is running",
+    "the project has an application and a QA environment"
+  ],
+  "input": "A two-request API test: sign in, then read the accounts it can see",
+  "expected": "A stored test case of kind \"api\" whose steps carry the request and whose assertions are all response assertions",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "stored as TC-0001 kind=api with 2 request(s) and 6 assertion(s)",
+  "metrics": {
+    "assertions": 6,
+    "steps": 2
+  },
+  "startedAt": "2026-09-23T18:01:06.422Z",
+  "durationMs": 4782,
+  "build": {
+    "commit": "90d7c12",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "created.json",
+      "path": "evidence/API-001/SEC2-2026-09-23T18-00-59Z/created.json",
+      "bytes": 435,
+      "sha256": "89ad9b54f0f41e822be2d849ae8f740d568a8a5ab61038d0923a8710f670997f"
+    },
+    {
+      "file": "stored-test-case.json",
+      "path": "evidence/API-001/SEC2-2026-09-23T18-00-59Z/stored-test-case.json",
+      "bytes": 3592,
+      "sha256": "52ca49705fd36a3cf28ba3b017733ca42abc6a2cfa89ae7a090a8d7cd456f892"
+    }
+  ]
+}
