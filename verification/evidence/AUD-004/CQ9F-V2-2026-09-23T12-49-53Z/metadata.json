@@ -1,0 +1,35 @@
+{
+  "testId": "AUD-004",
+  "suite": "Isolation, audit and observability",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "A failed action is recorded as failed, not omitted",
+  "preconditions": [
+    "an organization exists"
+  ],
+  "input": "Three sign-in attempts with the wrong password, then read the trail for failures",
+  "expected": "Each attempt appears with succeeded=false",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "sign-in refused with 401; 1 loginFailed record(s) with succeeded=false; the attempted password appears in the trail: false",
+  "metrics": {
+    "failedLogins": 1,
+    "passwordLeaked": 0
+  },
+  "startedAt": "2026-09-23T12:57:00.409Z",
+  "durationMs": 70,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "failed-logins.json",
+      "path": "evidence/AUD-004/CQ9F-V2-2026-09-23T12-49-53Z/failed-logins.json",
+      "bytes": 227,
+      "sha256": "1aec884da2ec4d580262bdfed39d4fe8e2768a082edac0f0cfa34d05fb5d1008"
+    }
+  ]
+}

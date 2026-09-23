@@ -1,0 +1,35 @@
+{
+  "testId": "VIS-002",
+  "suite": "Visual regression",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "Every visual change in the lab produces the verdict its ground truth names",
+  "preconditions": [
+    "the lab's ground truth records each change's measured magnitude"
+  ],
+  "input": "Each of the 3 visual faults, injected one at a time",
+  "expected": "A change below the threshold matches, one above it differs, and one that changes the page height is reported as a size change rather than as pixels",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "TINY: match 0.0200%; OBVIOUS: differs 0.2945%; TALLER: sizeChanged 0.0000%",
+  "metrics": {
+    "faults": 3,
+    "mismatches": 0
+  },
+  "startedAt": "2026-09-23T12:56:18.429Z",
+  "durationMs": 12388,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "measured.json",
+      "path": "evidence/VIS-002/CQ9F-V2-2026-09-23T12-49-53Z/measured.json",
+      "bytes": 555,
+      "sha256": "ad7b5ca27111ce6b71a3c81d263929d19f16af46ffe19d8b8aad6a19c1d6d7f6"
+    }
+  ]
+}

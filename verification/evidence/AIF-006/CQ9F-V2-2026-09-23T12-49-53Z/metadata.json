@@ -1,0 +1,35 @@
+{
+  "testId": "AIF-006",
+  "suite": "AI provider failure",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "Model output carrying instructions is treated as data, and never reaches a test as an action",
+  "preconditions": [
+    "AI fault injection is enabled"
+  ],
+  "input": "A generation request while the provider returns schema-valid output containing injected instructions",
+  "expected": "Either the response is refused, or it is stored as inert text — no navigation to the attacker host, no shell command, and nothing deleted",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 503; model request recorded: true; 0 test case(s) created; attacker host in stored tests: false; shell command in stored tests: false; existing tests deleted: false",
+  "metrics": {
+    "reachedAttackerHost": 0,
+    "carriedShellCommand": 0
+  },
+  "startedAt": "2026-09-23T12:57:30.938Z",
+  "durationMs": 39,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "injection.json",
+      "path": "evidence/AIF-006/CQ9F-V2-2026-09-23T12-49-53Z/injection.json",
+      "bytes": 524,
+      "sha256": "cac7a9595f4af97c8755dd898b5e5d2c0abfd4342bde8c983ea8843f38bc437b"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "testId": "CIS-009",
+  "suite": "CI simulation",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "The same environment runs once somebody has authorized it in writing",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"production-authorized\"",
+  "expected": "Exit 0, and the run recording which environment the evidence came from",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "exit 0; the run recorded environment prod",
+  "metrics": {
+    "airaExit": 0,
+    "pipelineExit": 0
+  },
+  "startedAt": "2026-09-23T12:57:48.182Z",
+  "durationMs": 3275,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-009/CQ9F-V2-2026-09-23T12-49-53Z/pipeline.log",
+      "bytes": 1075,
+      "sha256": "cf73bb29fe4a531604267680292861ef6a5cb896ac1f8d6fbe47e669aa954b56"
+    },
+    {
+      "file": "report.json",
+      "path": "evidence/CIS-009/CQ9F-V2-2026-09-23T12-49-53Z/report.json",
+      "bytes": 2007,
+      "sha256": "038ea8fb281966dca5e004d96f5ed84933c5a730ca72e14ab407d89112749052"
+    }
+  ]
+}

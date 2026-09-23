@@ -1,0 +1,43 @@
+{
+  "testId": "CIS-010",
+  "suite": "CI simulation",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "A REVIEW verdict reaches the pipeline as its own exit code",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"review-blocks\"",
+  "expected": "Exit 7, and a summary saying a person must look — not a pass, not a failure",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "AIRA exited 7, the pipeline exited 7; review required, and this pipeline blocks on review",
+  "metrics": {
+    "airaExit": 7,
+    "pipelineExit": 7
+  },
+  "startedAt": "2026-09-23T12:57:51.458Z",
+  "durationMs": 3268,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-010/CQ9F-V2-2026-09-23T12-49-53Z/pipeline.log",
+      "bytes": 1428,
+      "sha256": "8ffef71eee19ec752b5dbd8edebb339d0d700d4625de3ed492a91d440d788f8b"
+    },
+    {
+      "file": "summary.md",
+      "path": "evidence/CIS-010/CQ9F-V2-2026-09-23T12-49-53Z/summary.md",
+      "bytes": 782,
+      "sha256": "60e345c21f2c4ee88b9f6cf7dcd6f2037c3829d4ac518a82ecb1566573ede606"
+    }
+  ]
+}

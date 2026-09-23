@@ -1,0 +1,34 @@
+{
+  "testId": "RLS-005",
+  "suite": "Release quality",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "A release report covers every run that tested one build and says what changed",
+  "preconditions": [
+    "runs tagged with an application build reference"
+  ],
+  "input": "GET /api/v1/release/quality for build v2.4.1",
+  "expected": "The build's runs, its failing tests, and a comparison against the previous build — a release tested across several runs is one thing to decide about",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "build v2.4.1: 1 run(s), 1 failing, compared with v2.4.0; \"Build v2.4.1 was tested by 1 run(s). 1 test(s) are failing in the most recent one. Against Release green: 1 test(s) that used to pass now fail.\"",
+  "metrics": {
+    "runs": 1
+  },
+  "startedAt": "2026-09-23T12:55:44.624Z",
+  "durationMs": 16,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "report.json",
+      "path": "evidence/RLS-005/CQ9F-V2-2026-09-23T12-49-53Z/report.json",
+      "bytes": 2975,
+      "sha256": "24dde62709dc6d13c2ab31025b8a3152a736b9c7eb6558bbce766c76f84deb1f"
+    }
+  ]
+}

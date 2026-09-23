@@ -1,0 +1,49 @@
+{
+  "testId": "CIS-001",
+  "suite": "CI simulation",
+  "runId": "CQ9F-V2-2026-09-23T12-49-53Z",
+  "objective": "A healthy deployment and passing tests take the pipeline through every stage to a clean exit",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"green-build\"",
+  "expected": "Exit 0, the stages in order, all four artifacts written, and the commit recorded on the run so a future failure can be traced to it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "exit 0; stages checkout → deploy → health → select → test → publish; artifacts junit.xml, report.html, report.json, summary.md; 2 passed, 0 failed",
+  "metrics": {
+    "airaExit": 0,
+    "pipelineExit": 0
+  },
+  "startedAt": "2026-09-23T12:57:33.508Z",
+  "durationMs": 3296,
+  "build": {
+    "commit": "fbbda1f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-001/CQ9F-V2-2026-09-23T12-49-53Z/pipeline.log",
+      "bytes": 1127,
+      "sha256": "7d475a9aab0fe06df5d33cae6064594e783df835d75e065d429ccd8e02cce745"
+    },
+    {
+      "file": "summary.md",
+      "path": "evidence/CIS-001/CQ9F-V2-2026-09-23T12-49-53Z/summary.md",
+      "bytes": 487,
+      "sha256": "1f1d4fdb58023a8364fb9afbf4ea26bb0310f449b30b58fbe540c53c21b506aa"
+    },
+    {
+      "file": "report.json",
+      "path": "evidence/CIS-001/CQ9F-V2-2026-09-23T12-49-53Z/report.json",
+      "bytes": 2656,
+      "sha256": "a3a19b655950cae47a9577f2abdd0d6304fdca878cbd3ff44646eb61c8ba2131"
+    }
+  ]
+}
