@@ -199,9 +199,17 @@ export default async function run() {
     evidence: ['summary.md'],
     severity: 'critical',
     run: async () => {
-      // A rule that cannot be satisfied by a passing run, whose action is review rather
-      // than fail. The point is that REVIEW survives all the way to the pipeline's exit
-      // code instead of being folded into one of the other two.
+      // A rule a passing run does not satisfy, whose action is review rather than fail.
+      // The point is that REVIEW survives all the way to the pipeline's exit code instead
+      // of being folded into one of the other two.
+      //
+      // It used to be "passRatePercent greaterThan 100", which is unsatisfiable by
+      // construction — and is now refused, because a gate rule nothing can satisfy is a
+      // permanent block rather than a check (BUG-0039). "greaterThanOrEqual 101" is refused
+      // for the same reason. So the rule here is one a run genuinely could satisfy and this
+      // one does not: a duration budget of zero milliseconds, which any real execution
+      // exceeds. A rule that can pass and doesn't is a better fixture than one that never
+      // could.
       const reviewProject = await createProject(tenant, 'CI review');
       const reviewApp = await registerApplication(tenant, reviewProject.id, {
         name: 'Lab Bank CI review', baseUrl: BANK, loginUrl: `${BANK}/login`, ...CREDENTIALS
@@ -211,7 +219,7 @@ export default async function run() {
       });
       await createGateRule(tenant, reviewProject.id, {
         name: 'Someone checks the numbers on every release',
-        metric: 'passRatePercent', operator: 'greaterThan', threshold: 100,
+        metric: 'averageDurationMs', operator: 'lessThanOrEqual', threshold: 0,
         action: 'review',
         message: 'A person signs off every release in this project.'
       });
@@ -374,6 +382,58 @@ export default async function run() {
         detail: `provider ${run?.ciProvider}, build ${run?.ciBuildId}, `
           + `commit ${String(run?.ciCommitSha).slice(0, 8)}, branch ${run?.ciBranch}`,
         evidence: { 'run.json': run }
+      };
+    }
+  }, context);
+
+  // ---- CI-008: a gate rule nothing could satisfy is refused ---------------
+  await golden({
+    id: 'CI-008',
+    objective: 'A quality gate rule that no run could ever satisfy is refused, rather than blocking every build',
+    preconditions: ['a project exists'],
+    input: 'A rule of "failedCount less than 0", and the same rule with the operator omitted',
+    expected: 'Both are refused with a message naming the rule that was probably meant; '
+      + '"failedCount at most 0" is accepted',
+    evidence: ['rules.json'],
+    severity: 'high',
+    run: async () => {
+      const create = body => request(`/api/v1/quality-gates?projectId=${project.id}`, {
+        token: tenant.token, method: 'POST', body
+      });
+
+      // Explicit, and the shape that arrives by accident: Operator is a non-nullable enum,
+      // so an omitted or misspelled field becomes LessThan (0). That is how "no failing
+      // tests" became "fewer than zero failing tests" and blocked a green build (BUG-0039).
+      const explicit = await create({
+        name: 'Unsatisfiable', metric: 'failedCount', operator: 'lessThan', threshold: 0
+      });
+      const omitted = await create({
+        name: 'Operator omitted', metric: 'failedCount', threshold: 0
+      });
+      const correct = await create({
+        name: 'No failing tests', metric: 'failedCount', operator: 'lessThanOrEqual', threshold: 0
+      });
+
+      const message = (response) => (response.json?.errors?.operator ?? [''])[0] ?? '';
+      // The message has to help. "Invalid operator" sends somebody to the enum docs; naming
+      // the rule they meant sends them to the fix.
+      const suggests = message(explicit).includes('lessThanOrEqual')
+        && message(omitted).includes('lessThanOrEqual');
+
+      return {
+        pass: explicit.status === 400 && omitted.status === 400
+          && correct.ok && correct.json?.operator === 'lessThanOrEqual' && suggests,
+        detail: `explicit lessThan 0: ${explicit.status}; operator omitted: ${omitted.status}; `
+          + `lessThanOrEqual 0: ${correct.status} stored as ${correct.json?.operator}; `
+          + `the refusal names the likely intention: ${suggests}`,
+        metrics: { explicit: explicit.status, omitted: omitted.status, correct: correct.status },
+        evidence: {
+          'rules.json': JSON.stringify({
+            explicitLessThanZero: { status: explicit.status, message: message(explicit) },
+            operatorOmitted: { status: omitted.status, message: message(omitted) },
+            lessThanOrEqualZero: { status: correct.status, storedOperator: correct.json?.operator }
+          }, null, 2)
+        }
       };
     }
   }, context);

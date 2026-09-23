@@ -83,6 +83,7 @@ already have the toolchain, and `docs/implementation-plan.md` has the build plan
 ./scripts/verify-continuous-quality     # the same, for the continuous-quality claim, ending in a traceability matrix
 ./scripts/run-golden-tests --all
 ./scripts/run-product-demo              # the whole product in sixteen steps, recorded
+./scripts/run-continuous-quality-demo   # one release cycle end to end: change, gate, notify, ship
 ```
 
 `test-lab/` holds six real applications with hand-written ground truth and switchable

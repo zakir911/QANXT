@@ -1,0 +1,25 @@
+{
+  "testId": "CI-004",
+  "suite": "CI integration",
+  "runId": "CI8-2026-09-23T12-28-13Z",
+  "objective": "A run the gate sends for review exits 7 and says so in the summary",
+  "preconditions": [
+    "a gate rule whose action is review"
+  ],
+  "input": "A passing run with a review rule that does not hold",
+  "expected": "Exit 7 (HUMAN_REVIEW_REQUIRED), and a summary saying a person must look — not a pass, and not a failure",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "threw: Error: could not create a gate rule: 400 {\"code\":\"validation_failed\",\"title\":\"The quality gate rule is not valid.\",\"status\":400,\"correlationId\":\"75048f2f1e3345d0b65fca1de5a363fd\",\"errors\":{\"operator\":[\"No run can satisfy this rule: a percentage never exceeds 100, so \\\"greater than 100\\\" can never ho; declared evidence never produced: summary.md",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:28:24.897Z",
+  "durationMs": 60,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": []
+}

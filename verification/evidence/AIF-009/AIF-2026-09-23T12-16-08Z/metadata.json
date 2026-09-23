@@ -1,0 +1,35 @@
+{
+  "testId": "AIF-009",
+  "suite": "AI provider failure",
+  "runId": "AIF-2026-09-23T12-16-08Z",
+  "objective": "Fault injection cannot be armed by a caller who is not an organization administrator",
+  "preconditions": [
+    "the organization can invite a user with a lesser role"
+  ],
+  "input": "A QA engineer arming a fault",
+  "expected": "Refused — arming a fault changes what every AI feature in the process does",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "a QA engineer arming a fault: 403; the same account reading projects: 200",
+  "metrics": {
+    "arm": 403,
+    "control": 200
+  },
+  "startedAt": "2026-09-23T12:16:12.123Z",
+  "durationMs": 326,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "permission.json",
+      "path": "evidence/AIF-009/AIF-2026-09-23T12-16-08Z/permission.json",
+      "bytes": 108,
+      "sha256": "a9c05f20ebe33280b4225e891da0a871726ce2c797faaa493bd172dbe2a2775d"
+    }
+  ]
+}

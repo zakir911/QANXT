@@ -1,0 +1,51 @@
+[
+  {
+    "key": "password",
+    "kind": "static",
+    "shouldSucceed": false,
+    "status": 400,
+    "message": "\"password\" looks like a credential. Store it in the environment's secret storage and reference it here with kind \"secretReference\" and value \"${secret:password}\" — a data set is readable by anyone who can read the project."
+  },
+  {
+    "key": "apiKey",
+    "kind": "static",
+    "shouldSucceed": false,
+    "status": 400,
+    "message": "\"apiKey\" looks like a credential. Store it in the environment's secret storage and reference it here with kind \"secretReference\" and value \"${secret:apiKey}\" — a data set is readable by anyone who can read the project."
+  },
+  {
+    "key": "clientSecret",
+    "kind": "static",
+    "shouldSucceed": false,
+    "status": 400,
+    "message": "\"clientSecret\" looks like a credential. Store it in the environment's secret storage and reference it here with kind \"secretReference\" and value \"${secret:clientSecret}\" — a data set is readable by anyone who can read the project."
+  },
+  {
+    "key": "userPin",
+    "kind": "static",
+    "shouldSucceed": false,
+    "status": 400,
+    "message": "\"userPin\" looks like a credential. Store it in the environment's secret storage and reference it here with kind \"secretReference\" and value \"${secret:userPin}\" — a data set is readable by anyone who can read the project."
+  },
+  {
+    "key": "shippingAddress",
+    "kind": "static",
+    "shouldSucceed": true,
+    "status": 201,
+    "message": "{\"id\":\"4608449b-38f1-4f81-ab14-21f18979e1af\",\"projectId\":\"2186e414-957a-4df8-ab5c-fc73a7a59cf5\",\"name\":\"DAT-003 shippingAddress static\",\"description\":\"\",\"fields\":[{\"id\":\"6950a538-d960-4c48-a7e9-c8b2c5"
+  },
+  {
+    "key": "authorName",
+    "kind": "static",
+    "shouldSucceed": true,
+    "status": 201,
+    "message": "{\"id\":\"195ae991-be88-447d-bf98-70812ec9eab5\",\"projectId\":\"2186e414-957a-4df8-ab5c-fc73a7a59cf5\",\"name\":\"DAT-003 authorName static\",\"description\":\"\",\"fields\":[{\"id\":\"cac0023e-b13c-41bb-b62c-c98845d3607"
+  },
+  {
+    "key": "password",
+    "kind": "secretReference",
+    "shouldSucceed": true,
+    "status": 201,
+    "message": "{\"id\":\"2ad0df1a-ff78-435e-a730-1ec46aa63f27\",\"projectId\":\"2186e414-957a-4df8-ab5c-fc73a7a59cf5\",\"name\":\"DAT-003 password secretReference\",\"description\":\"\",\"fields\":[{\"id\":\"62f46e81-3fb2-4213-a4f7-7a98"
+  }
+]

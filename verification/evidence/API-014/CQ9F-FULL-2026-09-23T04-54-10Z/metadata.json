@@ -1,0 +1,38 @@
+{
+  "testId": "API-014",
+  "suite": "API testing",
+  "runId": "CQ9F-FULL-2026-09-23T04-54-10Z",
+  "objective": "A mutating API request is refused in an environment that does not permit destructive tests",
+  "preconditions": [
+    "a production-marked environment with destructive tests disabled"
+  ],
+  "input": "A POST test run against that environment",
+  "expected": "The request is refused at the moment of the call and the step fails; nothing is sent to the application",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run failed; message \"A POST request is not permitted against this environment. Destructive API requests are disabled for it.\"; 0 request(s) recorded",
+  "metrics": null,
+  "startedAt": "2026-09-23T04:54:40.356Z",
+  "durationMs": 2133,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "execution.json",
+      "path": "evidence/API-014/CQ9F-FULL-2026-09-23T04-54-10Z/execution.json",
+      "bytes": 3044,
+      "sha256": "732028d4f4b2162ee4af208c9d1915b2cbc434ca47587e52afe2b133367f6c24"
+    },
+    {
+      "file": "network.json",
+      "path": "evidence/API-014/CQ9F-FULL-2026-09-23T04-54-10Z/network.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ]
+}

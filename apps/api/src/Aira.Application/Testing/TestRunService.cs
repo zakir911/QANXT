@@ -154,6 +154,13 @@ public sealed class TestRunService : ITestRunService
             Attempt = 1,
             Status = ExecutionStatus.Queued,
             Browser = run.Browser,
+            // The id of the request that asked for this run, so the stored execution, the
+            // job the worker receives, the worker's own log lines and the audit record all
+            // carry the same value. The property's initialiser generates one, which meant
+            // that until this assignment existed every execution carried a fresh id that
+            // matched nothing: the CLI report published it, and following it found no log
+            // line and no audit record (BUG-0037).
+            CorrelationId = _correlation.CorrelationId,
             CreatedAt = _clock.UtcNow
         }).ToList();
 

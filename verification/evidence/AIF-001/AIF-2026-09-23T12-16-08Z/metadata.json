@@ -1,0 +1,36 @@
+{
+  "testId": "AIF-001",
+  "suite": "AI provider failure",
+  "runId": "AIF-2026-09-23T12-16-08Z",
+  "objective": "A provider that never answers fails the request visibly instead of returning nothing",
+  "preconditions": [
+    "an application is registered",
+    "AI fault injection is enabled"
+  ],
+  "input": "A generation request while the provider is faulted with Timeout",
+  "expected": "The request fails with an error naming the problem, and no test case is stored",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 400; 0 test case(s) created; message \"This application has no discovered pages yet. Run discovery before generating tests.\"",
+  "metrics": {
+    "status": 400,
+    "fabricated": 0
+  },
+  "startedAt": "2026-09-23T12:16:08.694Z",
+  "durationMs": 231,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AIF-001/AIF-2026-09-23T12-16-08Z/response.json",
+      "bytes": 303,
+      "sha256": "2f4dc862c7b83d88eed57ad75fd961ad5c59b19c38897bb9307cf599ac9c6b87"
+    }
+  ]
+}

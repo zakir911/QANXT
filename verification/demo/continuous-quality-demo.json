@@ -1,0 +1,152 @@
+{
+  "demonstration": "Continuous quality — one release cycle",
+  "generatedAt": "2026-09-23T12:36:29.462Z",
+  "project": {
+    "id": "0ead3a40-fdd7-44fb-bf9d-9851d4817d7a",
+    "key": "G6LBK17"
+  },
+  "runs": {
+    "baseline": {
+      "id": "42c4fa6b-b8ec-4bdc-998b-475005bbc82b",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0
+    },
+    "broken": {
+      "id": "b8d886ea-f52b-470f-a0a9-54fe64af5283",
+      "status": "failed",
+      "passed": 2,
+      "failed": 1
+    },
+    "fixed": {
+      "id": "0c29eb85-ce86-4c77-9230-cecc74c121a0",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "breakingContractChanges": 1,
+  "gate": {
+    "broken": "fail",
+    "fixed": "pass"
+  },
+  "comparison": {
+    "newlyFailing": 1,
+    "fixed": 0,
+    "stillFailing": 0,
+    "stillPassing": 2,
+    "added": 0,
+    "removed": 0
+  },
+  "auditRecords": 16,
+  "acts": [
+    {
+      "act": 1,
+      "title": "Check the platform, the application and the notification sink are up",
+      "detail": "A demonstration that starts its own dependencies hides whether they work.\nAIRA healthy · AIRA Demo Bank 1.0.0 healthy · notification sink healthy",
+      "at": "2026-09-23T12:36:07.722Z"
+    },
+    {
+      "act": 2,
+      "title": "Set up a team: an organization, a project, a staging environment",
+      "detail": "project G6LBK17 · application 81fa90e4 · environment staging\nThe environment carries the authorization boundary: AIRA will not open a URL outside it.",
+      "at": "2026-09-23T12:36:07.821Z"
+    },
+    {
+      "act": 3,
+      "title": "Discover the application",
+      "detail": "A real crawl, not a fixture.\n11 page(s) discovered",
+      "at": "2026-09-23T12:36:07.938Z"
+    },
+    {
+      "act": 4,
+      "title": "Tell somebody when things break",
+      "detail": "A run that fails at 2am and tells nobody did not happen.\nwebhook configured (201); failures and blocked gates are sent, green runs are not",
+      "at": "2026-09-23T12:36:23.019Z"
+    },
+    {
+      "act": 5,
+      "title": "Set the bar",
+      "detail": "The gate is the thing that decides, and it is written down before the release.\n2 rules: \"No failing tests\" and \"No breaking API changes\", both blocking",
+      "at": "2026-09-23T12:36:23.032Z"
+    },
+    {
+      "act": 6,
+      "title": "The suite a team would actually have",
+      "detail": "3 test(s): 2 browser journeys and 1 API test, in one suite and one engine",
+      "at": "2026-09-23T12:36:23.050Z"
+    },
+    {
+      "act": 7,
+      "title": "Release 1.0 goes out",
+      "detail": "The green run everything afterwards is measured against.\nrun passed: 3 passed, 0 failed\n14 contract baseline(s) captured from responses the application actually gave\n  GET http://localhost:4300/api/accounts/acc-1002 → status 200, 11 field(s)\n  GET http://localhost:4300/api/accounts/acc-1003/transactions?page={v}&pageSize={v} → status 200, 15 field(s)\n  GET http://localhost:4300/api/accounts → status 200, 12 field(s)\n  POST http://localhost:4300/api/session → status 200, 5 field(s)\n  GET http://localhost:4300/api/accounts/acc-1001/transactions?page={v}&pageSize={v} → status 200, 15 field(s)\n  GET http://localhost:4300/api/accounts/acc-1003 → status 200, 11 field(s)\n  GET http://localhost:4300/api/accounts/acc-1001 → status 200, 11 field(s)\n  GET http://localhost:4300/api/accounts/acc-1002/transactions?page={v}&pageSize={v} → status 200, 15 field(s)\n  GET http://localhost:4300/api/session → status 200, 5 field(s)",
+      "at": "2026-09-23T12:36:23.109Z"
+    },
+    {
+      "act": 8,
+      "title": "A developer changes the accounts API",
+      "detail": "Two things at once, the way a real change arrives: a field disappears, and a balance is wrong.\nFAULT_API_FIELD_REMOVED: the accounts API stops returning sortCode — breaking for any caller reading it\nFAULT_WRONG_BALANCE: the dashboard renders a total that does not match the accounts",
+      "at": "2026-09-23T12:36:25.185Z"
+    },
+    {
+      "act": 9,
+      "title": "Teach it what the code touches",
+      "detail": "Change impact needs a map from paths to what they affect. Without one, every change runs everything.\nsrc/api/accounts/** → route /accounts (200)\nsrc/pages/dashboard/** → route /dashboard (200)",
+      "at": "2026-09-23T12:36:25.188Z"
+    },
+    {
+      "act": 10,
+      "title": "Regression selection: what does this change reach?",
+      "detail": "Running everything on every commit is how a suite stops being run at all.\n2 of 3 test(s) selected, mode impacted\n  TC-0001 scored 50: This test exercises /dashboard, which the change affects.\n  TC-0002 scored 50: This test exercises /accounts, which the change affects.\n  not selected: TC-0003 scored 10",
+      "at": "2026-09-23T12:36:25.206Z"
+    },
+    {
+      "act": 11,
+      "title": "The pipeline runs",
+      "detail": "The same command a CI job would run, against the changed build.\nrun failed: 2 passed, 1 failed",
+      "at": "2026-09-23T12:36:25.216Z"
+    },
+    {
+      "act": 12,
+      "title": "The contract check finds what moved",
+      "detail": "1 contract change(s), 1 of them breaking, against the Release 1.0 baseline\n  GET http://localhost:4300/api/accounts [? → ?] $.accounts[].sortCode: \"accounts[].sortCode\" was present as string and is now absent. Any caller reading it will find nothing.",
+      "at": "2026-09-23T12:36:27.276Z"
+    },
+    {
+      "act": 13,
+      "title": "The quality gate blocks the build",
+      "detail": "Written down before the release, applied without discussion.\ngate outcome: FAIL\n  No failing tests: measured 1 against 0 — The number of failed tests was 1, which fails being at most 0.\n  No breaking API changes: measured 1 against 0 — The number of breaking API contract changes was 1, which fails being at most 0.",
+      "at": "2026-09-23T12:36:27.282Z"
+    },
+    {
+      "act": 14,
+      "title": "The team is told",
+      "detail": "And the platform can show that it told them.\n3 delivery record(s) on the platform\n3 request(s) actually arrived at the receiving end\n  QualityGateBlocked — signed sha256=e6dd3402dafd1…\n  RunFailed — signed sha256=b32a1dd0886da…\n  BreakingContractChange — signed sha256=dff926061bdff…",
+      "at": "2026-09-23T12:36:27.309Z"
+    },
+    {
+      "act": 15,
+      "title": "What changed since the release we shipped?",
+      "detail": "The question a release decision is actually made on — not \"what is broken\", but \"what got worse\".\nnewly failing 1 · fixed 0 · still failing 0 · still passing 2\n1 test(s) that used to pass now fail.",
+      "at": "2026-09-23T12:36:27.316Z"
+    },
+    {
+      "act": 16,
+      "title": "Who asked for all this?",
+      "detail": "The governance record, readable through the product.\n16 audit record(s) · 10 distinct action(s)\nincluding: testRunStarted, configurationChanged, testCaseCreated, qualityGateChanged, integrationConfigured, discoveryStarted",
+      "at": "2026-09-23T12:36:27.325Z"
+    },
+    {
+      "act": 17,
+      "title": "Fix it",
+      "detail": "The same suite, unedited, against a corrected build.\nrun passed: 3 passed, 0 failed\ngate outcome: PASS\ncontract: 0 breaking change(s) remain against the Release 1.0 baseline\nagainst the broken build: fixed 1, newly failing 0",
+      "at": "2026-09-23T12:36:27.333Z"
+    },
+    {
+      "act": 18,
+      "title": "Keep watching",
+      "detail": "Regression that happens when nobody commits.\n\"Nightly regression\" — 0 2 * * * (Europe/London)\nnext: 2026-09-24T02:00:00+01:00, 2026-09-25T02:00:00+01:00, 2026-09-26T02:00:00+01:00\nThree consecutive failures disable it, with the reason recorded — a schedule that stopped\nrunning is worse than no schedule, because it looks armed.",
+      "at": "2026-09-23T12:36:29.447Z"
+    }
+  ]
+}

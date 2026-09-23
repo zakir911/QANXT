@@ -67,14 +67,39 @@ export async function requestBinary(path, { token } = {}) {
 // ---------------------------------------------------------------------------
 
 /** Registers a throwaway organisation. Each suite gets its own, so suites cannot interfere. */
+/**
+ * Registers an organization to run a test against.
+ *
+ * Retries on 429, and only on 429. Registration and sign-in share one rate-limit budget
+ * partitioned by address, so a suite that deliberately exhausts it — AUD-008 fires twenty
+ * sign-in attempts to prove the limiter works and logs what it refused — leaves the next
+ * suite unable to register a tenant. That is the harness competing with itself, not a finding
+ * about the product: the refusal is correct behaviour, and AUD-008 asserts it.
+ *
+ * The window is a fixed minute, so the wait is bounded by one: five attempts, fifteen seconds
+ * apart. Any other status fails immediately, because a 400 or a 500 here is a real problem
+ * and waiting on it would only turn a clear failure into a slow one.
+ */
 export async function newTenant(label = 'Golden') {
   const unique = Math.random().toString(36).slice(2, 12);
   const email = `${label.toLowerCase()}-${unique}@example.test`;
   const password = 'Str0ngPassphrase!2026';
-  const response = await request('/api/v1/auth/register', {
-    method: 'POST',
-    body: { organizationName: `${label} ${unique}`, email, password, displayName: `${label} Admin` }
-  });
+
+  let response;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    response = await request('/api/v1/auth/register', {
+      method: 'POST',
+      body: { organizationName: `${label} ${unique}`, email, password, displayName: `${label} Admin` }
+    });
+    if (response.status !== 429) break;
+    await new Promise(resolve => setTimeout(resolve, 15_000));
+  }
+
+  if (response.status === 429) {
+    throw new Error(
+      'could not register a tenant: the credential rate limit stayed exhausted for over a '
+      + 'minute. A suite is spending the budget faster than the window refills.');
+  }
   if (!response.ok) throw new Error(`could not register a tenant: ${response.status} ${response.text.slice(0, 200)}`);
   return {
     token: response.json.accessToken,

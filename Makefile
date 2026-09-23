@@ -34,6 +34,9 @@ golden: ## Run the golden test suite against a running platform and test lab
 demo: ## Run the sixteen-step product demonstration and record it
 	@bash scripts/run-product-demo
 
+demo-continuous-quality: ## One release cycle end to end: a change, the gate, the notification, the fix
+	@bash scripts/run-continuous-quality-demo
+
 lab: ## Start the six test-lab applications
 	@bash test-lab/scripts/lab-ctl.sh start
 

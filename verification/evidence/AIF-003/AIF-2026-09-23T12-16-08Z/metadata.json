@@ -1,0 +1,36 @@
+{
+  "testId": "AIF-003",
+  "suite": "AI provider failure",
+  "runId": "AIF-2026-09-23T12-16-08Z",
+  "objective": "A reply that is not JSON is refused rather than partially parsed",
+  "preconditions": [
+    "an application is registered",
+    "AI fault injection is enabled"
+  ],
+  "input": "A generation request while the provider is faulted with MalformedJson",
+  "expected": "The request fails with an error naming the problem, and no test case is stored",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 400; 0 test case(s) created; message \"This application has no discovered pages yet. Run discovery before generating tests.\"",
+  "metrics": {
+    "status": 400,
+    "fabricated": 0
+  },
+  "startedAt": "2026-09-23T12:16:08.960Z",
+  "durationMs": 34,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AIF-003/AIF-2026-09-23T12-16-08Z/response.json",
+      "bytes": 309,
+      "sha256": "c52720de4aa970d7e71f3733a2c7a97766d31f1a707cb93c519f2cf1f9800704"
+    }
+  ]
+}

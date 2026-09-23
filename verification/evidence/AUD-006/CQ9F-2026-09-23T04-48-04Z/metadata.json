@@ -1,0 +1,35 @@
+{
+  "testId": "AUD-006",
+  "suite": "Isolation, audit and observability",
+  "runId": "CQ9F-2026-09-23T04-48-04Z",
+  "objective": "Reading the audit trail needs its own permission, which ordinary read access does not carry",
+  "preconditions": [
+    "the organization can invite a user with a lesser role"
+  ],
+  "input": "Invite a Viewer, sign in as them, and read results and then the trail",
+  "expected": "The viewer can read test results and is refused the audit trail",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "viewer reading projects: 200; reading the audit trail: 403",
+  "metrics": {
+    "projects": 200,
+    "audit": 403
+  },
+  "startedAt": "2026-09-23T04:48:07.313Z",
+  "durationMs": 248,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "permission.json",
+      "path": "evidence/AUD-006/CQ9F-2026-09-23T04-48-04Z/permission.json",
+      "bytes": 110,
+      "sha256": "4d60490a1eb6246118ab34da43b010f6dcd8f5e379ff41a06ca337b6e27a8a2b"
+    }
+  ]
+}

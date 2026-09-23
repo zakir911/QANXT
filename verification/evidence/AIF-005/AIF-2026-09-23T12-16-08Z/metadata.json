@@ -1,0 +1,36 @@
+{
+  "testId": "AIF-005",
+  "suite": "AI provider failure",
+  "runId": "AIF-2026-09-23T12-16-08Z",
+  "objective": "An empty response is refused rather than treated as \"no scenarios\"",
+  "preconditions": [
+    "an application is registered",
+    "AI fault injection is enabled"
+  ],
+  "input": "A generation request while the provider is faulted with Empty",
+  "expected": "The request fails with an error naming the problem, and no test case is stored",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 400; 0 test case(s) created; message \"This application has no discovered pages yet. Run discovery before generating tests.\"",
+  "metrics": {
+    "status": 400,
+    "fabricated": 0
+  },
+  "startedAt": "2026-09-23T12:16:09.027Z",
+  "durationMs": 40,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AIF-005/AIF-2026-09-23T12-16-08Z/response.json",
+      "bytes": 301,
+      "sha256": "37c86a60b317808c27fcab4ad042ead6f141083854b8ddaaa3d91b3338cd775a"
+    }
+  ]
+}

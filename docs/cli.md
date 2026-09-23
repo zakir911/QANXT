@@ -25,6 +25,7 @@ export AIRA_PROJECT_ID=…
 | `aira run` | Start a run, wait for it, write reports. |
 | `aira status [run-id]` | What a run did. |
 | `aira quality-gate` | Evaluate a finished run against its gate. |
+| `aira audit` | Who did what, and whether it worked. Needs `audit:read`. |
 | `aira report <run-id>` | Write reports for a run that already finished. |
 
 Every command takes `--help`.

@@ -1,0 +1,34 @@
+{
+  "testId": "OBS-001",
+  "suite": "Isolation, audit and observability",
+  "runId": "CQ9F-2026-09-23T04-50-50Z",
+  "objective": "Every response carries a correlation id, and one supplied by the caller is honoured rather than replaced",
+  "preconditions": [
+    "the API is running"
+  ],
+  "input": "A request with no correlation header, and one carrying a caller-supplied id",
+  "expected": "The first is given an id; the second comes back with the id that was sent",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "minted \"1e6768323dee4ee8abe73db8fc1f0a7c\"; supplied \"golden-xsaf9f41us\" came back as \"golden-xsaf9f41us\"",
+  "metrics": {
+    "mintedLength": 32
+  },
+  "startedAt": "2026-09-23T04:50:51.084Z",
+  "durationMs": 8,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "correlation.json",
+      "path": "evidence/OBS-001/CQ9F-2026-09-23T04-50-50Z/correlation.json",
+      "bytes": 128,
+      "sha256": "48f299a77da35a73e97ec8e63b88b19f8697310f1b2c89d4dcb0127a37db7da1"
+    }
+  ]
+}

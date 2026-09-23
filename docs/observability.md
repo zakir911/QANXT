@@ -106,23 +106,68 @@ Summaries and change payloads are masked with the same `SecretMasker` used every
 before they are stored, so configuring a secret produces an audit record that says a secret
 was configured without recording the secret.
 
-### Known limitation: the audit trail has no read surface
+### Reading it
 
-Audit records are written for all 35 action types and can be read directly from the
-`audit_logs` table, but **there is no API endpoint, CLI command or console screen that
-queries them**. Reviewing the trail today means connecting to PostgreSQL:
-
-```sql
-SELECT occurred_at, user_email, action, entity_type, summary, correlation_id, succeeded
-FROM   audit_logs
-WHERE  organization_id = '…'
-ORDER  BY occurred_at DESC
-LIMIT  100;
+```bash
+aira audit list --limit 50            # the most recent records
+aira audit list --failed              # only what did not succeed
+aira audit list --action scheduleFired
+aira audit trace <correlation-id>     # everything one request did
+aira audit actions                    # the action names this build records
 ```
 
-This is tracked as **BUG-0034**. It is recorded here rather than left out because a
-governance control nobody can read is a control in name only, and the gap is not visible
-from the fact that the writes exist.
+or over HTTP:
+
+```
+GET /api/v1/audit?action=&entityType=&entityId=&correlationId=&userEmail=&projectId=
+                 &succeeded=&from=&to=&limit=&offset=
+GET /api/v1/audit/correlation/{correlationId}
+GET /api/v1/audit/actions
+```
+
+Three things about this endpoint are deliberate.
+
+**Organization is not a parameter.** `AuditLog` is tenant-owned, so the context's global
+query filter constrains every query before the service sees a row. There is no way to ask
+for another organization's records, because there is nothing to ask with — supplying an
+`organizationId` changes nothing rather than being honoured.
+
+**`audit:read` is its own permission.** Project administrators and above hold it; viewers,
+developers, QA engineers and QA leads do not. A viewer can read every test result in the
+organization and none of the trail, because the trail names people and that is a different
+kind of access.
+
+**There is no write path.** No POST, PATCH or DELETE, and the database role the application
+runs as holds `INSERT` and `SELECT` on the table. Append-only is a property of the
+deployment, not a convention the code is trusted to keep.
+
+This read surface did not exist until CQ-9f: the writes were correct, the `audit:read`
+permission was defined and granted, and no endpoint had ever required it (BUG-0034).
+
+## What the model was asked, and what it cost
+
+Every model call is recorded — the kind of request, the provider and model, the schema the
+response had to satisfy, tokens, latency, estimated cost, whether it came from the cache,
+and the error if it failed.
+
+```
+GET /api/v1/ai/requests?projectId=&kind=&status=&provider=&correlationId=&failedOnly=&from=&to=
+```
+
+The page carries the total cost and failure count **across the whole filter**, not just the
+rows on it: a cost figure that changes when you turn the page is worse than no cost figure.
+
+`status` distinguishes what went wrong. `failed` means the provider let the platform down —
+a timeout, an error, an unreachable endpoint. `schemaRejected` means the provider answered
+and the answer was unusable. They send a reader to different places, so they are never
+collapsed into one.
+
+Prompt excerpts and response bodies are deliberately not returned by this listing. They are
+stored masked and truncated, but they are still the contents of somebody's application.
+
+Like the audit trail, this had been written since the first AI feature shipped and read only
+by the orchestrator's own cache and budget check, with no way to ask it anything, until
+CQ-9f.
 
 ## Evidence
 
@@ -135,6 +180,13 @@ failure, a Playwright trace, console output, and the network exchange — includ
 tests, the full request and response bound to the step that made them. The run's JSON report
 carries the `correlationId` of the execution, which is what ties a piece of evidence back to
 the log line that produced it.
+
+That last sentence was false when this page was first written. The execution's correlation id
+was never assigned — a property initialiser generated a fresh one per row — so the id the
+report published matched no log line and no audit record, and anyone following the procedure
+below would have got nothing from every step and concluded the logging was broken
+(BUG-0037). It is now the id the caller supplied, and golden test OBS-003 supplies a known
+one and demands it back rather than checking that some id is present.
 
 Evidence is not summarised into logs, and logs are not written into evidence. A screenshot
 proves a page looked a certain way; a log line proves the platform believed something. They
@@ -196,7 +248,9 @@ ls verification/evidence/<TEST-ID>/<RUN_ID>/
   and querying that output is the deployment's responsibility; see
   [deployment.md](deployment.md).
 - **No alerting on logs.** Alerting is event-driven through
-  [notifications](notifications.md), on run and gate outcomes, not on log patterns.
+  [notifications](notifications.md), on run and gate outcomes, not on log patterns. A refused
+  credential attempt is logged at warning level and attributed to `Aira.Api.RateLimiter`
+  (BUG-0038), which makes a brute-force burst greppable — but nothing watches for it.
 
 These are absences, not oversights deferred to a later section: nothing elsewhere in the
 documentation should be read as claiming them.

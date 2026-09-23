@@ -1,0 +1,36 @@
+{
+  "testId": "AIF-004",
+  "suite": "AI provider failure",
+  "runId": "AIF-2026-09-23T12-16-08Z",
+  "objective": "Valid JSON of the wrong shape is refused, not leniently deserialized",
+  "preconditions": [
+    "an application is registered",
+    "AI fault injection is enabled"
+  ],
+  "input": "A generation request while the provider is faulted with SchemaViolation",
+  "expected": "The request fails with an error naming the problem, and no test case is stored",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 400; 0 test case(s) created; message \"This application has no discovered pages yet. Run discovery before generating tests.\"",
+  "metrics": {
+    "status": 400,
+    "fabricated": 0
+  },
+  "startedAt": "2026-09-23T12:16:08.995Z",
+  "durationMs": 31,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AIF-004/AIF-2026-09-23T12-16-08Z/response.json",
+      "bytes": 311,
+      "sha256": "1400b7bf6591b611baa432e7100c4658cad3432be0a4ccb1422a428afd2ec692"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "testId": "ISO-001",
+  "suite": "Isolation, audit and observability",
+  "runId": "CQ9F-2026-09-23T04-44-26Z",
+  "objective": "An API test belonging to another tenant cannot be read by identifier",
+  "preconditions": [
+    "two registered organizations",
+    "tenant A owns an API test"
+  ],
+  "input": "GET /api/v1/testcases/undefined as tenant B, and as tenant A",
+  "expected": "Tenant B is refused; tenant A reads it",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "intruder 404, owner 404",
+  "metrics": {
+    "intruderStatus": 404,
+    "ownerStatus": 404
+  },
+  "startedAt": "2026-09-23T04:44:29.034Z",
+  "durationMs": 12,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "isolation.json",
+      "path": "evidence/ISO-001/CQ9F-2026-09-23T04-44-26Z/isolation.json",
+      "bytes": 119,
+      "sha256": "456d779c2781761069afdf6efd3b04b8065194193df147efb521f2d67061a846"
+    }
+  ]
+}

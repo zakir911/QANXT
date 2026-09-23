@@ -1,8 +1,8 @@
 # Golden test report
 
-Run `CQ10-2026-09-23T02-21-33Z` · build `72e2987` (working tree dirty) · generated 2026-09-23T02:34:25.521Z
+Run `CQ9F-FULL-2026-09-23T04-54-10Z` · build `7f50d74` (working tree dirty) · generated 2026-09-23T05:01:56.379Z
 
-**109 passed, 0 failed, 0 not verified** of 109 golden tests.
+**117 passed, 0 failed, 0 not verified** of 117 golden tests.
 No critical test failed.
 
 ## Quality gates
@@ -16,7 +16,7 @@ No critical test failed.
 | Security | **NOT MEASURED** | 0/0 | — | — |
 | Reliability | **NOT MEASURED** | 0/0 | — | — |
 | Failure detection | **NOT MEASURED** | 0/0 | — | — |
-| Evidence | **PASS** | 109/109 | — | — |
+| Evidence | **PASS** | 117/117 | — | — |
 
 **Overall: INCOMPLETE** — a gate is green only when every executed test in it passed, and a
 gate with no tests in this run is NOT MEASURED rather than green or failed.
@@ -101,8 +101,8 @@ not targets: no gate depends on them, and a run on other hardware will differ.
 | ACC-005 | Accessibility | critical | **PASS** | A run with no accessibility step reports the metric as unmeasured, never as zero | rule measured=false passed=false; outcome review; "The number of critical or serious accessibility violations was not measured for this run, so this rule could not be eval" |
 | ACC-006 | Accessibility | critical | **PASS** | A run that does check reports the number it found, and the gate acts on it | run passed; metric measured 2; rule passed=false; gate fail |
 | API-001 | API testing | critical | **PASS** | An API test is authored through the platform and stored as a test case | stored as TC-0001 kind=api with 2 request(s) and 6 assertion(s) |
-| API-002 | API testing | critical | **PASS** | An API test executes in the ordinary run pipeline and passes when the API works | run passed, execution passed, 2 action(s), 55ms |
-| API-003 | API testing | critical | **PASS** | The request and the response are recorded as evidence, tagged with the step that made them | 2 exchange(s) recorded: step 1 POST /api/session → 200 in 3ms; step 2 GET /api/accounts → 200 in 2ms |
+| API-002 | API testing | critical | **PASS** | An API test executes in the ordinary run pipeline and passes when the API works | run passed, execution passed, 2 action(s), 36ms |
+| API-003 | API testing | critical | **PASS** | The request and the response are recorded as evidence, tagged with the step that made them | 2 exchange(s) recorded: step 1 POST /api/session → 200 in 2ms; step 2 GET /api/accounts → 200 in 1ms |
 | API-004 | API testing | critical | **PASS** | A test that expects an unauthenticated call to be refused passes on the refusal | run passed; the call returned 401 |
 | API-005 | API testing | critical | **PASS** | A switched-on server fault fails the API test, with the response as evidence | run failed; message "POST http://localhost:4300/api/session returned 500 Internal Server Error."; evidence body "{"error":"internal_error","message":"The authentication service is unavailable."}" |
 | API-006 | API testing | high | **PASS** | The platform refuses an API test that asserts nothing | status 400; 2 problem(s): Request 1 has no assertions and tolerates error statuses, so no result could make it fail. Add an assertion, or let an error status fail the step. \| This test asserts nothin |
@@ -114,6 +114,14 @@ not targets: no gate depends on them, and a run on other hardware will differ.
 | API-012 | API testing | critical | **PASS** | A referenced secret is sent but never appears in the run's stored evidence | run passed; the password appears in none of execution, executions, network |
 | API-013 | API testing | critical | **PASS** | A pipeline can author and run API tests through the CLI, and branch on its exit status | add exit 0, list exit 0, healthy run exit 0 (expected 0), broken run exit 1 (expected 1) |
 | API-014 | API testing | critical | **PASS** | A mutating API request is refused in an environment that does not permit destructive tests | run failed; message "A POST request is not permitted against this environment. Destructive API requests are disabled for it."; 0 request(s) recorded |
+| AUD-001 | Isolation, audit and observability | critical | **PASS** | Authorizing production testing is recorded, with the written reason that was given | authorization 200; 2 audit record(s) for the environment; the reason is on the trail: true |
+| AUD-002 | Isolation, audit and observability | high | **PASS** | Creating, changing and deleting a schedule are each recorded separately | actions recorded: scheduleCreated, scheduleDeleted, scheduleUpdated |
+| AUD-003 | Isolation, audit and observability | high | **PASS** | Changing a quality gate is recorded, because it changes what the platform will let through | 2 qualityGateChanged record(s); the new rule is named: true |
+| AUD-004 | Isolation, audit and observability | critical | **PASS** | A failed action is recorded as failed, not omitted | sign-in refused with 401; 1 loginFailed record(s) with succeeded=false; the attempted password appears in the trail: false |
+| AUD-005 | Isolation, audit and observability | critical | **PASS** | The audit trail has no write path: it cannot be added to, edited or deleted through the API | postCollection 405, deleteCollection 405, patchRecord 404, putRecord 404, deleteRecord 404; total 18 → 18 |
+| AUD-006 | Isolation, audit and observability | critical | **PASS** | Reading the audit trail needs its own permission, which ordinary read access does not carry | viewer reading projects: 200; reading the audit trail: 403 |
+| AUD-007 | Isolation, audit and observability | critical | **PASS** | Configuring a secret is audited without the secret being recorded | integration 201; the configuration is on the trail: true; the secret value appears in the trail: false |
+| AUD-008 | Isolation, audit and observability | high | **PASS** | A burst of credential attempts is refused, and the refusals are recorded as a security event rather than as ordinary traffic | 15 of 20 attempt(s) refused with 429; 15 limiter line(s) written — 15 at warning level, 15 named as a credential endpoint, 15 attributed to the limiter |
 | CI-001 | CI integration | critical | **PASS** | A run writes exactly the four documented artifacts, under fixed names | exit 0; files junit.xml, report.html, report.json, summary.md; junit 485B, json 1722B, html 4318B, summary 404B |
 | CI-002 | CI integration | critical | **PASS** | The pull request summary names the failure, its message and its diagnosis | exit 1; summary 491B; headline "### ❌ 1 test(s) failed" |
 | CI-003 | CI integration | high | **PASS** | A passing run produces a summary with no failure section at all | exit 0; headline "### ✅ All tests passed" |
@@ -121,18 +129,6 @@ not targets: no gate depends on them, and a run on other hardware will differ.
 | CI-005 | CI integration | high | **PASS** | Every example pipeline passes only flags the CLI accepts and handles every exit code the CLI documents | 5 pipeline file(s): no unknown flags, every exit code handled, each marked as not executed in its CI system |
 | CI-006 | CI integration | critical | **PASS** | The JUnit XML reports the same counts as the run it came from | junit tests=2 failures=1; run 2 test(s), 1 failed |
 | CI-007 | CI integration | high | **PASS** | The build, commit and branch a pipeline passes are recorded on the run | provider github, build 99123, commit a1b2c3d4, branch feature/accounts-filter |
-| CIS-001 | CI simulation | critical | **PASS** | A healthy deployment and passing tests take the pipeline through every stage to a clean exit | exit 0; stages checkout → deploy → health → select → test → publish; artifacts junit.xml, report.html, report.json, summary.md; 2 passed, 0 failed |
-| CIS-002 | CI simulation | critical | **PASS** | A defect in the deployment fails the pipeline, and the evidence is still published | exit 1; 1 passed, 1 failed; artifacts published: ok |
-| CIS-003 | CI simulation | critical | **PASS** | A quality gate blocks a run in which no test failed, under its own exit code | exit 2; 0 test(s) failed and the gate blocked anyway; the quality gate blocked this run |
-| CIS-004 | CI simulation | high | **PASS** | A pipeline naming a project that does not exist is a configuration error | exit 3; bad configuration |
-| CIS-005 | CI simulation | high | **PASS** | A rejected token is an authentication error and never a security policy violation | exit 4; bad credentials |
-| CIS-006 | CI simulation | critical | **PASS** | An unreachable platform is reported as knowing nothing, never as a pass | exit 5; the platform could not be reached |
-| CIS-007 | CI simulation | critical | **PASS** | A failed health check stops the pipeline before any test runs | exit 5; stages checkout → deploy → health; 0 artifact(s) — the run never started |
-| CIS-008 | CI simulation | critical | **PASS** | A run against an unauthorized production environment is refused under the security exit code | exit 6; a security policy refused this run |
-| CIS-009 | CI simulation | high | **PASS** | The same environment runs once somebody has authorized it in writing | exit 0; the run recorded environment prod |
-| CIS-010 | CI simulation | critical | **PASS** | A REVIEW verdict reaches the pipeline as its own exit code | AIRA exited 7, the pipeline exited 7; review required, and this pipeline blocks on review |
-| CIS-011 | CI simulation | critical | **PASS** | A team may choose to continue on REVIEW, and the log still says a person must look | AIRA exited 7, the pipeline exited 0; review required, and this pipeline does not block on review |
-| CIS-012 | CI simulation | high | **PASS** | A failure inside AIRA is reported as a defect in AIRA, not as a finding about the application | exit 8; AIRA failed internally |
 | CON-001 | API contracts | high | **PASS** | The API inventory reports which observed endpoints nothing tests | 14 endpoint(s) observed, 2 covered by an API test, 0 with a baseline; GET /api/accounts testCount=1 |
 | CON-002 | API contracts | critical | **PASS** | Contract baselines are inferred from responses the application actually gave | 14 baseline(s) captured, 0 skipped; GET /api/accounts v1 with 12 field(s) |
 | CON-003 | API contracts | critical | **PASS** | An unchanged API produces no contract differences at all | run passed; 0 breaking, 0 potentially breaking, 0 non-breaking |
@@ -147,11 +143,11 @@ not targets: no gate depends on them, and a run on other hardware will differ.
 | CON-012 | API contracts | critical | **PASS** | A generated unauthenticated-refusal test fails if the endpoint stops requiring credentials | run failed; "The endpoint refuses a caller with no credentials: Expected a status in "401,403" but the response was 200 OK." |
 | CON-013 | API contracts | high | **PASS** | Accepting a new contract baseline requires a reason and is versioned | without a note: 400; with one: 14 captured, 14 replaced; GET /api/accounts is now v2 |
 | CON-014 | API contracts | medium | **PASS** | A contract check can read what a crawl observed, not only what an API test called | 14 endpoint(s) compared from the crawl, 0 breaking |
-| COR-001 | UI/API correlation | critical | **PASS** | Every recorded request is attributed to the step that made it | 6 API call(s) recorded, 6 attributed to a step, across step(s) 1, 2, 4 |
-| COR-002 | UI/API correlation | critical | **PASS** | A UI step that fails because its own API call returned 500 is diagnosed as that | applicationDefect at 95%: "The step failed because the API call it made returned 500." — 1 failed call(s) recorded |
-| COR-003 | UI/API correlation | critical | **PASS** | An API test's failure is diagnosed from the call the failing step made | applicationDefect at 95%: "The step failed because the API call it made returned 500." / "POST /api/session → 500 in 3ms — the fault is in the application or a service it depends on, not in the test." |
+| COR-001 | UI/API correlation | critical | **PASS** | Every recorded request is attributed to the step that made it | 7 API call(s) recorded, 7 attributed to a step, across step(s) 1, 2, 3 |
+| COR-002 | UI/API correlation | critical | **PASS** | A UI step that fails because its own API call returned 500 is diagnosed as that | applicationDefect at 90%: "The step before this one made an API call that returned 500." — 1 failed call(s) recorded |
+| COR-003 | UI/API correlation | critical | **PASS** | An API test's failure is diagnosed from the call the failing step made | applicationDefect at 95%: "The step failed because the API call it made returned 500." / "POST /api/session → 500 in 2ms — the fault is in the application or a service it depends on, not in the test." |
 | COR-004 | UI/API correlation | critical | **PASS** | A request that never completed is diagnosed as a network issue and named | networkIssue at 90%: "The step failed because the API call it made never completed." |
-| COR-005 | UI/API correlation | critical | **PASS** | A failure where the API answered correctly is attributed to the front end | 3 API call(s), 0 failed; applicationDefect at 80%: "The API answered correctly and the page showed something else." |
+| COR-005 | UI/API correlation | critical | **PASS** | A failure where the API answered correctly is attributed to the front end | 2 API call(s), 0 failed; applicationDefect at 80%: "The API answered correctly and the page showed something else." |
 | COR-006 | UI/API correlation | critical | **PASS** | A signed-out page's own 401 never becomes the explanation for a removed control | locatorChange at 35%: "The element Press login-submit targets has changed." |
 | COR-007 | UI/API correlation | high | **PASS** | Re-analysing a stored failure rebuilds the correlation from the evidence | first: authenticationIssue at 90%; re-analysed: authenticationIssue at 90% |
 | DAT-001 | Test data | critical | **PASS** | A data set can be created with each kind of field and read back | 4 field(s): bookingDate=seededRandom, customerEmail=generated, orderReference=static, password=secretReference |
@@ -162,6 +158,13 @@ not targets: no gate depends on them, and a run on other hardware will differ.
 | DAT-006 | Test data | high | **PASS** | Deleting a data set a test case uses is refused rather than cascaded | attach 204; in use: 409 "1 test case(s) use this data set. Point them elsewhere first — deleting it would leave them running with no data, which reads as an application defect."; detach 204; once free |
 | DAT-007 | Test data | high | **PASS** | A data set exports to a file, imports back, and the export carries no secret | import 0, preview 0, re-import 0; exported 3 field(s), secret carried as "${secret:app_password}" |
 | DAT-008 | Test data | medium | **PASS** | A data set with several problems reports all of them at once | 4 problem(s) reported at once |
+| ISO-001 | Isolation, audit and observability | critical | **PASS** | An API test belonging to another tenant cannot be read by identifier | intruder 404, owner 200 |
+| ISO-002 | Isolation, audit and observability | critical | **PASS** | Contract baselines and the API inventory are scoped to the owning tenant | intruder 404 with 0 endpoint(s), owner 200 |
+| ISO-003 | Isolation, audit and observability | critical | **PASS** | A schedule cannot be read, changed or deleted across a tenant boundary | read 404, patch 404, delete 404; afterwards name "Tenant A nightly" enabled=true |
+| ISO-004 | Isolation, audit and observability | critical | **PASS** | Another tenant's notification integration is neither listed nor readable, and its secret never leaves the platform | tenant B list 200 (saw tenant A: false), by id 405; owner list 200; signing secret present in any response: false |
+| ISO-005 | Isolation, audit and observability | critical | **PASS** | A test data set cannot be read or previewed by another tenant | read: intruder 404, owner 200; preview: intruder 404, owner 200 |
+| ISO-006 | Isolation, audit and observability | critical | **PASS** | Quality gate rules are scoped to their project and tenant | tenant B list 404 (saw the rule: false), delete 404; rule still present for its owner: true |
+| ISO-007 | Isolation, audit and observability | critical | **PASS** | The audit trail is scoped to one organization, and there is no parameter that would widen it | tenant A sees 9 record(s) from 1 org(s); tenant B 1 from 1; forcing organizationId returned 1 org(s), tenant A's included: false |
 | NOT-001 | Notifications | critical | **PASS** | A webhook integration delivers, and the receiver gets a signed, well-formed body | delivered=true status=200; sink got 1 delivery, signature valid: true |
 | NOT-002 | Notifications | critical | **PASS** | A run with failing tests produces a notification naming the failure | 1 delivery(ies): RunFailed; title "1 test(s) failed in Golden notifications"; facts {"passed":1,"failed":1,"blocked":0,"healed":0,"flaky":0,"qualityGate":"Pass","branch":null,"commit":null} |
 | NOT-003 | Notifications | high | **PASS** | A green run sends nothing unless somebody asked for it | nothing was sent, as intended |
@@ -170,6 +173,11 @@ not targets: no gate depends on them, and a run on other hardware will differ.
 | NOT-006 | Notifications | critical | **PASS** | A failed delivery is recorded with the reason, and never fails the run | run ended "failed"; 1 delivery record(s); failed record: status 500, "The receiver answered 500 Internal Server Error." |
 | NOT-007 | Notifications | critical | **PASS** | A credential submitted as a readable setting is refused, not quietly stored | 3/3 refused; the harmless one returned 201 |
 | NOT-008 | Notifications | critical | **PASS** | A webhook cannot be pointed at cloud metadata | delivered=false; "The webhook URL was refused: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted target." |
+| OBS-001 | Isolation, audit and observability | high | **PASS** | Every response carries a correlation id, and one supplied by the caller is honoured rather than replaced | minted "4d6af132d2bf40e8ac133ce40bd650dd"; supplied "golden-fcxjp83lvo" came back as "golden-fcxjp83lvo" |
+| OBS-002 | Isolation, audit and observability | critical | **PASS** | The correlation id on a response is the one on the audit record that request produced | 1 record(s) carry correlation golden-trace-u185qgxdrh; the created project is among them: true (projectCreated) |
+| OBS-003 | Isolation, audit and observability | critical | **PASS** | A correlation id survives from the caller through the queue to the execution the worker ran | run passed; the execution carries correlation "golden-run-uzfzg2b0ns" (supplied "golden-run-uzfzg2b0ns") |
+| OBS-004 | Isolation, audit and observability | high | **PASS** | Liveness and readiness answer different questions, and liveness depends on nothing | /live 200 "Healthy"; /ready 200 "Healthy"; /health 200 "Healthy" |
+| OBS-005 | Isolation, audit and observability | high | **PASS** | A correlation id a caller invents is bounded, so it cannot be used to write arbitrary text into every log line | sent 500 characters; the platform used a 32-character id of its own: true |
 | REG-001 | Regression selection | critical | **PASS** | A changed file is mapped to what a rule says it affects, and the mapping is marked as declared | 1/1 path(s) mapped; routes ["/accounts"]; declared=true |
 | REG-002 | Regression selection | critical | **PASS** | A change a rule marks as shared selects the whole suite rather than a narrowed set | mode full, 5/5 selected |
 | REG-003 | Regression selection | critical | **PASS** | A change to one area selects the tests that reach it and leaves the others out | 3/5 selected: TC-0001(70) TC-0004(70) TC-0005(40) \| excluded: TC-0002(30) TC-0003(30) |
@@ -189,15 +197,15 @@ not targets: no gate depends on them, and a run on other hardware will differ.
 | RLS-005 | Release quality | critical | **PASS** | A release report covers every run that tested one build and says what changed | build v2.4.1: 1 run(s), 1 failing, compared with v2.4.0; "Build v2.4.1 was tested by 1 run(s). 1 test(s) are failing in the most recent one. Against Release green: 1 test(s) that used to pass now fail |
 | RLS-006 | Release quality | critical | **PASS** | A run with nothing to compare against says so rather than reporting zeros | 400: There is no earlier finished run in this project to compare against. A first run has nothing to have changed from. |
 | RLS-007 | Release quality | critical | **PASS** | aira release compare --fail-on-new-failures exits 1 on a regression and 0 on a known failure | regression exit 1 (expected 1); already-failing exit 0 (expected 0); markdown headline "#### ❌ 1 test(s) that used to pass now fail" |
-| SCH-001 | Scheduling | critical | **PASS** | A schedule created through the API fires on its own and starts a real run | fired at 2026-09-23T02:25:06.330703+00:00, run a8f54a53-6ce0-4086-a86a-1f5602671a50 (passed, trigger scheduled, 1/1 passed); next run 2026-09-23T02:26:00+00:00 |
+| SCH-001 | Scheduling | critical | **PASS** | A schedule created through the API fires on its own and starts a real run | fired at 2026-09-23T04:58:02.107904+00:00, run f8d9c365-d468-4e36-87a0-bcc9af8942fe (passed, trigger scheduled, 1/1 passed); next run 2026-09-23T04:59:00+00:00 |
 | SCH-002 | Scheduling | high | **PASS** | A schedule restricted by tag runs only the tests carrying that tag | ran 1 test(s): TC-0002 (expected only TC-0002) |
-| SCH-003 | Scheduling | critical | **PASS** | Firing moves the schedule forward, so one occurrence starts exactly one run | fired at 2026-09-23T02:27:06.38718+00:00, next 2026-09-23T02:28:00+00:00 (advanced: true); 1 run(s) started for this schedule |
+| SCH-003 | Scheduling | critical | **PASS** | Firing moves the schedule forward, so one occurrence starts exactly one run | fired at 2026-09-23T05:00:02.165699+00:00, next 2026-09-23T05:01:00+00:00 (advanced: true); 1 run(s) started for this schedule |
 | SCH-004 | Scheduling | high | **PASS** | A cron expression that cannot work is refused when it is written, not at 3am | 5/5 refused with 400; the valid expression returned 201 |
 | SCH-005 | Scheduling | critical | **PASS** | A schedule pointed at unauthorized production is refused when it is created | 403 security_policy: Environment 'prod' is production and testing it has not been authorized. Authorize it explicitly with POST /api/v1/environments/{id}/authorize-production, with a note saying why. |
 | SCH-006 | Scheduling | medium | **PASS** | Preview reports the real occurrences, in the schedule's own time zone | 5 occurrence(s), local times 02:30:00, ascending: true |
 | SCH-007 | Scheduling | high | **PASS** | A schedule can be created, listed, previewed, disabled and removed from the CLI | add 0, list 0, preview 0, disable 0, remove 0; gone from the list afterwards: true |
-| VIS-001 | Visual regression | critical | **PASS** | A first run stores a baseline and reports that nothing was compared | first newBaseline (1280x1694); second match at 0.0035% — the live timestamp's own noise, tolerated by the default threshold |
-| VIS-002 | Visual regression | critical | **PASS** | Every visual change in the lab produces the verdict its ground truth names | TINY: match 0.0220%; OBVIOUS: differs 0.2931%; TALLER: sizeChanged 0.0000% |
+| VIS-001 | Visual regression | critical | **PASS** | A first run stores a baseline and reports that nothing was compared | first newBaseline (1280x1694); second match at 0.0038% — the live timestamp's own noise, tolerated by the default threshold |
+| VIS-002 | Visual regression | critical | **PASS** | Every visual change in the lab produces the verdict its ground truth names | TINY: match 0.0221%; OBVIOUS: differs 0.2940%; TALLER: sizeChanged 0.0000% |
 | VIS-003 | Visual regression | critical | **PASS** | A difference does not fail the step by default; it asks for a person | default: run passed, verdict differs; onDifference=fail: run failed, verdict differs |
 | VIS-004 | Visual regression | high | **PASS** | A difference stores the baseline, the capture and a diff; a match stores none | match: no images stored; differs: baseline=true actual=true diff=true |
 | VIS-005 | Visual regression | critical | **PASS** | A run with no visual step reports the metric as unmeasured, never as zero | rule measured=false passed=false; outcome review |
@@ -206,7 +214,7 @@ not targets: no gate depends on them, and a run on other hardware will differ.
 
 ## Evidence
 
-143 artifact(s), 222 KiB, under `verification/evidence/<TEST-ID>/CQ10-2026-09-23T02-21-33Z/`.
+145 artifact(s), 210 KiB, under `verification/evidence/<TEST-ID>/CQ9F-FULL-2026-09-23T04-54-10Z/`.
 0 missing, 0 changed since they were recorded.
 
 Full index with SHA-256 per artifact: `verification/reports/EVIDENCE-INDEX.md`.

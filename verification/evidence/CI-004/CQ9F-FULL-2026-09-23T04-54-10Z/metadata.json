@@ -1,0 +1,34 @@
+{
+  "testId": "CI-004",
+  "suite": "CI integration",
+  "runId": "CQ9F-FULL-2026-09-23T04-54-10Z",
+  "objective": "A run the gate sends for review exits 7 and says so in the summary",
+  "preconditions": [
+    "a gate rule whose action is review"
+  ],
+  "input": "A passing run with a review rule that does not hold",
+  "expected": "Exit 7 (HUMAN_REVIEW_REQUIRED), and a summary saying a person must look — not a pass, and not a failure",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "exit 7 (expected 7); headline \"### ⚠️ This run needs a person to look at it\"",
+  "metrics": {
+    "exitCode": 7
+  },
+  "startedAt": "2026-09-23T04:57:03.948Z",
+  "durationMs": 3257,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "summary.md",
+      "path": "evidence/CI-004/CQ9F-FULL-2026-09-23T04-54-10Z/summary.md",
+      "bytes": 730,
+      "sha256": "8e719efcaa90e1eae2521c77bffbd55b258e2cbf2f6bf735962d6e00451af105"
+    }
+  ]
+}

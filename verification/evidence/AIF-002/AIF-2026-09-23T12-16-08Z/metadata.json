@@ -1,0 +1,36 @@
+{
+  "testId": "AIF-002",
+  "suite": "AI provider failure",
+  "runId": "AIF-2026-09-23T12-16-08Z",
+  "objective": "A provider error fails the request visibly instead of being swallowed",
+  "preconditions": [
+    "an application is registered",
+    "AI fault injection is enabled"
+  ],
+  "input": "A generation request while the provider is faulted with ProviderError",
+  "expected": "The request fails with an error naming the problem, and no test case is stored",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 400; 0 test case(s) created; message \"This application has no discovered pages yet. Run discovery before generating tests.\"",
+  "metrics": {
+    "status": 400,
+    "fabricated": 0
+  },
+  "startedAt": "2026-09-23T12:16:08.926Z",
+  "durationMs": 33,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AIF-002/AIF-2026-09-23T12-16-08Z/response.json",
+      "bytes": 309,
+      "sha256": "051070caca8642462c38950f3e12c71de12b932aa600e741b692a21ff69d6ac4"
+    }
+  ]
+}

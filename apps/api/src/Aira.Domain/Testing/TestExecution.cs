@@ -24,8 +24,16 @@ public class TestExecution : BaseEntity, ITenantOwned
     public BrowserType Browser { get; set; } = BrowserType.Chromium;
     public string? BrowserVersion { get; set; }
     public string? WorkerId { get; set; }
-    /// <summary>Correlates every log line, artifact and action of this execution.</summary>
-    public string CorrelationId { get; set; } = Guid.NewGuid().ToString("N");
+    /// <summary>The id of the request that asked for this run, carried through the queue to
+    /// the worker and onto every log line and audit record the work produces.</summary>
+    /// <remarks>
+    /// Deliberately not defaulted to a fresh Guid. It was, and because a generated id is
+    /// indistinguishable from a real one, nothing assigning it went unnoticed: every
+    /// execution carried an id that correlated with nothing, the API published it and the
+    /// CLI report printed it, and following it found no log line and no audit record
+    /// (BUG-0037). Empty is a visibly missing value; a plausible one is a lie.
+    /// </remarks>
+    public string CorrelationId { get; set; } = string.Empty;
 
     public int StepsTotal { get; set; }
     public int StepsPassed { get; set; }

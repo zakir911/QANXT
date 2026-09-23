@@ -1,0 +1,14 @@
+{
+  "summary": "The API answered correctly and the page showed something else.",
+  "likelyCause": "Every API call the failing step made succeeded (GET /api/dashboard → 200 in 0ms), so the data was right and what was rendered from it was not. The defect is in the front end rather than the service.",
+  "evidence": "1 API call(s) during the failing step, all successful. Engine message: Expected the element to contain \"£74,343.08\" but it read \"£81,797.38\" (waited 15003ms).",
+  "suggestedAction": "Compare the response body in the network evidence with what the failure screenshot shows. Start with the rendering, not the endpoint.",
+  "category": "applicationDefect",
+  "confidence": 80,
+  "isLikelyApplicationDefect": true,
+  "isHealable": false,
+  "producedByAi": false,
+  "provider": "local",
+  "model": "aira-rules-v1",
+  "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"051586c5-32e6-4126-a549-9a4fc92fa9e8\", \"kind\": \"DomSnapshot\", \"name\": \"step-2-failure.html\"}, {\"id\": \"1332d381-11e6-40ba-9345-657466d88c5d\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"49f21d79-1457-4828-a6d7-f707fa7c35bd\", \"kind\": \"Screenshot\", \"name\": \"step-2-failure.png\"}, {\"id\": \"5efd1485-50d6-492a-b4bf-b8fae832ade7\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"6f854f46-39f2-4dda-bac6-f24d84c922b9\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"bad75f4f-6fd6-4381-9b30-13a475c2e3a4\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"d279becd-f69e-4b15-aeae-6c344165967e\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"e62d5e36-b592-4d7c-98a0-3b10ccfba708\", \"kind\": \"AccessibilityTree\", \"name\": \"step-2-failure.a11y.json\"}], \"executionId\": \"4c7e830b-31a3-4f69-b068-0e1528e87877\"}"
+}

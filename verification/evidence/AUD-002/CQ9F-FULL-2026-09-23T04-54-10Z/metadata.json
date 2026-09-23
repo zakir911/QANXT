@@ -1,0 +1,34 @@
+{
+  "testId": "AUD-002",
+  "suite": "Isolation, audit and observability",
+  "runId": "CQ9F-FULL-2026-09-23T04-54-10Z",
+  "objective": "Creating, changing and deleting a schedule are each recorded separately",
+  "preconditions": [
+    "a project exists"
+  ],
+  "input": "Create, patch and delete a schedule, then read the trail for it",
+  "expected": "Three distinct audit actions appear for the same entity",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "actions recorded: scheduleCreated, scheduleDeleted, scheduleUpdated",
+  "metrics": {
+    "distinctActions": 3
+  },
+  "startedAt": "2026-09-23T05:01:53.467Z",
+  "durationMs": 22,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "schedule-audit.json",
+      "path": "evidence/AUD-002/CQ9F-FULL-2026-09-23T04-54-10Z/schedule-audit.json",
+      "bytes": 663,
+      "sha256": "4539f8e77867c47365a7343a9ad52a87cbda498379650fa7e6b23a31f3de9332"
+    }
+  ]
+}

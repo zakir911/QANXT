@@ -1,0 +1,40 @@
+{
+  "testId": "COR-002",
+  "suite": "UI/API correlation",
+  "runId": "CQ9F-FULL-2026-09-23T04-54-10Z",
+  "objective": "A UI step that fails because its own API call returned 500 is diagnosed as that",
+  "preconditions": [
+    "FAULT_TRANSACTIONS_API_500 is enabled: sign-in works, the transactions call does not"
+  ],
+  "input": "The same journey while the call the account page makes answers 500",
+  "expected": "A diagnosis that names the endpoint and the status rather than counting errors somewhere in the execution. Whether the call is attributed to the failing step or to the one before it depends on when the page issues the fetch, and both are correct answers; what must not happen is a verdict that names neither",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "applicationDefect at 90%: \"The step before this one made an API call that returned 500.\" — 1 failed call(s) recorded",
+  "metrics": {
+    "confidence": 90
+  },
+  "startedAt": "2026-09-23T04:55:23.202Z",
+  "durationMs": 22144,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "analysis.json",
+      "path": "evidence/COR-002/CQ9F-FULL-2026-09-23T04-54-10Z/analysis.json",
+      "bytes": 1832,
+      "sha256": "4144a9d3f695700be22974c5f9c9b9170ba8d48b8cf3eb1e9afbdf0498fb7e92"
+    },
+    {
+      "file": "api-calls.json",
+      "path": "evidence/COR-002/CQ9F-FULL-2026-09-23T04-54-10Z/api-calls.json",
+      "bytes": 1888,
+      "sha256": "9a2d66cfab6c523babeb45fb61742a5b7809f797b541bd91461e3ebd961b8141"
+    }
+  ]
+}

@@ -17,6 +17,8 @@ import FailuresPage from './pages/FailuresPage';
 import HealingPage from './pages/HealingPage';
 import AgentPage from './pages/AgentPage';
 import InsightsPage from './pages/InsightsPage';
+import SchedulesPage from './pages/SchedulesPage';
+import AuditPage from './pages/AuditPage';
 import VerificationPage from './pages/VerificationPage';
 import SettingsPage from './pages/SettingsPage';
 
@@ -58,6 +60,8 @@ export default function App() {
         <Route path="healing" element={<HealingPage />} />
         <Route path="agent" element={<AgentPage />} />
         <Route path="insights" element={<InsightsPage />} />
+        <Route path="schedules" element={<SchedulesPage />} />
+        <Route path="audit" element={<AuditPage />} />
         <Route path="verification" element={<VerificationPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>

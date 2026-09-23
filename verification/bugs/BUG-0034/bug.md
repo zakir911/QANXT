@@ -10,7 +10,7 @@
 | **Build** | `72e2987` |
 | **Component** | `apps/api/src/Aira.Api/Controllers/` (no `AuditController`), `apps/web-console/src` |
 | **Reproduction rate** | 3 of 3 |
-| **Status** | **OPEN** — documented as a known limitation in `docs/observability.md`; fix belongs to CQ-9f |
+| **Status** | Fixed and re-verified in CQ-9f |
 
 ## What happens
 
@@ -75,7 +75,64 @@ ORDER  BY occurred_at DESC
 LIMIT  100;
 ```
 
-## Not fixed here
+## Fix
+
+`AuditQueryService` and `AuditController`, both read-only, behind the `audit:read`
+permission that already existed and that no endpoint had ever required — project
+administrators and above hold it, and everybody below does not, because the trail names
+people and is therefore not ordinary read access.
+
+- `GET /api/v1/audit` — filters on action, entity type, entity id, correlation id, user
+  email, project, success and a time range; paginated, newest first, tie-broken on id so
+  pages cannot overlap or skip.
+- `GET /api/v1/audit/correlation/{id}` — everything one request did, given its own route
+  because it is the query somebody runs while holding a log line.
+- `GET /api/v1/audit/actions` — the action names this build can record, so a caller
+  filtering by one does not discover a misspelling only by never matching anything.
+
+Tenant scoping is deliberately *not* re-implemented in the service: `AuditLog` is
+`ITenantOwned`, so the context's global query filter constrains every query before the
+service sees a row. Organization is not a parameter, so there is no way to ask the endpoint
+for somebody else's records. `userEmail` matches exactly rather than by prefix, so a review
+endpoint cannot be turned into a way to enumerate an organization's users.
+
+There is no POST, PATCH or DELETE, and the application's database role holds INSERT and
+SELECT on the table, so append-only remains a property of the deployment rather than a
+convention this code is trusted to keep.
+
+`aira audit list | trace | actions` exposes the same thing to a pipeline, and
+`docs/observability.md` was rewritten accordingly — the "known limitation" section is gone
+and replaced by how to read the trail.
+
+## Re-verification
+
+The original reproduction, inverted:
+
+```
+$ for i in 1 2 3; do curl -s -o /dev/null -w "attempt $i: %{http_code}\n" \
+    "$AIRA_API_URL/api/v1/audit" -H "authorization: Bearer invalid"; done
+attempt 1: 401
+attempt 2: 401
+attempt 3: 401
+```
+
+401 rather than 404: the route now exists and rejects the bad token, exactly as
+`/api/v1/projects` did in the control. Against a real tenant:
+
+```
+GET /audit -> 200
+total: 2 returned: 2
+   projectCreated | Project | Project 'Audit probe project' created. | corr 72f4fe41
+   organizationCreated | Organization | Organization 'AuditProbe …' registered by | corr 8647845e
+GET /audit/actions -> 200 count 35
+GET /audit/correlation -> 200 entries 1
+```
+
+Covered from outside by the isolation suite (AUD-001…AUD-007, ISO-007).
+
+## Why it was not fixed in CQ-10
+
+
 
 CQ-10's scope is documentation, the verification entry point and the traceability matrix.
 Adding a query endpoint means a controller, tenant-scoped filtering, pagination, a

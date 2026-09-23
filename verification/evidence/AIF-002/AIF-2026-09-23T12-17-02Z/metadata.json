@@ -1,0 +1,37 @@
+{
+  "testId": "AIF-002",
+  "suite": "AI provider failure",
+  "runId": "AIF-2026-09-23T12-17-02Z",
+  "objective": "A provider error fails the request visibly instead of being swallowed",
+  "preconditions": [
+    "an application is registered",
+    "AI fault injection is enabled"
+  ],
+  "input": "A generation request while the provider is faulted with ProviderError",
+  "expected": "The request fails with an error naming the problem, and no test case is stored",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 503; 0 test case(s) created; model request recorded: true (status failed); message \"The model provider returned 503 Service Unavailable. (simulated)\"",
+  "metrics": {
+    "status": 503,
+    "fabricated": 0,
+    "reachedTheModel": 1
+  },
+  "startedAt": "2026-09-23T12:17:18.068Z",
+  "durationMs": 46,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AIF-002/AIF-2026-09-23T12-17-02Z/response.json",
+      "bytes": 458,
+      "sha256": "7f625a63b3849e3d0c34c4e3591ce631f240785f1441688222a487947b4fbbd4"
+    }
+  ]
+}

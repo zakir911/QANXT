@@ -1,5 +1,6 @@
 using Aira.Application.Agent;
 using Aira.Application.Ai;
+using Aira.Application.Audit;
 using Aira.Application.Applications;
 using Aira.Application.Dashboard;
 using Aira.Application.Diagnosis;
@@ -43,6 +44,8 @@ public static class DependencyInjection
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<ITestDataService, TestDataService>();
         services.AddScoped<IRunComparisonService, RunComparisonService>();
+        services.AddScoped<IAuditQueryService, AuditQueryService>();
+        services.AddScoped<IAiRequestQueryService, AiRequestQueryService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAgentService, AgentService>();
         services.AddScoped<IAgentLoop, AgentLoop>();

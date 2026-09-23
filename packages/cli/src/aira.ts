@@ -14,6 +14,7 @@ import { REGRESSION_HELP, regressionCommand } from './commands/regression.js';
 import { SCHEDULE_HELP, scheduleCommand } from './commands/schedule.js';
 import { TEST_DATA_HELP, testDataCommand } from './commands/test-data.js';
 import { RELEASE_HELP, releaseCommand } from './commands/release.js';
+import { AUDIT_HELP, auditCommand } from './commands/audit.js';
 import { appsCommand, environmentsCommand, LIST_HELP, projectsCommand } from './commands/list.js';
 
 /**
@@ -45,6 +46,7 @@ ${bold(`${PRODUCT} command line`)} ${dim(`v${VERSION}`)}
   aira run                  Start a test run, wait for it, write reports
   aira status [run-id]      What a run did, or what the recent runs did
   aira quality-gate         Evaluate a finished run against its gate
+  aira audit                Who did what, and whether it worked
   aira report <run-id>      Write reports for a run that already finished
 
   --api-url <url>           The control plane (or AIRA_API_URL)
@@ -70,6 +72,7 @@ const COMMAND_HELP: Record<string, string> = {
   contract: CONTRACT_HELP,
   regression: REGRESSION_HELP,
   schedule: SCHEDULE_HELP,
+  audit: AUDIT_HELP,
   'test-data': TEST_DATA_HELP,
   release: RELEASE_HELP,
   run: RUN_HELP,
@@ -88,6 +91,7 @@ const COMMANDS: Record<string, (args: ReturnType<typeof parseArgs>) => Promise<n
   contract: contractCommand,
   regression: regressionCommand,
   schedule: scheduleCommand,
+  audit: auditCommand,
   'test-data': testDataCommand,
   release: releaseCommand,
   run: runCommand,
@@ -117,6 +121,25 @@ async function main(argv: readonly string[]): Promise<number> {
   if (boolFlag(args, 'help')) { note(COMMAND_HELP[args.command] ?? HELP); return ExitCode.Success; }
 
   return command(args);
+}
+
+/**
+ * A closed downstream pipe is not a failure.
+ *
+ * `aira audit list | head` closes stdout once head has what it wants. Node then raises
+ * EPIPE on the next write, and with no handler it surfaces as an unhandled 'error' event:
+ * a stack trace, and exit 1. In this CLI exit 1 means TEST_FAILURE, so piping a command
+ * into `head` told a pipeline that tests had failed. Anything writing more lines than its
+ * reader consumes hit it; the audit listing just hits it most easily.
+ *
+ * Handled here rather than at each write site, because there is one correct answer and it
+ * is the same everywhere: stop writing, and exit as if the output had been delivered.
+ */
+for (const stream of [process.stdout, process.stderr]) {
+  stream.on('error', (error: NodeJS.ErrnoException) => {
+    if (error.code === 'EPIPE') process.exit(ExitCode.Success);
+    throw error;
+  });
 }
 
 try {

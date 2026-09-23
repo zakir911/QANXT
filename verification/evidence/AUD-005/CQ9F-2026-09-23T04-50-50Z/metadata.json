@@ -1,0 +1,35 @@
+{
+  "testId": "AUD-005",
+  "suite": "Isolation, audit and observability",
+  "runId": "CQ9F-2026-09-23T04-50-50Z",
+  "objective": "The audit trail has no write path: it cannot be added to, edited or deleted through the API",
+  "preconditions": [
+    "the audit endpoint exists"
+  ],
+  "input": "POST, PATCH, PUT and DELETE against /api/v1/audit and a record within it",
+  "expected": "Every write verb is refused; the record count is unchanged afterwards",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "postCollection 405, deleteCollection 405, patchRecord 404, putRecord 404, deleteRecord 404; total 18 → 18",
+  "metrics": {
+    "totalBefore": 18,
+    "totalAfter": 18
+  },
+  "startedAt": "2026-09-23T04:50:51.041Z",
+  "durationMs": 27,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "append-only.json",
+      "path": "evidence/AUD-005/CQ9F-2026-09-23T04-50-50Z/append-only.json",
+      "bytes": 190,
+      "sha256": "57b20210e915fe088a9d9f422b96023722a1a52ed5138bc9582671c2e9d7d6e1"
+    }
+  ]
+}

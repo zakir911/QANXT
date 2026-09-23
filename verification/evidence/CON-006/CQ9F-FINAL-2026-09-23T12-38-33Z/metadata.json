@@ -1,0 +1,33 @@
+{
+  "testId": "CON-006",
+  "suite": "API contracts",
+  "runId": "CQ9F-FINAL-2026-09-23T12-38-33Z",
+  "objective": "A field that can now be null is classified as potentially breaking, not breaking",
+  "preconditions": [
+    "baselines captured",
+    "FAULT_API_FIELD_NULLABLE enabled"
+  ],
+  "input": "A run of the accounts test while one account's sortCode is null",
+  "expected": "A potentially-breaking change: callers that null-check are fine, callers that do not are broken, and which of those a team has is not something AIRA can know",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "the test passed; $.accounts[].sortCode classified \"potentiallyBreaking\" (string → null|string); 0 breaking",
+  "metrics": null,
+  "startedAt": "2026-09-23T12:39:26.413Z",
+  "durationMs": 2057,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "changes.json",
+      "path": "evidence/CON-006/CQ9F-FINAL-2026-09-23T12-38-33Z/changes.json",
+      "bytes": 728,
+      "sha256": "990658c5c1e366c997ae56c9b6bd12d9a40a9058acf2a445f31ecfb180a2d995"
+    }
+  ]
+}

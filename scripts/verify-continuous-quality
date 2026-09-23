@@ -40,6 +40,8 @@ SUITES=(
   release              # what changed, rather than what is broken
   accessibility        # measured against named rules
   visual               # baselines, masking, and a noise floor
+  isolation            # tenant boundaries, the audit trail, and one id end to end
+  ai-failure           # what the platform does when the model does not
 )
 
 # The CI simulation runs a real pipeline per scenario and takes minutes. It is the slowest

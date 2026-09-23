@@ -293,4 +293,40 @@ public class ApiContractComparerTests
         difference.Description.Should().StartWith("\"balance\" changed from number to string");
         difference.Description.Should().EndWith(".");
     }
+
+    [Fact]
+    public void Stops_comparing_fields_once_the_status_class_has_changed()
+    {
+        // A baseline captured from an error response, and an endpoint that now works.
+        var differences = ApiContractComparer.Compare(
+            Shape("""{ "error": "unauthorized" }"""),
+            Shape("""{ "accounts": [ { "id": "acc-1", "balance": 12.5 } ] }"""),
+            baselineStatus: 401, observedStatus: 200);
+
+        // One difference: the status. The endpoint started working, which is not breaking.
+        differences.Should().ContainSingle(
+            "an error body and a success body are different contracts, so diffing their "
+            + "fields against each other says nothing true");
+        differences[0].Path.Should().Be("$status");
+        differences[0].Kind.Should().Be(ContractChangeKind.NonBreaking);
+
+        // Specifically, the error field's disappearance is not reported as breaking. That is
+        // the false positive this guards: telling a team that an endpoint which started
+        // working has broken its callers (BUG-0040).
+        differences.Should().NotContain(d => d.Path.Contains("error"));
+    }
+
+    [Fact]
+    public void Still_compares_fields_when_both_responses_succeeded()
+    {
+        var differences = ApiContractComparer.Compare(
+            Shape("""{ "id": "a", "sortCode": "11-22-33" }"""),
+            Shape("""{ "id": "a" }"""),
+            baselineStatus: 200, observedStatus: 201);
+
+        // Different codes, same class, so the bodies are still comparable and a removed
+        // field is still breaking.
+        differences.Should().Contain(d => d.Path.Contains("sortCode")
+            && d.Kind == ContractChangeKind.Breaking);
+    }
 }

@@ -1,0 +1,73 @@
+{
+  "id": "a696648e-7f06-43f7-8707-e01df95b80e3",
+  "reference": "TC-0002",
+  "name": "GET http://localhost:4300/api/session answers as observed",
+  "objective": "The endpoint answers 200 with the fields it carried when discovery saw it 13 time(s).",
+  "preconditions": "",
+  "expectedResults": "",
+  "kind": "api",
+  "priority": "medium",
+  "risk": "medium",
+  "tags": "api,generated,smoke",
+  "source": "manual",
+  "isEnabled": true,
+  "version": 1,
+  "requirementReference": "",
+  "testSuiteId": "c2da50ef-7eef-48f5-b5da-f042cd80b8cb",
+  "applicationId": "eb3c5a09-36e7-4965-b3f3-152f25e98914",
+  "statistics": {
+    "executionCount": 0,
+    "passCount": 0,
+    "failCount": 0,
+    "healCount": 0,
+    "flakinessScore": 0,
+    "averageDurationMs": 0
+  },
+  "steps": [
+    {
+      "id": "b126ebcf-3f1b-4579-b0b2-4c1021f52aa8",
+      "order": 1,
+      "description": "GET http://localhost:4300/api/session",
+      "action": "apiRequest",
+      "isCritical": true,
+      "continueOnFailure": false,
+      "healCount": 0,
+      "apiRequest": {
+        "method": "GET",
+        "path": "/api/session",
+        "auth": {
+          "mode": "none"
+        }
+      },
+      "assertions": [
+        {
+          "id": "99d106f5-897a-4e48-8fcd-2f5966934745",
+          "type": "httpStatusEquals",
+          "expectedValue": "200",
+          "attributeName": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The endpoint still answers 200, as it did when it was observed"
+        },
+        {
+          "id": "d5676358-0e0b-4b15-a9d6-957b19c65557",
+          "type": "responseTimeUnderMs",
+          "expectedValue": "2000",
+          "attributeName": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The response arrives within 2000ms (ten times the 0ms observed, floored at 2000ms)"
+        },
+        {
+          "id": "d706ad7f-7500-4404-87ec-e8c4a08df5a1",
+          "type": "responseJsonPathExists",
+          "expectedValue": "",
+          "attributeName": "error",
+          "negate": false,
+          "isSoft": false,
+          "description": "\"error\" is still present in the response"
+        }
+      ]
+    }
+  ]
+}

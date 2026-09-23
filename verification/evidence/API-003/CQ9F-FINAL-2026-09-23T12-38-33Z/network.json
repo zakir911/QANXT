@@ -1,0 +1,37 @@
+[
+  {
+    "id": "ac24851f-795c-48a8-8447-e9d8cfd5058d",
+    "method": "POST",
+    "url": "http://localhost:4300/api/session",
+    "resourceType": "apiTest",
+    "statusCode": 200,
+    "durationMs": 3,
+    "requestSizeBytes": 57,
+    "responseSizeBytes": 76,
+    "isFailed": false,
+    "occurredAt": "2026-09-23T12:38:43.123+00:00",
+    "requestHeadersJson": "{\"accept\": \"application/json, text/plain, */*\", \"content-type\": \"application/json\"}",
+    "responseHeadersJson": "{\"date\": \"Wed, 23 Sep 2026 12:38:43 GMT\", \"connection\": \"keep-alive\", \"keep-alive\": \"timeout=5\", \"set-cookie\": \"***REDACTED***\", \"content-type\": \"application/json; charset=utf-8\", \"content-length\": \"76\"}",
+    "requestBodyExcerpt": "{\"username\":\"***REDACTED***\",\"password\":\"***REDACTED***\"}",
+    "responseBodyExcerpt": "{\"user\":{\"id\":\"usr-***REDACTED***\",\"username\":\"***REDACTED***\",\"displayName\":\"Alice Fernsby\"}}",
+    "testActionId": "ae6925df-a411-43b3-be3c-db8c18babff6",
+    "actionOrder": 1
+  },
+  {
+    "id": "de91f8e5-d6d3-41ec-bed5-cf762a836a48",
+    "method": "GET",
+    "url": "http://localhost:4300/api/accounts",
+    "resourceType": "apiTest",
+    "statusCode": 200,
+    "durationMs": 2,
+    "requestSizeBytes": 0,
+    "responseSizeBytes": 563,
+    "isFailed": false,
+    "occurredAt": "2026-09-23T12:38:43.134+00:00",
+    "requestHeadersJson": "{\"accept\": \"application/json, text/plain, */*\"}",
+    "responseHeadersJson": "{\"date\": \"Wed, 23 Sep 2026 12:38:43 GMT\", \"connection\": \"keep-alive\", \"keep-alive\": \"timeout=5\", \"content-type\": \"application/json; charset=utf-8\", \"content-length\": \"563\"}",
+    "responseBodyExcerpt": "{\"accounts\":[{\"id\":\"acc-1001\",\"userId\":\"usr-***REDACTED***\",\"name\":\"Everyday Current\",\"type\":\"current\",\"number\":\"****4412\",\"sortCode\":\"***REDACTED***\",\"currency\":\"GBP\",\"openingBalance\":4820.55,\"balance\":20942.8},{\"id\":\"acc-1002\",\"userId\":\"usr-***REDACTED***\",\"name\":\"Rainy Day Savings\",\"type\":\"savings\",\"number\":\"****8830\",\"sortCode\":\"***REDACTED***\",\"currency\":\"GBP\",\"openingBalance\":15240,\"balance\":36834.07},{\"id\":\"acc-1003\",\"userId\":\"usr-***REDACTED***\",\"name\":\"Travel Credit\",\"type\":\"credit\",\"number\":\"****2201\",\"sortCode\":\"***REDACTED***\",\"currency\":\"GBP\",\"openingBalance\":-742.18,\"balance\":16566.21}]}",
+    "testActionId": "64363fb3-9b2a-454d-9c30-811be0a4ecf4",
+    "actionOrder": 2
+  }
+]

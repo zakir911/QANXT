@@ -14,6 +14,12 @@ start() {
   export ASPNETCORE_ENVIRONMENT="${ASPNETCORE_ENVIRONMENT:-Development}"
   export ASPNETCORE_URLS="${API_URL:-http://localhost:5080}"
   export DOTNET_NOLOGO=1
+  # Fault injection for the model provider, so the AI-failure golden suite can arm a
+  # simulated timeout, malformed reply or schema violation and watch what the platform does.
+  # This script starts a local development API only; it is off in every shipped
+  # configuration, and the switch refuses to arm when it is off. Override by exporting
+  # Ai__FaultInjection__Enabled=false before calling this.
+  export Ai__FaultInjection__Enabled="${Ai__FaultInjection__Enabled:-true}"
   nohup dotnet run --project "${ROOT}/apps/api/src/Aira.Api" --no-launch-profile > "$LOGFILE" 2>&1 &
   echo $! > "$PIDFILE"
   echo "API starting (pid $(cat "$PIDFILE")), logs: $LOGFILE"

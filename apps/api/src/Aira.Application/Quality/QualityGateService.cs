@@ -188,6 +188,35 @@ public sealed class QualityGateService : IQualityGateService
         else if (Percentages.Contains(request.Metric) && request.Threshold > 100)
             errors["threshold"] = new[] { "A percentage threshold cannot be above 100." };
 
+        // A rule no run could ever satisfy is refused, for the same reason a test that
+        // asserts nothing is refused: it is not a check, it is a permanent block wearing
+        // the costume of one.
+        //
+        // Every metric the gate measures is non-negative — counts, percentages, a duration —
+        // so "less than zero" can never hold. It is worth refusing explicitly because of how
+        // it arrives: `Operator` is a non-nullable enum, so a request that omits it, or
+        // misspells the field, gets LessThan (0) by default. Somebody asking for "no failing
+        // tests" and writing the field name wrong was handed `failedCount < 0`, a 201, and a
+        // gate that blocked every build including a perfectly green one (BUG-0039).
+        if (request.Operator == QualityGateOperator.LessThan && request.Threshold == 0)
+        {
+            errors["operator"] = new[]
+            {
+                "No run can satisfy this rule: the metric is never negative, so \"less than 0\" "
+                + "can never hold and the gate would block every build. Did you mean \"lessThanOrEqual\" "
+                + "with a threshold of 0 — that is, none at all?"
+            };
+        }
+        else if (Percentages.Contains(request.Metric)
+            && request.Operator == QualityGateOperator.GreaterThan && request.Threshold == 100)
+        {
+            errors["operator"] = new[]
+            {
+                "No run can satisfy this rule: a percentage never exceeds 100, so \"greater than 100\" "
+                + "can never hold. Did you mean \"greaterThanOrEqual\" with a threshold of 100?"
+            };
+        }
+
         if (request.Action is { } action && !Enum.IsDefined(action))
             errors["action"] = new[] { "That is not something a rule can do. Use fail, review or warn." };
 

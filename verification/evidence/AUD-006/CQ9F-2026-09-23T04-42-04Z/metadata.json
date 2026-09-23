@@ -1,0 +1,25 @@
+{
+  "testId": "AUD-006",
+  "suite": "Isolation, audit and observability",
+  "runId": "CQ9F-2026-09-23T04-42-04Z",
+  "objective": "Reading the audit trail needs its own permission, which ordinary read access does not carry",
+  "preconditions": [
+    "the organization can invite a user with a lesser role"
+  ],
+  "input": "Invite a Viewer, sign in as them, and read results and then the trail",
+  "expected": "The viewer can read test results and is refused the audit trail",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "the invited viewer could not sign in: 400; declared evidence never produced: permission.json",
+  "metrics": null,
+  "startedAt": "2026-09-23T04:42:06.597Z",
+  "durationMs": 108,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": []
+}

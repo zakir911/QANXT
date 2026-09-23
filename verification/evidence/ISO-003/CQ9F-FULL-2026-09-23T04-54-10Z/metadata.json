@@ -1,0 +1,36 @@
+{
+  "testId": "ISO-003",
+  "suite": "Isolation, audit and observability",
+  "runId": "CQ9F-FULL-2026-09-23T04-54-10Z",
+  "objective": "A schedule cannot be read, changed or deleted across a tenant boundary",
+  "preconditions": [
+    "tenant A owns a schedule"
+  ],
+  "input": "GET, PATCH and DELETE on tenant A's schedule as tenant B",
+  "expected": "All three are refused, and the schedule still exists and is unchanged afterwards",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "read 404, patch 404, delete 404; afterwards name \"Tenant A nightly\" enabled=true",
+  "metrics": {
+    "read": 404,
+    "patch": 404,
+    "delete": 404
+  },
+  "startedAt": "2026-09-23T05:01:53.379Z",
+  "durationMs": 15,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "schedule-isolation.json",
+      "path": "evidence/ISO-003/CQ9F-FULL-2026-09-23T04-54-10Z/schedule-isolation.json",
+      "bytes": 153,
+      "sha256": "864d4aa6f216a66c4e38dfe9758ffafddb820aed05754b1e12a720d87be0dacf"
+    }
+  ]
+}

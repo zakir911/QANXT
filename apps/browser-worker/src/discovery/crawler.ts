@@ -385,12 +385,8 @@ export class Crawler {
       ? Math.max(0, Math.round(timing.responseEnd - Math.max(0, timing.requestStart)))
       : 0;
 
-    const existing = this.apiEndpoints.get(key);
-    if (existing) {
-      existing.timesObserved += 1;
-      existing.statusCode = response.status();
-      return;
-    }
+    const status = response.status();
+    const isSuccess = status >= 200 && status < 300;
 
     let responseSample: string | undefined;
     const contentType = response.headers()['content-type'] ?? '';
@@ -404,6 +400,34 @@ export class Crawler {
       }
     }
 
+    const existing = this.apiEndpoints.get(key);
+    if (existing) {
+      existing.timesObserved += 1;
+
+      // The status and the sample must describe the same response.
+      //
+      // This used to set the status and return, leaving the sample from the first
+      // observation. An endpoint seen signed-out and then signed-in — GET /api/session
+      // answers 401 {"error":…} and then 200 {"user":…} — ended up recorded as status 200
+      // carrying the 401 body. The contract baseline then inherited that pair, and every
+      // later check compared a real success response against an error body it had never
+      // actually returned with that status, reporting the absence of "error" as a breaking
+      // change (BUG-0040).
+      //
+      // A success response wins and is not displaced by a later failure: the baseline is
+      // meant to describe what a caller gets when the endpoint works, and a 401 picked up
+      // while crawling signed-out pages is not that. Otherwise the most recent observation
+      // wins, so an endpoint only ever seen failing is still recorded honestly.
+      const existingIsSuccess = existing.statusCode !== undefined
+        && existing.statusCode >= 200 && existing.statusCode < 300;
+      if (isSuccess || !existingIsSuccess) {
+        existing.statusCode = status;
+        existing.responseSample = responseSample;
+        existing.responseContentType = contentType || undefined;
+      }
+      return;
+    }
+
     // allHeaders() includes headers the browser adds at the network layer (cookies in
     // particular), which request.headers() does not — and a cookie is exactly what marks
     // a same-origin API call as authenticated.
@@ -413,7 +437,7 @@ export class Crawler {
       method: request.method(),
       urlTemplate: template,
       sampleUrl: url.slice(0, 2000),
-      statusCode: response.status(),
+      statusCode: status,
       durationMs,
       requestSample: postData ? this.masker.maskJson(postData).slice(0, 4000) : undefined,
       responseSample,

@@ -170,10 +170,13 @@ public static class ApiContractComparer
     {
         var differences = new List<ApiContractDifference>();
 
+        var crossedStatusClass = false;
+
         if (baselineStatus is not null && observedStatus is not null && baselineStatus != observedStatus)
         {
             var wasSuccess = baselineStatus is >= 200 and < 300;
             var isSuccess = observedStatus is >= 200 and < 300;
+            crossedStatusClass = wasSuccess != isSuccess;
 
             differences.Add(new ApiContractDifference(
                 wasSuccess && !isSuccess ? ContractChangeKind.Breaking
@@ -191,6 +194,17 @@ public static class ApiContractComparer
                         : $"The status changed from {baselineStatus} to {observedStatus}. A caller "
                           + "that distinguishes these will see a different result."));
         }
+
+        // An error body and a success body are different contracts, so diffing their fields
+        // against each other says nothing true.
+        //
+        // A baseline captured from a 401 carries `error`; when the endpoint later answers
+        // 200 that field is gone, and a field-by-field comparison calls its absence breaking
+        // — reporting that an endpoint which started working has broken its callers
+        // (BUG-0040). The status change is the real news and is already reported above, with
+        // the correct classification. Anything further here is noise, and a check that
+        // reports noise is one teams learn to ignore.
+        if (crossedStatusClass) return differences;
 
         foreach (var (path, baselineType) in baseline.Fields)
         {

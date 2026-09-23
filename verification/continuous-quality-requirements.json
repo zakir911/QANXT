@@ -1,131 +1,320 @@
 {
-  "title": "Continuous quality — requirements and the tests that verify them",
+  "title": "Continuous quality \u2014 requirements and the tests that verify them",
   "note": "Each requirement names the golden tests that verify it. traceability.mjs checks this file against what actually ran: a requirement with no test, a test id that does not exist, and a named test that did not pass are all failures. A table nobody checks is a table that rots.",
   "requirements": [
     {
       "id": "CQ-R01",
       "statement": "A pipeline can run AIRA from a command line and act on the result without parsing output.",
-      "verifiedBy": ["CI-001", "CI-006", "CIS-001"]
+      "verifiedBy": [
+        "CI-001",
+        "CI-006",
+        "CIS-001"
+      ]
     },
     {
       "id": "CQ-R02",
       "statement": "Every documented exit code can actually be produced, and each distinguishes who should look at the failure.",
-      "verifiedBy": ["CIS-001", "CIS-002", "CIS-003", "CIS-004", "CIS-005", "CIS-006", "CIS-007", "CIS-008", "CIS-010", "CIS-012", "CI-005"]
+      "verifiedBy": [
+        "CIS-001",
+        "CIS-002",
+        "CIS-003",
+        "CIS-004",
+        "CIS-005",
+        "CIS-006",
+        "CIS-007",
+        "CIS-008",
+        "CIS-010",
+        "CIS-012",
+        "CI-005"
+      ]
     },
     {
       "id": "CQ-R03",
       "statement": "A run publishes evidence whether it passed or failed.",
-      "verifiedBy": ["CI-001", "CIS-002", "VIS-004"]
+      "verifiedBy": [
+        "CI-001",
+        "CIS-002",
+        "VIS-004"
+      ]
     },
     {
       "id": "CQ-R04",
       "statement": "A failure is reported with enough context to act on without opening the platform.",
-      "verifiedBy": ["CI-002", "ACC-004", "COR-001", "COR-003"]
+      "verifiedBy": [
+        "CI-002",
+        "ACC-004",
+        "COR-001",
+        "COR-003"
+      ]
     },
     {
       "id": "CQ-R05",
       "statement": "A run records where it came from, so a failure can be traced to the commit and the deployment that produced it.",
-      "verifiedBy": ["CI-007", "CIS-009"]
+      "verifiedBy": [
+        "CI-007",
+        "CIS-009"
+      ]
     },
     {
       "id": "CQ-R06",
       "statement": "API endpoints can be tested as first-class test cases, in the same engine as UI tests.",
-      "verifiedBy": ["API-001", "API-002", "API-004", "API-013"]
+      "verifiedBy": [
+        "API-001",
+        "API-002",
+        "API-004",
+        "API-013"
+      ]
     },
     {
       "id": "CQ-R07",
       "statement": "An API contract change is detected against a stored baseline and classified by how badly it breaks callers.",
-      "verifiedBy": ["CON-001", "CON-002", "CON-003", "CON-005", "CON-006"]
+      "verifiedBy": [
+        "CON-001",
+        "CON-002",
+        "CON-003",
+        "CON-005",
+        "CON-006"
+      ]
     },
     {
       "id": "CQ-R08",
       "statement": "A UI failure caused by an API call is explained as such, rather than as a broken locator.",
-      "verifiedBy": ["COR-001", "COR-002", "COR-003"]
+      "verifiedBy": [
+        "COR-001",
+        "COR-002",
+        "COR-003"
+      ]
     },
     {
       "id": "CQ-R09",
       "statement": "A change selects the tests it reaches, and says why each was or was not selected.",
-      "verifiedBy": ["REG-001", "REG-002", "REG-008", "REG-009"]
+      "verifiedBy": [
+        "REG-001",
+        "REG-002",
+        "REG-008",
+        "REG-009"
+      ]
     },
     {
       "id": "CQ-R10",
       "statement": "Regression runs happen on a schedule without anybody asking, and a schedule that stops running says so.",
-      "verifiedBy": ["SCH-001", "SCH-002", "SCH-003", "SCH-004", "SCH-005"]
+      "verifiedBy": [
+        "SCH-001",
+        "SCH-002",
+        "SCH-003",
+        "SCH-004",
+        "SCH-005"
+      ]
     },
     {
       "id": "CQ-R11",
       "statement": "A quality gate produces PASS, FAIL or REVIEW, and REVIEW survives to the pipeline as its own answer.",
-      "verifiedBy": ["CIS-003", "CIS-010", "CIS-011", "CI-004"]
+      "verifiedBy": [
+        "CIS-003",
+        "CIS-010",
+        "CIS-011",
+        "CI-004"
+      ]
     },
     {
       "id": "CQ-R12",
       "statement": "A quality gate rule whose metric this run could not measure is reported as unmeasured, never as satisfied.",
-      "verifiedBy": ["ACC-005", "VIS-005"]
+      "verifiedBy": [
+        "ACC-005",
+        "VIS-005"
+      ]
     },
     {
       "id": "CQ-R13",
       "statement": "A release decision can be made from what changed, not only from what is broken.",
-      "verifiedBy": ["RLS-001", "RLS-002", "RLS-003", "RLS-005", "RLS-007"]
+      "verifiedBy": [
+        "RLS-001",
+        "RLS-002",
+        "RLS-003",
+        "RLS-005",
+        "RLS-007"
+      ]
     },
     {
       "id": "CQ-R14",
       "statement": "Coverage that stops being exercised is visible rather than silently dropped.",
-      "verifiedBy": ["RLS-004"]
+      "verifiedBy": [
+        "RLS-004"
+      ]
     },
     {
       "id": "CQ-R15",
       "statement": "A failure is told to whoever configured a channel, and whether they were told is recorded.",
-      "verifiedBy": ["NOT-001", "NOT-002", "NOT-006"]
+      "verifiedBy": [
+        "NOT-001",
+        "NOT-002",
+        "NOT-006"
+      ]
     },
     {
       "id": "CQ-R16",
       "statement": "Notifications never carry a credential, checked against the bytes sent.",
-      "verifiedBy": ["NOT-005", "NOT-007"]
+      "verifiedBy": [
+        "NOT-005",
+        "NOT-007"
+      ]
     },
     {
       "id": "CQ-R17",
       "statement": "Test data is reproducible from a seed, so a failure can be reproduced.",
-      "verifiedBy": ["DAT-002"]
+      "verifiedBy": [
+        "DAT-002"
+      ]
     },
     {
       "id": "CQ-R18",
       "statement": "A credential is never stored as a literal in test data, and is never returned by any read.",
-      "verifiedBy": ["DAT-003", "DAT-004", "DAT-005"]
+      "verifiedBy": [
+        "DAT-003",
+        "DAT-004",
+        "DAT-005"
+      ]
     },
     {
       "id": "CQ-R19",
       "statement": "Accessibility is measured against named rules, and a clean result is not reported as a clearance.",
-      "verifiedBy": ["ACC-001", "ACC-002", "ACC-006"]
+      "verifiedBy": [
+        "ACC-001",
+        "ACC-002",
+        "ACC-006"
+      ]
     },
     {
       "id": "CQ-R20",
       "statement": "A team can measure accessibility before enforcing it.",
-      "verifiedBy": ["ACC-003"]
+      "verifiedBy": [
+        "ACC-003"
+      ]
     },
     {
       "id": "CQ-R21",
       "statement": "Visual changes are detected against a baseline, with a noise floor that does not produce false differences.",
-      "verifiedBy": ["VIS-001", "VIS-002", "VIS-006"]
+      "verifiedBy": [
+        "VIS-001",
+        "VIS-002",
+        "VIS-006"
+      ]
     },
     {
       "id": "CQ-R22",
       "statement": "A visual difference asks for a person by default rather than failing the build, and what was masked is on the record.",
-      "verifiedBy": ["VIS-003", "VIS-006"]
+      "verifiedBy": [
+        "VIS-003",
+        "VIS-006"
+      ]
     },
     {
       "id": "CQ-R23",
       "statement": "AIRA never tests outside its configured authorization boundary, and production is refused without an explicit written authorization.",
-      "verifiedBy": ["CIS-008", "SCH-005", "API-008", "NOT-008"]
+      "verifiedBy": [
+        "CIS-008",
+        "SCH-005",
+        "API-008",
+        "NOT-008"
+      ]
     },
     {
       "id": "CQ-R24",
       "statement": "A security refusal is reported distinctly from a permissions failure, so nobody resolves it by widening access.",
-      "verifiedBy": ["CIS-005", "CIS-008"]
+      "verifiedBy": [
+        "CIS-005",
+        "CIS-008"
+      ]
     },
     {
       "id": "CQ-R25",
       "statement": "A run is never silently finished twice, and one occurrence of a schedule starts exactly one run.",
-      "verifiedBy": ["SCH-003", "NOT-002"]
+      "verifiedBy": [
+        "SCH-003",
+        "NOT-002"
+      ]
+    },
+    {
+      "id": "CQ-R26",
+      "statement": "Every continuous-quality surface is scoped to one tenant, and a denial is accompanied by the owner's successful read.",
+      "verifiedBy": [
+        "ISO-001",
+        "ISO-002",
+        "ISO-003",
+        "ISO-004",
+        "ISO-005",
+        "ISO-006"
+      ]
+    },
+    {
+      "id": "CQ-R27",
+      "statement": "The audit trail can be read through the product, is scoped to one organization, and no parameter widens it.",
+      "verifiedBy": [
+        "ISO-007",
+        "AUD-005",
+        "AUD-006"
+      ]
+    },
+    {
+      "id": "CQ-R28",
+      "statement": "Actions that change what the platform will permit \u2014 authorizing production, changing a schedule, changing a quality gate \u2014 are recorded with who asked and why.",
+      "verifiedBy": [
+        "AUD-001",
+        "AUD-002",
+        "AUD-003"
+      ]
+    },
+    {
+      "id": "CQ-R29",
+      "statement": "A failed or refused action is recorded as such rather than omitted, and never carries the credential that was attempted.",
+      "verifiedBy": [
+        "AUD-004",
+        "AUD-007",
+        "AUD-008"
+      ]
+    },
+    {
+      "id": "CQ-R30",
+      "statement": "One correlation id follows a request from the caller through the API and the queue to the execution and the audit record, and a caller cannot abuse it.",
+      "verifiedBy": [
+        "OBS-001",
+        "OBS-002",
+        "OBS-003",
+        "OBS-005"
+      ]
+    },
+    {
+      "id": "CQ-R31",
+      "statement": "Liveness and readiness are separable, so a dependency outage does not present as a dead process.",
+      "verifiedBy": [
+        "OBS-004"
+      ]
+    },
+    {
+      "id": "CQ-R32",
+      "statement": "A model provider that fails \u2014 by timing out, erroring, or answering unusably \u2014 fails the request visibly and never causes a fabricated result.",
+      "verifiedBy": [
+        "AIF-001",
+        "AIF-002",
+        "AIF-003",
+        "AIF-004",
+        "AIF-005"
+      ]
+    },
+    {
+      "id": "CQ-R33",
+      "statement": "Model output is data and never instruction: schema-valid output carrying injected commands reaches no test as an action.",
+      "verifiedBy": [
+        "AIF-006"
+      ]
+    },
+    {
+      "id": "CQ-R34",
+      "statement": "Deterministic execution is independent of the model: a provider outage does not stop a test run, and every model failure is recorded with its reason.",
+      "verifiedBy": [
+        "AIF-007",
+        "AIF-008"
+      ]
     }
   ]
 }

@@ -1,0 +1,34 @@
+{
+  "testId": "AUD-001",
+  "suite": "Isolation, audit and observability",
+  "runId": "CQ9F-2026-09-23T04-42-04Z",
+  "objective": "Authorizing production testing is recorded, with the written reason that was given",
+  "preconditions": [
+    "a production environment exists and has not been authorized"
+  ],
+  "input": "POST /api/v1/environments/{id}/authorize-production, then read the trail",
+  "expected": "An audit record names the environment and carries the reason",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "authorization failed: 400 {\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\"title\":\"One or more validation errors occurred.\",\"status\":400,\"errors\":{\"Note\":[\"The Note field is required.\"]},\"traceId\":\"00-2bcce8c5fe44",
+  "metrics": {
+    "records": 1
+  },
+  "startedAt": "2026-09-23T04:42:05.919Z",
+  "durationMs": 39,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "authorize-audit.json",
+      "path": "evidence/AUD-001/CQ9F-2026-09-23T04-42-04Z/authorize-audit.json",
+      "bytes": 398,
+      "sha256": "87fa6555ce40a910fc364d0049497cc310f8c988e7db1ea9569845fe92909ed2"
+    }
+  ]
+}

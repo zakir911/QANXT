@@ -1,0 +1,34 @@
+{
+  "testId": "NOT-002",
+  "suite": "Notifications",
+  "runId": "CQ9F-FULL-2026-09-23T04-54-10Z",
+  "objective": "A run with failing tests produces a notification naming the failure",
+  "preconditions": [
+    "a webhook subscribed to the default events"
+  ],
+  "input": "A run of one passing and one failing test",
+  "expected": "One RunFailed delivery carrying the counts and the gate verdict — and the body saying how many failed, not merely that something did",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 delivery(ies): RunFailed; title \"1 test(s) failed in Golden notifications\"; facts {\"passed\":1,\"failed\":1,\"blocked\":0,\"healed\":0,\"flaky\":0,\"qualityGate\":\"Pass\",\"branch\":null,\"commit\":null}",
+  "metrics": {
+    "deliveries": 1
+  },
+  "startedAt": "2026-09-23T05:00:04.009Z",
+  "durationMs": 2057,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "delivery.json",
+      "path": "evidence/NOT-002/CQ9F-FULL-2026-09-23T04-54-10Z/delivery.json",
+      "bytes": 1510,
+      "sha256": "37e0301bf35c8ae8655cca24d577d42fd97c4bac653d7c3124b910ee236a1b24"
+    }
+  ]
+}

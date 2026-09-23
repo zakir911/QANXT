@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
 namespace Aira.Infrastructure;
@@ -84,7 +85,29 @@ public static class DependencyInjection
         services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<AnthropicProvider>());
         services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<GeminiProvider>());
         services.AddScoped<ILlmProvider, LocalProvider>();
-        services.AddScoped<ILlmProviderFactory, LlmProviderFactory>();
+
+        // Fault injection wraps whichever provider the factory picks, so a simulated failure
+        // lands where a real one would: inside CompleteAsync, after provider selection and
+        // budget checks and before validation. Off unless a deployment opts in, and the
+        // switch itself refuses to arm when it is off, so the guard does not depend on every
+        // future caller remembering to check.
+        var faultInjectionEnabled = configuration.GetValue("Ai:FaultInjection:Enabled", false);
+        services.AddSingleton<IAiFaultSwitch>(sp => new AiFaultSwitch(
+            faultInjectionEnabled, sp.GetRequiredService<ILogger<AiFaultSwitch>>()));
+
+        if (faultInjectionEnabled)
+        {
+            services.AddScoped<ILlmProviderFactory>(sp => new FaultInjectingProviderFactory(
+                new LlmProviderFactory(sp.GetServices<ILlmProvider>(),
+                    sp.GetRequiredService<IOptions<AiOptions>>(),
+                    sp.GetRequiredService<ILogger<LlmProviderFactory>>()),
+                sp.GetRequiredService<IAiFaultSwitch>(),
+                sp.GetRequiredService<ILogger<FaultInjectingLlmProvider>>()));
+        }
+        else
+        {
+            services.AddScoped<ILlmProviderFactory, LlmProviderFactory>();
+        }
         services.AddScoped<IAiBudget, AiBudget>();
 
         // One named client for every outbound notification, so a deployment can set its

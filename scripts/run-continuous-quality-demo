@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# One release cycle, end to end, against the running platform and test lab.
+#
+#   ./scripts/run-continuous-quality-demo
+#
+# Produces, under verification/demo/:
+#   continuous-quality-demo.json   every act, with the ids and numbers it produced
+#   continuous-quality-demo.md     the narration, written from what actually happened
+#
+# Where run-product-demo answers "can this platform test an application", this answers the
+# question the continuous-quality work was for: can it keep a team honest between releases.
+#
+# It starts nothing. A demonstration that silently starts its own dependencies hides whether
+# they work.
+set -uo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+API="${AIRA_API_URL:-http://127.0.0.1:5080}"
+BANK="${LAB_BANKING_URL:-http://127.0.0.1:4300}"
+SINK="${LAB_SINK_URL:-http://127.0.0.1:4360}"
+
+fail() { printf '\033[31m%s\033[0m\n' "$1" >&2; exit 2; }
+
+curl -fsS --max-time 10 "$API/health" >/dev/null 2>&1 \
+  || fail "AIRA is not answering at $API. Start it with ./scripts/api-ctl.sh start"
+curl -fsS --max-time 10 "$BANK/health" >/dev/null 2>&1 \
+  || fail "The banking lab is not answering at $BANK. Start it with test-lab/scripts/lab-ctl.sh start"
+curl -fsS --max-time 10 "$SINK/health" >/dev/null 2>&1 \
+  || fail "The notification sink is not answering at $SINK. It is part of the test lab."
+
+node verification/golden-tests/continuous-quality-demo.mjs
+status=$?
+
+if [[ $status -ne 0 ]]; then
+  printf '\n\033[31mThe demonstration did not complete.\033[0m\n'
+  exit $status
+fi

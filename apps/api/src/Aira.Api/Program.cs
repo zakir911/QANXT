@@ -168,6 +168,38 @@ builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
+    // A refusal is the one thing here worth being able to find afterwards.
+    //
+    // Without this, a rejected request appeared only as Serilog's ordinary request line —
+    // "responded 429" at Information, among every other request. A burst of blocked
+    // credential attempts therefore read exactly like a busy afternoon, which is the wrong
+    // way round: the requests the platform refused are more interesting than the ones it
+    // served, not less.
+    //
+    // Logged rather than audited. An audit row per refusal would let anyone who can reach
+    // the login endpoint write unbounded rows into the governance table, which turns a
+    // brute-force attempt into a second, worse problem. The attempts that got through are
+    // audited as LoginFailed; the ones the limiter stopped are here.
+    options.OnRejected = (context, _) =>
+    {
+        var logger = context.HttpContext.RequestServices
+            .GetRequiredService<ILoggerFactory>().CreateLogger("Aira.Api.RateLimiter");
+        var isCredentialEndpoint = context.HttpContext.Request.Path
+            .StartsWithSegments("/api/v1/auth", StringComparison.OrdinalIgnoreCase);
+
+        logger.Log(
+            // A refused credential attempt is a security event; a tenant hitting its ordinary
+            // quota is capacity news. They do not belong at the same level.
+            isCredentialEndpoint ? LogLevel.Warning : LogLevel.Information,
+            "Rate limit refused {Method} {Path} from {RemoteAddress} (credential endpoint: {IsCredentialEndpoint})",
+            context.HttpContext.Request.Method,
+            context.HttpContext.Request.Path.Value,
+            context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            isCredentialEndpoint);
+
+        return ValueTask.CompletedTask;
+    };
+
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
         // A browser worker is part of this platform, not a tenant spending an API quota. Its

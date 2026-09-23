@@ -1,0 +1,43 @@
+{
+  "testId": "CON-010",
+  "suite": "API contracts",
+  "runId": "CQ9F-FINAL-2026-09-23T12-38-33Z",
+  "objective": "API tests are generated from the observed inventory, including negative ones",
+  "preconditions": [
+    "discovery has observed the API"
+  ],
+  "input": "Generate API tests for the application, read-only endpoints only",
+  "expected": "A positive test per endpoint, an unauthenticated-refusal test for each that required credentials, a not-found test for each templated one, and no test at all for a mutating endpoint",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "29 test(s) from 14 endpoint(s): 13 positive, 12 unauthenticated, 4 not-found; 1 endpoint(s) skipped as mutating; the first test carries 5 assertion(s)",
+  "metrics": {
+    "generated": 29,
+    "positive": 13,
+    "security": 12,
+    "notFound": 4
+  },
+  "startedAt": "2026-09-23T12:39:36.790Z",
+  "durationMs": 373,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "generated.json",
+      "path": "evidence/CON-010/CQ9F-FINAL-2026-09-23T12-38-33Z/generated.json",
+      "bytes": 11552,
+      "sha256": "c517dd24ced2b1f4c89f58f884216c5e23173d0bfe8ed756314e69a28b0ef613"
+    },
+    {
+      "file": "sample-test.json",
+      "path": "evidence/CON-010/CQ9F-FINAL-2026-09-23T12-38-33Z/sample-test.json",
+      "bytes": 2852,
+      "sha256": "ef56be176b2d3348cbd2cc6d65dd96927b988a5355029ede9ff4cee7f7326a36"
+    }
+  ]
+}

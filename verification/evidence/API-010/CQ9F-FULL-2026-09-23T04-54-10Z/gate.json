@@ -1,0 +1,39 @@
+{
+  "passed": false,
+  "rules": [
+    {
+      "ruleId": "f29f1de6-d9ff-403b-bebd-973f7b8057a6",
+      "name": "No failing API tests",
+      "metric": "apiFailedCount",
+      "operator": "equal",
+      "threshold": 0,
+      "actualValue": 1,
+      "passed": false,
+      "isBlocking": true,
+      "explanation": "An API endpoint this release depends on is broken. (The number of failed API tests was 1 against equalling 0.)",
+      "action": "fail",
+      "measured": true
+    }
+  ],
+  "summary": "The quality gate failed on 1 rule(s): No failing API tests.",
+  "outcome": "fail",
+  "reviewReasons": [],
+  "metrics": {
+    "HighFailedCount": 1,
+    "MediumFailedCount": 0,
+    "BlockedCount": 0,
+    "RegressionFailedCount": 0,
+    "ApiFailedCount": 1,
+    "FlakyRatePercent": 0,
+    "PassRatePercent": 0,
+    "FailedCount": 1,
+    "CriticalFailedCount": 0,
+    "FlakyCount": 0,
+    "NewFailureCount": 0,
+    "HighConfidenceDefectCount": 1,
+    "CriticalJourneyFailedCount": 0,
+    "HealedCount": 0,
+    "AverageDurationMs": 23
+  },
+  "blocked": true
+}

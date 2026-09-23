@@ -1,0 +1,26 @@
+{
+  "testId": "ISO-001",
+  "suite": "Isolation, audit and observability",
+  "runId": "CQ9F-2026-09-23T04-42-04Z",
+  "objective": "An API test belonging to another tenant cannot be read by identifier",
+  "preconditions": [
+    "two registered organizations",
+    "tenant A owns an API test"
+  ],
+  "input": "GET /api/v1/api-tests/undefined as tenant B, and as tenant A",
+  "expected": "Tenant B is refused; tenant A reads it",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "threw: TypeError: Cannot read properties of null (reading 'id')     at Object.run (file:///home/user/AIRA/verification/golden-tests/suites/isolation.mjs:123:85); declared evidence never produced: isolation.json",
+  "metrics": null,
+  "startedAt": "2026-09-23T04:42:05.655Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "7f50d74",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": []
+}

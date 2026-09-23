@@ -50,7 +50,7 @@ that run writes, not from this document.
 | Reliability | 7 | Ten identical runs, twenty against a genuinely unstable application, ten started at once |
 | Performance baseline | 3 | Discovery, a twelve-step run and one generation, each timed several times on recorded hardware |
 
-The continuous-quality phases added twelve more suites, run together by
+The continuous-quality phases added fourteen more suites, run together by
 `./scripts/verify-continuous-quality`:
 
 | Suite | Tests | What it establishes |
@@ -67,6 +67,8 @@ The continuous-quality phases added twelve more suites, run together by
 | Release quality | 7 | What moved between two runs, by test case rather than by position, and gating on new failures |
 | Accessibility | 6 | axe-core against named WCAG rules, with violations, incomplete results and passes kept distinct |
 | Visual regression | 7 | Baselines per viewport, a measured noise floor, masking, and a difference that asks rather than fails |
+| Isolation, audit and observability | 20 | Every continuous-quality surface probed across a tenant boundary with the owner's control read; the audit trail's scope, permission and append-only property; one correlation id from the caller to the execution |
+| AI provider failure | 9 | A real fault injected into the provider for each way it can fail, with the model request record as proof the path was taken |
 
 The headline number is the **false-healing rate**: incorrect heals divided by healing
 opportunities. It is never folded into a success rate, because a healer that repairs nine
@@ -127,13 +129,13 @@ exist that do not yet.
   on the AI architecture, the browser engine and self-healing internals are still not
   written, and there is no hand-written API reference; the API's own reference is served
   at `/swagger`.
-- **The audit trail cannot be read through the product.** Records are written for all 35
-  audit actions and no endpoint, command or screen queries them — reviewing the trail means
-  connecting to PostgreSQL. Recorded as BUG-0034 and stated in `docs/observability.md`.
 - **No metrics endpoint and no distributed tracing.** Correlation ids give log correlation
   across the API, the queue and the worker; there is no Prometheus target, no
   OpenTelemetry exporter and no span timing. `docs/observability.md` says so explicitly so
   that nothing elsewhere reads as claiming them.
+- **The console covers a subset of the continuous-quality surfaces.** Schedules and the
+  audit trail have screens; contracts, test data, release comparison and the AI request
+  record are reachable through the API and the CLI only.
 - **No Kubernetes manifests.** `infrastructure/kubernetes` is an empty directory. The
   compose file is the deployment topology; nothing expresses it as a chart yet.
 - **The agent has not been run at scale.** Passes here covered an 8-page application. Nothing has been tried against a large knowledge graph, and no claim is made about how
