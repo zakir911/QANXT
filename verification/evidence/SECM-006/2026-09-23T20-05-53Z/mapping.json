@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_USER_ENUMERATION",
+    "type": "UserEnumeration",
+    "endpoint": "POST /api/session",
+    "severity": "medium",
+    "cwe": "CWE-204",
+    "owaspWeb": "A07:2021",
+    "detectBy": "The response distinguishes an unknown username from a wrong password."
+  },
+  "got": {
+    "cwe": "CWE-204",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A07:2021",
+    "owaspApi": "API2:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "minimal",
+      "privilegeRequired": "none",
+      "affectedData": "nonSensitive",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 11,
+      "maxScore": 19,
+      "severity": "Medium",
+      "explanation": "Medium (11/19): trivial to exploit, minimal impact, no account needed, reaches non-sensitive data, publicly reachable."
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "case": "over the rate limit",
+  "why": "A limit a caller can decline to observe is documentation.",
+  "decision": {
+    "allowed": false,
+    "reason": "rateLimitExceeded",
+    "explanation": "At the limit of 5 request(s) per second.",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain",
+      "path",
+      "method",
+      "risk",
+      "environment"
+    ]
+  }
+}

@@ -137,7 +137,10 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
       impact: 'The origin check that would stop a cross-site request is not there.',
       remediation: 'Validate Origin (and Sec-Fetch-Site where available) on every state-changing request.',
       cwe: 'CWE-352', cweConfidence: 'confirmed',
-      owaspApiCategory: 'API8:2023', owaspWebCategory: 'A05:2021',
+      // A01, not A05. A missing origin check is a broken access control, not a
+      // misconfiguration — it is the same failure as the missing anti-CSRF token beside it,
+      // and filing the two under different categories would split one problem in a report.
+      owaspApiCategory: 'API8:2023', owaspWebCategory: 'A01:2021',
       // 'nonSensitive': a missing origin check on its own does not reach personal data — it
       // removes one of the two defences against a cross-site request. Where the anti-CSRF
       // token is also missing, that finding carries the data impact and this one does not

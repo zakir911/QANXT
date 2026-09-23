@@ -133,7 +133,11 @@ export async function checkCookies(scanner, url, testId = 'SECP-COOKIES') {
       remediation: `Set ${missing.join(', ')} on "${name}".`,
       cwe: 'CWE-1004', cweConfidence: 'confirmed',
       owaspWebCategory: 'A05:2021',
-      severityFactors: new SeverityFactors('difficult', 'serious', 'none', 'credentials', 'public'),
+      // requiresUnusualConditions: reading a cookie that lacks HttpOnly needs script running
+      // in the page, which means an XSS the attacker does not yet have. The consequence is
+      // serious and the path to it is not one they control, and the model has a factor for
+      // exactly that rather than a thumb on the scale.
+      severityFactors: new SeverityFactors('difficult', 'serious', 'none', 'credentials', 'public', true),
       exchanges: [result]
     });
   }
@@ -195,7 +199,16 @@ const SENSITIVE_PATTERNS = [
   { name: 'JWT', pattern: /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/, cwe: 'CWE-522', data: 'credentials' },
   { name: 'private key', pattern: /-----BEGIN [A-Z ]*PRIVATE KEY-----/, cwe: 'CWE-321', data: 'credentials' },
   { name: 'connection string with credentials', pattern: /\b[a-z]+:\/\/[^\s:@/]+:[^\s:@/]+@/, cwe: 'CWE-522', data: 'credentials' },
-  { name: 'stack trace', pattern: /\bat [A-Z][A-Za-z.]+\.[A-Za-z]+\(.*\) in .*:line \d+/, cwe: 'CWE-209', data: 'nonSensitive' }
+  // A stack trace is its own finding class, not a generic sensitive value. It has its own
+  // CWE, its own remediation and its own audience, and folding it into
+  // SensitiveDataExposure meant a report could not tell "this endpoint returns a password
+  // hash" from "this endpoint returns a stack trace".
+  { name: 'stack trace', pattern: /\bat [A-Z][A-Za-z.]+\.[A-Za-z]+\(.*\) in .*:line \d+/, cwe: 'CWE-209',
+    data: 'nonSensitive', category: 'VerboseErrorDisclosure',
+    title: 'A stack trace is returned to the caller',
+    impact: 'Source paths, framework versions and host names are disclosed, which tells an attacker '
+      + 'what the application is built from before they try anything against it.',
+    remediation: 'Return a correlation id and log the detail server-side.' }
 ];
 
 /** Values that match a pattern but are not leaks. The brief names these explicitly. */
@@ -230,15 +243,16 @@ export async function checkSensitiveData(scanner, url, testId = 'SECP-SENSITIVE'
     if (benign) continue;
 
     findings.push({
-      category: 'SensitiveDataExposure',
-      title: `A ${candidate.name} appears in the response`,
+      category: candidate.category ?? 'SensitiveDataExposure',
+      title: candidate.title ?? `A ${candidate.name} appears in the response`,
       endpoint: new URL(url).pathname,
       description: `The response body contains something matching a ${candidate.name}. `
         + 'The value itself is not reproduced here or in the evidence.',
-      impact: candidate.data === 'credentials'
+      impact: candidate.impact ?? (candidate.data === 'credentials'
         ? 'A credential returned to a client can be replayed by anyone who sees the response.'
-        : 'Internal implementation detail is disclosed to a caller.',
-      remediation: 'Remove the value from the response, or replace it with a reference.',
+        : 'Internal implementation detail is disclosed to a caller.'),
+      remediation: candidate.remediation
+        ?? 'Remove the value from the response, or replace it with a reference.',
       cwe: candidate.cwe, cweConfidence: 'confirmed',
       owaspWebCategory: candidate.data === 'credentials' ? 'A02:2021' : 'A05:2021',
       owaspApiCategory: 'API3:2023',

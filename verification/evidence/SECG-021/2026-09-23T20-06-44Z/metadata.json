@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-021",
+  "suite": "Security scanning",
+  "runId": "2026-09-23T20-06-44Z",
+  "objective": "The scope guard refuses past the scan duration",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "past the scan duration",
+  "expected": "Refused with scanDurationExceeded. A scan that runs forever is an incident.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "scanDurationExceeded: At the limit of 10 minute(s).",
+  "metrics": {
+    "rungsPassed": 7
+  },
+  "startedAt": "2026-09-23T20:06:45.527Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "0c36351",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-021/2026-09-23T20-06-44Z/decision.json",
+      "bytes": 378,
+      "sha256": "7b4ea16a78f16c478f7926c2951942413d658b56795513181cbb0e8bacd2ec81"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-010",
+  "suite": "Security scanning",
+  "runId": "2026-09-23T20-06-44Z",
+  "objective": "A password-reset token accepted twice is reported",
+  "preconditions": [
+    "VULN_RESET_TOKEN_REUSE switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Authentication: the reset-reuse check against the lab",
+  "expected": "Exactly one PasswordResetTokenReuse finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "PasswordResetTokenReuse: A password-reset token is accepted more than once (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-23T20:06:44.945Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "0c36351",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-010/2026-09-23T20-06-44Z/vulnerable.json",
+      "bytes": 426,
+      "sha256": "68152560180f189a6c70d4d982c304b4ff38452cde30c2eb5294718e78eec49f"
+    }
+  ]
+}

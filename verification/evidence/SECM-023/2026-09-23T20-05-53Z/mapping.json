@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_NO_ORIGIN_CHECK",
+    "type": "MissingOriginValidation",
+    "endpoint": "POST /api/transfer",
+    "severity": "medium",
+    "cwe": "CWE-352",
+    "owaspWeb": "A01:2021",
+    "detectBy": "A cross-origin Origin header is accepted."
+  },
+  "got": {
+    "cwe": "CWE-352",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A05:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "straightforward",
+      "impact": "limited",
+      "privilegeRequired": "none",
+      "affectedData": "nonSensitive",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 11,
+      "maxScore": 19,
+      "severity": "Medium",
+      "explanation": "Medium (11/19): straightforward to exploit, limited impact, no account needed, reaches non-sensitive data, publicly reachable."
+    }
+  }
+}

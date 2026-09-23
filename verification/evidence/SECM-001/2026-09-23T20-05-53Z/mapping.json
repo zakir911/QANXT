@@ -1,0 +1,31 @@
+{
+  "expected": {
+    "id": "VULN_BOLA",
+    "type": "BOLA",
+    "endpoint": "GET /api/accounts/{id}",
+    "severity": "high",
+    "cwe": "CWE-639",
+    "owaspApi": "API1:2023",
+    "owaspWeb": "A01:2021",
+    "detectBy": "alice receives acc-1002, which bob owns."
+  },
+  "got": {
+    "cwe": "CWE-639",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A01:2021",
+    "owaspApi": "API1:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "serious",
+      "privilegeRequired": "authenticatedUser",
+      "affectedData": "personalData",
+      "exposure": "authenticatedUsers",
+      "requiresUnusualConditions": false,
+      "score": 14,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (14/19): trivial to exploit, serious impact, any signed-in user, reaches personal data, reachable by signed-in users."
+    }
+  }
+}

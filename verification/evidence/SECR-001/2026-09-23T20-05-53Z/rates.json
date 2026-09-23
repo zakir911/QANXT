@@ -1,0 +1,280 @@
+{
+  "note": "Measured against the AIRA security lab on this run. Detection rate against a lab whose flaws were written alongside the checks is not a detection rate against an unknown application, and must not be quoted as one.",
+  "scenarios": 34,
+  "detected": 33,
+  "falsePositives": 0,
+  "byScenario": [
+    {
+      "key": "bola",
+      "vulnerability": "VULN_BOLA",
+      "family": "Authorization",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "vertical",
+      "vulnerability": "VULN_VERTICAL_ESCALATION",
+      "family": "Authorization",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "readonly-write",
+      "vulnerability": "VULN_READONLY_CAN_WRITE",
+      "family": "Authorization",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "missing-authz",
+      "vulnerability": "VULN_MISSING_AUTHZ",
+      "family": "Authorization",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Critical"
+    },
+    {
+      "key": "unverified-token",
+      "vulnerability": "VULN_UNVERIFIED_TOKEN",
+      "family": "Authentication",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Critical"
+    },
+    {
+      "key": "enumeration",
+      "vulnerability": "VULN_USER_ENUMERATION",
+      "family": "Authentication",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Medium"
+    },
+    {
+      "key": "lockout",
+      "vulnerability": "VULN_NO_LOCKOUT",
+      "family": "Authentication",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Medium"
+    },
+    {
+      "key": "session-logout",
+      "vulnerability": "VULN_SESSION_SURVIVES_LOGOUT",
+      "family": "Session",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "session-lifetime",
+      "vulnerability": "VULN_LONG_SESSION",
+      "family": "Session",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Low"
+    },
+    {
+      "key": "reset-reuse",
+      "vulnerability": "VULN_RESET_TOKEN_REUSE",
+      "family": "Authentication",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "mass-assignment",
+      "vulnerability": "VULN_MASS_ASSIGNMENT",
+      "family": "API security",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "input-validation",
+      "vulnerability": "VULN_NO_INPUT_VALIDATION",
+      "family": "API security",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Medium"
+    },
+    {
+      "key": "unsafe-method",
+      "vulnerability": "VULN_UNSAFE_METHODS",
+      "family": "API security",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "rate-limit",
+      "vulnerability": "VULN_NO_RATE_LIMIT",
+      "family": "API security",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Medium"
+    },
+    {
+      "key": "excessive-data",
+      "vulnerability": "VULN_EXCESSIVE_DATA",
+      "family": "API security",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "reflected-xss",
+      "vulnerability": "VULN_REFLECTED_XSS",
+      "family": "Injection",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "stored-xss",
+      "vulnerability": "VULN_STORED_XSS",
+      "family": "Injection",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "sql-injection",
+      "vulnerability": "VULN_SQL_INJECTION",
+      "family": "Injection",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Critical"
+    },
+    {
+      "key": "nosql-injection",
+      "vulnerability": "VULN_NOSQL_INJECTION",
+      "family": "Injection",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "command-injection",
+      "vulnerability": "VULN_COMMAND_INJECTION",
+      "family": "Injection",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Critical"
+    },
+    {
+      "key": "template-injection",
+      "vulnerability": "VULN_TEMPLATE_INJECTION",
+      "family": "Injection",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "csrf-token",
+      "vulnerability": "VULN_NO_CSRF_TOKEN",
+      "family": "Request handling",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "origin-validation",
+      "vulnerability": "VULN_NO_ORIGIN_CHECK",
+      "family": "Request handling",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Medium"
+    },
+    {
+      "key": "upload-type",
+      "vulnerability": "VULN_UPLOAD_ANY_TYPE",
+      "family": "Request handling",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "upload-size",
+      "vulnerability": "VULN_UPLOAD_NO_SIZE_LIMIT",
+      "family": "Request handling",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Low"
+    },
+    {
+      "key": "upload-traversal",
+      "vulnerability": "VULN_UPLOAD_PATH_TRAVERSAL",
+      "family": "Request handling",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "open-redirect",
+      "vulnerability": "VULN_OPEN_REDIRECT",
+      "family": "Request handling",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Medium"
+    },
+    {
+      "key": "ssrf",
+      "vulnerability": "VULN_SSRF",
+      "family": "Request handling",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "no-csp",
+      "vulnerability": "VULN_NO_CSP",
+      "family": "Configuration",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Medium"
+    },
+    {
+      "key": "weak-cookie",
+      "vulnerability": "VULN_WEAK_COOKIE",
+      "family": "Configuration",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "reflected-cors",
+      "vulnerability": "VULN_REFLECTED_CORS",
+      "family": "Configuration",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "High"
+    },
+    {
+      "key": "directory-listing",
+      "vulnerability": "VULN_DIRECTORY_LISTING",
+      "family": "Configuration",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Medium"
+    },
+    {
+      "key": "source-map",
+      "vulnerability": "VULN_SOURCE_MAP",
+      "family": "Configuration",
+      "detected": 1,
+      "falsePositives": 0,
+      "severity": "Low"
+    },
+    {
+      "key": "verbose-error",
+      "vulnerability": "VULN_VERBOSE_ERROR",
+      "family": "Configuration",
+      "detected": 0,
+      "falsePositives": 0,
+      "severity": null
+    }
+  ]
+}

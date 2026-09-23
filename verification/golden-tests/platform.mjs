@@ -490,11 +490,22 @@ export const lab = {
   }
 };
 
-/** Fails loudly if the stack the suites depend on is not actually up. */
-export async function requireEnvironment(labs = Object.values(LAB)) {
+/**
+ * Fails loudly if the stack the suites depend on is not actually up.
+ *
+ * `options.api` says whether the platform API is needed. It usually is — most suites drive
+ * AIRA through it — but the security scanning suites drive the scanner directly against the
+ * lab and never touch the platform. Requiring the API for those meant a security scan could
+ * not run because a database it does not use was down, which is an obstacle rather than a
+ * check.
+ */
+export async function requireEnvironment(labs = Object.values(LAB), options = {}) {
+  const { api = true } = options;
   const problems = [];
-  const health = await request('/health');
-  if (!health.ok) problems.push(`the AIRA API at ${API} is not answering`);
+  if (api) {
+    const health = await request('/health');
+    if (!health.ok) problems.push(`the AIRA API at ${API} is not answering`);
+  }
 
   for (const url of labs) {
     try {

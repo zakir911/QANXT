@@ -1,0 +1,15 @@
+{
+  "case": "no HTTP method",
+  "why": "A request that names no verb is refused rather than guessed at.",
+  "decision": {
+    "allowed": false,
+    "reason": "methodNotAllowed",
+    "explanation": "The request names no HTTP method.",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain",
+      "path"
+    ]
+  }
+}

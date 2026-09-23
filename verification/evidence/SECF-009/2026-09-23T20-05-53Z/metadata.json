@@ -1,0 +1,32 @@
+{
+  "testId": "SECF-009",
+  "suite": "Security scanning",
+  "runId": "2026-09-23T20-05-53Z",
+  "objective": "The regression profile permits a active probe",
+  "preconditions": [
+    "a scope that permits destructive testing, so the profile is the only thing deciding"
+  ],
+  "input": "profile=regression, risk=active",
+  "expected": "Allowed, because this profile covers this risk level",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "allowed",
+  "metrics": null,
+  "startedAt": "2026-09-23T20:05:54.269Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "0c36351",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECF-009/2026-09-23T20-05-53Z/decision.json",
+      "bytes": 317,
+      "sha256": "3fae242c4ce37fde98443f0d8c1023acd43bfc868a00bb668c90db3dda3529a4"
+    }
+  ]
+}

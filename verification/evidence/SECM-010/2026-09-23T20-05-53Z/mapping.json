@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_RESET_TOKEN_REUSE",
+    "type": "PasswordResetTokenReuse",
+    "endpoint": "POST /api/password-reset/confirm",
+    "severity": "high",
+    "cwe": "CWE-640",
+    "owaspWeb": "A07:2021",
+    "detectBy": "The same reset token is accepted twice."
+  },
+  "got": {
+    "cwe": "CWE-640",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A07:2021",
+    "owaspApi": "API2:2023",
+    "confidence": "High",
+    "severity": {
+      "exploitability": "straightforward",
+      "impact": "serious",
+      "privilegeRequired": "none",
+      "affectedData": "credentials",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 15,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (15/19): straightforward to exploit, serious impact, no account needed, reaches credentials, publicly reachable."
+    }
+  }
+}

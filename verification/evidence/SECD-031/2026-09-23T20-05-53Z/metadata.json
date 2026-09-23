@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-031",
+  "suite": "Security scanning",
+  "runId": "2026-09-23T20-05-53Z",
+  "objective": "An arbitrary origin reflected while credentials are allowed is reported — both together",
+  "preconditions": [
+    "VULN_REFLECTED_CORS switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Configuration: the reflected-cors check against the lab",
+  "expected": "Exactly one DangerousCorsPolicy finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "DangerousCorsPolicy: Any origin is reflected while credentials are allowed (1 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 1
+  },
+  "startedAt": "2026-09-23T20:05:54.145Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "0c36351",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-031/2026-09-23T20-05-53Z/vulnerable.json",
+      "bytes": 417,
+      "sha256": "ce15e2a8df04106fdaa0e70a7ef27d6f792233c5914b86f5dd96c8790ae07db9"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-020",
+  "suite": "Security scanning",
+  "runId": "2026-09-23T20-05-53Z",
+  "objective": "The scope guard refuses over the concurrency limit",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "over the concurrency limit",
+  "expected": "Refused with concurrencyLimitExceeded. The same, for parallelism.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "concurrencyLimitExceeded: At the limit of 2 concurrent request(s).",
+  "metrics": {
+    "rungsPassed": 7
+  },
+  "startedAt": "2026-09-23T20:05:54.253Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "0c36351",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-020/2026-09-23T20-05-53Z/decision.json",
+      "bytes": 383,
+      "sha256": "a38b22cb4518890c9f098e533293d3b16d32e7a0e6bffc79a79fb3c5b2a1abfd"
+    }
+  ]
+}

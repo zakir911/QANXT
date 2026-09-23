@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-030",
+  "suite": "Security scanning",
+  "runId": "2026-09-23T20-05-53Z",
+  "objective": "The weak-cookie finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-1004, OWASP A05:2021, severity Medium, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "FAIL",
+  "detail": "severity High ≠ Medium",
+  "metrics": {
+    "score": 13,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-23T20:05:54.130Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "0c36351",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-030/2026-09-23T20-05-53Z/mapping.json",
+      "bytes": 805,
+      "sha256": "93f73bf856a139ec286bf29a4c26989d50f7a88174b7b6a5d82d98ac08b025ff"
+    }
+  ]
+}
