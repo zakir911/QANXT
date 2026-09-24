@@ -1,0 +1,32 @@
+{
+  "testId": "SECF-005",
+  "suite": "Security scanning",
+  "runId": "SEC-ABS-174037",
+  "objective": "The standard profile permits a passive probe",
+  "preconditions": [
+    "a scope that permits destructive testing, so the profile is the only thing deciding"
+  ],
+  "input": "profile=standard, risk=passive",
+  "expected": "Allowed, because this profile covers this risk level",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "allowed",
+  "metrics": null,
+  "startedAt": "2026-09-24T17:41:13.462Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "9116083",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECF-005/SEC-ABS-174037/decision.json",
+      "bytes": 316,
+      "sha256": "6d77d668f820d8ffb0c7183cabe171f50738a2f2fb90acaf9c9bdbd5212f0738"
+    }
+  ]
+}

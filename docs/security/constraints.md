@@ -31,14 +31,20 @@ a stronger guarantee, not a weaker one, but it is a different kind of claim.
 
 ## Where a rule is held by an absent code path
 
+These two are held by code that does not exist, which is the one kind of claim a passing test
+cannot make. `security-constraints.mjs` checks the absence against the source rather than
+leaving it asserted here — and fails if a guarded directory holds no source at all, because an
+absence proved by reading nothing is not proved.
+
 **Constraint 12 — self-healing.** AIRA's self-healing rewrites locators when a functional test
-breaks. It has no path to a security finding's status at all: no reference to
-`SecurityFinding` exists anywhere under the healing code. The triage refusal (`SECT-008`) and
-the never-resolve-on-absence rule (`SECB-002`, `SECB-003`, `SECPL-020`) are the second and
-third lines, not the first.
+breaks. It has no path to a security finding's status at all: no reference to `SecurityFinding`
+or `SecurityScan` appears in `Aira.Application/Diagnosis` or the worker's `src/healing`. The
+triage refusal (`SECT-008`) and the never-resolve-on-absence rule (`SECB-002`, `SECB-003`,
+`SECPL-020`) are the second and third lines, not the first.
 
 **Constraint 14 — AI.** AIRA's AI generates functional tests. It does not generate security
-checks, and there is no code path by which a model's output becomes a finding. Findings are
+checks, and no reference to `SecurityFinding` appears in `Aira.Application/Ai`, `Agent` or
+`Intelligence` — so there is no path by which a model's output becomes a finding. Findings are
 produced by deterministic code, severity is computed from stored factors, and confidence is
 computed from whether something was reproduced. `SECM-*` asserts that every severity recomputes
 from its stored factors.

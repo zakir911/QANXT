@@ -12,11 +12,18 @@
  *   - a constraint naming no requirement or no test;
  *   - a requirement id that does not exist in the requirements file;
  *   - a test id that did not run in the run being checked;
- *   - a test id that ran and did not pass.
+ *   - a test id that ran and did not pass;
+ *   - an absence the map relies on that is no longer absent.
+ *
+ * That last one is the reason this grew. Two of the eighteen are held by code that does not
+ * exist — self-healing has no path to a security finding, and no model output becomes one —
+ * and an absence is the one kind of claim a passing test cannot make. Nothing checked them, so
+ * the day somebody imported SecurityFinding into the healing code, the map would have gone on
+ * saying the rule was held by a path that had stopped being absent.
  *
  * Usage: node verification/golden-tests/security-constraints.mjs [--run <RUN_ID>]
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { ROOT, VERIFICATION } from './harness.mjs';
 
@@ -99,6 +106,88 @@ for (const row of rows) {
   }
 }
 
+/**
+ * The absences constraints 12 and 14 rest on.
+ *
+ * Deliberately a reference check rather than a call-graph analysis: if the healing code cannot
+ * name a security finding, it cannot change one, and the same for the model-facing code. That
+ * is a blunt instrument and a true one, which is the right trade for something whose job is to
+ * fail loudly the moment a boundary is crossed.
+ */
+const ABSENCES = [
+  {
+    constraint: 12,
+    what: 'self-healing has no path to a security finding',
+    // Diagnosis/ is where the API-side healing lives; the worker holds the locator rewriting.
+    // Named explicitly rather than by a guessed folder name, which is how this check was
+    // pointed at a directory that does not exist and passed without reading anything.
+    directories: ['apps/api/src/Aira.Application/Diagnosis', 'apps/browser-worker/src/healing'],
+    forbidden: /\bSecurityFinding\b|\bSecurityScan\b/
+  },
+  {
+    constraint: 14,
+    what: 'no model output becomes a security finding',
+    directories: [
+      'apps/api/src/Aira.Application/Ai',
+      'apps/api/src/Aira.Application/Agent',
+      'apps/api/src/Aira.Application/Intelligence'
+    ],
+    forbidden: /\bSecurityFinding\b/
+  }
+];
+
+const sourceFiles = (dir) => {
+  const root = resolve(ROOT, dir);
+  if (!existsSync(root)) return [];
+  const found = [];
+  const walk = (at) => {
+    for (const entry of readdirSync(at)) {
+      // Build output is not source, and a compiled copy of a file already checked would
+      // report the same crossing twice.
+      if (entry === 'bin' || entry === 'obj' || entry === 'node_modules' || entry === 'dist') continue;
+      const full = resolve(at, entry);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (/\.(cs|ts|mjs)$/.test(entry)) found.push(full);
+    }
+  };
+  walk(root);
+  return found;
+};
+
+for (const absence of ABSENCES) {
+  const crossings = [];
+  const empty = [];
+
+  for (const dir of absence.directories) {
+    const files = sourceFiles(dir);
+    // Checked per directory rather than across them. One surviving directory would otherwise
+    // mask another that had been renamed away, and the check would go on passing while half
+    // the boundary it guards had stopped being read.
+    if (files.length === 0) empty.push(dir);
+
+    for (const file of files) {
+      if (absence.forbidden.test(readFileSync(file, 'utf8'))) {
+        crossings.push(file.replace(`${ROOT}/`, ''));
+      }
+    }
+  }
+
+  // An absence proved by reading nothing is not proved. This is worse than not having the
+  // check, because the map would then cite one that had quietly stopped looking.
+  if (empty.length > 0) {
+    problems.push(
+      `Constraint ${absence.constraint} is checked by reading ${empty.join(', ')}, which holds `
+      + 'no source. The code moved, so this check is passing without having read it.');
+  }
+
+  if (crossings.length > 0) {
+    problems.push(
+      `Constraint ${absence.constraint} is documented as held because ${absence.what}, and that `
+      + `is no longer true: ${crossings.join(', ')}. Either the boundary moved and the map is `
+      + 'wrong, or the reference is a mistake.');
+  }
+}
+
 const citedTests = new Set(rows.flatMap(row => row.tests));
 const citedRequirements = new Set(rows.flatMap(row => row.requirements));
 
@@ -113,6 +202,7 @@ if (problems.length > 0) {
 console.log(green(`All ${rows.length} constraints map to a requirement and to tests that passed.`));
 console.log(dim(`  ${citedRequirements.size} requirement(s) and ${citedTests.size} test(s) cited, `
   + `checked against run ${runId}.`));
-console.log(dim('  Two constraints are held by an absent code path rather than a check, and '
-  + 'docs/security/constraints.md says which and why.'));
+console.log(dim(`  ${ABSENCES.length} constraint(s) are held by an absent code path rather than a `
+  + 'check, and the absence is checked against the real source here rather than asserted: '
+  + ABSENCES.map(a => a.constraint).join(' and ') + '.'));
 console.log('');

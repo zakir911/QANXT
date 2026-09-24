@@ -1,0 +1,98 @@
+{
+  "status": "completed",
+  "requestsIssued": 30,
+  "requestsBlocked": 0,
+  "testsExecuted": 4,
+  "testsSkipped": 0,
+  "durationMs": 5022,
+  "findings": [
+    {
+      "category": "MissingSecurityHeader",
+      "severity": "medium",
+      "confidence": "low",
+      "endpoint": "/api/data",
+      "cwe": "CWE-1021",
+      "owasp": "A05:2021"
+    },
+    {
+      "category": "InsecureCookieAttributes",
+      "severity": "medium",
+      "confidence": "medium",
+      "endpoint": "/weak",
+      "cwe": "CWE-1004",
+      "owasp": "A05:2021"
+    },
+    {
+      "category": "MissingSecurityHeader",
+      "severity": "medium",
+      "confidence": "low",
+      "endpoint": "/weak",
+      "cwe": "CWE-1021",
+      "owasp": "A05:2021"
+    },
+    {
+      "category": "MissingSecurityHeader",
+      "severity": "medium",
+      "confidence": "low",
+      "endpoint": "/api/public",
+      "cwe": "CWE-1021",
+      "owasp": "A05:2021"
+    }
+  ],
+  "gate": {
+    "outcome": "pass",
+    "summary": "PASSED. 4 open finding(s) (4 Medium) from 4 of 4 configured check(s), 30 request(s) issued. Findings describe what these tests reached; areas they did not reach are untested, not clean.",
+    "rules": [
+      {
+        "name": "A security scan ran",
+        "passed": true,
+        "measured": true,
+        "explanation": "30 request(s) issued under the Standard profile."
+      },
+      {
+        "name": "Enough of the configured checks executed",
+        "passed": true,
+        "measured": true,
+        "explanation": "4 of 4 configured check(s) executed (100%; the policy requires 80%)."
+      },
+      {
+        "name": "The scan reached what it was aiming at",
+        "passed": true,
+        "measured": true,
+        "explanation": "0 of 30 request(s) were refused by the scope (0%)."
+      },
+      {
+        "name": "Every suppressed finding carries a written justification and a name",
+        "passed": true,
+        "measured": true,
+        "explanation": "No finding is suppressed without a reason."
+      },
+      {
+        "name": "Every finding carries evidence",
+        "passed": true,
+        "measured": true,
+        "explanation": "Every finding carries at least one request/response exchange."
+      },
+      {
+        "name": "No previously resolved finding has reappeared",
+        "passed": true,
+        "measured": true,
+        "explanation": "No regression."
+      },
+      {
+        "name": "No new finding at or above High",
+        "passed": true,
+        "measured": true,
+        "explanation": "No new finding at or above High with better than low confidence."
+      },
+      {
+        "name": "No open finding at or above Critical",
+        "passed": true,
+        "measured": true,
+        "explanation": "No pre-existing finding at or above Critical."
+      }
+    ],
+    "reasons": [],
+    "blocked": false
+  }
+}

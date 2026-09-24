@@ -1,0 +1,63 @@
+# Response
+HTTP 200
+connection: keep-alive
+content-length: 1126
+content-security-policy: default-src 'self'; frame-ancestors 'none'
+content-type: application/json; charset=utf-8
+date: Thu, 24 Sep 2026 17:41:13 GMT
+keep-alive: timeout=5
+permissions-policy: geolocation=(), camera=(), microphone=()
+referrer-policy: no-referrer
+strict-transport-security: max-age=31536000; includeSubDomains
+x-content-type-options: nosniff
+x-frame-options: DENY
+
+{
+  "users": [
+    {
+      "id": "u-alice",
+      "username": "alice",
+      "role": "customer",
+      "displayName": "Alice Customer",
+      "passwordHash": "$2b$12$syntheticsynthetichashvaluefortestingonly000000",
+      "apiToken": "sk_test_synthetic_u-alice",
+      "email": "alice@lab.invalid"
+    },
+    {
+      "id": "u-bob",
+      "username": "bob",
+      "role": "customer",
+      "displayName": "Bob Customer",
+      "passwordHash": "$2b$12$syntheticsynthetichashvaluefortestingonly000000",
+      "apiToken": "sk_test_synthetic_u-bob",
+      "email": "bob@lab.invalid"
+    },
+    {
+      "id": "u-mallory",
+      "username": "mallory",
+      "role": "readonly",
+      "displayName": "Mallory ReadOnly",
+      "passwordHash": "$2b$12$syntheticsynthetichashvaluefortestingonly000000",
+      "apiToken": "sk_test_synthetic_u-mallory",
+      "email": "mallory@lab.invalid"
+    },
+    {
+      "id": "u-manager",
+      "username": "manager",
+      "role": "manager",
+      "displayName": "Mo Manager",
+      "passwordHash": "$2b$12$syntheticsynthetichashvaluefortestingonly000000",
+      "apiToken": "sk_test_synthetic_u-manager",
+      "email": "manager@lab.invalid"
+    },
+    {
+      "id": "u-admin",
+      "username": "admin",
+      "role": "admin",
+      "displayName": "Ada Admin",
+      "passwordHash": "$2b$12$syntheticsynthetichashvaluefortestingonly000000",
+      "apiToken": "sk_test_synthetic_u-admin",
+      "email": "admin@lab.invalid"
+    }
+  ]
+}

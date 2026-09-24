@@ -12,7 +12,7 @@ The controls on a scheduled security scan are verified by unit tests rather than
 
 One more thing verified by unit test rather than a golden one, and worth naming because it went unseen for so long: an act performed outside an HTTP request used to leave no audit record at all. The logger resolved the organization from the signed-in user, a background sweep has no user, and the entry was logged as a warning and discarded — scheduled runs and abandoned scans alike. It now falls back to the tenant the work is being done for, and AuditLoggerTests pins all four cases including the one where nothing can answer. A golden test cannot reach it without waiting out a cron; the firing was driven by hand against a running stack and both entries reached the database.
 
-Checked against golden run `SEC-SURF-173617`.
+Checked against golden run `SEC-ABS-174037`.
 
 **87 of 87 requirements verified.**
 
