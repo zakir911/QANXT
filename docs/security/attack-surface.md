@@ -102,6 +102,27 @@ selector and another in the scan record produces a gate reporting full coverage 
 that ran nothing — a false green arriving through a typo. `SECPL-027` fetches the platform's
 list and asserts it is identical to the engine's.
 
+## The main dashboard
+
+Every release quality report carries a security posture; so does the dashboard everybody
+opens. `DashboardView.Security` is non-nullable for the same reason: a dashboard that shows
+security only when a scan exists reads as though security is fine whenever the section is
+missing.
+
+The number that earns its place there is **applications never scanned**. Every security
+dashboard shows open findings; almost none shows how many applications nobody has pointed a
+scanner at. A project with three findings and full coverage, and a project with the same three
+findings and two applications never touched, are in very different states — and they render
+identically without that count.
+
+It also distinguishes *not authorized* from *never scanned*. The first is nobody having said
+security testing may happen; the second is it being permitted and not done. Different problems,
+different people.
+
+The dashboard, the gate and the release posture all use the same definition of an open
+finding, including counting an unexplained suppression as open. A finding that were open at the
+gate and closed on the dashboard would make both untrustworthy.
+
 ## Telling somebody
 
 Two notification events, and no more:

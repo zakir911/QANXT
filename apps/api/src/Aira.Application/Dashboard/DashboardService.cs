@@ -31,7 +31,19 @@ public sealed record DashboardView(
     IReadOnlyList<UnstableTest> TopUnstableTests,
     IReadOnlyList<CategoryCount> FailureCategories,
     HealingStatistics Healing,
-    IReadOnlyList<DurationPoint> SlowestTests);
+    IReadOnlyList<DurationPoint> SlowestTests,
+    /// <summary>Security, always present.</summary>
+    /// <remarks>
+    /// Not nullable, for the same reason the release report's posture is not: a dashboard that
+    /// shows a security section only when a scan exists reads as though security is fine
+    /// whenever it is missing. Absence of a section and absence of a problem look identical,
+    /// and only one of them is usually true.
+    ///
+    /// This is also what "first-class alongside UI testing and API testing" has to mean in
+    /// practice. Everything else the brief lists is on this view; security was the one thing
+    /// somebody could look at the overview and never learn anything about.
+    /// </remarks>
+    Aira.Application.Security.SecurityOverview Security);
 
 public sealed record DurationPoint(Guid TestCaseId, string Reference, string Name, int AverageDurationMs);
 
@@ -50,10 +62,14 @@ public sealed class DashboardService : IDashboardService
     private readonly IAiraDbContext _db;
     private readonly IClock _clock;
 
-    public DashboardService(IAiraDbContext db, IClock clock)
+    private readonly Aira.Application.Security.ISecurityOverviewService _security;
+
+    public DashboardService(
+        IAiraDbContext db, IClock clock, Aira.Application.Security.ISecurityOverviewService security)
     {
         _db = db;
         _clock = clock;
+        _security = security;
     }
 
     public async Task<DashboardView> GetAsync(Guid? projectId, int windowDays, CancellationToken ct = default)
@@ -113,7 +129,10 @@ public sealed class DashboardService : IDashboardService
             await TopUnstableAsync(testCases, ct),
             await FailureCategoriesAsync(failures, ct),
             await HealingStatisticsAsync(healing, ct),
-            await SlowestAsync(testCases, ct));
+            await SlowestAsync(testCases, ct),
+            // Not conditional on anything. A project nobody has scanned gets a security
+            // section saying exactly that, rather than no section at all.
+            await _security.ForProjectAsync(projectId, ct));
     }
 
     /// <summary>A composite of the signals that actually predict a bad release: how much is

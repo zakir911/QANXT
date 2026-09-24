@@ -31,6 +31,13 @@ interface DashboardView {
     total: number; applied: number; proposed: number; approved: number;
     rejected: number; averageConfidence: number; verifiedCount: number;
   };
+  security: {
+    anyScanRecorded: boolean; lastScanAt?: string | null;
+    applications: number; applicationsNotAuthorized: number; applicationsNeverScanned: number;
+    openCritical: number; openHigh: number; openTotal: number;
+    regressions: number; unjustifiedSuppressions: number;
+    summary: string;
+  };
   slowestTests: { testCaseId: string; reference: string; name: string; averageDurationMs: number }[];
 }
 
@@ -191,6 +198,70 @@ export default function DashboardPage() {
                     </li>
                   ))}
                 </ul>
+              )}
+            </Card>
+
+            {/*
+              Security sits beside self-healing rather than on a page of its own, because the
+              brief asks for it to be first-class alongside everything else here — and because
+              the number that matters most is one nobody would go looking for: how many
+              applications have never been scanned. A project with three findings and two
+              applications nobody pointed a scanner at is in a very different state from one
+              with three findings and full coverage, and without that count they look the same.
+            */}
+            <Card
+              title="Security"
+              description="Findings, and what has not been scanned"
+              actions={<Link to="/security" className="btn btn-secondary btn-sm">Open</Link>}
+            >
+              {!data.security.anyScanRecorded ? (
+                <div data-testid="dashboard-security-unscanned">
+                  <StatusBadge status="not measured" />
+                  <p className="mt-2 text-sm text-ink">{data.security.summary}</p>
+                </div>
+              ) : (
+                <>
+                  <dl className="grid grid-cols-3 gap-4" data-testid="dashboard-security">
+                    <div className="kv">
+                      <dt>Open</dt>
+                      <dd className={`text-lg font-semibold ${data.security.openTotal > 0 ? 'text-warn' : 'text-good'}`}>
+                        {data.security.openTotal}
+                      </dd>
+                    </div>
+                    <div className="kv">
+                      <dt>Critical</dt>
+                      <dd className={`text-lg font-semibold ${data.security.openCritical > 0 ? 'text-bad' : ''}`}>
+                        {data.security.openCritical}
+                      </dd>
+                    </div>
+                    <div className="kv">
+                      <dt>High</dt>
+                      <dd className={`text-lg font-semibold ${data.security.openHigh > 0 ? 'text-bad' : ''}`}>
+                        {data.security.openHigh}
+                      </dd>
+                    </div>
+                    <div className="kv">
+                      <dt>Regressions</dt>
+                      <dd className={`text-lg font-semibold ${data.security.regressions > 0 ? 'text-bad' : ''}`}>
+                        {data.security.regressions}
+                      </dd>
+                    </div>
+                    {/* The count that is usually missing, and the reason this card exists. */}
+                    <div className="kv">
+                      <dt>Never scanned</dt>
+                      <dd className={`text-lg font-semibold ${data.security.applicationsNeverScanned > 0 ? 'text-warn' : ''}`}>
+                        {data.security.applicationsNeverScanned}
+                      </dd>
+                    </div>
+                    <div className="kv">
+                      <dt>Not authorized</dt>
+                      <dd className={`text-lg font-semibold ${data.security.applicationsNotAuthorized > 0 ? 'text-warn' : ''}`}>
+                        {data.security.applicationsNotAuthorized}
+                      </dd>
+                    </div>
+                  </dl>
+                  <p className="mt-3 text-xs text-ink-muted">{data.security.summary}</p>
+                </>
               )}
             </Card>
 

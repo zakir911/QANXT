@@ -573,6 +573,80 @@ export default async function run() {
     }
   }, context);
 
+  await golden({
+    id: 'SECPL-030',
+    objective: 'The main dashboard carries security, and names what has never been scanned',
+    preconditions: ['a project with scanned and unscanned applications'],
+    input: 'GET the dashboard for this project',
+    expected: 'A security section is always present, counting open findings and — the number '
+      + 'usually missing — applications nobody has scanned. A project with findings and full '
+      + 'coverage and one with the same findings and two unscanned applications are in very '
+      + 'different states, and they render identically without it',
+    evidence: ['dashboard.json'],
+    severity: 'critical',
+    run: async () => {
+      // An application authorized and deliberately never scanned, beside the ones the earlier
+      // scenarios have scanned.
+      const unscanned = await registerApplication(tenant, project.id, {
+        name: 'Authorized but never scanned', baseUrl: 'http://127.0.0.1:4406',
+        loginUrl: null, username: null, password: null
+      });
+      await api(`/api/v1/security/applications/${unscanned.id}/scope`, {
+        method: 'PUT', body: scopeBody()
+      });
+
+      const response = await api(`/api/v1/dashboard?projectId=${project.id}&windowDays=30`);
+      const security = response.json?.security;
+
+      return {
+        pass: response.ok && security !== undefined && security !== null
+          && security.applicationsNeverScanned >= 1
+          && typeof security.openTotal === 'number'
+          && typeof security.summary === 'string' && security.summary.length > 0,
+        detail: security
+          ? `${security.openTotal} open, ${security.openCritical} critical, `
+            + `${security.applicationsNeverScanned} never scanned, `
+            + `${security.applicationsNotAuthorized} not authorized`
+          : 'the dashboard carries no security section at all',
+        metrics: {
+          neverScanned: security?.applicationsNeverScanned ?? -1,
+          open: security?.openTotal ?? -1
+        },
+        evidence: { 'dashboard.json': security }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECPL-031',
+    objective: 'A project nobody has scanned gets a security section saying so, not no section',
+    preconditions: ['a fresh project with one unscanned application'],
+    input: 'GET the dashboard for it',
+    expected: 'anyScanRecorded false and a summary saying nothing is known — which is not the same '
+      + 'as their being clean. A dashboard that shows security only when a scan exists reads as '
+      + 'though security is fine whenever the section is missing',
+    evidence: ['dashboard.json'],
+    severity: 'critical',
+    run: async () => {
+      const fresh = await createProject(tenant, 'Never scanned project');
+      await registerApplication(tenant, fresh.id, {
+        name: 'Untouched', baseUrl: 'http://127.0.0.1:4400',
+        loginUrl: null, username: null, password: null
+      });
+
+      const response = await api(`/api/v1/dashboard?projectId=${fresh.id}&windowDays=30`);
+      const security = response.json?.security;
+
+      return {
+        pass: response.ok && security?.anyScanRecorded === false
+          && security.summary.includes('Nothing is known about their security posture')
+          && security.summary.includes('not the same as their being clean'),
+        detail: security?.summary ?? 'no security section',
+        evidence: { 'dashboard.json': security }
+      };
+    }
+  }, context);
+
   // -----------------------------------------------------------------------
   // SECPL — telling somebody
   // -----------------------------------------------------------------------

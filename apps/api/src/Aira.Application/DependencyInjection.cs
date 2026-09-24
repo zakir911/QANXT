@@ -48,6 +48,7 @@ public static class DependencyInjection
         services.AddScoped<Security.ISecuritySurfaceService, Security.SecuritySurfaceService>();
         services.AddScoped<Security.ISecurityImpactService, Security.SecurityImpactService>();
         services.AddScoped<Security.ISecurityReleaseService, Security.SecurityReleaseService>();
+        services.AddScoped<Security.ISecurityOverviewService, Security.SecurityOverviewService>();
         services.AddScoped<IRunComparisonService, RunComparisonService>();
         services.AddScoped<IAuditQueryService, AuditQueryService>();
         services.AddScoped<IAiRequestQueryService, AiRequestQueryService>();

@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-005",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-24T06-42-07Z",
+  "objective": "A valid authorization is stored, stamped with who gave it and when",
+  "preconditions": [
+    "the application"
+  ],
+  "input": "A scope with a written authorization and a named host",
+  "expected": "Stored, enabled, and carrying authorizedByUserId and authorizedAt — a scan has to be able to point at a written authorization somebody gave",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "enabled, authorized by 3d70124e-8877-4ab0-b77e-0e2c79158243 at 2026-09-24T06:42:14.5329653+00:00",
+  "metrics": null,
+  "startedAt": "2026-09-24T06:42:14.527Z",
+  "durationMs": 132,
+  "build": {
+    "commit": "8e400e5",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "scope.json",
+      "path": "evidence/SECPL-005/2026-09-24T06-42-07Z/scope.json",
+      "bytes": 728,
+      "sha256": "779cae8f5fcf14c14f40586b9d0036f843f66a8419f9572221acf0a00e052d77"
+    }
+  ]
+}

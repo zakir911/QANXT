@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-024",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-24T06-42-07Z",
+  "objective": "A change matching no discovered surface selects nothing and refuses to imply safety",
+  "preconditions": [
+    "the application, with no discovered surface"
+  ],
+  "input": "A change impact request naming a path nothing knows about",
+  "expected": "No checks selected, and a summary saying that says nothing about whether the change is safe — silence and safety are different answers",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Nothing selected: the application has not been discovered.",
+  "metrics": null,
+  "startedAt": "2026-09-24T06:42:21.230Z",
+  "durationMs": 214,
+  "build": {
+    "commit": "8e400e5",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "impact.json",
+      "path": "evidence/SECPL-024/2026-09-24T06-42-07Z/impact.json",
+      "bytes": 1858,
+      "sha256": "14007a773d87b2d70902f58f9da7e4896885fdf04b6c73df62d6047d46f494e5"
+    }
+  ]
+}
