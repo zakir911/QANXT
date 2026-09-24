@@ -35,6 +35,17 @@ detector and the wrong way to estimate how it will do against an application nob
 
 `SECN-003` records this as not measurable here. The number describes this lab.
 
+## Discovery bounds what can be tested
+
+The attack surface is derived from the knowledge graph, so everything downstream of it — which
+checks a change calls for, which endpoints a scan targets — is bounded by what discovery
+walked. A crawl that reached eleven pages produces a surface of eleven pages, and an
+application with ninety has seventy-nine nobody has looked at.
+
+This is stated in the surface's own caveat list, in the change-impact response, and here.
+There is no way around it short of running discovery more thoroughly, and a tool that hid it
+would be telling a team that the places it did not look do not exist.
+
 ## What is verified, and how
 
 - **VERIFIED by execution**: every check, the scope guard, the severity model, the gate, the

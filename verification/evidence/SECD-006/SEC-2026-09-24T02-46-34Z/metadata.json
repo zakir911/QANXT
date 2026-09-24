@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-006",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-46-34Z",
+  "objective": "A sign-in endpoint that distinguishes an unknown account from a wrong password is reported",
+  "preconditions": [
+    "VULN_USER_ENUMERATION switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Authentication: the enumeration check against the lab",
+  "expected": "Exactly one UserEnumeration finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "UserEnumeration: The sign-in endpoint distinguishes an unknown account from a wrong password (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T02:46:43.454Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bf9e4fd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-006/SEC-2026-09-24T02-46-34Z/vulnerable.json",
+      "bytes": 448,
+      "sha256": "cc0b512048bc67447598f2a2c96a00eb0822aeb7e2ed019aa268b824c6742e54"
+    }
+  ]
+}

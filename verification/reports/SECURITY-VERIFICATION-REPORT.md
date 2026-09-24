@@ -2,7 +2,7 @@
 
 **AIRA's security testing behaved as specified against its own lab in this run.**
 
-Run `SEC-2026-09-24T02-07-26Z` · 212 security test(s) · 209 passed, 0 failed, 3 not verified
+Run `SEC-2026-09-24T02-46-34Z` · 218 security test(s) · 215 passed, 0 failed, 3 not verified
 
 > What this report is, and is not
 > 
@@ -29,8 +29,8 @@ Run `SEC-2026-09-24T02-07-26Z` · 212 security test(s) · 209 passed, 0 failed, 
 | False positives on the corrected application | 0 |
 | Endpoints the ground truth calls correct | 8 |
 | Findings reported against those endpoints | 0 |
-| Evidence files recorded | 213 |
-| Evidence files whose hash still matches | 213 |
+| Evidence files recorded | 219 |
+| Evidence files whose hash still matches | 219 |
 
 ## Results by family
 
@@ -48,12 +48,12 @@ Run `SEC-2026-09-24T02-07-26Z` · 212 security test(s) · 209 passed, 0 failed, 
 | Triage | 8/8 | Suppression needs a reason and a name |
 | Coverage honesty | 1/1 | What this scan cannot decide |
 | Measured rates | 1/1 | Detection and false positives, as measured |
-| Stored scans | 21/21 | Scopes, scans, findings and triage through AIRA's own API |
+| Stored scans | 27/27 | Scopes, scans, findings and triage through AIRA's own API |
 | AIRA itself | 11/11 | Tenancy, credentials, target policy and headers in the platform |
 
 ## Requirements
 
-63 of 63 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
+70 of 70 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
 
 ## What was NOT tested
 
@@ -276,6 +276,12 @@ report generated from that run.
 | `SECPL-019` | PASS | An application with no scans is described as untested, not as clean | 1 file(s) |
 | `SECPL-020` | PASS | A finding a scan could not reproduce goes to NeedsReview, and is never resolved on absence | 1 file(s) |
 | `SECPL-021` | PASS | A finding reproduced after a scan missed it becomes Confirmed and loses the stale note | 1 file(s) |
+| `SECPL-022` | PASS | An undiscovered application has no attack surface, and says that is about discovery | 1 file(s) |
+| `SECPL-023` | PASS | The first caveat on any attack surface is that it is what discovery walked | 1 file(s) |
+| `SECPL-024` | PASS | A change matching no discovered surface selects nothing and refuses to imply safety | 1 file(s) |
+| `SECPL-025` | PASS | A change-impact result carries the caveats, so a narrowed run cannot be read as full coverage | 1 file(s) |
+| `SECPL-026` | PASS | A release with no security scan is reported as NOT SECURITY TESTED, never omitted | 1 file(s) |
+| `SECPL-027` | PASS | The engine and the platform name every security check identically | 1 file(s) |
 | `SECQ-001` | PASS | A scan that did not run is REVIEW, never a pass | 1 file(s) |
 | `SECQ-002` | PASS | Two real findings from a real scan block the build | 2 file(s) |
 | `SECQ-003` | PASS | A clean scan never claims the application is secure | 1 file(s) |
@@ -309,4 +315,4 @@ report generated from that run.
 
 ---
 
-Generated from `verification/reports/golden-results.jsonl` for run `SEC-2026-09-24T02-07-26Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.
+Generated from `verification/reports/golden-results.jsonl` for run `SEC-2026-09-24T02-46-34Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.

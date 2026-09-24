@@ -29,6 +29,27 @@ import * as injection from './checks-injection.mjs';
 import * as request from './checks-request.mjs';
 import * as passive from './checks-passive.mjs';
 
+/**
+ * Every check the engine knows how to run, named exactly as the platform names them.
+ *
+ * These strings are a contract between the attack surface, the change-impact selector, the
+ * scan record and the gate's coverage rule. A check named one way here and another way in C#
+ * would let a scan report full coverage having run nothing — a false green arriving through a
+ * typo — so the golden suite fetches the platform's list and asserts the two are identical.
+ */
+export const CHECKS = [
+  'authz.bola', 'authz.vertical', 'authz.readonly', 'authz.missing', 'authz.token',
+  'auth.enumeration', 'auth.lockout', 'auth.session-logout', 'auth.session-lifetime', 'auth.reset-reuse',
+  'api.mass-assignment', 'api.input-validation', 'api.unsafe-method', 'api.rate-limit', 'api.excessive-data',
+  'xss.reflected', 'xss.stored', 'xss.dom',
+  'injection.sql', 'injection.nosql', 'injection.command', 'injection.template',
+  'request.csrf', 'request.origin', 'request.upload', 'request.redirect', 'request.ssrf',
+  'passive.headers', 'passive.cookies', 'passive.cors', 'passive.sensitive-data', 'passive.misconfiguration'
+];
+
+/** Checks only a browser-driven scan can perform. Reported as untested, never as absent. */
+export const CHECKS_REQUIRING_BROWSER = ['xss.dom'];
+
 export const LABS = {
   auth: 'http://127.0.0.1:4400',
   accessControl: 'http://127.0.0.1:4401',

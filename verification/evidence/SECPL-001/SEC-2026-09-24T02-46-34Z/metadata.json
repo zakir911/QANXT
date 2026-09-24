@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-001",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-2026-09-24T02-46-34Z",
+  "objective": "An application with no security scope returns 404, not an empty permissive scope",
+  "preconditions": [
+    "an application nobody has authorized"
+  ],
+  "input": "GET the application's security scope",
+  "expected": "404. \"Nobody has authorized this\" and \"there is a scope that allows nothing\" are different facts, and returning a default-shaped object invites a caller to treat the first as configuration to tweak",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "404",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:46:44.519Z",
+  "durationMs": 10,
+  "build": {
+    "commit": "bf9e4fd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECPL-001/SEC-2026-09-24T02-46-34Z/response.json",
+      "bytes": 205,
+      "sha256": "161133154c2066f8c688b0919c4a9aa59b505ed9e1cc4da57baf4a49b9126888"
+    }
+  ]
+}

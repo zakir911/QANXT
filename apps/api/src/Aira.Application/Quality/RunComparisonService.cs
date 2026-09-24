@@ -86,6 +86,15 @@ public sealed record ReleaseQualityReport(
     /// <summary>The previous build this was compared against, when one was found.</summary>
     string? ComparedWith,
     RunComparison? Comparison,
+    /// <summary>Security, always present.</summary>
+    /// <remarks>
+    /// Not nullable and not optional. A release report that omits security when no scan ran
+    /// reads as though security was fine — the section is missing, so nothing is wrong — and
+    /// that is the most consequential silence a release report can contain. A build nobody
+    /// scanned comes back with <see cref="Aira.Application.Security.SecurityPostureVerdict.NotScanned"/>
+    /// and says so in the first words of its summary.
+    /// </remarks>
+    Aira.Application.Security.ReleaseSecurityPosture Security,
     string Summary);
 
 /// <summary>
@@ -108,11 +117,15 @@ public sealed class RunComparisonService : IRunComparisonService
 {
     private readonly IAiraDbContext _db;
     private readonly ILogger<RunComparisonService> _logger;
+    private readonly Aira.Application.Security.ISecurityReleaseService _security;
 
-    public RunComparisonService(IAiraDbContext db, ILogger<RunComparisonService> logger)
+    public RunComparisonService(
+        IAiraDbContext db, ILogger<RunComparisonService> logger,
+        Aira.Application.Security.ISecurityReleaseService security)
     {
         _db = db;
         _logger = logger;
+        _security = security;
     }
 
     public async Task<Result<RunComparison>> CompareAsync(Guid currentRunId, Guid? previousRunId,
@@ -203,7 +216,13 @@ public sealed class RunComparisonService : IRunComparisonService
 
         var comparison = earlier is null ? null : await BuildAsync(latest, earlier, ct);
 
-        var summary = Describe(reference, runs.Count, outstanding.Count, unstable.Count, comparison);
+        // The window is the build's own runs, so a release tested across three days is not
+        // assessed on a scan that ran a week before any of them.
+        var security = await _security.ForBuildAsync(
+            projectId, runs[0].CompletedAt, latest.CompletedAt, ct);
+
+        var summary = Describe(reference, runs.Count, outstanding.Count, unstable.Count, comparison)
+            + $" Security: {security.Summary}";
 
         return Result<ReleaseQualityReport>.Success(new ReleaseQualityReport(
             projectId, project.Name, reference,
@@ -215,7 +234,7 @@ public sealed class RunComparisonService : IRunComparisonService
             finished == 0 ? 0m : Math.Round(passed * 100m / finished, 1),
             outstanding, unstable,
             latest.ContractBreakingChangeCount, latest.ContractPotentiallyBreakingChangeCount,
-            earlier?.ApplicationBuildRef, comparison, summary));
+            earlier?.ApplicationBuildRef, comparison, security, summary));
     }
 
     // -----------------------------------------------------------------------

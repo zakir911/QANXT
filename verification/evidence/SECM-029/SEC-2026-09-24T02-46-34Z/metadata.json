@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-029",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-46-34Z",
+  "objective": "The no-csp finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-1021, OWASP A05:2021, severity Medium, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-1021, A05:2021, Medium (8/19) — Medium (8/19): difficult to exploit, limited impact, no account needed, reaches no data, publicly reachable.",
+  "metrics": {
+    "score": 8,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T02:46:43.998Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bf9e4fd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-029/SEC-2026-09-24T02-46-34Z/mapping.json",
+      "bytes": 781,
+      "sha256": "f7d195074013c297b1a57109cdd08a3138ade91a18346f7d61ae6022f8b35465"
+    }
+  ]
+}

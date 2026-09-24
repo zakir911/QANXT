@@ -25,6 +25,7 @@ Before anything else, the two sentences that shape everything in this directory:
 | [false-positives.md](false-positives.md) | Why precision matters more than recall here, and how a finding is set aside |
 | [security-gate.md](security-gate.md) | What stops a build, what a clean result may say, and why "not scanned" is not a pass |
 | [regression.md](regression.md) | Comparing scans, finding identity, and why absence never means fixed |
+| [attack-surface.md](attack-surface.md) | What discovery found that is worth testing, which checks a change calls for, and security in a release decision |
 | [running-a-scan.md](running-a-scan.md) | Profiles, the CLI, and CI/CD |
 | [the-security-lab.md](the-security-lab.md) | The seven deliberately vulnerable applications and their ground truth |
 | [verification.md](verification.md) | How the security capability is verified, and what is not verified |

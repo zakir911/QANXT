@@ -1,0 +1,34 @@
+{
+  "testId": "SECPL-015",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-24T02-43-36Z",
+  "objective": "Another tenant cannot read this tenant's security findings",
+  "preconditions": [
+    "a second organization"
+  ],
+  "input": "The other tenant listing findings for this application",
+  "expected": "Nothing. A security finding is a working description of how to break an application, and tenant isolation matters more here than anywhere else in the product",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "findings 200 (0 row(s)), scans 200 (0 row(s)), scope 404",
+  "metrics": {
+    "leakedRows": 0
+  },
+  "startedAt": "2026-09-24T02:43:41.084Z",
+  "durationMs": 186,
+  "build": {
+    "commit": "bf9e4fd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECPL-015/2026-09-24T02-43-36Z/response.json",
+      "bytes": 145,
+      "sha256": "3e8721d70e0fefa0987ca513e3da91a095c3f8c969e38ab0a7a7989309f95b38"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-003",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-24T02-45-46Z",
+  "objective": "A scope cannot be enabled with an empty domain allowlist",
+  "preconditions": [
+    "the application"
+  ],
+  "input": "A scope with a written authorization and no allowed domains",
+  "expected": "400. An empty allowlist permits nothing, and saving one as though it were a working scope hides that",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "400: ",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:45:48.067Z",
+  "durationMs": 14,
+  "build": {
+    "commit": "bf9e4fd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECPL-003/2026-09-24T02-45-46Z/response.json",
+      "bytes": 415,
+      "sha256": "842996e6e6a24e1b0903f22a811f7d642c4b3c1b33853257f9259f1912bfcf76"
+    }
+  ]
+}

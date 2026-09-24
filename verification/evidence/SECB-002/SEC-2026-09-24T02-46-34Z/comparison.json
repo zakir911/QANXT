@@ -1,0 +1,26 @@
+{
+  "findings": [],
+  "disappeared": [
+    {
+      "application": "access-control-lab",
+      "category": "BOLA",
+      "endpoint": "/api/accounts/{id}",
+      "parameter": "id",
+      "observedAsRole": "alice",
+      "status": "Confirmed",
+      "check": "authz.bola",
+      "fingerprint": "934fababec4acd11",
+      "outcome": "notObserved",
+      "note": "The check that found this did not run in this scan, so its absence is not evidence of anything."
+    }
+  ],
+  "summary": {
+    "current": 0,
+    "baseline": 1,
+    "new": 0,
+    "regressed": 0,
+    "carriedForward": 0,
+    "notReproduced": 0,
+    "notObserved": 1
+  }
+}

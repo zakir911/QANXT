@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-020",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-2026-09-24T02-46-34Z",
+  "objective": "A finding a scan could not reproduce goes to NeedsReview, and is never resolved on absence",
+  "preconditions": [
+    "a confirmed finding, and a scan that runs its check and reports nothing"
+  ],
+  "input": "A scan with no findings and authz.bola in the executed list",
+  "expected": "NeedsReview with a note saying the check ran and did not reproduce it, and that this is not a resolution. The brief forbids anything automated closing a security finding",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "needsReview: The check that found this (authz.bola) ran in scan SCAN-20260924-0CCBC7 and did not reproduce it. That is grou",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:46:44.750Z",
+  "durationMs": 23,
+  "build": {
+    "commit": "bf9e4fd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "finding.json",
+      "path": "evidence/SECPL-020/SEC-2026-09-24T02-46-34Z/finding.json",
+      "bytes": 950,
+      "sha256": "333e9dd295d3c576ea6c9467fdcbc486305b0707e215650ec943156e5c43b4dc"
+    }
+  ]
+}

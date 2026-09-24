@@ -546,6 +546,58 @@
       "verifiedBy": [
         "SECPL-019"
       ]
+    },
+    {
+      "id": "SEC-R64",
+      "statement": "A security attack surface is derived from the knowledge graph: which endpoints take an object identifier, change state, take a file or carry a destination parameter, each naming the checks it implies.",
+      "verifiedBy": [
+        "SECPL-022",
+        "SECPL-023"
+      ]
+    },
+    {
+      "id": "SEC-R65",
+      "statement": "An attack surface always carries the caveat that it describes what discovery walked rather than the application.",
+      "verifiedBy": [
+        "SECPL-023",
+        "SECPL-022"
+      ]
+    },
+    {
+      "id": "SEC-R66",
+      "statement": "A change selects the security checks covering the surface it reaches, and a change matching nothing selects nothing rather than implying safety.",
+      "verifiedBy": [
+        "SECPL-024",
+        "SECPL-025"
+      ]
+    },
+    {
+      "id": "SEC-R67",
+      "statement": "A narrowed security selection reports the full implied set as configured, so it cannot buy a passing gate.",
+      "verifiedBy": [
+        "SECPL-025"
+      ]
+    },
+    {
+      "id": "SEC-R68",
+      "statement": "A check covering a currently open finding stays selected whatever the change touched.",
+      "verifiedBy": [
+        "SECPL-024"
+      ]
+    },
+    {
+      "id": "SEC-R69",
+      "statement": "A release assessment always carries a security posture, and a build nobody scanned reads as NOT SECURITY TESTED rather than being omitted.",
+      "verifiedBy": [
+        "SECPL-026"
+      ]
+    },
+    {
+      "id": "SEC-R70",
+      "statement": "The platform and the engine name every security check identically.",
+      "verifiedBy": [
+        "SECPL-027"
+      ]
     }
   ]
 }

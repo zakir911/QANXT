@@ -1,0 +1,32 @@
+{
+  "testId": "SECF-010",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-46-34Z",
+  "objective": "The regression profile refuses a destructive probe",
+  "preconditions": [
+    "a scope that permits destructive testing, so the profile is the only thing deciding"
+  ],
+  "input": "profile=regression, risk=destructive",
+  "expected": "Refused with profileDoesNotPermit, because the profile is the promise made to whoever approved the scan about what it would do",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "profileDoesNotPermit: The regression profile does not run this risk level.",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:46:44.176Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bf9e4fd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECF-010/SEC-2026-09-24T02-46-34Z/decision.json",
+      "bytes": 329,
+      "sha256": "a28a2d6299d6ab71eea38464045d3f20817cf426eacb5738c16a2ba957368288"
+    }
+  ]
+}

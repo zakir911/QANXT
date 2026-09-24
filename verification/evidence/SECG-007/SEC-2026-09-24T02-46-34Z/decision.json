@@ -1,0 +1,12 @@
+{
+  "case": "GCP metadata by name",
+  "why": "The same, by hostname rather than address.",
+  "decision": {
+    "allowed": false,
+    "reason": "domainNotAllowed",
+    "explanation": "'metadata.google.internal' is never a legitimate target, whatever the scope allows.",
+    "checksPassed": [
+      "authorization"
+    ]
+  }
+}

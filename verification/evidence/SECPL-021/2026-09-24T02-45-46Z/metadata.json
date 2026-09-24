@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-021",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-24T02-45-46Z",
+  "objective": "A finding reproduced after a scan missed it becomes Confirmed and loses the stale note",
+  "preconditions": [
+    "a finding in NeedsReview because a scan did not reproduce it"
+  ],
+  "input": "A scan reporting it again",
+  "expected": "Confirmed, with the \"the check ran and did not reproduce it\" note cleared. Leaving that note in place would tell whoever opens the finding the opposite of what happened",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "confirmed; note cleared",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:45:49.034Z",
+  "durationMs": 20,
+  "build": {
+    "commit": "bf9e4fd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "finding.json",
+      "path": "evidence/SECPL-021/2026-09-24T02-45-46Z/finding.json",
+      "bytes": 707,
+      "sha256": "525ff0ba65c40185989c8364c25c497632d6e88d23c1b24017529de7b8d051fe"
+    }
+  ]
+}

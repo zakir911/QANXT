@@ -24,12 +24,35 @@ public sealed class SecurityController : ApiControllerBase
 {
     private readonly ISecurityScanService _security;
     private readonly ISecurityTrendService _trend;
+    private readonly ISecuritySurfaceService _surface;
+    private readonly ISecurityImpactService _impact;
 
-    public SecurityController(ISecurityScanService security, ISecurityTrendService trend)
+    public SecurityController(
+        ISecurityScanService security, ISecurityTrendService trend,
+        ISecuritySurfaceService surface, ISecurityImpactService impact)
     {
         _security = security;
         _trend = trend;
+        _surface = surface;
+        _impact = impact;
     }
+
+    /// <summary>Every security check AIRA knows how to run.</summary>
+    /// <remarks>
+    /// Served rather than documented because four things have to agree on these strings: the
+    /// attack surface that says which apply, the selector that says which to run, the scan
+    /// record that says which executed, and the gate that reads coverage from that record. A
+    /// check named one way in the selector and another in the scan record produces a gate
+    /// reporting full coverage from a scan that ran nothing — a false green arriving through
+    /// a typo. The golden suite compares this list against the engine's own.
+    /// </remarks>
+    [HttpGet("checks")]
+    public IActionResult Checks()
+        => Ok(new
+        {
+            checks = SecurityChecks.All,
+            requiresBrowser = SecurityChecks.RequiresBrowser
+        });
 
     // ---- Scope -------------------------------------------------------------
 
@@ -87,6 +110,36 @@ public sealed class SecurityController : ApiControllerBase
     public async Task<IActionResult> Trend(
         Guid applicationId, [FromQuery] int take = 30, CancellationToken ct = default)
         => FromResult(await _trend.ForApplicationAsync(applicationId, take, ct));
+
+    /// <summary>What discovery found that is worth security testing.</summary>
+    /// <remarks>
+    /// Derived from the knowledge graph: which endpoints take an object identifier, which
+    /// change state, which take a file, which carry a parameter that names a destination. Each
+    /// item says why it is there and which checks it implies.
+    ///
+    /// The caveat list is never empty, and its first entry is always that this describes what
+    /// discovery walked rather than the application. A reader who takes the item list as
+    /// complete will treat everywhere else as safe, and nothing here has looked at anywhere else.
+    /// </remarks>
+    [HttpGet("applications/{applicationId:guid}/surface")]
+    public async Task<IActionResult> Surface(Guid applicationId, CancellationToken ct)
+        => FromResult(await _surface.ForApplicationAsync(applicationId, ct));
+
+    /// <summary>Which security checks a change calls for.</summary>
+    /// <remarks>
+    /// Intersects the change-impact analysis with the discovered attack surface, and keeps any
+    /// check covering a currently open finding whatever the change touched — a check that found
+    /// something and then stopped running is how a regression hides.
+    ///
+    /// The full implied set comes back as <c>checksImplied</c> alongside the selection. A scan
+    /// that runs six of thirty-two reports six of thirty-two to the gate and comes back REVIEW.
+    /// Narrowing changes what runs; it does not change what a clean result may claim.
+    /// </remarks>
+    [HttpPost("impact")]
+    [RequirePermission(Permissions.SecurityScan)]
+    public async Task<IActionResult> Impact(
+        [FromBody] SecurityImpactRequest request, CancellationToken ct)
+        => FromResult(await _impact.AnalyseAsync(request, ct));
 
     // ---- Findings ----------------------------------------------------------
 

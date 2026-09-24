@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-004",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-24T02-45-46Z",
+  "objective": "Destructive testing and production can never be authorized together",
+  "preconditions": [
+    "an organization admin, who holds security:production"
+  ],
+  "input": "A scope with allowProduction and allowDestructiveTesting both true",
+  "expected": "Refused as a security policy violation, at the point somebody tries to configure it rather than one request at a time later",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "403: ",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:45:48.082Z",
+  "durationMs": 9,
+  "build": {
+    "commit": "bf9e4fd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECPL-004/2026-09-24T02-45-46Z/response.json",
+      "bytes": 315,
+      "sha256": "14ca59ada5b500789a665544238e5b10880ac3a867cd440496e3d860725197de"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-006",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-46-34Z",
+  "objective": "The enumeration check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_USER_ENUMERATION"
+  ],
+  "input": "The same enumeration check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "both answered 401 with the same shape and the same stated reason",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-24T02:46:43.455Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bf9e4fd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-006/SEC-2026-09-24T02-46-34Z/corrected.json",
+      "bytes": 181,
+      "sha256": "6656a5dcb416d524a3f19b1b6e04eac31c3a4a3b2b33eaf7052ace578977a105"
+    }
+  ]
+}

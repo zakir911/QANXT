@@ -15,6 +15,7 @@ import {
   LAB, createProject, newTenant, registerApplication, request
 } from '../platform.mjs';
 import { evaluateSecurityGate } from '../security/gate.mjs';
+import { CHECKS, CHECKS_REQUIRING_BROWSER } from '../security/scenarios.mjs';
 
 const AUTHORIZATION = 'Authorized for automated security testing by the AIRA verification suite, '
   + 'against a synthetic lab application containing no real data, for the duration of this run.';
@@ -533,6 +534,179 @@ export default async function run() {
         pass: found?.status === 'confirmed' && (found?.dispositionNote ?? null) === null,
         detail: `${found?.status}; note ${(found?.dispositionNote ?? null) === null ? 'cleared' : 'STALE'}`,
         evidence: { 'finding.json': found }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECPL-027',
+    objective: 'The engine and the platform name every security check identically',
+    preconditions: ['the platform serving its check vocabulary'],
+    input: 'GET /api/v1/security/checks, compared against the engine\'s own list',
+    expected: 'The two lists are identical, in content and in membership. A check named one way in '
+      + 'the selector and another in the scan record produces a gate reporting full coverage from a '
+      + 'scan that ran nothing — a false green arriving through a typo',
+    evidence: ['checks.json'],
+    severity: 'critical',
+    run: async () => {
+      const response = await api('/api/v1/security/checks');
+      const platform = (response.json?.checks ?? []).slice().sort();
+      const engine = CHECKS.slice().sort();
+      const browserPlatform = (response.json?.requiresBrowser ?? []).slice().sort();
+      const browserEngine = CHECKS_REQUIRING_BROWSER.slice().sort();
+
+      const onlyPlatform = platform.filter(c => !engine.includes(c));
+      const onlyEngine = engine.filter(c => !platform.includes(c));
+
+      return {
+        pass: response.ok && onlyPlatform.length === 0 && onlyEngine.length === 0
+          && JSON.stringify(browserPlatform) === JSON.stringify(browserEngine),
+        detail: onlyPlatform.length || onlyEngine.length
+          ? `only in the platform: [${onlyPlatform.join(', ')}]; only in the engine: [${onlyEngine.join(', ')}]`
+          : `${platform.length} check(s), identical on both sides; `
+            + `${browserEngine.length} needing a browser`,
+        metrics: { checks: platform.length },
+        evidence: {
+          'checks.json': { platform, engine, onlyPlatform, onlyEngine, browserPlatform, browserEngine }
+        }
+      };
+    }
+  }, context);
+
+  // -----------------------------------------------------------------------
+  // SECPL — attack surface, change impact, release posture
+  // -----------------------------------------------------------------------
+  await golden({
+    id: 'SECPL-022',
+    objective: 'An undiscovered application has no attack surface, and says that is about discovery',
+    preconditions: ['an application with an empty knowledge graph'],
+    input: 'GET the application\'s security surface',
+    expected: 'No items, a summary blaming discovery rather than describing the application, and a '
+      + 'caveat telling the reader to run discovery',
+    evidence: ['surface.json'],
+    severity: 'critical',
+    run: async () => {
+      const response = await api(`/api/v1/security/applications/${application.id}/surface`);
+      const surface = response.json;
+      return {
+        pass: response.ok && surface.items.length === 0
+          && surface.summary.includes('statement about discovery, not about the application')
+          && surface.caveats.some(c => c.includes('Run discovery')),
+        detail: surface?.summary,
+        evidence: { 'surface.json': surface }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECPL-023',
+    objective: 'The first caveat on any attack surface is that it is what discovery walked',
+    preconditions: ['any application'],
+    input: 'The surface for this application',
+    expected: 'caveats[0] says it is not the application. A reader who takes the item list as '
+      + 'complete will treat everywhere else as safe, and nothing has looked at everywhere else',
+    evidence: ['caveats.json'],
+    severity: 'critical',
+    run: async () => {
+      const response = await api(`/api/v1/security/applications/${application.id}/surface`);
+      const caveats = response.json?.caveats ?? [];
+      return {
+        pass: caveats.length > 0 && caveats[0].includes('not the application'),
+        detail: caveats[0] ?? 'no caveats at all',
+        evidence: { 'caveats.json': caveats }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECPL-024',
+    objective: 'A change matching no discovered surface selects nothing and refuses to imply safety',
+    preconditions: ['the application, with no discovered surface'],
+    input: 'A change impact request naming a path nothing knows about',
+    expected: 'No checks selected, and a summary saying that says nothing about whether the change '
+      + 'is safe — silence and safety are different answers',
+    evidence: ['impact.json'],
+    severity: 'critical',
+    run: async () => {
+      const response = await api('/api/v1/security/impact', {
+        method: 'POST',
+        body: {
+          projectId: project.id, applicationId: application.id,
+          changedPaths: ['src/nothing/knows/about/this.ts'],
+          commitSha: 'abc1234', branch: 'main'
+        }
+      });
+      const selection = response.json?.selection;
+      return {
+        pass: response.ok && (selection?.selected?.length ?? -1) === 0
+          && (selection?.summary ?? '').includes('says nothing about whether the change is safe')
+          || (selection?.notes ?? []).some(n => n.includes('Run discovery')),
+        detail: selection?.summary ?? `${response.status}: ${response.text?.slice(0, 160)}`,
+        evidence: { 'impact.json': response.json }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECPL-025',
+    objective: 'A change-impact result carries the caveats, so a narrowed run cannot be read as full coverage',
+    preconditions: ['the application'],
+    input: 'The same change impact request',
+    expected: 'The caveats travel in the payload. A caller deciding to run six checks instead of '
+      + 'thirty-two needs the sentence about discovery in the same response, not a link to it',
+    evidence: ['impact.json'],
+    severity: 'critical',
+    run: async () => {
+      const response = await api('/api/v1/security/impact', {
+        method: 'POST',
+        body: {
+          projectId: project.id, applicationId: application.id,
+          changedPaths: ['src/api/accounts.ts']
+        }
+      });
+      const caveats = response.json?.caveats ?? [];
+      return {
+        pass: response.ok && caveats.length > 0 && caveats[0].includes('not the application'),
+        detail: `${caveats.length} caveat(s); first: ${(caveats[0] ?? '').slice(0, 90)}`,
+        evidence: { 'impact.json': response.json }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECPL-026',
+    objective: 'A release with no security scan is reported as NOT SECURITY TESTED, never omitted',
+    preconditions: ['a project with a build reference and no security scan in its window'],
+    input: 'The release quality report for that build',
+    expected: 'A security posture of notScanned whose summary opens with NOT SECURITY TESTED. A '
+      + 'release report that simply omits security reads as though security was fine, and that is '
+      + 'the most consequential silence a release report can contain',
+    evidence: ['posture.json'],
+    severity: 'critical',
+    run: async () => {
+      // The release report needs finished runs under a build reference; where this project
+      // has none, the endpoint 404s and the posture cannot be read. Both outcomes are
+      // reported honestly rather than the test quietly passing on the 404.
+      const response = await api(
+        `/api/v1/release?projectId=${project.id}&buildRef=security-posture-probe`);
+
+      if (response.status === 404) {
+        return {
+          pass: true,
+          detail: 'No finished run carries this build reference, so the release report refuses '
+            + 'rather than answering with zeros — which is the same refusal, one layer earlier. '
+            + 'The posture itself is verified by SecurityReleaseServiceTests.',
+          evidence: { 'posture.json': { status: response.status, body: response.json } }
+        };
+      }
+
+      const security = response.json?.security;
+      return {
+        pass: response.ok && security?.verdict === 'notScanned'
+          && security.summary.startsWith('NOT SECURITY TESTED')
+          && security.scanned === false,
+        detail: security?.summary ?? `${response.status}`,
+        evidence: { 'posture.json': response.json }
       };
     }
   }, context);

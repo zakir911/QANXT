@@ -6,9 +6,9 @@ Two requirements are deliberately not on this list because nothing here verifies
 
 SEC-R43 to SEC-R49 are about AIRA itself rather than the applications it tests. A security testing tool that is not itself secure is a liability, and its own tenancy, credential handling and target policy are verified by the same kind of test as everything else here.
 
-Checked against golden run `SEC-2026-09-24T02-07-26Z`.
+Checked against golden run `SEC-2026-09-24T02-46-34Z`.
 
-**63 of 63 requirements verified.**
+**70 of 70 requirements verified.**
 
 | Requirement | Verified by | Status |
 | --- | --- | --- |
@@ -75,12 +75,19 @@ Checked against golden run `SEC-2026-09-24T02-07-26Z`.
 | **SEC-R61** A finding reproduced after a scan missed it returns to Confirmed and the stale not-reproduced note is cleared. | SECPL-021 | VERIFIED |
 | **SEC-R62** A security trend carries the coverage each point was measured at, and flags a scan that covered materially less than the one before it. | SECPL-017, SECPL-018 | VERIFIED |
 | **SEC-R63** An application with no recorded scan is described as untested, never as clean. | SECPL-019 | VERIFIED |
+| **SEC-R64** A security attack surface is derived from the knowledge graph: which endpoints take an object identifier, change state, take a file or carry a destination parameter, each naming the checks it implies. | SECPL-022, SECPL-023 | VERIFIED |
+| **SEC-R65** An attack surface always carries the caveat that it describes what discovery walked rather than the application. | SECPL-023, SECPL-022 | VERIFIED |
+| **SEC-R66** A change selects the security checks covering the surface it reaches, and a change matching nothing selects nothing rather than implying safety. | SECPL-024, SECPL-025 | VERIFIED |
+| **SEC-R67** A narrowed security selection reports the full implied set as configured, so it cannot buy a passing gate. | SECPL-025 | VERIFIED |
+| **SEC-R68** A check covering a currently open finding stays selected whatever the change touched. | SECPL-024 | VERIFIED |
+| **SEC-R69** A release assessment always carries a security posture, and a build nobody scanned reads as NOT SECURITY TESTED rather than being omitted. | SECPL-026 | VERIFIED |
+| **SEC-R70** The platform and the engine name every security check identically. | SECPL-027 | VERIFIED |
 
 ## Tests claimed by no requirement
 
 327 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 324 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 3 are continuous-quality tests that no requirement above names.
 
-470 test id(s) are known to exist: 270 written as literals in a suite, 200 built at run time and proven by having executed.
+476 test id(s) are known to exist: 276 written as literals in a suite, 200 built at run time and proven by having executed.
 
 ```
 ACC-001  ACC-002  ACC-003  ACC-004  ACC-005  ACC-006  AIF-001  AIF-002  AIF-003  AIF-004  AIF-005  AIF-006

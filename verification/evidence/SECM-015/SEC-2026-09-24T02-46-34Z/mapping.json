@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_EXCESSIVE_DATA",
+    "type": "SensitiveDataExposure",
+    "endpoint": "GET /api/users",
+    "severity": "high",
+    "cwe": "CWE-213",
+    "owaspApi": "API3:2023",
+    "detectBy": "Password hashes and API tokens appear in the response."
+  },
+  "got": {
+    "cwe": "CWE-213",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A01:2021",
+    "owaspApi": "API3:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "serious",
+      "privilegeRequired": "authenticatedUser",
+      "affectedData": "credentials",
+      "exposure": "authenticatedUsers",
+      "requiresUnusualConditions": false,
+      "score": 15,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (15/19): trivial to exploit, serious impact, any signed-in user, reaches credentials, reachable by signed-in users."
+    }
+  }
+}
