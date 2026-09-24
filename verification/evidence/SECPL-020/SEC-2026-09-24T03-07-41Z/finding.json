@@ -1,0 +1,23 @@
+{
+  "id": "9723a168-2a76-42d9-958b-8edd3b806274",
+  "reference": "SF-20260924-99472F",
+  "fingerprint": "827e9a5599e9e508feadd768f618d770",
+  "category": "BOLA",
+  "title": "alice can read a resource owned by bob",
+  "severity": "high",
+  "confidence": "high",
+  "status": "needsReview",
+  "cwe": "CWE-639",
+  "owaspWebCategory": "A01:2021",
+  "owaspApiCategory": "API1:2023",
+  "endpoint": "/api/accounts/{id}",
+  "parameter": "id",
+  "observedAsRole": "alice",
+  "firstSeenAt": "2026-09-24T03:07:52.313648+00:00",
+  "lastSeenAt": "2026-09-24T03:07:52.392095+00:00",
+  "regressedAt": "2026-09-24T03:07:52.392095+00:00",
+  "dispositionNote": "The check that found this (authz.bola) ran in scan SCAN-20260924-71DD6C and did not reproduce it. That is grounds for a person to mark it resolved; it is not a resolution on its own, and nothing automated may close it.",
+  "isNew": false,
+  "isRegression": true,
+  "evidencePath": "evidence/SECD-001/latest"
+}

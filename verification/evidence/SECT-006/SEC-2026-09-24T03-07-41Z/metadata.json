@@ -1,0 +1,32 @@
+{
+  "testId": "SECT-006",
+  "suite": "Security gate, regression and triage",
+  "runId": "SEC-2026-09-24T03-07-41Z",
+  "objective": "A properly justified decision is accepted and appended to the history, never overwriting it",
+  "preconditions": [
+    "a confirmed finding, marked a false positive with a reason and a name"
+  ],
+  "input": "A justification of substance and a named decision-maker, applied twice",
+  "expected": "Both decisions in the history with the status each moved from. A status field that holds only the latest answer is not an audit trail",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Confirmed → NeedsReview, NeedsReview → FalsePositive",
+  "metrics": null,
+  "startedAt": "2026-09-24T03:07:52.077Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "346e720",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "triaged.json",
+      "path": "evidence/SECT-006/SEC-2026-09-24T03-07-41Z/triaged.json",
+      "bytes": 1052,
+      "sha256": "552da6faa108c057141418e7e3546fc3bd657fd2950cfd91987586e20a6be690"
+    }
+  ]
+}

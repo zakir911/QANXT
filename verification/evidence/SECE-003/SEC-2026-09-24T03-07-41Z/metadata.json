@@ -1,0 +1,35 @@
+{
+  "testId": "SECE-003",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T03-07-41Z",
+  "objective": "Blocked requests are recorded, so coverage can be read from what a scan did not do",
+  "preconditions": [
+    "a scope that refuses the host"
+  ],
+  "input": "Three probes against a host the scope does not allow",
+  "expected": "Three refusals in the scanner summary, each naming the reason — a scan that silently skips what it could not reach reports the same clean result as one that reached everything",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 issued, 3 blocked (domainNotAllowed)",
+  "metrics": {
+    "issued": 0,
+    "blocked": 3
+  },
+  "startedAt": "2026-09-24T03:07:51.998Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "346e720",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "summary.json",
+      "path": "evidence/SECE-003/SEC-2026-09-24T03-07-41Z/summary.json",
+      "bytes": 993,
+      "sha256": "5dcb90064447597079f764fea1f0feae8f4a341785dff76dbbcf31ff58c7d0ea"
+    }
+  ]
+}

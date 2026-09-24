@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-010",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T03-07-41Z",
+  "objective": "The reset-reuse finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-640, OWASP A07:2021, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-640, A07:2021, High (15/19) — High (15/19): straightforward to exploit, serious impact, no account needed, reaches credentials, publicly reachable.",
+  "metrics": {
+    "score": 15,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T03:07:51.349Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "346e720",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-010/SEC-2026-09-24T03-07-41Z/mapping.json",
+      "bytes": 881,
+      "sha256": "c6c0c55cefe6a93c771f7d4715cc6e5393fa0fac59b9b78abd8628d410fee40b"
+    }
+  ]
+}

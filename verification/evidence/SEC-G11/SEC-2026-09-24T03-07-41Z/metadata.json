@@ -1,0 +1,32 @@
+{
+  "testId": "SEC-G11",
+  "suite": "Security and multi-tenancy",
+  "runId": "SEC-2026-09-24T03-07-41Z",
+  "objective": "Loopback and private addresses are treated consistently with the deployment's configuration",
+  "preconditions": [
+    "this deployment sets ALLOW_PRIVATE_NETWORK_TARGETS=true so that the local test lab can be targeted"
+  ],
+  "input": "IPv4 loopback, IPv6 loopback, a private range address and a link-local address",
+  "expected": "All four are treated the same way as each other — permitted here, because the flag is on",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "IPv4 loopback: 201, IPv6 loopback: 201, private range: 201, link-local: 400; loopback and private treated consistently: true; link-local refused regardless: true",
+  "metrics": null,
+  "startedAt": "2026-09-24T03:07:59.783Z",
+  "durationMs": 29,
+  "build": {
+    "commit": "346e720",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "ssrf-private.json",
+      "path": "evidence/SEC-G11/SEC-2026-09-24T03-07-41Z/ssrf-private.json",
+      "bytes": 1311,
+      "sha256": "bc448b0dd1effed034baa3ab650b5cc3c4208017212c233762b17573463a4eb3"
+    }
+  ]
+}

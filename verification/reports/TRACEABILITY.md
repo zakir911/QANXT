@@ -2,7 +2,7 @@
 
 Each requirement names the golden tests that verify it. traceability.mjs checks this file against what actually ran: a requirement with no test, a test id that does not exist, and a named test that did not pass are all failures. A table nobody checks is a table that rots.
 
-Checked against golden run `2026-09-24T01-53-26Z`.
+Checked against golden run `2026-09-24T02-58-10Z`.
 
 **27 of 34 requirements verified.** 7 not covered by this run.
 
@@ -45,9 +45,9 @@ Checked against golden run `2026-09-24T01-53-26Z`.
 
 ## Tests claimed by no requirement
 
-374 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 332 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 42 are continuous-quality tests that no requirement above names.
+382 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 340 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 42 are continuous-quality tests that no requirement above names.
 
-470 test id(s) are known to exist: 270 written as literals in a suite, 200 built at run time and proven by having executed.
+478 test id(s) are known to exist: 278 written as literals in a suite, 200 built at run time and proven by having executed.
 
 ```
 AIF-009  API-003  API-005  API-006  API-007  API-009  API-010  API-011  API-012  API-014  ASRT-001  ASRT-002
@@ -78,9 +78,9 @@ SECP-001  SECP-002  SECP-003  SECP-004  SECP-005  SECP-006  SECP-007  SECP-008  
 SECP-013  SECP-014  SECP-015  SECP-016  SECP-017  SECP-018  SECP-019  SECP-020  SECP-021  SECP-022  SECP-023  SECP-024
 SECP-025  SECP-026  SECP-027  SECP-028  SECP-029  SECP-030  SECP-031  SECP-032  SECP-033  SECP-034  SECPL-001  SECPL-002
 SECPL-003  SECPL-004  SECPL-005  SECPL-006  SECPL-007  SECPL-008  SECPL-009  SECPL-010  SECPL-011  SECPL-012  SECPL-013  SECPL-014
-SECPL-015  SECPL-016  SECPL-017  SECPL-018  SECPL-019  SECPL-020  SECPL-021  SECQ-001  SECQ-002  SECQ-003  SECQ-004  SECQ-005
-SECQ-006  SECQ-007  SECQ-008  SECQ-009  SECQ-010  SECQ-011  SECR-001  SECS-001  SECS-002  SECS-003  SECS-004  SECS-005
-SECS-006  SECS-007  SECS-008  SECS-009  SECT-001  SECT-002  SECT-003  SECT-004  SECT-005  SECT-006  SECT-007  SECT-008
-SECX-001  VIS-007
+SECPL-015  SECPL-016  SECPL-017  SECPL-018  SECPL-019  SECPL-020  SECPL-021  SECPL-022  SECPL-023  SECPL-024  SECPL-025  SECPL-026
+SECPL-027  SECPL-028  SECPL-029  SECQ-001  SECQ-002  SECQ-003  SECQ-004  SECQ-005  SECQ-006  SECQ-007  SECQ-008  SECQ-009
+SECQ-010  SECQ-011  SECR-001  SECS-001  SECS-002  SECS-003  SECS-004  SECS-005  SECS-006  SECS-007  SECS-008  SECS-009
+SECT-001  SECT-002  SECT-003  SECT-004  SECT-005  SECT-006  SECT-007  SECT-008  SECX-001  VIS-007
 ```
 

@@ -1,0 +1,58 @@
+[
+  {
+    "at": "2026-09-24T03:07:32.216Z",
+    "path": "/hook",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-aira-event": "SecurityCriticalFinding",
+      "x-aira-signature": null
+    },
+    "signatureValid": null,
+    "bodyText": "{\"schemaVersion\":1,\"event\":\"SecurityCriticalFinding\",\"severity\":\"Problem\",\"title\":\"1 new Critical security finding(s) in Security platform\",\"body\":\"Scan SCAN-20260924-5EC674 found 1 Critical finding(s) not seen before: SqlInjection at /api/products. The evidence is in AIRA; it is deliberately not in this message.\",\"project\":{\"id\":\"28e10f36-acda-4d1e-a995-ed791c9ec025\",\"name\":\"Security platform\"},\"facts\":{\"scan\":\"SCAN-20260924-5EC674\",\"critical\":1,\"categories\":\"SqlInjection\"},\"sentAt\":\"2026-09-24T03:07:32.1464091+00:00\"}",
+    "body": {
+      "schemaVersion": 1,
+      "event": "SecurityCriticalFinding",
+      "severity": "Problem",
+      "title": "1 new Critical security finding(s) in Security platform",
+      "body": "Scan SCAN-20260924-5EC674 found 1 Critical finding(s) not seen before: SqlInjection at /api/products. The evidence is in AIRA; it is deliberately not in this message.",
+      "project": {
+        "id": "28e10f36-acda-4d1e-a995-ed791c9ec025",
+        "name": "Security platform"
+      },
+      "facts": {
+        "scan": "SCAN-20260924-5EC674",
+        "critical": 1,
+        "categories": "SqlInjection"
+      },
+      "sentAt": "2026-09-24T03:07:32.1464091+00:00"
+    }
+  },
+  {
+    "at": "2026-09-24T03:07:32.337Z",
+    "path": "/hook",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-aira-event": "SecurityRegression",
+      "x-aira-signature": null
+    },
+    "signatureValid": null,
+    "bodyText": "{\"schemaVersion\":1,\"event\":\"SecurityRegression\",\"severity\":\"Problem\",\"title\":\"1 security finding(s) that were fixed have come back in Security platform\",\"body\":\"Scan SCAN-20260924-DADC80 detected 1 finding(s) previously recorded as resolved: SqlInjection at /api/products. A regression fails the security gate at any severity. The evidence is in AIRA; it is deliberately not in this message.\",\"project\":{\"id\":\"28e10f36-acda-4d1e-a995-ed791c9ec025\",\"name\":\"Security platform\"},\"facts\":{\"scan\":\"SCAN-20260924-DADC80\",\"regressions\":1,\"categories\":\"SqlInjection\"},\"sentAt\":\"2026-09-24T03:07:32.3350352+00:00\"}",
+    "body": {
+      "schemaVersion": 1,
+      "event": "SecurityRegression",
+      "severity": "Problem",
+      "title": "1 security finding(s) that were fixed have come back in Security platform",
+      "body": "Scan SCAN-20260924-DADC80 detected 1 finding(s) previously recorded as resolved: SqlInjection at /api/products. A regression fails the security gate at any severity. The evidence is in AIRA; it is deliberately not in this message.",
+      "project": {
+        "id": "28e10f36-acda-4d1e-a995-ed791c9ec025",
+        "name": "Security platform"
+      },
+      "facts": {
+        "scan": "SCAN-20260924-DADC80",
+        "regressions": 1,
+        "categories": "SqlInjection"
+      },
+      "sentAt": "2026-09-24T03:07:32.3350352+00:00"
+    }
+  }
+]

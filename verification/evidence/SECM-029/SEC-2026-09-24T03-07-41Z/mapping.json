@@ -1,0 +1,28 @@
+{
+  "expected": {
+    "id": "VULN_NO_CSP",
+    "type": "MissingSecurityHeader",
+    "endpoint": "GET /weak",
+    "severity": "medium",
+    "cwe": "CWE-1021",
+    "owaspWeb": "A05:2021",
+    "detectBy": "No Content-Security-Policy on an HTML response."
+  },
+  "got": {
+    "cwe": "CWE-1021",
+    "cweConfidence": "potential",
+    "owaspWeb": "A05:2021",
+    "severity": {
+      "exploitability": "difficult",
+      "impact": "limited",
+      "privilegeRequired": "none",
+      "affectedData": "none",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 8,
+      "maxScore": 19,
+      "severity": "Medium",
+      "explanation": "Medium (8/19): difficult to exploit, limited impact, no account needed, reaches no data, publicly reachable."
+    }
+  }
+}

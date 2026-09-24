@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-019",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-2026-09-24T03-07-41Z",
+  "objective": "An application with no scans is described as untested, not as clean",
+  "preconditions": [
+    "an application with an authorized scope and no scans"
+  ],
+  "input": "GET its trend",
+  "expected": "A summary saying nothing has been tested. \"No findings\" on an application nobody scanned is the single most misleading thing a security tool can report",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "No security scan has been recorded for this application. That is not a clean result: nothing has been tested.",
+  "metrics": null,
+  "startedAt": "2026-09-24T03:07:55.639Z",
+  "durationMs": 26,
+  "build": {
+    "commit": "346e720",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "trend.json",
+      "path": "evidence/SECPL-019/SEC-2026-09-24T03-07-41Z/trend.json",
+      "bytes": 279,
+      "sha256": "04a1a7f4ce4cacb0c55ae1a910cc7605dfd9fd630f94ae14ac5daeaf7ce15726"
+    }
+  ]
+}

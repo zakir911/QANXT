@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-032",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T03-07-41Z",
+  "objective": "The directory-listing finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-548, OWASP A05:2021, severity Medium, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-548, A05:2021, Medium (11/19) — Medium (11/19): straightforward to exploit, limited impact, no account needed, reaches non-sensitive data, publicly reachable.",
+  "metrics": {
+    "score": 11,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T03:07:51.865Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "346e720",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-032/SEC-2026-09-24T03-07-41Z/mapping.json",
+      "bytes": 846,
+      "sha256": "43a798ba35971bdeb6e2fa993227061666c975406fe481bf942ab65c9d1cc066"
+    }
+  ]
+}

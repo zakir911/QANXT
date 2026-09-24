@@ -1,0 +1,34 @@
+{
+  "testId": "SECE-002",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T03-07-41Z",
+  "objective": "Secrets are removed from sanitized evidence and non-secrets survive it",
+  "preconditions": [
+    "the redaction function"
+  ],
+  "input": "A bearer token, a password, an API key and an ordinary sentence",
+  "expected": "Every secret gone, every non-secret intact — redaction that eats the evidence is as useless as redaction that leaks it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "all three secrets removed, the descriptive sentence untouched",
+  "metrics": {
+    "leaked": 0
+  },
+  "startedAt": "2026-09-24T03:07:51.996Z",
+  "durationMs": 2,
+  "build": {
+    "commit": "346e720",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "redaction.json",
+      "path": "evidence/SECE-002/SEC-2026-09-24T03-07-41Z/redaction.json",
+      "bytes": 250,
+      "sha256": "83be8f99c0f723dca00c6f4992d0d8d0a3ec70944bb542ec7b4c771364d3af1c"
+    }
+  ]
+}

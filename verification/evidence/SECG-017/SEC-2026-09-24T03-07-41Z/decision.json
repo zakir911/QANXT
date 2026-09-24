@@ -1,0 +1,17 @@
+{
+  "case": "production, allowed by the scope but not authorized for this run",
+  "why": "A standing permission is not a decision to run today.",
+  "decision": {
+    "allowed": false,
+    "reason": "productionNotAuthorized",
+    "explanation": "Production, and the environment itself has not been authorized.",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain",
+      "path",
+      "method",
+      "risk"
+    ]
+  }
+}

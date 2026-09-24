@@ -1,0 +1,97 @@
+{
+  "id": "47bf514d-e30c-4a31-a5c2-4a631b0ad01d",
+  "reference": "SCAN-20260924-0BCC8B",
+  "applicationId": "357cff99-532f-42ec-ba6c-9f80ca6e8cc8",
+  "projectId": "28e10f36-acda-4d1e-a995-ed791c9ec025",
+  "profile": "standard",
+  "status": "completed",
+  "authorizationNote": "Authorized for automated security testing by the AIRA verification suite, against a synthetic lab application containing no real data, for the duration of this run.",
+  "requestsIssued": 120,
+  "requestsBlocked": 0,
+  "testsExecuted": 5,
+  "testsSkipped": 0,
+  "startedAt": "2026-09-24T03:07:26.8694765+00:00",
+  "completedAt": "2026-09-24T03:07:31.0694765+00:00",
+  "durationMs": 4200,
+  "findings": [
+    {
+      "id": "63f60331-2798-4652-bbdf-43a8abab9d70",
+      "reference": "SF-20260924-444489",
+      "fingerprint": "e29fad729969047cbca0faede23cceb7",
+      "category": "BOLA",
+      "title": "alice can read a resource owned by bob",
+      "severity": "high",
+      "confidence": "high",
+      "status": "potential",
+      "cwe": "CWE-639",
+      "owaspWebCategory": "A01:2021",
+      "owaspApiCategory": "API1:2023",
+      "endpoint": "/api/accounts/{id}",
+      "parameter": "id",
+      "observedAsRole": "alice",
+      "firstSeenAt": "2026-09-24T03:07:31.069476+00:00",
+      "lastSeenAt": "2026-09-24T03:07:31.069476+00:00",
+      "isNew": true,
+      "isRegression": false,
+      "evidencePath": "evidence/SECD-001/latest"
+    }
+  ],
+  "gate": {
+    "outcome": "fail",
+    "summary": "BLOCKED. 1 open finding(s) (1 High) from 5 of 5 configured check(s), 120 request(s) issued. Findings describe what these tests reached; areas they did not reach are untested, not clean. Untested: DOM-based XSS (needs a browser-driven scan).",
+    "rules": [
+      {
+        "name": "A security scan ran",
+        "passed": true,
+        "measured": true,
+        "explanation": "120 request(s) issued under the Standard profile."
+      },
+      {
+        "name": "Enough of the configured checks executed",
+        "passed": true,
+        "measured": true,
+        "explanation": "5 of 5 configured check(s) executed (100%; the policy requires 80%)."
+      },
+      {
+        "name": "The scan reached what it was aiming at",
+        "passed": true,
+        "measured": true,
+        "explanation": "0 of 120 request(s) were refused by the scope (0%)."
+      },
+      {
+        "name": "Every suppressed finding carries a written justification and a name",
+        "passed": true,
+        "measured": true,
+        "explanation": "No finding is suppressed without a reason."
+      },
+      {
+        "name": "Every finding carries evidence",
+        "passed": true,
+        "measured": true,
+        "explanation": "Every finding carries at least one request/response exchange."
+      },
+      {
+        "name": "No previously resolved finding has reappeared",
+        "passed": true,
+        "measured": true,
+        "explanation": "No regression."
+      },
+      {
+        "name": "No new finding at or above High",
+        "passed": false,
+        "measured": true,
+        "explanation": "BOLA (High, High)"
+      },
+      {
+        "name": "No open finding at or above Critical",
+        "passed": true,
+        "measured": true,
+        "explanation": "No pre-existing finding at or above Critical."
+      }
+    ],
+    "reasons": [
+      "1 new finding(s) at or above High: BOLA."
+    ],
+    "blocked": true
+  }
+}

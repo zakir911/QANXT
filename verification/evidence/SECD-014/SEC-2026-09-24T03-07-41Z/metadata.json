@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-014",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T03-07-41Z",
+  "objective": "An endpoint with no threshold below fifteen requests is reported, from a bounded probe",
+  "preconditions": [
+    "VULN_NO_RATE_LIMIT switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "API security: the rate-limit check against the lab",
+  "expected": "Exactly one NoRateLimit finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "NoRateLimit: 15 requests in quick succession were never rate limited (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T03:07:51.502Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "346e720",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-014/SEC-2026-09-24T03-07-41Z/vulnerable.json",
+      "bytes": 424,
+      "sha256": "144f136d5db0abec13222ebd2269e2f3985ab95040bd10fbce38b2251275a4ba"
+    }
+  ]
+}

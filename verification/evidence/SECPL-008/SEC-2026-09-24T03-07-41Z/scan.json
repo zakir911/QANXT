@@ -1,0 +1,97 @@
+{
+  "id": "406a5005-aa84-4cd6-8a79-c5ee78bb6012",
+  "reference": "SCAN-20260924-55A705",
+  "applicationId": "73600ea2-f2e0-40d0-bfa2-4706a8b87f90",
+  "projectId": "45331de0-085a-4a30-bfbc-7a5c131c4e3f",
+  "profile": "standard",
+  "status": "completed",
+  "authorizationNote": "Authorized for automated security testing by the AIRA verification suite, against a synthetic lab application containing no real data, for the duration of this run.",
+  "requestsIssued": 120,
+  "requestsBlocked": 0,
+  "testsExecuted": 5,
+  "testsSkipped": 0,
+  "startedAt": "2026-09-24T03:07:48.1307937+00:00",
+  "completedAt": "2026-09-24T03:07:52.3307937+00:00",
+  "durationMs": 4200,
+  "findings": [
+    {
+      "id": "9723a168-2a76-42d9-958b-8edd3b806274",
+      "reference": "SF-20260924-99472F",
+      "fingerprint": "827e9a5599e9e508feadd768f618d770",
+      "category": "BOLA",
+      "title": "Completely different wording",
+      "severity": "critical",
+      "confidence": "high",
+      "status": "confirmed",
+      "cwe": "CWE-639",
+      "owaspWebCategory": "A01:2021",
+      "owaspApiCategory": "API1:2023",
+      "endpoint": "/api/accounts/{id}",
+      "parameter": "id",
+      "observedAsRole": "alice",
+      "firstSeenAt": "2026-09-24T03:07:52.313648+00:00",
+      "lastSeenAt": "2026-09-24T03:07:52.330793+00:00",
+      "isNew": false,
+      "isRegression": false,
+      "evidencePath": "evidence/SECD-001/latest"
+    }
+  ],
+  "gate": {
+    "outcome": "fail",
+    "summary": "BLOCKED. 1 open finding(s) (1 Critical) from 5 of 5 configured check(s), 120 request(s) issued. Findings describe what these tests reached; areas they did not reach are untested, not clean. Untested: DOM-based XSS (needs a browser-driven scan).",
+    "rules": [
+      {
+        "name": "A security scan ran",
+        "passed": true,
+        "measured": true,
+        "explanation": "120 request(s) issued under the Standard profile."
+      },
+      {
+        "name": "Enough of the configured checks executed",
+        "passed": true,
+        "measured": true,
+        "explanation": "5 of 5 configured check(s) executed (100%; the policy requires 80%)."
+      },
+      {
+        "name": "The scan reached what it was aiming at",
+        "passed": true,
+        "measured": true,
+        "explanation": "0 of 120 request(s) were refused by the scope (0%)."
+      },
+      {
+        "name": "Every suppressed finding carries a written justification and a name",
+        "passed": true,
+        "measured": true,
+        "explanation": "No finding is suppressed without a reason."
+      },
+      {
+        "name": "Every finding carries evidence",
+        "passed": true,
+        "measured": true,
+        "explanation": "Every finding carries at least one request/response exchange."
+      },
+      {
+        "name": "No previously resolved finding has reappeared",
+        "passed": true,
+        "measured": true,
+        "explanation": "No regression."
+      },
+      {
+        "name": "No new finding at or above High",
+        "passed": true,
+        "measured": true,
+        "explanation": "No new finding at or above High with better than low confidence."
+      },
+      {
+        "name": "No open finding at or above Critical",
+        "passed": false,
+        "measured": true,
+        "explanation": "BOLA (Critical)"
+      }
+    ],
+    "reasons": [
+      "1 open finding(s) at or above Critical were already present. A finding does not become acceptable by being old."
+    ],
+    "blocked": true
+  }
+}

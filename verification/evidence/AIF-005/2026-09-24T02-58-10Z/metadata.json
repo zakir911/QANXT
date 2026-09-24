@@ -1,0 +1,37 @@
+{
+  "testId": "AIF-005",
+  "suite": "AI provider failure",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "An empty response is refused rather than treated as \"no scenarios\"",
+  "preconditions": [
+    "an application is registered",
+    "AI fault injection is enabled"
+  ],
+  "input": "A generation request while the provider is faulted with Empty",
+  "expected": "The request fails with an error naming the problem, and no test case is stored",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 503; 0 test case(s) created; model request recorded: true (status schemaRejected); message \"The model's response did not satisfy the test_plan schema: The response was empty.\"",
+  "metrics": {
+    "status": 503,
+    "fabricated": 0,
+    "reachedTheModel": 1
+  },
+  "startedAt": "2026-09-24T03:06:39.512Z",
+  "durationMs": 47,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AIF-005/2026-09-24T02-58-10Z/response.json",
+      "bytes": 435,
+      "sha256": "7340be1a267243fefebcd684833d26cb340081d809b2aa536574f67539c44fe5"
+    }
+  ]
+}
