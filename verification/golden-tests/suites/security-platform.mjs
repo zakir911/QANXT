@@ -683,6 +683,60 @@ export default async function run() {
     }
   }, context);
 
+  await golden({
+    id: 'SECPL-029',
+    objective: 'A Critical resting on one unreproduced indicator does not interrupt anybody',
+    preconditions: ['a webhook integration on this project', 'the notification sink running'],
+    input: 'A scan reporting a new Critical at Low confidence',
+    expected: 'No delivery. The gate sends a new finding at Low confidence to review rather than '
+      + 'failing the build; a notification path that ignored what the gate weighed would be the two '
+      + 'disagreeing about the same finding',
+    evidence: ['deliveries.json'],
+    severity: 'high',
+    run: async () => {
+      if (!sinkUp) {
+        return {
+          pass: false,
+          detail: `The notification sink is not answering at ${SINK}, so the absence of a delivery `
+            + 'proves nothing — an unreachable sink receives nothing either way.',
+          evidence: { 'deliveries.json': { sink: SINK, reachable: false } }
+        };
+      }
+      await fetch(`${SINK}/reset`, { method: 'POST' });
+
+      const quiet = await registerApplication(tenant, project.id, {
+        name: 'Low confidence application', baseUrl: 'http://127.0.0.1:4403',
+        loginUrl: null, username: null, password: null
+      });
+      await api(`/api/v1/security/applications/${quiet.id}/scope`, {
+        method: 'PUT', body: scopeBody()
+      });
+      await api('/api/v1/security/scans', {
+        method: 'POST',
+        body: scanBody(quiet.id, project.id, {
+          findings: [finding({
+            category: 'CommandInjection', severity: 4, confidence: 0,
+            endpoint: '/api/ping', title: 'host may reach a shell'
+          })]
+        })
+      });
+
+      // Give a delivery time to arrive so the absence means something.
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      const received = (await (await fetch(`${SINK}/received`)).json()).received ?? [];
+
+      return {
+        pass: received.length === 0,
+        detail: received.length === 0
+          ? 'no delivery, as the gate\'s own reasoning requires'
+          : `${received.length} delivery(ies) for a Low-confidence finding: `
+            + received.map(d => d.body?.event ?? d.event).join(', '),
+        metrics: { deliveries: received.length },
+        evidence: { 'deliveries.json': received }
+      };
+    }
+  }, context);
+
   // -----------------------------------------------------------------------
   // SECPL — attack surface, change impact, release posture
   // -----------------------------------------------------------------------

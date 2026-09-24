@@ -1,0 +1,32 @@
+{
+  "testId": "REG-007",
+  "suite": "Regression selection",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "A test tagged smoke is selected even when the change does not reach it",
+  "preconditions": [
+    "a smoke-tagged test exists that the change does not touch"
+  ],
+  "input": "A change to src/pages/accounts/List.tsx",
+  "expected": "The smoke test selected, with the always component as its reason",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "selected at 40, impacted=false; Priority medium, risk medium. | This test has never run, so nothing is known about it. | It has never been run. | Tagged smoke, which this project always runs.",
+  "metrics": null,
+  "startedAt": "2026-09-24T03:00:54.292Z",
+  "durationMs": 15,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "selection.json",
+      "path": "evidence/REG-007/2026-09-24T02-58-10Z/selection.json",
+      "bytes": 7245,
+      "sha256": "45672b3a7b5ab39325b304df0ac49cc2aae8700e4e05817fa2c8e61565ffbb87"
+    }
+  ]
+}

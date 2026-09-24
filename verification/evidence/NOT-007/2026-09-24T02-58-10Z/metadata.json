@@ -1,0 +1,32 @@
+{
+  "testId": "NOT-007",
+  "suite": "Notifications",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "A credential submitted as a readable setting is refused, not quietly stored",
+  "preconditions": [
+    "none"
+  ],
+  "input": "Integrations with signingSecret, apiKey and webhookUrl in settings",
+  "expected": "Each refused with a message saying where it belongs — settings are returned to anyone with read permission, so a secret there is readable by every viewer",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "3/3 refused; the harmless one returned 201",
+  "metrics": null,
+  "startedAt": "2026-09-24T03:04:31.248Z",
+  "durationMs": 38,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusals.json",
+      "path": "evidence/NOT-007/2026-09-24T02-58-10Z/refusals.json",
+      "bytes": 976,
+      "sha256": "5a8d2bd45f5b448171c883f6ed70c23e0b71ac89aebd9c1b29c4bf77df2d597e"
+    }
+  ]
+}

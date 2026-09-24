@@ -1,0 +1,38 @@
+{
+  "testId": "CON-013",
+  "suite": "API contracts",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "Accepting a new contract baseline requires a reason and is versioned",
+  "preconditions": [
+    "a baseline exists for the accounts endpoint"
+  ],
+  "input": "A replace without a note, then one with a note",
+  "expected": "Refused without a reason; accepted with one, and the new baseline is v2 rather than overwriting v1",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "without a note: 400; with one: 14 captured, 14 replaced; GET /api/accounts is now v2",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:59:23.477Z",
+  "durationMs": 35,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/CON-013/2026-09-24T02-58-10Z/refusal.json",
+      "bytes": 276,
+      "sha256": "d21eca4209678c902fec5a6027eb5893187b3782c505bef68b976761d33a90ba"
+    },
+    {
+      "file": "replacement.json",
+      "path": "evidence/CON-013/2026-09-24T02-58-10Z/replacement.json",
+      "bytes": 3396,
+      "sha256": "9898a195e5bd3552be11dbd22d47ef0fb3a0af1d43f88328b97e8a11718365d2"
+    }
+  ]
+}

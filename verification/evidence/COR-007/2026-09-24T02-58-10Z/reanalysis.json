@@ -1,0 +1,29 @@
+{
+  "before": {
+    "summary": "The step failed because the API call it made was refused with 401.",
+    "likelyCause": "GET /api/accounts → 401 in 3ms — the session was not accepted, or the account lacks a permission this endpoint requires.",
+    "evidence": "GET /api/accounts → 401 in 3ms. Engine message: GET http://localhost:4300/api/accounts returned 401 Unauthorized.",
+    "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+    "category": "authenticationIssue",
+    "confidence": 90,
+    "isLikelyApplicationDefect": false,
+    "isHealable": false,
+    "producedByAi": false,
+    "provider": "local",
+    "model": "aira-rules-v1",
+    "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"4a30eb5e-a73e-4a03-b7fd-8fa5e2683c1c\", \"kind\": \"Other\", \"name\": \"step-1-request.http.json\"}, {\"id\": \"c8eca8d1-7140-4b42-a33f-d72a79c626a7\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"cdc92c6f-7527-40d1-a82d-4fecdbe667e3\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"88653b37-f878-4ad4-9194-7967508d0fd7\"}"
+  },
+  "after": {
+    "summary": "The step failed because the API call it made was refused with 401.",
+    "likelyCause": "GET /api/accounts → 401 in 3ms — the session was not accepted, or the account lacks a permission this endpoint requires.",
+    "evidence": "GET /api/accounts → 401 in 3ms. Engine message: GET http://localhost:4300/api/accounts returned 401 Unauthorized.",
+    "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+    "category": "authenticationIssue",
+    "confidence": 90,
+    "isLikelyApplicationDefect": false,
+    "isHealable": false,
+    "producedByAi": false,
+    "provider": "local",
+    "model": "aira-rules-v1"
+  }
+}

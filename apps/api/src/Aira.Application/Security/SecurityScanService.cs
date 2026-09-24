@@ -560,8 +560,21 @@ public sealed class SecurityScanService : ISecurityScanService
                 }), ct);
         }
 
+        // Confidence is consulted here, and deliberately is not for regressions above.
+        //
+        // The gate sends a new finding at Low confidence to review rather than failing the
+        // build, on the grounds that a single unreproduced indicator is not enough to stop a
+        // release. The same reasoning says it is not enough to interrupt somebody, and a
+        // notification path that ignored what the gate weighed would be the two disagreeing
+        // about the same finding.
+        //
+        // A regression is different: it was confirmed once already, and that earlier
+        // confirmation is the corroboration this scan lacks. It notifies whatever this scan's
+        // confidence was.
         var criticals = findings
-            .Where(f => f.IsNew && !f.IsRegression && f.Severity == SecuritySeverity.Critical)
+            .Where(f => f.IsNew && !f.IsRegression
+                     && f.Severity == SecuritySeverity.Critical
+                     && f.Confidence != SecurityConfidence.Low)
             .ToList();
         if (criticals.Count > 0)
         {

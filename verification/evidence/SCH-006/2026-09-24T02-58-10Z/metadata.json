@@ -1,0 +1,32 @@
+{
+  "testId": "SCH-006",
+  "suite": "Scheduling",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "Preview reports the real occurrences, in the schedule's own time zone",
+  "preconditions": [
+    "a schedule in a zone that observes daylight saving"
+  ],
+  "input": "A daily 02:30 Europe/London schedule, previewed",
+  "expected": "Five ascending occurrences, each at 02:30 local — so a cron expression can be checked against what whoever typed it meant, before waiting a night to find out",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "5 occurrence(s), local times 02:30:00, ascending: true",
+  "metrics": null,
+  "startedAt": "2026-09-24T03:04:10.744Z",
+  "durationMs": 108,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "preview.json",
+      "path": "evidence/SCH-006/2026-09-24T02-58-10Z/preview.json",
+      "bytes": 157,
+      "sha256": "7e06b32d442ef9c1637c26b1eea5dab04891ad6d13183a336bfb1787c409378c"
+    }
+  ]
+}

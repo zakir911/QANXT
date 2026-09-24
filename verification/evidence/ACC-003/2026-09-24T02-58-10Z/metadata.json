@@ -1,0 +1,38 @@
+{
+  "testId": "ACC-003",
+  "suite": "Accessibility",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "failOn decides whether a violation fails the step, and the result is stored either way",
+  "preconditions": [
+    "a fault producing a critical violation"
+  ],
+  "input": "The same page scanned with failOn \"serious\" and with failOn null",
+  "expected": "The strict step fails and the report-only step passes — and both record the violations, because a team adopting this on an application that already has findings needs the numbers from day one and the build failing when they choose",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failOn serious: run failed, 1 violation(s) stored; failOn null: run passed, 1 violation(s) stored",
+  "metrics": null,
+  "startedAt": "2026-09-24T03:05:07.495Z",
+  "durationMs": 4094,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "strict.json",
+      "path": "evidence/ACC-003/2026-09-24T02-58-10Z/strict.json",
+      "bytes": 1557,
+      "sha256": "1803c1aba2a480ca2fef55101ffc325fe82a12e9ef61fe00f3642bee98d401f8"
+    },
+    {
+      "file": "reportOnly.json",
+      "path": "evidence/ACC-003/2026-09-24T02-58-10Z/reportOnly.json",
+      "bytes": 1558,
+      "sha256": "1a748af3143539f40c94f64b199f7eeb0dcb4099bc6dc80ece7aa3e644019e73"
+    }
+  ]
+}

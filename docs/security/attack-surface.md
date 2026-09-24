@@ -121,6 +121,17 @@ Both are delivered at **Problem** severity. They were briefly `Information`, whi
 channel colour-coding by severity would have rendered a new Critical vulnerability the same
 shade as a passing build; `SECPL-028` caught that.
 
+### Confidence is consulted, except for a regression
+
+A new Critical resting on a single unreproduced indicator does **not** notify. The gate sends
+such a finding to review rather than failing the build, on the grounds that one weak signal is
+not enough to stop a release; the same reasoning says it is not enough to interrupt somebody,
+and a notification path that ignored what the gate weighed would be the two disagreeing about
+the same finding.
+
+A regression notifies whatever this scan's confidence was. It was confirmed once already, and
+that earlier confirmation is the corroboration this scan lacks.
+
 ### What a notification never contains
 
 The category, the endpoint and the counts. Never the evidence, the payload, the reproduction

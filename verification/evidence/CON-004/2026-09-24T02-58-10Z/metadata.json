@@ -1,0 +1,35 @@
+{
+  "testId": "CON-004",
+  "suite": "API contracts",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "A field the API stops returning is classified as a breaking change",
+  "preconditions": [
+    "baselines captured",
+    "FAULT_API_FIELD_REMOVED enabled"
+  ],
+  "input": "A run of the accounts test while sortCode is no longer returned",
+  "expected": "A breaking change naming the field, while the test itself still passes — the endpoint answers 200 and every assertion holds",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "the test passed while 1 breaking change(s) were found; $.accounts[].sortCode: \"accounts[].sortCode\" was present as string and is now absent. Any caller reading it will find nothing.",
+  "metrics": {
+    "breaking": 1
+  },
+  "startedAt": "2026-09-24T02:59:04.341Z",
+  "durationMs": 2070,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "changes.json",
+      "path": "evidence/CON-004/2026-09-24T02-58-10Z/changes.json",
+      "bytes": 664,
+      "sha256": "725a48fca43d4eb173aba44223493f9097ba5969aa6a7470ca534cd0b8e8070a"
+    }
+  ]
+}

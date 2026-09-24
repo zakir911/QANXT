@@ -1,0 +1,42 @@
+{
+  "testId": "RLS-007",
+  "suite": "Release quality",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "aira release compare --fail-on-new-failures exits 1 on a regression and 0 on a known failure",
+  "preconditions": [
+    "the CLI is built",
+    "a regression pair and a both-broken pair"
+  ],
+  "input": "The CLI against each pair",
+  "expected": "Exit 1 for the regression, exit 0 for the pair that was already failing — the one reason to put this in a pipeline is to stop on a regression and not on a defect somebody already knows about",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "regression exit 1 (expected 1); already-failing exit 0 (expected 0); markdown headline \"#### ❌ 1 test(s) that used to pass now fail\"",
+  "metrics": {
+    "regressionExit": 1,
+    "knownExit": 0
+  },
+  "startedAt": "2026-09-24T03:04:50.516Z",
+  "durationMs": 4484,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "cli.txt",
+      "path": "evidence/RLS-007/2026-09-24T02-58-10Z/cli.txt",
+      "bytes": 548,
+      "sha256": "f14d12e9ec786761407b67df8b97df04269f03ae12e02d11a83dcc1f8c874cd3"
+    },
+    {
+      "file": "comparison.md",
+      "path": "evidence/RLS-007/2026-09-24T02-58-10Z/comparison.md",
+      "bytes": 312,
+      "sha256": "d653366859105b6f83760caa63f2086c1c34fed1eac420f175ffc2d2972d1eaf"
+    }
+  ]
+}

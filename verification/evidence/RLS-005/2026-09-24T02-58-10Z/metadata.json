@@ -1,0 +1,34 @@
+{
+  "testId": "RLS-005",
+  "suite": "Release quality",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "A release report covers every run that tested one build and says what changed",
+  "preconditions": [
+    "runs tagged with an application build reference"
+  ],
+  "input": "GET /api/v1/release/quality for build v2.4.1",
+  "expected": "The build's runs, its failing tests, and a comparison against the previous build — a release tested across several runs is one thing to decide about",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "build v2.4.1: 1 run(s), 1 failing, compared with v2.4.0; \"Build v2.4.1 was tested by 1 run(s). 1 test(s) are failing in the most recent one. Against Release green: 1 test(s) that used to pass now fail. Security: NOT SECURITY TESTED. No security scan covers this build, so nothing is known about its security posture from AIRA. This is not the same as having been tested and found clean, and a release decision should not read it as such.\"",
+  "metrics": {
+    "runs": 1
+  },
+  "startedAt": "2026-09-24T03:04:48.293Z",
+  "durationMs": 125,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "report.json",
+      "path": "evidence/RLS-005/2026-09-24T02-58-10Z/report.json",
+      "bytes": 3807,
+      "sha256": "559cb99e0334ca19dc73e43f31d1493586309792bb81370935583e02c7f4e066"
+    }
+  ]
+}

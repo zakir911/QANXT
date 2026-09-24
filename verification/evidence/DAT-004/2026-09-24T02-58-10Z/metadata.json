@@ -1,0 +1,32 @@
+{
+  "testId": "DAT-004",
+  "suite": "Test data",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "A field declared as a secret reference must name a secret, not hold one",
+  "preconditions": [
+    "none"
+  ],
+  "input": "A secretReference field whose value is a literal password",
+  "expected": "Refused. Declaring a kind must not be a way to smuggle a literal past the guard",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "400: \"password\" is a secret reference, so its value must name a secret, as \"${secret:the_name}\". It must not contain the secret itself.",
+  "metrics": null,
+  "startedAt": "2026-09-24T03:04:31.873Z",
+  "durationMs": 6,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/DAT-004/2026-09-24T02-58-10Z/refusal.json",
+      "bytes": 489,
+      "sha256": "b8ca77d2381201206f53ae8ebf8472319cfb1d8299d8fdbd55718ab0bda0ee9a"
+    }
+  ]
+}
