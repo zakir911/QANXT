@@ -21,13 +21,13 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import * as authz from './checks-authz.mjs';
-import * as auth from './checks-auth.mjs';
-import * as api from './checks-api.mjs';
-import * as xss from './checks-xss.mjs';
-import * as injection from './checks-injection.mjs';
-import * as request from './checks-request.mjs';
-import * as passive from './checks-passive.mjs';
+import * as authz from '../../../packages/security-engine/src/checks-authz.mjs';
+import * as auth from '../../../packages/security-engine/src/checks-auth.mjs';
+import * as api from '../../../packages/security-engine/src/checks-api.mjs';
+import * as xss from '../../../packages/security-engine/src/checks-xss.mjs';
+import * as injection from '../../../packages/security-engine/src/checks-injection.mjs';
+import * as request from '../../../packages/security-engine/src/checks-request.mjs';
+import * as passive from '../../../packages/security-engine/src/checks-passive.mjs';
 
 /**
  * Every check the engine knows how to run, named exactly as the platform names them.

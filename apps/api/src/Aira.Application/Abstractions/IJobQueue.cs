@@ -29,4 +29,9 @@ public static class QueueNames
     public const string Discovery = "aira:discovery";
     public const string Execution = "aira:execution";
     public const string Agent = "aira:agent";
+
+    /// <summary>Security scans get their own queue rather than sharing execution's. They are
+    /// different work with different latencies, and a long scan sitting behind a test run a
+    /// pipeline is waiting on — or the reverse — is the kind of coupling nobody diagnoses.</summary>
+    public const string Security = "aira:security";
 }

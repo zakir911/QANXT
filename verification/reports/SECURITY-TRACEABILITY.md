@@ -6,9 +6,9 @@ Two requirements are deliberately not on this list because nothing here verifies
 
 SEC-R43 to SEC-R49 are about AIRA itself rather than the applications it tests. A security testing tool that is not itself secure is a liability, and its own tenancy, credential handling and target policy are verified by the same kind of test as everything else here.
 
-Checked against golden run `SEC-2026-09-24T06-42-53Z`.
+Checked against golden run `SEC-FINAL-091039`.
 
-**73 of 73 requirements verified.**
+**81 of 81 requirements verified.**
 
 | Requirement | Verified by | Status |
 | --- | --- | --- |
@@ -85,12 +85,20 @@ Checked against golden run `SEC-2026-09-24T06-42-53Z`.
 | **SEC-R71** A new Critical finding and a security regression each notify whoever is configured to care, at Problem severity, carrying no evidence, payload or response value — and a Critical resting on a single unreproduced indicator does not, matching what the gate weighs. | SECPL-028, SECPL-029 | VERIFIED |
 | **SEC-R72** The main dashboard always carries a security section, and a project nobody has scanned reads as untested rather than having no section at all. | SECPL-030, SECPL-031 | VERIFIED |
 | **SEC-R73** The dashboard names how many applications are unauthorized and how many are authorized but never scanned, so coverage gaps are visible rather than inferred from an absence. | SECPL-030 | VERIFIED |
+| **SEC-R74** AIRA runs a security scan itself: starting one queues a job carrying the scope as authorized, a worker consumes it and issues the requests, and what it did is recorded against the scan that was started. The worker never looks a scope up and cannot widen the one it is given. | SECW-003, SECW-004 | VERIFIED |
+| **SEC-R75** A scan cannot be started against an application with no enabled scope carrying a written authorization, nor against one discovery has not walked — a scan with no targets would issue no requests and still be stored as a scan, which reads as a clean result. | SECW-001, SECW-002 | VERIFIED |
+| **SEC-R76** A scan that has been queued but not run reports NOT SCANNED rather than a clean result, and its gate does not pass on the strength of having found nothing yet. | SECW-003 | VERIFIED |
+| **SEC-R77** Coverage is read from what the worker executed rather than from what was asked for: a check that was refused, threw, found nothing to point at or has no runner is reported as untested, and a narrowed run keeps the full implied set as its denominator so it cannot pass the gate on partial coverage. | SECW-006, SECW-007, SECW-008 | VERIFIED |
+| **SEC-R78** Every finding crossing from the worker to the platform carries a severity and a confidence from the shared vocabulary, and the engine's ordering and the platform's enums are checked against each other rather than assumed to agree. Every finding the engine can emit declares a confidence. | SECW-005, SECW-010, SECE-005 | VERIFIED |
+| **SEC-R79** A scan's record of what it found is its own and does not empty out when a later scan sees the same flaws. A finding is a flaw and outlives the scans that see it, so an emptied scan would read as a run that found nothing rather than as a record to look elsewhere for. | SECW-012 | VERIFIED |
+| **SEC-R80** Starting a scan is audited as its own act, distinct from recording one: it is the moment authorization is spent, and a scan that starts and never reports leaves only that line behind. | SECW-009 | VERIFIED |
+| **SEC-R81** A scan's targets come from what discovery walked, and the surface they are built from carries that as its first caveat — so a coverage fraction is never read as a fraction of the application. | SECW-011 | VERIFIED |
 
 ## Tests claimed by no requirement
 
-327 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 324 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 3 are continuous-quality tests that no requirement above names.
+329 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 324 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 5 are continuous-quality tests that no requirement above names.
 
-480 test id(s) are known to exist: 280 written as literals in a suite, 200 built at run time and proven by having executed.
+495 test id(s) are known to exist: 295 written as literals in a suite, 200 built at run time and proven by having executed.
 
 ```
 ACC-001  ACC-002  ACC-003  ACC-004  ACC-005  ACC-006  AIF-001  AIF-002  AIF-003  AIF-004  AIF-005  AIF-006
@@ -119,7 +127,7 @@ SECM-003  SECM-004  SECM-005  SECM-006  SECM-007  SECM-008  SECM-009  SECM-010  
 SECM-015  SECM-016  SECM-017  SECM-019  SECM-020  SECM-021  SECM-022  SECM-023  SECM-024  SECM-025  SECM-026  SECM-027
 SECM-028  SECM-029  SECM-030  SECM-031  SECM-032  SECM-033  SECN-001  SECN-002  SECN-003  SECP-006  SECP-007  SECP-008
 SECP-009  SECP-010  SECP-011  SECP-012  SECP-013  SECP-014  SECP-015  SECP-017  SECP-018  SECP-019  SECP-020  SECP-021
-SECP-024  SECP-025  SECP-026  SECP-030  SECP-031  SECP-032  SECP-033  SECP-034  VIS-001  VIS-002  VIS-003  VIS-004
-VIS-005  VIS-006  VIS-007
+SECP-024  SECP-025  SECP-026  SECP-030  SECP-031  SECP-032  SECP-033  SECP-034  SECW-N001  SECW-N002  VIS-001  VIS-002
+VIS-003  VIS-004  VIS-005  VIS-006  VIS-007
 ```
 

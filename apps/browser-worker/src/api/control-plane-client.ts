@@ -43,6 +43,20 @@ export class ControlPlaneClient {
     this.maxAttempts = options.maxAttempts ?? 4;
   }
 
+  // ---- Security ------------------------------------------------------------
+
+  /**
+   * Reports what a security scan did and what it found.
+   *
+   * The control plane refuses a finding with no exchange behind it and refuses a scan against
+   * an application with no enabled scope, so this can be rejected with a 4xx — which is not
+   * retried, because it will be refused again. A worker that kept retrying a refused scan
+   * would turn one defect into a loop.
+   */
+  async securityScanCompleted(scanId: string, report: unknown): Promise<void> {
+    await this.post(`/api/v1/worker/security/${scanId}/completed`, report);
+  }
+
   // ---- Discovery -----------------------------------------------------------
 
   async discoveryStarted(runId: string, workerId: string): Promise<void> {

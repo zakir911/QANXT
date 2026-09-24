@@ -1,0 +1,34 @@
+{
+  "id": "BOLA-0",
+  "application": "access-control-lab",
+  "category": "BOLA",
+  "endpoint": "/api/accounts/{id}",
+  "parameter": "id",
+  "observedAsRole": "alice",
+  "severity": "High",
+  "confidence": "Medium",
+  "status": "FalsePositive",
+  "isNew": true,
+  "isRegression": false,
+  "hasEvidence": true,
+  "check": "authz.bola",
+  "justification": "Reviewed against the source: the handler filters by the caller's own id, and the identifier in the URL is validated against it.",
+  "decidedBy": "ada@example.invalid",
+  "triagedAt": "2026-09-02T00:00:00Z",
+  "triageHistory": [
+    {
+      "at": "2026-09-01T00:00:00Z",
+      "status": "NeedsReview",
+      "justification": null,
+      "decidedBy": null,
+      "from": "Confirmed"
+    },
+    {
+      "at": "2026-09-02T00:00:00Z",
+      "status": "FalsePositive",
+      "justification": "Reviewed against the source: the handler filters by the caller's own id, and the identifier in the URL is validated against it.",
+      "decidedBy": "ada@example.invalid",
+      "from": "NeedsReview"
+    }
+  ]
+}

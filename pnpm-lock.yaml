@@ -32,6 +32,9 @@ importers:
 
   apps/browser-worker:
     dependencies:
+      '@aira/security-engine':
+        specifier: workspace:*
+        version: link:../../packages/security-engine
       '@aira/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types
@@ -140,6 +143,8 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.4)(jsdom@25.0.1)
+
+  packages/security-engine: {}
 
   packages/shared-types:
     devDependencies:

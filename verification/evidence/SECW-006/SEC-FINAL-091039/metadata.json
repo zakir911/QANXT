@@ -1,0 +1,35 @@
+{
+  "testId": "SECW-006",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-FINAL-091039",
+  "objective": "The gate reads coverage from what the worker executed, not from what was asked for",
+  "preconditions": [
+    "the completed scan"
+  ],
+  "input": "The scan's gate result",
+  "expected": "The coverage rule states executed over configured using the numbers the worker reported, and the summary carries the sentence distinguishing what was reached from what was not",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "3 of 3 configured check(s) executed (100%; the policy requires 80%).",
+  "metrics": {
+    "executedInRule": 3,
+    "executedOnScan": 3
+  },
+  "startedAt": "2026-09-24T09:10:58.154Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECW-006/SEC-FINAL-091039/gate.json",
+      "bytes": 1748,
+      "sha256": "3fb722a05b9191e27b6970d0da9e682f0ae132b0fcada51ce5c47edc56823780"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-030",
+  "suite": "Security scanning",
+  "runId": "2026-09-24T08-33-31Z",
+  "objective": "A session cookie with no HttpOnly, Secure or SameSite is reported",
+  "preconditions": [
+    "VULN_WEAK_COOKIE switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Configuration: the weak-cookie check against the lab",
+  "expected": "Exactly one InsecureCookieAttributes finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "InsecureCookieAttributes: Session cookie \"session\" is missing HttpOnly, SameSite (1 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 1
+  },
+  "startedAt": "2026-09-24T08:33:32.620Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-030/2026-09-24T08-33-31Z/vulnerable.json",
+      "bytes": 428,
+      "sha256": "00fc6e55ede2ec0f2dcbcd0d0d31a0bc97877ff51ea86530e172f09a9d05c1ba"
+    }
+  ]
+}

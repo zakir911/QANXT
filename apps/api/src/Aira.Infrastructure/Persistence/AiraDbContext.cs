@@ -88,6 +88,7 @@ public class AiraDbContext : DbContext, IAiraDbContext
     public DbSet<SecurityScan> SecurityScans => Set<SecurityScan>();
     public DbSet<SecurityFinding> SecurityFindings => Set<SecurityFinding>();
     public DbSet<SecurityBlockedRequest> SecurityBlockedRequests => Set<SecurityBlockedRequest>();
+    public DbSet<SecurityScanFinding> SecurityScanFindings => Set<SecurityScanFinding>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

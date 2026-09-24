@@ -1,0 +1,32 @@
+{
+  "testId": "SECF-012",
+  "suite": "Security scanning",
+  "runId": "2026-09-24T08-33-31Z",
+  "objective": "The deep profile permits a destructive probe",
+  "preconditions": [
+    "a scope that permits destructive testing, so the profile is the only thing deciding"
+  ],
+  "input": "profile=deep, risk=destructive",
+  "expected": "Allowed, because this profile covers this risk level",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "allowed",
+  "metrics": null,
+  "startedAt": "2026-09-24T08:33:32.780Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECF-012/2026-09-24T08-33-31Z/decision.json",
+      "bytes": 316,
+      "sha256": "5c71e19911b0632f20e8e82d12d69a14aa4d544aa5b2c9f5c168925c10211de4"
+    }
+  ]
+}

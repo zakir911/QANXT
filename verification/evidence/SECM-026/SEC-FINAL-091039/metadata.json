@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-026",
+  "suite": "Security scanning",
+  "runId": "SEC-FINAL-091039",
+  "objective": "The upload-traversal finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-22, OWASP A01:2021, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-22, A01:2021, High (12/19) — High (12/19): straightforward to exploit, serious impact, any signed-in user, reaches personal data, reachable by signed-in users.",
+  "metrics": {
+    "score": 12,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T09:10:46.957Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-026/SEC-FINAL-091039/mapping.json",
+      "bytes": 917,
+      "sha256": "f78b532ee936280112ac2400b25842295392e858d256f70b96225cf4d3020e95"
+    }
+  ]
+}

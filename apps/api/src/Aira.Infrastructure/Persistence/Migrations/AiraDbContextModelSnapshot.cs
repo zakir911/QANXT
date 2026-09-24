@@ -3835,6 +3835,66 @@ namespace Aira.Infrastructure.Persistence.Migrations
                     b.ToTable("security_scans", (string)null);
                 });
 
+            modelBuilder.Entity("Aira.Domain.Security.SecurityScanFinding", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Confidence")
+                        .HasColumnType("integer")
+                        .HasColumnName("confidence");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset>("ReportedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reported_at");
+
+                    b.Property<Guid>("SecurityFindingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("security_finding_id");
+
+                    b.Property<Guid>("SecurityScanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("security_scan_id");
+
+                    b.Property<int>("Severity")
+                        .HasColumnType("integer")
+                        .HasColumnName("severity");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<bool>("WasNew")
+                        .HasColumnType("boolean")
+                        .HasColumnName("was_new");
+
+                    b.Property<bool>("WasRegression")
+                        .HasColumnType("boolean")
+                        .HasColumnName("was_regression");
+
+                    b.HasKey("Id")
+                        .HasName("pk_security_scan_findings");
+
+                    b.HasIndex("SecurityFindingId")
+                        .HasDatabaseName("ix_security_scan_findings_security_finding_id");
+
+                    b.HasIndex("SecurityScanId", "SecurityFindingId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_security_scan_findings_security_scan_id_security_finding_id");
+
+                    b.ToTable("security_scan_findings", (string)null);
+                });
+
             modelBuilder.Entity("Aira.Domain.Security.SecurityScope", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5379,6 +5439,27 @@ namespace Aira.Infrastructure.Persistence.Migrations
                         .HasForeignKey("SecurityScanId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_security_findings_security_scans_security_scan_id");
+
+                    b.Navigation("SecurityScan");
+                });
+
+            modelBuilder.Entity("Aira.Domain.Security.SecurityScanFinding", b =>
+                {
+                    b.HasOne("Aira.Domain.Security.SecurityFinding", "SecurityFinding")
+                        .WithMany()
+                        .HasForeignKey("SecurityFindingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_security_scan_findings_security_findings_security_finding_id");
+
+                    b.HasOne("Aira.Domain.Security.SecurityScan", "SecurityScan")
+                        .WithMany()
+                        .HasForeignKey("SecurityScanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_security_scan_findings_security_scans_security_scan_id");
+
+                    b.Navigation("SecurityFinding");
 
                     b.Navigation("SecurityScan");
                 });

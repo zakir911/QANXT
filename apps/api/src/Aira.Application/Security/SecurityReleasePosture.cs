@@ -88,8 +88,17 @@ public sealed class SecurityReleaseService : ISecurityReleaseService
         var latest = scans[^1];
         var scanIds = scans.Select(s => s.Id).ToList();
 
+        // Through the sightings: "the findings of these scans" cannot be read off the findings'
+        // own scan id, which names each flaw's latest sighting only. A release assessed on that
+        // would lose every finding a later scan had seen again, and lose it silently.
+        var findingIds = await _db.SecurityScanFindings.AsNoTracking()
+            .Where(link => scanIds.Contains(link.SecurityScanId))
+            .Select(link => link.SecurityFindingId)
+            .Distinct()
+            .ToListAsync(ct);
+
         var findings = await _db.SecurityFindings.AsNoTracking()
-            .Where(f => scanIds.Contains(f.SecurityScanId!.Value))
+            .Where(f => findingIds.Contains(f.Id))
             .ToListAsync(ct);
 
         var unjustified = findings

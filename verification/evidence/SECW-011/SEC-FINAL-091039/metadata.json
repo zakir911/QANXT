@@ -1,0 +1,35 @@
+{
+  "testId": "SECW-011",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-FINAL-091039",
+  "objective": "Discovery is what decides where a scan points",
+  "preconditions": [
+    "the discovery run above"
+  ],
+  "input": "The discovered surface and the scan that was started from it",
+  "expected": "The surface names its own caveats, starting with the one saying it describes what discovery walked. A scan inherits that limit, and a reader who is told the coverage fraction without it will read it as a fraction of the application",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "discovery completed, 5 surface item(s), 4 caveat(s)",
+  "metrics": {
+    "items": 5,
+    "caveats": 4
+  },
+  "startedAt": "2026-09-24T09:11:00.199Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "surface.json",
+      "path": "evidence/SECW-011/SEC-FINAL-091039/surface.json",
+      "bytes": 3463,
+      "sha256": "cc43b21a7701d244854faaec86a59e621d900683f2f9963946392622ffd318c5"
+    }
+  ]
+}

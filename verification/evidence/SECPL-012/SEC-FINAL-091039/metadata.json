@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-012",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-FINAL-091039",
+  "objective": "A resolved finding detected again becomes a regression, and its disposition does not survive",
+  "preconditions": [
+    "a finding marked Resolved with a justification"
+  ],
+  "input": "A third scan reporting the same flaw",
+  "expected": "Status Regressed, regressedAt set, resolvedAt cleared and the disposition removed. An acceptance of a flaw that was then repaired says nothing about the flaw reappearing",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "regressed; regressedAt 2026-09-24T09:10:47.476406+00:00; resolvedAt cleared; disposition cleared",
+  "metrics": null,
+  "startedAt": "2026-09-24T09:10:47.473Z",
+  "durationMs": 14,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "scan.json",
+      "path": "evidence/SECPL-012/SEC-FINAL-091039/scan.json",
+      "bytes": 3649,
+      "sha256": "014fbaf843c5cc45b3299302c97907fe9072cacd57ca4cf4fde1b5e0447d067e"
+    }
+  ]
+}

@@ -26,15 +26,18 @@ public sealed class SecurityController : ApiControllerBase
     private readonly ISecurityTrendService _trend;
     private readonly ISecuritySurfaceService _surface;
     private readonly ISecurityImpactService _impact;
+    private readonly ISecurityScanLauncher _launcher;
 
     public SecurityController(
         ISecurityScanService security, ISecurityTrendService trend,
-        ISecuritySurfaceService surface, ISecurityImpactService impact)
+        ISecuritySurfaceService surface, ISecurityImpactService impact,
+        ISecurityScanLauncher launcher)
     {
         _security = security;
         _trend = trend;
         _surface = surface;
         _impact = impact;
+        _launcher = launcher;
     }
 
     /// <summary>Every security check AIRA knows how to run.</summary>
@@ -82,6 +85,29 @@ public sealed class SecurityController : ApiControllerBase
     /// Both refusals are deliberate: if a scan somehow ran against an unauthorized
     /// application, that is a defect worth surfacing rather than a record worth keeping.
     /// </remarks>
+    /// <summary>Queues a scan for a worker to run against a discovered application.</summary>
+    /// <remarks>
+    /// <para>
+    /// This is the other end of <c>POST scans</c>: that one records a scan somebody else ran,
+    /// this one asks AIRA to run it. Accepting means the job was queued, not that anything was
+    /// found — the result arrives later on the worker callback, and until it does the scan sits
+    /// in <c>queued</c> with no findings, which is not the same as a clean scan and is not
+    /// reported as one.
+    /// </para>
+    /// <para>
+    /// Everything that decides what may be touched is settled before the job exists: an enabled
+    /// scope carrying a written authorization, destructive testing needing its own permission,
+    /// production needing its own, and a discovered surface to point checks at. The worker is
+    /// handed the scope it must work within and refuses out-of-scope requests itself, so the two
+    /// ends fail closed independently.
+    /// </para>
+    /// </remarks>
+    [HttpPost("scans/start")]
+    [RequirePermission(Permissions.SecurityScan)]
+    public async Task<IActionResult> StartScan(
+        [FromBody] StartSecurityScanRequest request, CancellationToken ct)
+        => FromResult(await _launcher.StartAsync(request, ct), started => Accepted(started));
+
     [HttpPost("scans")]
     [RequirePermission(Permissions.SecurityScan)]
     public async Task<IActionResult> RecordScan(

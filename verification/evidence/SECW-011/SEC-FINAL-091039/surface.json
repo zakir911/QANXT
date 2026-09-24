@@ -1,0 +1,114 @@
+{
+  "discovery": {
+    "status": "completed",
+    "pages": 5
+  },
+  "items": [
+    {
+      "kind": "page",
+      "id": "6cad92d2-4f4a-4ed5-bd46-c70670a9eda6",
+      "identifier": "/",
+      "httpMethod": "GET",
+      "requiresAuthentication": false,
+      "changesState": false,
+      "acceptsInput": false,
+      "acceptsFileUpload": false,
+      "carriesObjectIdentifier": false,
+      "carriesUrlParameter": false,
+      "parameters": [],
+      "relevantChecks": [
+        "passive.cookies",
+        "passive.headers",
+        "passive.sensitive-data"
+      ],
+      "why": "a page discovery reached"
+    },
+    {
+      "kind": "page",
+      "id": "285eccf0-421f-4b9d-8d06-ea13b6b8683c",
+      "identifier": "/strict",
+      "httpMethod": "GET",
+      "requiresAuthentication": false,
+      "changesState": false,
+      "acceptsInput": false,
+      "acceptsFileUpload": false,
+      "carriesObjectIdentifier": false,
+      "carriesUrlParameter": false,
+      "parameters": [],
+      "relevantChecks": [
+        "passive.cookies",
+        "passive.headers",
+        "passive.sensitive-data"
+      ],
+      "why": "a page discovery reached"
+    },
+    {
+      "kind": "page",
+      "id": "9486820e-6c24-48c8-b92a-8f158c9856f2",
+      "identifier": "/weak",
+      "httpMethod": "GET",
+      "requiresAuthentication": false,
+      "changesState": false,
+      "acceptsInput": false,
+      "acceptsFileUpload": false,
+      "carriesObjectIdentifier": false,
+      "carriesUrlParameter": false,
+      "parameters": [],
+      "relevantChecks": [
+        "passive.cookies",
+        "passive.headers",
+        "passive.sensitive-data"
+      ],
+      "why": "a page discovery reached"
+    },
+    {
+      "kind": "page",
+      "id": "c3124ad7-b018-40ca-a6bd-a59c3b074475",
+      "identifier": "/api/public",
+      "httpMethod": "GET",
+      "requiresAuthentication": false,
+      "changesState": false,
+      "acceptsInput": false,
+      "acceptsFileUpload": false,
+      "carriesObjectIdentifier": false,
+      "carriesUrlParameter": false,
+      "parameters": [],
+      "relevantChecks": [
+        "passive.cookies",
+        "passive.headers",
+        "passive.sensitive-data"
+      ],
+      "why": "a page discovery reached"
+    },
+    {
+      "kind": "page",
+      "id": "d6b01fbb-960b-4f6d-8e8b-14baf4dd9d93",
+      "identifier": "/api/data",
+      "httpMethod": "GET",
+      "requiresAuthentication": false,
+      "changesState": false,
+      "acceptsInput": false,
+      "acceptsFileUpload": false,
+      "carriesObjectIdentifier": false,
+      "carriesUrlParameter": false,
+      "parameters": [],
+      "relevantChecks": [
+        "passive.cookies",
+        "passive.headers",
+        "passive.sensitive-data"
+      ],
+      "why": "a page discovery reached"
+    }
+  ],
+  "caveats": [
+    "This is what discovery walked, not the application. Anything a crawl did not reach is absent from this surface and is untested rather than safe.",
+    "No API calls were observed. Either the application makes none, or discovery did not exercise the journeys that do — and those are very different.",
+    "Nothing in the graph required a session, so no authenticated surface was discovered. If the application has one, discovery did not sign in.",
+    "No authentication surface was recognised, so the authentication and session checks are not implied by anything here."
+  ],
+  "implied": [
+    "passive.cookies",
+    "passive.headers",
+    "passive.sensitive-data"
+  ]
+}

@@ -23,14 +23,14 @@
  * identities are synthetic, and the scope guard refuses anything else — which SECG proves
  * rather than asserts.
  */
-import { golden, suite, notVerified } from '../harness.mjs';
-import { SecurityScanner } from '../security/engine.mjs';
+import { ROOT, golden, suite, notVerified } from '../harness.mjs';
+import { SecurityScanner } from '../../../packages/security-engine/src/engine.mjs';
 import {
   DENIAL, SECURITY_PROFILE, SECURITY_RISK, evaluateScope, labScope
-} from '../security/scope-guard.mjs';
-import { MAX_SCORE, SeverityFactors } from '../security/severity.mjs';
-import { writeFindingEvidence, redactText } from '../security/evidence.mjs';
-import * as xssChecks from '../security/checks-xss.mjs';
+} from '../../../packages/security-engine/src/scope-guard.mjs';
+import { MAX_SCORE, SeverityFactors } from '../../../packages/security-engine/src/severity.mjs';
+import { writeFindingEvidence, redactText } from '../../../packages/security-engine/src/evidence.mjs';
+import * as xssChecks from '../../../packages/security-engine/src/checks-xss.mjs';
 import {
   LABS, SCENARIOS, SAFE_SCENARIOS, expectedFor, expectedSeverity,
   isolateFaults, resetLab, restoreFaults
@@ -494,7 +494,7 @@ export default async function run() {
       await isolateFaults(LABS.api, ['VULN_EXCESSIVE_DATA']);
       const s = scanner();
       const session = await s.signIn(LABS.api, 'alice');
-      const { checkExcessiveData } = await import('../security/checks-api.mjs');
+      const { checkExcessiveData } = await import('../../../packages/security-engine/src/checks-api.mjs');
       const result = await checkExcessiveData(s, {
         baseUrl: LABS.api, path: '/api/users', actor: { cookie: session.cookie, label: 'alice' }
       });
@@ -521,6 +521,45 @@ export default async function run() {
           + `in the raw copy and ${clean.includes(secret) ? 'STILL PRESENT' : 'absent'} in the sanitized one`,
         metrics: { files: written.files.length },
         evidence: { 'written.json': { files: written.files, sha256: written.digest } }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECE-005',
+    objective: 'Every finding the engine can emit declares a confidence',
+    preconditions: ['the engine source'],
+    input: 'Each finding literal across the seven check families',
+    expected: 'All of them set a confidence from the engine\'s own three factors. A finding with no '
+      + 'confidence does not read as unknown anywhere downstream — it reads as whatever the reader\'s '
+      + 'fallback is, and every fallback is a number nobody chose for it',
+    evidence: ['sites.json'],
+    severity: 'critical',
+    run: async () => {
+      const { readdirSync, readFileSync } = await import('node:fs');
+      const { resolve } = await import('node:path');
+      const dir = resolve(ROOT, 'packages/security-engine/src');
+
+      const sites = [];
+      for (const file of readdirSync(dir).filter(f => f.startsWith('checks-'))) {
+        const lines = readFileSync(resolve(dir, file), 'utf8').split('\n');
+        lines.forEach((line, index) => {
+          if (!/^\s*severityFactors:/.test(line)) return;
+          // A finding literal is written in one place, so its confidence is within a few
+          // dozen lines of its severity either way.
+          const window = lines.slice(Math.max(0, index - 30), index + 30).join('\n');
+          sites.push({
+            file, line: index + 1, declaresConfidence: /^\s*confidence:/m.test(window)
+          });
+        });
+      }
+
+      const silent = sites.filter(site => !site.declaresConfidence);
+      return {
+        pass: sites.length > 0 && silent.length === 0,
+        detail: `${sites.length} finding site(s); ${silent.length} declare no confidence`,
+        metrics: { sites: sites.length, silent: silent.length },
+        evidence: { 'sites.json': { sites, silent } }
       };
     }
   }, context);

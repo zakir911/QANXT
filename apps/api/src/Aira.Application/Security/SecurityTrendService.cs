@@ -74,6 +74,20 @@ public sealed class SecurityTrendService : ISecurityTrendService
         scans.Reverse();
 
         var scanIds = scans.Select(s => s.Id).ToList();
+
+        // Attributed through the sightings, so each point plots what that scan reported. A
+        // finding's own scan id names its latest sighting only, and a trend built on it would
+        // collapse every finding onto the newest point and draw a falling line for an
+        // application where nothing had been fixed.
+        var sightings = await _db.SecurityScanFindings.AsNoTracking()
+            .Where(link => scanIds.Contains(link.SecurityScanId))
+            .Join(_db.SecurityFindings.AsNoTracking().Where(f => f.ApplicationId == applicationId),
+                  link => link.SecurityFindingId, f => f.Id,
+                  (link, f) => new { link.SecurityScanId, link.Severity, link.WasNew, link.WasRegression })
+            .ToListAsync(ct);
+
+        // The application's findings as they stand now, which is a different question from what
+        // any scan reported and answers the open counts and time-to-resolution below.
         var findings = await _db.SecurityFindings.AsNoTracking()
             .Where(f => f.ApplicationId == applicationId)
             .ToListAsync(ct);
@@ -83,7 +97,9 @@ public sealed class SecurityTrendService : ISecurityTrendService
 
         foreach (var scan in scans)
         {
-            var inScan = findings.Where(f => f.SecurityScanId == scan.Id).ToList();
+            // Severity as that scan reported it, not as the finding stands today: a flaw
+            // reassessed upwards must not retroactively raise a point somebody already read.
+            var inScan = sightings.Where(row => row.SecurityScanId == scan.Id).ToList();
             var (configured, executed) = ReadCoverage(scan.ScopeSnapshotJson);
 
             var comparable = true;
@@ -116,13 +132,16 @@ public sealed class SecurityTrendService : ISecurityTrendService
 
             var point = new SecurityTrendPoint(
                 scan.Id, scan.Reference, scan.StartedAt, scan.Profile,
-                Critical: inScan.Count(f => f.Severity == SecuritySeverity.Critical),
-                High: inScan.Count(f => f.Severity == SecuritySeverity.High),
-                Medium: inScan.Count(f => f.Severity == SecuritySeverity.Medium),
-                Low: inScan.Count(f => f.Severity == SecuritySeverity.Low),
-                Informational: inScan.Count(f => f.Severity == SecuritySeverity.Informational),
-                NewFindings: inScan.Count(f => f.FirstSeenAt == f.LastSeenAt),
-                Regressions: inScan.Count(f => f.Status == SecurityFindingStatus.Regressed),
+                Critical: inScan.Count(row => row.Severity == SecuritySeverity.Critical),
+                High: inScan.Count(row => row.Severity == SecuritySeverity.High),
+                Medium: inScan.Count(row => row.Severity == SecuritySeverity.Medium),
+                Low: inScan.Count(row => row.Severity == SecuritySeverity.Low),
+                Informational: inScan.Count(row => row.Severity == SecuritySeverity.Informational),
+                // New and regressed as of this scan. Read off the finding's current state, a
+                // flaw first seen two scans ago would count as new in every point until
+                // something else happened to it.
+                NewFindings: inScan.Count(row => row.WasNew),
+                Regressions: inScan.Count(row => row.WasRegression),
                 ChecksConfigured: configured, ChecksExecuted: executed,
                 RequestsIssued: scan.RequestsIssued, RequestsBlocked: scan.RequestsBlocked,
                 ComparableToPrevious: comparable, NotComparableBecause: because);

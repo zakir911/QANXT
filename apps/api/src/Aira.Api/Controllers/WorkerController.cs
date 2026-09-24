@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Aira.Api.Authorization;
 using Aira.Application.Abstractions;
 using Aira.Application.Discovery;
+using Aira.Application.Security;
 using Aira.Application.Testing;
 using Aira.Domain.Common;
 using Aira.Domain.Enums;
@@ -26,6 +27,7 @@ public sealed class WorkerController : ApiControllerBase
 {
     private readonly IDiscoveryIngestService _discoveryIngest;
     private readonly IExecutionIngestService _executionIngest;
+    private readonly ISecurityScanService _security;
     private readonly IArtifactStore _artifacts;
     private readonly ITenantContext _tenant;
     private readonly IAiraDbContext _db;
@@ -33,11 +35,12 @@ public sealed class WorkerController : ApiControllerBase
     private readonly ILogger<WorkerController> _logger;
 
     public WorkerController(IDiscoveryIngestService discoveryIngest, IExecutionIngestService executionIngest,
-        IArtifactStore artifacts, ITenantContext tenant, IAiraDbContext db, IClock clock,
-        ILogger<WorkerController> logger)
+        ISecurityScanService security, IArtifactStore artifacts, ITenantContext tenant,
+        IAiraDbContext db, IClock clock, ILogger<WorkerController> logger)
     {
         _discoveryIngest = discoveryIngest;
         _executionIngest = executionIngest;
+        _security = security;
         _artifacts = artifacts;
         _tenant = tenant;
         _db = db;
@@ -98,6 +101,45 @@ public sealed class WorkerController : ApiControllerBase
         if (!Authorize(executionId, "execution", out var failure)) return failure!;
         _logger.LogInformation("Received execution completion for {ExecutionId}: {Status}", executionId, body.Status);
         return FromResult(await _executionIngest.CompleteAsync(executionId, body, ct), () => NoContent());
+    }
+
+    // ---- Security ------------------------------------------------------------
+
+    /// <summary>
+    /// Delivers a finished security scan: what ran, what was refused, and what was found.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The token is scoped to this scan and to security, so an execution worker cannot post
+    /// findings and a security worker cannot post them against another scan. Which application
+    /// the findings belong to is read from the stored scan, not from the body.
+    /// </para>
+    /// <para>
+    /// The same two refusals the operator-facing route makes apply here: a scan against an
+    /// application with no enabled, authorized scope is rejected, and so is any finding arriving
+    /// with no request/response exchange behind it. A worker that somehow scanned an
+    /// unauthorized application must not be able to launder that into a record.
+    /// </para>
+    /// </remarks>
+    [HttpPost("security/{scanId:guid}/completed")]
+    [RequestSizeLimit(64 * 1024 * 1024)]
+    public async Task<IActionResult> SecurityScanCompleted(
+        Guid scanId, [FromBody] RecordSecurityScanRequest body, CancellationToken ct)
+    {
+        if (!Authorize(scanId, "security", out var failure)) return failure!;
+
+        _logger.LogInformation(
+            "Received a security scan report for {ScanId}: {Executed} check(s) executed, {Findings} finding(s)",
+            scanId, body.TestsExecuted, body.Findings.Count);
+
+        return FromResult(await _security.CompleteScanAsync(scanId, body, ct), scan => Ok(new
+        {
+            scan.Id, scan.Reference, scan.Status,
+            findings = scan.Findings.Count,
+            // The outcome, not a boolean: a scan can pass, warn or fail, and a warn folded
+            // into "passed" is exactly the reading the gate exists to prevent.
+            gate = scan.Gate.Outcome.ToString()
+        }));
     }
 
     // ---- Artifacts -----------------------------------------------------------

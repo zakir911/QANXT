@@ -378,5 +378,9 @@ public enum AuditAction
     // authorizing an application to be tested, running a scan against it, and setting a
     // finding aside. An audit trail is the whole reason a suppression needs a name.
     SecurityScopeAuthorized = 35, SecurityScopeDisabled = 36,
-    SecurityScanRecorded = 37, SecurityFindingTriaged = 38
+    SecurityScanRecorded = 37, SecurityFindingTriaged = 38,
+    // Distinct from Recorded: started is somebody asking for traffic to be sent at an
+    // application, which is the moment authorization is spent. A scan that starts and never
+    // reports leaves only this line behind, and that is exactly when it is wanted.
+    SecurityScanStarted = 39
 }

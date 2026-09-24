@@ -117,6 +117,49 @@ public class SecurityScan : BaseEntity, ITenantOwned, IAuditable
     public ICollection<SecurityFinding> Findings { get; set; } = new List<SecurityFinding>();
 }
 
+/// <summary>
+/// What one scan reported about one finding.
+/// </summary>
+/// <remarks>
+/// <para>
+/// A finding is a flaw, which outlives the scans that see it: it is fingerprinted per
+/// application so the same flaw found again updates one row rather than multiplying. That
+/// makes the finding table a record of the present, and it cannot also be the record of what
+/// a particular scan reported.
+/// </para>
+/// <para>
+/// Without this table, "the findings of scan X" has to be read as "findings whose last
+/// sighting was scan X" — so the moment a second scan sees the same flaw, the first scan's
+/// stored result empties out and reads as a clean run. That is the single most dangerous way
+/// for a security record to be wrong, and it happens silently and with age.
+/// </para>
+/// <para>
+/// Severity and confidence are copied here as that scan reported them. The finding row carries
+/// the latest assessment, which is the right answer to "how bad is this now" and the wrong
+/// answer to "what did that scan say" — a flaw reassessed from Medium to Critical must not
+/// retroactively make an old report say Critical.
+/// </para>
+/// </remarks>
+public class SecurityScanFinding : BaseEntity, ITenantOwned
+{
+    public Guid OrganizationId { get; set; }
+    public Guid SecurityScanId { get; set; }
+    public SecurityScan? SecurityScan { get; set; }
+    public Guid SecurityFindingId { get; set; }
+    public SecurityFinding? SecurityFinding { get; set; }
+
+    /// <summary>As this scan reported them, not as the finding stands now.</summary>
+    public SecuritySeverity Severity { get; set; } = SecuritySeverity.Informational;
+    public SecurityConfidence Confidence { get; set; } = SecurityConfidence.Low;
+
+    /// <summary>True when this scan was the first to see it.</summary>
+    public bool WasNew { get; set; }
+    /// <summary>True when this scan saw something return that had been resolved.</summary>
+    public bool WasRegression { get; set; }
+
+    public DateTimeOffset ReportedAt { get; set; }
+}
+
 /// <summary>A security request the scope guard refused, kept so a scan can say what it did
 /// not do and why.</summary>
 /// <remarks>

@@ -1,0 +1,35 @@
+{
+  "testId": "SECX-001",
+  "suite": "Security scanning",
+  "runId": "SEC-FINAL-091039",
+  "objective": "DOM-based XSS is reported as not tested by a response-only scan, never as absent",
+  "preconditions": [
+    "the xss lab with VULN_DOM_XSS on"
+  ],
+  "input": "GET /dom, whose source is location.hash and whose sink is innerHTML",
+  "expected": "notTestable, with the reason and the sinks observed — the brief requires tested coverage to be distinguishable from untested areas, and \"no DOM XSS found\" from a scan that cannot see the DOM is a claim the evidence does not support",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "The page contains client-side sink(s) innerHTML and source(s) location.hash, which is grounds for a browser-driven scan of this page, not a finding.",
+  "metrics": {
+    "sinks": 1,
+    "sources": 1
+  },
+  "startedAt": "2026-09-24T09:10:47.140Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "not-testable.json",
+      "path": "evidence/SECX-001/SEC-FINAL-091039/not-testable.json",
+      "bytes": 593,
+      "sha256": "24e307490ad3c2052ef1d61ec8278aa869bea6650ef437a453aba41ac098524b"
+    }
+  ]
+}

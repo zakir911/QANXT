@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-003",
+  "suite": "Security scanning",
+  "runId": "SEC-FINAL-091039",
+  "objective": "A read-only account performing a write is reported as privilege escalation",
+  "preconditions": [
+    "VULN_READONLY_CAN_WRITE switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Authorization: the readonly-write check against the lab",
+  "expected": "Exactly one PrivilegeEscalation finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "PrivilegeEscalation: A read-only account can perform a write (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T09:10:46.475Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-003/SEC-FINAL-091039/vulnerable.json",
+      "bytes": 414,
+      "sha256": "d2dff7df6f9611ff88ab32f86506f7a9dba05f491770fe72586de6ac0bf3c335"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "testId": "ISO-004",
+  "suite": "Isolation, audit and observability",
+  "runId": "WIDE-091121",
+  "objective": "Another tenant's notification integration is neither listed nor readable, and its secret never leaves the platform",
+  "preconditions": [
+    "tenant A owns a webhook integration with a signing secret"
+  ],
+  "input": "GET /api/v1/integrations as tenant B, and the integration by id",
+  "expected": "Tenant B sees none of tenant A's integrations, and the signing secret appears in no response to either tenant",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "tenant B list 200 (saw tenant A: false), by id 405; owner list 200; signing secret present in any response: false",
+  "metrics": {
+    "secretLeaked": 0
+  },
+  "startedAt": "2026-09-24T09:11:44.214Z",
+  "durationMs": 23,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "integration-isolation.json",
+      "path": "evidence/ISO-004/WIDE-091121/integration-isolation.json",
+      "bytes": 205,
+      "sha256": "a38178c25ae43549e4bc596bb6560da5f5e0a71b00da95edf86f28b9b8be4aba"
+    }
+  ]
+}

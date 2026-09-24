@@ -1,0 +1,39 @@
+{
+  "testId": "AUD-008",
+  "suite": "Isolation, audit and observability",
+  "runId": "WIDE-091121",
+  "objective": "A burst of credential attempts is refused, and the refusals are recorded as a security event rather than as ordinary traffic",
+  "preconditions": [
+    "the API writes to /tmp/aira-api.log",
+    "the sign-in rate limit is configured",
+    "this test exhausts the credential rate-limit budget for its address; newTenant retries on 429 so a later suite is not stranded by it"
+  ],
+  "input": "Twenty sign-in attempts in a row, then the API log",
+  "expected": "The budget is exhausted and the refusals appear at warning level, named as the rate limiter and as a credential endpoint",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "14 of 20 attempt(s) refused with 429; 14 limiter line(s) written — 14 at warning level, 14 named as a credential endpoint, 14 attributed to the limiter",
+  "metrics": {
+    "refused": 14,
+    "refusalLines": 14,
+    "atWarning": 14,
+    "attributed": 14
+  },
+  "startedAt": "2026-09-24T09:11:46.974Z",
+  "durationMs": 374,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "rate-limit.json",
+      "path": "evidence/AUD-008/WIDE-091121/rate-limit.json",
+      "bytes": 2134,
+      "sha256": "31f02e65fdb4d9684e8fae281c25c6fa37801f8f1bc8e17d4bf7a45da9a2ea73"
+    }
+  ]
+}

@@ -91,11 +91,38 @@ public class SecurityReleaseServiceTests
             FirstSeenAt = Noon, LastSeenAt = Noon
         };
 
+    /// <summary>
+    /// Seeds entities, and the sighting rows that go with any finding attached to a scan.
+    /// </summary>
+    /// <remarks>
+    /// A scan's findings are read through <see cref="SecurityScanFinding"/> rather than off the
+    /// finding's own scan id, because that id names each flaw's latest sighting and cannot also
+    /// be the record of what one scan reported. The ingest path always writes both, so a fixture
+    /// that wrote only the finding would be seeding a state the application never produces —
+    /// and every test built on it would be measuring nothing.
+    /// </remarks>
     private static async Task SeedAsync(AiraDbContext db, TestTenantContext tenant, params object[] entities)
     {
         using (tenant.EnterSystemContext("seed"))
         {
             foreach (var entity in entities) db.Add(entity);
+
+            foreach (var finding in entities.OfType<SecurityFinding>()
+                         .Where(f => f.SecurityScanId is not null))
+            {
+                db.Add(new SecurityScanFinding
+                {
+                    OrganizationId = finding.OrganizationId,
+                    SecurityScanId = finding.SecurityScanId!.Value,
+                    SecurityFindingId = finding.Id,
+                    Severity = finding.Severity,
+                    Confidence = finding.Confidence,
+                    WasNew = finding.FirstSeenAt == finding.LastSeenAt,
+                    WasRegression = finding.RegressedAt is not null,
+                    ReportedAt = finding.LastSeenAt
+                });
+            }
+
             await db.SaveChangesAsync();
         }
     }

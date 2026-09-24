@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Aira.Application.Abstractions;
 using Aira.Domain.Common;
 using Aira.Domain.Enums;
@@ -112,6 +113,16 @@ public interface ISecurityScanService
 
     Task<Result<SecurityScanSummary>> RecordScanAsync(
         RecordSecurityScanRequest request, CancellationToken ct = default);
+
+    /// <summary>Fills in a scan AIRA itself queued, using the report the worker sends back.</summary>
+    /// <remarks>
+    /// Separate from <see cref="RecordScanAsync"/> because the row already exists: it was written
+    /// when somebody with the permission asked for the scan, against the scope authorized at that
+    /// moment. The worker reports what happened; it does not get to say what was authorized, or
+    /// which application it was pointed at.
+    /// </remarks>
+    Task<Result<SecurityScanSummary>> CompleteScanAsync(
+        Guid scanId, RecordSecurityScanRequest request, CancellationToken ct = default);
 
     Task<IReadOnlyList<SecurityScanSummary>> ListScansAsync(
         Guid? applicationId, int take, CancellationToken ct = default);
@@ -284,8 +295,46 @@ public sealed class SecurityScanService : ISecurityScanService
     // Recording a scan
     // -----------------------------------------------------------------------
 
-    public async Task<Result<SecurityScanSummary>> RecordScanAsync(
+    public Task<Result<SecurityScanSummary>> RecordScanAsync(
         RecordSecurityScanRequest request, CancellationToken ct = default)
+        => IngestAsync(null, request, ct);
+
+    /// <summary>
+    /// Completes a scan AIRA queued, from the worker's report.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The identifiers are taken from the stored row, not from the body. A worker holds a token
+    /// scoped to one scan; if it could name the application in its report, that token would also
+    /// be a way to write findings against a different one.
+    /// </para>
+    /// <para>
+    /// A report arriving for a scan that is already complete returns the scan as it stands rather
+    /// than ingesting it twice. The worker retries a delivery whose response it never saw, and a
+    /// retry that doubled the findings would make a scan look worse the flakier the network was.
+    /// </para>
+    /// </remarks>
+    public async Task<Result<SecurityScanSummary>> CompleteScanAsync(
+        Guid scanId, RecordSecurityScanRequest request, CancellationToken ct = default)
+    {
+        var scan = await _db.SecurityScans.FirstOrDefaultAsync(s => s.Id == scanId, ct);
+        if (scan is null)
+            return Result<SecurityScanSummary>.Failure(Error.NotFound("The security scan"));
+
+        if (scan.CompletedAt is not null)
+            return Result<SecurityScanSummary>.Success(await BuildScanSummaryAsync(scan, ct));
+
+        return await IngestAsync(scan, request with
+        {
+            ApplicationId = scan.ApplicationId,
+            ProjectId = scan.ProjectId,
+            EnvironmentId = scan.EnvironmentId,
+            Profile = scan.Profile
+        }, ct);
+    }
+
+    private async Task<Result<SecurityScanSummary>> IngestAsync(
+        SecurityScan? queued, RecordSecurityScanRequest request, CancellationToken ct = default)
     {
         var scope = await _db.SecurityScopes
             .FirstOrDefaultAsync(s => s.ApplicationId == request.ApplicationId, ct);
@@ -317,16 +366,31 @@ public sealed class SecurityScanService : ISecurityScanService
         var now = DateTimeOffset.UtcNow;
         var blocked = request.BlockedRequests ?? Array.Empty<RecordBlockedRequest>();
 
-        var scan = new SecurityScan
+        var scan = queued ?? new SecurityScan
         {
             ApplicationId = request.ApplicationId,
             ProjectId = request.ProjectId,
             EnvironmentId = request.EnvironmentId,
             Reference = $"SCAN-{now:yyyyMMdd}-{RandomNumberGenerator.GetHexString(6).ToUpperInvariant()}",
             Profile = request.Profile,
-            Status = "completed",
             AuthorizationNote = scope.AuthorizationNote,
-            ScopeSnapshotJson = JsonSerializer.Serialize(new
+            StartedAt = now.AddMilliseconds(-request.DurationMs),
+            CreatedByUserId = _user.UserId
+        };
+
+        scan.Status = "completed";
+        scan.RequestsIssued = request.RequestsIssued;
+        scan.RequestsBlocked = blocked.Count;
+        scan.TestsExecuted = request.TestsExecuted;
+        scan.TestsSkipped = request.TestsSkipped;
+        scan.CompletedAt = now;
+        scan.DurationMs = request.DurationMs;
+        // A queued scan already carries the scope as it was authorized when somebody asked for the
+        // run. That snapshot is what governed the run, so only what the run did is written over it;
+        // re-reading the scope here would let a change made mid-scan rewrite the record of what was
+        // permitted.
+        scan.ScopeSnapshotJson = queued is null
+            ? JsonSerializer.Serialize(new
             {
                 scope.AllowedDomains, scope.AllowedApiDomains, scope.AllowedPaths, scope.BlockedPaths,
                 scope.EnvironmentId, scope.MaxRequestsPerSecond, scope.MaxConcurrentRequests,
@@ -335,17 +399,12 @@ public sealed class SecurityScanService : ISecurityScanService
                 checksConfigured = request.ChecksConfigured ?? Array.Empty<string>(),
                 checksExecuted = request.ChecksExecuted ?? Array.Empty<string>(),
                 untestedAreas = request.UntestedAreas ?? Array.Empty<string>()
-            }),
-            RequestsIssued = request.RequestsIssued,
-            RequestsBlocked = blocked.Count,
-            TestsExecuted = request.TestsExecuted,
-            TestsSkipped = request.TestsSkipped,
-            StartedAt = now.AddMilliseconds(-request.DurationMs),
-            CompletedAt = now,
-            DurationMs = request.DurationMs,
-            CreatedByUserId = _user.UserId
-        };
-        _db.SecurityScans.Add(scan);
+            })
+            : WithOutcome(scan.ScopeSnapshotJson,
+                request.ChecksExecuted ?? Array.Empty<string>(),
+                request.UntestedAreas ?? Array.Empty<string>());
+
+        if (queued is null) _db.SecurityScans.Add(scan);
 
         foreach (var refused in blocked)
         {
@@ -367,6 +426,25 @@ public sealed class SecurityScanService : ISecurityScanService
 
         var summaries = new List<SecurityFindingSummary>();
         var seen = new HashSet<string>();
+
+        // What this scan reported, recorded as its own fact. See SecurityScanFinding: the
+        // finding rows are the present state of each flaw, so they cannot also be the record
+        // of what any one scan saw.
+        var reportedByThisScan = new List<SecurityScanFinding>();
+
+        void RecordSighting(SecurityFinding finding, RecordFindingRequest reported,
+                            bool wasNew, bool wasRegression)
+            => reportedByThisScan.Add(new SecurityScanFinding
+            {
+                OrganizationId = scan.OrganizationId,
+                SecurityScanId = scan.Id,
+                SecurityFinding = finding,
+                Severity = reported.Severity,
+                Confidence = reported.Confidence,
+                WasNew = wasNew,
+                WasRegression = wasRegression,
+                ReportedAt = now
+            });
 
         foreach (var reported in request.Findings)
         {
@@ -428,6 +506,7 @@ public sealed class SecurityScanService : ISecurityScanService
                     finding.DispositionNote = null;
                 }
 
+                RecordSighting(finding, reported, wasNew: false, wasRegression: wasResolved);
                 summaries.Add(ToSummary(finding, isNew: false, isRegression: wasResolved));
                 continue;
             }
@@ -467,6 +546,7 @@ public sealed class SecurityScanService : ISecurityScanService
                 CreatedByUserId = _user.UserId
             };
             _db.SecurityFindings.Add(created);
+            RecordSighting(created, reported, wasNew: true, wasRegression: false);
             summaries.Add(ToSummary(created, isNew: true, isRegression: false));
         }
 
@@ -494,6 +574,7 @@ public sealed class SecurityScanService : ISecurityScanService
             finding.UpdatedByUserId = _user.UserId;
         }
 
+        _db.SecurityScanFindings.AddRange(reportedByThisScan);
         await _db.SaveChangesAsync(ct);
 
         await _audit.LogAsync(AuditAction.SecurityScanRecorded, nameof(SecurityScan), scan.Id,
@@ -714,15 +795,54 @@ public sealed class SecurityScanService : ISecurityScanService
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(parts)))[..32].ToLowerInvariant();
     }
 
+    /// <summary>
+    /// Writes what a scan actually did onto the snapshot of what it was authorized to do.
+    /// </summary>
+    /// <remarks>
+    /// Only two keys move: the checks that produced a verdict, and the areas nothing covered.
+    /// <c>checksConfigured</c> is left exactly as the launcher wrote it, because coverage is
+    /// executed over configured — a worker that could also rewrite the denominator could report
+    /// full coverage from a run that executed one check.
+    /// </remarks>
+    private static string WithOutcome(
+        string? snapshotJson, IReadOnlyList<string> checksExecuted, IReadOnlyList<string> untestedAreas)
+    {
+        try
+        {
+            var node = JsonNode.Parse(string.IsNullOrWhiteSpace(snapshotJson) ? "{}" : snapshotJson!)
+                       as JsonObject ?? new JsonObject();
+            node["checksExecuted"] = new JsonArray(checksExecuted.Select(c => (JsonNode)JsonValue.Create(c)!).ToArray());
+            node["untestedAreas"] = new JsonArray(untestedAreas.Select(a => (JsonNode)JsonValue.Create(a)!).ToArray());
+            return node.ToJsonString();
+        }
+        catch (JsonException)
+        {
+            // An unreadable snapshot is not repaired by inventing one. What the run did is kept,
+            // and the absent scope keys make the scan read as unknown rather than as permitted.
+            return JsonSerializer.Serialize(new { checksExecuted, untestedAreas });
+        }
+    }
+
     private async Task<SecurityScanSummary> BuildScanSummaryAsync(SecurityScan scan, CancellationToken ct)
     {
-        var findings = await _db.SecurityFindings.AsNoTracking()
-            .Where(f => f.SecurityScanId == scan.Id)
-            .OrderByDescending(f => f.Severity)
+        // Read through the sightings, not through the findings' own scan id. That id says which
+        // scan saw a flaw last, so reading a scan by it empties out every scan but the newest —
+        // and an emptied scan does not read as "look elsewhere", it reads as a clean run.
+        var sightings = await _db.SecurityScanFindings.AsNoTracking()
+            .Where(link => link.SecurityScanId == scan.Id)
+            .Join(_db.SecurityFindings.AsNoTracking(), link => link.SecurityFindingId, f => f.Id,
+                  (link, f) => new { Link = link, Finding = f })
             .ToListAsync(ct);
 
-        var summaries = findings
-            .Select(f => ToSummary(f, isNew: f.FirstSeenAt == f.LastSeenAt, isRegression: f.RegressedAt != null))
+        var summaries = sightings
+            .OrderByDescending(row => row.Link.Severity)
+            .Select(row => ToSummary(row.Finding, row.Link) with
+            {
+                // As this scan reported them. The finding row holds the latest assessment,
+                // which is the right answer to a different question.
+                Severity = row.Link.Severity,
+                Confidence = row.Link.Confidence
+            })
             .ToList();
 
         // Checks configured and executed come from the snapshot taken when the scan was
@@ -732,7 +852,10 @@ public sealed class SecurityScanService : ISecurityScanService
 
         var gate = SecurityGateEvaluator.Evaluate(
             new SecurityScanCoverage(
-                ScanRan: true,
+                // A scan AIRA queued exists before it has issued a single request, and until the
+                // worker reports back it has not run. Saying otherwise turns "nothing has happened
+                // yet" into "nothing was found", which is the one reading the gate exists to stop.
+                ScanRan: scan.CompletedAt is not null,
                 Profile: scan.Profile,
                 RequestsIssued: scan.RequestsIssued,
                 RequestsBlocked: scan.RequestsBlocked,
@@ -777,6 +900,10 @@ public sealed class SecurityScanService : ISecurityScanService
         s.AllowedDomains, s.AllowedApiDomains, s.AllowedPaths, s.BlockedPaths, s.EnvironmentId,
         s.MaxRequestsPerSecond, s.MaxConcurrentRequests, s.MaxScanDurationMinutes,
         s.AllowActiveTesting, s.AllowDestructiveTesting, s.AllowProduction);
+
+    /// <summary>One finding as a particular scan reported it.</summary>
+    private static SecurityFindingSummary ToSummary(SecurityFinding f, SecurityScanFinding link)
+        => ToSummary(f, isNew: link.WasNew, isRegression: link.WasRegression);
 
     private static SecurityFindingSummary ToSummary(SecurityFinding f, bool isNew, bool isRegression) => new(
         f.Id, f.Reference, f.Fingerprint, f.Category, f.Title, f.Severity, f.Confidence, f.Status,

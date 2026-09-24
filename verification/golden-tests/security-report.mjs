@@ -51,7 +51,8 @@ for (const record of lines.filter(r => r.runId === runId)) latest.set(record.tes
 
 /** The security suites. Everything else in the run belongs to another report. */
 const SECURITY_SUITES = new Set(['Security scanning', 'Security gate, regression and triage',
-                                 'Security scopes, scans and findings', 'Security and multi-tenancy']);
+                                 'Security scopes, scans and findings', 'Security scans AIRA runs itself',
+                                 'Security and multi-tenancy']);
 const results = [...latest.values()]
   .filter(r => SECURITY_SUITES.has(r.suite))
   .sort((a, b) => a.testId.localeCompare(b.testId));
@@ -231,12 +232,15 @@ markdown.push(
   '  verified (`SECG-016`, `SECG-017`).',
   '- **The detection rate does not generalise.** Every flaw in the lab was written alongside the',
   '  check that finds it.',
-  '- **There is no security surface in the console.** Scopes, scans, findings and triage are',
-  '  persisted and verified end to end through the API (`SECPL-001` to `SECPL-015`), but nothing',
-  '  is reachable by clicking. The screens and the trend queries are NOT IMPLEMENTED.',
-  '- **The scanner does not run inside the worker.** The engine is driven by the golden suites and',
-  '  the API records what it found, so `POST /api/v1/security/scans` is an ingestion endpoint',
-  '  rather than the far end of a "start a scan" button.',
+  '- **A scan is only as wide as discovery.** Targets come from what the crawler walked, so a page',
+  '  or endpoint discovery never reached is untested and does not appear in the coverage fraction',
+  '  as a gap. `SECW-011` records the caveat; it does not close it.',
+  '- **Nothing schedules a security scan.** A scan is started by a person or a pipeline calling',
+  '  `POST /api/v1/security/scans/start`. There is no recurring security scan, so an application',
+  '  scanned once and never again reads as its last scan indefinitely.',
+  '- **A scan whose worker stops halfway is not reclaimed.** It stays queued, which the gate reads',
+  '  as NOT SCANNED rather than as clean — the safe direction — but nothing retries or fails it,',
+  '  and `SECW-N002` records that as unexercised.',
   ''
 );
 
@@ -383,11 +387,13 @@ const html = `<!doctype html>
         its refusal is verified.</li>
     <li><strong>The detection rate does not generalise.</strong> Every flaw in the lab was written
         alongside the check that finds it.</li>
-    <li><strong>There is no security surface in the console.</strong> Scopes, scans, findings and
-        triage are persisted and verified end to end through the API, but nothing is reachable by
-        clicking. The screens and the trend queries are not implemented.</li>
-    <li><strong>The scanner does not run inside the worker.</strong> The scan-recording endpoint is
-        an ingestion path, not the far end of a "start a scan" button.</li>
+    <li><strong>A scan is only as wide as discovery.</strong> Targets come from what the crawler
+        walked, so anything it never reached is untested and does not appear in the coverage
+        fraction as a gap.</li>
+    <li><strong>Nothing schedules a security scan.</strong> An application scanned once and never
+        again reads as its last scan indefinitely.</li>
+    <li><strong>A scan whose worker stops halfway is not reclaimed.</strong> It stays queued, which
+        reads as NOT SCANNED rather than as clean, but nothing retries or fails it.</li>
   </ul>
 
   ${taxonomy.length > 0 ? `<h3>The OWASP taxonomy</h3><ul>${taxonomy.map(t =>

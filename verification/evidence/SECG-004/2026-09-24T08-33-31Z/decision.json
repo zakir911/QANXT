@@ -1,0 +1,13 @@
+{
+  "case": "empty domain allowlist",
+  "why": "An empty allowlist permits nothing. Treating it as \"no restriction\" is how a scanner ends up on the internet.",
+  "decision": {
+    "allowed": false,
+    "reason": "domainNotAllowed",
+    "explanation": "The scope names no allowed domains. An empty allowlist permits nothing.",
+    "checksPassed": [
+      "authorization",
+      "target-policy"
+    ]
+  }
+}

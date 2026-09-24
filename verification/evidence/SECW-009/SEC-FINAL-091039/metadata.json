@@ -1,0 +1,32 @@
+{
+  "testId": "SECW-009",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-FINAL-091039",
+  "objective": "Starting a scan is recorded in the audit trail as its own act",
+  "preconditions": [
+    "the scans started above"
+  ],
+  "input": "The audit log",
+  "expected": "A securityScanStarted entry naming the person, the scan and what it was configured to run — distinct from securityScanRecorded. Starting a scan is the moment authorization is spent, and a scan that starts and never reports leaves only this line behind",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "3 start entr(ies); first names 3 configured check(s) and 5 target(s)",
+  "metrics": null,
+  "startedAt": "2026-09-24T09:11:00.191Z",
+  "durationMs": 6,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "audit.json",
+      "path": "evidence/SECW-009/SEC-FINAL-091039/audit.json",
+      "bytes": 1497,
+      "sha256": "9aee648826ad83e0ad35d5ec4e20bdb6e9641c4fe7c3e47371dba667e2eccb1d"
+    }
+  ]
+}

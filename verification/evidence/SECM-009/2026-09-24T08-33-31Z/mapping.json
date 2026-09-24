@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_LONG_SESSION",
+    "type": "ExcessiveSessionLifetime",
+    "endpoint": "POST /api/session",
+    "severity": "low",
+    "cwe": "CWE-613",
+    "owaspWeb": "A07:2021",
+    "detectBy": "expiresInSeconds is 30 days."
+  },
+  "got": {
+    "cwe": "CWE-613",
+    "cweConfidence": "likely",
+    "owaspWeb": "A07:2021",
+    "owaspApi": "API2:2023",
+    "confidence": "Low",
+    "severity": {
+      "exploitability": "theoretical",
+      "impact": "limited",
+      "privilegeRequired": "none",
+      "affectedData": "credentials",
+      "exposure": "public",
+      "requiresUnusualConditions": true,
+      "score": 6,
+      "maxScore": 19,
+      "severity": "Low",
+      "explanation": "Low (6/19): theoretical to exploit, limited impact, no account needed, reaches credentials, publicly reachable, but needs conditions the attacker does not control."
+    }
+  }
+}

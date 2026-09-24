@@ -14,7 +14,7 @@ import { golden, suite } from '../harness.mjs';
 import {
   LAB, createProject, newTenant, registerApplication, request
 } from '../platform.mjs';
-import { evaluateSecurityGate } from '../security/gate.mjs';
+import { evaluateSecurityGate } from '../../../packages/security-engine/src/gate.mjs';
 import { CHECKS, CHECKS_REQUIRING_BROWSER } from '../security/scenarios.mjs';
 
 const AUTHORIZATION = 'Authorized for automated security testing by the AIRA verification suite, '

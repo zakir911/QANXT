@@ -10,7 +10,8 @@ import type { ElementFingerprint, LocatorDescriptor } from './locator.js';
 export const QUEUE_NAMES = {
   discovery: 'aira:discovery',
   execution: 'aira:execution',
-  agent: 'aira:agent'
+  agent: 'aira:agent',
+  security: 'aira:security'
 } as const;
 
 /** How the worker authenticates into the application under test. */
@@ -61,6 +62,77 @@ export interface DiscoveryJob {
   auth: AuthConfig;
   budget: CrawlBudget;
   /** Job-scoped token the worker uses to post results back. */
+  callbackToken: string;
+  callbackBaseUrl: string;
+  correlationId: string;
+}
+
+/**
+ * The scope, carried into the job rather than looked up by the worker.
+ *
+ * A worker that fetched the scope itself could be pointed at a different one by whoever
+ * enqueued the job; a worker that receives it can only do what the control plane already
+ * decided somebody had authorized. The job is the authorization, and it is signed for by the
+ * account that started the scan.
+ */
+export interface SecurityScopePayload {
+  enabled: boolean;
+  authorizationNote: string | null;
+  allowedDomains: string[];
+  allowedApiDomains: string[];
+  allowedPaths: string[];
+  blockedPaths: string[];
+  environmentId: string | null;
+  maxRequestsPerSecond: number;
+  maxConcurrentRequests: number;
+  maxScanDurationMinutes: number;
+  allowActiveTesting: boolean;
+  allowDestructiveTesting: boolean;
+  allowProduction: boolean;
+}
+
+/** One thing to point checks at, from the discovered attack surface. */
+export interface SecurityTarget {
+  kind: 'page' | 'endpoint';
+  identifier: string;
+  httpMethod?: string;
+  requiresAuthentication: boolean;
+  parameters: string[];
+  checks: string[];
+}
+
+/** A synthetic identity the scan may sign in as. Never a real account. */
+export interface SecurityIdentity {
+  label: string;
+  username: string;
+  password: string;
+  role?: string;
+  resourceId?: string;
+}
+
+export interface SecurityScanJob {
+  jobId: string;
+  securityScanId: string;
+  organizationId: string;
+  projectId: string;
+  applicationId: string;
+  environmentId?: string | null;
+  baseUrl: string;
+  /** passive | standard | deep | regression. Bounds what the scan will attempt. */
+  profile: string;
+  scope: SecurityScopePayload;
+  /** What to point checks at, and which checks each target implies. */
+  targets: SecurityTarget[];
+  /** The checks this run should execute. Narrower than the targets imply when a change
+   *  selected a subset; the full implied set travels as checksConfigured so the gate can
+   *  still read coverage honestly. */
+  checksToRun: string[];
+  checksConfigured: string[];
+  identities: SecurityIdentity[];
+  /** Whether this caller may issue destructive requests. Both this and the scope must allow. */
+  callerMayRunDestructiveScans: boolean;
+  isProductionEnvironment: boolean;
+  productionTestingAuthorized: boolean;
   callbackToken: string;
   callbackBaseUrl: string;
   correlationId: string;

@@ -87,6 +87,26 @@ public class SecurityFindingConfiguration : IEntityTypeConfiguration<SecurityFin
     }
 }
 
+public class SecurityScanFindingConfiguration : IEntityTypeConfiguration<SecurityScanFinding>
+{
+    public void Configure(EntityTypeBuilder<SecurityScanFinding> b)
+    {
+        b.ToTable("security_scan_findings");
+
+        // One row per finding per scan. A retried delivery must not double-count a finding
+        // into a scan's own record of what it saw.
+        b.HasIndex(x => new { x.SecurityScanId, x.SecurityFindingId }).IsUnique();
+        b.HasIndex(x => x.SecurityFindingId);
+
+        b.HasOne(x => x.SecurityScan).WithMany()
+            .HasForeignKey(x => x.SecurityScanId).OnDelete(DeleteBehavior.Cascade);
+        // Cascade rather than SetNull: a link to a finding that no longer exists says a scan
+        // reported something and cannot say what, which is worse than not being there.
+        b.HasOne(x => x.SecurityFinding).WithMany()
+            .HasForeignKey(x => x.SecurityFindingId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
 public class SecurityBlockedRequestConfiguration : IEntityTypeConfiguration<SecurityBlockedRequest>
 {
     public void Configure(EntityTypeBuilder<SecurityBlockedRequest> b)

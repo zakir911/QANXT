@@ -1,0 +1,41 @@
+{
+  "testId": "SECW-003",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-FINAL-091039",
+  "objective": "Starting a scan queues a job and records a scan that has not run yet",
+  "preconditions": [
+    "an authorized, discovered application"
+  ],
+  "input": "POST /api/v1/security/scans/start with no narrowing",
+  "expected": "202 with the queue and job it was placed on, and a stored scan whose gate says NOT SCANNED rather than reporting a clean result it has no basis for",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "202; 5 target(s), 3 of 3 check(s); stored status queued",
+  "metrics": {
+    "targets": 5,
+    "checks": 3
+  },
+  "startedAt": "2026-09-24T09:10:56.092Z",
+  "durationMs": 23,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "started.json",
+      "path": "evidence/SECW-003/SEC-FINAL-091039/started.json",
+      "bytes": 495,
+      "sha256": "f5a729baadeecb35b8786f47b4e192a40fafa7df103d81c8470f1efd995b1075"
+    },
+    {
+      "file": "queued.json",
+      "path": "evidence/SECW-003/SEC-FINAL-091039/queued.json",
+      "bytes": 196,
+      "sha256": "b55be4e2b990867510ef2f9b4855487bf3578031b9799ef9729688a7c3288f4e"
+    }
+  ]
+}

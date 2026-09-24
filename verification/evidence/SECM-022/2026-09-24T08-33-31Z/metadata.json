@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-022",
+  "suite": "Security scanning",
+  "runId": "2026-09-24T08-33-31Z",
+  "objective": "The csrf-token finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-352, OWASP A01:2021, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-352, A01:2021, High (14/19) — High (14/19): straightforward to exploit, serious impact, no account needed, reaches personal data, publicly reachable.",
+  "metrics": {
+    "score": 14,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T08:33:32.463Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-022/2026-09-24T08-33-31Z/mapping.json",
+      "bytes": 880,
+      "sha256": "2d1245ba17ac12fc83e64547005b3e069f7648648ae4b6b23f19a23b240934d3"
+    }
+  ]
+}

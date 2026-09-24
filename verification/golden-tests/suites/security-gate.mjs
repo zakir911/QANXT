@@ -10,11 +10,11 @@
  * tested only on hand-written findings passes on findings that never occur.
  */
 import { golden, suite } from '../harness.mjs';
-import { SecurityScanner } from '../security/engine.mjs';
-import { SECURITY_PROFILE, labScope } from '../security/scope-guard.mjs';
-import { evaluateSecurityGate, OUTCOME } from '../security/gate.mjs';
-import { compareToBaseline, fingerprint, triage, suppressionApplies } from '../security/regression.mjs';
-import { checkBola, checkVerticalEscalation } from '../security/checks-authz.mjs';
+import { SecurityScanner } from '../../../packages/security-engine/src/engine.mjs';
+import { SECURITY_PROFILE, labScope } from '../../../packages/security-engine/src/scope-guard.mjs';
+import { evaluateSecurityGate, OUTCOME } from '../../../packages/security-engine/src/gate.mjs';
+import { compareToBaseline, fingerprint, triage, suppressionApplies } from '../../../packages/security-engine/src/regression.mjs';
+import { checkBola, checkVerticalEscalation } from '../../../packages/security-engine/src/checks-authz.mjs';
 import { LABS, isolateFaults, restoreFaults, resetLab } from '../security/scenarios.mjs';
 
 const CHECKS = ['authz.bola', 'authz.vertical', 'authz.readonly', 'authz.missing', 'authz.token'];

@@ -1,5 +1,36 @@
 # Running a scan
 
+## Starting one
+
+```bash
+aira security scan --application-id <id> --wait
+```
+
+or `POST /api/v1/security/scans/start`, which needs `security:scan`.
+
+AIRA queues a job, a worker consumes it and issues the requests, and the worker reports back
+what it did. Four things are settled before the job exists, and all four refuse rather than
+degrade:
+
+| Refused when | Because |
+| --- | --- |
+| The application has no enabled scope carrying a written authorization | Nothing may be tested without somebody saying so in writing |
+| The scope permits destructive testing and the caller lacks `security:scan:destructive` | Both are required and neither grants the other |
+| The environment is production and the caller lacks `security:production` | Production security testing is off by default |
+| Discovery has not walked the application | A scan with no targets issues no requests and would still be stored as a scan, which reads as a clean result |
+
+The worker is handed the scope as authorized at that moment. It never looks one up, cannot
+widen the one it is given, and the guard inside the engine refuses each out-of-scope request
+besides — so both ends fail closed independently.
+
+**A queued scan is not a result.** Until the worker reports, the scan's gate says `NOT SCANNED`
+and the CLI exits 7, because "a scan has been queued" and "this build has been security tested"
+are different statements and only one of them is true at that point.
+
+`--checks a,b` narrows a run. The full implied set stays the denominator, so a narrowed run
+reports as partial coverage and cannot pass the gate on it — narrowing the numerator and the
+denominator together would let one check report as complete coverage.
+
 ## Profiles
 
 A profile bounds what a scan will attempt, regardless of what the scope permits. It is the
@@ -76,11 +107,18 @@ order to run a security scan was an obstacle rather than a check.
 
 ```bash
 aira security scope     --application-id <id>
+aira security scan      --application-id <id> [--checks a,b] [--wait] [--timeout 600]
 aira security scans     --application-id <id> [--take 10]
 aira security findings  --application-id <id> [--status confirmed]
 aira security gate      --scan-id <id>
 aira security triage    --finding-id <id> --status falsePositive --reason "<what you checked>"
 ```
+
+`aira security scan --wait` exits on the gate exactly as `aira security gate` does. Without
+`--wait` it exits 7, because the scan it queued has not run: a pipeline step that exited 0 on
+"a scan has been queued" would be reporting a build as security-tested at the moment nothing
+had been tested. A wait that runs out also exits 7 rather than 0 — a scan nobody finished is a
+scan nobody ran.
 
 `aira security gate` is the one a pipeline runs:
 

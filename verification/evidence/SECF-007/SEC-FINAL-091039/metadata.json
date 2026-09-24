@@ -1,0 +1,32 @@
+{
+  "testId": "SECF-007",
+  "suite": "Security scanning",
+  "runId": "SEC-FINAL-091039",
+  "objective": "The standard profile permits a state-changing probe",
+  "preconditions": [
+    "a scope that permits destructive testing, so the profile is the only thing deciding"
+  ],
+  "input": "profile=standard, risk=state-changing",
+  "expected": "Allowed, because this profile covers this risk level",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "allowed",
+  "metrics": null,
+  "startedAt": "2026-09-24T09:10:47.168Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECF-007/SEC-FINAL-091039/decision.json",
+      "bytes": 323,
+      "sha256": "d55004b4cca3adffe03e6a129b891c9d4d6597c3f0020174f0857fe01323fa0f"
+    }
+  ]
+}

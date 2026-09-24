@@ -1,10 +1,11 @@
 import { createServer } from 'node:http';
-import type { DiscoveryJob, ExecutionJob } from '@aira/shared-types';
+import type { DiscoveryJob, ExecutionJob, SecurityScanJob } from '@aira/shared-types';
 import { QUEUE_NAMES } from '@aira/shared-types';
 import { BrowserPool } from './browser/browser-pool.js';
 import { loadConfig, type WorkerConfig } from './config.js';
 import { handleDiscoveryJob } from './discovery/discovery-handler.js';
 import { handleExecutionJob } from './execution/execution-handler.js';
+import { handleSecurityScanJob } from './security/security-handler.js';
 import { RedisStreamConsumer, type QueuedJob } from './queue/redis-consumer.js';
 import { Logger } from './util/logger.js';
 
@@ -45,6 +46,23 @@ const executionConsumer = new RedisStreamConsumer({
   logger: logger.child({ queue: QUEUE_NAMES.execution })
 });
 
+/**
+ * Security scans get their own consumer.
+ *
+ * Sharing the execution queue would mean a long scan sitting behind a test run a pipeline is
+ * waiting on, or the reverse. They are different work with different latencies, and the
+ * concurrency budget is shared across all three so a scan cannot starve the others either.
+ */
+const securityConsumer = new RedisStreamConsumer({
+  redisUrl: config.redisUrl,
+  queue: QUEUE_NAMES.security,
+  group: 'aira-workers',
+  consumer: config.workerId,
+  visibilityMs: config.jobVisibilityMs,
+  blockMs: config.pollIntervalMs,
+  logger: logger.child({ queue: QUEUE_NAMES.security })
+});
+
 async function main(): Promise<void> {
   logger.info('Browser worker starting', {
     controlPlane: config.controlPlaneUrl,
@@ -59,7 +77,9 @@ async function main(): Promise<void> {
   // test runs a pipeline is waiting on.
   await Promise.all([
     consume(discoveryConsumer, 'discovery', job => handleDiscoveryJob(job as DiscoveryJob, pool, config, logger, abort.signal)),
-    consume(executionConsumer, 'execution', job => handleExecutionJob(job as ExecutionJob, pool, config, logger, abort.signal))
+    consume(executionConsumer, 'execution', job => handleExecutionJob(job as ExecutionJob, pool, config, logger, abort.signal)),
+    // No browser: the scanner drives HTTP directly, which is why it takes no pool.
+    consume(securityConsumer, 'security', job => handleSecurityScanJob(job as SecurityScanJob, config, logger, abort.signal))
   ]);
 }
 
@@ -162,6 +182,7 @@ async function shutdown(signal: string): Promise<void> {
   await pool.close();
   await discoveryConsumer.close();
   await executionConsumer.close();
+  await securityConsumer.close();
   logger.info('Shutdown complete');
   process.exit(0);
 }

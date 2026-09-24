@@ -2,7 +2,7 @@
 
 **AIRA's security testing behaved as specified against its own lab in this run.**
 
-Run `SEC-2026-09-24T06-42-53Z` · 222 security test(s) · 219 passed, 0 failed, 3 not verified
+Run `SEC-FINAL-091039` · 237 security test(s) · 232 passed, 0 failed, 5 not verified
 
 > What this report is, and is not
 > 
@@ -29,8 +29,8 @@ Run `SEC-2026-09-24T06-42-53Z` · 222 security test(s) · 219 passed, 0 failed, 
 | False positives on the corrected application | 0 |
 | Endpoints the ground truth calls correct | 8 |
 | Findings reported against those endpoints | 0 |
-| Evidence files recorded | 223 |
-| Evidence files whose hash still matches | 223 |
+| Evidence files recorded | 237 |
+| Evidence files whose hash still matches | 237 |
 
 ## Results by family
 
@@ -41,7 +41,7 @@ Run `SEC-2026-09-24T06-42-53Z` · 222 security test(s) · 219 passed, 0 failed, 
 | Classification | 34/34 | CWE, OWASP category and severity band match the ground truth |
 | False positives | 9/9 | Endpoints the ground truth calls correct stay quiet |
 | Scope guard | 24/24 | What security testing refuses to do, and the one thing it allows |
-| Evidence | 4/4 | Findings without evidence are refused; secrets are redacted |
+| Evidence | 5/5 | Findings without evidence are refused; secrets are redacted |
 | Scan profiles | 12/12 | Each profile refuses the risk levels above it |
 | Security gate | 11/11 | What stops a build, and what a clean result is allowed to say |
 | Regression | 5/5 | What changed since the last scan, and what absence does not prove |
@@ -53,7 +53,7 @@ Run `SEC-2026-09-24T06-42-53Z` · 222 security test(s) · 219 passed, 0 failed, 
 
 ## Requirements
 
-73 of 73 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
+80 of 80 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
 
 ## What was NOT tested
 
@@ -66,6 +66,8 @@ report generated from that run.
 | `SECN-001` | Security scanning against a production environment | Not executed. Production security testing is disabled by default and no production environment exists here. The refusal path is verified by SECG-016 and SECG-017; the permitted path is not exercised anywhere and is NOT VERIFIED. |
 | `SECN-002` | Browser-driven DOM XSS detection | Not implemented. SECX-001 records DOM XSS as not testable by this scan rather than as absent. Until a browser-driven security scan exists, DOM-based XSS is an untested area of coverage. |
 | `SECN-003` | Detection rate against an application AIRA has not seen | Not measured, and not measurable here. Every flaw in the lab was written alongside the check that finds it. The rate in SECR-001 describes this lab and nothing else. |
+| `SECW-N001` | A worker-run scan against an authorized production environment | Not executed. Production security testing is off by default and no production environment exists here. The launcher refuses production without the permission and the guard refuses each request as well, but the permitted path is not exercised anywhere and is NOT VERIFIED. |
+| `SECW-N002` | A scan interrupted by a worker that dies mid-run | Not executed. The queued state and its NOT SCANNED verdict are covered by SECW-003; what happens when a worker stops halfway through a run, and how such a scan is reclaimed or abandoned, is not exercised and is NOT VERIFIED. |
 
 ### Known limitations
 
@@ -78,12 +80,15 @@ report generated from that run.
   verified (`SECG-016`, `SECG-017`).
 - **The detection rate does not generalise.** Every flaw in the lab was written alongside the
   check that finds it.
-- **There is no security surface in the console.** Scopes, scans, findings and triage are
-  persisted and verified end to end through the API (`SECPL-001` to `SECPL-015`), but nothing
-  is reachable by clicking. The screens and the trend queries are NOT IMPLEMENTED.
-- **The scanner does not run inside the worker.** The engine is driven by the golden suites and
-  the API records what it found, so `POST /api/v1/security/scans` is an ingestion endpoint
-  rather than the far end of a "start a scan" button.
+- **A scan is only as wide as discovery.** Targets come from what the crawler walked, so a page
+  or endpoint discovery never reached is untested and does not appear in the coverage fraction
+  as a gap. `SECW-011` records the caveat; it does not close it.
+- **Nothing schedules a security scan.** A scan is started by a person or a pipeline calling
+  `POST /api/v1/security/scans/start`. There is no recurring security scan, so an application
+  scanned once and never again reads as its last scan indefinitely.
+- **A scan whose worker stops halfway is not reclaimed.** It stays queued, which the gate reads
+  as NOT SCANNED rather than as clean — the safe direction — but nothing retries or fails it,
+  and `SECW-N002` records that as unexercised.
 
 ### The OWASP taxonomy
 
@@ -148,6 +153,7 @@ report generated from that run.
 | `SECE-002` | PASS | Secrets are removed from sanitized evidence and non-secrets survive it | 1 file(s) |
 | `SECE-003` | PASS | Blocked requests are recorded, so coverage can be read from what a scan did not do | 1 file(s) |
 | `SECE-004` | PASS | Evidence is written in both raw and sanitized form, and hashed | 1 file(s) |
+| `SECE-005` | PASS | Every finding the engine can emit declares a confidence | 1 file(s) |
 | `SECF-001` | PASS | The passive profile permits a passive probe | 1 file(s) |
 | `SECF-002` | PASS | The passive profile refuses a active probe | 1 file(s) |
 | `SECF-003` | PASS | The passive profile refuses a state-changing probe | 1 file(s) |
@@ -315,8 +321,22 @@ report generated from that run.
 | `SECT-006` | PASS | A properly justified decision is accepted and appended to the history, never overwriting it | 1 file(s) |
 | `SECT-007` | PASS | A false positive suppresses that finding and not the same class elsewhere | 1 file(s) |
 | `SECT-008` | PASS | Self-healing cannot mark a security finding resolved | 1 file(s) |
+| `SECW-001` | PASS | A scan cannot be started against an application nobody has authorized | 1 file(s) |
+| `SECW-002` | PASS | A scan cannot be started against an application discovery has not walked | 1 file(s) |
+| `SECW-003` | PASS | Starting a scan queues a job and records a scan that has not run yet | 2 file(s) |
+| `SECW-004` | PASS | A worker runs the scan against the application and reports back | 1 file(s) |
+| `SECW-005` | PASS | Every finding the worker reported arrived with a severity and confidence the platform recognises | 1 file(s) |
+| `SECW-006` | PASS | The gate reads coverage from what the worker executed, not from what was asked for | 1 file(s) |
+| `SECW-007` | PASS | A narrowed run reports partial coverage and does not pass the gate on that basis | 1 file(s) |
+| `SECW-008` | PASS | A check no worker can run is reported untested rather than left out | 1 file(s) |
+| `SECW-009` | PASS | Starting a scan is recorded in the audit trail as its own act | 1 file(s) |
+| `SECW-010` | PASS | The engine and the platform agree on what the severity and confidence words mean | 1 file(s) |
+| `SECW-011` | PASS | Discovery is what decides where a scan points | 1 file(s) |
+| `SECW-012` | PASS | Scanning an application twice does not empty the first scan's record | 1 file(s) |
+| `SECW-N001` | **NOT_VERIFIED** | A worker-run scan against an authorized production environment | 0 file(s) |
+| `SECW-N002` | **NOT_VERIFIED** | A scan interrupted by a worker that dies mid-run | 0 file(s) |
 | `SECX-001` | PASS | DOM-based XSS is reported as not tested by a response-only scan, never as absent | 1 file(s) |
 
 ---
 
-Generated from `verification/reports/golden-results.jsonl` for run `SEC-2026-09-24T06-42-53Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.
+Generated from `verification/reports/golden-results.jsonl` for run `SEC-FINAL-091039`. Every figure is derived from a recorded execution; nothing in this report is asserted.

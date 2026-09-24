@@ -79,6 +79,7 @@ public interface IAiraDbContext
     DbSet<SecurityScan> SecurityScans { get; }
     DbSet<SecurityFinding> SecurityFindings { get; }
     DbSet<SecurityBlockedRequest> SecurityBlockedRequests { get; }
+    DbSet<SecurityScanFinding> SecurityScanFindings { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 

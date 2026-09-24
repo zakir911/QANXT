@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-012",
+  "suite": "Security scanning",
+  "runId": "SEC-FINAL-091039",
+  "objective": "A field accepting any type, an empty value and an oversized value is reported",
+  "preconditions": [
+    "VULN_NO_INPUT_VALIDATION switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "API security: the input-validation check against the lab",
+  "expected": "Exactly one MissingInputValidation finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "MissingInputValidation: 'title' accepts any type, an empty value and an oversized value (3 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 3
+  },
+  "startedAt": "2026-09-24T09:10:46.687Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-012/SEC-FINAL-091039/vulnerable.json",
+      "bytes": 442,
+      "sha256": "c449ac16376a5b4116ebbd28894fa1ac45acc2a5dcdf9f60e668bc0421cacf20"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-019",
+  "suite": "Security scanning",
+  "runId": "SEC-FINAL-091039",
+  "objective": "An operator object accepted where a string belongs is reported",
+  "preconditions": [
+    "VULN_NOSQL_INJECTION switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Injection: the nosql-injection check against the lab",
+  "expected": "Exactly one NoSqlInjection finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "NoSqlInjection: 'password' accepts a query operator in place of a value (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T09:10:46.831Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-019/SEC-FINAL-091039/vulnerable.json",
+      "bytes": 425,
+      "sha256": "be9095e8707cb88620bd3d85d6ef8689ef67570b19d5138af269a077e9f3fb0e"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-027",
+  "suite": "Security scanning",
+  "runId": "SEC-FINAL-091039",
+  "objective": "The open-redirect finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-601, OWASP A01:2021, severity Medium, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-601, A01:2021, Medium (11/19) — Medium (11/19): trivial to exploit, minimal impact, no account needed, reaches non-sensitive data, publicly reachable.",
+  "metrics": {
+    "score": 11,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T09:10:46.969Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-027/SEC-FINAL-091039/mapping.json",
+      "bytes": 863,
+      "sha256": "59a764a3d5ea4384e08761e6085aae32126e2f7c3ab1dd0672c004b75b9c6617"
+    }
+  ]
+}

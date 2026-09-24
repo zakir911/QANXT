@@ -1,0 +1,32 @@
+{
+  "testId": "SECW-001",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-FINAL-091039",
+  "objective": "A scan cannot be started against an application nobody has authorized",
+  "preconditions": [
+    "an application with no security scope"
+  ],
+  "input": "POST /api/v1/security/scans/start",
+  "expected": "Refused as a security policy violation, naming the written authorization that is missing. The refusal has to happen here rather than in the worker: once a job carrying a target is on a queue, the decision has already been made",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "403: This application has no enabled security scope carrying a written authorization, so no scan can be started against it. Somebody with security:authorize has to say, in writing, that it may be tested.",
+  "metrics": null,
+  "startedAt": "2026-09-24T09:10:51.023Z",
+  "durationMs": 4,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECW-001/SEC-FINAL-091039/response.json",
+      "bytes": 357,
+      "sha256": "0c37c0001a4725d3491f8b3925e797a4c6a4f91080598a92a59a67254bada680"
+    }
+  ]
+}

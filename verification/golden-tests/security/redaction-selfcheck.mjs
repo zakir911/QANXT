@@ -10,7 +10,7 @@
  * redactor that turns an account identifier into asterisks destroys the evidence it was
  * meant to protect, which is a quieter failure than a leak and nearly as bad.
  */
-import { redactText, redactHeaders, redactBody, writeFindingEvidence } from './evidence.mjs';
+import { redactText, redactHeaders, redactBody, writeFindingEvidence } from '../../../packages/security-engine/src/evidence.mjs';
 import { readFileSync, rmSync } from 'node:fs';
 
 const secrets = {

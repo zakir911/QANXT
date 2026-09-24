@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-020",
+  "suite": "Security scanning",
+  "runId": "2026-09-24T08-33-31Z",
+  "objective": "The command-injection finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-78, OWASP A03:2021, severity Critical, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-78, A03:2021, Critical (19/19) — Critical (19/19): trivial to exploit, severe impact, no account needed, reaches credentials, publicly reachable.",
+  "metrics": {
+    "score": 19,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T08:33:32.413Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-020/2026-09-24T08-33-31Z/mapping.json",
+      "bytes": 883,
+      "sha256": "35ea84aceb54418f092f14f9f2a3bb02b4719575a582fbebd782057912491485"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "note": "ALLOW_PRIVATE_NETWORK_TARGETS is on in this environment; the lab runs on localhost.",
+  "results": [
+    {
+      "label": "IPv4 loopback",
+      "url": "http://127.0.0.1:4300/",
+      "status": 201,
+      "accepted": true,
+      "message": "{\"id\":\"50e19a3e-7288-48e5-9c2e-be8bef371953\",\"projectId\":\"c07312ef-60e5-4025-8aa2-8b74ff9d6a2f\",\"name\":\"Private IPv4 loopback\",\"baseUrl\":\"ht"
+    },
+    {
+      "label": "IPv6 loopback",
+      "url": "http://[::1]:4300/",
+      "status": 201,
+      "accepted": true,
+      "message": "{\"id\":\"59271e2f-2643-4438-82a1-b9c7e90464be\",\"projectId\":\"c07312ef-60e5-4025-8aa2-8b74ff9d6a2f\",\"name\":\"Private IPv6 loopback\",\"baseUrl\":\"ht"
+    },
+    {
+      "label": "private range",
+      "url": "http://10.0.0.5/",
+      "status": 201,
+      "accepted": true,
+      "message": "{\"id\":\"3fa05910-bea9-4d94-ba57-dc607d670f06\",\"projectId\":\"c07312ef-60e5-4025-8aa2-8b74ff9d6a2f\",\"name\":\"Private private range\",\"baseUrl\":\"ht"
+    },
+    {
+      "label": "link-local",
+      "url": "http://169.254.1.1/",
+      "status": 400,
+      "accepted": false,
+      "message": "{\"code\":\"validation_failed\",\"title\":\"The base URL is not permitted: 169.254.0.0/16 is link-local (cloud metadata) and is never a permitted t"
+    }
+  ]
+}

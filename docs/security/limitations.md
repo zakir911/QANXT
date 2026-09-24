@@ -42,9 +42,16 @@ checks a change calls for, which endpoints a scan targets — is bounded by what
 walked. A crawl that reached eleven pages produces a surface of eleven pages, and an
 application with ninety has seventy-nine nobody has looked at.
 
-This is stated in the surface's own caveat list, in the change-impact response, and here.
-There is no way around it short of running discovery more thoroughly, and a tool that hid it
-would be telling a team that the places it did not look do not exist.
+A worker-run scan inherits the same bound: its targets are the surface, so a page discovery
+never reached is not scanned and does not appear in the coverage fraction as a gap — the
+fraction counts checks against the surface, not surface against the application. `SECW-002`
+refuses to start a scan against an undiscovered application for the same reason, since a scan
+with no targets would issue no requests and still be stored as a scan.
+
+This is stated in the surface's own caveat list, in the change-impact response, in the summary
+of every scan started from it, and here. There is no way around it short of running discovery
+more thoroughly, and a tool that hid it would be telling a team that the places it did not look
+do not exist.
 
 ## What is verified, and how
 
@@ -54,18 +61,24 @@ would be telling a team that the places it did not look do not exist.
   tests covering the refusals that matter (no permission, no scope, no scans, an empty
   findings list after a real scan, an incomparable trend point, and a triage dialog that will
   not submit without a justification).
-- **NOT IMPLEMENTED**: starting a scan from the platform. See below.
+- **VERIFIED by execution**: a scan AIRA starts and runs itself — queued from
+  `POST /api/v1/security/scans/start`, consumed by the worker, issued against the application,
+  and recorded against the scan that was started (`SECW-001` to `SECW-012`).
+- **NOT VERIFIED**: a worker-run scan against an authorized production environment, and what
+  happens to a scan whose worker stops halfway through it.
 
-## The scanner does not run inside the worker
+## Nothing schedules a security scan
 
-The engine that issues security requests is driven by the golden suites, and the API records
-what it found. A scan is not yet something you start from the platform and watch — there is no
-security job type in the worker queue, so `POST /api/v1/security/scans` is an ingestion
-endpoint rather than the far end of a "start a scan" button.
+A scan starts because a person or a pipeline asks for one. There is no recurring security scan
+and no scan triggered by a deployment, so an application scanned once and never again reads as
+its last scan for as long as anyone is looking. The scan's date is on every view of it, which is
+the whole of what stops that being misleading.
 
-This is the largest remaining gap between what the brief describes and what runs. It is
-recorded here and in the security verification report rather than left for someone to
-discover.
+## A scan whose worker stops halfway is not reclaimed
+
+The scan stays `queued` and its gate reports NOT SCANNED — the safe direction, since a partial
+run is never recorded as a complete one. But nothing retries it, nothing fails it, and nobody is
+told. It sits there looking like a scan that has not started yet, which is what it is.
 
 ## Authenticated scanning depends on the application's own sign-in
 

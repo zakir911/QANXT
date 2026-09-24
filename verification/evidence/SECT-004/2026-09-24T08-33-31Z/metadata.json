@@ -1,0 +1,32 @@
+{
+  "testId": "SECT-004",
+  "suite": "Security gate, regression and triage",
+  "runId": "2026-09-24T08-33-31Z",
+  "objective": "Triage refuses an accepted risk with no justification",
+  "preconditions": [
+    "a confirmed finding from the live scan"
+  ],
+  "input": "an accepted risk with no justification",
+  "expected": "It throws. A suppression with no reason behind it is somebody switching the check off, and a workflow that accepts it quietly is how a gate becomes decoration",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Refusing to mark BOLA as Accepted with no justification. A suppression with no stated reason is indistinguishable from turning the check off, and the gate counts it as open either way.",
+  "metrics": null,
+  "startedAt": "2026-09-24T08:33:32.859Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "2183f60",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/SECT-004/2026-09-24T08-33-31Z/refusal.json",
+      "bytes": 253,
+      "sha256": "07e33e63b949f875a034a972732e4b89c727b07fde935be1fa2bda6bdf0a65cf"
+    }
+  ]
+}

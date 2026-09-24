@@ -5,13 +5,15 @@ import { ExitCode, usage } from '../exit-codes.js';
 import { bold, dim, green, note, out, red, yellow } from '../output.js';
 
 export const SECURITY_FLAGS = [
-  'application-id', 'scan-id', 'status', 'take', 'json', 'finding-id', 'reason'
+  'application-id', 'scan-id', 'status', 'take', 'json', 'finding-id', 'reason',
+  'checks', 'wait', 'timeout'
 ] as const;
 
 export const SECURITY_HELP = `
 ${bold('aira security')} — security scopes, scans and findings
 
   aira security scope --application-id <id>
+  aira security scan --application-id <id> [--checks a,b] [--wait]
   aira security scans --application-id <id> [--take 10]
   aira security findings --application-id <id> [--status confirmed]
   aira security gate --scan-id <id>
@@ -25,6 +27,11 @@ ${bold('aira security')} — security scopes, scans and findings
   --reason "<text>"      Why. Required to mark a finding false positive,
                          accepted or resolved, and it has to say something
   --take <n>             How many scans to list (default 10)
+  --checks <a,b>         Narrow a scan to these checks. The full implied set is
+                         still the denominator, so a narrowed run reports as
+                         partial coverage and cannot pass the gate on it
+  --wait                 Wait for the worker to report, then exit on the gate
+  --timeout <seconds>    How long to wait (default 600)
   --json                 Emit the raw result on stdout
 
 Exit status: 0 PASS · 2 FAIL · 6 SECURITY_POLICY_VIOLATION · 7 REVIEW
@@ -47,6 +54,10 @@ interface SecurityFinding {
   endpoint?: string | null; isNew: boolean; isRegression: boolean;
   dispositionNote?: string | null;
 }
+interface StartedScan {
+  securityScanId: string; reference: string; queue: string; jobId: string;
+  targets: number; checksToRun: number; checksConfigured: number; summary: string;
+}
 interface SecurityScan {
   id: string; reference: string; profile: string; status: string;
   requestsIssued: number; requestsBlocked: number;
@@ -60,7 +71,7 @@ export async function securityCommand(args: ParsedArgs): Promise<number> {
   const action = args.positionals[0];
   if (!action) {
     throw usage('A security subcommand is required.',
-      'aira security scope | scans | findings | gate | triage');
+      'aira security scope | scan | scans | findings | gate | triage');
   }
 
   const context = await resolveContext({
@@ -72,13 +83,14 @@ export async function securityCommand(args: ParsedArgs): Promise<number> {
 
   switch (action) {
     case 'scope': return scope(api, args, json);
+    case 'scan': return startScan(api, args, json);
     case 'scans': return scans(api, args, json);
     case 'findings': return findings(api, args, json);
     case 'gate': return gate(api, args, json);
     case 'triage': return triage(api, args, json);
     default:
       throw usage(`Unknown security subcommand "${action}".`,
-        'aira security scope | scans | findings | gate | triage');
+        'aira security scope | scan | scans | findings | gate | triage');
   }
 }
 
@@ -157,6 +169,75 @@ async function findings(api: ApiClient, args: ParsedArgs, json: boolean): Promis
     if (finding.endpoint) note(`      ${dim(finding.endpoint)}`);
   }
   return ExitCode.Success;
+}
+
+/**
+ * Asks AIRA to run a scan.
+ *
+ * Without `--wait` this returns as soon as the job is queued, and the scan it names has not run
+ * yet — which is why it exits REVIEW rather than success. A pipeline step that exited 0 on
+ * "a scan has been queued" would be reporting a build as security-tested at the moment nothing
+ * had been tested at all.
+ *
+ * With `--wait` it waits for the worker and then exits on the gate, exactly as `gate` does.
+ */
+async function startScan(api: ApiClient, args: ParsedArgs, json: boolean): Promise<number> {
+  const applicationId = flag(args, 'application-id') ?? args.positionals[1];
+  if (!applicationId) {
+    throw usage('An application id is required.', 'aira security scan --application-id <id>');
+  }
+
+  const checks = (flag(args, 'checks') ?? '')
+    .split(',').map(c => c.trim()).filter(Boolean);
+
+  const started = await api.post<StartedScan>('/api/v1/security/scans/start', {
+    applicationId,
+    ...(checks.length > 0 ? { checksToRun: checks } : {})
+  });
+
+  if (!boolFlag(args, 'wait')) {
+    if (json) { out(JSON.stringify(started, null, 2)); return ExitCode.HumanReviewRequired; }
+    note(`\n${bold('Queued')} ${started.reference} on ${started.queue}`);
+    note(started.summary);
+    note('');
+    note(dim('This scan has not run yet. Nothing about this application\'s security has been'));
+    note(dim('established by queueing it, which is why this exits REVIEW rather than success.'));
+    note(dim(`Run "aira security gate --scan-id ${started.securityScanId}" once it reports.`));
+    return ExitCode.HumanReviewRequired;
+  }
+
+  const timeoutSeconds = Number(flag(args, 'timeout') ?? 600);
+  const deadline = Date.now() + timeoutSeconds * 1000;
+  if (!json) note(`\n${bold('Queued')} ${started.reference}; waiting for a worker to report it.`);
+
+  let scan: SecurityScan | null = null;
+  while (Date.now() < deadline) {
+    scan = await api.get<SecurityScan>(`/api/v1/security/scans/${started.securityScanId}`);
+    if (scan.status === 'completed' || scan.status === 'failed') break;
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    scan = null;
+  }
+
+  if (scan === null) {
+    // Not a pass, and not silent. A scan nobody finished is a scan nobody ran.
+    if (json) { out(JSON.stringify({ ...started, status: 'timeout' }, null, 2)); }
+    else {
+      note(`\n${yellow('The scan did not report within')} ${timeoutSeconds}s.`);
+      note(dim(`It is still ${bold('queued')}, which is not the same as having been tested and`));
+      note(dim('found clean. Nothing here should be read as a result.'));
+    }
+    return ExitCode.HumanReviewRequired;
+  }
+
+  if (json) { out(JSON.stringify(scan, null, 2)); return exitFor(scan.gate.outcome); }
+
+  note(`\n${bold(scan.reference)} ${outcomeLabel(scan.gate.outcome)}`);
+  note(scan.gate.summary);
+  note('');
+  note(`  ${scan.requestsIssued} request(s) issued, ${scan.requestsBlocked} refused by the scope`);
+  note(`  ${scan.testsExecuted} check(s) executed, ${scan.testsSkipped} not`);
+  note(`  ${scan.findings.length} finding(s)`);
+  return exitFor(scan.gate.outcome);
 }
 
 /**
