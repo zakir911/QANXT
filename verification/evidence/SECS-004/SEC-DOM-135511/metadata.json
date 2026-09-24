@@ -1,0 +1,34 @@
+{
+  "testId": "SECS-004",
+  "suite": "Security scanning",
+  "runId": "SEC-DOM-135511",
+  "objective": "Reflection into a JSON body produces no XSS finding — it is not an HTML context",
+  "preconditions": [
+    "the lab left in its ordinary, fully vulnerable state"
+  ],
+  "input": "GET /echo?value=, which the lab ground truth calls correct",
+  "expected": "No finding. Any finding here is a false positive on an endpoint that does nothing wrong",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "element:not-html, attribute:not-html, script-tag:not-html",
+  "metrics": {
+    "findings": 0
+  },
+  "startedAt": "2026-09-24T13:55:20.787Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "c6db42f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "result.json",
+      "path": "evidence/SECS-004/SEC-DOM-135511/result.json",
+      "bytes": 174,
+      "sha256": "3b25dcecf4775654a3755f51e8e7fb1265714c9825857cfb7814a30e9552c66a"
+    }
+  ]
+}

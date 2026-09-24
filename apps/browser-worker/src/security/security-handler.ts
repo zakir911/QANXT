@@ -6,6 +6,9 @@ import {
 import type { CheckResult, SecurityFinding, SecurityScanner as Scanner } from '@aira/security-engine';
 import { ControlPlaneClient } from '../api/control-plane-client.js';
 import type { WorkerConfig } from '../config.js';
+import type { BrowserContext } from 'playwright';
+import type { BrowserPool } from '../browser/browser-pool.js';
+import { checkDomXssInBrowser } from './dom-xss.js';
 import type { Logger } from '../util/logger.js';
 
 /**
@@ -36,6 +39,14 @@ interface ScanContext {
   baseUrl: string;
   identities: Map<string, SignedInIdentity>;
   logger: Logger;
+  /**
+   * A browser, for the one check that needs one.
+   *
+   * Null when the worker could not start one. A check needing it then reports inconclusive
+   * rather than clean, so a browser that failed to launch costs coverage and never looks like
+   * a page that was examined and found safe.
+   */
+  browser: BrowserContext | null;
 }
 
 interface SignedInIdentity extends SecurityIdentity {
@@ -54,6 +65,7 @@ interface CheckOutcome {
 
 export async function handleSecurityScanJob(
   job: SecurityScanJob,
+  pool: BrowserPool,
   config: WorkerConfig,
   logger: Logger,
   signal: AbortSignal
@@ -99,37 +111,66 @@ export async function handleSecurityScanJob(
   });
 
   const started = Date.now();
+
+  // Opened only when something in this scan needs it, and closed however the scan ends.
+  // A browser is by far the most expensive thing the worker holds, and most scans never
+  // touch one: every check but xss.dom is decided from a response.
+  const needsBrowser = job.targets.some(
+    target => target.checks.some(check => BROWSER_CHECKS.has(check) && job.checksToRun.includes(check)));
+
+  let browser: BrowserContext | null = null;
+  if (needsBrowser) {
+    try {
+      browser = await pool.createContext(config.defaultBrowser, {
+        defaultTimeoutMs: 10_000,
+        navigationTimeoutMs: 20_000
+      });
+    } catch (error) {
+      // Recorded, not fatal. The checks needing it report inconclusive, which costs their
+      // coverage and never reads as a page examined and found safe.
+      log.error('A browser could not be started; the checks that need one will be inconclusive', error);
+    }
+  }
+
   const context: ScanContext = {
     baseUrl: job.baseUrl,
     identities: await signIn(scanner, job, log),
-    logger: log
+    logger: log,
+    browser
   };
 
   const outcomes: CheckOutcome[] = [];
   const wanted = new Set(job.checksToRun);
 
-  for (const target of job.targets) {
-    if (signal.aborted) {
-      log.warn('The scan was aborted; the remaining targets were not reached');
-      break;
-    }
-
-    for (const check of target.checks) {
-      if (!wanted.has(check)) continue;
-
-      const runner = RUNNERS[check];
-      if (!runner) {
-        // A check the surface implied and this worker cannot run. Recorded rather than
-        // ignored: it is the difference between a gap somebody can see and one nobody can.
-        outcomes.push({
-          check, target: target.identifier, executed: false, findings: [],
-          note: `This worker has no runner for ${check}, so it did not execute.`
-        });
-        continue;
+  // Closed however this ends. A browser leaked by a scan that threw is held until the worker
+  // restarts, and a worker that leaks one per failed scan runs out of memory rather than
+  // reporting a problem anybody can see.
+  try {
+    for (const target of job.targets) {
+      if (signal.aborted) {
+        log.warn('The scan was aborted; the remaining targets were not reached');
+        break;
       }
 
-      outcomes.push(await runOne(check, target, runner, scanner, context));
+      for (const check of target.checks) {
+        if (!wanted.has(check)) continue;
+
+        const runner = RUNNERS[check];
+        if (!runner) {
+          // A check the surface implied and this worker cannot run. Recorded rather than
+          // ignored: it is the difference between a gap somebody can see and one nobody can.
+          outcomes.push({
+            check, target: target.identifier, executed: false, findings: [],
+            note: `This worker has no runner for ${check}, so it did not execute.`
+          });
+          continue;
+        }
+
+        outcomes.push(await runOne(check, target, runner, scanner, context));
+      }
     }
+  } finally {
+    if (browser) await browser.close().catch(() => {});
   }
 
   const summary = scanner.summary();
@@ -202,7 +243,15 @@ async function runOne(
 
     return {
       check, target: target.identifier, executed: true,
-      findings: result.findings ?? [],
+      // Stamped here, because here is the only place that knows it.
+      //
+      // The engine's checks carry their own internal test ids ('SECP-HEADERS'), not the
+      // canonical names the platform's check list, the attack surface and the gate all agree
+      // on ('passive.headers'). No engine finding sets one at all, and the control plane uses
+      // this field to decide whether a check that previously found something ran again and did
+      // not reproduce it. Left empty, that comparison never matches and an old finding is never
+      // moved to NeedsReview — the mechanism looks present and does nothing.
+      findings: (result.findings ?? []).map(finding => ({ ...finding, testId: check })),
       note: result.detail ?? `${(result.findings ?? []).length} finding(s).`
     };
   } catch (error) {
@@ -242,7 +291,10 @@ function toReport(finding: SecurityFinding): Record<string, unknown> {
   return {
     category: finding.category,
     title: finding.title,
-    testId: (finding as { testId?: string }).testId ?? '',
+    // Always set by runOne above. Empty would silently disable the control plane's
+    // "this check ran again and did not reproduce it" comparison, so it is refused rather
+    // than defaulted — a finding that cannot be traced to a check is not reportable.
+    testId: requireTestId(finding),
     endpoint: finding.endpoint ?? null,
     httpMethod: finding.httpMethod ?? null,
     parameter: finding.parameter ?? null,
@@ -267,6 +319,11 @@ function toReport(finding: SecurityFinding): Record<string, unknown> {
 }
 
 function reproduction(finding: SecurityFinding): string {
+  // A check that can say it better than a replay list says it. Only a few can, and they are
+  // the ones where replaying the requests would not reproduce anything: a DOM sink fires in
+  // the browser, and its exchange list is a GET that returned 200.
+  if (finding.reproductionSteps) return finding.reproductionSteps;
+
   const lines = (finding.exchanges ?? []).map((exchange, index) =>
     `${index + 1}. ${exchange.method ?? 'GET'} ${exchange.url ?? '(no url)'}`
     + `${exchange.as ? ` as ${exchange.as}` : ''} → HTTP ${exchange.status ?? 0}`
@@ -287,6 +344,18 @@ function reproduction(finding: SecurityFinding): string {
  * finding whose severity is not understood, and every direction is wrong: downwards hides it,
  * upwards invents it.
  */
+/** The check a finding came from, refused rather than defaulted when it is missing. */
+function requireTestId(finding: SecurityFinding): string {
+  const testId = (finding as SecurityFinding & { testId?: string }).testId;
+  if (!testId) {
+    throw new Error(
+      `A ${finding.category} finding arrived with no check name. The control plane uses it to `
+      + 'tell a check that ran and found nothing from one that did not run, and an empty value '
+      + 'disables that comparison silently.');
+  }
+  return testId;
+}
+
 function severityNumber(band: string): number {
   const value = (SEVERITY_ORDER as Record<string, number>)[band];
   if (value === undefined) {
@@ -350,6 +419,14 @@ const readOnly = (context: ScanContext) =>
   [...context.identities.values()].find(i => i.role === 'readonly');
 
 const inconclusive = (reason: string): CheckResult => ({ findings: [], inconclusive: true, reason });
+
+/**
+ * Checks that cannot run without a browser.
+ *
+ * One entry, and deliberately a set rather than a flag on each runner: it is read before the
+ * scan starts, to decide whether to pay for a browser at all.
+ */
+const BROWSER_CHECKS = new Set(['xss.dom']);
 
 const RUNNERS: Record<string, CheckRunner> = {
   'authz.bola': async (scanner, target, context) => {
@@ -487,9 +564,27 @@ const RUNNERS: Record<string, CheckRunner> = {
       field, actor: a ? { cookie: a.cookie, label: a.label } : undefined
     });
   },
-  // Deliberately absent: xss.dom. A response-only scan cannot decide it, and a runner that
-  // returned "nothing found" would be reporting a clean result it has no basis for. It is
-  // recorded as not executed instead, which is the truth.
+  /**
+   * The one check that cannot be decided from a response.
+   *
+   * `location.hash` never reaches the server and the sink runs after load, so the vulnerable
+   * and the corrected page can answer byte-identically. This drives a real browser and reports
+   * only what executed — see `dom-xss.ts`.
+   *
+   * Without a browser it reports inconclusive. That is the whole point: a runner that answered
+   * "nothing found" here would be reporting a clean result it has no basis for.
+   */
+  'xss.dom': async (scanner, target, context) => {
+    if (!context.browser) {
+      return inconclusive(
+        'A browser is needed to decide DOM-based XSS and none was available. The sink runs in '
+        + 'the page, so nothing about it can be read from a response.');
+    }
+    return checkDomXssInBrowser({
+      scanner, context: context.browser,
+      baseUrl: context.baseUrl, path: target.identifier, logger: context.logger
+    });
+  },
 
   'injection.sql': async (scanner, target, context) => {
     const parameter = target.parameters[0];

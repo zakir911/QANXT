@@ -8,9 +8,9 @@ SEC-R43 to SEC-R49 are about AIRA itself rather than the applications it tests. 
 
 Reclaiming a scan no worker reported is verified by unit tests rather than golden ones (SecurityScanReaperTests, AbandonedSecurityScanTests), and is deliberately not listed as a requirement here: every row in this file names a golden test, and a row pointing at something traceability.mjs cannot check would make the matrix look complete while proving less. The behaviour needs a grace period to elapse, and a golden suite that waited out a timer is one nobody runs. SECW-N002 records that gap in the golden results.
 
-Checked against golden run `SEC-R13-125604`.
+Checked against golden run `SEC-DOM-135511`.
 
-**81 of 81 requirements verified.**
+**85 of 85 requirements verified.**
 
 | Requirement | Verified by | Status |
 | --- | --- | --- |
@@ -95,12 +95,16 @@ Checked against golden run `SEC-R13-125604`.
 | **SEC-R79** A scan's record of what it found is its own and does not empty out when a later scan sees the same flaws. A finding is a flaw and outlives the scans that see it, so an emptied scan would read as a run that found nothing rather than as a record to look elsewhere for. | SECW-012 | VERIFIED |
 | **SEC-R80** Starting a scan is audited as its own act, distinct from recording one: it is the moment authorization is spent, and a scan that starts and never reports leaves only that line behind. | SECW-009 | VERIFIED |
 | **SEC-R81** A scan's targets come from what discovery walked, and the surface they are built from carries that as its first caveat — so a coverage fraction is never read as a fraction of the application. | SECW-011 | VERIFIED |
+| **SEC-R82** DOM-based XSS is decided by driving a real browser at the page and observing whether an inert marker executed, not by inferring it from a sink appearing in the response. A response-only scan still reports it as not testable rather than as absent. | SECW-013, SECX-001 | VERIFIED |
+| **SEC-R83** The browser-driven check reports nothing against the same page with its sink corrected: the finding rests on the payload having run, not on the sink being present in the source. | SECW-014 | VERIFIED |
+| **SEC-R84** A check that needs a browser counts as executed coverage when one was available, and is reported as an untested area when one was not — never as a page that was examined and found safe. | SECW-015, SECW-008 | VERIFIED |
+| **SEC-R85** Browser-driven work goes through the same scope guard, the same rate pacing and the same refusal ledger as an HTTP request. A second scope check living next to the browser is how the two drift, and a drift in that direction means a browser pointed somewhere nobody authorized. | SECW-013 | VERIFIED |
 
 ## Tests claimed by no requirement
 
 329 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 324 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 5 are continuous-quality tests that no requirement above names.
 
-495 test id(s) are known to exist: 295 written as literals in a suite, 200 built at run time and proven by having executed.
+498 test id(s) are known to exist: 298 written as literals in a suite, 200 built at run time and proven by having executed.
 
 ```
 ACC-001  ACC-002  ACC-003  ACC-004  ACC-005  ACC-006  AIF-001  AIF-002  AIF-003  AIF-004  AIF-005  AIF-006

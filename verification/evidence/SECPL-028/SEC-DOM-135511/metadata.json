@@ -1,0 +1,35 @@
+{
+  "testId": "SECPL-028",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-DOM-135511",
+  "objective": "A new Critical finding and a regression each notify, and neither message carries evidence",
+  "preconditions": [
+    "a webhook integration on this project",
+    "the notification sink running"
+  ],
+  "input": "A scan reporting a new Critical, then a scan reproducing a resolved finding",
+  "expected": "Two deliveries — securityCriticalFinding and securityRegression — naming the category and endpoint and carrying no payload, no request and no response value. A notification goes to a channel whose membership nobody audits",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "2 delivery(ies): SecurityCriticalFinding, SecurityRegression, both at Problem severity; no evidence in any body",
+  "metrics": {
+    "deliveries": 2
+  },
+  "startedAt": "2026-09-24T13:55:21.766Z",
+  "durationMs": 262,
+  "build": {
+    "commit": "c6db42f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "deliveries.json",
+      "path": "evidence/SECPL-028/SEC-DOM-135511/deliveries.json",
+      "bytes": 3191,
+      "sha256": "228e6e6178492dd53785d9b36bf9187bcf01f18943fbc70e48b4f4cf8b746897"
+    }
+  ]
+}

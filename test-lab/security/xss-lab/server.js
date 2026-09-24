@@ -80,14 +80,35 @@ app.get('/profile', ctx => {
 
 // VULNERABLE (DOM): the sink is in the browser, not the response body, so this is the case
 // a response-only scanner cannot see and a browser-driven one can.
-app.get('/dom', ctx => ctx.html(200, page('DOM', `
+//
+// This route relaxes the shared Content-Security-Policy to allow inline script, in BOTH fault
+// states, and that is deliberate on both counts.
+//
+// It has to allow inline script at all because the lab's default policy — default-src 'self',
+// no 'unsafe-inline' — blocks this page's own <script> block. With it, the sink never runs, the
+// output div stays empty, and the application declares a DOM XSS in its ground truth that
+// cannot be exploited because nothing executes. A ground truth that names a flaw the running
+// application does not have is a broken ruler: every detector measured against it is marked
+// down for missing something that was not there.
+//
+// It has to relax it in BOTH states so that the sink is the only thing that differs between
+// them. If only the vulnerable variant allowed inline script, a detector could score a perfect
+// result by noticing the header and never looking at the page, which is precisely the kind of
+// shortcut this lab exists to catch.
+//
+// 'unsafe-inline' is, for what it is worth, what a great many real applications send.
+app.get('/dom', ctx => {
+  ctx.res.setHeader('content-security-policy',
+    "default-src 'self' 'unsafe-inline'; frame-ancestors 'none'");
+  return ctx.html(200, page('DOM', `
   <div id="output" data-testid="output"></div>
   <script>
     var raw = decodeURIComponent(location.hash.slice(1));
     ${app.faults.on('VULN_DOM_XSS')
       ? 'document.getElementById("output").innerHTML = raw;'
       : 'document.getElementById("output").textContent = raw;'}
-  </script>`)));
+  </script>`));
+});
 
 app.get('/', ctx => ctx.html(200, page('XSS Lab', `
   <p>Deliberately vulnerable in some places and deliberately correct in others.</p>

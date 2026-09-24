@@ -2,7 +2,7 @@
 
 **AIRA's security testing behaved as specified against its own lab in this run.**
 
-Run `SEC-R13-125604` · 237 security test(s) · 232 passed, 0 failed, 5 not verified
+Run `SEC-DOM-135511` · 240 security test(s) · 235 passed, 0 failed, 5 not verified
 
 > What this report is, and is not
 > 
@@ -29,8 +29,8 @@ Run `SEC-R13-125604` · 237 security test(s) · 232 passed, 0 failed, 5 not veri
 | False positives on the corrected application | 0 |
 | Endpoints the ground truth calls correct | 8 |
 | Findings reported against those endpoints | 0 |
-| Evidence files recorded | 237 |
-| Evidence files whose hash still matches | 237 |
+| Evidence files recorded | 240 |
+| Evidence files whose hash still matches | 240 |
 
 ## Results by family
 
@@ -53,7 +53,7 @@ Run `SEC-R13-125604` · 237 security test(s) · 232 passed, 0 failed, 5 not veri
 
 ## Requirements
 
-81 of 81 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
+85 of 85 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
 
 ## What was NOT tested
 
@@ -64,16 +64,17 @@ report generated from that run.
 | Test | What it would have established | Why it did not run |
 | --- | --- | --- |
 | `SECN-001` | Security scanning against a production environment | Not executed. Production security testing is disabled by default and no production environment exists here. The refusal path is verified by SECG-016 and SECG-017; the permitted path is not exercised anywhere and is NOT VERIFIED. |
-| `SECN-002` | Browser-driven DOM XSS detection | Not implemented. SECX-001 records DOM XSS as not testable by this scan rather than as absent. Until a browser-driven security scan exists, DOM-based XSS is an untested area of coverage. |
+| `SECN-002` | Browser-driven DOM XSS detection, from this suite | Not exercised here, and no longer unimplemented. This suite drives the engine directly and the engine holds no browser: SECX-001 still records DOM XSS as not testable by a response-only scan, which remains true of the path this suite measures. The browser-driven check lives in the worker, and its detection and precision against this same lab are SECW-013 and SECW-014. |
 | `SECN-003` | Detection rate against an application AIRA has not seen | Not measured, and not measurable here. Every flaw in the lab was written alongside the check that finds it. The rate in SECR-001 describes this lab and nothing else. |
 | `SECW-N001` | A worker-run scan against an authorized production environment | Not executed. Production security testing is off by default and no production environment exists here. The launcher refuses production without the permission and the guard refuses each request as well, but the permitted path is not exercised anywhere and is NOT VERIFIED. |
 | `SECW-N002` | The sweep that abandons a scan no worker reported, end to end | Not executed here. The sweep and both of its consequences are covered by nine unit tests (SecurityScanReaperTests, AbandonedSecurityScanTests) and were driven end to end against a running stack by stopping the worker and restarting it. What no automated test covers is that round trip itself: it needs a grace period to elapse, and a golden suite that waited out a timer would be one nobody runs. The wait, not the behaviour, is what is NOT VERIFIED here. |
 
 ### Known limitations
 
-- **DOM-based cross-site scripting is not detected.** The source never reaches the server and
-  the sink runs in the browser, so a response-only scan cannot see it. `SECX-001` records it as
-  not testable rather than absent. A browser-driven security scan would reach it; none exists.
+- **DOM-based cross-site scripting needs a browser.** A scan run by the worker opens one and
+  reports only what executed (`SECW-013`, `SECW-014`). A scan that could not start a browser
+  reports the area untested rather than clean, and the response-only check still says it
+  cannot decide (`SECX-001`). A sink the markers do not reach is untested, not absent.
 - **Cloud metadata endpoints are never probed by default.** SSRF detection uses loopback and
   private-range destinations. That area is untested, not clean.
 - **Production scanning has never been exercised in its permitted form.** Only its refusal is
@@ -225,7 +226,7 @@ report generated from that run.
 | `SECM-033` | PASS | The source-map finding carries the CWE, OWASP category and severity it should | 1 file(s) |
 | `SECM-034` | PASS | The verbose-error finding carries the CWE, OWASP category and severity it should | 1 file(s) |
 | `SECN-001` | **NOT_VERIFIED** | Security scanning against a production environment | 0 file(s) |
-| `SECN-002` | **NOT_VERIFIED** | Browser-driven DOM XSS detection | 0 file(s) |
+| `SECN-002` | **NOT_VERIFIED** | Browser-driven DOM XSS detection, from this suite | 0 file(s) |
 | `SECN-003` | **NOT_VERIFIED** | Detection rate against an application AIRA has not seen | 0 file(s) |
 | `SECP-001` | PASS | The bola check reports nothing once the flaw is corrected | 1 file(s) |
 | `SECP-002` | PASS | The vertical check reports nothing once the flaw is corrected | 1 file(s) |
@@ -328,15 +329,18 @@ report generated from that run.
 | `SECW-005` | PASS | Every finding the worker reported arrived with a severity and confidence the platform recognises | 1 file(s) |
 | `SECW-006` | PASS | The gate reads coverage from what the worker executed, not from what was asked for | 1 file(s) |
 | `SECW-007` | PASS | A narrowed run reports partial coverage and does not pass the gate on that basis | 1 file(s) |
-| `SECW-008` | PASS | A check no worker can run is reported untested rather than left out | 1 file(s) |
+| `SECW-008` | PASS | Every implied check that did not execute is named as untested | 1 file(s) |
 | `SECW-009` | PASS | Starting a scan is recorded in the audit trail as its own act | 1 file(s) |
 | `SECW-010` | PASS | The engine and the platform agree on what the severity and confidence words mean | 1 file(s) |
 | `SECW-011` | PASS | Discovery is what decides where a scan points | 1 file(s) |
 | `SECW-012` | PASS | Scanning an application twice does not empty the first scan's record | 1 file(s) |
+| `SECW-013` | PASS | A DOM sink no response can reveal is found by driving a real browser | 1 file(s) |
+| `SECW-014` | PASS | The same page with the sink corrected produces no finding | 1 file(s) |
+| `SECW-015` | PASS | The browser-driven check counts as executed coverage, not as an untested area | 1 file(s) |
 | `SECW-N001` | **NOT_VERIFIED** | A worker-run scan against an authorized production environment | 0 file(s) |
 | `SECW-N002` | **NOT_VERIFIED** | The sweep that abandons a scan no worker reported, end to end | 0 file(s) |
 | `SECX-001` | PASS | DOM-based XSS is reported as not tested by a response-only scan, never as absent | 1 file(s) |
 
 ---
 
-Generated from `verification/reports/golden-results.jsonl` for run `SEC-R13-125604`. Every figure is derived from a recorded execution; nothing in this report is asserted.
+Generated from `verification/reports/golden-results.jsonl` for run `SEC-DOM-135511`. Every figure is derived from a recorded execution; nothing in this report is asserted.

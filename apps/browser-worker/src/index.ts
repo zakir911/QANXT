@@ -78,8 +78,9 @@ async function main(): Promise<void> {
   await Promise.all([
     consume(discoveryConsumer, 'discovery', job => handleDiscoveryJob(job as DiscoveryJob, pool, config, logger, abort.signal)),
     consume(executionConsumer, 'execution', job => handleExecutionJob(job as ExecutionJob, pool, config, logger, abort.signal)),
-    // No browser: the scanner drives HTTP directly, which is why it takes no pool.
-    consume(securityConsumer, 'security', job => handleSecurityScanJob(job as SecurityScanJob, config, logger, abort.signal))
+    // The pool is passed but rarely used: every check but xss.dom is decided from a response,
+    // and a browser is opened only when a scan actually asks for one.
+    consume(securityConsumer, 'security', job => handleSecurityScanJob(job as SecurityScanJob, pool, config, logger, abort.signal))
   ]);
 }
 

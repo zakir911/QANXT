@@ -61,9 +61,14 @@ export function pathMatches(path: string, pattern: string): boolean;
 export function matchesAllowlist(host: string, allowed: string[]): boolean;
 
 /** One request/response the scan issued, or the refusal that stopped it. */
+/**
+ * One request/response the scan performed, as it is stored on the scanner.
+ *
+ * Deliberately without `allowed` and `decision`: those belong to the *outcome* of asking for
+ * the request, not to the record of having made it. The scanner stores this shape, evidence is
+ * written from this shape, and a refusal never becomes one of these at all.
+ */
 export interface SecurityExchange {
-  allowed: boolean;
-  decision: ScopeDecision;
   method?: string;
   url?: string;
   as?: string;
@@ -79,6 +84,17 @@ export interface SecurityExchange {
   durationMs?: number;
   headers?: Headers;
 }
+
+/**
+ * What asking for a request answers with: the decision, and the exchange if it happened.
+ *
+ * A refusal carries no exchange, which is why the two are different types. A caller that
+ * reads `status` off a refusal is reading a field that was never there, and the compiler
+ * should say so.
+ */
+export type RequestOutcome =
+  | ({ allowed: true; decision: ScopeDecision } & SecurityExchange)
+  | { allowed: false; decision: ScopeDecision };
 
 export const MAX_SCORE: number;
 
@@ -104,6 +120,13 @@ export function confidenceFrom(signals: {
 export interface SecurityFinding {
   category: string;
   title: string;
+  /**
+   * The canonical name of the check that produced it — `passive.headers`, not the engine's
+   * own internal test id. No check in this engine sets it: the caller that dispatched the
+   * check is the only thing that knows which of the platform's names it was running under,
+   * and it stamps it on the way out.
+   */
+  testId?: string;
   endpoint?: string;
   httpMethod?: string;
   parameter?: string;
@@ -118,6 +141,15 @@ export interface SecurityFinding {
   severityFactors: SeverityFactors;
   confidence: ConfidenceName;
   exchanges: SecurityExchange[];
+  /**
+   * How to see it again, where the check can say it better than a list of exchanges can.
+   *
+   * Most findings are reproduced by replaying their requests, and the default derived from
+   * the exchanges says that well. A few are not: a DOM sink reproduces by opening a URL in a
+   * browser, and its exchange list shows a GET returning 200, which is true and tells the
+   * reader nothing.
+   */
+  reproductionSteps?: string;
   coverageNote?: string;
   payloadUsed?: string;
   payloadNote?: string;
@@ -140,7 +172,13 @@ export interface CheckResult {
   reason?: string;
   ok?: boolean;
   detail?: string;
+  /** A single summary of what was seen, where one object says it. */
   observed?: Record<string, unknown>;
+  /**
+   * What the check looked at, one entry per thing, including the ones that were fine.
+   * A coverage report needs to say what was checked rather than only what failed.
+   */
+  observations?: Record<string, unknown>[];
 }
 
 export interface ScannerSummary {
@@ -174,7 +212,17 @@ export class SecurityScanner {
     url: string; method?: string; risk?: SecurityRisk;
     headers?: Record<string, string>; body?: unknown;
     testId?: string; as?: string; note?: string;
-  }): Promise<SecurityExchange>;
+  }): Promise<RequestOutcome>;
+  /**
+   * Asks the guard about one piece of work without performing it, and paces the scan.
+   * For anything the engine cannot do itself — a page driven in a real browser, above all —
+   * so that work goes through the same control rather than a second copy of it.
+   */
+  authorize(options: {
+    url: string; method?: string; risk?: SecurityRisk; testId?: string;
+  }): Promise<{ allowed: boolean; decision: ScopeDecision }>;
+  /** Records work the caller performed under a decision `authorize` already granted. */
+  record(exchange: SecurityExchange): SecurityExchange;
   signIn(baseUrl: string, username: string, password?: string):
     Promise<{ cookie: string | null; body: unknown; csrf: string | null } | null>;
   summary(): ScannerSummary;

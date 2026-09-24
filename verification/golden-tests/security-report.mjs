@@ -223,9 +223,10 @@ if (notVerified.length === 0) {
 markdown.push(
   '### Known limitations',
   '',
-  '- **DOM-based cross-site scripting is not detected.** The source never reaches the server and',
-  '  the sink runs in the browser, so a response-only scan cannot see it. `SECX-001` records it as',
-  '  not testable rather than absent. A browser-driven security scan would reach it; none exists.',
+  '- **DOM-based cross-site scripting needs a browser.** A scan run by the worker opens one and',
+  '  reports only what executed (`SECW-013`, `SECW-014`). A scan that could not start a browser',
+  '  reports the area untested rather than clean, and the response-only check still says it',
+  '  cannot decide (`SECX-001`). A sink the markers do not reach is untested, not absent.',
   '- **Cloud metadata endpoints are never probed by default.** SSRF detection uses loopback and',
   '  private-range destinations. That area is untested, not clean.',
   '- **Production scanning has never been exercised in its permitted form.** Only its refusal is',
@@ -378,9 +379,9 @@ const html = `<!doctype html>
 
   <h3>Known limitations</h3>
   <ul>
-    <li><strong>DOM-based XSS is not detected.</strong> The source never reaches the server and the
-        sink runs in the browser, so a response-only scan cannot see it. Recorded as not testable,
-        never as absent.</li>
+    <li><strong>DOM-based XSS needs a browser.</strong> A scan run by the worker opens one and
+        reports only what executed. Without a browser the area is reported untested, never
+        clean, and a sink the markers do not reach is untested rather than absent.</li>
     <li><strong>Cloud metadata endpoints are never probed by default.</strong> That area is
         untested, not clean.</li>
     <li><strong>Production scanning has never been exercised in its permitted form.</strong> Only

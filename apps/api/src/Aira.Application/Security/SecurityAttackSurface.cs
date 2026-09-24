@@ -124,7 +124,13 @@ public static class SecurityAttackSurfaceBuilder
             // Every page a browser can reach carries headers and, usually, a cookie.
             SecurityChecks.SecurityHeaders,
             SecurityChecks.Cookies,
-            SecurityChecks.SensitiveData
+            SecurityChecks.SensitiveData,
+            // And every page can read the fragment it was opened with. DOM XSS takes its
+            // source from location.hash, location.search, document.referrer or window.name —
+            // none of which is a form input — so implying it only where a form was found
+            // missed exactly the pages this check exists for: the ones whose only input
+            // arrives through the URL.
+            SecurityChecks.DomXss
         };
 
         var reasons = new List<string> { "a page discovery reached" };
@@ -133,9 +139,6 @@ public static class SecurityAttackSurfaceBuilder
         {
             checks.Add(SecurityChecks.ReflectedXss);
             checks.Add(SecurityChecks.StoredXss);
-            // A response-only scan cannot decide this one, and it is listed so the gap is
-            // visible rather than absent.
-            checks.Add(SecurityChecks.DomXss);
             reasons.Add($"{inputs.Count} input element(s)");
         }
         if (files)
@@ -322,8 +325,9 @@ public static class SecurityAttackSurfaceBuilder
         }
         if (implied.Contains(SecurityChecks.DomXss))
         {
-            caveats.Add("DOM-based XSS is implied by the input elements found, and a response-only "
-                      + "scan cannot decide it. It needs a browser-driven scan.");
+            caveats.Add("DOM-based XSS is decided in a browser rather than from a response, so it "
+                      + "executes only where a scan has one. A scan that could not start a browser "
+                      + "reports it untested rather than clean.");
         }
 
         return caveats;

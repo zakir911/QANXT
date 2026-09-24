@@ -36,7 +36,7 @@ A surface derived from a crawl that reached eleven pages is not the application'
 surface. A reader who takes the item list as complete will treat everywhere else as safe, and
 nothing here has looked at anywhere else. Other caveats appear when they apply: no API calls
 observed, nothing requiring a session (so discovery never signed in), no authentication surface
-recognised, DOM XSS implied but undecidable from a response.
+recognised, DOM XSS implied and decidable only in a browser.
 
 ## Change impact
 

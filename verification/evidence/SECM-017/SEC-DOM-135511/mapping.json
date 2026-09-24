@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_STORED_XSS",
+    "type": "StoredXSS",
+    "endpoint": "POST then GET /profile",
+    "severity": "high",
+    "cwe": "CWE-79",
+    "owaspWeb": "A03:2021",
+    "detectBy": "A marker stored once is rendered unencoded on a later read."
+  },
+  "got": {
+    "cwe": "CWE-79",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A03:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "High",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "serious",
+      "privilegeRequired": "authenticatedUser",
+      "affectedData": "personalData",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 15,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (15/19): trivial to exploit, serious impact, any signed-in user, reaches personal data, publicly reachable."
+    }
+  }
+}

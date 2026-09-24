@@ -4,7 +4,7 @@
   "principles": [
     "Local only. Every application binds to 127.0.0.1 and none makes an outbound request.",
     "Synthetic only. No credential, account, balance or file here corresponds to anything real.",
-    "Nothing persists. No database, no shell, no filesystem writes \u2014 only the observable behaviour of applications that have them."
+    "Nothing persists. No database, no shell, no filesystem writes — only the observable behaviour of applications that have them."
   ],
   "applications": [
     {
@@ -208,10 +208,11 @@
           "id": "VULN_DOM_XSS",
           "type": "DomXSS",
           "endpoint": "GET /dom#",
-          "severity": "medium",
+          "severity": "high",
           "cwe": "CWE-79",
           "owaspWeb": "A03:2021",
-          "detectBy": "location.hash reaches innerHTML; visible only in a browser, not in the response body."
+          "detectBy": "location.hash reaches innerHTML; visible only in a browser, not in the response body.",
+          "severityNote": "Raised from medium. On every axis of the severity model this is the same vulnerability as VULN_REFLECTED_XSS on the same page: a crafted link, script running in the origin as the victim, no account needed, reaching whatever the page reaches, publicly addressable. Producing a lower band required asserting that it needs conditions reflected XSS does not, which is not true — both need a victim to open a link. The earlier medium was a number with no factors behind it, which is what this model exists to replace."
         }
       ],
       "safeEndpoints": [
@@ -367,7 +368,7 @@
         },
         {
           "endpoint": "GET /api/public",
-          "why": "A wildcard origin with no credentials on genuinely public data. Correct, and commonly mis-flagged \u2014 the brief says not to classify every permissive CORS policy as a vulnerability."
+          "why": "A wildcard origin with no credentials on genuinely public data. Correct, and commonly mis-flagged — the brief says not to classify every permissive CORS policy as a vulnerability."
         }
       ]
     },
@@ -382,7 +383,7 @@
           "severity": "critical",
           "cwe": "CWE-89",
           "owaspWeb": "A03:2021",
-          "detectBy": "An unbalanced quote produces a database error; a tautology widens the result from 0 rows to 3. Detection only \u2014 no extraction is attempted."
+          "detectBy": "An unbalanced quote produces a database error; a tautology widens the result from 0 rows to 3. Detection only — no extraction is attempted."
         },
         {
           "id": "VULN_NOSQL_INJECTION",

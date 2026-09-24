@@ -66,7 +66,7 @@ being worked, but a Critical stops the build whether it arrived today or last qu
 Within the configured scope and test coverage, no security findings were detected by the
 executed AIRA security tests (5 of 5 configured check(s), 200 request(s) issued). This is not
 a statement that the application is secure or that no vulnerabilities exist.
-Untested: DOM-based XSS (needs a browser-driven scan); cloud metadata (off by default).
+Untested: DOM-based XSS (no browser was available for this scan); cloud metadata (off by default).
 ```
 
 Three things are load-bearing: the scope qualifier, the explicit disclaimer, and the list of

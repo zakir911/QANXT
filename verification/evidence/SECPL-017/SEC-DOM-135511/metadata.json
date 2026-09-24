@@ -1,0 +1,34 @@
+{
+  "testId": "SECPL-017",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-DOM-135511",
+  "objective": "A trend carries the coverage each point was measured at",
+  "preconditions": [
+    "three scans recorded against the application"
+  ],
+  "input": "GET the application's security trend",
+  "expected": "One point per scan, each carrying the checks configured and executed. A chart that plots severity counts without the coverage draws a reassuring downward line every time somebody narrows a scope",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "5 point(s); 1 open; 1 open finding(s) across 5 scan(s). This describes what those scans reached; areas they did not reach are untested, not ",
+  "metrics": {
+    "points": 5
+  },
+  "startedAt": "2026-09-24T13:55:25.170Z",
+  "durationMs": 57,
+  "build": {
+    "commit": "c6db42f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "trend.json",
+      "path": "evidence/SECPL-017/SEC-DOM-135511/trend.json",
+      "bytes": 2797,
+      "sha256": "56e421701262f11502897137cdb1273409733c86086d604923710262c5889e55"
+    }
+  ]
+}

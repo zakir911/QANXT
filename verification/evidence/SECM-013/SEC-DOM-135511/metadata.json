@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-013",
+  "suite": "Security scanning",
+  "runId": "SEC-DOM-135511",
+  "objective": "The unsafe-method finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-650, OWASP API5:2023, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-650, A01:2021, High (15/19) — High (15/19): trivial to exploit, serious impact, no account needed, reaches non-sensitive data, publicly reachable.",
+  "metrics": {
+    "score": 15,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T13:55:20.351Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "c6db42f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-013/SEC-DOM-135511/mapping.json",
+      "bytes": 852,
+      "sha256": "85f5f5ef725ea56d1e272b0f3464fcb7bb4c5f882767b15f08addb9d5feafc5f"
+    }
+  ]
+}

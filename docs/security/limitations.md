@@ -3,17 +3,22 @@
 Stated here rather than discovered later. Everything below is a real boundary of what AIRA's
 security testing can establish today.
 
-## DOM-based cross-site scripting is not detected
+## DOM-based cross-site scripting needs a browser, and reports untested without one
 
-The source is `location.hash`, which never reaches the server, and the sink is `innerHTML`,
-which runs in the browser. A response-only scan gets byte-identical responses from the
-vulnerable and the corrected page, so there is nothing for it to observe.
+The source is `location.hash`, which never reaches the server, and the sink runs after load. A
+response-only scan gets byte-identical responses from the vulnerable and the corrected page, so
+there is nothing in a response for it to observe.
 
-`checkDomXss` returns `notTestable` with the reason, and lists the client-side sinks and
-sources it found in the page — which is grounds for someone to look, not a finding. `SECX-001`
-asserts that it reports this way rather than reporting nothing found.
+A scan run by the worker opens a browser, writes an inert marker into the fragment and reports
+only what executed (`SECW-013`, `SECW-014`). The marker sets one property on `window` and does
+nothing else — no network call, no cookie read, no navigation — so the finding rests on the
+payload having *run*, which is reproduction rather than inference.
 
-A browser-driven security scan would reach it. None exists. `SECN-002` records that.
+Two boundaries remain. A scan that could not start a browser reports the area untested rather
+than clean, and the engine's own response-only check still returns `notTestable` with the sinks
+it saw, which is grounds to look and not a finding (`SECX-001`). And the markers reach HTML and
+script-evaluating sinks; a sink they do not reach is untested rather than absent, which the
+check says in its own words when nothing fires.
 
 ## Cloud metadata and internal infrastructure are untested, not clean
 
@@ -69,6 +74,8 @@ do not exist.
   gate still reading NOT SCANNED, and a late report supersedes that — nine unit tests over the
   sweep and its two consequences, and both paths driven end to end against a running stack with
   the worker stopped and then restarted.
+- **VERIFIED by execution**: DOM-based XSS found by driving a real browser at the lab's sink,
+  and no finding against the same page with the sink corrected (`SECW-013` to `SECW-015`).
 - **NOT VERIFIED**: a worker-run scan against an authorized production environment.
 
 ## Nothing schedules a security scan

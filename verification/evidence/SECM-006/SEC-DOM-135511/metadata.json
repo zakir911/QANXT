@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-006",
+  "suite": "Security scanning",
+  "runId": "SEC-DOM-135511",
+  "objective": "The enumeration finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-204, OWASP A07:2021, severity Medium, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-204, A07:2021, Medium (11/19) — Medium (11/19): trivial to exploit, minimal impact, no account needed, reaches non-sensitive data, publicly reachable.",
+  "metrics": {
+    "score": 11,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T13:55:20.190Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "c6db42f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-006/SEC-DOM-135511/mapping.json",
+      "bytes": 887,
+      "sha256": "18846a90bae03e9f7acfd2044ca504ff29308a64d4e529955cb5776de94b4d5b"
+    }
+  ]
+}

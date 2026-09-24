@@ -1,0 +1,36 @@
+{
+  "testId": "SECW-004",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-DOM-135511",
+  "objective": "A worker runs the scan against the application and reports back",
+  "preconditions": [
+    "a queued scan and a running worker"
+  ],
+  "input": "The queued job, consumed from aira:security",
+  "expected": "The scan completes, having issued real requests, and its findings are stored against the application. This is the claim the whole capability rests on and nothing else in the suite establishes it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "completed: 30 request(s), 4 finding(s), 4 check(s) executed",
+  "metrics": {
+    "requestsIssued": 30,
+    "findings": 4,
+    "executed": 4
+  },
+  "startedAt": "2026-09-24T13:55:36.829Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c6db42f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "scan.json",
+      "path": "evidence/SECW-004/SEC-DOM-135511/scan.json",
+      "bytes": 2839,
+      "sha256": "92e95bc8a2df4a6aa8b150a7da85d17bd6168c7b2758b44bb3fd6f0575b59de7"
+    }
+  ]
+}

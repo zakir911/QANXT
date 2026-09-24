@@ -684,6 +684,36 @@
       "verifiedBy": [
         "SECW-011"
       ]
+    },
+    {
+      "id": "SEC-R82",
+      "statement": "DOM-based XSS is decided by driving a real browser at the page and observing whether an inert marker executed, not by inferring it from a sink appearing in the response. A response-only scan still reports it as not testable rather than as absent.",
+      "verifiedBy": [
+        "SECW-013",
+        "SECX-001"
+      ]
+    },
+    {
+      "id": "SEC-R83",
+      "statement": "The browser-driven check reports nothing against the same page with its sink corrected: the finding rests on the payload having run, not on the sink being present in the source.",
+      "verifiedBy": [
+        "SECW-014"
+      ]
+    },
+    {
+      "id": "SEC-R84",
+      "statement": "A check that needs a browser counts as executed coverage when one was available, and is reported as an untested area when one was not — never as a page that was examined and found safe.",
+      "verifiedBy": [
+        "SECW-015",
+        "SECW-008"
+      ]
+    },
+    {
+      "id": "SEC-R85",
+      "statement": "Browser-driven work goes through the same scope guard, the same rate pacing and the same refusal ledger as an HTTP request. A second scope check living next to the browser is how the two drift, and a drift in that direction means a browser pointed somewhere nobody authorized.",
+      "verifiedBy": [
+        "SECW-013"
+      ]
     }
   ]
 }

@@ -56,13 +56,21 @@ export class SecurityScanner {
   }
 
   /**
-   * Issues one security request, or refuses it.
+   * Decides whether one piece of work is in scope, and paces the scan to its own rate.
+   *
+   * The single place the guard is consulted. `request` calls it, and so does anything the
+   * engine cannot perform itself — a page driven in a real browser, above all. Splitting the
+   * decision from the doing is what keeps that possible without a second scope check living
+   * somewhere else: two implementations of one control that drift are worse than one control,
+   * because everybody believes the wrong half.
    *
    * Returns `{ allowed: false, decision }` rather than throwing, because a refusal is an
    * ordinary and expected outcome that a check needs to be able to report. A scan that
-   * crashes when the scope says no cannot tell you what it did not do.
+   * crashes when the scope says no cannot tell you what it did not do. A refusal is counted
+   * and recorded here, so a caller that simply stops on `allowed: false` still leaves the
+   * right trail.
    */
-  async request({ url, method = 'GET', risk = SECURITY_RISK.PASSIVE, headers = {}, body, testId, as, note }) {
+  async authorize({ url, method = 'GET', risk = SECURITY_RISK.PASSIVE, testId }) {
     // Pace to the configured rate BEFORE asking the guard.
     //
     // This used to happen after, which made it useless: the guard's rate rung saw the
@@ -99,6 +107,37 @@ export class SecurityScanner {
       });
       return { allowed: false, decision };
     }
+
+    return { allowed: true, decision };
+  }
+
+  /**
+   * Records work the caller performed under a decision <c>authorize</c> already granted.
+   *
+   * For anything this engine cannot do itself — driving a page in a real browser, most of
+   * all. The alternative would be a second scope check living wherever the browser lives,
+   * and two implementations of one control that drift are worse than one control, because
+   * everybody believes the wrong half.
+   *
+   * Counts towards the same totals as a request the engine issued, because from the
+   * application's side it was one: a page was fetched and something was sent to it.
+   */
+  record(exchange) {
+    this._recentRequestTimes.push(this.clock());
+    this.requestsIssued++;
+    this.exchanges.push(exchange);
+    return exchange;
+  }
+
+  /**
+   * Issues one security request over HTTP, or refuses it.
+   *
+   * Every request the engine itself makes goes through here, and here goes through
+   * `authorize`, which is what makes the scope guard mandatory rather than advisory.
+   */
+  async request({ url, method = 'GET', risk = SECURITY_RISK.PASSIVE, headers = {}, body, testId, as, note }) {
+    const { allowed, decision } = await this.authorize({ url, method, risk, testId });
+    if (!allowed) return { allowed: false, decision };
 
     this._inFlight++;
     this._recentRequestTimes.push(this.clock());

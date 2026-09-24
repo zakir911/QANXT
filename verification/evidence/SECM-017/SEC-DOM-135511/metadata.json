@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-017",
+  "suite": "Security scanning",
+  "runId": "SEC-DOM-135511",
+  "objective": "The stored-xss finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-79, OWASP A03:2021, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-79, A03:2021, High (15/19) — High (15/19): trivial to exploit, serious impact, any signed-in user, reaches personal data, publicly reachable.",
+  "metrics": {
+    "score": 15,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T13:55:20.463Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "c6db42f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-017/SEC-DOM-135511/mapping.json",
+      "bytes": 869,
+      "sha256": "4fb82e5a1216865445f67012f252e536974ed176e835e234f7d2ad83924ee860"
+    }
+  ]
+}

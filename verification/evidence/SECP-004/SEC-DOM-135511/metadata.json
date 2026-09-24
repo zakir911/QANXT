@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-004",
+  "suite": "Security scanning",
+  "runId": "SEC-DOM-135511",
+  "objective": "The missing-authz check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_MISSING_AUTHZ"
+  ],
+  "input": "The same missing-authz check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "owner 200, unauthenticated 401",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-24T13:55:20.158Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c6db42f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-004/SEC-DOM-135511/corrected.json",
+      "bytes": 147,
+      "sha256": "b3417be1bbd269efc137356b27c48049e6ed2feac40381d95b1db1a7c4f1047b"
+    }
+  ]
+}

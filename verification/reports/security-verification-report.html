@@ -36,8 +36,8 @@
 <main>
   <h1>AIRA — security verification</h1>
   <p class="verdict">AIRA's security testing behaved as specified against its own lab in this run.</p>
-  <p class="meta">Run <code>SEC-R13-125604</code> · 237 security test(s) ·
-     232 passed, 0 failed, 5 not verified</p>
+  <p class="meta">Run <code>SEC-DOM-135511</code> · 240 security test(s) ·
+     235 passed, 0 failed, 5 not verified</p>
 
   <div class="disclaimer">
     <p><strong>What this report is, and is not.</strong> It describes AIRA's security
@@ -60,8 +60,8 @@
     <tr><td>Flaws detected</td><td class="ok">34</td></tr>
     <tr><td>False positives on the corrected application</td><td class="ok">0</td></tr>
     <tr><td>Endpoints the ground truth calls correct</td><td>8</td></tr>
-    <tr><td>Evidence files recorded</td><td>237</td></tr>
-    <tr><td>Evidence files whose hash still matches</td><td class="ok">237</td></tr>
+    <tr><td>Evidence files recorded</td><td>240</td></tr>
+    <tr><td>Evidence files whose hash still matches</td><td class="ok">240</td></tr>
   </table></div>
 
   <h2>Results by family</h2>
@@ -87,7 +87,7 @@
   <div class="scroll"><table>
     <tr><th>Test</th><th>What it would have established</th><th>Why it did not run</th></tr>
     <tr><td><code>SECN-001</code></td><td>Security scanning against a production environment</td><td class="muted">Not executed. Production security testing is disabled by default and no production environment exists here. The refusal path is verified by SECG-016 and SECG-017; the permitted path is not exercised anywhere and is NOT VERIFIED.</td></tr>
-<tr><td><code>SECN-002</code></td><td>Browser-driven DOM XSS detection</td><td class="muted">Not implemented. SECX-001 records DOM XSS as not testable by this scan rather than as absent. Until a browser-driven security scan exists, DOM-based XSS is an untested area of coverage.</td></tr>
+<tr><td><code>SECN-002</code></td><td>Browser-driven DOM XSS detection, from this suite</td><td class="muted">Not exercised here, and no longer unimplemented. This suite drives the engine directly and the engine holds no browser: SECX-001 still records DOM XSS as not testable by a response-only scan, which remains true of the path this suite measures. The browser-driven check lives in the worker, and its detection and precision against this same lab are SECW-013 and SECW-014.</td></tr>
 <tr><td><code>SECN-003</code></td><td>Detection rate against an application AIRA has not seen</td><td class="muted">Not measured, and not measurable here. Every flaw in the lab was written alongside the check that finds it. The rate in SECR-001 describes this lab and nothing else.</td></tr>
 <tr><td><code>SECW-N001</code></td><td>A worker-run scan against an authorized production environment</td><td class="muted">Not executed. Production security testing is off by default and no production environment exists here. The launcher refuses production without the permission and the guard refuses each request as well, but the permitted path is not exercised anywhere and is NOT VERIFIED.</td></tr>
 <tr><td><code>SECW-N002</code></td><td>The sweep that abandons a scan no worker reported, end to end</td><td class="muted">Not executed here. The sweep and both of its consequences are covered by nine unit tests (SecurityScanReaperTests, AbandonedSecurityScanTests) and were driven end to end against a running stack by stopping the worker and restarting it. What no automated test covers is that round trip itself: it needs a grace period to elapse, and a golden suite that waited out a timer would be one nobody runs. The wait, not the behaviour, is what is NOT VERIFIED here.</td></tr>
@@ -95,9 +95,9 @@
 
   <h3>Known limitations</h3>
   <ul>
-    <li><strong>DOM-based XSS is not detected.</strong> The source never reaches the server and the
-        sink runs in the browser, so a response-only scan cannot see it. Recorded as not testable,
-        never as absent.</li>
+    <li><strong>DOM-based XSS needs a browser.</strong> A scan run by the worker opens one and
+        reports only what executed. Without a browser the area is reported untested, never
+        clean, and a sink the markers do not reach is untested rather than absent.</li>
     <li><strong>Cloud metadata endpoints are never probed by default.</strong> That area is
         untested, not clean.</li>
     <li><strong>Production scanning has never been exercised in its permitted form.</strong> Only
@@ -247,7 +247,7 @@
 <tr><td><code>SECM-033</code></td><td class="ok">PASS</td><td>The source-map finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
 <tr><td><code>SECM-034</code></td><td class="ok">PASS</td><td>The verbose-error finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
 <tr><td><code>SECN-001</code></td><td class="bad">NOT_VERIFIED</td><td>Security scanning against a production environment</td><td class="muted">0</td></tr>
-<tr><td><code>SECN-002</code></td><td class="bad">NOT_VERIFIED</td><td>Browser-driven DOM XSS detection</td><td class="muted">0</td></tr>
+<tr><td><code>SECN-002</code></td><td class="bad">NOT_VERIFIED</td><td>Browser-driven DOM XSS detection, from this suite</td><td class="muted">0</td></tr>
 <tr><td><code>SECN-003</code></td><td class="bad">NOT_VERIFIED</td><td>Detection rate against an application AIRA has not seen</td><td class="muted">0</td></tr>
 <tr><td><code>SECP-001</code></td><td class="ok">PASS</td><td>The bola check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
 <tr><td><code>SECP-002</code></td><td class="ok">PASS</td><td>The vertical check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
@@ -350,11 +350,14 @@
 <tr><td><code>SECW-005</code></td><td class="ok">PASS</td><td>Every finding the worker reported arrived with a severity and confidence the platform recognises</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-006</code></td><td class="ok">PASS</td><td>The gate reads coverage from what the worker executed, not from what was asked for</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-007</code></td><td class="ok">PASS</td><td>A narrowed run reports partial coverage and does not pass the gate on that basis</td><td class="muted">1</td></tr>
-<tr><td><code>SECW-008</code></td><td class="ok">PASS</td><td>A check no worker can run is reported untested rather than left out</td><td class="muted">1</td></tr>
+<tr><td><code>SECW-008</code></td><td class="ok">PASS</td><td>Every implied check that did not execute is named as untested</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-009</code></td><td class="ok">PASS</td><td>Starting a scan is recorded in the audit trail as its own act</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-010</code></td><td class="ok">PASS</td><td>The engine and the platform agree on what the severity and confidence words mean</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-011</code></td><td class="ok">PASS</td><td>Discovery is what decides where a scan points</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-012</code></td><td class="ok">PASS</td><td>Scanning an application twice does not empty the first scan's record</td><td class="muted">1</td></tr>
+<tr><td><code>SECW-013</code></td><td class="ok">PASS</td><td>A DOM sink no response can reveal is found by driving a real browser</td><td class="muted">1</td></tr>
+<tr><td><code>SECW-014</code></td><td class="ok">PASS</td><td>The same page with the sink corrected produces no finding</td><td class="muted">1</td></tr>
+<tr><td><code>SECW-015</code></td><td class="ok">PASS</td><td>The browser-driven check counts as executed coverage, not as an untested area</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-N001</code></td><td class="bad">NOT_VERIFIED</td><td>A worker-run scan against an authorized production environment</td><td class="muted">0</td></tr>
 <tr><td><code>SECW-N002</code></td><td class="bad">NOT_VERIFIED</td><td>The sweep that abandons a scan no worker reported, end to end</td><td class="muted">0</td></tr>
 <tr><td><code>SECX-001</code></td><td class="ok">PASS</td><td>DOM-based XSS is reported as not tested by a response-only scan, never as absent</td><td class="muted">1</td></tr>
@@ -362,7 +365,7 @@
 
   <footer>
     Generated from <code>verification/reports/golden-results.jsonl</code> for run
-    <code>SEC-R13-125604</code>. Every figure is derived from a recorded execution;
+    <code>SEC-DOM-135511</code>. Every figure is derived from a recorded execution;
     nothing in this report is asserted.
   </footer>
 </main>

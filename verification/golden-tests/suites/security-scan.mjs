@@ -661,11 +661,14 @@ export default async function run() {
 
   notVerified({
     id: 'SECN-002',
-    objective: 'Browser-driven DOM XSS detection',
+    objective: 'Browser-driven DOM XSS detection, from this suite',
     expected: 'A browser-driven scan reaches the sinks a response-only scan cannot',
     severity: 'high'
-  }, 'Not implemented. SECX-001 records DOM XSS as not testable by this scan rather than as absent. '
-   + 'Until a browser-driven security scan exists, DOM-based XSS is an untested area of coverage.');
+  }, 'Not exercised here, and no longer unimplemented. This suite drives the engine directly and '
+   + 'the engine holds no browser: SECX-001 still records DOM XSS as not testable by a '
+   + 'response-only scan, which remains true of the path this suite measures. The browser-driven '
+   + 'check lives in the worker, and its detection and precision against this same lab are '
+   + 'SECW-013 and SECW-014.');
 
   notVerified({
     id: 'SECN-003',

@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-013",
+  "suite": "Security scanning",
+  "runId": "SEC-DOM-135511",
+  "objective": "An unauthenticated DELETE succeeding is reported, against an object the check created",
+  "preconditions": [
+    "VULN_UNSAFE_METHODS switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "API security: the unsafe-method check against the lab",
+  "expected": "Exactly one UnsafeMethodAllowed finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "UnsafeMethodAllowed: DELETE succeeds with no credentials (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T13:55:20.351Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c6db42f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-013/SEC-DOM-135511/vulnerable.json",
+      "bytes": 410,
+      "sha256": "89f7c7fc2876705a5e10dc1642618b8f4f36e4967de265c3aa5b284297eb8b82"
+    }
+  ]
+}

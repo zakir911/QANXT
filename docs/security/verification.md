@@ -17,7 +17,7 @@ the report is generated from the execution ledger rather than written by hand.
 | `SECQ-*` | 11 | The gate: what stops a build, what a clean result may say, and that it can pass |
 | `SECB-*` | 5 | Regression comparison and finding identity |
 | `SECT-*` | 8 | The triage workflow's refusals |
-| `SECX-*` | 1 | DOM XSS reported as untestable, never as absent |
+| `SECX-*` | 1 | DOM XSS reported as untestable by a response-only scan, never as absent |
 | `SECR-*` | 1 | The measured detection and false-positive rates |
 | `SEC-G*` | 11 | AIRA's own tenancy, credentials, target policy and headers |
 
@@ -31,7 +31,9 @@ also covers the secret masker, the target-URL guard and the error-code vocabular
 Recorded in the ledger rather than omitted, so they survive into every report:
 
 - **`SECN-001`** — production scanning's permitted path. Only its refusal is exercised.
-- **`SECN-002`** — browser-driven DOM XSS. Not implemented.
+- **`SECN-002`** — browser-driven DOM XSS, from the scanning suite. Implemented, but in the
+  worker rather than the engine, so this suite cannot exercise it: `SECW-013` and `SECW-014`
+  measure its detection and precision against the same lab.
 - **`SECN-003`** — detection against an application AIRA has not seen. Not measurable in a lab
   whose flaws were written alongside the checks.
 

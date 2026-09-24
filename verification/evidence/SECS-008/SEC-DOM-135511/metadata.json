@@ -1,0 +1,34 @@
+{
+  "testId": "SECS-008",
+  "suite": "Security scanning",
+  "runId": "SEC-DOM-135511",
+  "objective": "An endpoint that answers identically for a known and an unknown account produces no enumeration finding",
+  "preconditions": [
+    "the lab left in its ordinary, fully vulnerable state"
+  ],
+  "input": "POST /api/password-reset, which the lab ground truth calls correct",
+  "expected": "No finding. Any finding here is a false positive on an endpoint that does nothing wrong",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "known 202:accepted,note,resetToken, absent 202:accepted,note,resetToken",
+  "metrics": {
+    "findings": 0
+  },
+  "startedAt": "2026-09-24T13:55:20.801Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "c6db42f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "result.json",
+      "path": "evidence/SECS-008/SEC-DOM-135511/result.json",
+      "bytes": 188,
+      "sha256": "2e6d3950bbd03748e68dc3cdce179dc54873c76cb76df8202d72d70a6dceb61d"
+    }
+  ]
+}

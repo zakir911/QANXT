@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-001",
+  "suite": "Security scanning",
+  "runId": "SEC-DOM-135511",
+  "objective": "The bola check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_BOLA"
+  ],
+  "input": "The same bola check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "owner 200, alice 404",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-24T13:55:20.097Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c6db42f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-001/SEC-DOM-135511/corrected.json",
+      "bytes": 137,
+      "sha256": "f619c756ad1048313186633d4e6a923bc464574e74fca89ce368de9a68f434d4"
+    }
+  ]
+}

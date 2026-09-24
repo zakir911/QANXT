@@ -203,15 +203,31 @@ public class SecurityAttackSurfaceTests
     }
 
     [Fact]
-    public void An_input_element_implies_DOM_XSS_and_the_caveat_that_it_cannot_be_decided_here()
+    public void Every_page_implies_DOM_XSS_even_one_with_no_form_at_all()
     {
-        var page = Page("/search", PageKind.Form, false,
+        // The source is location.hash, location.search, document.referrer or window.name —
+        // none of which is a form input. Implying it only where a form was found missed the
+        // pages this check exists for: the ones whose only input arrives through the URL.
+        var withAForm = Page("/search", PageKind.Form, false,
             new ElementInput(ElementKind.TextInput, "q", "text", "Search"));
+        var withoutOne = Page("/dom", PageKind.Unknown, false);
 
-        var surface = Build(pages: new[] { page });
+        foreach (var page in new[] { withAForm, withoutOne })
+        {
+            Build(pages: new[] { page }).Items.Single()
+                .RelevantChecks.Should().Contain(SecurityChecks.DomXss);
+        }
+    }
 
-        surface.Items.Single().RelevantChecks.Should().Contain(SecurityChecks.DomXss);
-        surface.Caveats.Should().ContainMatch("*browser-driven scan*");
+    [Fact]
+    public void The_DOM_XSS_caveat_says_it_needs_a_browser_and_reads_untested_without_one()
+    {
+        var surface = Build(pages: new[] { Page("/dom", PageKind.Unknown, false) });
+
+        // It is decidable now, in a browser. What the caveat has to carry is that a scan
+        // without one reports the area untested rather than clean.
+        surface.Caveats.Should().ContainMatch("*browser*");
+        surface.Caveats.Should().ContainMatch("*untested rather than clean*");
     }
 
     [Fact]

@@ -21,7 +21,7 @@ import {
   createProject, newTenant, registerApplication, request, runDiscovery
 } from '../platform.mjs';
 import { CONFIDENCE_ORDER, SEVERITY_ORDER } from '../../../packages/security-engine/src/gate.mjs';
-import { CHECKS_REQUIRING_BROWSER } from '../security/scenarios.mjs';
+import { LABS, isolateFaults, restoreFaults } from '../security/scenarios.mjs';
 
 const HEADERS_LAB = 'http://127.0.0.1:4406';
 
@@ -354,34 +354,34 @@ export default async function run() {
 
   await golden({
     id: 'SECW-008',
-    objective: 'A check no worker can run is reported untested rather than left out',
+    objective: 'Every implied check that did not execute is named as untested',
     preconditions: ['the completed scan'],
-    input: 'The gate summary\'s untested areas',
-    expected: 'DOM-based XSS, which needs a browser the scanner does not drive, appears as an '
-      + 'untested area whenever the surface implied it. A check that quietly does not run is '
-      + 'indistinguishable in a report from one that ran and found nothing',
+    input: 'The implied checks, the count that executed, and the gate summary\'s untested areas',
+    expected: 'At least as many implied checks are named untested as failed to produce a verdict. '
+      + 'A check that quietly does not run is indistinguishable in a report from one that ran and '
+      + 'found nothing, and the distance between those two is the whole reason coverage is reported',
     evidence: ['untested.json'],
     severity: 'critical',
     run: async () => {
       const implied = surface?.checksImplied ?? [];
-      const browserOnly = CHECKS_REQUIRING_BROWSER.filter(c => implied.includes(c));
       const summary = scan?.gate?.summary ?? '';
+      const executed = scan?.testsExecuted ?? 0;
 
-      // Where the surface implied none of them there is nothing to report, and saying so is the
-      // honest verdict rather than a pass smuggled in on an empty set.
-      if (browserOnly.length === 0) {
-        return {
-          pass: !CHECKS_REQUIRING_BROWSER.some(c => summary.includes(c)),
-          detail: 'the discovered surface implied no browser-only check, and none is claimed as run',
-          evidence: { 'untested.json': { implied, browserOnly, summary } }
-        };
-      }
+      // "Untested: …" is the tail of the summary; every check named there produced no verdict.
+      const marker = summary.indexOf('Untested:');
+      const untestedText = marker >= 0 ? summary.slice(marker) : '';
+      const named = implied.filter(check => untestedText.includes(check));
+
+      // Which checks fall short changes as runners are written — xss.dom moved out of this set
+      // the moment it got a browser — so the rule is asserted rather than the roster.
+      const missing = Math.max(0, implied.length - executed);
 
       return {
-        pass: browserOnly.every(check => summary.includes(check)),
-        detail: `${browserOnly.join(', ')} implied; named as untested: `
-          + browserOnly.filter(c => summary.includes(c)).join(', '),
-        evidence: { 'untested.json': { implied, browserOnly, summary } }
+        pass: named.length >= missing,
+        detail: `${implied.length} implied, ${executed} executed, ${missing} without a verdict; `
+          + `${named.length} named untested${named.length ? `: ${named.join(', ')}` : ''}`,
+        metrics: { implied: implied.length, executed, missing, named: named.length },
+        evidence: { 'untested.json': { implied, executed, missing, named, summary } }
       };
     }
   }, context);
@@ -500,6 +500,133 @@ export default async function run() {
         }
       }
     })
+  }, context);
+
+  // -----------------------------------------------------------------------
+  // SECW — the one check that needs a browser
+  // -----------------------------------------------------------------------
+
+  /**
+   * Detection and precision for DOM XSS, through the whole path.
+   *
+   * The xss lab gets its own application, because this is the only check whose verdict comes
+   * from what a page did rather than from what it answered — and the only way to be sure the
+   * worker really opened a browser is to make it produce a finding that could not exist
+   * otherwise.
+   */
+  const domApp = await registerApplication(tenant, project.id, {
+    name: 'XSS lab', baseUrl: LABS.xss,
+    loginUrl: null, username: null, password: null, maxPages: 10
+  });
+  await api(`/api/v1/security/applications/${domApp.id}/scope`, { method: 'PUT', body: scopeBody() });
+  const domDiscovery = await runDiscovery(tenant, domApp.id, { maxPages: 10, maxDepth: 2 });
+
+  /** Runs a scan of the xss lab narrowed to xss.dom, with the given faults isolated. */
+  const scanDom = async (faults) => {
+    await isolateFaults(LABS.xss, faults);
+    const started = await api('/api/v1/security/scans/start', {
+      method: 'POST', body: { applicationId: domApp.id, checksToRun: ['xss.dom'] }
+    });
+    if (!started.ok) return { started, scan: null };
+    return { started, scan: await waitForScan(api, started.json.securityScanId) };
+  };
+
+  const domVulnerable = await scanDom(['VULN_DOM_XSS']);
+  const domCorrected = await scanDom([]);
+  await restoreFaults(LABS.xss);
+
+  await golden({
+    id: 'SECW-013',
+    objective: 'A DOM sink no response can reveal is found by driving a real browser',
+    preconditions: ['the xss lab with VULN_DOM_XSS on, discovered and authorized'],
+    input: 'A scan narrowed to xss.dom',
+    expected: 'A DomXSS finding at /dom, carrying evidence. The fragment never reaches the '
+      + 'server, so nothing in any response distinguishes the vulnerable page from the corrected '
+      + 'one — a finding here can only come from having watched the page execute it',
+    evidence: ['scan.json'],
+    severity: 'critical',
+    run: async () => {
+      const findings = domVulnerable.scan?.findings ?? [];
+      const dom = findings.find(f => f.category === 'DomXSS');
+      return {
+        pass: domVulnerable.scan?.status === 'completed'
+          && Boolean(dom)
+          && dom.endpoint === '/dom',
+        detail: dom
+          ? `${dom.category} at ${dom.endpoint} (${dom.severity}, ${dom.confidence}, ${dom.cwe})`
+          : `no DomXSS finding; scan ${domVulnerable.scan?.status}, `
+            + `${findings.length} finding(s), ${domVulnerable.scan?.testsExecuted} check(s) executed`,
+        metrics: { findings: findings.length },
+        evidence: {
+          'scan.json': {
+            started: domVulnerable.started.json,
+            status: domVulnerable.scan?.status,
+            requestsIssued: domVulnerable.scan?.requestsIssued,
+            testsExecuted: domVulnerable.scan?.testsExecuted,
+            findings: findings.map(f => ({
+              category: f.category, severity: f.severity, confidence: f.confidence,
+              endpoint: f.endpoint, parameter: f.parameter, cwe: f.cwe
+            })),
+            gate: domVulnerable.scan?.gate?.summary
+          }
+        }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECW-014',
+    objective: 'The same page with the sink corrected produces no finding',
+    preconditions: ['the xss lab with every fault off'],
+    input: 'The same scan, narrowed to xss.dom',
+    expected: 'No DomXSS finding. The corrected page writes the same value to textContent '
+      + 'instead of innerHTML, and a check that reported one here would be keying on the sink '
+      + 'being present rather than on it being reachable',
+    evidence: ['scan.json'],
+    severity: 'critical',
+    run: async () => {
+      const findings = domCorrected.scan?.findings ?? [];
+      const dom = findings.filter(f => f.category === 'DomXSS');
+      return {
+        pass: domCorrected.scan?.status === 'completed' && dom.length === 0,
+        detail: dom.length === 0
+          ? `no DomXSS finding from ${domCorrected.scan?.requestsIssued} request(s)`
+          : `${dom.length} false positive(s): ${dom.map(f => f.endpoint).join(', ')}`,
+        evidence: {
+          'scan.json': {
+            status: domCorrected.scan?.status,
+            requestsIssued: domCorrected.scan?.requestsIssued,
+            testsExecuted: domCorrected.scan?.testsExecuted,
+            findings: findings.map(f => ({ category: f.category, endpoint: f.endpoint }))
+          }
+        }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECW-015',
+    objective: 'The browser-driven check counts as executed coverage, not as an untested area',
+    preconditions: ['the completed DOM scans'],
+    input: 'The scan record for the corrected run',
+    expected: 'xss.dom appears as executed and is absent from the untested areas. Before a '
+      + 'browser existed it could only ever be reported untested, and the gap between those two '
+      + 'is the whole of what this check adds',
+    evidence: ['coverage.json'],
+    severity: 'critical',
+    run: async () => {
+      const scan = domCorrected.scan;
+      const summary = scan?.gate?.summary ?? '';
+      const executed = (scan?.testsExecuted ?? 0) > 0;
+      const claimedUntested = /xss\.dom[^.]*(not attempted|no runner|cannot decide)/.test(summary);
+
+      return {
+        pass: executed && !claimedUntested,
+        detail: `${scan?.testsExecuted} check(s) executed; ${claimedUntested ? 'still' : 'not'} `
+          + 'reported as untested',
+        evidence: { 'coverage.json': { testsExecuted: scan?.testsExecuted, summary } }
+      };
+    }
   }, context);
 
   await golden({
