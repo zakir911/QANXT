@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-024",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T06-42-53Z",
+  "objective": "The upload-type check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_UPLOAD_ANY_TYPE"
+  ],
+  "input": "The same upload-type check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "extension 400, declared size 413, traversal 201 stored as 'aira-probe.txt'",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-24T06:43:23.949Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "abd7f46",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-024/SEC-2026-09-24T06-42-53Z/corrected.json",
+      "bytes": 191,
+      "sha256": "d066400c4d63cec8aad9140dbf2e2467db4436e80e276012152277c46dba323d"
+    }
+  ]
+}

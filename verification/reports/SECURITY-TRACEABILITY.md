@@ -6,9 +6,9 @@ Two requirements are deliberately not on this list because nothing here verifies
 
 SEC-R43 to SEC-R49 are about AIRA itself rather than the applications it tests. A security testing tool that is not itself secure is a liability, and its own tenancy, credential handling and target policy are verified by the same kind of test as everything else here.
 
-Checked against golden run `SEC-2026-09-24T03-07-41Z`.
+Checked against golden run `SEC-2026-09-24T06-42-53Z`.
 
-**71 of 71 requirements verified.**
+**73 of 73 requirements verified.**
 
 | Requirement | Verified by | Status |
 | --- | --- | --- |
@@ -83,12 +83,14 @@ Checked against golden run `SEC-2026-09-24T03-07-41Z`.
 | **SEC-R69** A release assessment always carries a security posture, and a build nobody scanned reads as NOT SECURITY TESTED rather than being omitted. | SECPL-026 | VERIFIED |
 | **SEC-R70** The platform and the engine name every security check identically. | SECPL-027 | VERIFIED |
 | **SEC-R71** A new Critical finding and a security regression each notify whoever is configured to care, at Problem severity, carrying no evidence, payload or response value — and a Critical resting on a single unreproduced indicator does not, matching what the gate weighs. | SECPL-028, SECPL-029 | VERIFIED |
+| **SEC-R72** The main dashboard always carries a security section, and a project nobody has scanned reads as untested rather than having no section at all. | SECPL-030, SECPL-031 | VERIFIED |
+| **SEC-R73** The dashboard names how many applications are unauthorized and how many are authorized but never scanned, so coverage gaps are visible rather than inferred from an absence. | SECPL-030 | VERIFIED |
 
 ## Tests claimed by no requirement
 
 327 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 324 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 3 are continuous-quality tests that no requirement above names.
 
-478 test id(s) are known to exist: 278 written as literals in a suite, 200 built at run time and proven by having executed.
+480 test id(s) are known to exist: 280 written as literals in a suite, 200 built at run time and proven by having executed.
 
 ```
 ACC-001  ACC-002  ACC-003  ACC-004  ACC-005  ACC-006  AIF-001  AIF-002  AIF-003  AIF-004  AIF-005  AIF-006

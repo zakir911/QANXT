@@ -1,0 +1,32 @@
+{
+  "testId": "SEC-G10",
+  "suite": "Security and multi-tenancy",
+  "runId": "SEC-2026-09-24T06-42-53Z",
+  "objective": "The API sets the browser security headers it claims to",
+  "preconditions": [
+    "the API is running"
+  ],
+  "input": "The response headers of an authenticated request",
+  "expected": "Content-Type options, frame options, referrer policy and HSTS-equivalent controls are present",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "all present: x-content-type-options, x-frame-options, referrer-policy",
+  "metrics": null,
+  "startedAt": "2026-09-24T06:43:41.603Z",
+  "durationMs": 6,
+  "build": {
+    "commit": "abd7f46",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "headers.json",
+      "path": "evidence/SEC-G10/SEC-2026-09-24T06-42-53Z/headers.json",
+      "bytes": 460,
+      "sha256": "dde2219c81f67e92c857cdb69c60ff34e7f7bc7c5284a89dadd3f2e71217e6bc"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-025",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T06-42-53Z",
+  "objective": "The upload-size finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-770, OWASP A04:2021, severity Low, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-770, A04:2021, Low (6/19) — Low (6/19): straightforward to exploit, minimal impact, any signed-in user, reaches no data, reachable by signed-in users.",
+  "metrics": {
+    "score": 6,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T06:43:23.979Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "abd7f46",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-025/SEC-2026-09-24T06-42-53Z/mapping.json",
+      "bytes": 887,
+      "sha256": "12779f05a248bad7cace5bea148ba811b2945a86b43b640c51e1de7c095034b0"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 **AIRA's security testing behaved as specified against its own lab in this run.**
 
-Run `SEC-2026-09-24T03-07-41Z` · 220 security test(s) · 217 passed, 0 failed, 3 not verified
+Run `SEC-2026-09-24T06-42-53Z` · 222 security test(s) · 219 passed, 0 failed, 3 not verified
 
 > What this report is, and is not
 > 
@@ -29,8 +29,8 @@ Run `SEC-2026-09-24T03-07-41Z` · 220 security test(s) · 217 passed, 0 failed, 
 | False positives on the corrected application | 0 |
 | Endpoints the ground truth calls correct | 8 |
 | Findings reported against those endpoints | 0 |
-| Evidence files recorded | 221 |
-| Evidence files whose hash still matches | 221 |
+| Evidence files recorded | 223 |
+| Evidence files whose hash still matches | 223 |
 
 ## Results by family
 
@@ -48,12 +48,12 @@ Run `SEC-2026-09-24T03-07-41Z` · 220 security test(s) · 217 passed, 0 failed, 
 | Triage | 8/8 | Suppression needs a reason and a name |
 | Coverage honesty | 1/1 | What this scan cannot decide |
 | Measured rates | 1/1 | Detection and false positives, as measured |
-| Stored scans | 29/29 | Scopes, scans, findings and triage through AIRA's own API |
+| Stored scans | 31/31 | Scopes, scans, findings and triage through AIRA's own API |
 | AIRA itself | 11/11 | Tenancy, credentials, target policy and headers in the platform |
 
 ## Requirements
 
-71 of 71 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
+73 of 73 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
 
 ## What was NOT tested
 
@@ -284,6 +284,8 @@ report generated from that run.
 | `SECPL-027` | PASS | The engine and the platform name every security check identically | 1 file(s) |
 | `SECPL-028` | PASS | A new Critical finding and a regression each notify, and neither message carries evidence | 1 file(s) |
 | `SECPL-029` | PASS | A Critical resting on one unreproduced indicator does not interrupt anybody | 1 file(s) |
+| `SECPL-030` | PASS | The main dashboard carries security, and names what has never been scanned | 1 file(s) |
+| `SECPL-031` | PASS | A project nobody has scanned gets a security section saying so, not no section | 1 file(s) |
 | `SECQ-001` | PASS | A scan that did not run is REVIEW, never a pass | 1 file(s) |
 | `SECQ-002` | PASS | Two real findings from a real scan block the build | 2 file(s) |
 | `SECQ-003` | PASS | A clean scan never claims the application is secure | 1 file(s) |
@@ -317,4 +319,4 @@ report generated from that run.
 
 ---
 
-Generated from `verification/reports/golden-results.jsonl` for run `SEC-2026-09-24T03-07-41Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.
+Generated from `verification/reports/golden-results.jsonl` for run `SEC-2026-09-24T06-42-53Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.

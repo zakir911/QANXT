@@ -1,0 +1,35 @@
+{
+  "testId": "ISO-005",
+  "suite": "Isolation, audit and observability",
+  "runId": "2026-09-24T06-43-55Z",
+  "objective": "A test data set cannot be read or previewed by another tenant",
+  "preconditions": [
+    "tenant A owns a test data set"
+  ],
+  "input": "GET the set and its preview as tenant B",
+  "expected": "Both are refused; tenant A reads both",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "read: intruder 404, owner 200; preview: intruder 404, owner 200",
+  "metrics": {
+    "readIntruder": 404,
+    "previewIntruder": 404
+  },
+  "startedAt": "2026-09-24T06:44:18.615Z",
+  "durationMs": 102,
+  "build": {
+    "commit": "abd7f46",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "test-data-isolation.json",
+      "path": "evidence/ISO-005/2026-09-24T06-43-55Z/test-data-isolation.json",
+      "bytes": 115,
+      "sha256": "3b625e909beac2bd3343acb7af144413cd42749a1adc16a3af2350b06a558525"
+    }
+  ]
+}

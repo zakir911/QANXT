@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-018",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T06-42-53Z",
+  "objective": "The sql-injection check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_SQL_INJECTION"
+  ],
+  "input": "The same sql-injection check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "unbalanced quote answered 200 with no database error signature; tautology returned 0 row(s) against a baseline of 1",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-24T06:43:23.831Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "abd7f46",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-018/SEC-2026-09-24T06-42-53Z/corrected.json",
+      "bytes": 232,
+      "sha256": "659d70bc12ef226ae0d751acdb340bda8e8cd997ab313c80516de68ff184367b"
+    }
+  ]
+}

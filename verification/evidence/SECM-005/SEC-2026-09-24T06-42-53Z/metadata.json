@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-005",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T06-42-53Z",
+  "objective": "The unverified-token finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-345, OWASP API2:2023, severity Critical, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-345, A07:2021, Critical (19/19) — Critical (19/19): trivial to exploit, severe impact, no account needed, reaches credentials, publicly reachable.",
+  "metrics": {
+    "score": 19,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T06:43:23.523Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "abd7f46",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-005/SEC-2026-09-24T06-42-53Z/mapping.json",
+      "bytes": 872,
+      "sha256": "b7ad5af2c403ef4171016edffc2c3b043926ba9490260fe7e97503cb119d3318"
+    }
+  ]
+}

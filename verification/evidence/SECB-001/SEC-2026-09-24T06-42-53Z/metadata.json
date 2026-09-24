@@ -1,0 +1,32 @@
+{
+  "testId": "SECB-001",
+  "suite": "Security gate, regression and triage",
+  "runId": "SEC-2026-09-24T06-42-53Z",
+  "objective": "A finding reported twice gets the same fingerprint, and a different one does not",
+  "preconditions": [
+    "two findings from the real scan"
+  ],
+  "input": "The same finding reworded, and a genuinely different finding",
+  "expected": "The reworded finding matches; the different one does not. A fingerprint that changed when a title was rephrased would report everything as new every run",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "same finding reworded: matched; different finding: distinct",
+  "metrics": null,
+  "startedAt": "2026-09-24T06:43:24.269Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "abd7f46",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "fingerprints.json",
+      "path": "evidence/SECB-001/SEC-2026-09-24T06-42-53Z/fingerprints.json",
+      "bytes": 306,
+      "sha256": "28d0f477f4edd7f11c78e625a0e4c5883553b57367dd2bc852263855176f7fd9"
+    }
+  ]
+}
