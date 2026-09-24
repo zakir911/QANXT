@@ -1,0 +1,35 @@
+{
+  "testId": "CON-008",
+  "suite": "API contracts",
+  "runId": "2026-09-24T01-53-26Z",
+  "objective": "A quality gate rule over breaking contract changes fires when one is found",
+  "preconditions": [
+    "a rule \"no breaking contract changes\"",
+    "FAULT_API_FIELD_REMOVED enabled"
+  ],
+  "input": "A run of the accounts test with the field removed and the rule enabled",
+  "expected": "The gate measures ContractBreakingChangeCount, the rule fails, and the run is blocked even though every test passed",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run passed; ContractBreakingChangeCount=1; rule measured=true passed=false; outcome fail",
+  "metrics": {
+    "breakingChanges": 1
+  },
+  "startedAt": "2026-09-24T01:54:33.697Z",
+  "durationMs": 2087,
+  "build": {
+    "commit": "5f49897",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/CON-008/2026-09-24T01-53-26Z/gate.json",
+      "bytes": 1158,
+      "sha256": "bfa3b6367335825707eaa6e7fa002abe588c94ccf8db662bbd1442eb4ecb32ef"
+    }
+  ]
+}

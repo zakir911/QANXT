@@ -35,23 +35,20 @@ detector and the wrong way to estimate how it will do against an application nob
 
 `SECN-003` records this as not measurable here. The number describes this lab.
 
-## There is no security surface in the console
+## The console security page has no automated test behind it
 
-Scopes, scans, findings and triage are persisted and exposed through the API
-(`/api/v1/security/...`), and the whole path is verified end to end by `SECPL-001` through
-`SECPL-015`: the authorization, the refusals, the stored findings, the regression, and the
-triage decision that needs a person.
+`/security` in the web console shows the authorization, the latest scan's gate, the trend and
+the findings, and lets somebody with `security:triage` set one aside. The API underneath it is
+verified end to end by `SECPL-001` through `SECPL-021`.
 
-What does not exist is a screen. There is no findings list, no scan history view and no trend
-line in the web console. Everything is reachable through the API and nothing is reachable by
-clicking, so:
+The page itself is not. It compiles and its data comes from tested endpoints, but no test
+drives the screen, so:
 
 - **IMPLEMENTED and VERIFIED**: every check, the scope guard, the severity model, the gate,
-  the regression comparison, the triage workflow, the evidence writer, the RBAC matrix, and
-  the stored scope/scan/finding lifecycle through the API.
-- **IMPLEMENTED, NOT TESTED**: nothing.
-- **NOT IMPLEMENTED**: the console screens, and trend analysis over stored scans. The data to
-  build both is in the database; the queries and the pages are not written.
+  the regression comparison, the triage workflow, the evidence writer, the RBAC matrix, the
+  stored scope/scan/finding lifecycle and the trend, all through the API.
+- **IMPLEMENTED, NOT TESTED**: the console page and its triage dialog.
+- **NOT IMPLEMENTED**: nothing else in the finding lifecycle.
 
 ## The scanner does not run inside the worker
 

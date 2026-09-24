@@ -18,6 +18,7 @@ const NAV = [
   { to: '/schedules', label: 'Schedules' },
   { to: '/agent', label: 'Agent' },
   { to: '/insights', label: 'AI insights' },
+  { to: '/security', label: 'Security' },
   { to: '/audit', label: 'Audit' },
   { to: '/verification', label: 'Verification' },
   { to: '/settings', label: 'Settings' }

@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-003",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-03-18Z",
+  "objective": "The readonly-write check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_READONLY_CAN_WRITE"
+  ],
+  "input": "The same readonly-write check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "alice 201, mallory 403",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-24T02:03:25.345Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f49897",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-003/SEC-2026-09-24T02-03-18Z/corrected.json",
+      "bytes": 139,
+      "sha256": "7ca53e3ae8f76be1e5462d106d794270332b9757bb4bf7365b3a440544d7c830"
+    }
+  ]
+}

@@ -517,6 +517,35 @@
       "verifiedBy": [
         "SECPL-016"
       ]
+    },
+    {
+      "id": "SEC-R60",
+      "statement": "A finding a scan could not reproduce goes to NeedsReview with the reason, and is never resolved on absence alone.",
+      "verifiedBy": [
+        "SECPL-020"
+      ]
+    },
+    {
+      "id": "SEC-R61",
+      "statement": "A finding reproduced after a scan missed it returns to Confirmed and the stale not-reproduced note is cleared.",
+      "verifiedBy": [
+        "SECPL-021"
+      ]
+    },
+    {
+      "id": "SEC-R62",
+      "statement": "A security trend carries the coverage each point was measured at, and flags a scan that covered materially less than the one before it.",
+      "verifiedBy": [
+        "SECPL-017",
+        "SECPL-018"
+      ]
+    },
+    {
+      "id": "SEC-R63",
+      "statement": "An application with no recorded scan is described as untested, never as clean.",
+      "verifiedBy": [
+        "SECPL-019"
+      ]
     }
   ]
 }

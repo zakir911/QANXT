@@ -1,0 +1,54 @@
+$ aira regression select --changed-file changed.txt --explain   (exit 0)
+  → TC-0001 Accounts list opens 70
+        impact        40/40  This test exercises /accounts, which the change affects.
+        risk          10/20  Priority medium, risk medium.
+        history       10/20  This test has never run, so nothing is known about it.
+        staleness     10/10  It has never been run.
+        always            —  Not part of the always-run set.
+  → TC-0004 The accounts endpoint answers 70
+        impact        40/40  This test exercises /api/accounts, which the change affects.
+        risk          10/20  Priority medium, risk medium.
+        history       10/20  This test has never run, so nothing is known about it.
+        staleness     10/10  It has never been run.
+        always            —  Not part of the always-run set.
+  · TC-0005 The application is up 40
+        impact            —  The change does not reach anything this test exercises.
+        risk          10/20  Priority medium, risk medium.
+        history       10/20  This test has never run, so nothing is known about it.
+        staleness     10/10  It has never been run.
+        always        10/10  Tagged smoke, which this project always runs.
+
+  Not selected (2):
+    TC-0002 Payments page opens — 30, below 40
+    TC-0003 Profile page opens — 30, below 40
+
+  3 of 5 test(s) selected (mode impacted).
+  3 of 5 test(s) selected; 2 because the change reaches them.
+  Selection written to /tmp/aira-regression-5MWVS7/regression-selection.json
+
+$ aira regression run --changed-file changed.txt                (exit 0)
+  → TC-0001 Accounts list opens 70
+        This test exercises /accounts, which the change affects.
+        Priority medium, risk medium.
+  → TC-0004 The accounts endpoint answers 70
+        This test exercises /api/accounts, which the change affects.
+        Priority medium, risk medium.
+  · TC-0005 The application is up 40
+        Priority medium, risk medium.
+        This test has never run, so nothing is known about it.
+
+  3 of 5 test(s) selected (mode impacted).
+  3 of 5 test(s) selected; 2 because the change reaches them.
+
+Run queued Regression (impacted) f226bbfb-3fcd-4da0-83e7-ae817e556f07
+  running — 0/3 finished
+  running — 2/3 finished
+  passed — 3/3 finished
+
+  ✓ TC-0001 Accounts list opens 3.8s
+  ✓ TC-0004 The accounts endpoint answers 65ms
+  ✓ TC-0005 The application is up 47ms
+
+  3 passed · 0 failed · 0 blocked · 0 healed · 0 flaky · 3.9s
+
+  Quality gate passed. No quality gates are configured for this project, so the run does not block.

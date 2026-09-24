@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_TEMPLATE_INJECTION",
+    "type": "TemplateInjection",
+    "endpoint": "GET /api/render?template=",
+    "severity": "high",
+    "cwe": "CWE-1336",
+    "owaspWeb": "A03:2021",
+    "detectBy": "{{7*7}} renders as 49."
+  },
+  "got": {
+    "cwe": "CWE-1336",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A03:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "High",
+    "severity": {
+      "exploitability": "straightforward",
+      "impact": "serious",
+      "privilegeRequired": "none",
+      "affectedData": "credentials",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 15,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (15/19): straightforward to exploit, serious impact, no account needed, reaches credentials, publicly reachable."
+    }
+  }
+}

@@ -1,0 +1,62 @@
+$ aira schedule add
+[exit 0]
+{
+  "id": "e7c98fd4-a302-4160-98f8-e9395f07a446",
+  "projectId": "abab0c0b-4d3d-4ce5-843d-ea1fcf9bfe35",
+  "name": "From the CLI (SCH-007)",
+  "cronExpression": "0 3 * * mon-fri",
+  "timeZone": "UTC",
+  "browser": "chromium",
+  "isEnabled": true,
+  "nextRunAt": "2026-09-24T03:00:00+00:00",
+  "consecutiveFailureCount": 0,
+  "createdAt": "2026-09-24T01:59:25.2975258+00:00"
+}
+
+
+$ aira schedule list
+[exit 0]
+off Accounts only (SCH-002) 76215bed-f2a4-4b7d-9218-4831de5a1303
+    * * * * * (UTC) · tags accounts
+off Advances (SCH-003) 85b2529d-5f5c-4ef6-9e44-2061ce14dfa3
+    * * * * * (UTC) · tags smoke
+off Every minute (SCH-001) 25ab3447-627b-42b3-a2f0-354129dbd146
+    * * * * * (UTC) · tags smoke
+on From the CLI (SCH-007) e7c98fd4-a302-4160-98f8-e9395f07a446
+    0 3 * * mon-fri (UTC)
+    next 2026-09-24T03:00:00+00:00 · has not run yet
+off London nights (SCH-006) bcf7dad3-fda5-4ec5-b2f5-64022ff31de7
+    30 2 * * * (Europe/London)
+off SCH-004 valid — must be accepted 8b251481-33cf-4505-a92b-94b5cf2ad1ed
+    0 0 * * * (UTC)
+
+
+$ aira schedule preview
+[exit 0]
+2026-09-24T03:00:00+00:00
+2026-09-25T03:00:00+00:00
+2026-09-28T03:00:00+00:00
+
+
+$ aira schedule disable
+[exit 0]
+Disabled From the CLI (SCH-007)
+
+
+$ aira schedule remove
+[exit 0]
+Removed e7c98fd4-a302-4160-98f8-e9395f07a446
+
+
+$ aira schedule list (after removal)
+[exit 0]
+off Accounts only (SCH-002) 76215bed-f2a4-4b7d-9218-4831de5a1303
+    * * * * * (UTC) · tags accounts
+off Advances (SCH-003) 85b2529d-5f5c-4ef6-9e44-2061ce14dfa3
+    * * * * * (UTC) · tags smoke
+off Every minute (SCH-001) 25ab3447-627b-42b3-a2f0-354129dbd146
+    * * * * * (UTC) · tags smoke
+off London nights (SCH-006) bcf7dad3-fda5-4ec5-b2f5-64022ff31de7
+    30 2 * * * (Europe/London)
+off SCH-004 valid — must be accepted 8b251481-33cf-4505-a92b-94b5cf2ad1ed
+    0 0 * * * (UTC)

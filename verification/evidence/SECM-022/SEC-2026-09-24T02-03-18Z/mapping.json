@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_NO_CSRF_TOKEN",
+    "type": "MissingCsrfToken",
+    "endpoint": "POST /api/transfer",
+    "severity": "high",
+    "cwe": "CWE-352",
+    "owaspWeb": "A01:2021",
+    "detectBy": "A state-changing request succeeds with no anti-CSRF token."
+  },
+  "got": {
+    "cwe": "CWE-352",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A01:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "straightforward",
+      "impact": "serious",
+      "privilegeRequired": "none",
+      "affectedData": "personalData",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 14,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (14/19): straightforward to exploit, serious impact, no account needed, reaches personal data, publicly reachable."
+    }
+  }
+}

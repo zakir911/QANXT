@@ -1,0 +1,32 @@
+{
+  "testId": "SECF-004",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-03-18Z",
+  "objective": "The passive profile refuses a destructive probe",
+  "preconditions": [
+    "a scope that permits destructive testing, so the profile is the only thing deciding"
+  ],
+  "input": "profile=passive, risk=destructive",
+  "expected": "Refused with profileDoesNotPermit, because the profile is the promise made to whoever approved the scan about what it would do",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "profileDoesNotPermit: The passive profile does not run this risk level.",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:03:26.150Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f49897",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECF-004/SEC-2026-09-24T02-03-18Z/decision.json",
+      "bytes": 323,
+      "sha256": "7b672fe14e3300d8ae8b598722ef25bf50856d985275499d91e7cb582bcaf451"
+    }
+  ]
+}

@@ -492,6 +492,140 @@ export default async function run() {
   }, context);
 
   await golden({
+    id: 'SECPL-020',
+    objective: 'A finding a scan could not reproduce goes to NeedsReview, and is never resolved on absence',
+    preconditions: ['a confirmed finding, and a scan that runs its check and reports nothing'],
+    input: 'A scan with no findings and authz.bola in the executed list',
+    expected: 'NeedsReview with a note saying the check ran and did not reproduce it, and that this is '
+      + 'not a resolution. The brief forbids anything automated closing a security finding',
+    evidence: ['finding.json'],
+    severity: 'critical',
+    run: async () => {
+      await api('/api/v1/security/scans', {
+        method: 'POST', body: scanBody(application.id, project.id, { findings: [] })
+      });
+      const list = await api(`/api/v1/security/findings?applicationId=${application.id}`);
+      const found = list.json?.[0];
+      return {
+        pass: found?.status === 'needsReview'
+          && String(found?.dispositionNote ?? '').includes('not a resolution on its own'),
+        detail: `${found?.status}: ${String(found?.dispositionNote ?? '').slice(0, 110)}`,
+        evidence: { 'finding.json': found }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECPL-021',
+    objective: 'A finding reproduced after a scan missed it becomes Confirmed and loses the stale note',
+    preconditions: ['a finding in NeedsReview because a scan did not reproduce it'],
+    input: 'A scan reporting it again',
+    expected: 'Confirmed, with the "the check ran and did not reproduce it" note cleared. Leaving that '
+      + 'note in place would tell whoever opens the finding the opposite of what happened',
+    evidence: ['finding.json'],
+    severity: 'critical',
+    run: async () => {
+      const response = await api('/api/v1/security/scans', {
+        method: 'POST', body: scanBody(application.id, project.id)
+      });
+      const found = response.json?.findings?.[0];
+      return {
+        pass: found?.status === 'confirmed' && (found?.dispositionNote ?? null) === null,
+        detail: `${found?.status}; note ${(found?.dispositionNote ?? null) === null ? 'cleared' : 'STALE'}`,
+        evidence: { 'finding.json': found }
+      };
+    }
+  }, context);
+
+  // -----------------------------------------------------------------------
+  // SECPL — trending
+  // -----------------------------------------------------------------------
+  await golden({
+    id: 'SECPL-017',
+    objective: 'A trend carries the coverage each point was measured at',
+    preconditions: ['three scans recorded against the application'],
+    input: 'GET the application\'s security trend',
+    expected: 'One point per scan, each carrying the checks configured and executed. A chart that '
+      + 'plots severity counts without the coverage draws a reassuring downward line every time '
+      + 'somebody narrows a scope',
+    evidence: ['trend.json'],
+    severity: 'critical',
+    run: async () => {
+      const response = await api(`/api/v1/security/applications/${application.id}/trend`);
+      const trend = response.json;
+      return {
+        pass: response.ok && (trend?.points?.length ?? 0) >= 3
+          && trend.points.every(p => typeof p.checksConfigured === 'number'
+            && typeof p.checksExecuted === 'number'
+            && typeof p.requestsIssued === 'number'),
+        detail: `${trend?.points?.length} point(s); ${trend?.openNow} open; ${trend?.summary?.slice(0, 120)}`,
+        metrics: { points: trend?.points?.length ?? -1 },
+        evidence: { 'trend.json': trend }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECPL-018',
+    objective: 'A scan that covered materially less than the one before it is flagged as not comparable',
+    preconditions: ['the application with several scans'],
+    input: 'A scan executing one of five checks, then the trend',
+    expected: 'That point reports comparableToPrevious false with the reason. A drop in findings after '
+      + 'a narrowed scan is not an improvement, and a trend line that slopes down anyway is the most '
+      + 'dangerous chart a security tool can produce',
+    evidence: ['trend.json'],
+    severity: 'critical',
+    run: async () => {
+      await api('/api/v1/security/scans', {
+        method: 'POST',
+        body: scanBody(application.id, project.id, {
+          findings: [], requestsIssued: 12,
+          checksExecuted: ['authz.bola']
+        })
+      });
+      const response = await api(`/api/v1/security/applications/${application.id}/trend`);
+      const last = response.json?.points?.at(-1);
+      return {
+        pass: response.ok && last?.comparableToPrevious === false
+          && typeof last?.notComparableBecause === 'string'
+          && last.notComparableBecause.length > 0
+          && String(response.json.summary).includes('not comparable'),
+        detail: last?.notComparableBecause ?? 'the narrowed scan was treated as comparable',
+        evidence: { 'trend.json': response.json }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECPL-019',
+    objective: 'An application with no scans is described as untested, not as clean',
+    preconditions: ['an application with an authorized scope and no scans'],
+    input: 'GET its trend',
+    expected: 'A summary saying nothing has been tested. "No findings" on an application nobody '
+      + 'scanned is the single most misleading thing a security tool can report',
+    evidence: ['trend.json'],
+    severity: 'critical',
+    run: async () => {
+      const fresh = await registerApplication(tenant, project.id, {
+        name: 'Never scanned', baseUrl: 'http://127.0.0.1:4403',
+        loginUrl: null, username: null, password: null
+      });
+      await api(`/api/v1/security/applications/${fresh.id}/scope`, {
+        method: 'PUT', body: scopeBody()
+      });
+      const response = await api(`/api/v1/security/applications/${fresh.id}/trend`);
+      const summary = response.json?.summary ?? '';
+      return {
+        pass: response.ok && response.json.points.length === 0
+          && summary.includes('nothing has been tested')
+          && summary.includes('not a clean result'),
+        detail: summary,
+        evidence: { 'trend.json': response.json }
+      };
+    }
+  }, context);
+
+  await golden({
     id: 'SECPL-014',
     objective: 'A scan cannot be recorded against an application nobody has authorized',
     preconditions: ['a second application with no security scope'],

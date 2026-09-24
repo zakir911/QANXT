@@ -2,23 +2,23 @@
 
 Each requirement names the golden tests that verify it. traceability.mjs checks this file against what actually ran: a requirement with no test, a test id that does not exist, and a named test that did not pass are all failures. A table nobody checks is a table that rots.
 
-Checked against golden run `CQ9F-V2-2026-09-23T12-49-53Z`.
+Checked against golden run `2026-09-24T01-53-26Z`.
 
-**34 of 34 requirements verified.**
+**27 of 34 requirements verified.** 7 not covered by this run.
 
 | Requirement | Verified by | Status |
 | --- | --- | --- |
-| **CQ-R01** A pipeline can run AIRA from a command line and act on the result without parsing output. | CI-001, CI-006, CIS-001 | VERIFIED |
-| **CQ-R02** Every documented exit code can actually be produced, and each distinguishes who should look at the failure. | CIS-001, CIS-002, CIS-003, CIS-004, CIS-005, CIS-006, CIS-007, CIS-008, CIS-010, CIS-012, CI-005 | VERIFIED |
-| **CQ-R03** A run publishes evidence whether it passed or failed. | CI-001, CIS-002, VIS-004 | VERIFIED |
+| **CQ-R01** A pipeline can run AIRA from a command line and act on the result without parsing output. | CI-001, CI-006, CIS-001 | partially run |
+| **CQ-R02** Every documented exit code can actually be produced, and each distinguishes who should look at the failure. | CIS-001, CIS-002, CIS-003, CIS-004, CIS-005, CIS-006, CIS-007, CIS-008, CIS-010, CIS-012, CI-005 | partially run |
+| **CQ-R03** A run publishes evidence whether it passed or failed. | CI-001, CIS-002, VIS-004 | partially run |
 | **CQ-R04** A failure is reported with enough context to act on without opening the platform. | CI-002, ACC-004, COR-001, COR-003 | VERIFIED |
-| **CQ-R05** A run records where it came from, so a failure can be traced to the commit and the deployment that produced it. | CI-007, CIS-009 | VERIFIED |
+| **CQ-R05** A run records where it came from, so a failure can be traced to the commit and the deployment that produced it. | CI-007, CIS-009 | partially run |
 | **CQ-R06** API endpoints can be tested as first-class test cases, in the same engine as UI tests. | API-001, API-002, API-004, API-013 | VERIFIED |
 | **CQ-R07** An API contract change is detected against a stored baseline and classified by how badly it breaks callers. | CON-001, CON-002, CON-003, CON-005, CON-006 | VERIFIED |
 | **CQ-R08** A UI failure caused by an API call is explained as such, rather than as a broken locator. | COR-001, COR-002, COR-003 | VERIFIED |
 | **CQ-R09** A change selects the tests it reaches, and says why each was or was not selected. | REG-001, REG-002, REG-008, REG-009 | VERIFIED |
 | **CQ-R10** Regression runs happen on a schedule without anybody asking, and a schedule that stops running says so. | SCH-001, SCH-002, SCH-003, SCH-004, SCH-005 | VERIFIED |
-| **CQ-R11** A quality gate produces PASS, FAIL or REVIEW, and REVIEW survives to the pipeline as its own answer. | CIS-003, CIS-010, CIS-011, CI-004 | VERIFIED |
+| **CQ-R11** A quality gate produces PASS, FAIL or REVIEW, and REVIEW survives to the pipeline as its own answer. | CIS-003, CIS-010, CIS-011, CI-004 | partially run |
 | **CQ-R12** A quality gate rule whose metric this run could not measure is reported as unmeasured, never as satisfied. | ACC-005, VIS-005 | VERIFIED |
 | **CQ-R13** A release decision can be made from what changed, not only from what is broken. | RLS-001, RLS-002, RLS-003, RLS-005, RLS-007 | VERIFIED |
 | **CQ-R14** Coverage that stops being exercised is visible rather than silently dropped. | RLS-004 | VERIFIED |
@@ -30,8 +30,8 @@ Checked against golden run `CQ9F-V2-2026-09-23T12-49-53Z`.
 | **CQ-R20** A team can measure accessibility before enforcing it. | ACC-003 | VERIFIED |
 | **CQ-R21** Visual changes are detected against a baseline, with a noise floor that does not produce false differences. | VIS-001, VIS-002, VIS-006 | VERIFIED |
 | **CQ-R22** A visual difference asks for a person by default rather than failing the build, and what was masked is on the record. | VIS-003, VIS-006 | VERIFIED |
-| **CQ-R23** AIRA never tests outside its configured authorization boundary, and production is refused without an explicit written authorization. | CIS-008, SCH-005, API-008, NOT-008 | VERIFIED |
-| **CQ-R24** A security refusal is reported distinctly from a permissions failure, so nobody resolves it by widening access. | CIS-005, CIS-008 | VERIFIED |
+| **CQ-R23** AIRA never tests outside its configured authorization boundary, and production is refused without an explicit written authorization. | CIS-008, SCH-005, API-008, NOT-008 | partially run |
+| **CQ-R24** A security refusal is reported distinctly from a permissions failure, so nobody resolves it by widening access. | CIS-005, CIS-008 | not run |
 | **CQ-R25** A run is never silently finished twice, and one occurrence of a schedule starts exactly one run. | SCH-003, NOT-002 | VERIFIED |
 | **CQ-R26** Every continuous-quality surface is scoped to one tenant, and a denial is accompanied by the owner's successful read. | ISO-001, ISO-002, ISO-003, ISO-004, ISO-005, ISO-006 | VERIFIED |
 | **CQ-R27** The audit trail can be read through the product, is scoped to one organization, and no parameter widens it. | ISO-007, AUD-005, AUD-006 | VERIFIED |
@@ -45,9 +45,9 @@ Checked against golden run `CQ9F-V2-2026-09-23T12-49-53Z`.
 
 ## Tests claimed by no requirement
 
-173 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 131 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 42 are continuous-quality tests that no requirement above names.
+374 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 332 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 42 are continuous-quality tests that no requirement above names.
 
-269 test id(s) are known to exist: 215 written as literals in a suite, 54 built at run time and proven by having executed.
+470 test id(s) are known to exist: 270 written as literals in a suite, 200 built at run time and proven by having executed.
 
 ```
 AIF-009  API-003  API-005  API-006  API-007  API-009  API-010  API-011  API-012  API-014  ASRT-001  ASRT-002
@@ -64,6 +64,23 @@ HEAL-G03  HEAL-G04  HEAL-G05  HEAL-G06  HEAL-G07  HEAL-G08  HEAL-M01  HEAL-M02  
 HEAL-N05  HEAL-N06  HEAL-N07  HEAL-N08  HEAL-N09  HEAL-N10  NOT-003  NOT-004  PERF-001  PERF-002  PERF-003  REG-003
 REG-004  REG-005  REG-006  REG-007  REG-010  REG-011  REG-012  REL-001  REL-002  REL-003  REL-004  REL-005
 REL-006  REL-007  RLS-006  SCH-006  SCH-007  SEC-G01  SEC-G02  SEC-G03  SEC-G04  SEC-G05  SEC-G06  SEC-G07
-SEC-G08  SEC-G09  SEC-G10  SEC-G11  VIS-007
+SEC-G08  SEC-G09  SEC-G10  SEC-G11  SECB-001  SECB-002  SECB-003  SECB-004  SECB-005  SECD-001  SECD-002  SECD-003
+SECD-004  SECD-005  SECD-006  SECD-007  SECD-008  SECD-009  SECD-010  SECD-011  SECD-012  SECD-013  SECD-014  SECD-015
+SECD-016  SECD-017  SECD-018  SECD-019  SECD-020  SECD-021  SECD-022  SECD-023  SECD-024  SECD-025  SECD-026  SECD-027
+SECD-028  SECD-029  SECD-030  SECD-031  SECD-032  SECD-033  SECD-034  SECE-001  SECE-002  SECE-003  SECE-004  SECF-001
+SECF-002  SECF-003  SECF-004  SECF-005  SECF-006  SECF-007  SECF-008  SECF-009  SECF-010  SECF-011  SECF-012  SECG-001
+SECG-002  SECG-003  SECG-004  SECG-005  SECG-006  SECG-007  SECG-008  SECG-009  SECG-010  SECG-011  SECG-012  SECG-013
+SECG-014  SECG-015  SECG-016  SECG-017  SECG-018  SECG-019  SECG-020  SECG-021  SECG-022  SECG-023  SECG-024  SECM-001
+SECM-002  SECM-003  SECM-004  SECM-005  SECM-006  SECM-007  SECM-008  SECM-009  SECM-010  SECM-011  SECM-012  SECM-013
+SECM-014  SECM-015  SECM-016  SECM-017  SECM-018  SECM-019  SECM-020  SECM-021  SECM-022  SECM-023  SECM-024  SECM-025
+SECM-026  SECM-027  SECM-028  SECM-029  SECM-030  SECM-031  SECM-032  SECM-033  SECM-034  SECN-001  SECN-002  SECN-003
+SECP-001  SECP-002  SECP-003  SECP-004  SECP-005  SECP-006  SECP-007  SECP-008  SECP-009  SECP-010  SECP-011  SECP-012
+SECP-013  SECP-014  SECP-015  SECP-016  SECP-017  SECP-018  SECP-019  SECP-020  SECP-021  SECP-022  SECP-023  SECP-024
+SECP-025  SECP-026  SECP-027  SECP-028  SECP-029  SECP-030  SECP-031  SECP-032  SECP-033  SECP-034  SECPL-001  SECPL-002
+SECPL-003  SECPL-004  SECPL-005  SECPL-006  SECPL-007  SECPL-008  SECPL-009  SECPL-010  SECPL-011  SECPL-012  SECPL-013  SECPL-014
+SECPL-015  SECPL-016  SECPL-017  SECPL-018  SECPL-019  SECPL-020  SECPL-021  SECQ-001  SECQ-002  SECQ-003  SECQ-004  SECQ-005
+SECQ-006  SECQ-007  SECQ-008  SECQ-009  SECQ-010  SECQ-011  SECR-001  SECS-001  SECS-002  SECS-003  SECS-004  SECS-005
+SECS-006  SECS-007  SECS-008  SECS-009  SECT-001  SECT-002  SECT-003  SECT-004  SECT-005  SECT-006  SECT-007  SECT-008
+SECX-001  VIS-007
 ```
 

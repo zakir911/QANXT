@@ -1,0 +1,14 @@
+{
+  "summary": "The step before this one made an API call that returned 500.",
+  "likelyCause": "GET /api/accounts/acc-1001/transactions → 500 in 0ms — the page had nothing to render, so the step that followed found nothing. The fault is in the application or a service it depends on, not in the test.",
+  "evidence": "GET /api/accounts/acc-1001/transactions → 500 in 0ms, made by step 3. Engine message: testId=\"transactions-table\" could not be used: No element matched testId=\"transactions-table\".",
+  "suggestedAction": "Take this request to the team that owns the endpoint. The failing assertion is the symptom; this call is the cause.",
+  "category": "applicationDefect",
+  "confidence": 90,
+  "isLikelyApplicationDefect": true,
+  "isHealable": false,
+  "producedByAi": false,
+  "provider": "local",
+  "model": "aira-rules-v1",
+  "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"5dbad47f-0f1b-423a-a249-45771aa661d3\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"80edd1ee-1d73-4b00-b047-2c77cc8cbfb0\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"852ad74e-37eb-479b-a5d7-ed701b60f056\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"9620afa1-b51e-4e7e-86a8-c06c0cbbc32c\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"aba91fee-0e81-4a5c-a9cd-d82bb4f406cd\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b5f626a8-bc84-4f1e-8e0d-98d30184dddb\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"bfdbca6a-4ca4-4fa9-b558-10e0fab571d3\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"c1bdc645-5f2e-454b-92e5-ff95e20e8be8\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}], \"executionId\": \"e2e99eec-aa47-48ac-8329-e3614b2f98c3\"}"
+}

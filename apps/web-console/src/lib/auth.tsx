@@ -100,5 +100,12 @@ export const Permissions = {
   agentRun: 'agent:run',
   userRead: 'user:read',
   userWrite: 'user:write',
-  auditRead: 'audit:read'
+  auditRead: 'audit:read',
+  // Security findings are not covered by the read access that shows test results. A finding
+  // is a working description of how to break the application, and the console gates on that
+  // for the same reason the API does.
+  securityRead: 'security:read',
+  securityScan: 'security:scan',
+  securityTriage: 'security:triage',
+  securityAuthorize: 'security:authorize'
 } as const;

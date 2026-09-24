@@ -23,7 +23,13 @@ namespace Aira.Api.Controllers;
 public sealed class SecurityController : ApiControllerBase
 {
     private readonly ISecurityScanService _security;
-    public SecurityController(ISecurityScanService security) => _security = security;
+    private readonly ISecurityTrendService _trend;
+
+    public SecurityController(ISecurityScanService security, ISecurityTrendService trend)
+    {
+        _security = security;
+        _trend = trend;
+    }
 
     // ---- Scope -------------------------------------------------------------
 
@@ -69,6 +75,18 @@ public sealed class SecurityController : ApiControllerBase
     [HttpGet("scans/{id:guid}")]
     public async Task<IActionResult> GetScan(Guid id, CancellationToken ct)
         => FromResult(await _security.GetScanAsync(id, ct));
+
+    /// <summary>How an application's security posture has moved across its recorded scans.</summary>
+    /// <remarks>
+    /// Every point carries the coverage it was measured at, and a point measured at materially
+    /// less coverage than the one before it is flagged. A chart that plots severity counts
+    /// without the coverage draws a reassuring downward line every time somebody narrows a
+    /// scope, which is the most dangerous chart a security tool can produce.
+    /// </remarks>
+    [HttpGet("applications/{applicationId:guid}/trend")]
+    public async Task<IActionResult> Trend(
+        Guid applicationId, [FromQuery] int take = 30, CancellationToken ct = default)
+        => FromResult(await _trend.ForApplicationAsync(applicationId, take, ct));
 
     // ---- Findings ----------------------------------------------------------
 

@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-017",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-03-18Z",
+  "objective": "A marker stored once and rendered unencoded on a later read is reported as stored XSS",
+  "preconditions": [
+    "VULN_STORED_XSS switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Injection: the stored-xss check against the lab",
+  "expected": "Exactly one StoredXSS finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "StoredXSS: 'bio' is stored and rendered without encoding (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T02:03:25.712Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f49897",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-017/SEC-2026-09-24T02-03-18Z/vulnerable.json",
+      "bytes": 407,
+      "sha256": "c3e632eb59579707fc35c34eb5fba3f908d2ba3a0b33c3a6bd405cdfe6884a80"
+    }
+  ]
+}

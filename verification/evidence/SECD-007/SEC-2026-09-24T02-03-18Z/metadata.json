@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-007",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-03-18Z",
+  "objective": "Repeated failed sign-ins that are never throttled are reported, from a bounded probe",
+  "preconditions": [
+    "VULN_NO_LOCKOUT switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Authentication: the lockout check against the lab",
+  "expected": "Exactly one NoAccountLockout finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "NoAccountLockout: 6 consecutive failed sign-ins were never throttled (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T02:03:25.444Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "5f49897",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-007/SEC-2026-09-24T02-03-18Z/vulnerable.json",
+      "bytes": 422,
+      "sha256": "e8da65728fd21c69345315d82090d8da7bb97c412e4a9f12630383020f019162"
+    }
+  ]
+}

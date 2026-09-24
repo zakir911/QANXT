@@ -1,0 +1,40 @@
+{
+  "passed": false,
+  "rules": [
+    {
+      "ruleId": "c8fec143-6bd6-4276-9d6b-66943f4165a8",
+      "name": "No breaking contract changes",
+      "metric": "contractBreakingChangeCount",
+      "operator": "equal",
+      "threshold": 0,
+      "actualValue": 1,
+      "passed": false,
+      "isBlocking": true,
+      "explanation": "An API this release publishes has changed in a way that breaks its callers. (The number of breaking API contract changes was 1 against equalling 0.)",
+      "action": "fail",
+      "measured": true
+    }
+  ],
+  "summary": "The quality gate failed on 1 rule(s): No breaking contract changes.",
+  "outcome": "fail",
+  "reviewReasons": [],
+  "metrics": {
+    "HighFailedCount": 0,
+    "MediumFailedCount": 0,
+    "BlockedCount": 0,
+    "RegressionFailedCount": 0,
+    "ApiFailedCount": 0,
+    "FlakyRatePercent": 0,
+    "PassRatePercent": 100,
+    "FailedCount": 0,
+    "CriticalFailedCount": 0,
+    "FlakyCount": 0,
+    "NewFailureCount": 0,
+    "HighConfidenceDefectCount": 0,
+    "CriticalJourneyFailedCount": 0,
+    "HealedCount": 0,
+    "AverageDurationMs": 34,
+    "ContractBreakingChangeCount": 1
+  },
+  "blocked": true
+}

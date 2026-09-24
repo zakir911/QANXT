@@ -25,7 +25,32 @@ const STATUS_TONE: Record<string, string> = {
   critical: 'bg-bad-light text-bad',
   high: 'bg-warn-light text-warn',
   medium: 'bg-brand-light text-brand',
-  low: 'bg-surface-sunken text-ink-muted'
+  low: 'bg-surface-sunken text-ink-muted',
+  informational: 'bg-surface-sunken text-ink-muted',
+
+  // Security. The finding statuses carry weight in one direction only: something confirmed
+  // or regressed is coloured as a problem, and something a person set aside is deliberately
+  // quiet rather than green — a false positive is not an achievement, it is a decision.
+  potential: 'bg-warn-light text-warn',
+  confirmed: 'bg-bad-light text-bad',
+  regressed: 'bg-bad-light text-bad',
+  regression: 'bg-bad-light text-bad',
+  needsReview: 'bg-warn-light text-warn',
+  falsePositive: 'bg-surface-sunken text-ink-muted',
+  accepted: 'bg-surface-sunken text-ink-muted',
+  resolved: 'bg-good-light text-good',
+
+  // Gate outcomes. REVIEW is amber rather than green on purpose: it covers "nobody scanned",
+  // and a green badge there would be the exact misreading the gate exists to prevent.
+  pass: 'bg-good-light text-good',
+  review: 'bg-warn-light text-warn',
+  fail: 'bg-bad-light text-bad',
+  'not measured': 'bg-warn-light text-warn',
+
+  // Scope state.
+  enabled: 'bg-good-light text-good',
+  disabled: 'bg-surface-sunken text-ink-muted',
+  permitted: 'bg-warn-light text-warn'
 };
 
 export function StatusBadge({ status, title }: { status: string; title?: string }) {

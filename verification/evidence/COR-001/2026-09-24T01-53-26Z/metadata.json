@@ -1,0 +1,35 @@
+{
+  "testId": "COR-001",
+  "suite": "UI/API correlation",
+  "runId": "2026-09-24T01-53-26Z",
+  "objective": "Every recorded request is attributed to the step that made it",
+  "preconditions": [
+    "the lab bank is running with no faults"
+  ],
+  "input": "A three-step UI journey through the accounts pages",
+  "expected": "The execution reports its API calls with the step each belongs to, so a reader sees the step and the request underneath it in one place",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "7 API call(s) recorded, 7 attributed to a step, across step(s) 1, 2, 3",
+  "metrics": {
+    "calls": 7,
+    "attributed": 7
+  },
+  "startedAt": "2026-09-24T01:54:44.729Z",
+  "durationMs": 6101,
+  "build": {
+    "commit": "5f49897",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "api-calls.json",
+      "path": "evidence/COR-001/2026-09-24T01-53-26Z/api-calls.json",
+      "bytes": 2195,
+      "sha256": "6694e9ed265a84314dd45c785d24de6e63673e610874529bf9ab4caf4aebd541"
+    }
+  ]
+}

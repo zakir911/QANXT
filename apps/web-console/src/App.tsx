@@ -19,6 +19,7 @@ import AgentPage from './pages/AgentPage';
 import InsightsPage from './pages/InsightsPage';
 import SchedulesPage from './pages/SchedulesPage';
 import AuditPage from './pages/AuditPage';
+import SecurityPage from './pages/SecurityPage';
 import VerificationPage from './pages/VerificationPage';
 import SettingsPage from './pages/SettingsPage';
 
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="agent" element={<AgentPage />} />
         <Route path="insights" element={<InsightsPage />} />
         <Route path="schedules" element={<SchedulesPage />} />
+        <Route path="security" element={<SecurityPage />} />
         <Route path="audit" element={<AuditPage />} />
         <Route path="verification" element={<VerificationPage />} />
         <Route path="settings" element={<SettingsPage />} />

@@ -411,6 +411,19 @@ public sealed class SecurityScanService : ISecurityScanService
                     // word Confirmed is reserved for.
                     finding.Status = SecurityFindingStatus.Confirmed;
                 }
+                else if (finding.Status is SecurityFindingStatus.NeedsReview
+                         && finding.DispositionByUserId is null)
+                {
+                    // It was put in NeedsReview by an earlier scan that could not reproduce it,
+                    // and this scan has reproduced it. The note saying a check ran and did not
+                    // find it is now false, and leaving it there would tell whoever opens this
+                    // finding the opposite of what happened.
+                    //
+                    // Guarded on DispositionByUserId being null so a person's own NeedsReview
+                    // decision is never overwritten by a scan. Only the machine-written one is.
+                    finding.Status = SecurityFindingStatus.Confirmed;
+                    finding.DispositionNote = null;
+                }
 
                 summaries.Add(ToSummary(finding, isNew: false, isRegression: wasResolved));
                 continue;

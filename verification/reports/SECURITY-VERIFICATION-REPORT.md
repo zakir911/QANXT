@@ -2,7 +2,7 @@
 
 **AIRA's security testing behaved as specified against its own lab in this run.**
 
-Run `SEC-2026-09-24T01-52-44Z` · 207 security test(s) · 204 passed, 0 failed, 3 not verified
+Run `SEC-2026-09-24T02-03-18Z` · 212 security test(s) · 209 passed, 0 failed, 3 not verified
 
 > What this report is, and is not
 > 
@@ -29,8 +29,8 @@ Run `SEC-2026-09-24T01-52-44Z` · 207 security test(s) · 204 passed, 0 failed, 
 | False positives on the corrected application | 0 |
 | Endpoints the ground truth calls correct | 8 |
 | Findings reported against those endpoints | 0 |
-| Evidence files recorded | 208 |
-| Evidence files whose hash still matches | 208 |
+| Evidence files recorded | 213 |
+| Evidence files whose hash still matches | 213 |
 
 ## Results by family
 
@@ -48,12 +48,12 @@ Run `SEC-2026-09-24T01-52-44Z` · 207 security test(s) · 204 passed, 0 failed, 
 | Triage | 8/8 | Suppression needs a reason and a name |
 | Coverage honesty | 1/1 | What this scan cannot decide |
 | Measured rates | 1/1 | Detection and false positives, as measured |
-| Stored scans | 16/16 | Scopes, scans, findings and triage through AIRA's own API |
+| Stored scans | 21/21 | Scopes, scans, findings and triage through AIRA's own API |
 | AIRA itself | 11/11 | Tenancy, credentials, target policy and headers in the platform |
 
 ## Requirements
 
-59 of 59 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
+63 of 63 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
 
 ## What was NOT tested
 
@@ -271,6 +271,11 @@ report generated from that run.
 | `SECPL-014` | PASS | A scan cannot be recorded against an application nobody has authorized | 1 file(s) |
 | `SECPL-015` | PASS | Another tenant cannot read this tenant's security findings | 1 file(s) |
 | `SECPL-016` | PASS | The platform's gate and the JavaScript mirror produce the same decision and the same words | 1 file(s) |
+| `SECPL-017` | PASS | A trend carries the coverage each point was measured at | 1 file(s) |
+| `SECPL-018` | PASS | A scan that covered materially less than the one before it is flagged as not comparable | 1 file(s) |
+| `SECPL-019` | PASS | An application with no scans is described as untested, not as clean | 1 file(s) |
+| `SECPL-020` | PASS | A finding a scan could not reproduce goes to NeedsReview, and is never resolved on absence | 1 file(s) |
+| `SECPL-021` | PASS | A finding reproduced after a scan missed it becomes Confirmed and loses the stale note | 1 file(s) |
 | `SECQ-001` | PASS | A scan that did not run is REVIEW, never a pass | 1 file(s) |
 | `SECQ-002` | PASS | Two real findings from a real scan block the build | 2 file(s) |
 | `SECQ-003` | PASS | A clean scan never claims the application is secure | 1 file(s) |
@@ -304,4 +309,4 @@ report generated from that run.
 
 ---
 
-Generated from `verification/reports/golden-results.jsonl` for run `SEC-2026-09-24T01-52-44Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.
+Generated from `verification/reports/golden-results.jsonl` for run `SEC-2026-09-24T02-03-18Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.
