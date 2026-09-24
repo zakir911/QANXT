@@ -1,0 +1,35 @@
+{
+  "testId": "SECW-012",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-SCHED-145617",
+  "objective": "Scanning an application twice does not empty the first scan's record",
+  "preconditions": [
+    "two completed scans of the same application, reporting the same findings"
+  ],
+  "input": "The earlier scan, read back after the later one recorded the same flaws",
+  "expected": "It still reports what it found, at the severity it found it. A finding is a flaw and outlives the scans that see it, so a scan read as \"findings whose last sighting was this one\" empties out the moment anything scans again — and an emptied scan does not read as \"look elsewhere\", it reads as a run that found nothing",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "3 completed scan(s); 0 executed checks and hold no findings",
+  "metrics": {
+    "scans": 3,
+    "emptied": 0
+  },
+  "startedAt": "2026-09-24T14:57:00.686Z",
+  "durationMs": 27,
+  "build": {
+    "commit": "c2fea11",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "both.json",
+      "path": "evidence/SECW-012/SEC-SCHED-145617/both.json",
+      "bytes": 575,
+      "sha256": "24f5ce43fc2b67bc93fcfb5d60e79e44cafe8ff9c03d33345e414e225d537249"
+    }
+  ]
+}

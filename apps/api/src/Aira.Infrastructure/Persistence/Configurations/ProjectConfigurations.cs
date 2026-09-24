@@ -76,6 +76,7 @@ public class ScheduleConfiguration : IEntityTypeConfiguration<Schedule>
         b.Property(x => x.IncludeTags).HasMaxLength(500);
         b.Property(x => x.DisabledReason).HasMaxLength(500);
         b.HasIndex(x => new { x.IsEnabled, x.NextRunAt });
+        b.HasIndex(x => x.ApplicationId);
     }
 }
 

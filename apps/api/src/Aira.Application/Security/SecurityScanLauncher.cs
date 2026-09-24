@@ -16,7 +16,22 @@ public sealed record StartSecurityScanRequest(
     /// gate reads coverage honestly.</summary>
     IReadOnlyList<string>? ChecksToRun = null,
     /// <summary>Synthetic identities the scan may sign in as. Never real accounts.</summary>
-    IReadOnlyList<SecurityScanIdentity>? Identities = null);
+    IReadOnlyList<SecurityScanIdentity>? Identities = null,
+    /// <summary>Set when a schedule asked for this rather than a person.</summary>
+    SecurityScanTrigger? Trigger = null);
+
+/// <summary>
+/// A schedule that started a scan: who set it up, and which schedule it was.
+/// </summary>
+/// <remarks>
+/// Attribution, not authority. The permissions consulted are still the caller's, and a
+/// scheduled run has none — so destructive testing and production scanning refuse themselves
+/// by the same check that refuses them to any person who does not hold them. What this carries
+/// is the answer to "who is accountable for this having run", which a scan with no user
+/// otherwise loses entirely.
+/// </remarks>
+public sealed record SecurityScanTrigger(
+    Guid ScheduleId, string ScheduleName, Guid? ConfiguredByUserId);
 
 public sealed record SecurityScanIdentity(
     string Label, string Username, string Password, string? Role = null, string? ResourceId = null);
@@ -147,6 +162,13 @@ public sealed class SecurityScanLauncher : ISecurityScanLauncher
         var now = _clock.UtcNow;
         var scan = new SecurityScan
         {
+            // Taken from the application rather than from ambient context, because there may be
+            // no ambient context: a scan started by a schedule runs in a cross-tenant sweep, and
+            // the context's tenant enforcement deliberately stands back there. Left to it, a
+            // scheduled scan was written with an empty organization — belonging to nobody,
+            // invisible to the tenant whose application it scanned, and visible to any query
+            // that runs without a filter.
+            OrganizationId = application.OrganizationId,
             ApplicationId = application.Id,
             ProjectId = application.ProjectId,
             EnvironmentId = scope.EnvironmentId,
@@ -167,7 +189,9 @@ public sealed class SecurityScanLauncher : ISecurityScanLauncher
                 untestedAreas = surface.Value.Caveats
             }),
             StartedAt = now,
-            CreatedByUserId = _user.UserId
+            // The person who asked, or the person who set up the schedule that asked. Never
+            // nobody, where there is somebody to name.
+            CreatedByUserId = _user.UserId ?? request.Trigger?.ConfiguredByUserId
         };
         _db.SecurityScans.Add(scan);
         await _db.SaveChangesAsync(ct);
@@ -235,8 +259,18 @@ public sealed class SecurityScanLauncher : ISecurityScanLauncher
                 scan.Reference, profile = request.Profile.ToString(),
                 targets = surface.Value.Items.Count,
                 checksToRun = requested.Count, checksConfigured = implied.Count,
-                identities = request.Identities?.Count ?? 0
-            }, ct: ct);
+                identities = request.Identities?.Count ?? 0,
+                // Named so the trail answers "why did this run" for a scan nobody started by
+                // hand, which is otherwise the one thing an unattended scan cannot say.
+                startedBy = request.Trigger is null ? "a person" : "a schedule",
+                scheduleId = request.Trigger?.ScheduleId,
+                scheduleName = request.Trigger?.ScheduleName
+            },
+            // From the application, not from the caller: a scheduled scan has no signed-in user
+            // for the logger to fall back to, and an unaudited security scan is the one kind
+            // there must never be.
+            organizationId: application.OrganizationId,
+            projectId: application.ProjectId, ct: ct);
 
         _logger.LogInformation(
             "Queued security scan {Reference} with {Targets} target(s) and {Checks} check(s)",

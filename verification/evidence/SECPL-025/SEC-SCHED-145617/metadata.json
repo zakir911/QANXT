@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-025",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-SCHED-145617",
+  "objective": "A change-impact result carries the caveats, so a narrowed run cannot be read as full coverage",
+  "preconditions": [
+    "the application"
+  ],
+  "input": "The same change impact request",
+  "expected": "The caveats travel in the payload. A caller deciding to run six checks instead of thirty-two needs the sentence about discovery in the same response, not a link to it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "2 caveat(s); first: This is what discovery walked, not the application. Anything a crawl did not reach is abse",
+  "metrics": null,
+  "startedAt": "2026-09-24T14:56:29.691Z",
+  "durationMs": 14,
+  "build": {
+    "commit": "c2fea11",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "impact.json",
+      "path": "evidence/SECPL-025/SEC-SCHED-145617/impact.json",
+      "bytes": 1846,
+      "sha256": "5b484135802956ed5049e51b4553762854fcf2eef5030621629d92d8d04b7a3a"
+    }
+  ]
+}

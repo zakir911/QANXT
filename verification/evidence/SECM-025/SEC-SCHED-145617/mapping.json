@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_UPLOAD_NO_SIZE_LIMIT",
+    "type": "NoUploadSizeLimit",
+    "endpoint": "POST /api/upload",
+    "severity": "low",
+    "cwe": "CWE-770",
+    "owaspWeb": "A04:2021",
+    "detectBy": "A declared size far above the limit is accepted."
+  },
+  "got": {
+    "cwe": "CWE-770",
+    "cweConfidence": "likely",
+    "owaspWeb": "A04:2021",
+    "owaspApi": "API4:2023",
+    "confidence": "Low",
+    "severity": {
+      "exploitability": "straightforward",
+      "impact": "minimal",
+      "privilegeRequired": "authenticatedUser",
+      "affectedData": "none",
+      "exposure": "authenticatedUsers",
+      "requiresUnusualConditions": false,
+      "score": 6,
+      "maxScore": 19,
+      "severity": "Low",
+      "explanation": "Low (6/19): straightforward to exploit, minimal impact, any signed-in user, reaches no data, reachable by signed-in users."
+    }
+  }
+}

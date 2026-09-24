@@ -36,8 +36,8 @@
 <main>
   <h1>AIRA — security verification</h1>
   <p class="verdict">AIRA's security testing behaved as specified against its own lab in this run.</p>
-  <p class="meta">Run <code>SEC-DOM-135511</code> · 240 security test(s) ·
-     235 passed, 0 failed, 5 not verified</p>
+  <p class="meta">Run <code>SEC-SCHED-145617</code> · 242 security test(s) ·
+     236 passed, 0 failed, 6 not verified</p>
 
   <div class="disclaimer">
     <p><strong>What this report is, and is not.</strong> It describes AIRA's security
@@ -60,8 +60,8 @@
     <tr><td>Flaws detected</td><td class="ok">34</td></tr>
     <tr><td>False positives on the corrected application</td><td class="ok">0</td></tr>
     <tr><td>Endpoints the ground truth calls correct</td><td>8</td></tr>
-    <tr><td>Evidence files recorded</td><td>240</td></tr>
-    <tr><td>Evidence files whose hash still matches</td><td class="ok">240</td></tr>
+    <tr><td>Evidence files recorded</td><td>241</td></tr>
+    <tr><td>Evidence files whose hash still matches</td><td class="ok">241</td></tr>
   </table></div>
 
   <h2>Results by family</h2>
@@ -91,6 +91,9 @@
 <tr><td><code>SECN-003</code></td><td>Detection rate against an application AIRA has not seen</td><td class="muted">Not measured, and not measurable here. Every flaw in the lab was written alongside the check that finds it. The rate in SECR-001 describes this lab and nothing else.</td></tr>
 <tr><td><code>SECW-N001</code></td><td>A worker-run scan against an authorized production environment</td><td class="muted">Not executed. Production security testing is off by default and no production environment exists here. The launcher refuses production without the permission and the guard refuses each request as well, but the permitted path is not exercised anywhere and is NOT VERIFIED.</td></tr>
 <tr><td><code>SECW-N002</code></td><td>The sweep that abandons a scan no worker reported, end to end</td><td class="muted">Not executed here. The sweep and both of its consequences are covered by nine unit tests (SecurityScanReaperTests, AbandonedSecurityScanTests) and were driven end to end against a running stack by stopping the worker and restarting it. What no automated test covers is that round trip itself: it needs a grace period to elapse, and a golden suite that waited out a timer would be one nobody runs. The wait, not the behaviour, is what is NOT VERIFIED here.</td></tr>
+<tr><td><code>SECW-N003</code></td><td>A schedule firing a security scan on its cron, end to end</td><td class="muted">Not executed here. SECW-016 covers what a security schedule stores and refuses, and the firing itself was driven against a running stack with a one-minute cron: the scan was queued, ran, completed with findings, and both scheduleFired and securityScanStarted were written to the trail naming the schedule. What no automated test covers is the wait, which is at least a minute of real time and would make this suite one nobody runs.
+
+Also NOT VERIFIED: that scheduling cannot be used to reach destructive or production scanning. Those are refused by the launcher reading permissions a background sweep does not hold, and no stock role holds project:write without security:scan, so the escalation has no path through the default role matrix to exercise. The refusals are unit tested (SecurityScheduleTests).</td></tr>
   </table></div>
 
   <h3>Known limitations</h3>
@@ -107,8 +110,9 @@
     <li><strong>A scan is only as wide as discovery.</strong> Targets come from what the crawler
         walked, so anything it never reached is untested and does not appear in the coverage
         fraction as a gap.</li>
-    <li><strong>Nothing schedules a security scan.</strong> An application scanned once and never
-        again reads as its last scan indefinitely.</li>
+    <li><strong>A scheduled scan is never destructive and never touches production.</strong> It
+        runs with nobody's permissions, and both are checked at the moment of the scan. Nothing
+        is triggered by a deployment; the cron is the only trigger there is.</li>
     <li><strong>A scan whose worker stops is ended, but not retried.</strong> A sweep marks it
         abandoned with the reason on the row; its gate still reads NOT SCANNED. Queueing another
         is a decision for a person.</li>
@@ -358,14 +362,16 @@
 <tr><td><code>SECW-013</code></td><td class="ok">PASS</td><td>A DOM sink no response can reveal is found by driving a real browser</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-014</code></td><td class="ok">PASS</td><td>The same page with the sink corrected produces no finding</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-015</code></td><td class="ok">PASS</td><td>The browser-driven check counts as executed coverage, not as an untested area</td><td class="muted">1</td></tr>
+<tr><td><code>SECW-016</code></td><td class="ok">PASS</td><td>A security schedule names the application it scans, and refuses without one</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-N001</code></td><td class="bad">NOT_VERIFIED</td><td>A worker-run scan against an authorized production environment</td><td class="muted">0</td></tr>
 <tr><td><code>SECW-N002</code></td><td class="bad">NOT_VERIFIED</td><td>The sweep that abandons a scan no worker reported, end to end</td><td class="muted">0</td></tr>
+<tr><td><code>SECW-N003</code></td><td class="bad">NOT_VERIFIED</td><td>A schedule firing a security scan on its cron, end to end</td><td class="muted">0</td></tr>
 <tr><td><code>SECX-001</code></td><td class="ok">PASS</td><td>DOM-based XSS is reported as not tested by a response-only scan, never as absent</td><td class="muted">1</td></tr>
   </table></div>
 
   <footer>
     Generated from <code>verification/reports/golden-results.jsonl</code> for run
-    <code>SEC-DOM-135511</code>. Every figure is derived from a recorded execution;
+    <code>SEC-SCHED-145617</code>. Every figure is derived from a recorded execution;
     nothing in this report is asserted.
   </footer>
 </main>

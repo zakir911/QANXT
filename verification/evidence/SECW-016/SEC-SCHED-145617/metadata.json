@@ -1,0 +1,32 @@
+{
+  "testId": "SECW-016",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-SCHED-145617",
+  "objective": "A security schedule names the application it scans, and refuses without one",
+  "preconditions": [
+    "the authorized application"
+  ],
+  "input": "A security schedule with no application, then one with it",
+  "expected": "The first is refused; the second is stored as a security schedule against that application. A schedule that fires for ever and starts nothing reads in a list exactly like one that is working",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "without an application 400; with one 201 (securityScan, next run 2026-09-25T02:00:00+00:00)",
+  "metrics": null,
+  "startedAt": "2026-09-24T14:57:00.713Z",
+  "durationMs": 22,
+  "build": {
+    "commit": "c2fea11",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "schedules.json",
+      "path": "evidence/SECW-016/SEC-SCHED-145617/schedules.json",
+      "bytes": 745,
+      "sha256": "3c01e7dabb9ba2dafef64302c2f3dc5e1c6cd9700316666a1012929f2f732206"
+    }
+  ]
+}

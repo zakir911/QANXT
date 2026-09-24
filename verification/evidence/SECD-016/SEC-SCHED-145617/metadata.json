@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-016",
+  "suite": "Security scanning",
+  "runId": "SEC-SCHED-145617",
+  "objective": "Input reflected unencoded into an HTML response is reported as reflected XSS",
+  "preconditions": [
+    "VULN_REFLECTED_XSS switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Injection: the reflected-xss check against the lab",
+  "expected": "Exactly one ReflectedXSS finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "ReflectedXSS: 'q' is reflected into HTML without encoding (3 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 3
+  },
+  "startedAt": "2026-09-24T14:56:25.059Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c2fea11",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-016/SEC-SCHED-145617/vulnerable.json",
+      "bytes": 408,
+      "sha256": "a6db6296261ef800791c98f8937ac7ce0787e18889f7d034751fcb5bcf5640e7"
+    }
+  ]
+}

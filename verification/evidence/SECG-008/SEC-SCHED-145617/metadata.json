@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-008",
+  "suite": "Security scanning",
+  "runId": "SEC-SCHED-145617",
+  "objective": "The scope guard refuses a non-http scheme",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "a non-http scheme",
+  "expected": "Refused with domainNotAllowed. Only http and https are ever issued.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "domainNotAllowed: Scheme 'file:' is not permitted.",
+  "metrics": {
+    "rungsPassed": 1
+  },
+  "startedAt": "2026-09-24T14:56:25.412Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c2fea11",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-008/SEC-SCHED-145617/decision.json",
+      "bytes": 264,
+      "sha256": "f0b96ccacaa091b827d5e47ac81b83629ae67bbc74858d84682f9f0b5f23a15f"
+    }
+  ]
+}

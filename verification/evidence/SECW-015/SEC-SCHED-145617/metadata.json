@@ -1,0 +1,32 @@
+{
+  "testId": "SECW-015",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-SCHED-145617",
+  "objective": "The browser-driven check counts as executed coverage, not as an untested area",
+  "preconditions": [
+    "the completed DOM scans"
+  ],
+  "input": "The scan record for the corrected run",
+  "expected": "xss.dom appears as executed and is absent from the untested areas. Before a browser existed it could only ever be reported untested, and the gap between those two is the whole of what this check adds",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 check(s) executed; not reported as untested",
+  "metrics": null,
+  "startedAt": "2026-09-24T14:57:00.685Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c2fea11",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "coverage.json",
+      "path": "evidence/SECW-015/SEC-SCHED-145617/coverage.json",
+      "bytes": 754,
+      "sha256": "d2bc2ed7b887faa2713488658782958f967ba5d9efd18554e16dfc105727d202"
+    }
+  ]
+}

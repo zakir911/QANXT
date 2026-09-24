@@ -8,6 +8,9 @@ import { formatRelative } from '../lib/format';
 
 interface Schedule {
   id: string; projectId: string; name: string;
+  /** What it starts: a test run, or a security scan of one application. */
+  kind: 'testRun' | 'securityScan';
+  applicationId?: string | null;
   cronExpression: string; timeZone: string;
   testSuiteId?: string | null; includeTags?: string | null;
   environmentId?: string | null; browser: string;
@@ -91,6 +94,9 @@ export default function SchedulesPage() {
               title={schedule.isEnabled ? 'Enabled' : 'Not running'}
             />
             <strong>{schedule.name}</strong>
+            {schedule.kind === 'securityScan' ? (
+              <StatusBadge status="security scan" title="Starts a security scan, not a test run" />
+            ) : null}
             <code className="font-mono text-xs bg-surface-sunken rounded px-1.5 py-0.5">{schedule.cronExpression}</code>
             <span className="text-sm text-ink-muted">{schedule.timeZone}</span>
           </div>
@@ -115,17 +121,26 @@ export default function SchedulesPage() {
             <div>
               <dt>Last</dt>
               <dd>
-                {schedule.lastRunAt
+                {/* A security schedule has no run to link to: lastRunId points at a test run,
+                    and a security scan is not one. Linking anyway sends the reader to a page
+                    for a run that does not exist. */}
+                {schedule.lastRunAt && schedule.lastRunId
                   ? <a className="underline" href={`/runs/${schedule.lastRunId}`}>{formatRelative(schedule.lastRunAt)}</a>
-                  : 'has not run yet'}
+                  : schedule.lastRunAt
+                    ? formatRelative(schedule.lastRunAt)
+                    : 'has not run yet'}
               </dd>
             </div>
             <div>
               <dt>Runs</dt>
               <dd>
-                {schedule.includeTags ? `tests tagged ${schedule.includeTags}` : null}
-                {!schedule.includeTags && schedule.testSuiteId ? 'one suite' : null}
-                {!schedule.includeTags && !schedule.testSuiteId ? 'every enabled test' : null}
+                {schedule.kind === 'securityScan' ? 'a security scan of one application' : null}
+                {schedule.kind !== 'securityScan' && schedule.includeTags
+                  ? `tests tagged ${schedule.includeTags}` : null}
+                {schedule.kind !== 'securityScan' && !schedule.includeTags && schedule.testSuiteId
+                  ? 'one suite' : null}
+                {schedule.kind !== 'securityScan' && !schedule.includeTags && !schedule.testSuiteId
+                  ? 'every enabled test' : null}
               </dd>
             </div>
           </dl>

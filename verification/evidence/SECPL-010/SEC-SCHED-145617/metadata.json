@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-010",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-SCHED-145617",
+  "objective": "A justification too short to be one is refused",
+  "preconditions": [
+    "a stored finding"
+  ],
+  "input": "Triage to Accepted with the justification \"not real\"",
+  "expected": "400. \"not real\" is not a reason, and a workflow that accepts it quietly is how a security gate becomes decoration",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "400: ",
+  "metrics": null,
+  "startedAt": "2026-09-24T14:56:25.842Z",
+  "durationMs": 9,
+  "build": {
+    "commit": "c2fea11",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECPL-010/SEC-SCHED-145617/response.json",
+      "bytes": 468,
+      "sha256": "2fd0155f19ca081fa65c151dbb055bef6fccc2a1ceb261530e56dc27b098a22a"
+    }
+  ]
+}

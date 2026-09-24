@@ -8,9 +8,11 @@ SEC-R43 to SEC-R49 are about AIRA itself rather than the applications it tests. 
 
 Reclaiming a scan no worker reported is verified by unit tests rather than golden ones (SecurityScanReaperTests, AbandonedSecurityScanTests), and is deliberately not listed as a requirement here: every row in this file names a golden test, and a row pointing at something traceability.mjs cannot check would make the matrix look complete while proving less. The behaviour needs a grace period to elapse, and a golden suite that waited out a timer is one nobody runs. SECW-N002 records that gap in the golden results.
 
-Checked against golden run `SEC-DOM-135511`.
+The controls on a scheduled security scan are verified by unit tests rather than golden ones, for two reasons that are worth stating. A firing needs at least a minute of real time, and a suite that waits out a cron is one nobody runs. And the escalation the service check guards — project:write without security:scan — has no path through the default role matrix, because no stock role holds the first without the second; the check is defence in depth against a customised role, and SecurityScheduleTests exercises it directly. SECW-N003 records both gaps in the golden results.
 
-**85 of 85 requirements verified.**
+Checked against golden run `SEC-SCHED-145617`.
+
+**86 of 86 requirements verified.**
 
 | Requirement | Verified by | Status |
 | --- | --- | --- |
@@ -99,12 +101,13 @@ Checked against golden run `SEC-DOM-135511`.
 | **SEC-R83** The browser-driven check reports nothing against the same page with its sink corrected: the finding rests on the payload having run, not on the sink being present in the source. | SECW-014 | VERIFIED |
 | **SEC-R84** A check that needs a browser counts as executed coverage when one was available, and is reported as an untested area when one was not — never as a page that was examined and found safe. | SECW-015, SECW-008 | VERIFIED |
 | **SEC-R85** Browser-driven work goes through the same scope guard, the same rate pacing and the same refusal ledger as an HTTP request. A second scope check living next to the browser is how the two drift, and a drift in that direction means a browser pointed somewhere nobody authorized. | SECW-013 | VERIFIED |
+| **SEC-R86** A security scan can be scheduled against one named application, and a schedule with no application to scan is refused — one that fires for ever and starts nothing reads in a list exactly like one that is working. | SECW-016 | VERIFIED |
 
 ## Tests claimed by no requirement
 
-329 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 324 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 5 are continuous-quality tests that no requirement above names.
+330 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 324 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 6 are continuous-quality tests that no requirement above names.
 
-498 test id(s) are known to exist: 298 written as literals in a suite, 200 built at run time and proven by having executed.
+500 test id(s) are known to exist: 300 written as literals in a suite, 200 built at run time and proven by having executed.
 
 ```
 ACC-001  ACC-002  ACC-003  ACC-004  ACC-005  ACC-006  AIF-001  AIF-002  AIF-003  AIF-004  AIF-005  AIF-006
@@ -133,7 +136,7 @@ SECM-003  SECM-004  SECM-005  SECM-006  SECM-007  SECM-008  SECM-009  SECM-010  
 SECM-015  SECM-016  SECM-017  SECM-019  SECM-020  SECM-021  SECM-022  SECM-023  SECM-024  SECM-025  SECM-026  SECM-027
 SECM-028  SECM-029  SECM-030  SECM-031  SECM-032  SECM-033  SECN-001  SECN-002  SECN-003  SECP-006  SECP-007  SECP-008
 SECP-009  SECP-010  SECP-011  SECP-012  SECP-013  SECP-014  SECP-015  SECP-017  SECP-018  SECP-019  SECP-020  SECP-021
-SECP-024  SECP-025  SECP-026  SECP-030  SECP-031  SECP-032  SECP-033  SECP-034  SECW-N001  SECW-N002  VIS-001  VIS-002
-VIS-003  VIS-004  VIS-005  VIS-006  VIS-007
+SECP-024  SECP-025  SECP-026  SECP-030  SECP-031  SECP-032  SECP-033  SECP-034  SECW-N001  SECW-N002  SECW-N003  VIS-001
+VIS-002  VIS-003  VIS-004  VIS-005  VIS-006  VIS-007
 ```
 

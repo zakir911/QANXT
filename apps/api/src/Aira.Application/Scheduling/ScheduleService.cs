@@ -10,14 +10,19 @@ namespace Aira.Application.Scheduling;
 
 public sealed record CreateScheduleRequest(
     Guid ProjectId, string Name, string CronExpression, string? TimeZone,
-    Guid? TestSuiteId, string? IncludeTags, Guid? EnvironmentId, BrowserType? Browser);
+    Guid? TestSuiteId, string? IncludeTags, Guid? EnvironmentId, BrowserType? Browser,
+    /// <summary>What this schedule starts. Defaults to a test run.</summary>
+    ScheduleKind Kind = ScheduleKind.TestRun,
+    /// <summary>The application to scan. Required when Kind is SecurityScan.</summary>
+    Guid? ApplicationId = null);
 
 public sealed record UpdateScheduleRequest(
     string? Name, string? CronExpression, string? TimeZone, Guid? TestSuiteId,
     string? IncludeTags, Guid? EnvironmentId, BrowserType? Browser, bool? IsEnabled);
 
 public sealed record ScheduleSummary(
-    Guid Id, Guid ProjectId, string Name, string CronExpression, string TimeZone,
+    Guid Id, Guid ProjectId, ScheduleKind Kind, Guid? ApplicationId,
+    string Name, string CronExpression, string TimeZone,
     Guid? TestSuiteId, string? IncludeTags, Guid? EnvironmentId, BrowserType Browser,
     bool IsEnabled, string? DisabledReason, DateTimeOffset? LastRunAt, Guid? LastRunId,
     DateTimeOffset? NextRunAt, int ConsecutiveFailureCount, DateTimeOffset CreatedAt);
@@ -104,10 +109,48 @@ public sealed class ScheduleService : IScheduleService
             request.TestSuiteId, request.EnvironmentId, request.ProjectId, ct);
         if (validated.IsFailure) return validated.Error!;
 
+        if (request.Kind == ScheduleKind.SecurityScan)
+        {
+            // Creating a schedule is project:write. Starting a security scan is security:scan,
+            // and a schedule that starts one every night is not a smaller act than starting one
+            // — it is the same act, repeated, by somebody who will not be watching. Without
+            // this, project:write alone would be a route to recurring scans.
+            if (!_user.HasPermission(Security.Permissions.SecurityScan))
+            {
+                return Error.Forbidden(
+                    "Scheduling a security scan needs security:scan as well as project:write. A "
+                    + "schedule starts the same act as the button does, repeatedly and with "
+                    + "nobody present.");
+            }
+
+            // A security schedule with nothing to point at is a schedule that fires for ever
+            // and starts nothing, which reads in a list exactly like one that is working.
+            if (request.ApplicationId is not { } applicationId)
+            {
+                return Error.Validation(
+                    "A security schedule needs the application it should scan.");
+            }
+
+            var application = await _db.Applications
+                .FirstOrDefaultAsync(a => a.Id == applicationId && a.ProjectId == project.Id, ct);
+            if (application is null)
+            {
+                return Error.Validation(
+                    "That application is not in this project, so a schedule here cannot scan it.");
+            }
+
+            // Not checked here: whether the application is authorized for security testing. A
+            // scope can be written after the schedule and withdrawn before it fires, so the
+            // authorization that matters is the one in force at the moment of the scan — which
+            // the launcher checks, every time, and refuses.
+        }
+
         var schedule = new Schedule
         {
             OrganizationId = project.OrganizationId,
             ProjectId = project.Id,
+            Kind = request.Kind,
+            ApplicationId = request.Kind == ScheduleKind.SecurityScan ? request.ApplicationId : null,
             Name = name,
             CronExpression = request.CronExpression.Trim(),
             TimeZone = validated.Value!.TimeZone.Id,
@@ -304,7 +347,8 @@ public sealed class ScheduleService : IScheduleService
     }
 
     private static ScheduleSummary Project(Schedule s) => new(
-        s.Id, s.ProjectId, s.Name, s.CronExpression, s.TimeZone, s.TestSuiteId, s.IncludeTags,
+        s.Id, s.ProjectId, s.Kind, s.ApplicationId,
+        s.Name, s.CronExpression, s.TimeZone, s.TestSuiteId, s.IncludeTags,
         s.EnvironmentId, s.Browser, s.IsEnabled, s.DisabledReason, s.LastRunAt, s.LastRunId,
         s.NextRunAt, s.ConsecutiveFailureCount, s.CreatedAt);
 }

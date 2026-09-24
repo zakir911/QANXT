@@ -41,14 +41,15 @@ public class SecurityScanReaperTests
     /// gap in what somebody believes was tested and nothing else would show it.</summary>
     private sealed class RecordingAudit : IAuditLogger
     {
-        public List<(AuditAction Action, Guid? EntityId, string Summary)> Entries { get; } = new();
+        public List<(AuditAction Action, Guid? EntityId, string Summary, Guid? OrganizationId)>
+            Entries { get; } = new();
 
         public Task LogAsync(AuditAction action, string entityType, Guid? entityId, string summary,
             object? changes = null, bool succeeded = true, Guid? organizationId = null,
             Guid? projectId = null, Guid? userId = null, string? userEmail = null,
             CancellationToken ct = default)
         {
-            Entries.Add((action, entityId, summary));
+            Entries.Add((action, entityId, summary, organizationId));
             return Task.CompletedTask;
         }
     }
@@ -179,6 +180,12 @@ public class SecurityScanReaperTests
         entry.Action.Should().Be(AuditAction.SecurityScanAbandoned);
         entry.EntityId.Should().Be(scan.Id);
         entry.Summary.Should().Contain(scan.Reference);
+
+        // The organization has to be named by the caller. The real logger falls back to the
+        // signed-in user's, and a sweep has no user — so an entry without this is written
+        // nowhere at all. Asserted here because a fake that ignores the argument accepts a
+        // call that the database never sees, which is exactly how this shipped once.
+        entry.OrganizationId.Should().Be(OrgId);
     }
 
     [Fact]

@@ -1,0 +1,18 @@
+{
+  "case": "over the concurrency limit",
+  "why": "The same, for parallelism.",
+  "decision": {
+    "allowed": false,
+    "reason": "concurrencyLimitExceeded",
+    "explanation": "At the limit of 2 concurrent request(s).",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain",
+      "path",
+      "method",
+      "risk",
+      "environment"
+    ]
+  }
+}

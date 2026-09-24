@@ -21,10 +21,33 @@ public class Integration : BaseEntity, ITenantOwned, IAuditable
     public Guid? UpdatedByUserId { get; set; }
 }
 
+/// <summary>What a schedule starts when it fires.</summary>
+public enum ScheduleKind
+{
+    /// <summary>A test run, selected by suite and tags. The original and the default.</summary>
+    TestRun = 0,
+
+    /// <summary>
+    /// A security scan of one application.
+    /// </summary>
+    /// <remarks>
+    /// Runs with nobody's permissions, on purpose. A schedule is a standing instruction rather
+    /// than a per-run authorization, and destructive testing and production scanning each need
+    /// a person who holds the permission to say so for that run — so an unattended scan refuses
+    /// both, by the same check that refuses them to anyone else who does not hold them.
+    /// </remarks>
+    SecurityScan = 1
+}
+
 public class Schedule : BaseEntity, ITenantOwned, IAuditable
 {
     public Guid OrganizationId { get; set; }
     public Guid ProjectId { get; set; }
+    public ScheduleKind Kind { get; set; } = ScheduleKind.TestRun;
+
+    /// <summary>The application to scan. Required for a security schedule, unused otherwise.</summary>
+    public Guid? ApplicationId { get; set; }
+
     public Guid? TestSuiteId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string CronExpression { get; set; } = string.Empty;

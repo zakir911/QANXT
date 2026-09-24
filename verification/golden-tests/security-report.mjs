@@ -236,9 +236,10 @@ markdown.push(
   '- **A scan is only as wide as discovery.** Targets come from what the crawler walked, so a page',
   '  or endpoint discovery never reached is untested and does not appear in the coverage fraction',
   '  as a gap. `SECW-011` records the caveat; it does not close it.',
-  '- **Nothing schedules a security scan.** A scan is started by a person or a pipeline calling',
-  '  `POST /api/v1/security/scans/start`. There is no recurring security scan, so an application',
-  '  scanned once and never again reads as its last scan indefinitely.',
+  '- **A scheduled scan is never destructive and never touches production.** It runs with',
+  '  nobody\'s permissions, and both of those are checked at the moment of the scan. To scan',
+  '  production, or to permit destructive requests, somebody who holds the permission asks for',
+  '  that run. Nothing is triggered by a deployment; the cron is the only trigger there is.',
   '- **A scan whose worker stops is ended, but not retried.** A sweep marks it abandoned with the',
   '  reason on the row; its gate still reads NOT SCANNED. Queueing another is a decision for a',
   '  person, and nobody is notified — a scan that never ran is a coverage gap, not a finding.',
@@ -391,8 +392,9 @@ const html = `<!doctype html>
     <li><strong>A scan is only as wide as discovery.</strong> Targets come from what the crawler
         walked, so anything it never reached is untested and does not appear in the coverage
         fraction as a gap.</li>
-    <li><strong>Nothing schedules a security scan.</strong> An application scanned once and never
-        again reads as its last scan indefinitely.</li>
+    <li><strong>A scheduled scan is never destructive and never touches production.</strong> It
+        runs with nobody's permissions, and both are checked at the moment of the scan. Nothing
+        is triggered by a deployment; the cron is the only trigger there is.</li>
     <li><strong>A scan whose worker stops is ended, but not retried.</strong> A sweep marks it
         abandoned with the reason on the row; its gate still reads NOT SCANNED. Queueing another
         is a decision for a person.</li>

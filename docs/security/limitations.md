@@ -76,14 +76,29 @@ do not exist.
   the worker stopped and then restarted.
 - **VERIFIED by execution**: DOM-based XSS found by driving a real browser at the lab's sink,
   and no finding against the same page with the sink corrected (`SECW-013` to `SECW-015`).
-- **NOT VERIFIED**: a worker-run scan against an authorized production environment.
+- **VERIFIED by execution**: a schedule firing a security scan — queued with the schedule named
+  in the trail, run by the worker, completed with findings — driven against a running stack with
+  a one-minute cron. What a security schedule stores and refuses is `SECW-016`; the refusals that
+  keep it away from destructive and production testing are unit tested.
+- **NOT VERIFIED**: a worker-run scan against an authorized production environment, and the
+  minute-long wait a scheduled firing needs (`SECW-N003`).
 
-## Nothing schedules a security scan
+## A scheduled scan can never be destructive, and never touch production
 
-A scan starts because a person or a pipeline asks for one. There is no recurring security scan
-and no scan triggered by a deployment, so an application scanned once and never again reads as
-its last scan for as long as anyone is looking. The scan's date is on every view of it, which is
-the whole of what stops that being misleading.
+A schedule starts a security scan on a cron, like the nightly regression. It runs with nobody's
+permissions, which is the point rather than a shortcoming: destructive testing needs
+`security:scan:destructive` and production needs `security:production`, both of which are
+checked at the moment of the scan, and a background sweep holds neither. A schedule is a
+standing instruction, and neither of those may rest on one.
+
+So an unattended scan is always the standard profile against a non-production environment. To
+scan production, or to permit destructive requests, somebody who holds the permission asks for
+that run.
+
+Two consequences worth knowing. Withdrawing a scope stops its schedule: the scan is refused, the
+refusal is recorded, and three in a row disable the schedule with the reason attached — which is
+what withdrawing authorization is supposed to do. And nothing is triggered by a deployment; the
+cron is the only trigger there is.
 
 ## A scan whose worker stops is ended, but not retried
 

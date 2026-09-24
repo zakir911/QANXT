@@ -678,7 +678,82 @@ export default async function run() {
     }
   }, context);
 
+  // -----------------------------------------------------------------------
+  // SECW — scheduling one
+  // -----------------------------------------------------------------------
+
+  await golden({
+    id: 'SECW-016',
+    objective: 'A security schedule names the application it scans, and refuses without one',
+    preconditions: ['the authorized application'],
+    input: 'A security schedule with no application, then one with it',
+    expected: 'The first is refused; the second is stored as a security schedule against that '
+      + 'application. A schedule that fires for ever and starts nothing reads in a list exactly '
+      + 'like one that is working',
+    evidence: ['schedules.json'],
+    severity: 'critical',
+    run: async () => {
+      const without = await api('/api/v1/schedules', {
+        method: 'POST',
+        body: {
+          projectId: project.id, name: 'Security schedule with no application',
+          cronExpression: '0 2 * * *', timeZone: 'UTC', kind: 'securityScan'
+        }
+      });
+
+      const withOne = await api('/api/v1/schedules', {
+        method: 'POST',
+        body: {
+          projectId: project.id, name: 'Nightly security scan',
+          cronExpression: '0 2 * * *', timeZone: 'UTC',
+          kind: 'securityScan', applicationId: application.id
+        }
+      });
+
+      // Left disabled: this suite proves it is stored and refused correctly, and a schedule
+      // left armed in a verification run would fire against the lab at two in the morning.
+      if (withOne.ok) {
+        await api(`/api/v1/schedules/${withOne.json.id}`, {
+          method: 'PATCH', body: { isEnabled: false }
+        });
+      }
+
+      return {
+        pass: without.status === 400
+          && withOne.ok
+          && withOne.json.kind === 'securityScan'
+          && withOne.json.applicationId === application.id
+          && Boolean(withOne.json.nextRunAt),
+        detail: `without an application ${without.status}; with one ${withOne.status} `
+          + `(${withOne.json?.kind}, next run ${withOne.json?.nextRunAt})`,
+        evidence: {
+          'schedules.json': {
+            without: { status: without.status, body: without.json },
+            withOne: withOne.json
+          }
+        }
+      };
+    }
+  }, context);
+
   // What this path does not cover, stated rather than left to be inferred.
+  notVerified({
+    id: 'SECW-N003',
+    objective: 'A schedule firing a security scan on its cron, end to end',
+    expected: 'The scan is queued with the schedule named, the worker runs it, and the scope in '
+      + 'force at that moment decides — not the one in force when the schedule was written',
+    severity: 'high'
+  }, 'Not executed here. SECW-016 covers what a security schedule stores and refuses, and the '
+   + 'firing itself was driven against a running stack with a one-minute cron: the scan was '
+   + 'queued, ran, completed with findings, and both scheduleFired and securityScanStarted were '
+   + 'written to the trail naming the schedule. What no automated test covers is the wait, which '
+   + 'is at least a minute of real time and would make this suite one nobody runs.\n\n'
+   + 'Also NOT VERIFIED: that scheduling cannot be used to reach destructive or production '
+   + 'scanning. Those are refused by the launcher reading permissions a background sweep does '
+   + 'not hold, and no stock role holds project:write without security:scan, so the escalation '
+   + 'has no path through the default role matrix to exercise. The refusals are unit tested '
+   + '(SecurityScheduleTests).');
+
   notVerified({
     id: 'SECW-N001',
     objective: 'A worker-run scan against an authorized production environment',

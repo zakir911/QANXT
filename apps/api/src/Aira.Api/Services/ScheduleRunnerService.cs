@@ -3,6 +3,7 @@ using Aira.Application.Notifications;
 using Aira.Application.Scheduling;
 using Aira.Application.Testing;
 using Aira.Domain.Enums;
+using Aira.Domain.Projects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aira.Api.Services;
@@ -96,6 +97,7 @@ public sealed class ScheduleRunnerService : BackgroundService
         var db = scope.ServiceProvider.GetRequiredService<IAiraDbContext>();
         var clock = scope.ServiceProvider.GetRequiredService<IClock>();
         var runs = scope.ServiceProvider.GetRequiredService<ITestRunService>();
+        var security = scope.ServiceProvider.GetRequiredService<Aira.Application.Security.ISecurityScanLauncher>();
         var audit = scope.ServiceProvider.GetRequiredService<IAuditLogger>();
 
         var now = clock.UtcNow;
@@ -143,15 +145,26 @@ public sealed class ScheduleRunnerService : BackgroundService
                 continue;
             }
 
-            await FireAsync(db, runs, audit, clock, schedule, ct);
+            // Scoped to the schedule's own tenant for the firing itself. The sweep looks across
+            // tenants to find what is due; acting on one is not a cross-tenant act, and leaving
+            // the context empty meant audit entries were dropped for want of an organization.
+            tenant.SetOrganization(schedule.OrganizationId);
+            await FireAsync(db, runs, security, audit, clock, schedule, ct);
         }
     }
 
-    private async Task FireAsync(IAiraDbContext db, ITestRunService runs, IAuditLogger audit,
+    private async Task FireAsync(IAiraDbContext db, ITestRunService runs,
+        Aira.Application.Security.ISecurityScanLauncher security, IAuditLogger audit,
         IClock clock, Domain.Projects.Schedule schedule, CancellationToken ct)
     {
         try
         {
+            if (schedule.Kind == ScheduleKind.SecurityScan)
+            {
+                await FireSecurityScanAsync(db, security, audit, clock, schedule, ct);
+                return;
+            }
+
             var testCaseIds = await SelectAsync(db, schedule, ct);
 
             if (testCaseIds.Length == 0)
@@ -194,7 +207,7 @@ public sealed class ScheduleRunnerService : BackgroundService
             await audit.LogAsync(AuditAction.ScheduleFired, nameof(Domain.Projects.Schedule), schedule.Id,
                 $"Schedule '{schedule.Name}' started run {started.Value.Id} with "
                 + $"{testCaseIds.Length} test(s). Next run {row.NextRunAt:u}.",
-                projectId: schedule.ProjectId, ct: ct);
+                organizationId: schedule.OrganizationId, projectId: schedule.ProjectId, ct: ct);
 
             _logger.LogInformation(
                 "Schedule {ScheduleId} '{Name}' started run {RunId} with {Count} test(s)",
@@ -205,6 +218,68 @@ public sealed class ScheduleRunnerService : BackgroundService
             _logger.LogError(exception, "Schedule {ScheduleId} could not start a run", schedule.Id);
             await RecordFailureAsync(db, audit, schedule, exception.Message, ct);
         }
+    }
+
+    /// <summary>
+    /// Queues a security scan for a schedule, with nobody's permissions.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The launcher's refusals do the work here, and they do it without being asked to behave
+    /// differently for a scheduled run: a scan needs an enabled scope carrying a written
+    /// authorization, destructive testing needs <c>security:scan:destructive</c> and production
+    /// needs <c>security:production</c>. A background sweep holds no permissions at all, so the
+    /// last two refuse themselves. That is the intended design rather than a happy accident — a
+    /// schedule is a standing instruction, and neither of those may rest on one.
+    /// </para>
+    /// <para>
+    /// The consequence worth knowing: a scope somebody disables stops its schedule, loudly. The
+    /// scan is refused, the refusal is recorded against the schedule, and a few of those in a
+    /// row disable it with the reason attached. Withdrawing authorization is meant to stop
+    /// testing, and this is where that actually happens.
+    /// </para>
+    /// </remarks>
+    private async Task FireSecurityScanAsync(IAiraDbContext db,
+        Aira.Application.Security.ISecurityScanLauncher security, IAuditLogger audit,
+        IClock clock, Domain.Projects.Schedule schedule, CancellationToken ct)
+    {
+        if (schedule.ApplicationId is not { } applicationId)
+        {
+            await DisableAsync(db, audit, schedule,
+                "It is a security schedule with no application to scan, so it can never start "
+                + "anything.", ct);
+            return;
+        }
+
+        var started = await security.StartAsync(new Aira.Application.Security.StartSecurityScanRequest(
+            ApplicationId: applicationId,
+            Trigger: new Aira.Application.Security.SecurityScanTrigger(
+                schedule.Id, schedule.Name, schedule.CreatedByUserId)), ct);
+
+        if (started.IsFailure)
+        {
+            await RecordFailureAsync(db, audit, schedule, started.Error!.Message, ct);
+            return;
+        }
+
+        var row = await db.Schedules.FirstAsync(s => s.Id == schedule.Id, ct);
+        row.LastRunAt = clock.UtcNow;
+        // Deliberately not LastRunId: that column points at a test run, and a security scan is
+        // not one. Pointing it at a scan id would give the console a link that resolves to
+        // nothing, or worse to an unrelated run.
+        row.ConsecutiveFailureCount = 0;
+        await db.SaveChangesAsync(ct);
+
+        await audit.LogAsync(AuditAction.ScheduleFired, nameof(Domain.Projects.Schedule), schedule.Id,
+            $"Schedule '{schedule.Name}' queued security scan {started.Value!.Reference} against "
+            + $"application {applicationId}. Next run {row.NextRunAt:u}.",
+            new { started.Value.Reference, started.Value.SecurityScanId, started.Value.Targets,
+                  started.Value.ChecksToRun, started.Value.ChecksConfigured },
+            organizationId: schedule.OrganizationId, projectId: schedule.ProjectId, ct: ct);
+
+        _logger.LogInformation(
+            "Schedule {ScheduleId} '{Name}' queued security scan {Reference} ({Checks} check(s))",
+            schedule.Id, schedule.Name, started.Value.Reference, started.Value.ChecksToRun);
     }
 
     /// <summary>The tests a schedule covers: its suite, its tags, or the whole project.</summary>
@@ -262,7 +337,7 @@ public sealed class ScheduleRunnerService : BackgroundService
 
             await audit.LogAsync(AuditAction.ScheduleDisabledAutomatically,
                 nameof(Domain.Projects.Schedule), schedule.Id, row.DisabledReason,
-                succeeded: false, projectId: schedule.ProjectId, ct: ct);
+                succeeded: false, organizationId: schedule.OrganizationId, projectId: schedule.ProjectId, ct: ct);
 
             _logger.LogError("Schedule {ScheduleId} '{Name}' disabled itself: {Reason}",
                 schedule.Id, schedule.Name, row.DisabledReason);
@@ -291,7 +366,7 @@ public sealed class ScheduleRunnerService : BackgroundService
 
         await audit.LogAsync(AuditAction.ScheduleDisabledAutomatically,
             nameof(Domain.Projects.Schedule), schedule.Id, reason,
-            succeeded: false, projectId: schedule.ProjectId, ct: ct);
+            succeeded: false, organizationId: schedule.OrganizationId, projectId: schedule.ProjectId, ct: ct);
 
         _logger.LogError("Schedule {ScheduleId} '{Name}' disabled: {Reason}",
             schedule.Id, schedule.Name, reason);

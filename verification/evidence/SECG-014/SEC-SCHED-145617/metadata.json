@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-014",
+  "suite": "Security scanning",
+  "runId": "SEC-SCHED-145617",
+  "objective": "The scope guard refuses the passive profile asked for an active probe",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "the passive profile asked for an active probe",
+  "expected": "Refused with profileDoesNotPermit. The profile bounds what the scan will do.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "profileDoesNotPermit: The passive profile does not run this risk level.",
+  "metrics": {
+    "rungsPassed": 5
+  },
+  "startedAt": "2026-09-24T14:56:25.415Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c2fea11",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-014/SEC-SCHED-145617/decision.json",
+      "bytes": 387,
+      "sha256": "319b497f832df537d7ef502dc431d889fba7c5d2d75313d6d1708e16c767a667"
+    }
+  ]
+}

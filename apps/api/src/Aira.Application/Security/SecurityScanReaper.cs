@@ -105,6 +105,10 @@ public sealed class SecurityScanReaper : ISecurityScanReaper
             await _audit.LogAsync(AuditAction.SecurityScanAbandoned, nameof(SecurityScan), scan.Id,
                 $"Security scan {scan.Reference} was abandoned: no worker reported it.",
                 new { scan.Reference, graceMinutes = grace.TotalMinutes, scan.StartedAt },
+                // Named explicitly. The logger otherwise falls back to the signed-in user's
+                // organization, and a sweep has no user — so the entry was written nowhere and
+                // the trail this exists to leave did not exist.
+                organizationId: scan.OrganizationId,
                 projectId: scan.ProjectId, ct: ct);
         }
 

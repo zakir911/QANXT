@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-030",
+  "suite": "Security scanning",
+  "runId": "SEC-SCHED-145617",
+  "objective": "The weak-cookie finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-1004, OWASP A05:2021, severity Medium, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-1004, A05:2021, Medium (10/19) — Medium (10/19): difficult to exploit, serious impact, no account needed, reaches credentials, publicly reachable, but needs conditions the attacker does not control.",
+  "metrics": {
+    "score": 10,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T14:56:25.302Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "c2fea11",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-030/SEC-SCHED-145617/mapping.json",
+      "bytes": 888,
+      "sha256": "418288dcc7622ed4f31c8b80731cf2fc9101dd2184869621744b8d2e765a5a38"
+    }
+  ]
+}

@@ -3362,6 +3362,10 @@ namespace Aira.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid?>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
                     b.Property<int>("Browser")
                         .HasColumnType("integer")
                         .HasColumnName("browser");
@@ -3401,6 +3405,10 @@ namespace Aira.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer")
+                        .HasColumnName("kind");
 
                     b.Property<DateTimeOffset?>("LastRunAt")
                         .HasColumnType("timestamp with time zone")
@@ -3448,6 +3456,9 @@ namespace Aira.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_schedules");
+
+                    b.HasIndex("ApplicationId")
+                        .HasDatabaseName("ix_schedules_application_id");
 
                     b.HasIndex("IsEnabled", "NextRunAt")
                         .HasDatabaseName("ix_schedules_is_enabled_next_run_at");
