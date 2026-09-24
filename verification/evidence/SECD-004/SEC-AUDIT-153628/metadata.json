@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-004",
+  "suite": "Security scanning",
+  "runId": "SEC-AUDIT-153628",
+  "objective": "Protected data served to an unauthenticated caller is reported as missing authorization",
+  "preconditions": [
+    "VULN_MISSING_AUTHZ switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Authorization: the missing-authz check against the lab",
+  "expected": "Exactly one MissingAuthorization finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "MissingAuthorization: Protected data is served to an unauthenticated caller (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T15:36:35.669Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-004/SEC-AUDIT-153628/vulnerable.json",
+      "bytes": 433,
+      "sha256": "be08d0d770a2b33ef625bb3ab48cbafebf4a07d9c75386b84edad5d8cb1a7438"
+    }
+  ]
+}

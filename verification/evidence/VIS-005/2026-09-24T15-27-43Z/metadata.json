@@ -1,0 +1,32 @@
+{
+  "testId": "VIS-005",
+  "suite": "Visual regression",
+  "runId": "2026-09-24T15-27-43Z",
+  "objective": "A run with no visual step reports the metric as unmeasured, never as zero",
+  "preconditions": [
+    "a gate rule on visual differences, and a run that compares nothing"
+  ],
+  "input": "A run of a test with no checkVisual step",
+  "expected": "The rule is reported as not measured and sent for review — a rule that passed because nothing looked reads as \"the page is unchanged\"",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "rule measured=false passed=false; outcome review",
+  "metrics": null,
+  "startedAt": "2026-09-24T15:34:59.267Z",
+  "durationMs": 2083,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/VIS-005/2026-09-24T15-27-43Z/gate.json",
+      "bytes": 1514,
+      "sha256": "eb6806e2370541cc1269415aee6b55b8d73c288a2b8f222548e88fd20f69526e"
+    }
+  ]
+}

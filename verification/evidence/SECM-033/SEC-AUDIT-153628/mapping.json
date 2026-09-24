@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_SOURCE_MAP",
+    "type": "SourceMapExposed",
+    "endpoint": "GET /app.js.map",
+    "severity": "low",
+    "cwe": "CWE-540",
+    "owaspWeb": "A05:2021",
+    "detectBy": "A source map with sourcesContent is served."
+  },
+  "got": {
+    "cwe": "CWE-540",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A05:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "Low",
+    "severity": {
+      "exploitability": "difficult",
+      "impact": "minimal",
+      "privilegeRequired": "none",
+      "affectedData": "nonSensitive",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 7,
+      "maxScore": 19,
+      "severity": "Low",
+      "explanation": "Low (7/19): difficult to exploit, minimal impact, no account needed, reaches non-sensitive data, publicly reachable."
+    }
+  }
+}

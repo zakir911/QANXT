@@ -76,6 +76,11 @@ do not exist.
   the worker stopped and then restarted.
 - **VERIFIED by execution**: DOM-based XSS found by driving a real browser at the lab's sink,
   and no finding against the same page with the sink corrected (`SECW-013` to `SECW-015`).
+- **VERIFIED by execution**: an act performed outside an HTTP request reaches the audit trail.
+  It did not, for as long as background work has existed: the organization came from the
+  signed-in user, a sweep has none, and the record was logged as a warning and dropped. The
+  logger falls back to the tenant now, and `AuditLoggerTests` pins the resolution including the
+  case where nothing can answer and nothing is written.
 - **VERIFIED by execution**: a schedule firing a security scan — queued with the schedule named
   in the trail, run by the worker, completed with findings — driven against a running stack with
   a one-minute cron. What a security schedule stores and refuses is `SECW-016`; the refusals that

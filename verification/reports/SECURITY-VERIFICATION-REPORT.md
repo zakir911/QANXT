@@ -2,7 +2,7 @@
 
 **AIRA's security testing behaved as specified against its own lab in this run.**
 
-Run `SEC-SCHED-145617` · 242 security test(s) · 236 passed, 0 failed, 6 not verified
+Run `SEC-AUDIT-153628` · 242 security test(s) · 236 passed, 0 failed, 6 not verified
 
 > What this report is, and is not
 > 
@@ -349,4 +349,4 @@ Also NOT VERIFIED: that scheduling cannot be used to reach destructive or produc
 
 ---
 
-Generated from `verification/reports/golden-results.jsonl` for run `SEC-SCHED-145617`. Every figure is derived from a recorded execution; nothing in this report is asserted.
+Generated from `verification/reports/golden-results.jsonl` for run `SEC-AUDIT-153628`. Every figure is derived from a recorded execution; nothing in this report is asserted.

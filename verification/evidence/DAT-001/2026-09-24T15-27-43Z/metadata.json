@@ -1,0 +1,32 @@
+{
+  "testId": "DAT-001",
+  "suite": "Test data",
+  "runId": "2026-09-24T15-27-43Z",
+  "objective": "A data set can be created with each kind of field and read back",
+  "preconditions": [
+    "none"
+  ],
+  "input": "A data set with a static, a generated, a seeded and a secret-reference field",
+  "expected": "All four stored, and the secret reference returned as a name rather than a value",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "4 field(s): bookingDate=seededRandom, customerEmail=generated, orderReference=static, password=secretReference",
+  "metrics": null,
+  "startedAt": "2026-09-24T15:33:42.400Z",
+  "durationMs": 489,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "set.json",
+      "path": "evidence/DAT-001/2026-09-24T15-27-43Z/set.json",
+      "bytes": 1020,
+      "sha256": "15b01085a8153d80d1a12367602738bab5222f8d00ebccd6b30b6472406e1404"
+    }
+  ]
+}

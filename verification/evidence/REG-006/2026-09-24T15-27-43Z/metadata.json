@@ -1,0 +1,32 @@
+{
+  "testId": "REG-006",
+  "suite": "Regression selection",
+  "runId": "2026-09-24T15-27-43Z",
+  "objective": "Every selected test carries its score, the score's components and the reason for each",
+  "preconditions": [
+    "REG-003 produced a narrowed selection"
+  ],
+  "input": "The same accounts change",
+  "expected": "Five named components per test, each capped and each with a sentence; and reasons that name the route the change affects",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "score 70 from 5 component(s); reasons: This test exercises /accounts, which the change affects. | Priority medium, risk medium. | This test has never run, so nothing is known about it. | It has never been run.",
+  "metrics": null,
+  "startedAt": "2026-09-24T15:30:24.245Z",
+  "durationMs": 10,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "explained.json",
+      "path": "evidence/REG-006/2026-09-24T15-27-43Z/explained.json",
+      "bytes": 1126,
+      "sha256": "94c1c3115bc1c9e651869fc0995e6544c5d6aaa09f525767f66da09419c0c931"
+    }
+  ]
+}

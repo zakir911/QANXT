@@ -1,0 +1,43 @@
+{
+  "testId": "CIS-003",
+  "suite": "CI simulation",
+  "runId": "2026-09-24T15-27-43Z",
+  "objective": "A quality gate blocks a run in which no test failed, under its own exit code",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"gate-blocks-a-green-run\"",
+  "expected": "Exit 2 with zero failed tests, and the rule's own explanation in the summary",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "exit 2; 0 test(s) failed and the gate blocked anyway; the quality gate blocked this run",
+  "metrics": {
+    "airaExit": 2,
+    "pipelineExit": 2
+  },
+  "startedAt": "2026-09-24T15:35:55.598Z",
+  "durationMs": 3265,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-003/2026-09-24T15-27-43Z/pipeline.log",
+      "bytes": 1331,
+      "sha256": "9a18d0e161fc8f30bbd0b6193039eb8f33d80cee5d46e71cbd5ff2764cca887d"
+    },
+    {
+      "file": "summary.md",
+      "path": "evidence/CIS-003/2026-09-24T15-27-43Z/summary.md",
+      "bytes": 713,
+      "sha256": "2f9af12ca56924340ed0ef6a4e3d65f66ed30cc73b3711931d7a8ad5ef4314bd"
+    }
+  ]
+}

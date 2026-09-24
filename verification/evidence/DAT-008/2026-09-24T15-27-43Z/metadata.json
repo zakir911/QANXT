@@ -1,0 +1,32 @@
+{
+  "testId": "DAT-008",
+  "suite": "Test data",
+  "runId": "2026-09-24T15-27-43Z",
+  "objective": "A data set with several problems reports all of them at once",
+  "preconditions": [
+    "none"
+  ],
+  "input": "A data set with a duplicate key, an unknown generator type, a seeded field with no seed and a static field with no value",
+  "expected": "One response naming every problem — somebody pasting twenty fields should not submit twenty times to find twenty typos",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "4 problem(s) reported at once",
+  "metrics": null,
+  "startedAt": "2026-09-24T15:33:44.040Z",
+  "durationMs": 7,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "problems.json",
+      "path": "evidence/DAT-008/2026-09-24T15-27-43Z/problems.json",
+      "bytes": 368,
+      "sha256": "f5e9afdb776ab7f9edb4a06d5d0bd81f64cf466bd16f39622042dd7720ab1c80"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "SECW-007",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-AUDIT-153628",
+  "objective": "A narrowed run reports partial coverage and does not pass the gate on that basis",
+  "preconditions": [
+    "an authorized, discovered application"
+  ],
+  "input": "A scan narrowed to one of the implied checks",
+  "expected": "The full implied set still travels as the configured set, so the coverage rule fails and the gate asks for review. Narrowing a run must cost coverage; if it narrowed the denominator too, running one check would report as complete",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "configured 4, asked for 1; gate review: 1 of 4 configured check(s) executed (25%; the policy requires 80%).",
+  "metrics": null,
+  "startedAt": "2026-09-24T15:36:54.340Z",
+  "durationMs": 2025,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "narrowed.json",
+      "path": "evidence/SECW-007/SEC-AUDIT-153628/narrowed.json",
+      "bytes": 1292,
+      "sha256": "e440816b738569e071d433f8b340e22ba3188b5d702823b5163db24e0cba35a3"
+    }
+  ]
+}

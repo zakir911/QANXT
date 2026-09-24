@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AIRA golden test report — 2026-09-24T02-58-10Z</title>
+<title>AIRA golden test report — 2026-09-24T15-27-43Z</title>
 <style>
 :root { --ink:#101a2b; --muted:#5b6b82; --line:#e2e8f2; --bg:#f6f8fb; --ok:#12855a; --bad:#c02626; --warn:#b26b00; --accent:#0b5fff; }
 *{box-sizing:border-box}
@@ -38,13 +38,13 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
 <body>
 <header>
   <h1>AIRA — golden test report</h1>
-  <p>Run 2026-09-24T02-58-10Z · build c804e54 · generated 2026-09-24T03:06:42.414Z</p>
+  <p>Run 2026-09-24T15-27-43Z · build 6907045 (working tree dirty) · generated 2026-09-24T15:36:14.313Z</p>
 </header>
 <main>
   <div class="overall bad">
     Overall: FAIL —
-    127 passed, 0 failed,
-    0 not verified of 127;
+    139 passed, 0 failed,
+    0 not verified of 139;
     0 critical failure(s)
   </div>
 
@@ -73,7 +73,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
       <span>0/0 executed</span>
     </div><div class="gate ok">
       <strong>Evidence: PASS</strong>
-      <span>127/127 executed</span>
+      <span>139/139 executed</span>
     </div>
   </div>
 
@@ -112,7 +112,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
     <div class="card"><h3>Result integrity</h3>
       <div class="metric"><span>False passes</span><strong>0</strong></div>
       <div class="metric"><span>False failures</span><strong>0</strong></div>
-      <div class="metric"><span>Evidence artifacts</span><strong>155</strong></div>
+      <div class="metric"><span>Evidence artifacts</span><strong>173</strong></div>
       <div class="metric"><span>Missing / changed</span><strong>0 / 0</strong></div>
     </div>
   </div>
@@ -188,11 +188,11 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
       </tr><tr>
         <td><code>API-002</code></td><td>API testing</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>An API test executes in the ordinary run pipeline and passes when the API works</td>
-        <td class="muted">run passed, execution passed, 2 action(s), 200ms</td>
+        <td class="muted">run passed, execution passed, 2 action(s), 131ms</td>
       </tr><tr>
         <td><code>API-003</code></td><td>API testing</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>The request and the response are recorded as evidence, tagged with the step that made them</td>
-        <td class="muted">2 exchange(s) recorded: step 1 POST /api/session → 200 in 2ms; step 2 GET /api/accounts → 200 in 2ms</td>
+        <td class="muted">2 exchange(s) recorded: step 1 POST /api/session → 200 in 3ms; step 2 GET /api/accounts → 200 in 2ms</td>
       </tr><tr>
         <td><code>API-004</code></td><td>API testing</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>A test that expects an unauthenticated call to be refused passes on the refusal</td>
@@ -272,7 +272,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
       </tr><tr>
         <td><code>CI-001</code></td><td>CI integration</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>A run writes exactly the four documented artifacts, under fixed names</td>
-        <td class="muted">exit 0; files junit.xml, report.html, report.json, summary.md; junit 485B, json 1722B, html 4318B, summary 404B</td>
+        <td class="muted">exit 0; files junit.xml, report.html, report.json, summary.md; junit 485B, json 1721B, html 4318B, summary 404B</td>
       </tr><tr>
         <td><code>CI-002</code></td><td>CI integration</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>The pull request summary names the failure, its message and its diagnosis</td>
@@ -301,6 +301,54 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td><code>CI-008</code></td><td>CI integration</td><td>high</td>
         <td><span class="badge pass">PASS</span></td><td>A quality gate rule that no run could ever satisfy is refused, rather than blocking every build</td>
         <td class="muted">explicit lessThan 0: 400; operator omitted: 400; lessThanOrEqual 0: 200 stored as lessThanOrEqual; the refusal names the likely intention: true</td>
+      </tr><tr>
+        <td><code>CIS-001</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A healthy deployment and passing tests take the pipeline through every stage to a clean exit</td>
+        <td class="muted">exit 0; stages checkout → deploy → health → select → test → publish; artifacts junit.xml, report.html, report.json, summary.md; 2 passed, 0 failed</td>
+      </tr><tr>
+        <td><code>CIS-002</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A defect in the deployment fails the pipeline, and the evidence is still published</td>
+        <td class="muted">exit 1; 1 passed, 1 failed; artifacts published: ok</td>
+      </tr><tr>
+        <td><code>CIS-003</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A quality gate blocks a run in which no test failed, under its own exit code</td>
+        <td class="muted">exit 2; 0 test(s) failed and the gate blocked anyway; the quality gate blocked this run</td>
+      </tr><tr>
+        <td><code>CIS-004</code></td><td>CI simulation</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A pipeline naming a project that does not exist is a configuration error</td>
+        <td class="muted">exit 3; bad configuration</td>
+      </tr><tr>
+        <td><code>CIS-005</code></td><td>CI simulation</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A rejected token is an authentication error and never a security policy violation</td>
+        <td class="muted">exit 4; bad credentials</td>
+      </tr><tr>
+        <td><code>CIS-006</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>An unreachable platform is reported as knowing nothing, never as a pass</td>
+        <td class="muted">exit 5; the platform could not be reached</td>
+      </tr><tr>
+        <td><code>CIS-007</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A failed health check stops the pipeline before any test runs</td>
+        <td class="muted">exit 5; stages checkout → deploy → health; 0 artifact(s) — the run never started</td>
+      </tr><tr>
+        <td><code>CIS-008</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A run against an unauthorized production environment is refused under the security exit code</td>
+        <td class="muted">exit 6; a security policy refused this run</td>
+      </tr><tr>
+        <td><code>CIS-009</code></td><td>CI simulation</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>The same environment runs once somebody has authorized it in writing</td>
+        <td class="muted">exit 0; the run recorded environment prod</td>
+      </tr><tr>
+        <td><code>CIS-010</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A REVIEW verdict reaches the pipeline as its own exit code</td>
+        <td class="muted">AIRA exited 7, the pipeline exited 7; review required, and this pipeline blocks on review</td>
+      </tr><tr>
+        <td><code>CIS-011</code></td><td>CI simulation</td><td>critical</td>
+        <td><span class="badge pass">PASS</span></td><td>A team may choose to continue on REVIEW, and the log still says a person must look</td>
+        <td class="muted">AIRA exited 7, the pipeline exited 0; review required, and this pipeline does not block on review</td>
+      </tr><tr>
+        <td><code>CIS-012</code></td><td>CI simulation</td><td>high</td>
+        <td><span class="badge pass">PASS</span></td><td>A failure inside AIRA is reported as a defect in AIRA, not as a finding about the application</td>
+        <td class="muted">exit 8; AIRA failed internally</td>
       </tr><tr>
         <td><code>CON-001</code></td><td>API contracts</td><td>high</td>
         <td><span class="badge pass">PASS</span></td><td>The API inventory reports which observed endpoints nothing tests</td>
@@ -344,7 +392,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
       </tr><tr>
         <td><code>CON-011</code></td><td>API contracts</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>A generated API test executes and passes against the application it was generated from</td>
-        <td class="muted">&quot;GET http://localhost:4300/api/accounts refuses an unauthenticated caller&quot; ran and passed in 26ms</td>
+        <td class="muted">&quot;GET http://localhost:4300/api/dashboard refuses an unauthenticated caller&quot; ran and passed in 22ms</td>
       </tr><tr>
         <td><code>CON-012</code></td><td>API contracts</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>A generated unauthenticated-refusal test fails if the endpoint stops requiring credentials</td>
@@ -360,15 +408,15 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
       </tr><tr>
         <td><code>COR-001</code></td><td>UI/API correlation</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>Every recorded request is attributed to the step that made it</td>
-        <td class="muted">6 API call(s) recorded, 6 attributed to a step, across step(s) 1, 2, 4</td>
+        <td class="muted">5 API call(s) recorded, 5 attributed to a step, across step(s) 2, 3</td>
       </tr><tr>
         <td><code>COR-002</code></td><td>UI/API correlation</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>A UI step that fails because its own API call returned 500 is diagnosed as that</td>
-        <td class="muted">applicationDefect at 90%: &quot;The step before this one made an API call that returned 500.&quot; — 1 failed call(s) recorded</td>
+        <td class="muted">applicationDefect at 95%: &quot;The step failed because the API call it made returned 500.&quot; — 1 failed call(s) recorded</td>
       </tr><tr>
         <td><code>COR-003</code></td><td>UI/API correlation</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>An API test's failure is diagnosed from the call the failing step made</td>
-        <td class="muted">applicationDefect at 95%: &quot;The step failed because the API call it made returned 500.&quot; / &quot;POST /api/session → 500 in 2ms — the fault is in the application or a service it depends on, not in the test.&quot;</td>
+        <td class="muted">applicationDefect at 95%: &quot;The step failed because the API call it made returned 500.&quot; / &quot;POST /api/session → 500 in 3ms — the fault is in the application or a service it depends on, not in the test.&quot;</td>
       </tr><tr>
         <td><code>COR-004</code></td><td>UI/API correlation</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>A request that never completed is diagnosed as a network issue and named</td>
@@ -480,15 +528,15 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
       </tr><tr>
         <td><code>OBS-001</code></td><td>Isolation, audit and observability</td><td>high</td>
         <td><span class="badge pass">PASS</span></td><td>Every response carries a correlation id, and one supplied by the caller is honoured rather than replaced</td>
-        <td class="muted">minted &quot;c2d85244d9ec4ceba03a05eb23da038b&quot;; supplied &quot;golden-z9hgxqebdj&quot; came back as &quot;golden-z9hgxqebdj&quot;</td>
+        <td class="muted">minted &quot;c9f2f255d83b4718bfe1abd45ad19b56&quot;; supplied &quot;golden-6awu37ze3m&quot; came back as &quot;golden-6awu37ze3m&quot;</td>
       </tr><tr>
         <td><code>OBS-002</code></td><td>Isolation, audit and observability</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>The correlation id on a response is the one on the audit record that request produced</td>
-        <td class="muted">1 record(s) carry correlation golden-trace-z0t8os1wsh; the created project is among them: true (projectCreated)</td>
+        <td class="muted">1 record(s) carry correlation golden-trace-2vtjp64cjq; the created project is among them: true (projectCreated)</td>
       </tr><tr>
         <td><code>OBS-003</code></td><td>Isolation, audit and observability</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>A correlation id survives from the caller through the queue to the execution the worker ran</td>
-        <td class="muted">run passed; the execution carries correlation &quot;golden-run-zkys0kz1si&quot; (supplied &quot;golden-run-zkys0kz1si&quot;)</td>
+        <td class="muted">run passed; the execution carries correlation &quot;golden-run-o1zvxvdzjg&quot; (supplied &quot;golden-run-o1zvxvdzjg&quot;)</td>
       </tr><tr>
         <td><code>OBS-004</code></td><td>Isolation, audit and observability</td><td>high</td>
         <td><span class="badge pass">PASS</span></td><td>Liveness and readiness answer different questions, and liveness depends on nothing</td>
@@ -576,7 +624,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
       </tr><tr>
         <td><code>SCH-001</code></td><td>Scheduling</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>A schedule created through the API fires on its own and starts a real run</td>
-        <td class="muted">fired at 2026-09-24T03:02:08.074608+00:00, run 40b4280b-82b9-4c67-ad9f-051069596425 (passed, trigger scheduled, 1/1 passed); next run 2026-09-24T03:03:00+00:00</td>
+        <td class="muted">fired at 2026-09-24T15:31:19.516315+00:00, run e0410614-85d4-43b9-a720-3d4a1c92826c (passed, trigger scheduled, 1/1 passed); next run 2026-09-24T15:32:00+00:00</td>
       </tr><tr>
         <td><code>SCH-002</code></td><td>Scheduling</td><td>high</td>
         <td><span class="badge pass">PASS</span></td><td>A schedule restricted by tag runs only the tests carrying that tag</td>
@@ -584,7 +632,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
       </tr><tr>
         <td><code>SCH-003</code></td><td>Scheduling</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>Firing moves the schedule forward, so one occurrence starts exactly one run</td>
-        <td class="muted">fired at 2026-09-24T03:04:08.140314+00:00, next 2026-09-24T03:05:00+00:00 (advanced: true); 1 run(s) started for this schedule</td>
+        <td class="muted">fired at 2026-09-24T15:33:19.580494+00:00, next 2026-09-24T15:34:00+00:00 (advanced: true); 1 run(s) started for this schedule</td>
       </tr><tr>
         <td><code>SCH-004</code></td><td>Scheduling</td><td>high</td>
         <td><span class="badge pass">PASS</span></td><td>A cron expression that cannot work is refused when it is written, not at 3am</td>
@@ -604,11 +652,11 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
       </tr><tr>
         <td><code>VIS-001</code></td><td>Visual regression</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>A first run stores a baseline and reports that nothing was compared</td>
-        <td class="muted">first newBaseline (1280x1694); second match at 0.0032% — the live timestamp's own noise, tolerated by the default threshold</td>
+        <td class="muted">first newBaseline (1280x1694); second match at 0.0036% — the live timestamp's own noise, tolerated by the default threshold</td>
       </tr><tr>
         <td><code>VIS-002</code></td><td>Visual regression</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>Every visual change in the lab produces the verdict its ground truth names</td>
-        <td class="muted">TINY: match 0.0226%; OBVIOUS: differs 0.2937%; TALLER: sizeChanged 0.0000%</td>
+        <td class="muted">TINY: match 0.0230%; OBVIOUS: differs 0.2932%; TALLER: sizeChanged 0.0000%</td>
       </tr><tr>
         <td><code>VIS-003</code></td><td>Visual regression</td><td>critical</td>
         <td><span class="badge pass">PASS</span></td><td>A difference does not fail the step by default; it asks for a person</td>
@@ -634,25 +682,25 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
   </table>
 
   <h2>Evidence</h2>
-  <p class="muted">155 artifact(s), 218 KiB, hashed with SHA-256 when written and re-hashed for this report.</p>
+  <p class="muted">173 artifact(s), 237 KiB, hashed with SHA-256 when written and re-hashed for this report.</p>
   <table>
     <thead><tr><th>Test</th><th>Artifact</th><th>Bytes</th><th>SHA-256</th><th>Unchanged</th></tr></thead>
     <tbody>
       <tr>
-        <td><code>ACC-001</code></td><td><code>scan.json</code></td><td>388</td>
-        <td><code>45d264acb0afa60babd87338…</code></td>
+        <td><code>ACC-001</code></td><td><code>scan.json</code></td><td>389</td>
+        <td><code>45620e27f1949d2f186b373e…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>ACC-002</code></td><td><code>measured.json</code></td><td>1471</td>
         <td><code>d7f7a11bf7f06e1e428ba7df…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>ACC-003</code></td><td><code>strict.json</code></td><td>1557</td>
-        <td><code>1803c1aba2a480ca2fef5510…</code></td>
+        <td><code>ACC-003</code></td><td><code>strict.json</code></td><td>1558</td>
+        <td><code>5c0fe2ce31d3c35ea8a035d3…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>ACC-003</code></td><td><code>reportOnly.json</code></td><td>1558</td>
-        <td><code>1a748af3143539f40c94f64b…</code></td>
+        <td><code>ACC-003</code></td><td><code>reportOnly.json</code></td><td>1557</td>
+        <td><code>1b66e3ebd3f3432b419474e9…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>ACC-004</code></td><td><code>message.txt</code></td><td>365</td>
@@ -660,43 +708,43 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>ACC-004</code></td><td><code>scan.json</code></td><td>2744</td>
-        <td><code>4d766ba1eae24520dff98821…</code></td>
+        <td><code>7a8f253493cdff2d2cffac2d…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>ACC-005</code></td><td><code>gate.json</code></td><td>1515</td>
-        <td><code>65fb9db2927c6184c6357143…</code></td>
+        <td><code>273ddabade86faef8ce685da…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>ACC-006</code></td><td><code>gate.json</code></td><td>1169</td>
-        <td><code>948cd85f6dcd3cfbec6ea16a…</code></td>
+        <td><code>54d6948687d3986d8c5336c0…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AIF-001</code></td><td><code>response.json</code></td><td>436</td>
-        <td><code>78402f95a8f66862c9ba1f79…</code></td>
+        <td><code>7edf2da6dedea411279cc568…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AIF-002</code></td><td><code>response.json</code></td><td>458</td>
-        <td><code>b8b22eea22a75cb2b754ffc1…</code></td>
+        <td><code>4a4c2caa1c2001a45caa7666…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AIF-003</code></td><td><code>response.json</code></td><td>611</td>
-        <td><code>d1566ca3dc9b49f6632912b4…</code></td>
+        <td><code>b648700485069c71c5bb6357…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AIF-004</code></td><td><code>response.json</code></td><td>895</td>
-        <td><code>8a38518380094f6758feeacd…</code></td>
+        <td><code>b28711c26cf8984c73796124…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AIF-005</code></td><td><code>response.json</code></td><td>435</td>
-        <td><code>7340be1a267243fefebcd684…</code></td>
+        <td><code>e52905a186b0ad9e55470fca…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AIF-006</code></td><td><code>injection.json</code></td><td>524</td>
-        <td><code>4af0e46acba444b14f1ff15d…</code></td>
+        <td><code>858fd2c3e136efea3fe5cb96…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AIF-007</code></td><td><code>run.json</code></td><td>148</td>
-        <td><code>51d00dee466ccbb0a78baade…</code></td>
+        <td><code>fd499582111d37ad980e7c8f…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AIF-008</code></td><td><code>ai-requests.json</code></td><td>2237</td>
@@ -708,51 +756,51 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>API-001</code></td><td><code>created.json</code></td><td>435</td>
-        <td><code>821ab804808a7d14dda267d5…</code></td>
+        <td><code>7512e36d6668ce68bfcd6900…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-001</code></td><td><code>stored-test-case.json</code></td><td>3592</td>
-        <td><code>057bfa553a7819fb9b020411…</code></td>
+        <td><code>afa0e52a2cab92862f78cdf2…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-002</code></td><td><code>run.json</code></td><td>624</td>
-        <td><code>0924d7ee6ce67d1067cab7e0…</code></td>
+        <td><code>d917eb8453f8a2872948a424…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>API-002</code></td><td><code>execution.json</code></td><td>3204</td>
-        <td><code>a35587b994711138c601f5af…</code></td>
+        <td><code>API-002</code></td><td><code>execution.json</code></td><td>3206</td>
+        <td><code>5562dc99ac64c816c5835820…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-003</code></td><td><code>network.json</code></td><td>2488</td>
-        <td><code>a2755086c3aba2eeffb21b84…</code></td>
+        <td><code>f5ea2e526cb1bb375acb12ac…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>API-004</code></td><td><code>execution.json</code></td><td>2250</td>
-        <td><code>5eec24c335d1eb34aba5a934…</code></td>
+        <td><code>API-004</code></td><td><code>execution.json</code></td><td>2248</td>
+        <td><code>2c681db53fc8f1ef82d0621a…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-004</code></td><td><code>network.json</code></td><td>818</td>
-        <td><code>0b15ae774bbb9301cd003b28…</code></td>
+        <td><code>a89dd4629512a5cd147b4d89…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-005</code></td><td><code>execution.json</code></td><td>4117</td>
-        <td><code>26ab97f2135fa6029aa91f73…</code></td>
+        <td><code>90ff21e30235cac497d7b5b8…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-005</code></td><td><code>network.json</code></td><td>975</td>
-        <td><code>db69b869028b656f9e7b8792…</code></td>
+        <td><code>f424eca07260f55726b1d1cd…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-006</code></td><td><code>refusal.json</code></td><td>449</td>
-        <td><code>e5eba44e49d3dd8798f24155…</code></td>
+        <td><code>65dc54dbd74349588cfa2d20…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-007</code></td><td><code>refusal.json</code></td><td>352</td>
-        <td><code>f924e2f98ac8160b5dd3e8a3…</code></td>
+        <td><code>2d0040a94726c4b61260a4da…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-008</code></td><td><code>refusal.json</code></td><td>371</td>
-        <td><code>d42132b3bc1d7dbffd149592…</code></td>
+        <td><code>58a286adb6689313af96a3a8…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-009</code></td><td><code>refusals.json</code></td><td>447</td>
@@ -760,27 +808,27 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>API-010</code></td><td><code>gate.json</code></td><td>1051</td>
-        <td><code>1f4c747106cdbfac3c26b0bc…</code></td>
+        <td><code>b19db2b3f31a1c820fd49531…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-011</code></td><td><code>gate.json</code></td><td>1464</td>
-        <td><code>229195518feec86a06729a87…</code></td>
+        <td><code>6d2e89da2c3c5997f10a79b6…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-012</code></td><td><code>searched.json</code></td><td>112</td>
-        <td><code>66373b3a9862662b0fdf2b92…</code></td>
+        <td><code>b6c11a2669893a6e287dccc6…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-013</code></td><td><code>definition.json</code></td><td>1438</td>
-        <td><code>2cb8cd7a5c2b2398159ac1d5…</code></td>
+        <td><code>f6e9d3e0566ed11632ef9cfc…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-013</code></td><td><code>cli-output.txt</code></td><td>1378</td>
-        <td><code>a0448c4e9a4720333831a03e…</code></td>
+        <td><code>7492228dbe84e23da10e8de6…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>API-014</code></td><td><code>execution.json</code></td><td>3044</td>
-        <td><code>a3c01d2d372176c379712db9…</code></td>
+        <td><code>API-014</code></td><td><code>execution.json</code></td><td>3043</td>
+        <td><code>36184ddbccf294abcefc1c03…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>API-014</code></td><td><code>network.json</code></td><td>2</td>
@@ -788,19 +836,19 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>AUD-001</code></td><td><code>authorize-audit.json</code></td><td>654</td>
-        <td><code>ea5a0eee6ca5b99a1293993d…</code></td>
+        <td><code>752595a1cf5058bb86ce4655…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AUD-002</code></td><td><code>schedule-audit.json</code></td><td>663</td>
-        <td><code>76fc203de02c75526e04843f…</code></td>
+        <td><code>f55028c3348eb691e8e72a73…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AUD-003</code></td><td><code>gate-audit.json</code></td><td>401</td>
-        <td><code>95e8f52493c883ac197211bc…</code></td>
+        <td><code>4c34bcf4c39acee26757f613…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AUD-004</code></td><td><code>failed-logins.json</code></td><td>227</td>
-        <td><code>55079d720ee9277564e70168…</code></td>
+        <td><code>8cadedc170a869c767d0ad09…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>AUD-005</code></td><td><code>append-only.json</code></td><td>190</td>
@@ -816,7 +864,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>AUD-008</code></td><td><code>rate-limit.json</code></td><td>2134</td>
-        <td><code>0f49c58c566c9a438b8b882d…</code></td>
+        <td><code>3430586dbcbada7f89eb453b…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CI-001</code></td><td><code>files.json</code></td><td>67</td>
@@ -824,23 +872,23 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>CI-001</code></td><td><code>junit.xml</code></td><td>489</td>
-        <td><code>a2c39995bedb8c658a368861…</code></td>
+        <td><code>ca44f175cd5a758513fb0121…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CI-001</code></td><td><code>summary.md</code></td><td>413</td>
-        <td><code>14b31b49b71c93d085e40e61…</code></td>
+        <td><code>7e949601d452f6826a5db6b0…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CI-002</code></td><td><code>summary.md</code></td><td>500</td>
-        <td><code>547040a2c83f46c78e89882b…</code></td>
+        <td><code>3ee0c62b3e2fbc8c2d7105de…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CI-003</code></td><td><code>summary.md</code></td><td>413</td>
-        <td><code>ec4e1fe6b3a1a23c8e012ef1…</code></td>
+        <td><code>12cfb5c845b9c0378ff808b4…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CI-004</code></td><td><code>summary.md</code></td><td>771</td>
-        <td><code>636ffa2426d205d7fc3f6854…</code></td>
+        <td><code>ee420b4002ed32adaf020b36…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CI-005</code></td><td><code>checked.json</code></td><td>608</td>
@@ -848,127 +896,199 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>CI-006</code></td><td><code>junit.xml</code></td><td>1036</td>
-        <td><code>128d340ae5f3fbdf8e4d50eb…</code></td>
+        <td><code>48ea8e1accf271c75f189a13…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CI-006</code></td><td><code>run.json</code></td><td>357</td>
-        <td><code>68c72a47761560a53dfdb8bf…</code></td>
+        <td><code>00e175c529cd52f1f2efc1be…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>CI-007</code></td><td><code>run.json</code></td><td>793</td>
-        <td><code>f89875341f62e9299bd89e9c…</code></td>
+        <td><code>CI-007</code></td><td><code>run.json</code></td><td>794</td>
+        <td><code>e2e8dd34e16d9d946da8b588…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CI-008</code></td><td><code>rules.json</code></td><td>652</td>
         <td><code>060636d908204053f5bde25a…</code></td>
         <td>yes</td>
       </tr><tr>
+        <td><code>CIS-001</code></td><td><code>pipeline.log</code></td><td>1127</td>
+        <td><code>3680fd1ca0004649c9769e52…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-001</code></td><td><code>summary.md</code></td><td>487</td>
+        <td><code>61aec05407325e566ecc1f87…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-001</code></td><td><code>report.json</code></td><td>2656</td>
+        <td><code>e7118410146597cfd1453950…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-002</code></td><td><code>pipeline.log</code></td><td>1340</td>
+        <td><code>338732df667dd082b9aa86a2…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-002</code></td><td><code>summary.md</code></td><td>630</td>
+        <td><code>a326d77b4bd722b46e922556…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-003</code></td><td><code>pipeline.log</code></td><td>1331</td>
+        <td><code>9a18d0e161fc8f30bbd0b619…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-003</code></td><td><code>summary.md</code></td><td>713</td>
+        <td><code>2f9af12ca56924340ed0ef6a…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-004</code></td><td><code>pipeline.log</code></td><td>664</td>
+        <td><code>0af3a145d662bcf3e2330baa…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-005</code></td><td><code>pipeline.log</code></td><td>707</td>
+        <td><code>fe9e464f6da74708ee516ae6…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-006</code></td><td><code>pipeline.log</code></td><td>784</td>
+        <td><code>e9cd9eed0616ec9bd895bda7…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-007</code></td><td><code>pipeline.log</code></td><td>401</td>
+        <td><code>dc6b8d20c8ecb9931c2c2600…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-008</code></td><td><code>pipeline.log</code></td><td>1114</td>
+        <td><code>5c61c678a48247ef0cfadf7d…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-009</code></td><td><code>pipeline.log</code></td><td>1075</td>
+        <td><code>5c83dffb5a607d81be100edd…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-009</code></td><td><code>report.json</code></td><td>2008</td>
+        <td><code>53580a75e64a5449a9bfe0e1…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-010</code></td><td><code>pipeline.log</code></td><td>1428</td>
+        <td><code>046f6644173bb08e878d601f…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-010</code></td><td><code>summary.md</code></td><td>782</td>
+        <td><code>04da85717d691a4ec332eac9…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-011</code></td><td><code>pipeline.log</code></td><td>1488</td>
+        <td><code>6d29e078cce2491bb2d6dbfc…</code></td>
+        <td>yes</td>
+      </tr><tr>
+        <td><code>CIS-012</code></td><td><code>pipeline.log</code></td><td>809</td>
+        <td><code>eb68e96228c66f73a89b1f5a…</code></td>
+        <td>yes</td>
+      </tr><tr>
         <td><code>CON-001</code></td><td><code>inventory.json</code></td><td>8024</td>
-        <td><code>b36063956027fb9b1179c42f…</code></td>
+        <td><code>467314f583b254c5d8ee532f…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-002</code></td><td><code>baselines.json</code></td><td>3395</td>
-        <td><code>ac1e9cdab27a86e166f3cfd1…</code></td>
+        <td><code>bbe0b80ec1fc05cc2f77e9e6…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-003</code></td><td><code>changes.json</code></td><td>258</td>
-        <td><code>82587e8a153764b1127563aa…</code></td>
+        <td><code>9da142b71e47597c93421a8c…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-004</code></td><td><code>changes.json</code></td><td>664</td>
-        <td><code>725a48fca43d4eb173aba442…</code></td>
+        <td><code>6d48841ce639d8be311fdf62…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-005</code></td><td><code>changes.json</code></td><td>694</td>
-        <td><code>a056d51d94d583b44a95b372…</code></td>
+        <td><code>da721a87ef5619aeb388f7e5…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-006</code></td><td><code>changes.json</code></td><td>728</td>
-        <td><code>6b804afe855a1d0eebea35bd…</code></td>
+        <td><code>594e58ac096eebdde6c8909b…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-007</code></td><td><code>changes.json</code></td><td>637</td>
-        <td><code>38410035fd690a504b6d334d…</code></td>
+        <td><code>c2cec40677c13a958186abdc…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-008</code></td><td><code>gate.json</code></td><td>1158</td>
-        <td><code>86aad8d070003e7f59c8683b…</code></td>
+        <td><code>7341d8a277be616601ddbf6e…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-009</code></td><td><code>acknowledgement.json</code></td><td>345</td>
-        <td><code>9d5b1957c6e3656293d85016…</code></td>
+        <td><code>4b5f1ce43548cbe912938351…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-009</code></td><td><code>second-run-changes.json</code></td><td>663</td>
-        <td><code>13c34bbb20ada99039b88dbb…</code></td>
+        <td><code>e93f1d74fa19a32871272455…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-010</code></td><td><code>generated.json</code></td><td>11552</td>
-        <td><code>256ca56f3aa8df38676b1984…</code></td>
+        <td><code>4f8f81e62d4e8a626662ddd1…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-010</code></td><td><code>sample-test.json</code></td><td>2852</td>
-        <td><code>192740d87c0433f71518ba8c…</code></td>
+        <td><code>435ce4aded9afe4891e2eafb…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>CON-011</code></td><td><code>execution.json</code></td><td>2469</td>
-        <td><code>800ef72dfc14ddb3e2009351…</code></td>
+        <td><code>CON-011</code></td><td><code>execution.json</code></td><td>2471</td>
+        <td><code>2c1cd7921d5ab4471f440c60…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>CON-012</code></td><td><code>execution.json</code></td><td>4236</td>
-        <td><code>b803917f20f612331af9f668…</code></td>
+        <td><code>CON-012</code></td><td><code>execution.json</code></td><td>4238</td>
+        <td><code>21e7c93805dbb2fc9dc56033…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-013</code></td><td><code>refusal.json</code></td><td>276</td>
-        <td><code>d21eca4209678c902fec5a60…</code></td>
+        <td><code>d53a5492395cd2325afcbee1…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-013</code></td><td><code>replacement.json</code></td><td>3396</td>
-        <td><code>9898a195e5bd3552be11dbd2…</code></td>
+        <td><code>0fe214245240e10823f068c7…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>CON-014</code></td><td><code>check.json</code></td><td>265</td>
-        <td><code>cf7d509bbc0c2844b6a751c0…</code></td>
+        <td><code>e9c4c375fefc14dc4353bd8b…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>COR-001</code></td><td><code>api-calls.json</code></td><td>1889</td>
-        <td><code>c4a174584fab45c4733b3bad…</code></td>
+        <td><code>COR-001</code></td><td><code>api-calls.json</code></td><td>1582</td>
+        <td><code>ea54b51bcf33578eee301bb2…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>COR-002</code></td><td><code>analysis.json</code></td><td>1832</td>
-        <td><code>02f62c9783437533681f03a1…</code></td>
+        <td><code>COR-002</code></td><td><code>analysis.json</code></td><td>1769</td>
+        <td><code>2364efc2e0afd89bdae81fff…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>COR-002</code></td><td><code>api-calls.json</code></td><td>2194</td>
-        <td><code>befd5c84cacdcd24d48bc6f9…</code></td>
+        <td><code>COR-002</code></td><td><code>api-calls.json</code></td><td>1888</td>
+        <td><code>0d8c33dd385325bcd2471782…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>COR-003</code></td><td><code>analysis.json</code></td><td>1141</td>
-        <td><code>e3ea3a7d6a2b2327d03a7cbd…</code></td>
+        <td><code>20c5f8cfdde814763d49cfcc…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>COR-004</code></td><td><code>analysis.json</code></td><td>1174</td>
-        <td><code>7a34734da21143eba634056b…</code></td>
+        <td><code>1a6e0fa5f0d46edb625104e9…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>COR-005</code></td><td><code>analysis.json</code></td><td>1855</td>
-        <td><code>a4b31739464f65ef34d6de2f…</code></td>
+        <td><code>COR-005</code></td><td><code>analysis.json</code></td><td>1822</td>
+        <td><code>4343c443364685d604d9a1e1…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>COR-005</code></td><td><code>api-calls.json</code></td><td>921</td>
-        <td><code>ac462771b6643088efa6387b…</code></td>
+        <td><code>0f80598fcf6812dbb0184de2…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>COR-006</code></td><td><code>analysis.json</code></td><td>1672</td>
-        <td><code>6c3f6ea0928775c22df8c5ee…</code></td>
+        <td><code>c18f1b1fade60ed52bbd453b…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>COR-007</code></td><td><code>reanalysis.json</code></td><td>1826</td>
-        <td><code>636b3768809be49315c93497…</code></td>
+        <td><code>0e495b4b8120d3d30398a14b…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>DAT-001</code></td><td><code>set.json</code></td><td>1020</td>
-        <td><code>52e0d02bc461f4bbf7d9402e…</code></td>
+        <td><code>15b01085a8153d80d1a12367…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>DAT-002</code></td><td><code>first.json</code></td><td>2168</td>
@@ -980,15 +1100,15 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>DAT-003</code></td><td><code>refusals.json</code></td><td>2436</td>
-        <td><code>49d96c94f8ce343e0ad954df…</code></td>
+        <td><code>b531f5696273478e2532f903…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>DAT-004</code></td><td><code>refusal.json</code></td><td>489</td>
-        <td><code>b8ca77d2381201206f53ae8e…</code></td>
+        <td><code>7b575fa136398348422fb371…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>DAT-005</code></td><td><code>read.json</code></td><td>593</td>
-        <td><code>3751b4fcec9e2fb2d2cdd1f1…</code></td>
+        <td><code>6157682546b08ff072aaf1d6…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>DAT-005</code></td><td><code>preview.json</code></td><td>241</td>
@@ -996,7 +1116,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>DAT-006</code></td><td><code>refusal.json</code></td><td>342</td>
-        <td><code>fcb8a86dda067ab8c8bc9806…</code></td>
+        <td><code>2ade5a27169f45ce118698ad…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>DAT-007</code></td><td><code>exported.json</code></td><td>459</td>
@@ -1004,7 +1124,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>DAT-007</code></td><td><code>cli.txt</code></td><td>2194</td>
-        <td><code>5013faec76c732bb3a7dc883…</code></td>
+        <td><code>bb6115252ef1a338b941323c…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>DAT-008</code></td><td><code>problems.json</code></td><td>368</td>
@@ -1012,7 +1132,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>ISO-001</code></td><td><code>isolation.json</code></td><td>304</td>
-        <td><code>3187becc9b5b4093332dec2f…</code></td>
+        <td><code>6e083defedd0b4d2d8b9eea9…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>ISO-002</code></td><td><code>inventory.json</code></td><td>117</td>
@@ -1036,15 +1156,15 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>ISO-007</code></td><td><code>audit-isolation.json</code></td><td>424</td>
-        <td><code>95ef15c615811d95d8a5fc15…</code></td>
+        <td><code>a7ba17ebcf1c4a297725e83a…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>NOT-001</code></td><td><code>delivery.json</code></td><td>1178</td>
-        <td><code>509e1c0236f221eabcd12809…</code></td>
+        <td><code>NOT-001</code></td><td><code>delivery.json</code></td><td>1180</td>
+        <td><code>6b69d366252e7ba0dbabc18e…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>NOT-002</code></td><td><code>delivery.json</code></td><td>1510</td>
-        <td><code>ddf8aa46caf78f9fd08679ff…</code></td>
+        <td><code>880a585461265c0d34b82ff6…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>NOT-003</code></td><td><code>received.json</code></td><td>2</td>
@@ -1052,19 +1172,19 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>NOT-004</code></td><td><code>delivery.json</code></td><td>1518</td>
-        <td><code>92e0fb6e43aaa4def92066ac…</code></td>
+        <td><code>0cbe8f4b3485b27d125547c9…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>NOT-005</code></td><td><code>scanned.json</code></td><td>749</td>
-        <td><code>daa46efe33456a2c65887b59…</code></td>
+        <td><code>be574a760b3246058dc5181f…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>NOT-006</code></td><td><code>deliveries.json</code></td><td>531</td>
-        <td><code>2238d42d469984f774a3e7b5…</code></td>
+        <td><code>f8eb09492af749fbc682a644…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>NOT-007</code></td><td><code>refusals.json</code></td><td>976</td>
-        <td><code>5a8d2bd45f5b448171c883f6…</code></td>
+        <td><code>1e76518c18d4abbe9e831787…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>NOT-008</code></td><td><code>result.json</code></td><td>169</td>
@@ -1072,15 +1192,15 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>OBS-001</code></td><td><code>correlation.json</code></td><td>128</td>
-        <td><code>1d814b2eff2dac2594688b42…</code></td>
+        <td><code>007e980e24f3175c72b7e80e…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>OBS-002</code></td><td><code>correlation-to-audit.json</code></td><td>307</td>
-        <td><code>537b6f637a041f7ae92858f8…</code></td>
+        <td><code>33b510e40a02fd2baa5a4898…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>OBS-003</code></td><td><code>execution-correlation.json</code></td><td>227</td>
-        <td><code>dd5c9049685a33524b8a7d05…</code></td>
+        <td><code>22f97944e1211ccf1e3ab120…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>OBS-004</code></td><td><code>health.json</code></td><td>182</td>
@@ -1096,27 +1216,27 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>REG-002</code></td><td><code>selection.json</code></td><td>7596</td>
-        <td><code>797c3306cf0aa90c1e2c2287…</code></td>
+        <td><code>fcbf9191171bf444b4a12912…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>REG-003</code></td><td><code>selection.json</code></td><td>7618</td>
-        <td><code>0c135630cc32d44c561573cd…</code></td>
+        <td><code>0b3e53d7c4f34cb7cd6e0e2b…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>REG-004</code></td><td><code>selection.json</code></td><td>7333</td>
-        <td><code>2453b539d7b1f03729dc7833…</code></td>
+        <td><code>68c0cae953b01ca61811c326…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>REG-005</code></td><td><code>selection.json</code></td><td>7214</td>
-        <td><code>01737149e1e03b59be261632…</code></td>
+        <td><code>4b340c9b19090eb1550f7cf6…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>REG-006</code></td><td><code>explained.json</code></td><td>1126</td>
-        <td><code>d120ddedc7b94ca95bd76d23…</code></td>
+        <td><code>94c1c3115bc1c9e651869fc0…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>REG-007</code></td><td><code>selection.json</code></td><td>7245</td>
-        <td><code>45672b3a7b5ab39325b304df…</code></td>
+        <td><code>ba3bdc68c002698791483351…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>REG-008</code></td><td><code>impact.json</code></td><td>753</td>
@@ -1124,139 +1244,139 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
         <td>yes</td>
       </tr><tr>
         <td><code>REG-009</code></td><td><code>cli-output.txt</code></td><td>2608</td>
-        <td><code>bcbc201f2272e96230536372…</code></td>
+        <td><code>93d96855be393567b76dcfaa…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>REG-009</code></td><td><code>regression-selection.json</code></td><td>7618</td>
-        <td><code>0c135630cc32d44c561573cd…</code></td>
+        <td><code>0b3e53d7c4f34cb7cd6e0e2b…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>REG-010</code></td><td><code>first.json</code></td><td>6870</td>
-        <td><code>dca67cc7d6f5d182b01dfbb2…</code></td>
+        <td><code>85f55bafea7db4bc28e3b0b2…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>REG-010</code></td><td><code>second.json</code></td><td>6870</td>
-        <td><code>dca67cc7d6f5d182b01dfbb2…</code></td>
+        <td><code>85f55bafea7db4bc28e3b0b2…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>REG-011</code></td><td><code>refusals.json</code></td><td>631</td>
-        <td><code>3625acf09616d79772e167bb…</code></td>
+        <td><code>0dba8a4c0270847c15922786…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>REG-012</code></td><td><code>refusal.json</code></td><td>243</td>
-        <td><code>ae1d5275c40127547d8fc214…</code></td>
+        <td><code>0e8c89f80f78cc155dbf6cca…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>RLS-001</code></td><td><code>comparison.json</code></td><td>1731</td>
-        <td><code>426c41866661301f280357a1…</code></td>
+        <td><code>RLS-001</code></td><td><code>comparison.json</code></td><td>1729</td>
+        <td><code>2c54a873475433afff51d8a5…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>RLS-002</code></td><td><code>comparison.json</code></td><td>1557</td>
-        <td><code>77279b55baa659f6bb6d62dd…</code></td>
+        <td><code>RLS-002</code></td><td><code>comparison.json</code></td><td>1556</td>
+        <td><code>29c4d3894c0e9688004eaeb8…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>RLS-003</code></td><td><code>comparison.json</code></td><td>1747</td>
-        <td><code>7e3abd66dfe37b501a67b15b…</code></td>
+        <td><code>77a8df497a57af0d4b0c1377…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>RLS-004</code></td><td><code>comparison.json</code></td><td>1537</td>
-        <td><code>b353e86dca8038e850f108ac…</code></td>
+        <td><code>RLS-004</code></td><td><code>comparison.json</code></td><td>1536</td>
+        <td><code>d8b46b879fb96c2928b068fc…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>RLS-005</code></td><td><code>report.json</code></td><td>3807</td>
-        <td><code>559cb99e0334ca19dc73e43f…</code></td>
+        <td><code>RLS-005</code></td><td><code>report.json</code></td><td>3805</td>
+        <td><code>5a7c90d2bf7019802c6dd4c0…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>RLS-006</code></td><td><code>refusal.json</code></td><td>275</td>
-        <td><code>1ba1f96a5f520b6f72d787c4…</code></td>
+        <td><code>5f40437d708fcb0e050163af…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>RLS-007</code></td><td><code>cli.txt</code></td><td>548</td>
-        <td><code>f14d12e9ec786761407b67df…</code></td>
+        <td><code>45a00f35491dcf11205756b2…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>RLS-007</code></td><td><code>comparison.md</code></td><td>312</td>
         <td><code>d653366859105b6f83760caa…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SCH-001</code></td><td><code>schedule.json</code></td><td>559</td>
-        <td><code>ea2fde17f4ec24c2a1b7dbf2…</code></td>
+        <td><code>SCH-001</code></td><td><code>schedule.json</code></td><td>580</td>
+        <td><code>7b29215ec658d63e32066ded…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SCH-001</code></td><td><code>run.json</code></td><td>779</td>
-        <td><code>777d7cca213b11769bdf4331…</code></td>
+        <td><code>SCH-001</code></td><td><code>run.json</code></td><td>782</td>
+        <td><code>85507542c3db2e18a025b5ed…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SCH-002</code></td><td><code>executions.json</code></td><td>744</td>
-        <td><code>632bda183724e2a3ebf2d23b…</code></td>
+        <td><code>SCH-002</code></td><td><code>executions.json</code></td><td>743</td>
+        <td><code>8433f2bf7ebdd7682542b30e…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SCH-003</code></td><td><code>schedule.json</code></td><td>555</td>
-        <td><code>6ea7123c8b4ce120ed5acca6…</code></td>
+        <td><code>SCH-003</code></td><td><code>schedule.json</code></td><td>575</td>
+        <td><code>195f75e3db5dc6fb826629c7…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SCH-003</code></td><td><code>runs.json</code></td><td>832</td>
-        <td><code>a0c011eef484b453ff57eac6…</code></td>
+        <td><code>SCH-003</code></td><td><code>runs.json</code></td><td>831</td>
+        <td><code>0670449dc4f8f08c5c8f93a3…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SCH-004</code></td><td><code>refusals.json</code></td><td>1382</td>
-        <td><code>410c01fe70ae15fe291cbad5…</code></td>
+        <td><code>SCH-004</code></td><td><code>refusals.json</code></td><td>1384</td>
+        <td><code>7a07487dddd88979689fa460…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>SCH-005</code></td><td><code>refusal.json</code></td><td>337</td>
-        <td><code>e463c4c76a022dbc72197ca7…</code></td>
+        <td><code>019892478ece6ce9da1dbb81…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>SCH-006</code></td><td><code>preview.json</code></td><td>157</td>
         <td><code>7e06b32d442ef9c1637c26b1…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>SCH-007</code></td><td><code>cli.txt</code></td><td>1859</td>
-        <td><code>22be2604ed4ce18fb62fb800…</code></td>
+        <td><code>SCH-007</code></td><td><code>cli.txt</code></td><td>1879</td>
+        <td><code>8c00bc556ccbbee0024975ea…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>VIS-001</code></td><td><code>first.json</code></td><td>463</td>
-        <td><code>786f3d8cfdf6201d253bec7c…</code></td>
+        <td><code>d195856f7c12cd610d36e97d…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>VIS-001</code></td><td><code>second.json</code></td><td>352</td>
-        <td><code>55c544499bd9db8981a1f4c4…</code></td>
+        <td><code>VIS-001</code></td><td><code>second.json</code></td><td>353</td>
+        <td><code>70f88b57d5aa81be83e845d6…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>VIS-002</code></td><td><code>measured.json</code></td><td>553</td>
-        <td><code>a88e5bff1ffb83747a0c4c0c…</code></td>
+        <td><code>VIS-002</code></td><td><code>measured.json</code></td><td>554</td>
+        <td><code>2a9b77f3c3641a7458898458…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>VIS-003</code></td><td><code>review.json</code></td><td>724</td>
-        <td><code>43dcac7675568456b281cd77…</code></td>
+        <td><code>bb198e04a57353d2790ce1e2…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>VIS-003</code></td><td><code>strict.json</code></td><td>721</td>
-        <td><code>aef0c33f8c030a7019592250…</code></td>
+        <td><code>VIS-003</code></td><td><code>strict.json</code></td><td>722</td>
+        <td><code>6a9dbb656cf4b1d95af01722…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>VIS-004</code></td><td><code>differs.json</code></td><td>723</td>
-        <td><code>69d35f02497edf43f2cf5290…</code></td>
+        <td><code>9a8ad6c52a1dd125ba91e45f…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>VIS-004</code></td><td><code>matches.json</code></td><td>353</td>
-        <td><code>69f0ca64623933289a6100f3…</code></td>
+        <td><code>VIS-004</code></td><td><code>matches.json</code></td><td>352</td>
+        <td><code>9104ff9688ffe6df96e86a27…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>VIS-005</code></td><td><code>gate.json</code></td><td>1514</td>
-        <td><code>0019a7803b8358d04c24f31a…</code></td>
+        <td><code>eb6806e2370541cc1269415a…</code></td>
         <td>yes</td>
       </tr><tr>
-        <td><code>VIS-006</code></td><td><code>masked.json</code></td><td>371</td>
-        <td><code>30d0c62fd5adfca91e336d97…</code></td>
+        <td><code>VIS-006</code></td><td><code>masked.json</code></td><td>372</td>
+        <td><code>e1e5e68402d6e364ab680188…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>VIS-007</code></td><td><code>wide.json</code></td><td>359</td>
-        <td><code>bac45006179731c431f441e0…</code></td>
+        <td><code>7c0d4c97b69a5b5aa55244f4…</code></td>
         <td>yes</td>
       </tr><tr>
         <td><code>VIS-007</code></td><td><code>narrow.json</code></td><td>467</td>
-        <td><code>8e98ddc1761307997d1ed5cf…</code></td>
+        <td><code>70e913ecec54d99f96b008d8…</code></td>
         <td>yes</td>
       </tr>
     </tbody>

@@ -1,0 +1,34 @@
+{
+  "testId": "SECQ-011",
+  "suite": "Security gate, regression and triage",
+  "runId": "SEC-AUDIT-153628",
+  "objective": "The gate can pass — a clean scan with full coverage is a PASS, not a REVIEW",
+  "preconditions": [
+    "the corrected application, with every configured check recorded as executed"
+  ],
+  "input": "The corrected scan's findings with coverage showing all five checks run",
+  "expected": "PASS. Ten rules that produce REVIEW or FAIL prove only that the gate says no to everything; this is the case that shows it can say yes",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "PASS; 8/8 rule(s) satisfied",
+  "metrics": {
+    "rules": 8
+  },
+  "startedAt": "2026-09-24T15:36:36.407Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-011/SEC-AUDIT-153628/gate.json",
+      "bytes": 2105,
+      "sha256": "50d15e56509658b06482ac32640844e792f1fd82f5777392b92d3361c0f7a9db"
+    }
+  ]
+}

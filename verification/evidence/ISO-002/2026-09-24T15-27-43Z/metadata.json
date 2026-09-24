@@ -1,0 +1,34 @@
+{
+  "testId": "ISO-002",
+  "suite": "Isolation, audit and observability",
+  "runId": "2026-09-24T15-27-43Z",
+  "objective": "Contract baselines and the API inventory are scoped to the owning tenant",
+  "preconditions": [
+    "tenant A owns an application"
+  ],
+  "input": "GET /api/v1/api-contracts/inventory?applicationId=28258ab7-1f65-45e2-b3de-63d841f65a87 as both tenants",
+  "expected": "Tenant B is refused or sees nothing of tenant A; tenant A sees its own",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "intruder 404 with 0 endpoint(s), owner 200",
+  "metrics": {
+    "intruderEndpoints": 0
+  },
+  "startedAt": "2026-09-24T15:35:14.000Z",
+  "durationMs": 9,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "inventory.json",
+      "path": "evidence/ISO-002/2026-09-24T15-27-43Z/inventory.json",
+      "bytes": 117,
+      "sha256": "d1a4de6143dafbd34f0bc58fa673c7d7609c10b810853dbba86bf644dd76853e"
+    }
+  ]
+}

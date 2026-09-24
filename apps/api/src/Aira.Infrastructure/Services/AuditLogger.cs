@@ -15,16 +15,18 @@ public sealed class AuditLogger : IAuditLogger
 {
     private readonly IAiraDbContext _db;
     private readonly ICurrentUser _currentUser;
+    private readonly ITenantContext _tenant;
     private readonly ICorrelationContext _correlation;
     private readonly IClock _clock;
     private readonly ILogger<AuditLogger> _logger;
     private readonly SecretMasker _masker = new();
 
-    public AuditLogger(IAiraDbContext db, ICurrentUser currentUser, ICorrelationContext correlation,
-        IClock clock, ILogger<AuditLogger> logger)
+    public AuditLogger(IAiraDbContext db, ICurrentUser currentUser, ITenantContext tenant,
+        ICorrelationContext correlation, IClock clock, ILogger<AuditLogger> logger)
     {
         _db = db;
         _currentUser = currentUser;
+        _tenant = tenant;
         _correlation = correlation;
         _clock = clock;
         _logger = logger;
@@ -37,10 +39,26 @@ public sealed class AuditLogger : IAuditLogger
     {
         try
         {
-            var org = organizationId ?? _currentUser.OrganizationId;
+            // Three sources, narrowest first: what the caller named, the signed-in user, and
+            // the tenant the work is being done for.
+            //
+            // The last one is what makes this work outside a request. Most callers name
+            // neither, because most callers run inside one and the user carries the answer —
+            // but a background sweep has no user, and every audit entry written from one was
+            // being logged as a warning and dropped. Which is the worst possible failure for an
+            // audit trail: the act happens, and the only record that it happened is the record
+            // that says nothing was recorded.
+            var org = organizationId ?? _currentUser.OrganizationId ?? _tenant.OrganizationId;
             if (org is null)
             {
-                _logger.LogWarning("Audit record for {Action} skipped: no organization in context.", action);
+                // Now genuinely no answer: no caller, no user, no tenant. Louder than before,
+                // because with three sources this means something is wrong rather than that a
+                // background job simply has no session.
+                _logger.LogError(
+                    "Audit record for {Action} on {EntityType} {EntityId} was dropped: no "
+                    + "organization could be determined from the caller, the user or the tenant "
+                    + "context. The act was performed and is not in the trail.",
+                    action, entityType, entityId);
                 return;
             }
 

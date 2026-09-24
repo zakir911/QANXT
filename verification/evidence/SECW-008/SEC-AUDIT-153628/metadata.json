@@ -1,0 +1,37 @@
+{
+  "testId": "SECW-008",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-AUDIT-153628",
+  "objective": "Every implied check that did not execute is named as untested",
+  "preconditions": [
+    "the completed scan"
+  ],
+  "input": "The implied checks, the count that executed, and the gate summary's untested areas",
+  "expected": "At least as many implied checks are named untested as failed to produce a verdict. A check that quietly does not run is indistinguishable in a report from one that ran and found nothing, and the distance between those two is the whole reason coverage is reported",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "4 implied, 4 executed, 0 without a verdict; 0 named untested",
+  "metrics": {
+    "implied": 4,
+    "executed": 4,
+    "missing": 0,
+    "named": 0
+  },
+  "startedAt": "2026-09-24T15:36:56.365Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "untested.json",
+      "path": "evidence/SECW-008/SEC-AUDIT-153628/untested.json",
+      "bytes": 362,
+      "sha256": "5f121f29566dcafbb2b6767e2859ddd48a80de1a1bfbb5b24801aa2bf59aa54e"
+    }
+  ]
+}

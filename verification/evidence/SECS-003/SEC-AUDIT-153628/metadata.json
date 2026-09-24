@@ -1,0 +1,34 @@
+{
+  "testId": "SECS-003",
+  "suite": "Security scanning",
+  "runId": "SEC-AUDIT-153628",
+  "objective": "HTML-escaped reflection produces no XSS finding — reflection alone is not XSS",
+  "preconditions": [
+    "the lab left in its ordinary, fully vulnerable state"
+  ],
+  "input": "GET /greet?name=, which the lab ground truth calls correct",
+  "expected": "No finding. Any finding here is a false positive on an endpoint that does nothing wrong",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "element:encoded, attribute:encoded, script-tag:encoded",
+  "metrics": {
+    "findings": 0
+  },
+  "startedAt": "2026-09-24T15:36:36.304Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "result.json",
+      "path": "evidence/SECS-003/SEC-AUDIT-153628/result.json",
+      "bytes": 171,
+      "sha256": "657281b4319d122230ab2d90af52788c3339108a383d513e1664ae18c04ea36a"
+    }
+  ]
+}

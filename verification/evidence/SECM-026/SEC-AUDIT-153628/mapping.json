@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_UPLOAD_PATH_TRAVERSAL",
+    "type": "PathTraversalInFilename",
+    "endpoint": "POST /api/upload",
+    "severity": "high",
+    "cwe": "CWE-22",
+    "owaspWeb": "A01:2021",
+    "detectBy": "storedAs retains ../ from the supplied filename."
+  },
+  "got": {
+    "cwe": "CWE-22",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A01:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "straightforward",
+      "impact": "serious",
+      "privilegeRequired": "authenticatedUser",
+      "affectedData": "personalData",
+      "exposure": "authenticatedUsers",
+      "requiresUnusualConditions": false,
+      "score": 12,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (12/19): straightforward to exploit, serious impact, any signed-in user, reaches personal data, reachable by signed-in users."
+    }
+  }
+}

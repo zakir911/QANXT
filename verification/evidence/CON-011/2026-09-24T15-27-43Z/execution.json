@@ -1,0 +1,79 @@
+{
+  "id": "6bea20ee-801e-4fe6-910c-b53f65f7a466",
+  "testRunId": "048c8b4b-4960-4867-84c6-47e8bb5be551",
+  "testCaseId": "1788108c-cf92-48c8-b32e-feafb33c2746",
+  "reference": "TC-0004",
+  "name": "GET http://localhost:4300/api/dashboard refuses an unauthenticated caller",
+  "objective": "The endpoint was observed to require authentication. This asserts it still does. Authorization being removed is the failure nobody notices, because every signed-in test carries on passing.",
+  "expectedResults": "",
+  "status": "passed",
+  "startedAt": "2026-09-24T15:28:49.605831+00:00",
+  "completedAt": "2026-09-24T15:28:49.63+00:00",
+  "durationMs": 22,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-927",
+  "correlationId": "063128408c0d45919b596f657fd5c837",
+  "stepsTotal": 1,
+  "stepsPassed": 1,
+  "stepsFailed": 0,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 1,
+  "actions": [
+    {
+      "id": "77c4afe8-22f3-4a2b-ad40-8041b437b275",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "GET http://localhost:4300/api/dashboard with no credentials — 401 in 3ms",
+      "status": "passed",
+      "startedAt": "2026-09-24T15:28:49.612+00:00",
+      "durationMs": 5,
+      "url": "http://localhost:4300/api/dashboard",
+      "wasHealed": false
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "2d43ab51-27e0-42db-a17e-f2c10584f5f6",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 999,
+      "isMasked": false
+    },
+    {
+      "id": "5b6a3009-a076-4d42-b9f7-adb66f509d4e",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 574,
+      "isMasked": true,
+      "testActionId": "77c4afe8-22f3-4a2b-ad40-8041b437b275"
+    },
+    {
+      "id": "9cf5958d-6a1a-4ef5-aca2-2b2e7fd7da73",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 716,
+      "isMasked": true
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "0044538b-c73c-418f-907f-e50f2b5683ce",
+      "method": "GET",
+      "url": "http://localhost:4300/api/dashboard",
+      "statusCode": 401,
+      "durationMs": 3,
+      "isFailed": true,
+      "resourceType": "apiTest",
+      "testActionId": "77c4afe8-22f3-4a2b-ad40-8041b437b275",
+      "actionOrder": 1
+    }
+  ],
+  "healingEvents": []
+}

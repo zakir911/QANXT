@@ -1,0 +1,14 @@
+{
+  "case": "a blocked path",
+  "why": "A path the owner excluded stays excluded.",
+  "decision": {
+    "allowed": false,
+    "reason": "pathBlocked",
+    "explanation": "Path '/api/admin/users' is blocked (pattern '/api/admin/*').",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain"
+    ]
+  }
+}

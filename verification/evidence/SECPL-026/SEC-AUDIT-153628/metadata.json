@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-026",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-AUDIT-153628",
+  "objective": "A release with no security scan is reported as NOT SECURITY TESTED, never omitted",
+  "preconditions": [
+    "a project with a build reference and no security scan in its window"
+  ],
+  "input": "The release quality report for that build",
+  "expected": "A security posture of notScanned whose summary opens with NOT SECURITY TESTED. A release report that simply omits security reads as though security was fine, and that is the most consequential silence a release report can contain",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "No finished run carries this build reference, so the release report refuses rather than answering with zeros — which is the same refusal, one layer earlier. The posture itself is verified by SecurityReleaseServiceTests.",
+  "metrics": null,
+  "startedAt": "2026-09-24T15:36:40.712Z",
+  "durationMs": 3,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "posture.json",
+      "path": "evidence/SECPL-026/SEC-AUDIT-153628/posture.json",
+      "bytes": 35,
+      "sha256": "6d2445430660b46644fda9ab9c082ba49dc0b69767c34809a4820a6146dc3de7"
+    }
+  ]
+}

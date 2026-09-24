@@ -1,0 +1,32 @@
+{
+  "testId": "SECT-007",
+  "suite": "Security gate, regression and triage",
+  "runId": "SEC-AUDIT-153628",
+  "objective": "A false positive suppresses that finding and not the same class elsewhere",
+  "preconditions": [
+    "a BOLA finding marked a false positive on one endpoint"
+  ],
+  "input": "The suppression tested against the same category on a different endpoint",
+  "expected": "It does not apply. Suppressing one endpoint's BOLA says something about that endpoint; applying it to every BOLA in the application would hide real ones",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "applies to /api/accounts/{id}: yes; applies to /api/statements/{id}: false",
+  "metrics": null,
+  "startedAt": "2026-09-24T15:36:36.414Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "suppression.json",
+      "path": "evidence/SECT-007/SEC-AUDIT-153628/suppression.json",
+      "bytes": 185,
+      "sha256": "7bfbbe1c1525bec60b5e249da92cb42a588c5e6e8ee6e325a59d909514e2b8a3"
+    }
+  ]
+}

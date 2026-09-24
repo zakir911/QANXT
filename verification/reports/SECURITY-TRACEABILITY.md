@@ -10,7 +10,9 @@ Reclaiming a scan no worker reported is verified by unit tests rather than golde
 
 The controls on a scheduled security scan are verified by unit tests rather than golden ones, for two reasons that are worth stating. A firing needs at least a minute of real time, and a suite that waits out a cron is one nobody runs. And the escalation the service check guards — project:write without security:scan — has no path through the default role matrix, because no stock role holds the first without the second; the check is defence in depth against a customised role, and SecurityScheduleTests exercises it directly. SECW-N003 records both gaps in the golden results.
 
-Checked against golden run `SEC-SCHED-145617`.
+One more thing verified by unit test rather than a golden one, and worth naming because it went unseen for so long: an act performed outside an HTTP request used to leave no audit record at all. The logger resolved the organization from the signed-in user, a background sweep has no user, and the entry was logged as a warning and discarded — scheduled runs and abandoned scans alike. It now falls back to the tenant the work is being done for, and AuditLoggerTests pins all four cases including the one where nothing can answer. A golden test cannot reach it without waiting out a cron; the firing was driven by hand against a running stack and both entries reached the database.
+
+Checked against golden run `SEC-AUDIT-153628`.
 
 **86 of 86 requirements verified.**
 

@@ -2,52 +2,52 @@
 
 Each requirement names the golden tests that verify it. traceability.mjs checks this file against what actually ran: a requirement with no test, a test id that does not exist, and a named test that did not pass are all failures. A table nobody checks is a table that rots.
 
-Checked against golden run `SEC-VERIFY-1`.
+Checked against golden run `2026-09-24T15-27-43Z`.
 
-**0 of 34 requirements verified.** 34 not covered by this run.
+**34 of 34 requirements verified.**
 
 | Requirement | Verified by | Status |
 | --- | --- | --- |
-| **CQ-R01** A pipeline can run AIRA from a command line and act on the result without parsing output. | CI-001, CI-006, CIS-001 | not run |
-| **CQ-R02** Every documented exit code can actually be produced, and each distinguishes who should look at the failure. | CIS-001, CIS-002, CIS-003, CIS-004, CIS-005, CIS-006, CIS-007, CIS-008, CIS-010, CIS-012, CI-005 | not run |
-| **CQ-R03** A run publishes evidence whether it passed or failed. | CI-001, CIS-002, VIS-004 | not run |
-| **CQ-R04** A failure is reported with enough context to act on without opening the platform. | CI-002, ACC-004, COR-001, COR-003 | not run |
-| **CQ-R05** A run records where it came from, so a failure can be traced to the commit and the deployment that produced it. | CI-007, CIS-009 | not run |
-| **CQ-R06** API endpoints can be tested as first-class test cases, in the same engine as UI tests. | API-001, API-002, API-004, API-013 | not run |
-| **CQ-R07** An API contract change is detected against a stored baseline and classified by how badly it breaks callers. | CON-001, CON-002, CON-003, CON-005, CON-006 | not run |
-| **CQ-R08** A UI failure caused by an API call is explained as such, rather than as a broken locator. | COR-001, COR-002, COR-003 | not run |
-| **CQ-R09** A change selects the tests it reaches, and says why each was or was not selected. | REG-001, REG-002, REG-008, REG-009 | not run |
-| **CQ-R10** Regression runs happen on a schedule without anybody asking, and a schedule that stops running says so. | SCH-001, SCH-002, SCH-003, SCH-004, SCH-005 | not run |
-| **CQ-R11** A quality gate produces PASS, FAIL or REVIEW, and REVIEW survives to the pipeline as its own answer. | CIS-003, CIS-010, CIS-011, CI-004 | not run |
-| **CQ-R12** A quality gate rule whose metric this run could not measure is reported as unmeasured, never as satisfied. | ACC-005, VIS-005 | not run |
-| **CQ-R13** A release decision can be made from what changed, not only from what is broken. | RLS-001, RLS-002, RLS-003, RLS-005, RLS-007 | not run |
-| **CQ-R14** Coverage that stops being exercised is visible rather than silently dropped. | RLS-004 | not run |
-| **CQ-R15** A failure is told to whoever configured a channel, and whether they were told is recorded. | NOT-001, NOT-002, NOT-006 | not run |
-| **CQ-R16** Notifications never carry a credential, checked against the bytes sent. | NOT-005, NOT-007 | not run |
-| **CQ-R17** Test data is reproducible from a seed, so a failure can be reproduced. | DAT-002 | not run |
-| **CQ-R18** A credential is never stored as a literal in test data, and is never returned by any read. | DAT-003, DAT-004, DAT-005 | not run |
-| **CQ-R19** Accessibility is measured against named rules, and a clean result is not reported as a clearance. | ACC-001, ACC-002, ACC-006 | not run |
-| **CQ-R20** A team can measure accessibility before enforcing it. | ACC-003 | not run |
-| **CQ-R21** Visual changes are detected against a baseline, with a noise floor that does not produce false differences. | VIS-001, VIS-002, VIS-006 | not run |
-| **CQ-R22** A visual difference asks for a person by default rather than failing the build, and what was masked is on the record. | VIS-003, VIS-006 | not run |
-| **CQ-R23** AIRA never tests outside its configured authorization boundary, and production is refused without an explicit written authorization. | CIS-008, SCH-005, API-008, NOT-008 | not run |
-| **CQ-R24** A security refusal is reported distinctly from a permissions failure, so nobody resolves it by widening access. | CIS-005, CIS-008 | not run |
-| **CQ-R25** A run is never silently finished twice, and one occurrence of a schedule starts exactly one run. | SCH-003, NOT-002 | not run |
-| **CQ-R26** Every continuous-quality surface is scoped to one tenant, and a denial is accompanied by the owner's successful read. | ISO-001, ISO-002, ISO-003, ISO-004, ISO-005, ISO-006 | not run |
-| **CQ-R27** The audit trail can be read through the product, is scoped to one organization, and no parameter widens it. | ISO-007, AUD-005, AUD-006 | not run |
-| **CQ-R28** Actions that change what the platform will permit — authorizing production, changing a schedule, changing a quality gate — are recorded with who asked and why. | AUD-001, AUD-002, AUD-003 | not run |
-| **CQ-R29** A failed or refused action is recorded as such rather than omitted, and never carries the credential that was attempted. | AUD-004, AUD-007, AUD-008 | not run |
-| **CQ-R30** One correlation id follows a request from the caller through the API and the queue to the execution and the audit record, and a caller cannot abuse it. | OBS-001, OBS-002, OBS-003, OBS-005 | not run |
-| **CQ-R31** Liveness and readiness are separable, so a dependency outage does not present as a dead process. | OBS-004 | not run |
-| **CQ-R32** A model provider that fails — by timing out, erroring, or answering unusably — fails the request visibly and never causes a fabricated result. | AIF-001, AIF-002, AIF-003, AIF-004, AIF-005 | not run |
-| **CQ-R33** Model output is data and never instruction: schema-valid output carrying injected commands reaches no test as an action. | AIF-006 | not run |
-| **CQ-R34** Deterministic execution is independent of the model: a provider outage does not stop a test run, and every model failure is recorded with its reason. | AIF-007, AIF-008 | not run |
+| **CQ-R01** A pipeline can run AIRA from a command line and act on the result without parsing output. | CI-001, CI-006, CIS-001 | VERIFIED |
+| **CQ-R02** Every documented exit code can actually be produced, and each distinguishes who should look at the failure. | CIS-001, CIS-002, CIS-003, CIS-004, CIS-005, CIS-006, CIS-007, CIS-008, CIS-010, CIS-012, CI-005 | VERIFIED |
+| **CQ-R03** A run publishes evidence whether it passed or failed. | CI-001, CIS-002, VIS-004 | VERIFIED |
+| **CQ-R04** A failure is reported with enough context to act on without opening the platform. | CI-002, ACC-004, COR-001, COR-003 | VERIFIED |
+| **CQ-R05** A run records where it came from, so a failure can be traced to the commit and the deployment that produced it. | CI-007, CIS-009 | VERIFIED |
+| **CQ-R06** API endpoints can be tested as first-class test cases, in the same engine as UI tests. | API-001, API-002, API-004, API-013 | VERIFIED |
+| **CQ-R07** An API contract change is detected against a stored baseline and classified by how badly it breaks callers. | CON-001, CON-002, CON-003, CON-005, CON-006 | VERIFIED |
+| **CQ-R08** A UI failure caused by an API call is explained as such, rather than as a broken locator. | COR-001, COR-002, COR-003 | VERIFIED |
+| **CQ-R09** A change selects the tests it reaches, and says why each was or was not selected. | REG-001, REG-002, REG-008, REG-009 | VERIFIED |
+| **CQ-R10** Regression runs happen on a schedule without anybody asking, and a schedule that stops running says so. | SCH-001, SCH-002, SCH-003, SCH-004, SCH-005 | VERIFIED |
+| **CQ-R11** A quality gate produces PASS, FAIL or REVIEW, and REVIEW survives to the pipeline as its own answer. | CIS-003, CIS-010, CIS-011, CI-004 | VERIFIED |
+| **CQ-R12** A quality gate rule whose metric this run could not measure is reported as unmeasured, never as satisfied. | ACC-005, VIS-005 | VERIFIED |
+| **CQ-R13** A release decision can be made from what changed, not only from what is broken. | RLS-001, RLS-002, RLS-003, RLS-005, RLS-007 | VERIFIED |
+| **CQ-R14** Coverage that stops being exercised is visible rather than silently dropped. | RLS-004 | VERIFIED |
+| **CQ-R15** A failure is told to whoever configured a channel, and whether they were told is recorded. | NOT-001, NOT-002, NOT-006 | VERIFIED |
+| **CQ-R16** Notifications never carry a credential, checked against the bytes sent. | NOT-005, NOT-007 | VERIFIED |
+| **CQ-R17** Test data is reproducible from a seed, so a failure can be reproduced. | DAT-002 | VERIFIED |
+| **CQ-R18** A credential is never stored as a literal in test data, and is never returned by any read. | DAT-003, DAT-004, DAT-005 | VERIFIED |
+| **CQ-R19** Accessibility is measured against named rules, and a clean result is not reported as a clearance. | ACC-001, ACC-002, ACC-006 | VERIFIED |
+| **CQ-R20** A team can measure accessibility before enforcing it. | ACC-003 | VERIFIED |
+| **CQ-R21** Visual changes are detected against a baseline, with a noise floor that does not produce false differences. | VIS-001, VIS-002, VIS-006 | VERIFIED |
+| **CQ-R22** A visual difference asks for a person by default rather than failing the build, and what was masked is on the record. | VIS-003, VIS-006 | VERIFIED |
+| **CQ-R23** AIRA never tests outside its configured authorization boundary, and production is refused without an explicit written authorization. | CIS-008, SCH-005, API-008, NOT-008 | VERIFIED |
+| **CQ-R24** A security refusal is reported distinctly from a permissions failure, so nobody resolves it by widening access. | CIS-005, CIS-008 | VERIFIED |
+| **CQ-R25** A run is never silently finished twice, and one occurrence of a schedule starts exactly one run. | SCH-003, NOT-002 | VERIFIED |
+| **CQ-R26** Every continuous-quality surface is scoped to one tenant, and a denial is accompanied by the owner's successful read. | ISO-001, ISO-002, ISO-003, ISO-004, ISO-005, ISO-006 | VERIFIED |
+| **CQ-R27** The audit trail can be read through the product, is scoped to one organization, and no parameter widens it. | ISO-007, AUD-005, AUD-006 | VERIFIED |
+| **CQ-R28** Actions that change what the platform will permit — authorizing production, changing a schedule, changing a quality gate — are recorded with who asked and why. | AUD-001, AUD-002, AUD-003 | VERIFIED |
+| **CQ-R29** A failed or refused action is recorded as such rather than omitted, and never carries the credential that was attempted. | AUD-004, AUD-007, AUD-008 | VERIFIED |
+| **CQ-R30** One correlation id follows a request from the caller through the API and the queue to the execution and the audit record, and a caller cannot abuse it. | OBS-001, OBS-002, OBS-003, OBS-005 | VERIFIED |
+| **CQ-R31** Liveness and readiness are separable, so a dependency outage does not present as a dead process. | OBS-004 | VERIFIED |
+| **CQ-R32** A model provider that fails — by timing out, erroring, or answering unusably — fails the request visibly and never causes a fabricated result. | AIF-001, AIF-002, AIF-003, AIF-004, AIF-005 | VERIFIED |
+| **CQ-R33** Model output is data and never instruction: schema-valid output carrying injected commands reaches no test as an action. | AIF-006 | VERIFIED |
+| **CQ-R34** Deterministic execution is independent of the model: a provider outage does not stop a test run, and every model failure is recorded with its reason. | AIF-007, AIF-008 | VERIFIED |
 
 ## Tests claimed by no requirement
 
-399 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 357 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 42 are continuous-quality tests that no requirement above names.
+404 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 362 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 42 are continuous-quality tests that no requirement above names.
 
-495 test id(s) are known to exist: 295 written as literals in a suite, 200 built at run time and proven by having executed.
+500 test id(s) are known to exist: 300 written as literals in a suite, 200 built at run time and proven by having executed.
 
 ```
 AIF-009  API-003  API-005  API-006  API-007  API-009  API-010  API-011  API-012  API-014  ASRT-001  ASRT-002
@@ -82,7 +82,7 @@ SECPL-014  SECPL-015  SECPL-016  SECPL-017  SECPL-018  SECPL-019  SECPL-020  SEC
 SECPL-026  SECPL-027  SECPL-028  SECPL-029  SECPL-030  SECPL-031  SECQ-001  SECQ-002  SECQ-003  SECQ-004  SECQ-005  SECQ-006
 SECQ-007  SECQ-008  SECQ-009  SECQ-010  SECQ-011  SECR-001  SECS-001  SECS-002  SECS-003  SECS-004  SECS-005  SECS-006
 SECS-007  SECS-008  SECS-009  SECT-001  SECT-002  SECT-003  SECT-004  SECT-005  SECT-006  SECT-007  SECT-008  SECW-001
-SECW-002  SECW-003  SECW-004  SECW-005  SECW-006  SECW-007  SECW-008  SECW-009  SECW-010  SECW-011  SECW-012  SECW-N001
-SECW-N002  SECX-001  VIS-007
+SECW-002  SECW-003  SECW-004  SECW-005  SECW-006  SECW-007  SECW-008  SECW-009  SECW-010  SECW-011  SECW-012  SECW-013
+SECW-014  SECW-015  SECW-016  SECW-N001  SECW-N002  SECW-N003  SECX-001  VIS-007
 ```
 

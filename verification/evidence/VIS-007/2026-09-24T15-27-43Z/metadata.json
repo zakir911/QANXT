@@ -1,0 +1,38 @@
+{
+  "testId": "VIS-007",
+  "suite": "Visual regression",
+  "runId": "2026-09-24T15-27-43Z",
+  "objective": "A baseline taken at one viewport is not compared against another",
+  "preconditions": [
+    "a baseline taken at 1280 wide"
+  ],
+  "input": "The same check run again at 800 wide",
+  "expected": "A new baseline rather than a difference — a baseline at 1280 says nothing about how the page looks at 800, and comparing across them would report a difference on every run until somebody switched the check off",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "1280: newBaseline then match; 800 with the same baseline name: newBaseline",
+  "metrics": null,
+  "startedAt": "2026-09-24T15:35:07.479Z",
+  "durationMs": 6172,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "wide.json",
+      "path": "evidence/VIS-007/2026-09-24T15-27-43Z/wide.json",
+      "bytes": 359,
+      "sha256": "7c0d4c97b69a5b5aa55244f4e2b123ab11697fe81819162648916264fd2227ab"
+    },
+    {
+      "file": "narrow.json",
+      "path": "evidence/VIS-007/2026-09-24T15-27-43Z/narrow.json",
+      "bytes": 467,
+      "sha256": "70e913ecec54d99f96b008d867a70f47a68137a1d4df98cf0ed5684ea401d74e"
+    }
+  ]
+}

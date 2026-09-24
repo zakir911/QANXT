@@ -1,0 +1,40 @@
+{
+  "testId": "VIS-001",
+  "suite": "Visual regression",
+  "runId": "2026-09-24T15-27-43Z",
+  "objective": "A first run stores a baseline and reports that nothing was compared",
+  "preconditions": [
+    "a test with no stored baseline"
+  ],
+  "input": "Two consecutive runs of the same visual check against an unchanged page",
+  "expected": "The first reports newBaseline, the second reports match — and the first is not reported as a pass, because \"nothing to compare against\" and \"identical to the baseline\" are different statements",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "first newBaseline (1280x1694); second match at 0.0036% — the live timestamp's own noise, tolerated by the default threshold",
+  "metrics": {
+    "noiseFloorPercent": 0.0036433736717827628
+  },
+  "startedAt": "2026-09-24T15:34:28.503Z",
+  "durationMs": 4109,
+  "build": {
+    "commit": "6907045",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "first.json",
+      "path": "evidence/VIS-001/2026-09-24T15-27-43Z/first.json",
+      "bytes": 463,
+      "sha256": "d195856f7c12cd610d36e97d44db33b16bda01aceb7c5e069c2cdd78aef27bba"
+    },
+    {
+      "file": "second.json",
+      "path": "evidence/VIS-001/2026-09-24T15-27-43Z/second.json",
+      "bytes": 353,
+      "sha256": "70f88b57d5aa81be83e845d6dfb58b843bccaa3eadbb43908199d587d088f513"
+    }
+  ]
+}
