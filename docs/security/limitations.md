@@ -35,20 +35,15 @@ detector and the wrong way to estimate how it will do against an application nob
 
 `SECN-003` records this as not measurable here. The number describes this lab.
 
-## The console security page has no automated test behind it
+## What is verified, and how
 
-`/security` in the web console shows the authorization, the latest scan's gate, the trend and
-the findings, and lets somebody with `security:triage` set one aside. The API underneath it is
-verified end to end by `SECPL-001` through `SECPL-021`.
-
-The page itself is not. It compiles and its data comes from tested endpoints, but no test
-drives the screen, so:
-
-- **IMPLEMENTED and VERIFIED**: every check, the scope guard, the severity model, the gate,
-  the regression comparison, the triage workflow, the evidence writer, the RBAC matrix, the
-  stored scope/scan/finding lifecycle and the trend, all through the API.
-- **IMPLEMENTED, NOT TESTED**: the console page and its triage dialog.
-- **NOT IMPLEMENTED**: nothing else in the finding lifecycle.
+- **VERIFIED by execution**: every check, the scope guard, the severity model, the gate, the
+  regression comparison, the triage workflow, the evidence writer, the RBAC matrix, the stored
+  scope/scan/finding lifecycle, the trend, and the console page — the last by seven component
+  tests covering the refusals that matter (no permission, no scope, no scans, an empty
+  findings list after a real scan, an incomparable trend point, and a triage dialog that will
+  not submit without a justification).
+- **NOT IMPLEMENTED**: starting a scan from the platform. See below.
 
 ## The scanner does not run inside the worker
 
