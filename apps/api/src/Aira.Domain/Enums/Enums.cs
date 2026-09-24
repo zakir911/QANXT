@@ -204,7 +204,16 @@ public enum NotificationEventKind
     BreakingContractChange = 2,
     ScheduleDisabled = 3,
     /// <summary>Off by default: for most teams a green build is not news.</summary>
-    RunPassed = 4
+    RunPassed = 4,
+
+    // Security. A finding nobody is told about is a finding nobody acts on, and the two
+    // below are the ones worth interrupting somebody for.
+    /// <summary>A scan found something Critical that nobody has seen before.</summary>
+    SecurityCriticalFinding = 5,
+    /// <summary>Something that was fixed has been detected again. Worth its own event rather
+    /// than folding into the above: a regression says a repair came undone, which is a
+    /// different fact from a new flaw and usually goes to a different person.</summary>
+    SecurityRegression = 6
 }
 
 public enum QualityGateOperator { LessThan = 0, LessThanOrEqual = 1, GreaterThan = 2, GreaterThanOrEqual = 3, Equal = 4, NotEqual = 5 }

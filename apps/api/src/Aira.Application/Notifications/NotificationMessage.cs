@@ -35,6 +35,11 @@ public sealed record NotificationMessage(
         NotificationEventKind.QualityGateBlocked => NotificationSeverity.Problem,
         NotificationEventKind.BreakingContractChange => NotificationSeverity.Problem,
         NotificationEventKind.ScheduleDisabled => NotificationSeverity.Warning,
+        // Problem, not Information. A channel that colour-codes by severity would have
+        // rendered a new Critical vulnerability the same shade as a passing build, and the
+        // one message in the week worth stopping for would look like the rest.
+        NotificationEventKind.SecurityCriticalFinding => NotificationSeverity.Problem,
+        NotificationEventKind.SecurityRegression => NotificationSeverity.Problem,
         _ => NotificationSeverity.Information
     };
 }

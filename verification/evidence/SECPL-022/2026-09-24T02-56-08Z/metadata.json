@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-022",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-24T02-56-08Z",
+  "objective": "An undiscovered application has no attack surface, and says that is about discovery",
+  "preconditions": [
+    "an application with an empty knowledge graph"
+  ],
+  "input": "GET the application's security surface",
+  "expected": "No items, a summary blaming discovery rather than describing the application, and a caveat telling the reader to run discovery",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Nothing has been discovered for this application, so there is no attack surface to describe. That is a statement about discovery, not about the application.",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:56:11.344Z",
+  "durationMs": 88,
+  "build": {
+    "commit": "a8938c5",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "surface.json",
+      "path": "evidence/SECPL-022/2026-09-24T02-56-08Z/surface.json",
+      "bytes": 583,
+      "sha256": "b3e90b31c9f391e98d70fb72b36565fed1670679fd61865194f31500993a3ea5"
+    }
+  ]
+}

@@ -67,7 +67,12 @@ public sealed class NotificationService : INotificationService
             NotificationEventKind.RunFailed,
             NotificationEventKind.QualityGateBlocked,
             NotificationEventKind.BreakingContractChange,
-            NotificationEventKind.ScheduleDisabled
+            NotificationEventKind.ScheduleDisabled,
+            // On by default. A team that configured notifications and then had a fixed
+            // vulnerability come back without being told would be right to ask why they
+            // had to opt in, and these two fire rarely enough not to become noise.
+            NotificationEventKind.SecurityCriticalFinding,
+            NotificationEventKind.SecurityRegression
         };
 
     private readonly IAiraDbContext _db;

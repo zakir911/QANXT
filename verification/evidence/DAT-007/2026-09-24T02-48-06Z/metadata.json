@@ -1,0 +1,38 @@
+{
+  "testId": "DAT-007",
+  "suite": "Test data",
+  "runId": "2026-09-24T02-48-06Z",
+  "objective": "A data set exports to a file, imports back, and the export carries no secret",
+  "preconditions": [
+    "the CLI is built"
+  ],
+  "input": "aira test-data import / export / preview",
+  "expected": "The round trip preserves every field, and the exported file contains the secret reference by name and no secret value",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "import 0, preview 0, re-import 0; exported 3 field(s), secret carried as \"${secret:app_password}\"",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:54:39.305Z",
+  "durationMs": 1377,
+  "build": {
+    "commit": "574ff07",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "exported.json",
+      "path": "evidence/DAT-007/2026-09-24T02-48-06Z/exported.json",
+      "bytes": 459,
+      "sha256": "975bcdb34d4d3b7e52746881dcd59706aae10dc17f623939bc26e8ee2e66cd99"
+    },
+    {
+      "file": "cli.txt",
+      "path": "evidence/DAT-007/2026-09-24T02-48-06Z/cli.txt",
+      "bytes": 2193,
+      "sha256": "ad6072781ea03c84082c7d7ac45bccaa5c249cab742096c541a97f731bb83eeb"
+    }
+  ]
+}

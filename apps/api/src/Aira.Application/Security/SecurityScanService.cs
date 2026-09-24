@@ -154,14 +154,17 @@ public sealed class SecurityScanService : ISecurityScanService
     private readonly IAiraDbContext _db;
     private readonly ICurrentUser _user;
     private readonly IAuditLogger _audit;
+    private readonly Notifications.INotificationService _notifications;
     private readonly ILogger<SecurityScanService> _logger;
 
     public SecurityScanService(
-        IAiraDbContext db, ICurrentUser user, IAuditLogger audit, ILogger<SecurityScanService> logger)
+        IAiraDbContext db, ICurrentUser user, IAuditLogger audit,
+        Notifications.INotificationService notifications, ILogger<SecurityScanService> logger)
     {
         _db = db;
         _user = user;
         _audit = audit;
+        _notifications = notifications;
         _logger = logger;
     }
 
@@ -503,7 +506,79 @@ public sealed class SecurityScanService : ISecurityScanService
                 regressions = summaries.Count(s => s.IsRegression)
             }, ct: ct);
 
+        await NotifyAsync(scan, summaries, ct);
+
         return Result<SecurityScanSummary>.Success(await BuildScanSummaryAsync(scan, ct));
+    }
+
+    /// <summary>
+    /// Telling somebody, when there is something worth interrupting them for.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Two events and no more. A new Critical, and a regression — something that was repaired
+    /// coming undone. Everything else reaches people through the gate and the report, and a
+    /// security channel that fires on every Medium is a channel people mute, which costs more
+    /// than the messages are worth.
+    /// </para>
+    /// <para>
+    /// The message carries the category, the endpoint and the counts. It never carries the
+    /// evidence, the payload or any response value: a notification goes to a chat channel with
+    /// a membership nobody audits, and "this endpoint leaks account data, here is the request"
+    /// is not a thing to put there.
+    /// </para>
+    /// <para>
+    /// Last in the method and after the save, so a channel being down cannot lose the scan.
+    /// <c>NotifyAsync</c> does not throw.
+    /// </para>
+    /// </remarks>
+    private async Task NotifyAsync(
+        SecurityScan scan, IReadOnlyCollection<SecurityFindingSummary> findings, CancellationToken ct)
+    {
+        var project = await _db.Projects.AsNoTracking()
+            .Where(p => p.Id == scan.ProjectId)
+            .Select(p => new { p.Id, p.Name })
+            .FirstOrDefaultAsync(ct);
+        if (project is null) return;
+
+        var regressions = findings.Where(f => f.IsRegression).ToList();
+        if (regressions.Count > 0)
+        {
+            await _notifications.NotifyAsync(new Notifications.NotificationMessage(
+                NotificationEventKind.SecurityRegression,
+                $"{regressions.Count} security finding(s) that were fixed have come back in {project.Name}",
+                $"Scan {scan.Reference} detected {regressions.Count} finding(s) previously recorded as "
+                + $"resolved: {string.Join(", ", regressions.Select(f => $"{f.Category} at {f.Endpoint}"))}. "
+                + "A regression fails the security gate at any severity. The evidence is in AIRA; it is "
+                + "deliberately not in this message.",
+                project.Id, project.Name,
+                Facts: new Dictionary<string, object?>
+                {
+                    ["scan"] = scan.Reference,
+                    ["regressions"] = regressions.Count,
+                    ["categories"] = string.Join(",", regressions.Select(f => f.Category).Distinct())
+                }), ct);
+        }
+
+        var criticals = findings
+            .Where(f => f.IsNew && !f.IsRegression && f.Severity == SecuritySeverity.Critical)
+            .ToList();
+        if (criticals.Count > 0)
+        {
+            await _notifications.NotifyAsync(new Notifications.NotificationMessage(
+                NotificationEventKind.SecurityCriticalFinding,
+                $"{criticals.Count} new Critical security finding(s) in {project.Name}",
+                $"Scan {scan.Reference} found {criticals.Count} Critical finding(s) not seen before: "
+                + $"{string.Join(", ", criticals.Select(f => $"{f.Category} at {f.Endpoint}"))}. "
+                + "The evidence is in AIRA; it is deliberately not in this message.",
+                project.Id, project.Name,
+                Facts: new Dictionary<string, object?>
+                {
+                    ["scan"] = scan.Reference,
+                    ["critical"] = criticals.Count,
+                    ["categories"] = string.Join(",", criticals.Select(f => f.Category).Distinct())
+                }), ct);
+        }
     }
 
     // -----------------------------------------------------------------------

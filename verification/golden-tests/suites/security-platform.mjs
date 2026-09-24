@@ -574,6 +574,116 @@ export default async function run() {
   }, context);
 
   // -----------------------------------------------------------------------
+  // SECPL — telling somebody
+  // -----------------------------------------------------------------------
+  const SINK = process.env.LAB_SINK_URL ?? 'http://localhost:4360';
+  const sinkUp = await fetch(`${SINK}/health`).then(r => r.ok).catch(() => false);
+
+  await golden({
+    id: 'SECPL-028',
+    objective: 'A new Critical finding and a regression each notify, and neither message carries evidence',
+    preconditions: ['a webhook integration on this project', 'the notification sink running'],
+    input: 'A scan reporting a new Critical, then a scan reproducing a resolved finding',
+    expected: 'Two deliveries — securityCriticalFinding and securityRegression — naming the category '
+      + 'and endpoint and carrying no payload, no request and no response value. A notification goes '
+      + 'to a channel whose membership nobody audits',
+    evidence: ['deliveries.json'],
+    severity: 'critical',
+    run: async () => {
+      if (!sinkUp) {
+        return {
+          pass: false,
+          detail: `The notification sink is not answering at ${SINK}, so this could not be `
+            + 'established. Reported as a failure rather than skipped: a notification nobody '
+            + 'verified is the same as no notification.',
+          evidence: { 'deliveries.json': { sink: SINK, reachable: false } }
+        };
+      }
+      await fetch(`${SINK}/reset`, { method: 'POST' });
+
+      const integration = await api('/api/v1/integrations', {
+        method: 'POST',
+        body: {
+          projectId: project.id, kind: 'webhook', name: 'Security sink',
+          settings: { url: `${SINK}/hook`, events: 'securityCriticalFinding,securityRegression' }
+        }
+      });
+      if (!integration.ok) {
+        return { pass: false, detail: `the integration was refused: ${integration.status}`,
+                 evidence: { 'deliveries.json': integration.json } };
+      }
+
+      // A fresh application, so this scan's findings are genuinely new.
+      const target = await registerApplication(tenant, project.id, {
+        name: 'Notified application', baseUrl: 'http://127.0.0.1:4408',
+        loginUrl: null, username: null, password: null
+      });
+      await api(`/api/v1/security/applications/${target.id}/scope`, {
+        method: 'PUT', body: scopeBody()
+      });
+
+      const critical = finding({
+        category: 'SqlInjection', severity: 4, endpoint: '/api/products',
+        title: 'name is concatenated into a SQL query',
+        description: 'A database error and a widened result set.',
+        reproductionSteps: 'GET /api/products?name=x%27 returns a SQLSTATE error.'
+      });
+      await api('/api/v1/security/scans', {
+        method: 'POST', body: scanBody(target.id, project.id, { findings: [critical] })
+      });
+
+      // Resolve it, then find it again: that is a regression.
+      const stored = await api(`/api/v1/security/findings?applicationId=${target.id}`);
+      await api(`/api/v1/security/findings/${stored.json[0].id}/triage`, {
+        method: 'POST',
+        body: { status: 'Resolved',
+                justification: 'Parameterised the query and re-tested both probes manually.' }
+      });
+      await api('/api/v1/security/scans', {
+        method: 'POST', body: scanBody(target.id, project.id, { findings: [critical] })
+      });
+
+      // The sink is written to out of band, so give it a moment rather than racing it.
+      let received = [];
+      for (let attempt = 0; attempt < 30; attempt++) {
+        received = (await (await fetch(`${SINK}/received`)).json()).received ?? [];
+        if (received.length >= 2) break;
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      // The wire format names events in PascalCase, which is the existing contract for every
+      // other event; the settings filter is case-insensitive, which is why the delivery
+      // arrived at all despite the filter being written the other way.
+      const events = received.map(d => d.body?.event ?? d.event);
+      const severities = received.map(d => d.body?.severity ?? d.severity);
+      const bodies = JSON.stringify(received);
+
+      // The things that must never be in a chat message.
+      const leaked = ['SQLSTATE', "name=x'", 'reproductionSteps', 'request.txt']
+        .filter(secret => bodies.includes(secret));
+
+      // Severity matters as much as arrival: a channel that colour-codes would otherwise
+      // render a new Critical vulnerability the same shade as a passing build.
+      const wrongSeverity = severities.filter(s => s !== 'Problem');
+
+      return {
+        pass: events.includes('SecurityCriticalFinding')
+          && events.includes('SecurityRegression')
+          && leaked.length === 0
+          && wrongSeverity.length === 0,
+        detail: leaked.length > 0
+          ? `EVIDENCE LEAKED INTO A NOTIFICATION: ${leaked.join(', ')}`
+          : wrongSeverity.length > 0
+            ? `delivered at ${wrongSeverity.join(', ')} rather than Problem`
+            : `${received.length} delivery(ies): ${events.join(', ')}, both at Problem severity; `
+              + 'no evidence in any body',
+        metrics: { deliveries: received.length },
+        evidence: { 'deliveries.json': received }
+      };
+    }
+  }, context);
+
+  // -----------------------------------------------------------------------
   // SECPL — attack surface, change impact, release posture
   // -----------------------------------------------------------------------
   await golden({

@@ -101,3 +101,34 @@ executed, and the gate that reads coverage from that record. A check named one w
 selector and another in the scan record produces a gate reporting full coverage from a scan
 that ran nothing — a false green arriving through a typo. `SECPL-027` fetches the platform's
 list and asserts it is identical to the engine's.
+
+## Telling somebody
+
+Two notification events, and no more:
+
+| Event | When |
+| --- | --- |
+| `SecurityCriticalFinding` | a scan found something Critical nobody has seen before |
+| `SecurityRegression` | something that was fixed has been detected again |
+
+Both are on by default. A team that configured notifications and then had a fixed
+vulnerability come back without being told would be right to ask why they had to opt in, and
+these two fire rarely enough not to become noise. Everything else reaches people through the
+gate and the report — a security channel that fires on every Medium is a channel people mute,
+which costs more than the messages are worth.
+
+Both are delivered at **Problem** severity. They were briefly `Information`, which meant a
+channel colour-coding by severity would have rendered a new Critical vulnerability the same
+shade as a passing build; `SECPL-028` caught that.
+
+### What a notification never contains
+
+The category, the endpoint and the counts. Never the evidence, the payload, the reproduction
+steps or any response value. A notification goes to a chat channel with a membership nobody
+audits, and *"this endpoint leaks account data, here is the request"* is not a thing to put
+there. The message says so itself:
+
+> The evidence is in AIRA; it is deliberately not in this message.
+
+`SECPL-028` asserts the absence by searching the delivered bodies for the payload and the
+error signature that produced the finding.
