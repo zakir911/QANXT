@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-022",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-50-19Z",
+  "objective": "A state-changing request succeeding with no anti-CSRF token is reported",
+  "preconditions": [
+    "VULN_NO_CSRF_TOKEN switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Request handling: the csrf-token check against the lab",
+  "expected": "Exactly one MissingCsrfToken finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "MissingCsrfToken: A state-changing request succeeds with no anti-CSRF token (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T02:50:50.957Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "574ff07",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-022/SEC-2026-09-24T02-50-19Z/vulnerable.json",
+      "bytes": 429,
+      "sha256": "4f2e10f671b116f7515dec1e65d8158cf4a93d589eae2f19e1652627baeac837"
+    }
+  ]
+}

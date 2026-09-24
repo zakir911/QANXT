@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-001",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-50-19Z",
+  "objective": "The bola finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-639, OWASP A01:2021, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-639, A01:2021, High (14/19) — High (14/19): trivial to exploit, serious impact, any signed-in user, reaches personal data, reachable by signed-in users.",
+  "metrics": {
+    "score": 14,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T02:50:50.314Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "574ff07",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-001/SEC-2026-09-24T02-50-19Z/mapping.json",
+      "bytes": 894,
+      "sha256": "08fe4959b617eefbb4667c21b575f06939f2295a9201c981687a4908e3accbbd"
+    }
+  ]
+}

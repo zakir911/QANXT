@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_COMMAND_INJECTION",
+    "type": "CommandInjection",
+    "endpoint": "GET /api/ping?host=",
+    "severity": "critical",
+    "cwe": "CWE-78",
+    "owaspWeb": "A03:2021",
+    "detectBy": "A metacharacter produces a shell-shaped error. Nothing is executed."
+  },
+  "got": {
+    "cwe": "CWE-78",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A03:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "severe",
+      "privilegeRequired": "none",
+      "affectedData": "credentials",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 19,
+      "maxScore": 19,
+      "severity": "Critical",
+      "explanation": "Critical (19/19): trivial to exploit, severe impact, no account needed, reaches credentials, publicly reachable."
+    }
+  }
+}

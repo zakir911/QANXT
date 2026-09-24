@@ -1,0 +1,35 @@
+$ aira api-test add --file api-tests.json   (exit 0)
+  ✓ TC-0001 Dashboard totals answer for a signed-in session 2 request(s), 4 assertion(s) → API — from the pipeline
+      note Request 1 is a POST, so it changes data. It will be refused in any environment that does not permit destructive tests.
+
+  1 created.
+
+$ aira api-test list                        (exit 0)
+    TC-0001 Dashboard totals answer for a signed-in session
+
+  1 API test(s).
+
+$ aira api-test run     [API healthy]       (exit 0)
+Running 1 API test(s)
+Run queued API tests dcd42f8c-0f56-4961-928e-e115dda59fb5
+  running — 0/1 finished
+  passed — 1/1 finished
+
+  ✓ TC-0001 Dashboard totals answer for a signed-in session 44ms
+
+  1 passed · 0 failed · 0 blocked · 0 healed · 0 flaky · 73ms
+
+  Quality gate passed. No quality gates are configured for this project, so the run does not block.
+
+$ aira api-test run     [FAULT_API_500]     (exit 1)
+Running 1 API test(s)
+Run queued API tests 51922f80-f19d-4f75-abb7-1430b5bc9f11
+  running — 0/1 finished
+  failed — 1/1 finished
+
+  ✗ TC-0001 Dashboard totals answer for a signed-in session 31ms
+      POST http://localhost:4300/api/session returned 500 Internal Server Error.
+
+  0 passed · 1 failed · 0 blocked · 0 healed · 0 flaky · 70ms
+
+  Quality gate passed. No quality gates are configured for this project, so the run does not block.

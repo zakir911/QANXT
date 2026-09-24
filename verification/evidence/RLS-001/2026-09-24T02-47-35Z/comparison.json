@@ -1,0 +1,66 @@
+{
+  "current": {
+    "id": "233f41b5-10a5-4eee-88e5-6aeeb353c7cf",
+    "name": "Release broken",
+    "status": "Failed",
+    "completedAt": "2026-09-24T02:47:39.577596+00:00",
+    "total": 2,
+    "passed": 1,
+    "failed": 1,
+    "blocked": 0,
+    "healed": 0,
+    "flaky": 0,
+    "durationMs": 969,
+    "qualityGatePassed": true
+  },
+  "previous": {
+    "id": "7dedccfb-f379-44bb-88dd-fbad6013d7fa",
+    "name": "Release green",
+    "status": "Passed",
+    "completedAt": "2026-09-24T02:47:36.513805+00:00",
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "blocked": 0,
+    "healed": 0,
+    "flaky": 0,
+    "durationMs": 166,
+    "qualityGatePassed": true
+  },
+  "tests": [
+    {
+      "testCaseId": "00f28d31-c0ca-4d21-b856-5dd7b9e701be",
+      "reference": "TC-0002",
+      "name": "An account carries its sort code",
+      "suite": "Release",
+      "movement": "newlyFailing",
+      "currentStatus": "Failed",
+      "previousStatus": "Passed",
+      "currentDurationMs": 62,
+      "previousDurationMs": 69,
+      "errorMessage": "accounts[0].sortCode is present: Expected a value at \"accounts[0].sortCode\" but it was absent.",
+      "failureCategory": "Unknown"
+    },
+    {
+      "testCaseId": "1693beb7-4f91-4c96-ad8f-2c787f362783",
+      "reference": "TC-0001",
+      "name": "The application answers",
+      "suite": "Release",
+      "movement": "stillPassing",
+      "currentStatus": "Passed",
+      "previousStatus": "Passed",
+      "currentDurationMs": 49,
+      "previousDurationMs": 56
+    }
+  ],
+  "counts": {
+    "newlyFailing": 1,
+    "fixed": 0,
+    "stillFailing": 0,
+    "stillPassing": 1,
+    "added": 0,
+    "removed": 0
+  },
+  "unchanged": false,
+  "summary": "1 test(s) that used to pass now fail."
+}

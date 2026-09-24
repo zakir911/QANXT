@@ -1,0 +1,32 @@
+{
+  "testId": "REG-001",
+  "suite": "Regression selection",
+  "runId": "2026-09-24T02-48-06Z",
+  "objective": "A changed file is mapped to what a rule says it affects, and the mapping is marked as declared",
+  "preconditions": [
+    "three impact rules are configured"
+  ],
+  "input": "A change to src/pages/accounts/List.tsx",
+  "expected": "The /accounts route affected, the mapping marked declared, and the rule's own note carried into the reason",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1/1 path(s) mapped; routes [\"/accounts\"]; declared=true",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:50:55.631Z",
+  "durationMs": 20,
+  "build": {
+    "commit": "574ff07",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "impact.json",
+      "path": "evidence/REG-001/2026-09-24T02-48-06Z/impact.json",
+      "bytes": 510,
+      "sha256": "095d7bb391383389371a3619148c9d4763888e6d71227e0319205a772ad84114"
+    }
+  ]
+}

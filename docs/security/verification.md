@@ -38,6 +38,21 @@ Recorded in the ledger rather than omitted, so they survive into every report:
 A test that leaves no trace when it does not run is indistinguishable from one that never
 existed, which is why `notVerified` writes a record rather than printing a warning.
 
+## The eighteen constraints
+
+`docs/security/constraints.md` maps each rule the brief ends with to the requirement that
+states it and the tests that hold it. `verify-security` checks that map on every run and fails
+if a constraint names no requirement, names a requirement that does not exist, or names a test
+that did not run or did not pass.
+
+Checked rather than maintained, for the same reason as the traceability matrix: a table like
+that is true the day it is written and rots quietly afterwards, and this one carries the most
+load-bearing claim in the security documentation.
+
+Two constraints are held by an absent code path rather than a check — self-healing has no
+route to a security finding, and no model output becomes a finding — and the map says which and
+why rather than citing a test that does not exist.
+
 ## Traceability
 
 `verification/security-requirements.json` holds 50 requirements. Each names the tests that

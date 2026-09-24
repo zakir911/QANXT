@@ -6,7 +6,7 @@ Two requirements are deliberately not on this list because nothing here verifies
 
 SEC-R43 to SEC-R49 are about AIRA itself rather than the applications it tests. A security testing tool that is not itself secure is a liability, and its own tenancy, credential handling and target policy are verified by the same kind of test as everything else here.
 
-Checked against golden run `SEC-2026-09-24T02-46-34Z`.
+Checked against golden run `SEC-2026-09-24T02-50-19Z`.
 
 **70 of 70 requirements verified.**
 

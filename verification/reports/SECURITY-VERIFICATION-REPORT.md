@@ -2,7 +2,7 @@
 
 **AIRA's security testing behaved as specified against its own lab in this run.**
 
-Run `SEC-2026-09-24T02-46-34Z` · 218 security test(s) · 215 passed, 0 failed, 3 not verified
+Run `SEC-2026-09-24T02-50-19Z` · 218 security test(s) · 215 passed, 0 failed, 3 not verified
 
 > What this report is, and is not
 > 
@@ -315,4 +315,4 @@ report generated from that run.
 
 ---
 
-Generated from `verification/reports/golden-results.jsonl` for run `SEC-2026-09-24T02-46-34Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.
+Generated from `verification/reports/golden-results.jsonl` for run `SEC-2026-09-24T02-50-19Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.

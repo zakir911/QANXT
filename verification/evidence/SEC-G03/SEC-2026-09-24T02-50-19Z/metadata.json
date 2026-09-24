@@ -1,0 +1,33 @@
+{
+  "testId": "SEC-G03",
+  "suite": "Security and multi-tenancy",
+  "runId": "SEC-2026-09-24T02-50-19Z",
+  "objective": "One tenant cannot read another's data by knowing its identifier",
+  "preconditions": [
+    "tenant A owns a project, application, test case, run and execution",
+    "tenant B is a separate organisation with a valid token"
+  ],
+  "input": "Tenant B requests each of tenant A's objects by id",
+  "expected": "Every request is refused, while the same requests succeed for tenant A",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "7/7 refused for the other tenant; 7/7 readable by their owner; intruder statuses 404, 200",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:50:54.744Z",
+  "durationMs": 95,
+  "build": {
+    "commit": "574ff07",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "tenant-isolation.json",
+      "path": "evidence/SEC-G03/SEC-2026-09-24T02-50-19Z/tenant-isolation.json",
+      "bytes": 2124,
+      "sha256": "f8d73f9711b98fff31600060e74248d9b98d74f6de5e074e85b173617e08621d"
+    }
+  ]
+}

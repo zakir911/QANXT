@@ -28,6 +28,7 @@ Before anything else, the two sentences that shape everything in this directory:
 | [attack-surface.md](attack-surface.md) | What discovery found that is worth testing, which checks a change calls for, and security in a release decision |
 | [running-a-scan.md](running-a-scan.md) | Profiles, the CLI, and CI/CD |
 | [the-security-lab.md](the-security-lab.md) | The seven deliberately vulnerable applications and their ground truth |
+| [constraints.md](constraints.md) | The eighteen rules this was built against, each mapped to the tests that hold it |
 | [verification.md](verification.md) | How the security capability is verified, and what is not verified |
 | [limitations.md](limitations.md) | What AIRA's security testing cannot do, stated plainly |
 

@@ -70,6 +70,13 @@ section "Security report"
 node verification/golden-tests/security-report.mjs --run "$GOLDEN_RUN_ID"
 report_status=$?
 
+section "Constraints"
+# The eighteen rules this capability was built against, each mapped to the tests that hold
+# it. Checked rather than maintained: a map like that is true the day it is written and rots
+# quietly afterwards, and it is the most load-bearing claim in the security documentation.
+node verification/golden-tests/security-constraints.mjs --run "$GOLDEN_RUN_ID"
+constraints_status=$?
+
 section "Traceability"
 node verification/golden-tests/traceability.mjs \
   --run "$GOLDEN_RUN_ID" \
@@ -88,6 +95,11 @@ if [[ $traceability_status -ne 0 ]]; then
   printf '  Traceability: verification/reports/SECURITY-TRACEABILITY.md\n'
   exit 1
 fi
+if [[ $constraints_status -ne 0 ]]; then
+  printf '\033[31mSecurity verification FAILED: the constraint map does not hold.\033[0m\n'
+  printf '  Map: docs/security/constraints.md\n'
+  exit 1
+fi
 if [[ $report_status -ne 0 ]]; then
   printf '\033[31mThe security report could not be produced.\033[0m\n'
   exit $report_status
@@ -99,4 +111,5 @@ printf 'application is secure, and nothing produced here should be read as one.\
 printf '  Report:       verification/reports/SECURITY-VERIFICATION-REPORT.md\n'
 printf '  HTML:         verification/reports/security-verification-report.html\n'
 printf '  Traceability: verification/reports/SECURITY-TRACEABILITY.md\n'
+printf '  Constraints:  docs/security/constraints.md\n'
 printf '  Evidence:     verification/evidence/<TEST-ID>/%s/\n' "$GOLDEN_RUN_ID"

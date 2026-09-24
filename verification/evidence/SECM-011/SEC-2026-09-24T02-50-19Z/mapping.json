@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_MASS_ASSIGNMENT",
+    "type": "BrokenObjectPropertyLevelAuthorization",
+    "endpoint": "PATCH /api/users/{id}",
+    "severity": "high",
+    "cwe": "CWE-915",
+    "owaspApi": "API3:2023",
+    "detectBy": "A customer sets their own role."
+  },
+  "got": {
+    "cwe": "CWE-915",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A01:2021",
+    "owaspApi": "API3:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "serious",
+      "privilegeRequired": "authenticatedUser",
+      "affectedData": "personalData",
+      "exposure": "authenticatedUsers",
+      "requiresUnusualConditions": false,
+      "score": 14,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (14/19): trivial to exploit, serious impact, any signed-in user, reaches personal data, reachable by signed-in users."
+    }
+  }
+}
