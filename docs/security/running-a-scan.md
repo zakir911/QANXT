@@ -71,3 +71,53 @@ Exits non-zero if any suite failed or any security requirement is unverified.
 The `--no-platform` flag exists because the scanning and gate suites drive the scanner
 directly against the lab and never call the platform. Requiring a database they do not use in
 order to run a security scan was an obstacle rather than a check.
+
+## From the command line
+
+```bash
+aira security scope     --application-id <id>
+aira security scans     --application-id <id> [--take 10]
+aira security findings  --application-id <id> [--status confirmed]
+aira security gate      --scan-id <id>
+aira security triage    --finding-id <id> --status falsePositive --reason "<what you checked>"
+```
+
+`aira security gate` is the one a pipeline runs:
+
+| Exit | Meaning |
+| --- | --- |
+| 0 | PASS |
+| 2 | FAIL — the gate blocked |
+| 6 | A security policy refused the request |
+| 7 | REVIEW — a person has to look |
+
+**Exit 7 is not a pass.** It covers "no scan ran", "the scan covered a fifth of what it was
+configured to", "the scope refused most of its requests" and "a low-confidence finding needs a
+look". A pipeline that swallows 7 reintroduces exactly the green-build-nobody-scanned failure
+the gate exists to prevent, which is why `.github/workflows/aira-security.yml` fails on it
+unless `AIRA_SECURITY_ALLOW_REVIEW` is explicitly set.
+
+`aira security triage` refuses a suppression with no reason before the request leaves the
+machine, so an operator finds out from the CLI rather than from a 400.
+
+Two smaller things the CLI does on purpose:
+
+- `aira security scans` on an application with no scans says *"That is not a clean result.
+  Nothing has been tested."* rather than printing an empty table.
+- `aira security findings` with nothing to show says the result *"says nothing about whether
+  the application has been scanned, or about what any scan covered"* — because "no findings"
+  invites the reader to hear "secure", and the command has no idea whether anything was ever
+  run.
+
+## The GitHub Actions workflow
+
+`.github/workflows/aira-security.yml` runs nightly rather than per-push. A security scan
+issues real requests against a running environment; running one per commit teaches people to
+ignore it.
+
+It uses `AIRA_SECURITY_TOKEN`, separate from the functional `AIRA_TOKEN`. Security findings
+are a working description of how to break the application, and the account that reads them
+should be one somebody chose for that rather than whichever token was already in the
+repository. For this workflow it needs `security:read` and nothing more.
+
+If no scan has ever been recorded for the application, the job **fails** rather than skipping.

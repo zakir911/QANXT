@@ -1,0 +1,32 @@
+{
+  "testId": "SECG-024",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T01-52-44Z",
+  "objective": "The scope guard allows the scan it was written to allow",
+  "preconditions": [
+    "the lab scope, a lab host, an active probe"
+  ],
+  "input": "GET against the api lab under the lab scope",
+  "expected": "Allowed, having passed every rung in order — otherwise the twenty-three refusals above prove only that the guard says no to everything",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "allowed; rungs in order: authorization → target-policy → domain → path → method → risk → environment → rate",
+  "metrics": null,
+  "startedAt": "2026-09-24T01:52:52.437Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "6ba05c4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-024/SEC-2026-09-24T01-52-44Z/decision.json",
+      "bytes": 224,
+      "sha256": "310d329db4afde4d70f33ec4af6c296ef91018da80c7e649e2ff847a2344101a"
+    }
+  ]
+}

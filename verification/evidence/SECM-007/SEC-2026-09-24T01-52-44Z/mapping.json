@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_NO_LOCKOUT",
+    "type": "NoAccountLockout",
+    "endpoint": "POST /api/session",
+    "severity": "medium",
+    "cwe": "CWE-307",
+    "owaspWeb": "A07:2021",
+    "detectBy": "Repeated failed sign-ins are never throttled."
+  },
+  "got": {
+    "cwe": "CWE-307",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A07:2021",
+    "owaspApi": "API4:2023",
+    "confidence": "High",
+    "severity": {
+      "exploitability": "straightforward",
+      "impact": "minimal",
+      "privilegeRequired": "none",
+      "affectedData": "credentials",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 11,
+      "maxScore": 19,
+      "severity": "Medium",
+      "explanation": "Medium (11/19): straightforward to exploit, minimal impact, no account needed, reaches credentials, publicly reachable."
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "case": "a host nobody authorized",
+  "why": "Arbitrary URLs are never allowed.",
+  "decision": {
+    "allowed": false,
+    "reason": "domainNotAllowed",
+    "explanation": "Host 'example.com' is not in the scope's allowed domains.",
+    "checksPassed": [
+      "authorization",
+      "target-policy"
+    ]
+  }
+}

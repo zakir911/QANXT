@@ -36,8 +36,8 @@
 <main>
   <h1>AIRA — security verification</h1>
   <p class="verdict">AIRA's security testing behaved as specified against its own lab in this run.</p>
-  <p class="meta">Run <code>SEC-2026-09-24T01-47-11Z</code> · 206 security test(s) ·
-     203 passed, 0 failed, 3 not verified</p>
+  <p class="meta">Run <code>SEC-2026-09-24T01-52-44Z</code> · 207 security test(s) ·
+     204 passed, 0 failed, 3 not verified</p>
 
   <div class="disclaimer">
     <p><strong>What this report is, and is not.</strong> It describes AIRA's security
@@ -60,8 +60,8 @@
     <tr><td>Flaws detected</td><td class="ok">34</td></tr>
     <tr><td>False positives on the corrected application</td><td class="ok">0</td></tr>
     <tr><td>Endpoints the ground truth calls correct</td><td>8</td></tr>
-    <tr><td>Evidence files recorded</td><td>207</td></tr>
-    <tr><td>Evidence files whose hash still matches</td><td class="ok">207</td></tr>
+    <tr><td>Evidence files recorded</td><td>208</td></tr>
+    <tr><td>Evidence files whose hash still matches</td><td class="ok">208</td></tr>
   </table></div>
 
   <h2>Results by family</h2>
@@ -79,7 +79,7 @@
 <tr><td>Triage</td><td class="ok">8/8</td><td class="muted">Suppression needs a reason and a name</td></tr>
 <tr><td>Coverage honesty</td><td class="ok">1/1</td><td class="muted">What this scan cannot decide</td></tr>
 <tr><td>Measured rates</td><td class="ok">1/1</td><td class="muted">Detection and false positives, as measured</td></tr>
-<tr><td>Stored scans</td><td class="ok">15/15</td><td class="muted">Scopes, scans, findings and triage through AIRA's own API</td></tr>
+<tr><td>Stored scans</td><td class="ok">16/16</td><td class="muted">Scopes, scans, findings and triage through AIRA's own API</td></tr>
 <tr><td>AIRA itself</td><td class="ok">11/11</td><td class="muted">Tenancy, credentials, target policy and headers in the platform</td></tr>
   </table></div>
 
@@ -292,6 +292,7 @@
 <tr><td><code>SECPL-013</code></td><td class="ok">PASS</td><td>A regression makes the stored scan's gate decision FAIL</td><td class="muted">1</td></tr>
 <tr><td><code>SECPL-014</code></td><td class="ok">PASS</td><td>A scan cannot be recorded against an application nobody has authorized</td><td class="muted">1</td></tr>
 <tr><td><code>SECPL-015</code></td><td class="ok">PASS</td><td>Another tenant cannot read this tenant's security findings</td><td class="muted">1</td></tr>
+<tr><td><code>SECPL-016</code></td><td class="ok">PASS</td><td>The platform's gate and the JavaScript mirror produce the same decision and the same words</td><td class="muted">1</td></tr>
 <tr><td><code>SECQ-001</code></td><td class="ok">PASS</td><td>A scan that did not run is REVIEW, never a pass</td><td class="muted">1</td></tr>
 <tr><td><code>SECQ-002</code></td><td class="ok">PASS</td><td>Two real findings from a real scan block the build</td><td class="muted">2</td></tr>
 <tr><td><code>SECQ-003</code></td><td class="ok">PASS</td><td>A clean scan never claims the application is secure</td><td class="muted">1</td></tr>
@@ -326,7 +327,7 @@
 
   <footer>
     Generated from <code>verification/reports/golden-results.jsonl</code> for run
-    <code>SEC-2026-09-24T01-47-11Z</code>. Every figure is derived from a recorded execution;
+    <code>SEC-2026-09-24T01-52-44Z</code>. Every figure is derived from a recorded execution;
     nothing in this report is asserted.
   </footer>
 </main>

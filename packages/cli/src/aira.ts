@@ -15,6 +15,7 @@ import { SCHEDULE_HELP, scheduleCommand } from './commands/schedule.js';
 import { TEST_DATA_HELP, testDataCommand } from './commands/test-data.js';
 import { RELEASE_HELP, releaseCommand } from './commands/release.js';
 import { AUDIT_HELP, auditCommand } from './commands/audit.js';
+import { SECURITY_HELP, securityCommand } from './commands/security.js';
 import { appsCommand, environmentsCommand, LIST_HELP, projectsCommand } from './commands/list.js';
 
 /**
@@ -46,6 +47,7 @@ ${bold(`${PRODUCT} command line`)} ${dim(`v${VERSION}`)}
   aira run                  Start a test run, wait for it, write reports
   aira status [run-id]      What a run did, or what the recent runs did
   aira quality-gate         Evaluate a finished run against its gate
+  aira security             Security scopes, scans, findings and the gate
   aira audit                Who did what, and whether it worked
   aira report <run-id>      Write reports for a run that already finished
 
@@ -73,6 +75,7 @@ const COMMAND_HELP: Record<string, string> = {
   regression: REGRESSION_HELP,
   schedule: SCHEDULE_HELP,
   audit: AUDIT_HELP,
+  security: SECURITY_HELP,
   'test-data': TEST_DATA_HELP,
   release: RELEASE_HELP,
   run: RUN_HELP,
@@ -92,6 +95,7 @@ const COMMANDS: Record<string, (args: ReturnType<typeof parseArgs>) => Promise<n
   regression: regressionCommand,
   schedule: scheduleCommand,
   audit: auditCommand,
+  security: securityCommand,
   'test-data': testDataCommand,
   release: releaseCommand,
   run: runCommand,

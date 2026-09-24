@@ -136,7 +136,7 @@ public static class SecurityGateEvaluator
             configured == 0
                 ? "No checks were configured, so there was nothing to execute."
                 : $"{executed} of {configured} configured check(s) executed "
-                  + $"({checkCoverage:P0}; the policy requires {policy.MinimumCheckCoverage:P0})."));
+                  + $"({Percent(checkCoverage)}; the policy requires {Percent(policy.MinimumCheckCoverage)})."));
 
         if (!coverageOk)
         {
@@ -153,11 +153,11 @@ public static class SecurityGateEvaluator
         rules.Add(new SecurityGateRuleResult(
             "The scan reached what it was aiming at", reachedEnough, attempted > 0,
             $"{coverage.RequestsBlocked} of {attempted} request(s) were refused by the scope "
-            + $"({blockedShare:P0})."));
+            + $"({Percent(blockedShare)})."));
         if (!reachedEnough)
         {
             Escalate(SecurityGateOutcome.Review,
-                $"{blockedShare:P0} of the scan's requests were refused by its own scope. The findings "
+                $"{Percent(blockedShare)} of the scan's requests were refused by its own scope. The findings "
                 + "describe the part of the application the scan was allowed to reach.");
         }
 
@@ -272,6 +272,18 @@ public static class SecurityGateEvaluator
 
         return new SecurityGateResult(outcome, Summarise(outcome, coverage, open, findings), rules, reasons);
     }
+
+    /// <summary>
+    /// A whole-number percentage with no space before the sign.
+    /// </summary>
+    /// <remarks>
+    /// Formatted by hand rather than with "P0". .NET's percent format inserts a space before
+    /// the sign, which made this read "100 %" and — more to the point — differ from the
+    /// JavaScript mirror's string for the same decision. The two implementations are supposed
+    /// to produce the same sentence, and a difference nobody notices is how they drift.
+    /// </remarks>
+    private static string Percent(decimal value)
+        => $"{Math.Round(value * 100, MidpointRounding.AwayFromZero):0}%";
 
     /// <summary>The sentence a reader will quote. It never says "secure" and never says
     /// "no vulnerabilities" — both are claims no scan can support.</summary>

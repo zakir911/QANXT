@@ -14,6 +14,7 @@ import { golden, suite } from '../harness.mjs';
 import {
   LAB, createProject, newTenant, registerApplication, request
 } from '../platform.mjs';
+import { evaluateSecurityGate } from '../security/gate.mjs';
 
 const AUTHORIZATION = 'Authorized for automated security testing by the AIRA verification suite, '
   + 'against a synthetic lab application containing no real data, for the duration of this run.';
@@ -427,6 +428,65 @@ export default async function run() {
           && gate.reasons?.some(r => r.includes('have come back')),
         detail: `${gate?.outcome}: ${(gate?.reasons ?? []).join(' ')}`,
         evidence: { 'gate.json': gate }
+      };
+    }
+  }, context);
+
+  await golden({
+    id: 'SECPL-016',
+    objective: 'The platform\'s gate and the JavaScript mirror produce the same decision and the same words',
+    preconditions: ['a stored scan whose gate the API computed'],
+    input: 'The same coverage and findings, evaluated by the JavaScript mirror',
+    expected: 'Identical outcome, identical rule verdicts and an identical summary. Two implementations '
+      + 'of one control that drift are worse than one control, because everybody believes the wrong half',
+    evidence: ['parity.json'],
+    severity: 'critical',
+    run: async () => {
+      const scans = await api(`/api/v1/security/scans?applicationId=${application.id}&take=1`);
+      const stored = (await api(`/api/v1/security/scans/${scans.json[0].id}`)).json;
+      const body = scanBody(application.id, project.id);
+
+      const mirrored = evaluateSecurityGate({
+        scanRan: true,
+        profile: 'Standard',
+        requestsIssued: stored.requestsIssued,
+        requestsBlocked: stored.requestsBlocked,
+        checksConfigured: body.checksConfigured,
+        checksExecuted: body.checksExecuted,
+        untestedAreas: body.untestedAreas
+      }, stored.findings.map(f => ({
+        id: f.id,
+        category: f.category,
+        // The API serialises enums in camelCase; the mirror's tables are keyed on the
+        // capitalised names. Normalising here rather than loosening either side, because the
+        // point of the comparison is that the two agree on the decision, not on the casing.
+        severity: f.severity.charAt(0).toUpperCase() + f.severity.slice(1),
+        confidence: f.confidence.charAt(0).toUpperCase() + f.confidence.slice(1),
+        status: f.status.charAt(0).toUpperCase() + f.status.slice(1),
+        isNew: f.isNew, isRegression: f.isRegression, hasEvidence: true,
+        justification: f.dispositionNote ?? null,
+        decidedBy: f.dispositionByUserId ?? null
+      })));
+
+      const sameOutcome = stored.gate.outcome === mirrored.outcomeName.toLowerCase();
+      const sameSummary = stored.gate.summary === mirrored.summary;
+      const storedRules = stored.gate.rules.map(r => `${r.name}=${r.passed}`).join('|');
+      const mirrorRules = mirrored.rules.map(r => `${r.name}=${r.passed}`).join('|');
+
+      return {
+        pass: sameOutcome && sameSummary && storedRules === mirrorRules,
+        detail: [
+          sameOutcome ? null : `outcome ${stored.gate.outcome} vs ${mirrored.outcomeName.toLowerCase()}`,
+          sameSummary ? null : 'summary differs',
+          storedRules === mirrorRules ? null : 'rule verdicts differ'
+        ].filter(Boolean).join('; ')
+          || `both ${stored.gate.outcome}, ${stored.gate.rules.length} rule(s) agreeing, identical summary`,
+        evidence: {
+          'parity.json': {
+            platform: { outcome: stored.gate.outcome, summary: stored.gate.summary, rules: stored.gate.rules },
+            mirror: { outcome: mirrored.outcomeName.toLowerCase(), summary: mirrored.summary, rules: mirrored.rules }
+          }
+        }
       };
     }
   }, context);
