@@ -1,0 +1,16 @@
+{
+  "case": "an account without permission for active scans",
+  "why": "The caller's permissions bound the scan as well as the scope.",
+  "decision": {
+    "allowed": false,
+    "reason": "permissionDenied",
+    "explanation": "This account may run passive scans but not active ones.",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain",
+      "path",
+      "method"
+    ]
+  }
+}

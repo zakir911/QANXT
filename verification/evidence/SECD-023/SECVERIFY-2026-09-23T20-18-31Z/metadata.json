@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-023",
+  "suite": "Security scanning",
+  "runId": "SECVERIFY-2026-09-23T20-18-31Z",
+  "objective": "A cross-origin state-changing request being accepted is reported",
+  "preconditions": [
+    "VULN_NO_ORIGIN_CHECK switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Request handling: the origin-validation check against the lab",
+  "expected": "Exactly one MissingOriginValidation finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "MissingOriginValidation: A state-changing request is accepted from any origin (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-23T20:18:32.226Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "dc4509f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-023/SECVERIFY-2026-09-23T20-18-31Z/vulnerable.json",
+      "bytes": 433,
+      "sha256": "09ae071a53ce53df4996c7d947208670de37138bfbffefd95420c460be555b53"
+    }
+  ]
+}

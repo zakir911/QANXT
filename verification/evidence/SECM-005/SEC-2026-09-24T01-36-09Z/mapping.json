@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_UNVERIFIED_TOKEN",
+    "type": "UnverifiedToken",
+    "endpoint": "Authorization header",
+    "severity": "critical",
+    "cwe": "CWE-345",
+    "owaspApi": "API2:2023",
+    "detectBy": "A forged bearer value naming another user is accepted."
+  },
+  "got": {
+    "cwe": "CWE-345",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A07:2021",
+    "owaspApi": "API2:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "severe",
+      "privilegeRequired": "none",
+      "affectedData": "credentials",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 19,
+      "maxScore": 19,
+      "severity": "Critical",
+      "explanation": "Critical (19/19): trivial to exploit, severe impact, no account needed, reaches credentials, publicly reachable."
+    }
+  }
+}

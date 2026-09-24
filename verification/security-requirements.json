@@ -1,0 +1,450 @@
+{
+  "title": "Security testing \u2014 requirements and the tests that verify them",
+  "note": "Each requirement names the golden tests that verify it, and traceability.mjs checks this file against what actually ran: a requirement with no test, a test id that does not exist, and a named test that did not pass are all failures.\n\nTwo requirements are deliberately not on this list because nothing here verifies them, and adding a row that points at no evidence would be worse than the gap. Detection against an application AIRA has not seen is not measurable in a lab whose flaws were written alongside the checks (SECN-003). Browser-driven DOM XSS is not implemented (SECN-002). Both are recorded as NOT VERIFIED in the golden results rather than omitted.\n\nSEC-R43 to SEC-R49 are about AIRA itself rather than the applications it tests. A security testing tool that is not itself secure is a liability, and its own tenancy, credential handling and target policy are verified by the same kind of test as everything else here.",
+  "suites": [
+    "security-scan",
+    "security-gate",
+    "security"
+  ],
+  "requirements": [
+    {
+      "id": "SEC-R01",
+      "statement": "Security testing runs only against an application somebody has explicitly authorized in writing.",
+      "verifiedBy": [
+        "SECG-001",
+        "SECG-003",
+        "SECG-002"
+      ]
+    },
+    {
+      "id": "SEC-R02",
+      "statement": "Security scope is never unrestricted: an empty allowlist permits nothing and an unlisted host is refused.",
+      "verifiedBy": [
+        "SECG-004",
+        "SECG-005"
+      ]
+    },
+    {
+      "id": "SEC-R03",
+      "statement": "Arbitrary URLs are never testable, and cloud metadata and link-local addresses are refused whatever the scope says.",
+      "verifiedBy": [
+        "SECG-005",
+        "SECG-006",
+        "SECG-007",
+        "SECG-008",
+        "SECG-022"
+      ]
+    },
+    {
+      "id": "SEC-R04",
+      "statement": "A security check cannot bypass the scope guard; the declared risk can be raised by the HTTP verb and never lowered.",
+      "verifiedBy": [
+        "SECG-013",
+        "SECG-012",
+        "SECE-003"
+      ]
+    },
+    {
+      "id": "SEC-R05",
+      "statement": "Destructive testing is off by default and needs both a scope that permits it and a caller who may run it.",
+      "verifiedBy": [
+        "SECG-012",
+        "SECF-008",
+        "SECF-012"
+      ]
+    },
+    {
+      "id": "SEC-R06",
+      "statement": "Security scanning never performs a load or denial-of-service test; every volume probe is bounded and says so.",
+      "verifiedBy": [
+        "SECD-007",
+        "SECD-014",
+        "SECD-025"
+      ]
+    },
+    {
+      "id": "SEC-R07",
+      "statement": "Production security testing is disabled by default and refused unless authorized for that run.",
+      "verifiedBy": [
+        "SECG-016",
+        "SECG-017",
+        "SECG-018"
+      ]
+    },
+    {
+      "id": "SEC-R08",
+      "statement": "The security lab uses only synthetic identities and synthetic data; no real credential is used anywhere.",
+      "verifiedBy": [
+        "SECD-001",
+        "SECD-006",
+        "SECE-002"
+      ]
+    },
+    {
+      "id": "SEC-R09",
+      "statement": "Secrets never appear in the evidence a report links to, and redaction does not destroy the evidence.",
+      "verifiedBy": [
+        "SECE-002",
+        "SECE-004"
+      ]
+    },
+    {
+      "id": "SEC-R10",
+      "statement": "No vulnerability is reported without a reproducible request/response exchange behind it.",
+      "verifiedBy": [
+        "SECE-001",
+        "SECQ-009"
+      ]
+    },
+    {
+      "id": "SEC-R11",
+      "statement": "A finding's severity is computed from stored factors and is reproducible, never assigned by a model.",
+      "verifiedBy": [
+        "SECM-001",
+        "SECM-018",
+        "SECM-034"
+      ]
+    },
+    {
+      "id": "SEC-R12",
+      "statement": "Broken object level authorization is detected, with a control proving the owner can read what the intruder cannot.",
+      "verifiedBy": [
+        "SECD-001",
+        "SECP-001",
+        "SECM-001"
+      ]
+    },
+    {
+      "id": "SEC-R13",
+      "statement": "Broken function level authorization and privilege escalation are detected.",
+      "verifiedBy": [
+        "SECD-002",
+        "SECD-003",
+        "SECP-002",
+        "SECP-003"
+      ]
+    },
+    {
+      "id": "SEC-R14",
+      "statement": "Missing authorization and unverified tokens are detected.",
+      "verifiedBy": [
+        "SECD-004",
+        "SECD-005",
+        "SECP-004",
+        "SECP-005"
+      ]
+    },
+    {
+      "id": "SEC-R15",
+      "statement": "Authentication weaknesses are detected: user enumeration, missing lockout, session survival after sign-out, excessive session lifetime and reset-token reuse.",
+      "verifiedBy": [
+        "SECD-006",
+        "SECD-007",
+        "SECD-008",
+        "SECD-009",
+        "SECD-010"
+      ]
+    },
+    {
+      "id": "SEC-R16",
+      "statement": "API security flaws are detected: mass assignment, missing input validation, unsafe methods, missing rate limiting and excessive data exposure.",
+      "verifiedBy": [
+        "SECD-011",
+        "SECD-012",
+        "SECD-013",
+        "SECD-014",
+        "SECD-015"
+      ]
+    },
+    {
+      "id": "SEC-R17",
+      "statement": "Reflected and stored XSS are detected, and reflection alone is never reported as XSS.",
+      "verifiedBy": [
+        "SECD-016",
+        "SECD-017",
+        "SECS-003",
+        "SECS-004"
+      ]
+    },
+    {
+      "id": "SEC-R18",
+      "statement": "SQL, NoSQL, command and template injection are detected by indicator, with nothing extracted or executed.",
+      "verifiedBy": [
+        "SECD-018",
+        "SECD-019",
+        "SECD-020",
+        "SECD-021"
+      ]
+    },
+    {
+      "id": "SEC-R19",
+      "statement": "CSRF and missing origin validation are detected, with a control that the legitimate request succeeds.",
+      "verifiedBy": [
+        "SECD-022",
+        "SECD-023",
+        "SECP-022",
+        "SECP-023"
+      ]
+    },
+    {
+      "id": "SEC-R20",
+      "statement": "File upload restrictions are tested without uploading anything executable, and path traversal in a filename is detected.",
+      "verifiedBy": [
+        "SECD-024",
+        "SECD-025",
+        "SECD-026"
+      ]
+    },
+    {
+      "id": "SEC-R21",
+      "statement": "Open redirect is detected by reading the Location header and never by following it.",
+      "verifiedBy": [
+        "SECD-027",
+        "SECP-027"
+      ]
+    },
+    {
+      "id": "SEC-R22",
+      "statement": "SSRF is detected without probing cloud metadata by default.",
+      "verifiedBy": [
+        "SECD-028",
+        "SECP-028",
+        "SECS-009"
+      ]
+    },
+    {
+      "id": "SEC-R23",
+      "statement": "Passive checks detect missing security headers, insecure cookie attributes, dangerous CORS, directory listings, exposed source maps and verbose errors.",
+      "verifiedBy": [
+        "SECD-029",
+        "SECD-030",
+        "SECD-031",
+        "SECD-032",
+        "SECD-033",
+        "SECD-034"
+      ]
+    },
+    {
+      "id": "SEC-R24",
+      "statement": "A permissive CORS policy without credentials is not reported as a vulnerability.",
+      "verifiedBy": [
+        "SECS-007"
+      ]
+    },
+    {
+      "id": "SEC-R25",
+      "statement": "Every detector is silent against the corrected application; false positives are measured, not assumed.",
+      "verifiedBy": [
+        "SECR-001",
+        "SECP-001",
+        "SECP-016",
+        "SECP-029"
+      ]
+    },
+    {
+      "id": "SEC-R26",
+      "statement": "Endpoints that behave correctly produce no finding even while the rest of the application is vulnerable.",
+      "verifiedBy": [
+        "SECS-001",
+        "SECS-002",
+        "SECS-005",
+        "SECS-006",
+        "SECS-008"
+      ]
+    },
+    {
+      "id": "SEC-R27",
+      "statement": "Scan profiles bound what a scan will do, and each profile refuses the risk levels above it.",
+      "verifiedBy": [
+        "SECF-002",
+        "SECF-008",
+        "SECF-010",
+        "SECF-011"
+      ]
+    },
+    {
+      "id": "SEC-R28",
+      "statement": "What a scan was refused is recorded, so coverage can be read from what it did not do.",
+      "verifiedBy": [
+        "SECE-003",
+        "SECQ-005"
+      ]
+    },
+    {
+      "id": "SEC-R29",
+      "statement": "Areas a scan cannot decide are reported as untested, never as clean.",
+      "verifiedBy": [
+        "SECX-001",
+        "SECQ-010"
+      ]
+    },
+    {
+      "id": "SEC-R30",
+      "statement": "A build with no security scan is never reported as passing a security gate.",
+      "verifiedBy": [
+        "SECQ-001"
+      ]
+    },
+    {
+      "id": "SEC-R31",
+      "statement": "A partial scan does not pass a security gate however clean its findings were.",
+      "verifiedBy": [
+        "SECQ-004",
+        "SECQ-005"
+      ]
+    },
+    {
+      "id": "SEC-R32",
+      "statement": "New findings at or above the configured severity block a build; the gate can also pass.",
+      "verifiedBy": [
+        "SECQ-002",
+        "SECQ-011"
+      ]
+    },
+    {
+      "id": "SEC-R33",
+      "statement": "A security regression fails the gate at any severity.",
+      "verifiedBy": [
+        "SECQ-007",
+        "SECB-004"
+      ]
+    },
+    {
+      "id": "SEC-R34",
+      "statement": "A suppressed finding with no written justification and no named decision-maker is counted as open.",
+      "verifiedBy": [
+        "SECQ-006",
+        "SECT-001",
+        "SECT-002",
+        "SECT-003",
+        "SECT-004",
+        "SECT-005"
+      ]
+    },
+    {
+      "id": "SEC-R35",
+      "statement": "A finding's status history is appended to, never overwritten, so the decisions form an audit trail.",
+      "verifiedBy": [
+        "SECT-006"
+      ]
+    },
+    {
+      "id": "SEC-R36",
+      "statement": "A false positive suppresses one finding and never the same class elsewhere.",
+      "verifiedBy": [
+        "SECT-007"
+      ]
+    },
+    {
+      "id": "SEC-R37",
+      "statement": "Nothing automated can mark a security finding resolved or suppressed; self-healing cannot hide a regression.",
+      "verifiedBy": [
+        "SECT-008",
+        "SECB-002",
+        "SECB-003"
+      ]
+    },
+    {
+      "id": "SEC-R38",
+      "statement": "A finding absent from a scan is never recorded as fixed on absence alone.",
+      "verifiedBy": [
+        "SECB-002",
+        "SECB-003"
+      ]
+    },
+    {
+      "id": "SEC-R39",
+      "statement": "Findings have a stable identity across runs that survives rewording and severity revision.",
+      "verifiedBy": [
+        "SECB-001",
+        "SECB-005"
+      ]
+    },
+    {
+      "id": "SEC-R40",
+      "statement": "No report claims an application is secure or that it has zero vulnerabilities.",
+      "verifiedBy": [
+        "SECQ-003",
+        "SECQ-010"
+      ]
+    },
+    {
+      "id": "SEC-R41",
+      "statement": "A low-confidence finding goes to review rather than stopping a release.",
+      "verifiedBy": [
+        "SECQ-008"
+      ]
+    },
+    {
+      "id": "SEC-R42",
+      "statement": "Security scanning, triage and authorization are permission-gated, and none is available to a read-only user.",
+      "verifiedBy": [
+        "SECG-015",
+        "SECG-011"
+      ]
+    },
+    {
+      "id": "SEC-R43",
+      "statement": "AIRA's own API refuses unauthenticated and forged-token requests on every data endpoint.",
+      "verifiedBy": [
+        "SEC-G01",
+        "SEC-G02"
+      ]
+    },
+    {
+      "id": "SEC-R44",
+      "statement": "AIRA isolates tenants: one organization cannot read or act inside another's data by knowing an identifier.",
+      "verifiedBy": [
+        "SEC-G03",
+        "SEC-G04"
+      ]
+    },
+    {
+      "id": "SEC-R45",
+      "statement": "AIRA stores injection payloads as data and never executes them.",
+      "verifiedBy": [
+        "SEC-G05"
+      ]
+    },
+    {
+      "id": "SEC-R46",
+      "statement": "AIRA refuses to point its own crawler or scanner at targets that are never legitimate.",
+      "verifiedBy": [
+        "SEC-G06",
+        "SEC-G11"
+      ]
+    },
+    {
+      "id": "SEC-R47",
+      "statement": "Credentials AIRA stores for an application under test are never returned by its API.",
+      "verifiedBy": [
+        "SEC-G07"
+      ]
+    },
+    {
+      "id": "SEC-R48",
+      "statement": "AIRA's own artifact paths cannot be turned into a traversal, and arbitrary script execution needs an explicit opt-in.",
+      "verifiedBy": [
+        "SEC-G08",
+        "SEC-G09"
+      ]
+    },
+    {
+      "id": "SEC-R49",
+      "statement": "AIRA sets the browser security headers it claims to.",
+      "verifiedBy": [
+        "SEC-G10"
+      ]
+    },
+    {
+      "id": "SEC-R50",
+      "statement": "The security controls permit an authorized scan as well as refusing an unauthorized one; they are not a refusal of everything.",
+      "verifiedBy": [
+        "SECG-024",
+        "SECF-001",
+        "SECF-005",
+        "SECQ-011"
+      ]
+    }
+  ]
+}

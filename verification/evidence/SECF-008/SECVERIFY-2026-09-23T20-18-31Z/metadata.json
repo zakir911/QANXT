@@ -1,0 +1,32 @@
+{
+  "testId": "SECF-008",
+  "suite": "Security scanning",
+  "runId": "SECVERIFY-2026-09-23T20-18-31Z",
+  "objective": "The standard profile refuses a destructive probe",
+  "preconditions": [
+    "a scope that permits destructive testing, so the profile is the only thing deciding"
+  ],
+  "input": "profile=standard, risk=destructive",
+  "expected": "Refused with profileDoesNotPermit, because the profile is the promise made to whoever approved the scan about what it would do",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "profileDoesNotPermit: The standard profile does not run this risk level.",
+  "metrics": null,
+  "startedAt": "2026-09-23T20:18:32.495Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "dc4509f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECF-008/SECVERIFY-2026-09-23T20-18-31Z/decision.json",
+      "bytes": 325,
+      "sha256": "cc19bd9107fa31a5872dcb04f53880155659e9e299716c38c98005ee5cc5569a"
+    }
+  ]
+}

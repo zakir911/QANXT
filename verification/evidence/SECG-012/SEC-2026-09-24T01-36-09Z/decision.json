@@ -1,0 +1,16 @@
+{
+  "case": "a DELETE under an ordinary scope",
+  "why": "Destructive testing is off by default and the verb raises the risk regardless of what the check declared.",
+  "decision": {
+    "allowed": false,
+    "reason": "destructiveTestingNotAllowed",
+    "explanation": "A DELETE request is destructive and the scope does not permit it.",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain",
+      "path",
+      "method"
+    ]
+  }
+}

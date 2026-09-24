@@ -1,0 +1,31 @@
+{
+  "expected": {
+    "id": "VULN_MISSING_AUTHZ",
+    "type": "MissingAuthorization",
+    "endpoint": "GET /api/accounts/{id}/statement",
+    "severity": "critical",
+    "cwe": "CWE-862",
+    "owaspApi": "API1:2023",
+    "owaspWeb": "A01:2021",
+    "detectBy": "An unauthenticated caller receives a statement."
+  },
+  "got": {
+    "cwe": "CWE-862",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A01:2021",
+    "owaspApi": "API1:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "severe",
+      "privilegeRequired": "none",
+      "affectedData": "personalData",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 18,
+      "maxScore": 19,
+      "severity": "Critical",
+      "explanation": "Critical (18/19): trivial to exploit, severe impact, no account needed, reaches personal data, publicly reachable."
+    }
+  }
+}

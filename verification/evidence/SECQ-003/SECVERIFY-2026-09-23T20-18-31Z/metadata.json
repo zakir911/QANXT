@@ -1,0 +1,32 @@
+{
+  "testId": "SECQ-003",
+  "suite": "Security gate, regression and triage",
+  "runId": "SECVERIFY-2026-09-23T20-18-31Z",
+  "objective": "A clean scan never claims the application is secure",
+  "preconditions": [
+    "the same lab with both flaws corrected"
+  ],
+  "input": "A live scan of the corrected application",
+  "expected": "The sentence the brief requires — \"Within the configured scope and test coverage, no security findings were detected by the executed AIRA security tests\" — and never \"secure\" or \"zero vulnerabilities\"",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Within the configured scope and test coverage, no security findings were detected by the executed AIRA security tests (2 of 5 configured check(s), 7 request(s) issued). This is not a statement that the application is secure or that no vulnerabilities exist. Untested: DOM-based XSS (needs a browser-driven scan); cloud metadata (off by default).",
+  "metrics": null,
+  "startedAt": "2026-09-23T20:18:32.556Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "dc4509f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-003/SECVERIFY-2026-09-23T20-18-31Z/gate.json",
+      "bytes": 2227,
+      "sha256": "7a9d6f07a3f37c097470c441f34a4f7864e77510882323e631d269c9201b4c73"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "case": "past the scan duration",
+  "why": "A scan that runs forever is an incident.",
+  "decision": {
+    "allowed": false,
+    "reason": "scanDurationExceeded",
+    "explanation": "At the limit of 10 minute(s).",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain",
+      "path",
+      "method",
+      "risk",
+      "environment"
+    ]
+  }
+}

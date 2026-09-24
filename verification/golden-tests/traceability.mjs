@@ -19,18 +19,27 @@
  * Exits non-zero when a requirement is unverified.
  */
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 import { VERIFICATION, ROOT } from './harness.mjs';
 
-const REQUIREMENTS = resolve(VERIFICATION, 'continuous-quality-requirements.json');
 const RESULTS = resolve(VERIFICATION, 'reports/golden-results.jsonl');
 const SUITES = resolve(ROOT, 'verification/golden-tests/suites');
-const OUT = resolve(VERIFICATION, 'reports/TRACEABILITY.md');
 
 const argv = process.argv.slice(2);
 const runIndex = argv.indexOf('--run');
+const flag = (name, fallback) => {
+  const index = argv.indexOf(`--${name}`);
+  return index >= 0 ? argv[index + 1] : fallback;
+};
 
-const { requirements, title, note } = JSON.parse(readFileSync(REQUIREMENTS, 'utf8'));
+// Which matrix to check. The default is the continuous-quality one, and the security
+// capability brings its own — same checks, different requirements and a different set of
+// suites to call its own. Parameterised rather than copied, because two copies of this file
+// would drift and the whole point of it is that it does not.
+const REQUIREMENTS = resolve(VERIFICATION, flag('requirements', 'continuous-quality-requirements.json'));
+const OUT = resolve(VERIFICATION, flag('out', 'reports/TRACEABILITY.md'));
+
+const { requirements, title, note, suites } = JSON.parse(readFileSync(REQUIREMENTS, 'utf8'));
 
 /**
  * Every test id that can be shown to exist.
@@ -62,8 +71,8 @@ for (const file of readdirSync(SUITES).filter(name => name.endsWith('.mjs'))) {
 }
 const literal = new Set(declared);
 
-/** The suites this matrix's requirements are about. The rest are the product certification's. */
-const CQ_SUITES = new Set([
+/** The suites this matrix's requirements are about. The rest belong to another matrix. */
+const CQ_SUITES = new Set(suites ?? [
   'api-testing', 'api-contracts', 'correlation', 'regression-selection', 'ci-integration',
   'ci-simulation', 'scheduling', 'notifications', 'test-data', 'release', 'accessibility', 'visual'
 ]);
@@ -201,12 +210,19 @@ for (const row of unverified) {
 for (const row of notRun) {
   console.log(dim(`  ${row.status.padEnd(18)} ${row.id} ${row.statement.slice(0, 70)}`));
 }
-if (orphans.length > 0) {
-  console.log(dim(`  ${orphans.length} test(s) claimed by no requirement: ${orphans.slice(0, 8).join(', ')}`
-    + (orphans.length > 8 ? ' …' : '')));
+// Only the orphans inside this matrix's own suites are worth printing. Every test in every
+// other suite is an orphan as far as this matrix is concerned, and reporting 342 of them
+// buries the two or three that actually mean something.
+const orphansHere = orphans.filter(id => CQ_SUITES.has(declaredIn.get(id) ?? ''));
+if (orphansHere.length > 0) {
+  console.log(dim(`  ${orphansHere.length} test(s) in this matrix's suites claimed by no requirement: `
+    + orphansHere.slice(0, 8).join(', ') + (orphansHere.length > 8 ? ' …' : '')));
+}
+if (orphansOutside > 0) {
+  console.log(dim(`  ${orphansOutside} further test(s) belong to suites this matrix does not cover.`));
 }
 
-console.log(dim(`  Written to verification/reports/TRACEABILITY.md`));
+console.log(dim(`  Written to ${relative(ROOT, OUT)}`));
 console.log('');
 
 if (unverified.length > 0) {

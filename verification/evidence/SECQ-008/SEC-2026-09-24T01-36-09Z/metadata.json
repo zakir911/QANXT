@@ -1,0 +1,32 @@
+{
+  "testId": "SECQ-008",
+  "suite": "Security gate, regression and triage",
+  "runId": "SEC-2026-09-24T01-36-09Z",
+  "objective": "A single unreproduced indicator goes to review rather than stopping the release",
+  "preconditions": [
+    "a new High finding at Low confidence"
+  ],
+  "input": "One High/Low finding",
+  "expected": "REVIEW, not FAIL. A gate that stops a release on one unreproduced signal gets switched off, and then nothing is gated at all",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "REVIEW: Only 2 of 5 configured check(s) executed. A result from a partial scan describes the part that ran and nothing else. 1 new finding(s) at or above High rest on a single unreproduced indicator. A person should look rather than the build stopping.",
+  "metrics": null,
+  "startedAt": "2026-09-24T01:37:00.777Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "dc4509f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-008/SEC-2026-09-24T01-36-09Z/gate.json",
+      "bytes": 2293,
+      "sha256": "e85116382dd482825b7a9d05d496f3227b51fb9d08b9c63bcb5253b24d2fb365"
+    }
+  ]
+}

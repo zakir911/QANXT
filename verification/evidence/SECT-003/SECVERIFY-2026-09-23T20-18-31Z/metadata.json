@@ -1,0 +1,32 @@
+{
+  "testId": "SECT-003",
+  "suite": "Security gate, regression and triage",
+  "runId": "SECVERIFY-2026-09-23T20-18-31Z",
+  "objective": "Triage refuses a justification too short to be one",
+  "preconditions": [
+    "a confirmed finding from the live scan"
+  ],
+  "input": "a justification too short to be one",
+  "expected": "It throws. A suppression with no reason behind it is somebody switching the check off, and a workflow that accepts it quietly is how a gate becomes decoration",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Refusing to mark BOLA as FalsePositive: the justification is too short to be one. State what was checked and what it showed.",
+  "metrics": null,
+  "startedAt": "2026-09-23T20:18:32.567Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "dc4509f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/SECT-003/SECVERIFY-2026-09-23T20-18-31Z/refusal.json",
+      "bytes": 190,
+      "sha256": "78d0ccc707aafbd2e66702aac3cd40174840b25a56db8af436d272edb108d621"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-009",
+  "suite": "Security scanning",
+  "runId": "SECVERIFY-2026-09-23T20-18-31Z",
+  "objective": "The scope guard refuses a blocked path",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "a blocked path",
+  "expected": "Refused with pathBlocked. A path the owner excluded stays excluded.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "pathBlocked: Path '/api/admin/users' is blocked (pattern '/api/admin/*').",
+  "metrics": {
+    "rungsPassed": 3
+  },
+  "startedAt": "2026-09-23T20:18:32.473Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "dc4509f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-009/SECVERIFY-2026-09-23T20-18-31Z/decision.json",
+      "bytes": 328,
+      "sha256": "da8cfbe1f815914d560fb003454ca21374d0e09d7b70c6cd38761ea098db3728"
+    }
+  ]
+}

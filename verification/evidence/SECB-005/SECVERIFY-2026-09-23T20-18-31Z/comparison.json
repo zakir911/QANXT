@@ -1,0 +1,33 @@
+{
+  "findings": [
+    {
+      "id": "BOLA-0",
+      "application": "access-control-lab",
+      "category": "BOLA",
+      "endpoint": "/api/accounts/{id}",
+      "parameter": "id",
+      "observedAsRole": "alice",
+      "severity": "Critical",
+      "confidence": "Medium",
+      "status": "Accepted",
+      "isNew": false,
+      "isRegression": false,
+      "hasEvidence": true,
+      "check": "authz.bola",
+      "fingerprint": "934fababec4acd11",
+      "justification": "Reviewed with the owning team; the data behind it is synthetic.",
+      "decidedBy": "ada@example.invalid",
+      "previousStatus": "Accepted"
+    }
+  ],
+  "disappeared": [],
+  "summary": {
+    "current": 1,
+    "baseline": 1,
+    "new": 0,
+    "regressed": 0,
+    "carriedForward": 1,
+    "notReproduced": 0,
+    "notObserved": 0
+  }
+}

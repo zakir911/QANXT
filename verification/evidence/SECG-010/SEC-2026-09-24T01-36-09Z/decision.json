@@ -1,0 +1,14 @@
+{
+  "case": "a path outside the allowlist",
+  "why": "Where an allowlist of paths exists, everything else is out of scope.",
+  "decision": {
+    "allowed": false,
+    "reason": "pathNotAllowed",
+    "explanation": "Path '/api/users' is not in the scope's allowed paths.",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain"
+    ]
+  }
+}

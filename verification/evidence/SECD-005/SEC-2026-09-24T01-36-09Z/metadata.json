@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-005",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T01-36-09Z",
+  "objective": "A bearer token the application never issued being accepted is reported",
+  "preconditions": [
+    "VULN_UNVERIFIED_TOKEN switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Authentication: the unverified-token check against the lab",
+  "expected": "Exactly one UnverifiedToken finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "UnverifiedToken: A forged bearer token is accepted (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T01:36:59.368Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "dc4509f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-005/SEC-2026-09-24T01-36-09Z/vulnerable.json",
+      "bytes": 408,
+      "sha256": "eeaf2cb2454f4bd7d96027a5a39f8ea77f036f7de6f7fd92cb131163aecec0df"
+    }
+  ]
+}

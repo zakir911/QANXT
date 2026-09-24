@@ -1,0 +1,32 @@
+{
+  "testId": "SECT-005",
+  "suite": "Security gate, regression and triage",
+  "runId": "SECVERIFY-2026-09-23T20-18-31Z",
+  "objective": "Triage refuses an unknown status",
+  "preconditions": [
+    "a confirmed finding from the live scan"
+  ],
+  "input": "an unknown status",
+  "expected": "It throws. A suppression with no reason behind it is somebody switching the check off, and a workflow that accepts it quietly is how a gate becomes decoration",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Unknown security finding status 'Ignored'.",
+  "metrics": null,
+  "startedAt": "2026-09-23T20:18:32.567Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "dc4509f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/SECT-005/SECVERIFY-2026-09-23T20-18-31Z/refusal.json",
+      "bytes": 90,
+      "sha256": "12815c41cfd5fc93df5088dea63118c2195c613c55224f3f21bd2f00f79b5624"
+    }
+  ]
+}

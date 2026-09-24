@@ -1,0 +1,34 @@
+{
+  "testId": "SECS-005",
+  "suite": "Security scanning",
+  "runId": "SECVERIFY-2026-09-23T20-18-31Z",
+  "objective": "A page with every header set produces no header finding",
+  "preconditions": [
+    "the lab left in its ordinary, fully vulnerable state"
+  ],
+  "input": "GET /strict, which the lab ground truth calls correct",
+  "expected": "No finding. Any finding here is a false positive on an endpoint that does nothing wrong",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "no finding",
+  "metrics": {
+    "findings": 0
+  },
+  "startedAt": "2026-09-23T20:18:32.446Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "dc4509f",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "result.json",
+      "path": "evidence/SECS-005/SECVERIFY-2026-09-23T20-18-31Z/result.json",
+      "bytes": 119,
+      "sha256": "95a19eb1666ca648c24318acc75f603ca24203f6d4b44757c0881bd5351a5758"
+    }
+  ]
+}

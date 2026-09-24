@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIRA security verification</title>
+<style>
+  :root { --ink:#16181d; --muted:#6b7280; --line:#e5e7eb; --ok:#15803d; --bad:#b91c1c; --warn:#a16207; --bg:#fff; --panel:#f9fafb; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --ink:#e5e7eb; --muted:#9ca3af; --line:#2b2f36; --ok:#4ade80; --bad:#f87171; --warn:#fbbf24; --bg:#0f1115; --panel:#171a20; } }
+  :root[data-theme="dark"] { --ink:#e5e7eb; --muted:#9ca3af; --line:#2b2f36; --ok:#4ade80; --bad:#f87171; --warn:#fbbf24; --bg:#0f1115; --panel:#171a20; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); margin: 0; padding: 0 16px 64px;
+         font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; margin: 40px 0 8px; }
+  h2 { font-size: 1.15rem; margin: 36px 0 10px; padding-top: 18px; border-top: 1px solid var(--line); }
+  h3 { font-size: 1rem; margin: 24px 0 8px; }
+  .verdict { font-size: 1.05rem; font-weight: 600; margin: 0 0 4px; }
+  .meta { color: var(--muted); font-size: .9rem; margin-bottom: 24px; }
+  .disclaimer { background: var(--panel); border-left: 3px solid var(--warn); padding: 14px 16px;
+                border-radius: 6px; font-size: .92rem; margin: 20px 0; }
+  .disclaimer p { margin: 0 0 10px; } .disclaimer p:last-child { margin: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: 12px 0 8px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+  td.ok { color: var(--ok); font-weight: 600; } td.bad { color: var(--bad); font-weight: 600; }
+  .muted { color: var(--muted); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; }
+  ul { padding-left: 20px; } li { margin: 6px 0; }
+  .scroll { overflow-x: auto; }
+  footer { color: var(--muted); font-size: .85rem; margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<main>
+  <h1>AIRA — security verification</h1>
+  <p class="verdict">AIRA's security testing behaved as specified against its own lab in this run.</p>
+  <p class="meta">Run <code>SEC-2026-09-24T01-36-09Z</code> · 191 security test(s) ·
+     188 passed, 0 failed, 3 not verified</p>
+
+  <div class="disclaimer">
+    <p><strong>What this report is, and is not.</strong> It describes AIRA's security
+    <em>testing</em>: that the checks detect the flaws planted in the security lab, stay quiet on
+    the endpoints that are correct, refuse everything the scope does not authorize, and record
+    what they could not reach.</p>
+    <p>It is <strong>not</strong> a security assessment of any application. It does not say that
+    AIRA is secure, that the lab is secure, or that any application AIRA scans is secure. No scan
+    can support those claims.</p>
+    <p>The detection rate below is measured against a lab whose flaws were written alongside the
+    checks that find them. That is the right way to test a detector and the wrong way to estimate
+    how it will do against an application nobody has seen.</p>
+  </div>
+
+  <h2>What was measured</h2>
+  <div class="scroll"><table>
+    <tr><td>Flaws planted in the lab</td><td>35</td></tr>
+    <tr><td>Detection scenarios run</td><td>34</td></tr>
+    <tr><td>Planted flaws this scan cannot decide</td><td>1 <span class="muted">— see below</span></td></tr>
+    <tr><td>Flaws detected</td><td class="ok">34</td></tr>
+    <tr><td>False positives on the corrected application</td><td class="ok">0</td></tr>
+    <tr><td>Endpoints the ground truth calls correct</td><td>8</td></tr>
+    <tr><td>Evidence files recorded</td><td>190</td></tr>
+    <tr><td>Evidence files whose hash still matches</td><td class="ok">190</td></tr>
+  </table></div>
+
+  <h2>Results by family</h2>
+  <div class="scroll"><table>
+    <tr><th>Family</th><th>Passed</th><th>What it establishes</th></tr>
+    <tr><td>Detection</td><td class="ok">34/34</td><td class="muted">The flaw is switched on alone and the check reports it</td></tr>
+<tr><td>Precision</td><td class="ok">34/34</td><td class="muted">The flaw is switched off and the check reports nothing</td></tr>
+<tr><td>Classification</td><td class="ok">34/34</td><td class="muted">CWE, OWASP category and severity band match the ground truth</td></tr>
+<tr><td>False positives</td><td class="ok">9/9</td><td class="muted">Endpoints the ground truth calls correct stay quiet</td></tr>
+<tr><td>Scope guard</td><td class="ok">24/24</td><td class="muted">What security testing refuses to do, and the one thing it allows</td></tr>
+<tr><td>Evidence</td><td class="ok">4/4</td><td class="muted">Findings without evidence are refused; secrets are redacted</td></tr>
+<tr><td>Scan profiles</td><td class="ok">12/12</td><td class="muted">Each profile refuses the risk levels above it</td></tr>
+<tr><td>Security gate</td><td class="ok">11/11</td><td class="muted">What stops a build, and what a clean result is allowed to say</td></tr>
+<tr><td>Regression</td><td class="ok">5/5</td><td class="muted">What changed since the last scan, and what absence does not prove</td></tr>
+<tr><td>Triage</td><td class="ok">8/8</td><td class="muted">Suppression needs a reason and a name</td></tr>
+<tr><td>Coverage honesty</td><td class="ok">1/1</td><td class="muted">What this scan cannot decide</td></tr>
+<tr><td>Measured rates</td><td class="ok">1/1</td><td class="muted">Detection and false positives, as measured</td></tr>
+<tr><td>AIRA itself</td><td class="ok">11/11</td><td class="muted">Tenancy, credentials, target policy and headers in the platform</td></tr>
+  </table></div>
+
+  <h2>What was not tested</h2>
+  <div class="scroll"><table>
+    <tr><th>Test</th><th>What it would have established</th><th>Why it did not run</th></tr>
+    <tr><td><code>SECN-001</code></td><td>Security scanning against a production environment</td><td class="muted">Not executed. Production security testing is disabled by default and no production environment exists here. The refusal path is verified by SECG-016 and SECG-017; the permitted path is not exercised anywhere and is NOT VERIFIED.</td></tr>
+<tr><td><code>SECN-002</code></td><td>Browser-driven DOM XSS detection</td><td class="muted">Not implemented. SECX-001 records DOM XSS as not testable by this scan rather than as absent. Until a browser-driven security scan exists, DOM-based XSS is an untested area of coverage.</td></tr>
+<tr><td><code>SECN-003</code></td><td>Detection rate against an application AIRA has not seen</td><td class="muted">Not measured, and not measurable here. Every flaw in the lab was written alongside the check that finds it. The rate in SECR-001 describes this lab and nothing else.</td></tr>
+  </table></div>
+
+  <h3>Known limitations</h3>
+  <ul>
+    <li><strong>DOM-based XSS is not detected.</strong> The source never reaches the server and the
+        sink runs in the browser, so a response-only scan cannot see it. Recorded as not testable,
+        never as absent.</li>
+    <li><strong>Cloud metadata endpoints are never probed by default.</strong> That area is
+        untested, not clean.</li>
+    <li><strong>Production scanning has never been exercised in its permitted form.</strong> Only
+        its refusal is verified.</li>
+    <li><strong>The detection rate does not generalise.</strong> Every flaw in the lab was written
+        alongside the check that finds it.</li>
+    <li><strong>Security findings are not persisted to the database.</strong> The engine, gate,
+        regression comparison and triage workflow are verified as executed code, driven by the
+        golden suites rather than through stored scans.</li>
+  </ul>
+
+  <h3>The OWASP taxonomy</h3><ul><li><code>owasp-api-top10.json</code> — edition 2023, <strong>not verified against the published source</strong>: outbound network access was blocked where it was written, so the categories were recorded from knowledge and flagged. <code>scripts/refresh-owasp-taxonomy</code> replaces them and fails loudly rather than silently keeping the unverified copy.</li><li><code>owasp-web-top10.json</code> — edition 2021, <strong>not verified against the published source</strong>: outbound network access was blocked where it was written, so the categories were recorded from knowledge and flagged. <code>scripts/refresh-owasp-taxonomy</code> replaces them and fails loudly rather than silently keeping the unverified copy.</li></ul>
+
+  
+
+  <h2>Every security test in this run</h2>
+  <div class="scroll"><table>
+    <tr><th>Test</th><th>Result</th><th>Objective</th><th>Evidence</th></tr>
+    <tr><td><code>SEC-G01</code></td><td class="ok">PASS</td><td>Every data endpoint refuses an unauthenticated request</td><td class="muted">1</td></tr>
+<tr><td><code>SEC-G02</code></td><td class="ok">PASS</td><td>A forged or tampered token is refused</td><td class="muted">1</td></tr>
+<tr><td><code>SEC-G03</code></td><td class="ok">PASS</td><td>One tenant cannot read another's data by knowing its identifier</td><td class="muted">1</td></tr>
+<tr><td><code>SEC-G04</code></td><td class="ok">PASS</td><td>One tenant cannot start work inside another's project</td><td class="muted">1</td></tr>
+<tr><td><code>SEC-G05</code></td><td class="ok">PASS</td><td>SQL and script payloads in user input are stored as data, not executed</td><td class="muted">1</td></tr>
+<tr><td><code>SEC-G06</code></td><td class="ok">PASS</td><td>The platform refuses targets that are never legitimate, whatever it is configured to allow</td><td class="muted">1</td></tr>
+<tr><td><code>SEC-G07</code></td><td class="ok">PASS</td><td>A stored credential is never returned by the API</td><td class="muted">1</td></tr>
+<tr><td><code>SEC-G08</code></td><td class="ok">PASS</td><td>Artifact identifiers cannot be turned into a path traversal</td><td class="muted">1</td></tr>
+<tr><td><code>SEC-G09</code></td><td class="ok">PASS</td><td>A test cannot run arbitrary JavaScript in the browser unless the project allows it</td><td class="muted">1</td></tr>
+<tr><td><code>SEC-G10</code></td><td class="ok">PASS</td><td>The API sets the browser security headers it claims to</td><td class="muted">1</td></tr>
+<tr><td><code>SEC-G11</code></td><td class="ok">PASS</td><td>Loopback and private addresses are treated consistently with the deployment's configuration</td><td class="muted">1</td></tr>
+<tr><td><code>SECB-001</code></td><td class="ok">PASS</td><td>A finding reported twice gets the same fingerprint, and a different one does not</td><td class="muted">1</td></tr>
+<tr><td><code>SECB-002</code></td><td class="ok">PASS</td><td>A finding absent from a scan is never recorded as resolved on absence alone</td><td class="muted">1</td></tr>
+<tr><td><code>SECB-003</code></td><td class="ok">PASS</td><td>A check that ran and did not reproduce a finding says so, and still does not resolve it</td><td class="muted">1</td></tr>
+<tr><td><code>SECB-004</code></td><td class="ok">PASS</td><td>A resolved finding detected again is marked as a regression</td><td class="muted">2</td></tr>
+<tr><td><code>SECB-005</code></td><td class="ok">PASS</td><td>A triage decision carries forward but the severity does not</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-001</code></td><td class="ok">PASS</td><td>A user reading another user's object by identifier is reported as BOLA</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-002</code></td><td class="ok">PASS</td><td>A customer reaching an administrator route is reported as broken function level authorization</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-003</code></td><td class="ok">PASS</td><td>A read-only account performing a write is reported as privilege escalation</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-004</code></td><td class="ok">PASS</td><td>Protected data served to an unauthenticated caller is reported as missing authorization</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-005</code></td><td class="ok">PASS</td><td>A bearer token the application never issued being accepted is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-006</code></td><td class="ok">PASS</td><td>A sign-in endpoint that distinguishes an unknown account from a wrong password is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-007</code></td><td class="ok">PASS</td><td>Repeated failed sign-ins that are never throttled are reported, from a bounded probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-008</code></td><td class="ok">PASS</td><td>A token that still authenticates after sign-out is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-009</code></td><td class="ok">PASS</td><td>A session lifetime far above the threshold is reported, as declared rather than witnessed</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-010</code></td><td class="ok">PASS</td><td>A password-reset token accepted twice is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-011</code></td><td class="ok">PASS</td><td>A caller setting a privileged field on their own object is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-012</code></td><td class="ok">PASS</td><td>A field accepting any type, an empty value and an oversized value is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-013</code></td><td class="ok">PASS</td><td>An unauthenticated DELETE succeeding is reported, against an object the check created</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-014</code></td><td class="ok">PASS</td><td>An endpoint with no threshold below fifteen requests is reported, from a bounded probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-015</code></td><td class="ok">PASS</td><td>Password hashes and tokens in a response are reported, by field name and never by value</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-016</code></td><td class="ok">PASS</td><td>Input reflected unencoded into an HTML response is reported as reflected XSS</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-017</code></td><td class="ok">PASS</td><td>A marker stored once and rendered unencoded on a later read is reported as stored XSS</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-018</code></td><td class="ok">PASS</td><td>A parameter concatenated into a query is reported, by error signature and widened result set</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-019</code></td><td class="ok">PASS</td><td>An operator object accepted where a string belongs is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-020</code></td><td class="ok">PASS</td><td>A value reaching a shell is reported from one metacharacter, with nothing executed</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-021</code></td><td class="ok">PASS</td><td>A parameter evaluated as a template is reported, against a measured baseline</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-022</code></td><td class="ok">PASS</td><td>A state-changing request succeeding with no anti-CSRF token is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-023</code></td><td class="ok">PASS</td><td>A cross-origin state-changing request being accepted is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-024</code></td><td class="ok">PASS</td><td>An executable extension with a mismatched content type being accepted is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-025</code></td><td class="ok">PASS</td><td>A declared size far above the limit being accepted is reported, as declared not transferred</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-026</code></td><td class="ok">PASS</td><td>A filename stored with its relative path intact is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-027</code></td><td class="ok">PASS</td><td>A redirect to an arbitrary host is reported, with the Location read and never followed</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-028</code></td><td class="ok">PASS</td><td>An unvalidated fetch destination is reported, without probing cloud metadata</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-029</code></td><td class="ok">PASS</td><td>A missing Content-Security-Policy on an HTML response is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-030</code></td><td class="ok">PASS</td><td>A session cookie with no HttpOnly, Secure or SameSite is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-031</code></td><td class="ok">PASS</td><td>An arbitrary origin reflected while credentials are allowed is reported — both together</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-032</code></td><td class="ok">PASS</td><td>A directory index is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-033</code></td><td class="ok">PASS</td><td>A served JavaScript source map is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECD-034</code></td><td class="ok">PASS</td><td>A stack trace naming source paths, host and framework version is reported</td><td class="muted">1</td></tr>
+<tr><td><code>SECE-001</code></td><td class="ok">PASS</td><td>A finding with no exchange is refused rather than recorded</td><td class="muted">1</td></tr>
+<tr><td><code>SECE-002</code></td><td class="ok">PASS</td><td>Secrets are removed from sanitized evidence and non-secrets survive it</td><td class="muted">1</td></tr>
+<tr><td><code>SECE-003</code></td><td class="ok">PASS</td><td>Blocked requests are recorded, so coverage can be read from what a scan did not do</td><td class="muted">1</td></tr>
+<tr><td><code>SECE-004</code></td><td class="ok">PASS</td><td>Evidence is written in both raw and sanitized form, and hashed</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-001</code></td><td class="ok">PASS</td><td>The passive profile permits a passive probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-002</code></td><td class="ok">PASS</td><td>The passive profile refuses a active probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-003</code></td><td class="ok">PASS</td><td>The passive profile refuses a state-changing probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-004</code></td><td class="ok">PASS</td><td>The passive profile refuses a destructive probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-005</code></td><td class="ok">PASS</td><td>The standard profile permits a passive probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-006</code></td><td class="ok">PASS</td><td>The standard profile permits a active probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-007</code></td><td class="ok">PASS</td><td>The standard profile permits a state-changing probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-008</code></td><td class="ok">PASS</td><td>The standard profile refuses a destructive probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-009</code></td><td class="ok">PASS</td><td>The regression profile permits a active probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-010</code></td><td class="ok">PASS</td><td>The regression profile refuses a destructive probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-011</code></td><td class="ok">PASS</td><td>The deep profile permits a state-changing probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECF-012</code></td><td class="ok">PASS</td><td>The deep profile permits a destructive probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-001</code></td><td class="ok">PASS</td><td>The scope guard refuses no scope at all</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-002</code></td><td class="ok">PASS</td><td>The scope guard refuses scope disabled</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-003</code></td><td class="ok">PASS</td><td>The scope guard refuses no written authorization</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-004</code></td><td class="ok">PASS</td><td>The scope guard refuses empty domain allowlist</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-005</code></td><td class="ok">PASS</td><td>The scope guard refuses a host nobody authorized</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-006</code></td><td class="ok">PASS</td><td>The scope guard refuses cloud metadata, despite an allowlist that names it</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-007</code></td><td class="ok">PASS</td><td>The scope guard refuses GCP metadata by name</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-008</code></td><td class="ok">PASS</td><td>The scope guard refuses a non-http scheme</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-009</code></td><td class="ok">PASS</td><td>The scope guard refuses a blocked path</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-010</code></td><td class="ok">PASS</td><td>The scope guard refuses a path outside the allowlist</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-011</code></td><td class="ok">PASS</td><td>The scope guard refuses active testing when the scope permits passive only</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-012</code></td><td class="ok">PASS</td><td>The scope guard refuses a DELETE under an ordinary scope</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-013</code></td><td class="ok">PASS</td><td>The scope guard refuses a POST declared passive</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-014</code></td><td class="ok">PASS</td><td>The scope guard refuses the passive profile asked for an active probe</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-015</code></td><td class="ok">PASS</td><td>The scope guard refuses an account without permission for active scans</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-016</code></td><td class="ok">PASS</td><td>The scope guard refuses production, unauthorized</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-017</code></td><td class="ok">PASS</td><td>The scope guard refuses production, allowed by the scope but not authorized for this run</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-018</code></td><td class="ok">PASS</td><td>The scope guard refuses a different environment from the one authorized</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-019</code></td><td class="ok">PASS</td><td>The scope guard refuses over the rate limit</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-020</code></td><td class="ok">PASS</td><td>The scope guard refuses over the concurrency limit</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-021</code></td><td class="ok">PASS</td><td>The scope guard refuses past the scan duration</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-022</code></td><td class="ok">PASS</td><td>The scope guard refuses a URL that is not absolute</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-023</code></td><td class="ok">PASS</td><td>The scope guard refuses no HTTP method</td><td class="muted">1</td></tr>
+<tr><td><code>SECG-024</code></td><td class="ok">PASS</td><td>The scope guard allows the scan it was written to allow</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-001</code></td><td class="ok">PASS</td><td>The bola finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-002</code></td><td class="ok">PASS</td><td>The vertical finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-003</code></td><td class="ok">PASS</td><td>The readonly-write finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-004</code></td><td class="ok">PASS</td><td>The missing-authz finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-005</code></td><td class="ok">PASS</td><td>The unverified-token finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-006</code></td><td class="ok">PASS</td><td>The enumeration finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-007</code></td><td class="ok">PASS</td><td>The lockout finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-008</code></td><td class="ok">PASS</td><td>The session-logout finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-009</code></td><td class="ok">PASS</td><td>The session-lifetime finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-010</code></td><td class="ok">PASS</td><td>The reset-reuse finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-011</code></td><td class="ok">PASS</td><td>The mass-assignment finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-012</code></td><td class="ok">PASS</td><td>The input-validation finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-013</code></td><td class="ok">PASS</td><td>The unsafe-method finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-014</code></td><td class="ok">PASS</td><td>The rate-limit finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-015</code></td><td class="ok">PASS</td><td>The excessive-data finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-016</code></td><td class="ok">PASS</td><td>The reflected-xss finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-017</code></td><td class="ok">PASS</td><td>The stored-xss finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-018</code></td><td class="ok">PASS</td><td>The sql-injection finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-019</code></td><td class="ok">PASS</td><td>The nosql-injection finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-020</code></td><td class="ok">PASS</td><td>The command-injection finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-021</code></td><td class="ok">PASS</td><td>The template-injection finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-022</code></td><td class="ok">PASS</td><td>The csrf-token finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-023</code></td><td class="ok">PASS</td><td>The origin-validation finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-024</code></td><td class="ok">PASS</td><td>The upload-type finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-025</code></td><td class="ok">PASS</td><td>The upload-size finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-026</code></td><td class="ok">PASS</td><td>The upload-traversal finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-027</code></td><td class="ok">PASS</td><td>The open-redirect finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-028</code></td><td class="ok">PASS</td><td>The ssrf finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-029</code></td><td class="ok">PASS</td><td>The no-csp finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-030</code></td><td class="ok">PASS</td><td>The weak-cookie finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-031</code></td><td class="ok">PASS</td><td>The reflected-cors finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-032</code></td><td class="ok">PASS</td><td>The directory-listing finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-033</code></td><td class="ok">PASS</td><td>The source-map finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECM-034</code></td><td class="ok">PASS</td><td>The verbose-error finding carries the CWE, OWASP category and severity it should</td><td class="muted">1</td></tr>
+<tr><td><code>SECN-001</code></td><td class="bad">NOT_VERIFIED</td><td>Security scanning against a production environment</td><td class="muted">0</td></tr>
+<tr><td><code>SECN-002</code></td><td class="bad">NOT_VERIFIED</td><td>Browser-driven DOM XSS detection</td><td class="muted">0</td></tr>
+<tr><td><code>SECN-003</code></td><td class="bad">NOT_VERIFIED</td><td>Detection rate against an application AIRA has not seen</td><td class="muted">0</td></tr>
+<tr><td><code>SECP-001</code></td><td class="ok">PASS</td><td>The bola check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-002</code></td><td class="ok">PASS</td><td>The vertical check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-003</code></td><td class="ok">PASS</td><td>The readonly-write check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-004</code></td><td class="ok">PASS</td><td>The missing-authz check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-005</code></td><td class="ok">PASS</td><td>The unverified-token check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-006</code></td><td class="ok">PASS</td><td>The enumeration check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-007</code></td><td class="ok">PASS</td><td>The lockout check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-008</code></td><td class="ok">PASS</td><td>The session-logout check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-009</code></td><td class="ok">PASS</td><td>The session-lifetime check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-010</code></td><td class="ok">PASS</td><td>The reset-reuse check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-011</code></td><td class="ok">PASS</td><td>The mass-assignment check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-012</code></td><td class="ok">PASS</td><td>The input-validation check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-013</code></td><td class="ok">PASS</td><td>The unsafe-method check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-014</code></td><td class="ok">PASS</td><td>The rate-limit check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-015</code></td><td class="ok">PASS</td><td>The excessive-data check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-016</code></td><td class="ok">PASS</td><td>The reflected-xss check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-017</code></td><td class="ok">PASS</td><td>The stored-xss check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-018</code></td><td class="ok">PASS</td><td>The sql-injection check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-019</code></td><td class="ok">PASS</td><td>The nosql-injection check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-020</code></td><td class="ok">PASS</td><td>The command-injection check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-021</code></td><td class="ok">PASS</td><td>The template-injection check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-022</code></td><td class="ok">PASS</td><td>The csrf-token check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-023</code></td><td class="ok">PASS</td><td>The origin-validation check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-024</code></td><td class="ok">PASS</td><td>The upload-type check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-025</code></td><td class="ok">PASS</td><td>The upload-size check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-026</code></td><td class="ok">PASS</td><td>The upload-traversal check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-027</code></td><td class="ok">PASS</td><td>The open-redirect check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-028</code></td><td class="ok">PASS</td><td>The ssrf check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-029</code></td><td class="ok">PASS</td><td>The no-csp check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-030</code></td><td class="ok">PASS</td><td>The weak-cookie check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-031</code></td><td class="ok">PASS</td><td>The reflected-cors check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-032</code></td><td class="ok">PASS</td><td>The directory-listing check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-033</code></td><td class="ok">PASS</td><td>The source-map check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECP-034</code></td><td class="ok">PASS</td><td>The verbose-error check reports nothing once the flaw is corrected</td><td class="muted">1</td></tr>
+<tr><td><code>SECQ-001</code></td><td class="ok">PASS</td><td>A scan that did not run is REVIEW, never a pass</td><td class="muted">1</td></tr>
+<tr><td><code>SECQ-002</code></td><td class="ok">PASS</td><td>Two real findings from a real scan block the build</td><td class="muted">2</td></tr>
+<tr><td><code>SECQ-003</code></td><td class="ok">PASS</td><td>A clean scan never claims the application is secure</td><td class="muted">1</td></tr>
+<tr><td><code>SECQ-004</code></td><td class="ok">PASS</td><td>A partial scan does not pass, however clean it was</td><td class="muted">1</td></tr>
+<tr><td><code>SECQ-005</code></td><td class="ok">PASS</td><td>A scan whose scope refused most of its requests does not pass</td><td class="muted">1</td></tr>
+<tr><td><code>SECQ-006</code></td><td class="ok">PASS</td><td>A suppression with no written justification is counted as open and fails the build</td><td class="muted">1</td></tr>
+<tr><td><code>SECQ-007</code></td><td class="ok">PASS</td><td>A regression fails at any severity</td><td class="muted">1</td></tr>
+<tr><td><code>SECQ-008</code></td><td class="ok">PASS</td><td>A single unreproduced indicator goes to review rather than stopping the release</td><td class="muted">1</td></tr>
+<tr><td><code>SECQ-009</code></td><td class="ok">PASS</td><td>A finding with no evidence is neither failed nor dismissed</td><td class="muted">1</td></tr>
+<tr><td><code>SECQ-010</code></td><td class="ok">PASS</td><td>Untested areas appear in the summary of a clean result</td><td class="muted">1</td></tr>
+<tr><td><code>SECQ-011</code></td><td class="ok">PASS</td><td>The gate can pass — a clean scan with full coverage is a PASS, not a REVIEW</td><td class="muted">1</td></tr>
+<tr><td><code>SECR-001</code></td><td class="ok">PASS</td><td>The measured detection and false-positive rates are recorded, not claimed</td><td class="muted">1</td></tr>
+<tr><td><code>SECS-001</code></td><td class="ok">PASS</td><td>A collection that returns only the caller's own objects produces no BOLA finding</td><td class="muted">1</td></tr>
+<tr><td><code>SECS-002</code></td><td class="ok">PASS</td><td>An object endpoint that enforces ownership produces no BOLA finding</td><td class="muted">1</td></tr>
+<tr><td><code>SECS-003</code></td><td class="ok">PASS</td><td>HTML-escaped reflection produces no XSS finding — reflection alone is not XSS</td><td class="muted">1</td></tr>
+<tr><td><code>SECS-004</code></td><td class="ok">PASS</td><td>Reflection into a JSON body produces no XSS finding — it is not an HTML context</td><td class="muted">1</td></tr>
+<tr><td><code>SECS-005</code></td><td class="ok">PASS</td><td>A page with every header set produces no header finding</td><td class="muted">1</td></tr>
+<tr><td><code>SECS-006</code></td><td class="ok">PASS</td><td>A fully attributed session cookie produces no cookie finding</td><td class="muted">1</td></tr>
+<tr><td><code>SECS-007</code></td><td class="ok">PASS</td><td>A wildcard origin with no credentials on public data produces no CORS finding</td><td class="muted">1</td></tr>
+<tr><td><code>SECS-008</code></td><td class="ok">PASS</td><td>An endpoint that answers identically for a known and an unknown account produces no enumeration finding</td><td class="muted">1</td></tr>
+<tr><td><code>SECS-009</code></td><td class="ok">PASS</td><td>A fetch endpoint that accepts only its own origin produces no SSRF finding</td><td class="muted">1</td></tr>
+<tr><td><code>SECT-001</code></td><td class="ok">PASS</td><td>Triage refuses a false positive with no justification</td><td class="muted">1</td></tr>
+<tr><td><code>SECT-002</code></td><td class="ok">PASS</td><td>Triage refuses a false positive with no named decision-maker</td><td class="muted">1</td></tr>
+<tr><td><code>SECT-003</code></td><td class="ok">PASS</td><td>Triage refuses a justification too short to be one</td><td class="muted">1</td></tr>
+<tr><td><code>SECT-004</code></td><td class="ok">PASS</td><td>Triage refuses an accepted risk with no justification</td><td class="muted">1</td></tr>
+<tr><td><code>SECT-005</code></td><td class="ok">PASS</td><td>Triage refuses an unknown status</td><td class="muted">1</td></tr>
+<tr><td><code>SECT-006</code></td><td class="ok">PASS</td><td>A properly justified decision is accepted and appended to the history, never overwriting it</td><td class="muted">1</td></tr>
+<tr><td><code>SECT-007</code></td><td class="ok">PASS</td><td>A false positive suppresses that finding and not the same class elsewhere</td><td class="muted">1</td></tr>
+<tr><td><code>SECT-008</code></td><td class="ok">PASS</td><td>Self-healing cannot mark a security finding resolved</td><td class="muted">1</td></tr>
+<tr><td><code>SECX-001</code></td><td class="ok">PASS</td><td>DOM-based XSS is reported as not tested by a response-only scan, never as absent</td><td class="muted">1</td></tr>
+  </table></div>
+
+  <footer>
+    Generated from <code>verification/reports/golden-results.jsonl</code> for run
+    <code>SEC-2026-09-24T01-36-09Z</code>. Every figure is derived from a recorded execution;
+    nothing in this report is asserted.
+  </footer>
+</main>
+</body>
+</html>
