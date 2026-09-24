@@ -3,8 +3,9 @@
  *
  * A manual illustrated with empty screens teaches nothing, so this seeds a realistic
  * workspace first — a project, an application, a crawl, generated tests, a run that passes,
- * a run that fails, and a healing proposal — and only then photographs each page. Every
- * image is a real browser looking at a real platform holding real results.
+ * a run that fails, a healing proposal, an agent pass and an authorized security scan — and
+ * only then photographs each page. Every image is a real browser looking at a real platform
+ * holding real results.
  *
  * Needs AIRA and the demo bank running.
  *
@@ -129,6 +130,60 @@ if (agentStart.ok && agentRun?.id) {
   console.log(`  agent pass could not start: ${agentStart.status} ${agentStart.text.slice(0, 140)}`);
 }
 
+// ---------------------------------------------------------------------------
+// Authorize the application for security testing, and scan it
+// ---------------------------------------------------------------------------
+//
+// The scope is written first because nothing can be scanned without one, and a screenshot of
+// the Security page with no scope would illustrate the refusal rather than the feature. The
+// note is a real sentence for the same reason the product demands one: a manual showing
+// "authorized: yes" teaches the opposite of what the field is for.
+
+const scope = await request(`/api/v1/security/applications/${application.id}/scope`, {
+  token: tenant.token, method: 'PUT',
+  body: {
+    enabled: true,
+    authorizationNote:
+      'Authorized by R. Patel, Head of Engineering, for this staging instance of Demo Bank '
+      + 'only. Ticket SEC-114, 2026-09-24.',
+    allowedDomains: new URL(BANK).hostname,
+    allowedApiDomains: new URL(BANK).hostname,
+    allowedPaths: null,
+    blockedPaths: null,
+    environmentId: null,
+    maxRequestsPerSecond: 10,
+    maxConcurrentRequests: 2,
+    maxScanDurationMinutes: 10,
+    allowActiveTesting: true,
+    allowDestructiveTesting: false,
+    allowProduction: false
+  }
+});
+console.log(`  security scope ${scope.ok ? 'authorized' : `refused: ${scope.status} ${scope.text.slice(0, 160)}`}`);
+
+let securityScan = null;
+if (scope.ok) {
+  const started = await request('/api/v1/security/scans/start', {
+    token: tenant.token, method: 'POST', body: { applicationId: application.id }
+  });
+  if (started.ok) {
+    const scanId = started.json.securityScanId;
+    // Waited for deliberately. A queued scan has issued no requests, and the page says so —
+    // truthfully, and uselessly as an illustration of what a scan finds.
+    const deadline = Date.now() + 300_000;
+    while (Date.now() < deadline) {
+      const poll = await request(`/api/v1/security/scans/${scanId}`, { token: tenant.token });
+      securityScan = poll.json ?? securityScan;
+      if (securityScan?.status && securityScan.status !== 'queued') break;
+      await new Promise(resolve => setTimeout(resolve, 5_000));
+    }
+    console.log(`  security scan ${securityScan?.reference ?? scanId}: ${securityScan?.status ?? 'never reported'}`
+      + `${securityScan?.gate ? ` — gate ${securityScan.gate.outcome}` : ''}`);
+  } else {
+    console.log(`  security scan could not start: ${started.status} ${started.text.slice(0, 160)}`);
+  }
+}
+
 const generatedList = await request(
   `/api/v1/testcases?projectId=${project.id}&testSuiteId=${generated.json?.testSuiteId}`,
   { token: tenant.token });
@@ -242,6 +297,24 @@ try {
 
   await openPath('/settings');
   await shot('18-settings', 'settings: people, gates and providers');
+
+  await openPath('/security');
+  // The authorization card is what the caption claims, and it is the one part of this page
+  // that is present whether or not a worker ever reported. Proving the gate summary instead
+  // would make the shot fail for a reason the manual does not care about.
+  await shot('19-security', 'security: who authorized this application, and for what',
+    page.getByTestId('security-scope'));
+
+  // Two shots, because the page is taller than a viewport and the half below the fold is the
+  // half that says what was *not* covered. A manual that showed only the authorization would
+  // illustrate the permission and skip the honesty.
+  await page.getByTestId('security-surface-summary').scrollIntoViewIfNeeded().catch(() => {});
+  await shot('20-security-surface', 'the trend, and the attack surface with its caveats first',
+    page.getByTestId('security-surface-summary'));
+
+  await page.getByTestId('security-findings').scrollIntoViewIfNeeded().catch(() => {});
+  await shot('21-security-findings', 'the findings a real scan of the demo bank produced',
+    page.getByTestId('security-findings'));
 
   console.log(`\n${shots.length} screenshot(s) written to docs/images/manual/`);
   console.log(`Workspace: project ${project.key}, application ${application.id}`);

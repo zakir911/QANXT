@@ -2,7 +2,8 @@
 
 An AI-powered autonomous web application testing platform: it learns an application, plans
 tests for it, runs them in real browsers, collects evidence, explains failures, heals broken
-locators under policy, and reports quality intelligence to people and to CI/CD.
+locators under policy, security tests what it has been authorized to test, and reports quality
+intelligence to people and to CI/CD.
 
 > The product name is configuration (`PRODUCT_NAME`), not a constant in the code.
 
@@ -73,6 +74,7 @@ already have the toolchain, and `docs/implementation-plan.md` has the build plan
 - [Observability](docs/observability.md) — correlation ids, logs, health, the audit trail and what is not instrumented
 - [Deploying with Docker](docs/deployment.md) — one compose file for the whole platform
 - [The database](docs/database.md) — schema, tenant isolation, migrations
+- [Security testing](docs/security/) — the authorization a scan cannot run without, the checks, the finding model, the gate, and what is untested rather than clean
 - [The autonomous agent](docs/agent.md) — the bounded loop, risk scoring, regression intelligence, and what the agent is not allowed to do
 - [The test lab and golden suite](docs/test-lab-plan.md) — six applications built to break, and the tests that prove the product against them
 
