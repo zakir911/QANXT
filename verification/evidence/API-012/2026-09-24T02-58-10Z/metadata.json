@@ -1,0 +1,32 @@
+{
+  "testId": "API-012",
+  "suite": "API testing",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "A referenced secret is sent but never appears in the run's stored evidence",
+  "preconditions": [
+    "the application credentials are configured on the project"
+  ],
+  "input": "A run of TC-0002, whose sign-in body references ${secret:app_password}",
+  "expected": "The run passes and the password appears nowhere in the execution record, the action list or the network log",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run passed; the password appears in none of execution, executions, network",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:58:32.463Z",
+  "durationMs": 2077,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "searched.json",
+      "path": "evidence/API-012/2026-09-24T02-58-10Z/searched.json",
+      "bytes": 112,
+      "sha256": "66373b3a9862662b0fdf2b92a8a8289a19dce918db084af410375881f3ec6544"
+    }
+  ]
+}

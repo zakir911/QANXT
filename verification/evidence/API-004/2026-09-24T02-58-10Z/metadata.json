@@ -1,0 +1,38 @@
+{
+  "testId": "API-004",
+  "suite": "API testing",
+  "runId": "2026-09-24T02-58-10Z",
+  "objective": "A test that expects an unauthenticated call to be refused passes on the refusal",
+  "preconditions": [
+    "the lab bank refuses /api/accounts without a session"
+  ],
+  "input": "An API test asserting 401 and the error body, with error statuses tolerated",
+  "expected": "A passed execution: the 401 is the expected result, not the failure",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run passed; the call returned 401",
+  "metrics": null,
+  "startedAt": "2026-09-24T02:58:23.888Z",
+  "durationMs": 2079,
+  "build": {
+    "commit": "c804e54",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "execution.json",
+      "path": "evidence/API-004/2026-09-24T02-58-10Z/execution.json",
+      "bytes": 2250,
+      "sha256": "5eec24c335d1eb34aba5a934c2e417d379eb41e38f2065a6b971479494495416"
+    },
+    {
+      "file": "network.json",
+      "path": "evidence/API-004/2026-09-24T02-58-10Z/network.json",
+      "bytes": 818,
+      "sha256": "0b15ae774bbb9301cd003b284d57aca1d4d8852c8d088631f1e2b6f50348272b"
+    }
+  ]
+}
