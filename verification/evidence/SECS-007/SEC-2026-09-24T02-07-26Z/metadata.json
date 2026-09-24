@@ -1,0 +1,34 @@
+{
+  "testId": "SECS-007",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-07-26Z",
+  "objective": "A wildcard origin with no credentials on public data produces no CORS finding",
+  "preconditions": [
+    "the lab left in its ordinary, fully vulnerable state"
+  ],
+  "input": "GET /api/public, which the lab ground truth calls correct",
+  "expected": "No finding. Any finding here is a false positive on an endpoint that does nothing wrong",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "no finding",
+  "metrics": {
+    "findings": 0
+  },
+  "startedAt": "2026-09-24T02:07:34.571Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c3338e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "result.json",
+      "path": "evidence/SECS-007/SEC-2026-09-24T02-07-26Z/result.json",
+      "bytes": 119,
+      "sha256": "95a19eb1666ca648c24318acc75f603ca24203f6d4b44757c0881bd5351a5758"
+    }
+  ]
+}

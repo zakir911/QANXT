@@ -6,7 +6,7 @@ Two requirements are deliberately not on this list because nothing here verifies
 
 SEC-R43 to SEC-R49 are about AIRA itself rather than the applications it tests. A security testing tool that is not itself secure is a liability, and its own tenancy, credential handling and target policy are verified by the same kind of test as everything else here.
 
-Checked against golden run `SEC-2026-09-24T02-03-18Z`.
+Checked against golden run `SEC-2026-09-24T02-07-26Z`.
 
 **63 of 63 requirements verified.**
 
@@ -53,7 +53,7 @@ Checked against golden run `SEC-2026-09-24T02-03-18Z`.
 | **SEC-R39** Findings have a stable identity across runs that survives rewording and severity revision. | SECB-001, SECB-005 | VERIFIED |
 | **SEC-R40** No report claims an application is secure or that it has zero vulnerabilities. | SECQ-003, SECQ-010 | VERIFIED |
 | **SEC-R41** A low-confidence finding goes to review rather than stopping a release. | SECQ-008 | VERIFIED |
-| **SEC-R42** Security scanning, triage and authorization are permission-gated, and none is available to a read-only user. | SECG-015, SECG-011 | VERIFIED |
+| **SEC-R42** Security scanning, triage and authorization are permission-gated in the API and in the console, and none is available to a read-only user. | SECG-015, SECG-011 | VERIFIED |
 | **SEC-R43** AIRA's own API refuses unauthenticated and forged-token requests on every data endpoint. | SEC-G01, SEC-G02 | VERIFIED |
 | **SEC-R44** AIRA isolates tenants: one organization cannot read or act inside another's data by knowing an identifier. | SEC-G03, SEC-G04 | VERIFIED |
 | **SEC-R45** AIRA stores injection payloads as data and never executes them. | SEC-G05 | VERIFIED |

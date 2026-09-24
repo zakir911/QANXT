@@ -1,0 +1,40 @@
+{
+  "testId": "SECPL-008",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-2026-09-24T02-07-26Z",
+  "objective": "The same flaw found again updates its row rather than arriving as a new finding",
+  "preconditions": [
+    "one scan already recorded"
+  ],
+  "input": "A second scan reporting the same flaw, reworded and re-scored",
+  "expected": "One finding, not two, now Confirmed and no longer new — the fingerprint survives rewording and a severity revision, or every run would report a wall of new findings",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 finding(s) total; status confirmed, severity critical (was high), same fingerprint: true",
+  "metrics": {
+    "findings": 1
+  },
+  "startedAt": "2026-09-24T02:07:34.961Z",
+  "durationMs": 21,
+  "build": {
+    "commit": "c3338e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "scan.json",
+      "path": "evidence/SECPL-008/SEC-2026-09-24T02-07-26Z/scan.json",
+      "bytes": 3482,
+      "sha256": "d81cb56dcc143c8ea9f4b56423ee3c6554cedbcdaa1f5bedb67e3ad7ed344cf6"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/SECPL-008/SEC-2026-09-24T02-07-26Z/findings.json",
+      "bytes": 695,
+      "sha256": "9a6ba1ee178c0ebd22b2d5efac42fa817b94a6d523a03c7776e51f9bd871f5a8"
+    }
+  ]
+}

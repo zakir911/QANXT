@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-020",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-07-26Z",
+  "objective": "A value reaching a shell is reported from one metacharacter, with nothing executed",
+  "preconditions": [
+    "VULN_COMMAND_INJECTION switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Injection: the command-injection check against the lab",
+  "expected": "Exactly one CommandInjection finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "CommandInjection: 'host' reaches a shell (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T02:07:34.239Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c3338e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-020/SEC-2026-09-24T02-07-26Z/vulnerable.json",
+      "bytes": 397,
+      "sha256": "e41cf28ebb6839e24033846c99071011d35b4656e633c775937b096dab9d7080"
+    }
+  ]
+}

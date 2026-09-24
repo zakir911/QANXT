@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_UPLOAD_ANY_TYPE",
+    "type": "UnrestrictedFileUpload",
+    "endpoint": "POST /api/upload",
+    "severity": "high",
+    "cwe": "CWE-434",
+    "owaspWeb": "A04:2021",
+    "detectBy": "An executable extension and a mismatched content type are accepted."
+  },
+  "got": {
+    "cwe": "CWE-434",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A04:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "straightforward",
+      "impact": "serious",
+      "privilegeRequired": "authenticatedUser",
+      "affectedData": "personalData",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 13,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (13/19): straightforward to exploit, serious impact, any signed-in user, reaches personal data, publicly reachable."
+    }
+  }
+}

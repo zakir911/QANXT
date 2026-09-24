@@ -1,0 +1,31 @@
+{
+  "expected": {
+    "id": "VULN_NO_RATE_LIMIT",
+    "type": "NoRateLimit",
+    "endpoint": "GET /api/search",
+    "severity": "medium",
+    "severityNote": "Recorded as low when this file was first written, which was a casual label rather than a derived one. The severity model scores it medium from its factors: trivially exploitable, no account required, publicly reachable. The label was raised to match the factors rather than the factors bent to match the label.",
+    "cwe": "CWE-770",
+    "owaspApi": "API4:2023",
+    "detectBy": "More than 10 requests are never refused."
+  },
+  "got": {
+    "cwe": "CWE-770",
+    "cweConfidence": "likely",
+    "owaspWeb": "A04:2021",
+    "owaspApi": "API4:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "minimal",
+      "privilegeRequired": "none",
+      "affectedData": "nonSensitive",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 11,
+      "maxScore": 19,
+      "severity": "Medium",
+      "explanation": "Medium (11/19): trivial to exploit, minimal impact, no account needed, reaches non-sensitive data, publicly reachable."
+    }
+  }
+}

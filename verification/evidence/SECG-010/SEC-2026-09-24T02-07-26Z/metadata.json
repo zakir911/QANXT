@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-010",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-07-26Z",
+  "objective": "The scope guard refuses a path outside the allowlist",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "a path outside the allowlist",
+  "expected": "Refused with pathNotAllowed. Where an allowlist of paths exists, everything else is out of scope.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "pathNotAllowed: Path '/api/users' is not in the scope's allowed paths.",
+  "metrics": {
+    "rungsPassed": 3
+  },
+  "startedAt": "2026-09-24T02:07:34.591Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c3338e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-010/SEC-2026-09-24T02-07-26Z/decision.json",
+      "bytes": 366,
+      "sha256": "dea0d709c4102d6358f73f90a412e99ba3cc2da4a777543ac3a27b03be4a2ede"
+    }
+  ]
+}

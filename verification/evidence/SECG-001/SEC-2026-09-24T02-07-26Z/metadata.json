@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-001",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-07-26Z",
+  "objective": "The scope guard refuses no scope at all",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "no scope at all",
+  "expected": "Refused with scopeMissing. The absence of a restriction is not permission. An application nobody has authorized security testing against gets nothing.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "scopeMissing: This application has no security scope. Nobody has authorized security testing against it, and the absence of a restriction is not permission.",
+  "metrics": {
+    "rungsPassed": 0
+  },
+  "startedAt": "2026-09-24T02:07:34.586Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c3338e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-001/SEC-2026-09-24T02-07-26Z/decision.json",
+      "bytes": 428,
+      "sha256": "0a2d1a7e9e997cc76b125c126f7e8025c454eabf9e4a504be66e911044286028"
+    }
+  ]
+}

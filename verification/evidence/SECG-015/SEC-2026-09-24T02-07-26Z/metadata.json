@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-015",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-07-26Z",
+  "objective": "The scope guard refuses an account without permission for active scans",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "an account without permission for active scans",
+  "expected": "Refused with permissionDenied. The caller's permissions bound the scan as well as the scope.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "permissionDenied: This account may run passive scans but not active ones.",
+  "metrics": {
+    "rungsPassed": 5
+  },
+  "startedAt": "2026-09-24T02:07:34.593Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c3338e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-015/SEC-2026-09-24T02-07-26Z/decision.json",
+      "bytes": 410,
+      "sha256": "0fe80d7e06c35435d226eb6ad46ee8cfe5ad00624fece8798b2ba8cc70f68e0d"
+    }
+  ]
+}

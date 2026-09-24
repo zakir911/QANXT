@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-025",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T02-07-26Z",
+  "objective": "A declared size far above the limit being accepted is reported, as declared not transferred",
+  "preconditions": [
+    "VULN_UPLOAD_NO_SIZE_LIMIT switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Request handling: the upload-size check against the lab",
+  "expected": "Exactly one NoUploadSizeLimit finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "NoUploadSizeLimit: A declared size of 50MB is accepted (1 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 1
+  },
+  "startedAt": "2026-09-24T02:07:34.382Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c3338e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-025/SEC-2026-09-24T02-07-26Z/vulnerable.json",
+      "bytes": 403,
+      "sha256": "19e89ca92e5143e85b93d6ac3f2866622fe1e5f23bc2bbebb65ca4967675a4c8"
+    }
+  ]
+}
