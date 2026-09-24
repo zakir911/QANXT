@@ -79,6 +79,24 @@ const SCAN = {
   }
 };
 
+const STARTED = {
+  securityScanId: 's3', reference: 'SCAN-3', queue: 'aira:security', jobId: '1-0',
+  targets: 5, checksToRun: 3, checksConfigured: 3,
+  summary: 'Queued SCAN-3: 3 of 3 implied check(s) across 5 discovered target(s).'
+};
+
+/** The queued scan, before any worker has touched it. */
+const QUEUED = {
+  ...SCAN, id: 's3', reference: 'SCAN-3', status: 'queued',
+  requestsIssued: 0, testsExecuted: 0, testsSkipped: 0, findings: [],
+  gate: {
+    outcome: 'review', blocked: false,
+    summary: 'NOT SCANNED. No security tests were executed for this build, so nothing is known '
+      + 'about its security posture from AIRA.',
+    rules: [], reasons: []
+  }
+};
+
 function route(path: string, overrides: Record<string, unknown> = {}) {
   if (path.startsWith('/api/v1/applications')) return APPLICATIONS;
   if (path.includes('/scope')) {
@@ -86,13 +104,28 @@ function route(path: string, overrides: Record<string, unknown> = {}) {
     return SCOPE;
   }
   if (path.includes('/trend')) return overrides.trend ?? trend();
+  if (path === '/api/v1/security/scans/start') {
+    if (overrides.startRefusal) throw overrides.startRefusal;
+    return STARTED;
+  }
+  // One scan by id — the queued one the page watches after starting it.
+  if (/\/security\/scans\/[^?]+$/.test(path)) return overrides.queuedScan ?? QUEUED;
   if (path.includes('/scans')) return overrides.scans ?? [SCAN];
   if (path.includes('/findings')) return overrides.findings ?? [FINDING];
   throw new Error(`unexpected call to ${path}`);
 }
 
 function renderPage(overrides: Record<string, unknown> = {}) {
-  apiRequest.mockImplementation((path: string) => {
+  apiRequest.mockImplementation((path: string, options?: { body?: unknown }) => {
+    // apiRequest serialises the body itself, so a caller passing an already-stringified one
+    // double-encodes it and the API rejects the request. A mocked transport accepts either
+    // shape happily, which is exactly how that shipped here unnoticed — so the mock is strict
+    // about it instead.
+    if (typeof options?.body === 'string') {
+      return Promise.reject(new Error(
+        `${path} was sent an already-serialised body. apiRequest stringifies it, so this arrives `
+        + 'at the API as a JSON string rather than an object and is refused.'));
+    }
     try { return Promise.resolve(route(path, overrides)); }
     catch (error) { return Promise.reject(error); }
   });
@@ -102,7 +135,7 @@ function renderPage(overrides: Record<string, unknown> = {}) {
 
 beforeEach(() => {
   apiRequest.mockReset();
-  permissions.current = new Set(['security:read', 'security:triage']);
+  permissions.current = new Set(['security:read', 'security:triage', 'security:scan']);
 });
 
 describe('SecurityPage', () => {
@@ -183,6 +216,56 @@ describe('SecurityPage', () => {
       screen.getByLabelText(/justification/i),
       'Reviewed against the source: the handler filters by the caller id.');
     await waitFor(() => expect(save).toBeEnabled());
+  });
+
+  test('a queued scan is never drawn as a result', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(await screen.findByTestId('security-start-scan'));
+
+    const note = await screen.findByTestId('security-queued-note');
+    expect(note).toHaveTextContent(/has not run yet/i);
+    expect(note).toHaveTextContent(/nothing here should be read as a result/i);
+    // The gate summary of a completed scan must not be borrowed for one that has not run.
+    expect(screen.queryByTestId('security-reported')).not.toBeInTheDocument();
+  });
+
+  test('once the worker reports, the scan says what the gate decided', async () => {
+    const user = userEvent.setup();
+    renderPage({ queuedScan: { ...SCAN, id: 's3', reference: 'SCAN-3' } });
+
+    await user.click(await screen.findByTestId('security-start-scan'));
+
+    const reported = await screen.findByTestId('security-reported');
+    expect(reported).toHaveTextContent(/NEEDS REVIEW/i);
+    expect(screen.queryByTestId('security-queued-note')).not.toBeInTheDocument();
+  });
+
+  test('a refused scan shows the reason the API gave, not a generic failure', async () => {
+    const user = userEvent.setup();
+    const { ApiError } = await import('../api/client');
+    renderPage({
+      startRefusal: new ApiError(
+        'Nothing has been discovered for this application, so there is nowhere to point a security '
+        + 'check. Run discovery first.',
+        400, 'validation_failed')
+    });
+
+    await user.click(await screen.findByTestId('security-start-scan'));
+
+    // The refusal is the useful part of this control. "Something went wrong" would send
+    // somebody to an engineer for an answer already in the response.
+    expect(await screen.findByTestId('security-start-refused'))
+      .toHaveTextContent(/Run discovery first/i);
+  });
+
+  test('a reader without security:scan is not offered the control', async () => {
+    permissions.current = new Set(['security:read']);
+    renderPage();
+
+    await screen.findByTestId('security-findings');
+    expect(screen.queryByTestId('security-start-scan')).not.toBeInTheDocument();
   });
 
   test('a reader without security:triage is not offered the button at all', async () => {

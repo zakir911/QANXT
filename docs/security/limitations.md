@@ -57,10 +57,11 @@ do not exist.
 
 - **VERIFIED by execution**: every check, the scope guard, the severity model, the gate, the
   regression comparison, the triage workflow, the evidence writer, the RBAC matrix, the stored
-  scope/scan/finding lifecycle, the trend, and the console page — the last by seven component
-  tests covering the refusals that matter (no permission, no scope, no scans, an empty
-  findings list after a real scan, an incomparable trend point, and a triage dialog that will
-  not submit without a justification).
+  scope/scan/finding lifecycle, the trend, and the console page — the last by twelve component
+  tests covering the refusals that matter (no permission to read, no permission to scan, no
+  scope, no scans, an empty findings list after a real scan, an incomparable trend point, a
+  triage dialog that will not submit without a justification, a refused scan showing the
+  reason the API gave, and a queued scan that is never drawn as a result).
 - **VERIFIED by execution**: a scan AIRA starts and runs itself — queued from
   `POST /api/v1/security/scans/start`, consumed by the worker, issued against the application,
   and recorded against the scan that was started (`SECW-001` to `SECW-012`).

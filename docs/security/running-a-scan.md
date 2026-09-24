@@ -2,11 +2,14 @@
 
 ## Starting one
 
+Three ways in, all the same path:
+
 ```bash
 aira security scan --application-id <id> --wait
 ```
 
-or `POST /api/v1/security/scans/start`, which needs `security:scan`.
+`POST /api/v1/security/scans/start`, or **Security → Run a scan** in the console. All need
+`security:scan`, and the control is absent without it.
 
 AIRA queues a job, a worker consumes it and issues the requests, and the worker reports back
 what it did. Four things are settled before the job exists, and all four refuse rather than

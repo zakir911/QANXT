@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '../api/client';
+import { ApiError, apiRequest } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject } from '../lib/project';
 import { Card, EmptyState, ErrorNotice, Metric, PageHeader, Spinner, StatusBadge } from '../components/ui';
@@ -51,6 +51,11 @@ interface Trend {
 
 interface AppSummary { id: string; name: string }
 
+interface StartedScan {
+  securityScanId: string; reference: string; queue: string; jobId: string;
+  targets: number; checksToRun: number; checksConfigured: number; summary: string;
+}
+
 /**
  * Security findings, and the coverage that decides what they mean.
  *
@@ -74,8 +79,11 @@ export default function SecurityPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [triaging, setTriaging] = useState<Finding | null>(null);
 
+  const [started, setStarted] = useState<StartedScan | null>(null);
+
   const mayRead = can(Permissions.securityRead);
   const mayTriage = can(Permissions.securityTriage);
+  const mayScan = can(Permissions.securityScan);
 
   const { data: applications = [] } = useQuery({
     queryKey: ['applications', projectId],
@@ -115,10 +123,56 @@ export default function SecurityPage() {
     enabled: mayRead && Boolean(selected)
   });
 
+  /**
+   * Asking AIRA to scan this application.
+   *
+   * The refusals are the useful part of this control, so they are shown as the API worded them
+   * rather than as "something went wrong": "nobody has authorized this", "discovery has not
+   * walked it" and "you do not hold security:scan:destructive" each tell somebody what to do
+   * next, and a generic failure tells them to ask an engineer.
+   */
+  const startScan = useMutation({
+    mutationFn: () => apiRequest<StartedScan>('/api/v1/security/scans/start', {
+      method: 'POST', body: { applicationId: selected }
+    }),
+    onSuccess: scan => {
+      setStarted(scan);
+      queryClient.invalidateQueries({ queryKey: ['security-scans'] });
+    }
+  });
+
+  // The queued scan, watched until a worker reports it. Polling stops the moment it is no
+  // longer queued, and the interval is generous: a security scan is not a progress bar.
+  const queuedScan = useQuery({
+    queryKey: ['security-scan', started?.securityScanId],
+    queryFn: () => apiRequest<Scan>(`/api/v1/security/scans/${started!.securityScanId}`),
+    enabled: Boolean(started?.securityScanId),
+    refetchInterval: query =>
+      (query.state.data as Scan | undefined)?.status === 'queued' ? 4000 : false
+  });
+
+  const queuedStatus = queuedScan.data?.status;
+
+  useEffect(() => {
+    if (!queuedStatus || queuedStatus === 'queued') return;
+    // It has reported. Everything on this page is now out of date.
+    queryClient.invalidateQueries({ queryKey: ['security-scans'] });
+    queryClient.invalidateQueries({ queryKey: ['security-findings'] });
+    queryClient.invalidateQueries({ queryKey: ['security-trend'] });
+  }, [queuedStatus, queryClient]);
+
+  // Selecting a different application drops the watch: the scan belongs to the old one, and
+  // leaving its banner up would attach a result to an application it says nothing about.
+  useEffect(() => {
+    setStarted(null);
+    startScan.reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected]);
+
   const triage = useMutation({
     mutationFn: ({ id, status, justification }: { id: string; status: string; justification: string }) =>
       apiRequest<Finding>(`/api/v1/security/findings/${id}/triage`, {
-        method: 'POST', body: JSON.stringify({ status, justification })
+        method: 'POST', body: { status, justification }
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['security-findings'] });
@@ -218,6 +272,64 @@ export default function SecurityPage() {
               </dl>
             )}
           </Card>
+
+          {/* ---- Running one ------------------------------------------------- */}
+          {mayScan && (
+            <Card
+              title="Run a scan"
+              description="AIRA queues the scan, a worker issues the requests, and the result appears here when it reports."
+              actions={
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => startScan.mutate()}
+                  disabled={startScan.isPending || queuedStatus === 'queued'}
+                  data-testid="security-start-scan"
+                >
+                  {startScan.isPending ? 'Queueing…' : 'Scan this application'}
+                </button>
+              }
+            >
+              {startScan.isError && (
+                <p className="text-sm text-bad" data-testid="security-start-refused">
+                  {startScan.error instanceof ApiError
+                    ? startScan.error.displayMessage
+                    : 'The scan could not be started.'}
+                </p>
+              )}
+
+              {started && !startScan.isError && (
+                <div data-testid="security-started">
+                  <p className="text-sm text-ink">{started.summary}</p>
+
+                  {queuedStatus === 'queued' || !queuedStatus ? (
+                    // The whole point of this branch. A queued scan has issued no requests, and
+                    // a screen that showed it beside a green tick would be reporting a build as
+                    // tested at the moment nothing had been tested.
+                    <p className="mt-2 text-sm text-ink-muted" data-testid="security-queued-note">
+                      <StatusBadge status="queued" />{' '}
+                      {started.reference} has not run yet. Nothing about this application&rsquo;s
+                      security has been established by queueing it, and nothing here should be read
+                      as a result until a worker reports.
+                    </p>
+                  ) : (
+                    <p className="mt-2 text-sm text-ink" data-testid="security-reported">
+                      <StatusBadge status={queuedScan.data?.gate.outcome ?? queuedStatus} />{' '}
+                      {queuedScan.data?.gate.summary}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {!started && !startScan.isError && (
+                <p className="text-sm text-ink-muted">
+                  A scan needs an enabled scope carrying a written authorization, and a surface for
+                  discovery to have walked. Either one missing is a refusal with the reason, not a
+                  scan that runs and finds nothing.
+                </p>
+              )}
+            </Card>
+          )}
 
           {/* ---- Where things stand ------------------------------------------ */}
           <div className="grid gap-3 sm:grid-cols-4 my-4">

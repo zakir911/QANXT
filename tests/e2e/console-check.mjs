@@ -6,7 +6,26 @@ const context = await browser.newContext({ viewport: { width: 1440, height: 900 
 const page = await context.newPage();
 
 const consoleErrors = [];
-page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text()); });
+
+/**
+ * A refused request is not a console error worth failing on.
+ *
+ * The security page asks for a scope that may not exist and starts a scan that may be refused,
+ * and renders both answers as the text a person should read. The browser still logs the
+ * non-2xx as a failed resource load. Ignoring those specific URLs keeps this check meaningful
+ * — a real fault anywhere else still fails it — without teaching anyone to expect noise here.
+ */
+const isDeliberateRefusal = (message) => {
+  if (!/Failed to load resource/.test(message.text())) return false;
+  const url = message.location?.().url ?? '';
+  return /\/api\/v1\/security\//.test(url);
+};
+
+page.on('console', m => {
+  if (m.type() !== 'error') return;
+  if (isDeliberateRefusal(m)) return;
+  consoleErrors.push(m.text());
+});
 page.on('pageerror', e => consoleErrors.push(`pageerror: ${e.message}`));
 
 const step = async (name, fn) => {
@@ -40,7 +59,9 @@ await step('dashboard shows real metrics', async () => {
 
 await step('applications page lists the demo bank', async () => {
   await page.getByRole('link', { name: 'Applications' }).click();
-  await page.getByRole('heading', { name: 'Demo Bank' }).waitFor({ timeout: 10000 });
+  // Several applications can carry this name once other suites have registered one, and a
+  // strict locator turns "the list works" into "the list has exactly one of these".
+  await page.getByRole('heading', { name: 'Demo Bank' }).first().waitFor({ timeout: 10000 });
   await page.screenshot({ path: '/tmp/aira-shots/applications.png', fullPage: true });
 });
 
@@ -207,6 +228,60 @@ await step('the agent page shows a pass, its steps and its proposals', async () 
   }
 
   await page.screenshot({ path: '/tmp/aira-shots/agent.png', fullPage: true });
+});
+
+await step('the security page can start a scan, and says what it refuses', async () => {
+  await page.getByRole('link', { name: 'Security' }).click();
+  await page.getByRole('heading', { name: 'Security' }).waitFor({ timeout: 10000 });
+
+  const control = page.getByTestId('security-start-scan');
+  if (await control.count() === 0) {
+    // Without security:scan the control is correctly absent, and there is nothing to drive.
+    // Said out loud rather than passing quietly on an assertion that never ran.
+    console.log('      this account holds no security:scan, so the control is absent as intended');
+    return;
+  }
+
+  await control.click();
+
+  // Whatever comes back, it has to be one of the platform's own sentences. This is the
+  // assertion that earns the step: a request the API cannot deserialise answers with a type
+  // name and a byte offset, which is what a double-encoded body produced here until it was
+  // caught by driving the real thing. Component tests mock the transport and cannot see it.
+  const outcome = page.locator(
+    '[data-testid=security-start-refused], [data-testid=security-queued-note], [data-testid=security-reported]');
+  await outcome.first().waitFor({ timeout: 20000 });
+  const text = (await outcome.first().innerText()).trim();
+
+  if (/could not be converted|LineNumber|BytePositionInLine|Aira\.Application/.test(text)) {
+    throw new Error(`the request did not reach the endpoint in a shape it accepts: ${text}`);
+  }
+
+  const expected = [
+    /written authorization/i,      // no scope
+    /Run discovery first/i,        // nothing discovered
+    /security:scan/i,              // a permission the caller lacks
+    /has not run yet/i,            // queued
+    /PASSED|NEEDS REVIEW|BLOCKED|NOT SCANNED/ // already reported
+  ];
+  if (!expected.some(pattern => pattern.test(text))) {
+    throw new Error(`the outcome is not one of the platform's own sentences: ${text}`);
+  }
+
+  // A queued scan must never be drawn beside a verdict. This is the one thing on this page
+  // that would be actively dangerous to get wrong.
+  if (await page.getByTestId('security-queued-note').count() > 0) {
+    const note = await page.getByTestId('security-queued-note').innerText();
+    if (!/nothing here should be read as a result/i.test(note)) {
+      throw new Error(`a queued scan is not qualified as unrun: ${note}`);
+    }
+    if (await page.getByTestId('security-reported').count() > 0) {
+      throw new Error('a queued scan is shown alongside a reported verdict');
+    }
+  }
+
+  console.log(`      the page answered: ${text.replace(/\s+/g, ' ').slice(0, 120)}`);
+  await page.screenshot({ path: '/tmp/aira-shots/security.png', fullPage: true });
 });
 
 if (consoleErrors.length > 0) {
