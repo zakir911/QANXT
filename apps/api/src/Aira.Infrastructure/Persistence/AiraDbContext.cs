@@ -50,6 +50,8 @@ public class AiraDbContext : DbContext, IAiraDbContext
     public DbSet<AgentRun> AgentRuns => Set<AgentRun>();
     public DbSet<AgentStep> AgentSteps => Set<AgentStep>();
     public DbSet<AgentFinding> AgentFindings => Set<AgentFinding>();
+    public DbSet<AgentDecision> AgentDecisions => Set<AgentDecision>();
+    public DbSet<AgentApproval> AgentApprovals => Set<AgentApproval>();
     public DbSet<ApplicationPage> ApplicationPages => Set<ApplicationPage>();
     public DbSet<PageTransition> PageTransitions => Set<PageTransition>();
     public DbSet<ApplicationElement> ApplicationElements => Set<ApplicationElement>();

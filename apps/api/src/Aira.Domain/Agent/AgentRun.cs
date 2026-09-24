@@ -47,6 +47,35 @@ public class AgentRun : BaseEntity, ITenantOwned, IAuditable
     /// <summary>Whether the agent may start a run of the tests it generated.</summary>
     public bool ExecuteEnabled { get; set; } = true;
 
+    // ---- Frozen policy -----------------------------------------------------
+    // Separate from the bounds above because they answer a different question. A bound says
+    // how much of something the pass may do; these say whether a whole class of action is
+    // available to it at all. Frozen for the same reason: changing the defaults must not
+    // widen a pass that is already running.
+
+    /// <summary>How many policy-checked actions this pass may take in total.</summary>
+    public int MaxActions { get; set; }
+    /// <summary>How many journeys it may record as candidates.</summary>
+    public int MaxNewJourneys { get; set; }
+    /// <summary>Whether a production environment may be touched at all. Off by default, and
+    /// only ever on when the initiator separately held the permission for it.</summary>
+    public bool AllowProduction { get; set; }
+    /// <summary>Whether actions that cannot be assumed reversible may be taken.</summary>
+    public bool AllowDestructiveActions { get; set; }
+    /// <summary>Whether the pass may ask the security engine to scan.</summary>
+    public bool AllowSecurityTesting { get; set; } = true;
+    /// <summary>Whether a person has to approve anything that changes state. Cannot be
+    /// switched off through the API: an agent that decides for itself that nothing needs
+    /// approving has no human in the loop at all.</summary>
+    public bool RequireApprovalForHighRisk { get; set; } = true;
+    public int MaxParallelWorkers { get; set; }
+
+    /// <summary>How many policy-checked actions have been taken, against
+    /// <see cref="MaxActions"/>.</summary>
+    public int ActionsTaken { get; set; }
+    /// <summary>How many journeys this pass has recorded, against <see cref="MaxNewJourneys"/>.</summary>
+    public int JourneysCreated { get; set; }
+
     // ---- What it did -------------------------------------------------------
     public Guid? DiscoveryRunId { get; set; }
     public Guid? TestSuiteId { get; set; }
@@ -71,6 +100,8 @@ public class AgentRun : BaseEntity, ITenantOwned, IAuditable
 
     public ICollection<AgentStep> Steps { get; set; } = new List<AgentStep>();
     public ICollection<AgentFinding> Findings { get; set; } = new List<AgentFinding>();
+    public ICollection<AgentDecision> Decisions { get; set; } = new List<AgentDecision>();
+    public ICollection<AgentApproval> Approvals { get; set; } = new List<AgentApproval>();
 }
 
 /// <summary>One phase of one pass, recorded as it happens.
