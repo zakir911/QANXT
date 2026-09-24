@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-006",
+  "suite": "Security scanning",
+  "runId": "SEC-SURF-173617",
+  "objective": "The scope guard refuses cloud metadata, despite an allowlist that names it",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "cloud metadata, despite an allowlist that names it",
+  "expected": "Refused with domainNotAllowed. Never a legitimate target, whatever the scope says. A scope cannot opt in to this.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "domainNotAllowed: '169.254.169.254' is never a legitimate target, whatever the scope allows.",
+  "metrics": {
+    "rungsPassed": 1
+  },
+  "startedAt": "2026-09-24T17:36:33.725Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "f630911",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-006/SEC-SURF-173617/decision.json",
+      "bytes": 385,
+      "sha256": "b56218d8e0f69a11d8cc20396c6239f944c09fb49c3115b7495feca95d3fcbab"
+    }
+  ]
+}

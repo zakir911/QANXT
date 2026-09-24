@@ -52,6 +52,19 @@ interface Trend {
 
 interface AppSummary { id: string; name: string }
 
+interface SurfaceItem {
+  kind: string; id: string; identifier: string; httpMethod?: string | null;
+  requiresAuthentication: boolean; changesState: boolean; acceptsInput: boolean;
+  acceptsFileUpload: boolean; carriesObjectIdentifier: boolean; carriesUrlParameter: boolean;
+  parameters: string[]; relevantChecks: string[]; why: string;
+}
+
+interface Surface {
+  applicationId: string; items: SurfaceItem[];
+  pagesInGraph: number; endpointsInGraph: number; graphLastSeenAt?: string | null;
+  caveats: string[]; checksImplied: string[]; summary: string;
+}
+
 interface StartedScan {
   securityScanId: string; reference: string; queue: string; jobId: string;
   targets: number; checksToRun: number; checksConfigured: number; summary: string;
@@ -105,6 +118,12 @@ export default function SecurityPage() {
   const trendQuery = useQuery({
     queryKey: ['security-trend', selected],
     queryFn: () => apiRequest<Trend>(`/api/v1/security/applications/${selected}/trend`),
+    enabled: mayRead && Boolean(selected)
+  });
+
+  const surfaceQuery = useQuery({
+    queryKey: ['security-surface', selected],
+    queryFn: () => apiRequest<Surface>(`/api/v1/security/applications/${selected}/surface`),
     enabled: mayRead && Boolean(selected)
   });
 
@@ -434,6 +453,66 @@ export default function SecurityPage() {
                   );
                 })}
               </ol>
+            )}
+          </Card>
+
+          {/* ---- What is being tested, and what is not ------------------------ */}
+          <Card
+            title="Attack surface"
+            description="What discovery walked, what each part of it implies, and — first — what this does not cover."
+          >
+            {surfaceQuery.isLoading && <Spinner label="Loading the surface" />}
+            {surfaceQuery.data && (
+              <>
+                <p className="text-sm text-ink" data-testid="security-surface-summary">
+                  {surfaceQuery.data.summary}
+                </p>
+
+                {/* The caveats come before the list, deliberately. A reader who takes the
+                    items as complete will treat everywhere else as safe, and nothing here
+                    has looked at anywhere else. */}
+                {surfaceQuery.data.caveats.length > 0 && (
+                  <ul className="mt-3 space-y-1" data-testid="security-surface-caveats">
+                    {surfaceQuery.data.caveats.map(caveat => (
+                      <li key={caveat} className="text-sm text-warn flex gap-2">
+                        <span aria-hidden>•</span><span>{caveat}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {surfaceQuery.data.items.length > 0 && (
+                  <table className="table mt-4" data-testid="security-surface">
+                    <thead>
+                      <tr>
+                        <th>Where</th>
+                        <th>Why it is here</th>
+                        <th>Checks it implies</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {surfaceQuery.data.items.map(item => (
+                        <tr key={item.id}>
+                          <td>
+                            <code className="font-mono text-xs">
+                              {item.httpMethod ? `${item.httpMethod} ` : ''}{item.identifier}
+                            </code>
+                            {item.requiresAuthentication ? (
+                              <span className="block text-xs text-ink-muted">needs a session</span>
+                            ) : null}
+                          </td>
+                          {/* Stated so a reader can disagree with it. A surface nobody can
+                              argue with is one nobody checks. */}
+                          <td className="text-sm text-ink-muted">{item.why}</td>
+                          <td className="text-xs font-mono text-ink-muted">
+                            {item.relevantChecks.join(', ')}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </>
             )}
           </Card>
 

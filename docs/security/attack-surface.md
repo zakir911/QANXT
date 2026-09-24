@@ -38,6 +38,16 @@ nothing here has looked at anywhere else. Other caveats appear when they apply: 
 observed, nothing requiring a session (so discovery never signed in), no authentication surface
 recognised, DOM XSS implied and decidable only in a browser.
 
+## Where to see it
+
+**Security → Attack surface** in the console, for one application: the summary, the caveats —
+above the list, deliberately — and each item with the reason it is there and the checks it
+implies. `GET /api/v1/security/applications/{id}/surface` is the same thing for a machine.
+
+The caveats come first on that screen for the same reason they come first here. A reader who
+takes the item list as complete will treat everywhere else as safe, and nothing here has looked
+at anywhere else.
+
 ## Change impact
 
 `POST /api/v1/security/impact`

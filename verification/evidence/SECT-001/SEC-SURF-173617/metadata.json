@@ -1,0 +1,32 @@
+{
+  "testId": "SECT-001",
+  "suite": "Security gate, regression and triage",
+  "runId": "SEC-SURF-173617",
+  "objective": "Triage refuses a false positive with no justification",
+  "preconditions": [
+    "a confirmed finding from the live scan"
+  ],
+  "input": "a false positive with no justification",
+  "expected": "It throws. A suppression with no reason behind it is somebody switching the check off, and a workflow that accepts it quietly is how a gate becomes decoration",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Refusing to mark BOLA as FalsePositive with no justification. A suppression with no stated reason is indistinguishable from turning the check off, and the gate counts it as open either way.",
+  "metrics": null,
+  "startedAt": "2026-09-24T17:36:33.851Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "f630911",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/SECT-001/SEC-SURF-173617/refusal.json",
+      "bytes": 258,
+      "sha256": "de3e523f9e358950b04f4df5bf8ce2a8b3b2de1d073908df0fa29df9fee4664a"
+    }
+  ]
+}

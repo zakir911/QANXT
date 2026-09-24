@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-001",
+  "suite": "Security scanning",
+  "runId": "SEC-SURF-173617",
+  "objective": "A user reading another user's object by identifier is reported as BOLA",
+  "preconditions": [
+    "VULN_BOLA switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Authorization: the bola check against the lab",
+  "expected": "Exactly one BOLA finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "BOLA: alice can read a resource owned by bob (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T17:36:32.841Z",
+  "durationMs": 2,
+  "build": {
+    "commit": "f630911",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-001/SEC-SURF-173617/vulnerable.json",
+      "bytes": 398,
+      "sha256": "b3b3a8b55aed12ca67a411a74137f9cfd1c4e0f7f637dcd89242c416791af48b"
+    }
+  ]
+}

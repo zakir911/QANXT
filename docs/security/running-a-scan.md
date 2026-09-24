@@ -111,11 +111,25 @@ order to run a security scan was an obstacle rather than a check.
 ```bash
 aira security scope     --application-id <id>
 aira security scan      --application-id <id> [--checks a,b] [--wait] [--timeout 600]
+aira security impact    --application-id <id> --project-id <id> --changed <paths>
 aira security scans     --application-id <id> [--take 10]
 aira security findings  --application-id <id> [--status confirmed]
 aira security gate      --scan-id <id>
 aira security triage    --finding-id <id> --status falsePositive --reason "<what you checked>"
 ```
+
+`aira security impact` answers which checks a change calls for. It is built for a pipeline,
+because a pipeline is the only place the changed paths exist:
+
+```bash
+git diff --name-only origin/main... | aira security impact \
+  --application-id <id> --project-id <id> --changed -
+```
+
+It prints what was selected and, equally prominently, what was not — by name rather than as a
+percentage, because a reader who sees "62% selected" cannot tell whether the missing third is
+the part that matters. It exits 7 when the selection is narrowed, so a pipeline learns that
+before it runs the scan rather than after.
 
 `aira security scan --wait` exits on the gate exactly as `aira security gate` does. Without
 `--wait` it exits 7, because the scan it queued has not run: a pipeline step that exited 0 on

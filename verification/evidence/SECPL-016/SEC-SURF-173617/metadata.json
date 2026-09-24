@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-016",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-SURF-173617",
+  "objective": "The platform's gate and the JavaScript mirror produce the same decision and the same words",
+  "preconditions": [
+    "a stored scan whose gate the API computed"
+  ],
+  "input": "The same coverage and findings, evaluated by the JavaScript mirror",
+  "expected": "Identical outcome, identical rule verdicts and an identical summary. Two implementations of one control that drift are worse than one control, because everybody believes the wrong half",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "both fail, 8 rule(s) agreeing, identical summary",
+  "metrics": null,
+  "startedAt": "2026-09-24T17:36:35.312Z",
+  "durationMs": 18,
+  "build": {
+    "commit": "f630911",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "parity.json",
+      "path": "evidence/SECPL-016/SEC-SURF-173617/parity.json",
+      "bytes": 3968,
+      "sha256": "676997678a72fd6e8e6964973258bb4d8c41d299d0073bbbcbdd40c90ed93b70"
+    }
+  ]
+}

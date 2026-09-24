@@ -6,7 +6,7 @@ import { bold, dim, green, note, out, red, yellow } from '../output.js';
 
 export const SECURITY_FLAGS = [
   'application-id', 'scan-id', 'status', 'take', 'json', 'finding-id', 'reason',
-  'checks', 'wait', 'timeout'
+  'checks', 'wait', 'timeout', 'project-id', 'changed', 'commit', 'branch'
 ] as const;
 
 export const SECURITY_HELP = `
@@ -14,6 +14,7 @@ ${bold('aira security')} — security scopes, scans and findings
 
   aira security scope --application-id <id>
   aira security scan --application-id <id> [--checks a,b] [--wait]
+  aira security impact --application-id <id> --project-id <id> --changed <paths>
   aira security scans --application-id <id> [--take 10]
   aira security findings --application-id <id> [--status confirmed]
   aira security gate --scan-id <id>
@@ -32,6 +33,11 @@ ${bold('aira security')} — security scopes, scans and findings
                          partial coverage and cannot pass the gate on it
   --wait                 Wait for the worker to report, then exit on the gate
   --timeout <seconds>    How long to wait (default 600)
+  --project-id <id>      The project, for impact analysis
+  --changed <paths>      Changed paths, comma separated, as git diff --name-only
+                         reports them. Use "-" to read them from stdin
+  --commit <sha>         The commit the change belongs to
+  --branch <name>        The branch it is on
   --json                 Emit the raw result on stdout
 
 Exit status: 0 PASS · 2 FAIL · 6 SECURITY_POLICY_VIOLATION · 7 REVIEW
@@ -58,6 +64,18 @@ interface StartedScan {
   securityScanId: string; reference: string; queue: string; jobId: string;
   targets: number; checksToRun: number; checksConfigured: number; summary: string;
 }
+interface CheckSelection {
+  check: string; surface: string; reason: string;
+  becauseOfChange: boolean; becauseOfOpenFinding: boolean;
+}
+interface ImpactResult {
+  applicationId: string;
+  selection: {
+    selected: CheckSelection[]; checksImplied: string[]; notSelected: string[];
+    isNarrowed: boolean; notes: string[]; summary: string;
+  };
+  caveats: string[];
+}
 interface SecurityScan {
   id: string; reference: string; profile: string; status: string;
   requestsIssued: number; requestsBlocked: number;
@@ -72,7 +90,7 @@ export async function securityCommand(args: ParsedArgs): Promise<number> {
   const action = args.positionals[0];
   if (!action) {
     throw usage('A security subcommand is required.',
-      'aira security scope | scan | scans | findings | gate | triage');
+      'aira security scope | scan | impact | scans | findings | gate | triage');
   }
 
   const context = await resolveContext({
@@ -85,13 +103,14 @@ export async function securityCommand(args: ParsedArgs): Promise<number> {
   switch (action) {
     case 'scope': return scope(api, args, json);
     case 'scan': return startScan(api, args, json);
+    case 'impact': return impact(api, args, json);
     case 'scans': return scans(api, args, json);
     case 'findings': return findings(api, args, json);
     case 'gate': return gate(api, args, json);
     case 'triage': return triage(api, args, json);
     default:
       throw usage(`Unknown security subcommand "${action}".`,
-        'aira security scope | scan | scans | findings | gate | triage');
+        'aira security scope | scan | impact | scans | findings | gate | triage');
   }
 }
 
@@ -247,6 +266,77 @@ async function startScan(api: ApiClient, args: ParsedArgs, json: boolean): Promi
   note(`  ${scan.testsExecuted} check(s) executed, ${scan.testsSkipped} not`);
   note(`  ${scan.findings.length} finding(s)`);
   return exitFor(scan.gate.outcome);
+}
+
+/**
+ * Which security checks a change calls for.
+ *
+ * Built for a pipeline, which is the only place the changed paths exist. It prints what was
+ * selected and — the part that matters — what was not, by name rather than as a percentage.
+ * A narrowed scan is genuinely useful and is also how coverage quietly disappears, so the
+ * two have to be equally easy to read.
+ *
+ * Exits REVIEW when the selection is narrowed, because a narrowed run cannot pass the gate on
+ * coverage and a pipeline should find that out here rather than after it has run the scan.
+ */
+async function impact(api: ApiClient, args: ParsedArgs, json: boolean): Promise<number> {
+  const applicationId = flag(args, 'application-id');
+  const projectId = flag(args, 'project-id');
+  if (!applicationId || !projectId) {
+    throw usage('An application id and a project id are required.',
+      'aira security impact --application-id <id> --project-id <id> --changed <paths>');
+  }
+
+  const raw = flag(args, 'changed') ?? '';
+  // "-" reads the diff from stdin, which is how a pipeline has it: git diff --name-only | aira …
+  const text = raw === '-' ? await readStdin() : raw;
+  const changedPaths = text.split(/[,\n]/).map(p => p.trim()).filter(Boolean);
+
+  if (changedPaths.length === 0) {
+    throw usage('No changed paths were given.',
+      'Pass --changed a/b.cs,c/d.ts, or pipe git diff --name-only and use --changed -');
+  }
+
+  const result = await api.post<ImpactResult>('/api/v1/security/impact', {
+    projectId, applicationId, changedPaths,
+    commitSha: flag(args, 'commit') ?? null,
+    branch: flag(args, 'branch') ?? null
+  });
+
+  if (json) { out(JSON.stringify(result, null, 2)); return exitFor(result.selection.isNarrowed ? 'review' : 'pass'); }
+
+  const { selection } = result;
+  note(`\n${bold('Security impact')} ${selection.isNarrowed ? yellow('NARROWED') : green('FULL')}`);
+  note(selection.summary);
+
+  if (selection.selected.length > 0) {
+    note(`\n  ${bold('Selected')}`);
+    for (const item of selection.selected) {
+      const why = [item.becauseOfChange ? 'changed' : null,
+                   item.becauseOfOpenFinding ? 'open finding' : null]
+        .filter(Boolean).join(', ');
+      note(`    ${item.check.padEnd(26)} ${dim(`${item.surface} — ${item.reason}${why ? ` (${why})` : ''}`)}`);
+    }
+  }
+
+  // Named, not counted. A reader who sees "62% selected" cannot tell whether the missing
+  // third is the part that matters.
+  if (selection.notSelected.length > 0) {
+    note(`\n  ${bold('Not selected')} ${dim('— implied by the surface and not run by this selection')}`);
+    for (const check of selection.notSelected) note(`    ${yellow(check)}`);
+  }
+
+  for (const line of selection.notes) note(`\n  ${dim(line)}`);
+  for (const caveat of result.caveats) note(`  ${yellow('•')} ${dim(caveat)}`);
+
+  return exitFor(selection.isNarrowed ? 'review' : 'pass');
+}
+
+/** Reads the whole of stdin, for the pipeline that pipes its diff in. */
+async function readStdin(): Promise<string> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of process.stdin) chunks.push(Buffer.from(chunk));
+  return Buffer.concat(chunks).toString('utf8');
 }
 
 /**

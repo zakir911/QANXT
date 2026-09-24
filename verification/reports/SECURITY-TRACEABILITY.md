@@ -12,9 +12,9 @@ The controls on a scheduled security scan are verified by unit tests rather than
 
 One more thing verified by unit test rather than a golden one, and worth naming because it went unseen for so long: an act performed outside an HTTP request used to leave no audit record at all. The logger resolved the organization from the signed-in user, a background sweep has no user, and the entry was logged as a warning and discarded — scheduled runs and abandoned scans alike. It now falls back to the tenant the work is being done for, and AuditLoggerTests pins all four cases including the one where nothing can answer. A golden test cannot reach it without waiting out a cron; the firing was driven by hand against a running stack and both entries reached the database.
 
-Checked against golden run `SEC-AUDIT-153628`.
+Checked against golden run `SEC-SURF-173617`.
 
-**86 of 86 requirements verified.**
+**87 of 87 requirements verified.**
 
 | Requirement | Verified by | Status |
 | --- | --- | --- |
@@ -104,6 +104,7 @@ Checked against golden run `SEC-AUDIT-153628`.
 | **SEC-R84** A check that needs a browser counts as executed coverage when one was available, and is reported as an untested area when one was not — never as a page that was examined and found safe. | SECW-015, SECW-008 | VERIFIED |
 | **SEC-R85** Browser-driven work goes through the same scope guard, the same rate pacing and the same refusal ledger as an HTTP request. A second scope check living next to the browser is how the two drift, and a drift in that direction means a browser pointed somewhere nobody authorized. | SECW-013 | VERIFIED |
 | **SEC-R86** A security scan can be scheduled against one named application, and a schedule with no application to scan is refused — one that fires for ever and starts nothing reads in a list exactly like one that is working. | SECW-016 | VERIFIED |
+| **SEC-R87** The attack surface and the change-impact selection are reachable by the people who need them — the surface on the console's security page with its caveats above the list, and the selection as a CLI command a pipeline can pipe a diff into. A capability nothing surfaces is one nobody can act on, however well it is tested. | SECPL-022, SECPL-023, SECPL-024 | VERIFIED |
 
 ## Tests claimed by no requirement
 

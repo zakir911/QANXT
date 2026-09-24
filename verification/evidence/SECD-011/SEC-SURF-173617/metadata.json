@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-011",
+  "suite": "Security scanning",
+  "runId": "SEC-SURF-173617",
+  "objective": "A caller setting a privileged field on their own object is reported",
+  "preconditions": [
+    "VULN_MASS_ASSIGNMENT switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "API security: the mass-assignment check against the lab",
+  "expected": "Exactly one BrokenObjectPropertyLevelAuthorization finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "BrokenObjectPropertyLevelAuthorization: A caller can set a privileged field on their own object (role) (8 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 8
+  },
+  "startedAt": "2026-09-24T17:36:33.113Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "f630911",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-011/SEC-SURF-173617/vulnerable.json",
+      "bytes": 456,
+      "sha256": "d2374ca7d69aef88baa0cbc7473a1d3600afb070b0e8c63943457a94e559e4d5"
+    }
+  ]
+}

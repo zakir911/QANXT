@@ -97,8 +97,27 @@ const QUEUED = {
   }
 };
 
+const SURFACE = {
+  applicationId: 'app-1',
+  items: [{
+    kind: 'endpoint', id: 'i1', identifier: '/api/accounts/{id}', httpMethod: 'GET',
+    requiresAuthentication: true, changesState: false, acceptsInput: false,
+    acceptsFileUpload: false, carriesObjectIdentifier: true, carriesUrlParameter: false,
+    parameters: ['id'], relevantChecks: ['authz.bola', 'api.excessive-data'],
+    why: 'an endpoint the UI called, carrying an object identifier'
+  }],
+  pagesInGraph: 4, endpointsInGraph: 1, graphLastSeenAt: '2026-09-23T09:00:00Z',
+  caveats: [
+    'This is what discovery walked, not the application. Anything a crawl did not reach is '
+    + 'absent from this surface and is untested rather than safe.'
+  ],
+  checksImplied: ['authz.bola', 'api.excessive-data'],
+  summary: '1 item(s) from 4 page(s) and 1 endpoint(s). Together they imply 2 security check(s).'
+};
+
 function route(path: string, overrides: Record<string, unknown> = {}) {
   if (path.startsWith('/api/v1/applications')) return APPLICATIONS;
+  if (path.includes('/surface')) return overrides.surface ?? SURFACE;
   if (path.includes('/scope')) {
     if (overrides.noScope) throw new Error('404');
     return SCOPE;
@@ -258,6 +277,29 @@ describe('SecurityPage', () => {
     // somebody to an engineer for an answer already in the response.
     expect(await screen.findByTestId('security-start-refused'))
       .toHaveTextContent(/Run discovery first/i);
+  });
+
+  test('the attack surface names its caveats before it lists anything', async () => {
+    renderPage();
+
+    const caveats = await screen.findByTestId('security-surface-caveats');
+    // Order matters on this page more than anywhere else. A reader who takes the item list as
+    // complete treats everywhere else as safe, and nothing here has looked at anywhere else.
+    expect(caveats).toHaveTextContent(/untested rather than safe/i);
+
+    const summary = screen.getByTestId('security-surface-summary');
+    expect(caveats.compareDocumentPosition(summary) & Node.DOCUMENT_POSITION_PRECEDING)
+      .toBeTruthy();
+  });
+
+  test('each surface item says why it is there, in terms a reader can disagree with', async () => {
+    renderPage();
+
+    const table = await screen.findByTestId('security-surface');
+    expect(table).toHaveTextContent('/api/accounts/{id}');
+    // The reason, not just the verdict: a surface nobody can argue with is one nobody checks.
+    expect(table).toHaveTextContent(/carrying an object identifier/i);
+    expect(table).toHaveTextContent('authz.bola');
   });
 
   test('a reader without security:scan is not offered the control', async () => {
