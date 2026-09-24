@@ -1,4 +1,7 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
+import { RUNNABLE_CHECKS } from '../src/security/security-handler.js';
 import { SecretMasker, REDACTED, isSensitiveField, isSensitiveHeader } from '../src/security/masker.js';
 import { isUrlAllowed, matchesAllowlist, normalizeUrl } from '../src/security/url-guard.js';
 
@@ -154,5 +157,43 @@ describe('URL guard', () => {
     ['http://app.example.com:8080/x', 'http://app.example.com:8080/x']
   ])('normalizes %s', (input, expected) => {
     expect(normalizeUrl(input as string)).toBe(expected);
+  });
+});
+
+/**
+ * The fourth side of the check-name agreement.
+ *
+ * Four things have to agree on these strings: the attack surface that says which checks apply,
+ * the selector that says which to run, the scan record that says which executed, and the gate
+ * that reads coverage from that record. The first three on the platform side share one C#
+ * constant, and `SECPL-027` holds the platform against the engine's roster.
+ *
+ * Nothing held the worker. Its runner map keys are string literals, and they are what a scan
+ * actually dispatches on — so a name that drifts here means the platform asks for a check the
+ * worker cannot find. That is reported honestly, as a check that did not execute, which makes
+ * it worse rather than better: coverage quietly drops by one, for ever, and no test fails.
+ */
+describe('the worker runs the checks the platform names', () => {
+  const canonical = (() => {
+    // Read from the C# that defines them. A copy of the list here would agree with itself.
+    const source = readFileSync(
+      resolve(__dirname, '../../api/src/Aira.Application/Security/SecurityChecks.cs'), 'utf8');
+    return new Set([...source.matchAll(/=\s*"([a-z]+\.[a-z0-9-]+)"/g)].map(m => m[1]));
+  })();
+
+  test('every check the platform names has a runner', () => {
+    const missing = [...canonical].filter(check => !RUNNABLE_CHECKS.includes(check)).sort();
+    expect(missing, 'the platform would ask for these and the worker would find no runner')
+      .toEqual([]);
+  });
+
+  test('the worker runs nothing the platform does not name', () => {
+    const unknown = RUNNABLE_CHECKS.filter(check => !canonical.has(check)).sort();
+    // A runner under a name the platform never sends is dead code that reads as coverage.
+    expect(unknown, 'these runners can never be dispatched').toEqual([]);
+  });
+
+  test('the two lists are the same size, so neither has quietly grown', () => {
+    expect(RUNNABLE_CHECKS.length).toBe(canonical.size);
   });
 });

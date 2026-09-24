@@ -1,0 +1,32 @@
+{
+  "testId": "SECB-003",
+  "suite": "Security gate, regression and triage",
+  "runId": "SEC-NAMES-174529",
+  "objective": "A check that ran and did not reproduce a finding says so, and still does not resolve it",
+  "preconditions": [
+    "a baseline finding whose check ran this time and found nothing"
+  ],
+  "input": "The same baseline, with authz.bola in the executed list",
+  "expected": "notReproduced — grounds for a person to mark it resolved, not a resolution",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "notReproduced: The check that found this ran again and did not reproduce it. That is grounds for a person to mark it resolved; it is not a resolution on its own.",
+  "metrics": null,
+  "startedAt": "2026-09-24T17:46:04.780Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "9691dcd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "comparison.json",
+      "path": "evidence/SECB-003/SEC-NAMES-174529/comparison.json",
+      "bytes": 680,
+      "sha256": "6a037b93d377bfdc40519779c54a279bbdcb8281cd6f16fa7b0620fbbf78ecd8"
+    }
+  ]
+}

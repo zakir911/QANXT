@@ -7,6 +7,20 @@ secure, and a scanner that cannot tell those apart reports a broken application 
 Where a check cannot establish its control it returns **inconclusive**, with the reason. That
 is not a pass, and it is not a finding.
 
+## The names have to agree in four places
+
+The attack surface says which checks apply, the selector says which to run, the scan record
+says which executed, and the gate reads coverage from that record. A check named one way in one
+of those and another way somewhere else produces a gate reporting full coverage from a scan
+that ran nothing — a false green arriving through a typo.
+
+The first three share one constant, `SecurityChecks`, and `SECPL-027` holds that against the
+engine's roster. The fourth is the worker's runner map, whose keys are string literals and are
+what a scan actually dispatches on; three tests in the worker hold it against that same
+constant, in both directions. A drift there is reported honestly, as a check that did not
+execute, which is precisely why it needs a test: coverage drops by one for ever and nothing
+else fails.
+
 ## Authorization — `checks-authz.mjs`
 
 | Check | Control | Claim | CWE |

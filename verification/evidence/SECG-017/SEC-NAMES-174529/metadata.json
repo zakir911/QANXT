@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-017",
+  "suite": "Security scanning",
+  "runId": "SEC-NAMES-174529",
+  "objective": "The scope guard refuses production, allowed by the scope but not authorized for this run",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "production, allowed by the scope but not authorized for this run",
+  "expected": "Refused with productionNotAuthorized. A standing permission is not a decision to run today.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "productionNotAuthorized: Production, and the environment itself has not been authorized.",
+  "metrics": {
+    "rungsPassed": 6
+  },
+  "startedAt": "2026-09-24T17:46:04.672Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "9691dcd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-017/SEC-NAMES-174529/decision.json",
+      "bytes": 449,
+      "sha256": "33c166a658e1952d5acb74715031ca2d3252085d56ffc58a6492eff9d0253083"
+    }
+  ]
+}

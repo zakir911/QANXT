@@ -1,0 +1,32 @@
+{
+  "testId": "SECQ-007",
+  "suite": "Security gate, regression and triage",
+  "runId": "SEC-NAMES-174529",
+  "objective": "A regression fails at any severity",
+  "preconditions": [
+    "a low-severity finding previously recorded as resolved"
+  ],
+  "input": "One Low finding with isRegression true",
+  "expected": "FAIL. Something that was repaired has been undone, and severity is not the question",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "FAIL: Only 2 of 5 configured check(s) executed. A result from a partial scan describes the part that ran and nothing else. 1 security finding(s) that were fixed have come back. A regression fails at any severity: something that was repaired has been undone.",
+  "metrics": null,
+  "startedAt": "2026-09-24T17:46:04.771Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "9691dcd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-007/SEC-NAMES-174529/gate.json",
+      "bytes": 2355,
+      "sha256": "e7f410f0809afa08aa541bfa95777b67fdbe74532ffdbe80dcb813b6ef87bf31"
+    }
+  ]
+}

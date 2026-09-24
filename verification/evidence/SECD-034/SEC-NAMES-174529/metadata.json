@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-034",
+  "suite": "Security scanning",
+  "runId": "SEC-NAMES-174529",
+  "objective": "A stack trace naming source paths, host and framework version is reported",
+  "preconditions": [
+    "VULN_VERBOSE_ERROR switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Configuration: the verbose-error check against the lab",
+  "expected": "Exactly one VerboseErrorDisclosure finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "VerboseErrorDisclosure: A stack trace is returned to the caller (1 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 1
+  },
+  "startedAt": "2026-09-24T17:46:04.584Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "9691dcd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-034/SEC-NAMES-174529/vulnerable.json",
+      "bytes": 416,
+      "sha256": "dbdefea652d55483e1b87b34c3c4e1bfc5abb45860508021514b4c1f0f1fa021"
+    }
+  ]
+}
