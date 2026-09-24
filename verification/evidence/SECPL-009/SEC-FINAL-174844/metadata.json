@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-009",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-FINAL-174844",
+  "objective": "A false positive with no justification is refused",
+  "preconditions": [
+    "a stored finding"
+  ],
+  "input": "Triage to FalsePositive with an empty justification",
+  "expected": "400. A suppression with no stated reason is indistinguishable from turning the check off",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "400: ",
+  "metrics": null,
+  "startedAt": "2026-09-24T17:48:54.744Z",
+  "durationMs": 18,
+  "build": {
+    "commit": "c034ff9",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECPL-009/SEC-FINAL-174844/response.json",
+      "bytes": 473,
+      "sha256": "4380cb971f59591f70402366cade47220cdb531f62d9d243aa23c0294613d5da"
+    }
+  ]
+}

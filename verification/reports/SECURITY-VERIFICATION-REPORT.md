@@ -2,7 +2,7 @@
 
 **AIRA's security testing behaved as specified against its own lab in this run.**
 
-Run `SEC-NAMES-174529` · 242 security test(s) · 236 passed, 0 failed, 6 not verified
+Run `SEC-FINAL-174844` · 242 security test(s) · 236 passed, 0 failed, 6 not verified
 
 > What this report is, and is not
 > 
@@ -349,4 +349,4 @@ Also NOT VERIFIED: that scheduling cannot be used to reach destructive or produc
 
 ---
 
-Generated from `verification/reports/golden-results.jsonl` for run `SEC-NAMES-174529`. Every figure is derived from a recorded execution; nothing in this report is asserted.
+Generated from `verification/reports/golden-results.jsonl` for run `SEC-FINAL-174844`. Every figure is derived from a recorded execution; nothing in this report is asserted.

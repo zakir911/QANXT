@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-008",
+  "suite": "Security scanning",
+  "runId": "SEC-FINAL-174844",
+  "objective": "The session-logout check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_SESSION_SURVIVES_LOGOUT"
+  ],
+  "input": "The same session-logout check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "before 200, sign-out 204, replay 401",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-24T17:48:53.708Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c034ff9",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-008/SEC-FINAL-174844/corrected.json",
+      "bytes": 153,
+      "sha256": "28f096f105acb1bde16c1f46926c6b3e7cf986dd0537105a458fdc68e04aeb55"
+    }
+  ]
+}

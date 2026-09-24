@@ -14,7 +14,7 @@ One more thing verified by unit test rather than a golden one, and worth naming 
 
 The check-name agreement has four sides, and only three were held. The attack surface, the selector and the scan record share one C# constant, and SECPL-027 holds that against the engine's roster. The worker's runner map is the fourth: its keys are string literals and they are what a scan dispatches on. A name that drifts there is reported honestly — as a check that did not execute — which makes it worse rather than better, because coverage drops by one for ever and nothing fails. Three vitest tests in the worker now hold its runner list against the C# that defines the names, in both directions and on size; a one-character typo fails two of them.
 
-Checked against golden run `SEC-NAMES-174529`.
+Checked against golden run `SEC-FINAL-174844`.
 
 **87 of 87 requirements verified.**
 

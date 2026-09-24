@@ -1,0 +1,32 @@
+{
+  "testId": "SECF-003",
+  "suite": "Security scanning",
+  "runId": "SEC-FINAL-174844",
+  "objective": "The passive profile refuses a state-changing probe",
+  "preconditions": [
+    "a scope that permits destructive testing, so the profile is the only thing deciding"
+  ],
+  "input": "profile=passive, risk=state-changing",
+  "expected": "Refused with profileDoesNotPermit, because the profile is the promise made to whoever approved the scan about what it would do",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "profileDoesNotPermit: The passive profile does not run this risk level.",
+  "metrics": null,
+  "startedAt": "2026-09-24T17:48:54.340Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "c034ff9",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECF-003/SEC-FINAL-174844/decision.json",
+      "bytes": 326,
+      "sha256": "c21ca38ff1d37e3864808bc5e57dcf482f59dc32b8fa2742be6ee8fd9a00cc1e"
+    }
+  ]
+}

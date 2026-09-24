@@ -24,10 +24,11 @@
  * Usage: node verification/golden-tests/security-constraints.mjs [--run <RUN_ID>]
  */
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, basename } from 'node:path';
 import { ROOT, VERIFICATION } from './harness.mjs';
 
 const DOC = resolve(ROOT, 'docs/security/constraints.md');
+const DOCS_DIR = resolve(ROOT, 'docs/security');
 const REQUIREMENTS = resolve(VERIFICATION, 'security-requirements.json');
 const RESULTS = resolve(VERIFICATION, 'reports/golden-results.jsonl');
 
@@ -188,6 +189,44 @@ for (const absence of ABSENCES) {
   }
 }
 
+/**
+ * Every test the security documentation cites, across all of it.
+ *
+ * The rows above cover `constraints.md`. The other thirteen documents cite tests too — as
+ * evidence for a claim, which is the only reason to cite one — and nothing checked those. A
+ * document naming a test that was renamed, or that now fails, reads exactly like one naming a
+ * test that passes, and the reader has no way to tell without going and looking.
+ *
+ * Ids that never ran are reported separately from ids that ran and did not pass, because they
+ * are different mistakes: the first is a stale citation, the second is a broken claim.
+ */
+const citationPattern = /\b(SEC[A-Z]*-[A-Z]?\d+)\b/g;
+const stale = [];
+const broken = [];
+
+for (const file of readdirSync(DOCS_DIR).filter(f => f.endsWith('.md'))) {
+  const text = readFileSync(resolve(DOCS_DIR, file), 'utf8');
+  for (const [, id] of text.matchAll(citationPattern)) {
+    // Requirement ids are not test ids and live in their own file, checked above.
+    if (id.startsWith('SEC-R')) continue;
+
+    const record = results.get(id);
+    if (!record) stale.push(`${id} in ${basename(file)}`);
+    else if (record.result !== 'PASS' && record.result !== 'NOT_VERIFIED') {
+      broken.push(`${id} in ${basename(file)} ${record.result} in ${runId}`);
+    }
+  }
+}
+
+if (stale.length > 0) {
+  problems.push(`The security documentation cites ${[...new Set(stale)].length} test(s) that did `
+    + `not run in ${runId}: ${[...new Set(stale)].join(', ')}.`);
+}
+if (broken.length > 0) {
+  problems.push(`The security documentation cites ${[...new Set(broken)].length} test(s) as `
+    + `evidence that did not pass: ${[...new Set(broken)].join(', ')}.`);
+}
+
 const citedTests = new Set(rows.flatMap(row => row.tests));
 const citedRequirements = new Set(rows.flatMap(row => row.requirements));
 
@@ -200,8 +239,9 @@ if (problems.length > 0) {
 }
 
 console.log(green(`All ${rows.length} constraints map to a requirement and to tests that passed.`));
-console.log(dim(`  ${citedRequirements.size} requirement(s) and ${citedTests.size} test(s) cited, `
-  + `checked against run ${runId}.`));
+console.log(dim(`  ${citedRequirements.size} requirement(s) and ${citedTests.size} test(s) cited `
+  + `by the map, checked against run ${runId}.`));
+console.log(dim('  Every test id cited anywhere in docs/security ran in that run and passed.'));
 console.log(dim(`  ${ABSENCES.length} constraint(s) are held by an absent code path rather than a `
   + 'check, and the absence is checked against the real source here rather than asserted: '
   + ABSENCES.map(a => a.constraint).join(' and ') + '.'));

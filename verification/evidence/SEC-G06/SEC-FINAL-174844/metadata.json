@@ -1,0 +1,32 @@
+{
+  "testId": "SEC-G06",
+  "suite": "Security and multi-tenancy",
+  "runId": "SEC-FINAL-174844",
+  "objective": "The platform refuses targets that are never legitimate, whatever it is configured to allow",
+  "preconditions": [
+    "tenant A can register applications"
+  ],
+  "input": "Cloud metadata addresses, the unspecified address, and non-HTTP schemes",
+  "expected": "Every one is refused, with a reason — these are refused by configuration or not at all",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "6/6 refused; accepted: none",
+  "metrics": null,
+  "startedAt": "2026-09-24T17:49:32.196Z",
+  "durationMs": 39,
+  "build": {
+    "commit": "c034ff9",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "ssrf-always-forbidden.json",
+      "path": "evidence/SEC-G06/SEC-FINAL-174844/ssrf-always-forbidden.json",
+      "bytes": 1575,
+      "sha256": "08b9773807483e5cda6e6ae6f8b012f143be12dfee9aefac9ef16fb2dff34054"
+    }
+  ]
+}

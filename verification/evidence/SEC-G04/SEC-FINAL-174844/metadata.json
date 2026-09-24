@@ -1,0 +1,32 @@
+{
+  "testId": "SEC-G04",
+  "suite": "Security and multi-tenancy",
+  "runId": "SEC-FINAL-174844",
+  "objective": "One tenant cannot start work inside another's project",
+  "preconditions": [
+    "tenant B knows tenant A's project and test case ids"
+  ],
+  "input": "Tenant B starts a test run naming tenant A's project and test case",
+  "expected": "The request is refused and no run is created in tenant A's project",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "the write answered 404; 0 intruder run(s) visible in the owner's project",
+  "metrics": null,
+  "startedAt": "2026-09-24T17:49:32.117Z",
+  "durationMs": 13,
+  "build": {
+    "commit": "c034ff9",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "cross-tenant-write.json",
+      "path": "evidence/SEC-G04/SEC-FINAL-174844/cross-tenant-write.json",
+      "bytes": 190,
+      "sha256": "0cdc9c462cd45551f3ca59030dcb0dfbb89b64f58f7acaf647498acde34caee0"
+    }
+  ]
+}

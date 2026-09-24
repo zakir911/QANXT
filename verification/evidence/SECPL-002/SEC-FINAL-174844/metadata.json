@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-002",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-FINAL-174844",
+  "objective": "A scope cannot be enabled without a written authorization",
+  "preconditions": [
+    "the application"
+  ],
+  "input": "A scope with enabled true and an empty authorization note",
+  "expected": "400, naming the field. Authorization is a written statement by a person, and the absence of a restriction is not permission",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "400: A security scope cannot be enabled without a written authorization. State who authorized security testing of this application, on whose behalf, and for what period.",
+  "metrics": null,
+  "startedAt": "2026-09-24T17:48:54.636Z",
+  "durationMs": 9,
+  "build": {
+    "commit": "c034ff9",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECPL-002/SEC-FINAL-174844/response.json",
+      "bytes": 432,
+      "sha256": "82ad140087053878810b9ce41530b49682e5b33f22dedb15ab6e26ec8d587d1b"
+    }
+  ]
+}
