@@ -563,11 +563,14 @@ export default async function run() {
 
   notVerified({
     id: 'SECW-N002',
-    objective: 'A scan interrupted by a worker that dies mid-run',
-    expected: 'The scan stays queued, the gate reports NOT SCANNED, and no partial result is stored '
-      + 'as a clean one',
+    objective: 'The sweep that abandons a scan no worker reported, end to end',
+    expected: 'A scan nobody reports is ended with its reason stated, its gate still reads NOT '
+      + 'SCANNED, and a late report supersedes it',
     severity: 'high'
-  }, 'Not executed. The queued state and its NOT SCANNED verdict are covered by SECW-003; what '
-   + 'happens when a worker stops halfway through a run, and how such a scan is reclaimed or '
-   + 'abandoned, is not exercised and is NOT VERIFIED.');
+  }, 'Not executed here. The sweep and both of its consequences are covered by nine unit tests '
+   + '(SecurityScanReaperTests, AbandonedSecurityScanTests) and were driven end to end against a '
+   + 'running stack by stopping the worker and restarting it. What no automated test covers is '
+   + 'that round trip itself: it needs a grace period to elapse, and a golden suite that waited '
+   + 'out a timer would be one nobody runs. The wait, not the behaviour, is what is NOT VERIFIED '
+   + 'here.');
 }

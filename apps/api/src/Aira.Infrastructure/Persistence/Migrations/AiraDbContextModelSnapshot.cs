@@ -3766,6 +3766,11 @@ namespace Aira.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("environment_id");
 
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("error_message");
+
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid")
                         .HasColumnName("organization_id");
@@ -3831,6 +3836,9 @@ namespace Aira.Infrastructure.Persistence.Migrations
                     b.HasIndex("OrganizationId", "Reference")
                         .IsUnique()
                         .HasDatabaseName("ix_security_scans_organization_id_reference");
+
+                    b.HasIndex("Status", "StartedAt")
+                        .HasDatabaseName("ix_security_scans_status_started_at");
 
                     b.ToTable("security_scans", (string)null);
                 });

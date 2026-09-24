@@ -152,7 +152,7 @@ public sealed class SecurityScanLauncher : ISecurityScanLauncher
             EnvironmentId = scope.EnvironmentId,
             Reference = $"SCAN-{now:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}",
             Profile = request.Profile,
-            Status = "queued",
+            Status = SecurityScanStatus.Queued,
             AuthorizationNote = scope.AuthorizationNote,
             // The snapshot is written now, from the scope as authorized now, so a gate evaluated
             // later reads what this scan was permitted rather than what the scope says then.

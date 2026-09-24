@@ -65,8 +65,11 @@ do not exist.
 - **VERIFIED by execution**: a scan AIRA starts and runs itself — queued from
   `POST /api/v1/security/scans/start`, consumed by the worker, issued against the application,
   and recorded against the scan that was started (`SECW-001` to `SECW-012`).
-- **NOT VERIFIED**: a worker-run scan against an authorized production environment, and what
-  happens to a scan whose worker stops halfway through it.
+- **VERIFIED by execution**: a scan no worker reports is ended with its reason stated and its
+  gate still reading NOT SCANNED, and a late report supersedes that — nine unit tests over the
+  sweep and its two consequences, and both paths driven end to end against a running stack with
+  the worker stopped and then restarted.
+- **NOT VERIFIED**: a worker-run scan against an authorized production environment.
 
 ## Nothing schedules a security scan
 
@@ -75,11 +78,21 @@ and no scan triggered by a deployment, so an application scanned once and never 
 its last scan for as long as anyone is looking. The scan's date is on every view of it, which is
 the whole of what stops that being misleading.
 
-## A scan whose worker stops halfway is not reclaimed
+## A scan whose worker stops is ended, but not retried
 
-The scan stays `queued` and its gate reports NOT SCANNED — the safe direction, since a partial
-run is never recorded as a complete one. But nothing retries it, nothing fails it, and nobody is
-told. It sits there looking like a scan that has not started yet, which is what it is.
+A sweep ends a scan no worker reported within the grace period (`Security:StrandedAfterMinutes`,
+an hour by default), marks it `abandoned`, writes the reason onto the row and audits it. Its gate
+still reports NOT SCANNED, because it is: an abandoned scan established nothing, and it sits
+outside the set the gate counts as having run, exactly where the queued one was.
+
+Two things it deliberately does not do. It does not retry — queueing another scan is somebody's
+decision, not the platform's, and a scan that silently re-ran could re-run against an
+authorization that has since been withdrawn. And it is not final: a worker that was slow rather
+than dead still delivers, its report supersedes the abandonment and the stale note is cleared,
+because real findings beat a presumption of death.
+
+Nobody is notified. A scan that never ran is a gap in coverage rather than a finding, and the
+notification channel is deliberately narrow — a new Critical and a regression, nothing else.
 
 ## Authenticated scanning depends on the application's own sign-in
 

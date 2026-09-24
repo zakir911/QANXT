@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-023",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-R13-125604",
+  "objective": "The first caveat on any attack surface is that it is what discovery walked",
+  "preconditions": [
+    "any application"
+  ],
+  "input": "The surface for this application",
+  "expected": "caveats[0] says it is not the application. A reader who takes the item list as complete will treat everywhere else as safe, and nothing has looked at everywhere else",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "This is what discovery walked, not the application. Anything a crawl did not reach is absent from this surface and is untested rather than safe.",
+  "metrics": null,
+  "startedAt": "2026-09-24T12:56:19.610Z",
+  "durationMs": 13,
+  "build": {
+    "commit": "95ec7d5",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "caveats.json",
+      "path": "evidence/SECPL-023/SEC-R13-125604/caveats.json",
+      "bytes": 244,
+      "sha256": "a126db71a03671854a80f3977082f5355b60016df1c76033d9eaa3d56b741ecc"
+    }
+  ]
+}

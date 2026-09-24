@@ -382,5 +382,9 @@ public enum AuditAction
     // Distinct from Recorded: started is somebody asking for traffic to be sent at an
     // application, which is the moment authorization is spent. A scan that starts and never
     // reports leaves only this line behind, and that is exactly when it is wanted.
-    SecurityScanStarted = 39
+    SecurityScanStarted = 39,
+    // A scan that was authorized and then never ran is a gap in what somebody believes was
+    // tested. Nothing else records it: the row's own status says what happened, but only the
+    // trail says it happened while someone was expecting a result.
+    SecurityScanAbandoned = 40
 }

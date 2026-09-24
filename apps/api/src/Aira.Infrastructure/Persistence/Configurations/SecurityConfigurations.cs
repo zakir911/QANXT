@@ -40,7 +40,11 @@ public class SecurityScanConfiguration : IEntityTypeConfiguration<SecurityScan>
         b.Property(x => x.Reference).HasMaxLength(64).IsRequired();
         b.Property(x => x.Status).HasMaxLength(32).IsRequired();
         b.Property(x => x.AuthorizationNote).HasMaxLength(4000);
+        b.Property(x => x.ErrorMessage).HasMaxLength(2000);
         b.Property(x => x.ScopeSnapshotJson).HasColumnType("jsonb");
+
+        // The sweep that reclaims scans nobody is going to finish reads exactly this.
+        b.HasIndex(x => new { x.Status, x.StartedAt });
 
         b.HasIndex(x => new { x.OrganizationId, x.Reference }).IsUnique();
         b.HasIndex(x => new { x.ApplicationId, x.StartedAt });

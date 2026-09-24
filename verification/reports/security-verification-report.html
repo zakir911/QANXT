@@ -36,7 +36,7 @@
 <main>
   <h1>AIRA — security verification</h1>
   <p class="verdict">AIRA's security testing behaved as specified against its own lab in this run.</p>
-  <p class="meta">Run <code>SEC-FINAL-091039</code> · 237 security test(s) ·
+  <p class="meta">Run <code>SEC-R13-125604</code> · 237 security test(s) ·
      232 passed, 0 failed, 5 not verified</p>
 
   <div class="disclaimer">
@@ -90,7 +90,7 @@
 <tr><td><code>SECN-002</code></td><td>Browser-driven DOM XSS detection</td><td class="muted">Not implemented. SECX-001 records DOM XSS as not testable by this scan rather than as absent. Until a browser-driven security scan exists, DOM-based XSS is an untested area of coverage.</td></tr>
 <tr><td><code>SECN-003</code></td><td>Detection rate against an application AIRA has not seen</td><td class="muted">Not measured, and not measurable here. Every flaw in the lab was written alongside the check that finds it. The rate in SECR-001 describes this lab and nothing else.</td></tr>
 <tr><td><code>SECW-N001</code></td><td>A worker-run scan against an authorized production environment</td><td class="muted">Not executed. Production security testing is off by default and no production environment exists here. The launcher refuses production without the permission and the guard refuses each request as well, but the permitted path is not exercised anywhere and is NOT VERIFIED.</td></tr>
-<tr><td><code>SECW-N002</code></td><td>A scan interrupted by a worker that dies mid-run</td><td class="muted">Not executed. The queued state and its NOT SCANNED verdict are covered by SECW-003; what happens when a worker stops halfway through a run, and how such a scan is reclaimed or abandoned, is not exercised and is NOT VERIFIED.</td></tr>
+<tr><td><code>SECW-N002</code></td><td>The sweep that abandons a scan no worker reported, end to end</td><td class="muted">Not executed here. The sweep and both of its consequences are covered by nine unit tests (SecurityScanReaperTests, AbandonedSecurityScanTests) and were driven end to end against a running stack by stopping the worker and restarting it. What no automated test covers is that round trip itself: it needs a grace period to elapse, and a golden suite that waited out a timer would be one nobody runs. The wait, not the behaviour, is what is NOT VERIFIED here.</td></tr>
   </table></div>
 
   <h3>Known limitations</h3>
@@ -109,8 +109,9 @@
         fraction as a gap.</li>
     <li><strong>Nothing schedules a security scan.</strong> An application scanned once and never
         again reads as its last scan indefinitely.</li>
-    <li><strong>A scan whose worker stops halfway is not reclaimed.</strong> It stays queued, which
-        reads as NOT SCANNED rather than as clean, but nothing retries or fails it.</li>
+    <li><strong>A scan whose worker stops is ended, but not retried.</strong> A sweep marks it
+        abandoned with the reason on the row; its gate still reads NOT SCANNED. Queueing another
+        is a decision for a person.</li>
   </ul>
 
   <h3>The OWASP taxonomy</h3><ul><li><code>owasp-api-top10.json</code> — edition 2023, <strong>not verified against the published source</strong>: outbound network access was blocked where it was written, so the categories were recorded from knowledge and flagged. <code>scripts/refresh-owasp-taxonomy</code> replaces them and fails loudly rather than silently keeping the unverified copy.</li><li><code>owasp-web-top10.json</code> — edition 2021, <strong>not verified against the published source</strong>: outbound network access was blocked where it was written, so the categories were recorded from knowledge and flagged. <code>scripts/refresh-owasp-taxonomy</code> replaces them and fails loudly rather than silently keeping the unverified copy.</li></ul>
@@ -355,13 +356,13 @@
 <tr><td><code>SECW-011</code></td><td class="ok">PASS</td><td>Discovery is what decides where a scan points</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-012</code></td><td class="ok">PASS</td><td>Scanning an application twice does not empty the first scan's record</td><td class="muted">1</td></tr>
 <tr><td><code>SECW-N001</code></td><td class="bad">NOT_VERIFIED</td><td>A worker-run scan against an authorized production environment</td><td class="muted">0</td></tr>
-<tr><td><code>SECW-N002</code></td><td class="bad">NOT_VERIFIED</td><td>A scan interrupted by a worker that dies mid-run</td><td class="muted">0</td></tr>
+<tr><td><code>SECW-N002</code></td><td class="bad">NOT_VERIFIED</td><td>The sweep that abandons a scan no worker reported, end to end</td><td class="muted">0</td></tr>
 <tr><td><code>SECX-001</code></td><td class="ok">PASS</td><td>DOM-based XSS is reported as not tested by a response-only scan, never as absent</td><td class="muted">1</td></tr>
   </table></div>
 
   <footer>
     Generated from <code>verification/reports/golden-results.jsonl</code> for run
-    <code>SEC-FINAL-091039</code>. Every figure is derived from a recorded execution;
+    <code>SEC-R13-125604</code>. Every figure is derived from a recorded execution;
     nothing in this report is asserted.
   </footer>
 </main>

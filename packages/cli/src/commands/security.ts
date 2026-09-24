@@ -63,6 +63,7 @@ interface SecurityScan {
   requestsIssued: number; requestsBlocked: number;
   testsExecuted: number; testsSkipped: number;
   startedAt: string; findings: SecurityFinding[]; gate: SecurityGateResult;
+  errorMessage?: string | null;
 }
 
 export async function securityCommand(args: ParsedArgs): Promise<number> {
@@ -213,7 +214,7 @@ async function startScan(api: ApiClient, args: ParsedArgs, json: boolean): Promi
   let scan: SecurityScan | null = null;
   while (Date.now() < deadline) {
     scan = await api.get<SecurityScan>(`/api/v1/security/scans/${started.securityScanId}`);
-    if (scan.status === 'completed' || scan.status === 'failed') break;
+    if (scan.status !== 'queued') break;
     await new Promise(resolve => setTimeout(resolve, 3000));
     scan = null;
   }
@@ -230,6 +231,14 @@ async function startScan(api: ApiClient, args: ParsedArgs, json: boolean): Promi
   }
 
   if (json) { out(JSON.stringify(scan, null, 2)); return exitFor(scan.gate.outcome); }
+
+  if (scan.status !== 'completed') {
+    // The platform stopped waiting. Reported as REVIEW rather than a gate outcome, because
+    // nothing was established and the gate's verdict on a scan that never ran is not a result.
+    note(`\n${bold(scan.reference)} ${yellow(scan.status.toUpperCase())}`);
+    note(scan.errorMessage ?? 'This scan produced no result.');
+    return ExitCode.HumanReviewRequired;
+  }
 
   note(`\n${bold(scan.reference)} ${outcomeLabel(scan.gate.outcome)}`);
   note(scan.gate.summary);

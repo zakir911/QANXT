@@ -100,7 +100,9 @@ public sealed record SecurityScanSummary(
     int RequestsIssued, int RequestsBlocked, int TestsExecuted, int TestsSkipped,
     DateTimeOffset StartedAt, DateTimeOffset? CompletedAt, int DurationMs,
     IReadOnlyList<SecurityFindingSummary> Findings,
-    SecurityGateResult Gate);
+    SecurityGateResult Gate,
+    /// <summary>Why this scan has no result, when it has none. Null on a scan that reported.</summary>
+    string? ErrorMessage = null);
 
 public sealed record TriageFindingRequest(
     SecurityFindingStatus Status, string? Justification);
@@ -321,7 +323,11 @@ public sealed class SecurityScanService : ISecurityScanService
         if (scan is null)
             return Result<SecurityScanSummary>.Failure(Error.NotFound("The security scan"));
 
-        if (scan.CompletedAt is not null)
+        // Keyed on having reported, not on CompletedAt — the sweep that reclaims abandoned scans
+        // stamps that too. A worker that was merely slow rather than dead must still be able to
+        // deliver: real findings beat a presumption of death, and discarding them here would lose
+        // the one thing the scan was for.
+        if (scan.Status == SecurityScanStatus.Completed)
             return Result<SecurityScanSummary>.Success(await BuildScanSummaryAsync(scan, ct));
 
         return await IngestAsync(scan, request with
@@ -378,7 +384,9 @@ public sealed class SecurityScanService : ISecurityScanService
             CreatedByUserId = _user.UserId
         };
 
-        scan.Status = "completed";
+        scan.Status = SecurityScanStatus.Completed;
+        // A late report supersedes the sweep's verdict, so the stale "nobody reported" note goes.
+        scan.ErrorMessage = null;
         scan.RequestsIssued = request.RequestsIssued;
         scan.RequestsBlocked = blocked.Count;
         scan.TestsExecuted = request.TestsExecuted;
@@ -852,10 +860,11 @@ public sealed class SecurityScanService : ISecurityScanService
 
         var gate = SecurityGateEvaluator.Evaluate(
             new SecurityScanCoverage(
-                // A scan AIRA queued exists before it has issued a single request, and until the
-                // worker reports back it has not run. Saying otherwise turns "nothing has happened
-                // yet" into "nothing was found", which is the one reading the gate exists to stop.
-                ScanRan: scan.CompletedAt is not null,
+                // A scan has run when a worker reported it, and at no other time. Queued means
+                // nothing has happened yet; abandoned means nothing ever will. Both of those are
+                // "not tested", and reading either as "tested, nothing found" is the one mistake
+                // the gate exists to stop. Not keyed on CompletedAt: the sweep stamps that too.
+                ScanRan: scan.Status == SecurityScanStatus.Completed,
                 Profile: scan.Profile,
                 RequestsIssued: scan.RequestsIssued,
                 RequestsBlocked: scan.RequestsBlocked,
@@ -871,7 +880,7 @@ public sealed class SecurityScanService : ISecurityScanService
             scan.Id, scan.Reference, scan.ApplicationId, scan.ProjectId, scan.EnvironmentId,
             scan.Profile, scan.Status, scan.AuthorizationNote,
             scan.RequestsIssued, scan.RequestsBlocked, scan.TestsExecuted, scan.TestsSkipped,
-            scan.StartedAt, scan.CompletedAt, scan.DurationMs, summaries, gate);
+            scan.StartedAt, scan.CompletedAt, scan.DurationMs, summaries, gate, scan.ErrorMessage);
     }
 
     private (string[] Configured, string[] Executed, string[] Untested) ReadSnapshot(string? json)

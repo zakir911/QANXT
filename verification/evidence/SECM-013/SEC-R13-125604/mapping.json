@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_UNSAFE_METHODS",
+    "type": "UnsafeMethodAllowed",
+    "endpoint": "DELETE /api/notes/{id}",
+    "severity": "high",
+    "cwe": "CWE-650",
+    "owaspApi": "API5:2023",
+    "detectBy": "DELETE succeeds unauthenticated."
+  },
+  "got": {
+    "cwe": "CWE-650",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A01:2021",
+    "owaspApi": "API5:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "serious",
+      "privilegeRequired": "none",
+      "affectedData": "nonSensitive",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 15,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (15/19): trivial to exploit, serious impact, no account needed, reaches non-sensitive data, publicly reachable."
+    }
+  }
+}

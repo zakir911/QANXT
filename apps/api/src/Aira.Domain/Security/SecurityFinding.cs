@@ -111,6 +111,14 @@ public class SecurityScan : BaseEntity, ITenantOwned, IAuditable
     public DateTimeOffset? CompletedAt { get; set; }
     public int DurationMs { get; set; }
 
+    /// <summary>Why this scan has no result, when it has none. Null on a scan that reported.</summary>
+    /// <remarks>
+    /// A scan the platform gave up on still has to say so in words. "Abandoned" as a bare status
+    /// reads as a shrug, and whoever opens it needs to know that the reason lies with the worker
+    /// rather than with the application it was pointed at.
+    /// </remarks>
+    public string? ErrorMessage { get; set; }
+
     public Guid? CreatedByUserId { get; set; }
     public Guid? UpdatedByUserId { get; set; }
 

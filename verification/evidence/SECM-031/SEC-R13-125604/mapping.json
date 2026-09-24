@@ -1,0 +1,29 @@
+{
+  "expected": {
+    "id": "VULN_REFLECTED_CORS",
+    "type": "DangerousCorsPolicy",
+    "endpoint": "GET /api/data",
+    "severity": "high",
+    "cwe": "CWE-942",
+    "owaspWeb": "A05:2021",
+    "detectBy": "An arbitrary Origin is reflected while credentials are allowed. Both together, not either alone."
+  },
+  "got": {
+    "cwe": "CWE-942",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A05:2021",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "straightforward",
+      "impact": "serious",
+      "privilegeRequired": "none",
+      "affectedData": "personalData",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 14,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (14/19): straightforward to exploit, serious impact, no account needed, reaches personal data, publicly reachable."
+    }
+  }
+}

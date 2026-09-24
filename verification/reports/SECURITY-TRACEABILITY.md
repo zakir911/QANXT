@@ -6,7 +6,9 @@ Two requirements are deliberately not on this list because nothing here verifies
 
 SEC-R43 to SEC-R49 are about AIRA itself rather than the applications it tests. A security testing tool that is not itself secure is a liability, and its own tenancy, credential handling and target policy are verified by the same kind of test as everything else here.
 
-Checked against golden run `SEC-FINAL-091039`.
+Reclaiming a scan no worker reported is verified by unit tests rather than golden ones (SecurityScanReaperTests, AbandonedSecurityScanTests), and is deliberately not listed as a requirement here: every row in this file names a golden test, and a row pointing at something traceability.mjs cannot check would make the matrix look complete while proving less. The behaviour needs a grace period to elapse, and a golden suite that waited out a timer is one nobody runs. SECW-N002 records that gap in the golden results.
+
+Checked against golden run `SEC-R13-125604`.
 
 **81 of 81 requirements verified.**
 

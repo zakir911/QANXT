@@ -2,7 +2,7 @@
 
 **AIRA's security testing behaved as specified against its own lab in this run.**
 
-Run `SEC-FINAL-091039` · 237 security test(s) · 232 passed, 0 failed, 5 not verified
+Run `SEC-R13-125604` · 237 security test(s) · 232 passed, 0 failed, 5 not verified
 
 > What this report is, and is not
 > 
@@ -53,7 +53,7 @@ Run `SEC-FINAL-091039` · 237 security test(s) · 232 passed, 0 failed, 5 not ve
 
 ## Requirements
 
-80 of 80 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
+81 of 81 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
 
 ## What was NOT tested
 
@@ -67,7 +67,7 @@ report generated from that run.
 | `SECN-002` | Browser-driven DOM XSS detection | Not implemented. SECX-001 records DOM XSS as not testable by this scan rather than as absent. Until a browser-driven security scan exists, DOM-based XSS is an untested area of coverage. |
 | `SECN-003` | Detection rate against an application AIRA has not seen | Not measured, and not measurable here. Every flaw in the lab was written alongside the check that finds it. The rate in SECR-001 describes this lab and nothing else. |
 | `SECW-N001` | A worker-run scan against an authorized production environment | Not executed. Production security testing is off by default and no production environment exists here. The launcher refuses production without the permission and the guard refuses each request as well, but the permitted path is not exercised anywhere and is NOT VERIFIED. |
-| `SECW-N002` | A scan interrupted by a worker that dies mid-run | Not executed. The queued state and its NOT SCANNED verdict are covered by SECW-003; what happens when a worker stops halfway through a run, and how such a scan is reclaimed or abandoned, is not exercised and is NOT VERIFIED. |
+| `SECW-N002` | The sweep that abandons a scan no worker reported, end to end | Not executed here. The sweep and both of its consequences are covered by nine unit tests (SecurityScanReaperTests, AbandonedSecurityScanTests) and were driven end to end against a running stack by stopping the worker and restarting it. What no automated test covers is that round trip itself: it needs a grace period to elapse, and a golden suite that waited out a timer would be one nobody runs. The wait, not the behaviour, is what is NOT VERIFIED here. |
 
 ### Known limitations
 
@@ -86,9 +86,9 @@ report generated from that run.
 - **Nothing schedules a security scan.** A scan is started by a person or a pipeline calling
   `POST /api/v1/security/scans/start`. There is no recurring security scan, so an application
   scanned once and never again reads as its last scan indefinitely.
-- **A scan whose worker stops halfway is not reclaimed.** It stays queued, which the gate reads
-  as NOT SCANNED rather than as clean — the safe direction — but nothing retries or fails it,
-  and `SECW-N002` records that as unexercised.
+- **A scan whose worker stops is ended, but not retried.** A sweep marks it abandoned with the
+  reason on the row; its gate still reads NOT SCANNED. Queueing another is a decision for a
+  person, and nobody is notified — a scan that never ran is a coverage gap, not a finding.
 
 ### The OWASP taxonomy
 
@@ -334,9 +334,9 @@ report generated from that run.
 | `SECW-011` | PASS | Discovery is what decides where a scan points | 1 file(s) |
 | `SECW-012` | PASS | Scanning an application twice does not empty the first scan's record | 1 file(s) |
 | `SECW-N001` | **NOT_VERIFIED** | A worker-run scan against an authorized production environment | 0 file(s) |
-| `SECW-N002` | **NOT_VERIFIED** | A scan interrupted by a worker that dies mid-run | 0 file(s) |
+| `SECW-N002` | **NOT_VERIFIED** | The sweep that abandons a scan no worker reported, end to end | 0 file(s) |
 | `SECX-001` | PASS | DOM-based XSS is reported as not tested by a response-only scan, never as absent | 1 file(s) |
 
 ---
 
-Generated from `verification/reports/golden-results.jsonl` for run `SEC-FINAL-091039`. Every figure is derived from a recorded execution; nothing in this report is asserted.
+Generated from `verification/reports/golden-results.jsonl` for run `SEC-R13-125604`. Every figure is derived from a recorded execution; nothing in this report is asserted.

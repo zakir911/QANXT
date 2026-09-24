@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-015",
+  "suite": "Security scanning",
+  "runId": "SEC-R13-125604",
+  "objective": "The excessive-data finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-213, OWASP API3:2023, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-213, A01:2021, High (15/19) — High (15/19): trivial to exploit, serious impact, any signed-in user, reaches credentials, reachable by signed-in users.",
+  "metrics": {
+    "score": 15,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-24T12:56:12.464Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "95ec7d5",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-015/SEC-R13-125604/mapping.json",
+      "bytes": 896,
+      "sha256": "968b35f3ae2a4b2c086b5a1540bde2299fea3958cdb753944adfac952a4920f5"
+    }
+  ]
+}

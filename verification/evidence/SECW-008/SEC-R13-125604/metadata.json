@@ -1,0 +1,32 @@
+{
+  "testId": "SECW-008",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "SEC-R13-125604",
+  "objective": "A check no worker can run is reported untested rather than left out",
+  "preconditions": [
+    "the completed scan"
+  ],
+  "input": "The gate summary's untested areas",
+  "expected": "DOM-based XSS, which needs a browser the scanner does not drive, appears as an untested area whenever the surface implied it. A check that quietly does not run is indistinguishable in a report from one that ran and found nothing",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "the discovered surface implied no browser-only check, and none is claimed as run",
+  "metrics": null,
+  "startedAt": "2026-09-24T12:56:29.681Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "95ec7d5",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "untested.json",
+      "path": "evidence/SECW-008/SEC-R13-125604/untested.json",
+      "bytes": 320,
+      "sha256": "6a19ff6fded02e48d66879309ccfd356f23684468a43dd6bbb7b495f8d40153b"
+    }
+  ]
+}

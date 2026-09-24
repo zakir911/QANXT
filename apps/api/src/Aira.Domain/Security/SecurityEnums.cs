@@ -108,3 +108,31 @@ public enum SecurityConfidence
     /// <summary>Reproduced with evidence that admits no other reading.</summary>
     High = 2
 }
+
+/// <summary>
+/// The states a scan row can be in, as stored.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Strings rather than an enum because they cross to the worker, the console and the CLI as
+/// JSON, and a numeric ordinal that quietly shifts when somebody inserts a member is a worse
+/// trade here than a name that cannot.
+/// </para>
+/// <para>
+/// Only <see cref="Completed"/> means a worker reported. Everything else is a scan that has
+/// established nothing, and the gate treats them alike: not tested is not the same as tested
+/// and clean.
+/// </para>
+/// </remarks>
+public static class SecurityScanStatus
+{
+    /// <summary>Queued for a worker. No request has been issued.</summary>
+    public const string Queued = "queued";
+
+    /// <summary>A worker reported. The only state in which findings mean anything.</summary>
+    public const string Completed = "completed";
+
+    /// <summary>No worker reported within the grace period, so the platform stopped waiting.
+    /// A later report from a worker that was slow rather than dead still supersedes this.</summary>
+    public const string Abandoned = "abandoned";
+}

@@ -238,9 +238,9 @@ markdown.push(
   '- **Nothing schedules a security scan.** A scan is started by a person or a pipeline calling',
   '  `POST /api/v1/security/scans/start`. There is no recurring security scan, so an application',
   '  scanned once and never again reads as its last scan indefinitely.',
-  '- **A scan whose worker stops halfway is not reclaimed.** It stays queued, which the gate reads',
-  '  as NOT SCANNED rather than as clean — the safe direction — but nothing retries or fails it,',
-  '  and `SECW-N002` records that as unexercised.',
+  '- **A scan whose worker stops is ended, but not retried.** A sweep marks it abandoned with the',
+  '  reason on the row; its gate still reads NOT SCANNED. Queueing another is a decision for a',
+  '  person, and nobody is notified — a scan that never ran is a coverage gap, not a finding.',
   ''
 );
 
@@ -392,8 +392,9 @@ const html = `<!doctype html>
         fraction as a gap.</li>
     <li><strong>Nothing schedules a security scan.</strong> An application scanned once and never
         again reads as its last scan indefinitely.</li>
-    <li><strong>A scan whose worker stops halfway is not reclaimed.</strong> It stays queued, which
-        reads as NOT SCANNED rather than as clean, but nothing retries or fails it.</li>
+    <li><strong>A scan whose worker stops is ended, but not retried.</strong> A sweep marks it
+        abandoned with the reason on the row; its gate still reads NOT SCANNED. Queueing another
+        is a decision for a person.</li>
   </ul>
 
   ${taxonomy.length > 0 ? `<h3>The OWASP taxonomy</h3><ul>${taxonomy.map(t =>

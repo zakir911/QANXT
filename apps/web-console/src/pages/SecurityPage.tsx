@@ -31,6 +31,7 @@ interface Scan {
   requestsIssued: number; requestsBlocked: number;
   testsExecuted: number; testsSkipped: number;
   startedAt: string; findings: Finding[]; gate: Gate;
+  errorMessage?: string | null;
 }
 
 interface TrendPoint {
@@ -302,7 +303,15 @@ export default function SecurityPage() {
                 <div data-testid="security-started">
                   <p className="text-sm text-ink">{started.summary}</p>
 
-                  {queuedStatus === 'queued' || !queuedStatus ? (
+                  {queuedStatus === 'abandoned' ? (
+                    // The platform gave up on it. Not a result either, and the reason belongs on
+                    // the screen rather than only in a log somebody would have to go and find.
+                    <p className="mt-2 text-sm text-bad" data-testid="security-abandoned">
+                      <StatusBadge status="abandoned" />{' '}
+                      {queuedScan.data?.errorMessage
+                        ?? 'No worker reported this scan, so the platform stopped waiting for it.'}
+                    </p>
+                  ) : queuedStatus === 'queued' || !queuedStatus ? (
                     // The whole point of this branch. A queued scan has issued no requests, and
                     // a screen that showed it beside a green tick would be reporting a build as
                     // tested at the moment nothing had been tested.

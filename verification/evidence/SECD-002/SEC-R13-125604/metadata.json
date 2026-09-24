@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-002",
+  "suite": "Security scanning",
+  "runId": "SEC-R13-125604",
+  "objective": "A customer reaching an administrator route is reported as broken function level authorization",
+  "preconditions": [
+    "VULN_VERTICAL_ESCALATION switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Authorization: the vertical check against the lab",
+  "expected": "Exactly one BrokenFunctionLevelAuthorization finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "BrokenFunctionLevelAuthorization: alice can reach a route intended for admin (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-24T12:56:12.147Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "95ec7d5",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-002/SEC-R13-125604/vulnerable.json",
+      "bytes": 430,
+      "sha256": "dd60b560b926e969afd2ed67a825204f55db92a9841eb945601c9db949b7a7ca"
+    }
+  ]
+}

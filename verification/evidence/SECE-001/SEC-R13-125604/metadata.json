@@ -1,0 +1,32 @@
+{
+  "testId": "SECE-001",
+  "suite": "Security scanning",
+  "runId": "SEC-R13-125604",
+  "objective": "A finding with no exchange is refused rather than recorded",
+  "preconditions": [
+    "the evidence writer"
+  ],
+  "input": "A finding declared with an empty exchange list",
+  "expected": "It throws. A finding nobody can check is indistinguishable from one that was invented, and the brief forbids calling a vulnerability confirmed without reproducible evidence",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Refusing to write evidence for no-evidence: no request/response exchange was supplied. A finding with nothing to show is a claim, not a finding.",
+  "metrics": null,
+  "startedAt": "2026-09-24T12:56:12.835Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "95ec7d5",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/SECE-001/SEC-R13-125604/refusal.json",
+      "bytes": 161,
+      "sha256": "c8c1d9b7e90fa3be33db326a49c7e083b3b6aeb8c442d67a9a2a83a1b5bccc0d"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-028",
+  "suite": "Security scanning",
+  "runId": "SEC-R13-125604",
+  "objective": "An unvalidated fetch destination is reported, without probing cloud metadata",
+  "preconditions": [
+    "VULN_SSRF switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Request handling: the ssrf check against the lab",
+  "expected": "Exactly one ServerSideRequestForgery finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "ServerSideRequestForgery: 'url' is fetched without validating the destination (3 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 3
+  },
+  "startedAt": "2026-09-24T12:56:12.693Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "95ec7d5",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-028/SEC-R13-125604/vulnerable.json",
+      "bytes": 431,
+      "sha256": "6326939fe7a70317402d5d784523439a822396a1a4ef9239e4a559aee101d6f9"
+    }
+  ]
+}

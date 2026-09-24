@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-030",
+  "suite": "Security scanning",
+  "runId": "SEC-R13-125604",
+  "objective": "The weak-cookie check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_WEAK_COOKIE"
+  ],
+  "input": "The same weak-cookie check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "no finding",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-24T12:56:12.728Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "95ec7d5",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-030/SEC-R13-125604/corrected.json",
+      "bytes": 119,
+      "sha256": "95a19eb1666ca648c24318acc75f603ca24203f6d4b44757c0881bd5351a5758"
+    }
+  ]
+}

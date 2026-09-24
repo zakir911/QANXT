@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_NOSQL_INJECTION",
+    "type": "NoSqlInjection",
+    "endpoint": "POST /api/login",
+    "severity": "high",
+    "cwe": "CWE-943",
+    "owaspWeb": "A03:2021",
+    "detectBy": "An operator object is accepted where a string belongs."
+  },
+  "got": {
+    "cwe": "CWE-943",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A03:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "straightforward",
+      "impact": "serious",
+      "privilegeRequired": "none",
+      "affectedData": "credentials",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 15,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (15/19): straightforward to exploit, serious impact, no account needed, reaches credentials, publicly reachable."
+    }
+  }
+}

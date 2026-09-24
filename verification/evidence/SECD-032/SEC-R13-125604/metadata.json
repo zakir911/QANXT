@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-032",
+  "suite": "Security scanning",
+  "runId": "SEC-R13-125604",
+  "objective": "A directory index is reported",
+  "preconditions": [
+    "VULN_DIRECTORY_LISTING switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Configuration: the directory-listing check against the lab",
+  "expected": "Exactly one DirectoryListing finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "DirectoryListing: A directory listing is served (1 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 1
+  },
+  "startedAt": "2026-09-24T12:56:12.759Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "95ec7d5",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-032/SEC-R13-125604/vulnerable.json",
+      "bytes": 400,
+      "sha256": "d465a7dfad98ffadf7a99a738a410d23ffca1e60409dbecfdc637e858aae957f"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_REFLECTED_XSS",
+    "type": "ReflectedXSS",
+    "endpoint": "GET /search?q=",
+    "severity": "high",
+    "cwe": "CWE-79",
+    "owaspWeb": "A03:2021",
+    "detectBy": "The marker is returned into an HTML context with its angle brackets intact."
+  },
+  "got": {
+    "cwe": "CWE-79",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A03:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "High",
+    "severity": {
+      "exploitability": "straightforward",
+      "impact": "serious",
+      "privilegeRequired": "none",
+      "affectedData": "personalData",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 14,
+      "maxScore": 19,
+      "severity": "High",
+      "explanation": "High (14/19): straightforward to exploit, serious impact, no account needed, reaches personal data, publicly reachable."
+    }
+  }
+}
