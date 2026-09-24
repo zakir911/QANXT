@@ -5,6 +5,7 @@ using Aira.Domain.Ai;
 using Aira.Domain.Agent;
 using Aira.Domain.Applications;
 using Aira.Domain.Audit;
+using Aira.Domain.Security;
 using Aira.Domain.Common;
 using Aira.Domain.Diagnosis;
 using Aira.Domain.Evidence;
@@ -82,6 +83,11 @@ public class AiraDbContext : DbContext, IAiraDbContext
     public DbSet<AiRequest> AiRequests => Set<AiRequest>();
     public DbSet<AiResponse> AiResponses => Set<AiResponse>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
+    public DbSet<SecurityScope> SecurityScopes => Set<SecurityScope>();
+    public DbSet<SecurityScan> SecurityScans => Set<SecurityScan>();
+    public DbSet<SecurityFinding> SecurityFindings => Set<SecurityFinding>();
+    public DbSet<SecurityBlockedRequest> SecurityBlockedRequests => Set<SecurityBlockedRequest>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

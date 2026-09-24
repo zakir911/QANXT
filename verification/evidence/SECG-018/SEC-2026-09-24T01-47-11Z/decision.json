@@ -1,0 +1,17 @@
+{
+  "case": "a different environment from the one authorized",
+  "why": "Authorization names an environment, and another one is not covered by it.",
+  "decision": {
+    "allowed": false,
+    "reason": "productionNotAuthorized",
+    "explanation": "This scan names a different environment from the one the scope authorizes.",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain",
+      "path",
+      "method",
+      "risk"
+    ]
+  }
+}

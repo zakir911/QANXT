@@ -7,6 +7,7 @@ using Aira.Domain.Diagnosis;
 using Aira.Domain.Evidence;
 using Aira.Domain.Identity;
 using Aira.Domain.Projects;
+using Aira.Domain.Security;
 using Aira.Domain.Testing;
 
 namespace Aira.Application.Abstractions;
@@ -73,6 +74,11 @@ public interface IAiraDbContext
     DbSet<AiRequest> AiRequests { get; }
     DbSet<AiResponse> AiResponses { get; }
     DbSet<AuditLog> AuditLogs { get; }
+
+    DbSet<SecurityScope> SecurityScopes { get; }
+    DbSet<SecurityScan> SecurityScans { get; }
+    DbSet<SecurityFinding> SecurityFindings { get; }
+    DbSet<SecurityBlockedRequest> SecurityBlockedRequests { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 

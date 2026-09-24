@@ -6,9 +6,9 @@ Two requirements are deliberately not on this list because nothing here verifies
 
 SEC-R43 to SEC-R49 are about AIRA itself rather than the applications it tests. A security testing tool that is not itself secure is a liability, and its own tenancy, credential handling and target policy are verified by the same kind of test as everything else here.
 
-Checked against golden run `SEC-2026-09-24T01-36-09Z`.
+Checked against golden run `SEC-2026-09-24T01-47-11Z`.
 
-**50 of 50 requirements verified.**
+**58 of 58 requirements verified.**
 
 | Requirement | Verified by | Status |
 | --- | --- | --- |
@@ -62,12 +62,20 @@ Checked against golden run `SEC-2026-09-24T01-36-09Z`.
 | **SEC-R48** AIRA's own artifact paths cannot be turned into a traversal, and arbitrary script execution needs an explicit opt-in. | SEC-G08, SEC-G09 | VERIFIED |
 | **SEC-R49** AIRA sets the browser security headers it claims to. | SEC-G10 | VERIFIED |
 | **SEC-R50** The security controls permit an authorized scan as well as refusing an unauthorized one; they are not a refusal of everything. | SECG-024, SECF-001, SECF-005, SECQ-011 | VERIFIED |
+| **SEC-R51** A security scope is stored with the written authorization, the person who gave it and when, and cannot be enabled without one. | SECPL-001, SECPL-002, SECPL-003, SECPL-005 | VERIFIED |
+| **SEC-R52** Destructive testing and production can never be authorized together, refused where somebody configures it rather than one request at a time. | SECPL-004 | VERIFIED |
+| **SEC-R53** A scan cannot be recorded against an application with no enabled scope, and a finding with no evidence is refused rather than stored. | SECPL-006, SECPL-014 | VERIFIED |
+| **SEC-R54** A stored finding's first sighting is Potential; reproduction across scans is what makes it Confirmed. | SECPL-007, SECPL-008 | VERIFIED |
+| **SEC-R55** Stored findings have a stable identity: the same flaw reported again updates its row and keeps the new severity. | SECPL-008 | VERIFIED |
+| **SEC-R56** Triage through the API refuses a suppression with no justification or one too short to be one, and records the decision in the audit log. | SECPL-009, SECPL-010, SECPL-011 | VERIFIED |
+| **SEC-R57** A resolved finding detected again becomes a regression, its disposition does not survive, and the stored scan's gate reads FAIL. | SECPL-012, SECPL-013 | VERIFIED |
+| **SEC-R58** Security findings, scans and scopes are invisible to another tenant. | SECPL-015 | VERIFIED |
 
 ## Tests claimed by no requirement
 
 327 test(s). A test nobody can connect to a requirement is either verifying something undocumented or verifying nothing. This is reported rather than failed, because a test can legitimately exist to cover a defect no requirement anticipated. 324 of them belong to suites this matrix does not cover — they are the product certification's, not this document's — and 3 are continuous-quality tests that no requirement above names.
 
-449 test id(s) are known to exist: 249 written as literals in a suite, 200 built at run time and proven by having executed.
+464 test id(s) are known to exist: 264 written as literals in a suite, 200 built at run time and proven by having executed.
 
 ```
 ACC-001  ACC-002  ACC-003  ACC-004  ACC-005  ACC-006  AIF-001  AIF-002  AIF-003  AIF-004  AIF-005  AIF-006

@@ -2,7 +2,7 @@
 
 **AIRA's security testing behaved as specified against its own lab in this run.**
 
-Run `SEC-2026-09-24T01-36-09Z` · 191 security test(s) · 188 passed, 0 failed, 3 not verified
+Run `SEC-2026-09-24T01-47-11Z` · 206 security test(s) · 203 passed, 0 failed, 3 not verified
 
 > What this report is, and is not
 > 
@@ -29,8 +29,8 @@ Run `SEC-2026-09-24T01-36-09Z` · 191 security test(s) · 188 passed, 0 failed, 
 | False positives on the corrected application | 0 |
 | Endpoints the ground truth calls correct | 8 |
 | Findings reported against those endpoints | 0 |
-| Evidence files recorded | 190 |
-| Evidence files whose hash still matches | 190 |
+| Evidence files recorded | 207 |
+| Evidence files whose hash still matches | 207 |
 
 ## Results by family
 
@@ -48,11 +48,12 @@ Run `SEC-2026-09-24T01-36-09Z` · 191 security test(s) · 188 passed, 0 failed, 
 | Triage | 8/8 | Suppression needs a reason and a name |
 | Coverage honesty | 1/1 | What this scan cannot decide |
 | Measured rates | 1/1 | Detection and false positives, as measured |
+| Stored scans | 15/15 | Scopes, scans, findings and triage through AIRA's own API |
 | AIRA itself | 11/11 | Tenancy, credentials, target policy and headers in the platform |
 
 ## Requirements
 
-50 of 50 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
+58 of 58 security requirements verified in this run. The full matrix, including which test verifies each one, is in `SECURITY-TRACEABILITY.md`.
 
 ## What was NOT tested
 
@@ -77,10 +78,12 @@ report generated from that run.
   verified (`SECG-016`, `SECG-017`).
 - **The detection rate does not generalise.** Every flaw in the lab was written alongside the
   check that finds it.
-- **Security findings are not persisted to the database.** The scan engine, the gate, the
-  regression comparison and the triage workflow are verified as executed code; they are driven
-  by the golden suites rather than through stored scans, so scan history across deployments is
-  IMPLEMENTED but NOT TESTED end to end.
+- **There is no security surface in the console.** Scopes, scans, findings and triage are
+  persisted and verified end to end through the API (`SECPL-001` to `SECPL-015`), but nothing
+  is reachable by clicking. The screens and the trend queries are NOT IMPLEMENTED.
+- **The scanner does not run inside the worker.** The engine is driven by the golden suites and
+  the API records what it found, so `POST /api/v1/security/scans` is an ingestion endpoint
+  rather than the far end of a "start a scan" button.
 
 ### The OWASP taxonomy
 
@@ -252,6 +255,21 @@ report generated from that run.
 | `SECP-032` | PASS | The directory-listing check reports nothing once the flaw is corrected | 1 file(s) |
 | `SECP-033` | PASS | The source-map check reports nothing once the flaw is corrected | 1 file(s) |
 | `SECP-034` | PASS | The verbose-error check reports nothing once the flaw is corrected | 1 file(s) |
+| `SECPL-001` | PASS | An application with no security scope returns 404, not an empty permissive scope | 1 file(s) |
+| `SECPL-002` | PASS | A scope cannot be enabled without a written authorization | 1 file(s) |
+| `SECPL-003` | PASS | A scope cannot be enabled with an empty domain allowlist | 1 file(s) |
+| `SECPL-004` | PASS | Destructive testing and production can never be authorized together | 1 file(s) |
+| `SECPL-005` | PASS | A valid authorization is stored, stamped with who gave it and when | 1 file(s) |
+| `SECPL-006` | PASS | A finding with no evidence is refused rather than stored | 1 file(s) |
+| `SECPL-007` | PASS | A scan is recorded with its findings, and the first sighting is Potential, not Confirmed | 1 file(s) |
+| `SECPL-008` | PASS | The same flaw found again updates its row rather than arriving as a new finding | 2 file(s) |
+| `SECPL-009` | PASS | A false positive with no justification is refused | 1 file(s) |
+| `SECPL-010` | PASS | A justification too short to be one is refused | 1 file(s) |
+| `SECPL-011` | PASS | A properly justified decision is accepted and recorded against the person who made it | 2 file(s) |
+| `SECPL-012` | PASS | A resolved finding detected again becomes a regression, and its disposition does not survive | 1 file(s) |
+| `SECPL-013` | PASS | A regression makes the stored scan's gate decision FAIL | 1 file(s) |
+| `SECPL-014` | PASS | A scan cannot be recorded against an application nobody has authorized | 1 file(s) |
+| `SECPL-015` | PASS | Another tenant cannot read this tenant's security findings | 1 file(s) |
 | `SECQ-001` | PASS | A scan that did not run is REVIEW, never a pass | 1 file(s) |
 | `SECQ-002` | PASS | Two real findings from a real scan block the build | 2 file(s) |
 | `SECQ-003` | PASS | A clean scan never claims the application is secure | 1 file(s) |
@@ -285,4 +303,4 @@ report generated from that run.
 
 ---
 
-Generated from `verification/reports/golden-results.jsonl` for run `SEC-2026-09-24T01-36-09Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.
+Generated from `verification/reports/golden-results.jsonl` for run `SEC-2026-09-24T01-47-11Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.

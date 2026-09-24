@@ -1,0 +1,28 @@
+{
+  "expected": {
+    "id": "VULN_WEAK_COOKIE",
+    "type": "InsecureCookieAttributes",
+    "endpoint": "GET /weak",
+    "severity": "medium",
+    "cwe": "CWE-1004",
+    "owaspWeb": "A05:2021",
+    "detectBy": "A session cookie with no HttpOnly, Secure or SameSite."
+  },
+  "got": {
+    "cwe": "CWE-1004",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A05:2021",
+    "severity": {
+      "exploitability": "difficult",
+      "impact": "serious",
+      "privilegeRequired": "none",
+      "affectedData": "credentials",
+      "exposure": "public",
+      "requiresUnusualConditions": true,
+      "score": 10,
+      "maxScore": 19,
+      "severity": "Medium",
+      "explanation": "Medium (10/19): difficult to exploit, serious impact, no account needed, reaches credentials, publicly reachable, but needs conditions the attacker does not control."
+    }
+  }
+}

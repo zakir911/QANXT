@@ -3455,6 +3455,499 @@ namespace Aira.Infrastructure.Persistence.Migrations
                     b.ToTable("schedules", (string)null);
                 });
 
+            modelBuilder.Entity("Aira.Domain.Security.SecurityBlockedRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Explanation")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("explanation");
+
+                    b.Property<string>("HttpMethod")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("http_method");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<int>("Reason")
+                        .HasColumnType("integer")
+                        .HasColumnName("reason");
+
+                    b.Property<int>("Risk")
+                        .HasColumnType("integer")
+                        .HasColumnName("risk");
+
+                    b.Property<Guid>("SecurityScanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("security_scan_id");
+
+                    b.Property<string>("TestId")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("test_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("url");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_security_blocked_requests");
+
+                    b.HasIndex("SecurityScanId")
+                        .HasDatabaseName("ix_security_blocked_requests_security_scan_id");
+
+                    b.ToTable("security_blocked_requests", (string)null);
+                });
+
+            modelBuilder.Entity("Aira.Domain.Security.SecurityFinding", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("category");
+
+                    b.Property<int>("Confidence")
+                        .HasColumnType("integer")
+                        .HasColumnName("confidence");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<string>("Cwe")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("cwe");
+
+                    b.Property<string>("CweConfidence")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("cwe_confidence");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTimeOffset?>("DispositionAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("disposition_at");
+
+                    b.Property<Guid?>("DispositionByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("disposition_by_user_id");
+
+                    b.Property<string>("DispositionNote")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("disposition_note");
+
+                    b.Property<string>("Endpoint")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("endpoint");
+
+                    b.Property<string>("EvidencePath")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("evidence_path");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<DateTimeOffset>("FirstSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("first_seen_at");
+
+                    b.Property<string>("HttpMethod")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("http_method");
+
+                    b.Property<string>("Impact")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("impact");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_seen_at");
+
+                    b.Property<string>("ObservedAsRole")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("observed_as_role");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("OwaspApiCategory")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("owasp_api_category");
+
+                    b.Property<string>("OwaspEdition")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("owasp_edition");
+
+                    b.Property<string>("OwaspWebCategory")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("owasp_web_category");
+
+                    b.Property<string>("Parameter")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("parameter");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("project_id");
+
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("reference");
+
+                    b.Property<DateTimeOffset?>("RegressedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("regressed_at");
+
+                    b.Property<string>("Remediation")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("remediation");
+
+                    b.Property<string>("ReproductionSteps")
+                        .IsRequired()
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("reproduction_steps");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resolved_at");
+
+                    b.Property<Guid?>("SecurityScanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("security_scan_id");
+
+                    b.Property<int>("Severity")
+                        .HasColumnType("integer")
+                        .HasColumnName("severity");
+
+                    b.Property<string>("SeverityFactorsJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("severity_factors_json");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TestId")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("test_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by_user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_security_findings");
+
+                    b.HasIndex("SecurityScanId")
+                        .HasDatabaseName("ix_security_findings_security_scan_id");
+
+                    b.HasIndex("ApplicationId", "Fingerprint")
+                        .IsUnique()
+                        .HasDatabaseName("ix_security_findings_application_id_fingerprint");
+
+                    b.HasIndex("OrganizationId", "Status")
+                        .HasDatabaseName("ix_security_findings_organization_id_status");
+
+                    b.ToTable("security_findings", (string)null);
+                });
+
+            modelBuilder.Entity("Aira.Domain.Security.SecurityScan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
+                    b.Property<string>("AuthorizationNote")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("authorization_note");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<int>("DurationMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_ms");
+
+                    b.Property<Guid?>("EnvironmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("environment_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<int>("Profile")
+                        .HasColumnType("integer")
+                        .HasColumnName("profile");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("project_id");
+
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("reference");
+
+                    b.Property<int>("RequestsBlocked")
+                        .HasColumnType("integer")
+                        .HasColumnName("requests_blocked");
+
+                    b.Property<int>("RequestsIssued")
+                        .HasColumnType("integer")
+                        .HasColumnName("requests_issued");
+
+                    b.Property<string>("ScopeSnapshotJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("scope_snapshot_json");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TestsExecuted")
+                        .HasColumnType("integer")
+                        .HasColumnName("tests_executed");
+
+                    b.Property<int>("TestsSkipped")
+                        .HasColumnType("integer")
+                        .HasColumnName("tests_skipped");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by_user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_security_scans");
+
+                    b.HasIndex("ApplicationId", "StartedAt")
+                        .HasDatabaseName("ix_security_scans_application_id_started_at");
+
+                    b.HasIndex("OrganizationId", "Reference")
+                        .IsUnique()
+                        .HasDatabaseName("ix_security_scans_organization_id_reference");
+
+                    b.ToTable("security_scans", (string)null);
+                });
+
+            modelBuilder.Entity("Aira.Domain.Security.SecurityScope", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("AllowActiveTesting")
+                        .HasColumnType("boolean")
+                        .HasColumnName("allow_active_testing");
+
+                    b.Property<bool>("AllowDestructiveTesting")
+                        .HasColumnType("boolean")
+                        .HasColumnName("allow_destructive_testing");
+
+                    b.Property<bool>("AllowProduction")
+                        .HasColumnType("boolean")
+                        .HasColumnName("allow_production");
+
+                    b.Property<string>("AllowedApiDomains")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("allowed_api_domains");
+
+                    b.Property<string>("AllowedDomains")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("allowed_domains");
+
+                    b.Property<string>("AllowedPaths")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("allowed_paths");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
+                    b.Property<string>("AuthorizationNote")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("authorization_note");
+
+                    b.Property<DateTimeOffset?>("AuthorizedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("authorized_at");
+
+                    b.Property<Guid?>("AuthorizedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("authorized_by_user_id");
+
+                    b.Property<string>("BlockedPaths")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("blocked_paths");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<Guid?>("EnvironmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("environment_id");
+
+                    b.Property<int>("MaxConcurrentRequests")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_concurrent_requests");
+
+                    b.Property<int>("MaxRequestsPerSecond")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_requests_per_second");
+
+                    b.Property<int>("MaxScanDurationMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_scan_duration_minutes");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by_user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_security_scopes");
+
+                    b.HasIndex("ApplicationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_security_scopes_application_id");
+
+                    b.HasIndex("EnvironmentId")
+                        .HasDatabaseName("ix_security_scopes_environment_id");
+
+                    b.ToTable("security_scopes", (string)null);
+                });
+
             modelBuilder.Entity("Aira.Domain.Testing.Assertion", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4879,6 +5372,37 @@ namespace Aira.Infrastructure.Persistence.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("Aira.Domain.Security.SecurityFinding", b =>
+                {
+                    b.HasOne("Aira.Domain.Security.SecurityScan", "SecurityScan")
+                        .WithMany("Findings")
+                        .HasForeignKey("SecurityScanId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_security_findings_security_scans_security_scan_id");
+
+                    b.Navigation("SecurityScan");
+                });
+
+            modelBuilder.Entity("Aira.Domain.Security.SecurityScope", b =>
+                {
+                    b.HasOne("Aira.Domain.Applications.Application", "Application")
+                        .WithMany()
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_security_scopes_applications_application_id");
+
+                    b.HasOne("Aira.Domain.Projects.Environment", "Environment")
+                        .WithMany()
+                        .HasForeignKey("EnvironmentId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_security_scopes_environments_environment_id");
+
+                    b.Navigation("Application");
+
+                    b.Navigation("Environment");
+                });
+
             modelBuilder.Entity("Aira.Domain.Testing.Assertion", b =>
                 {
                     b.HasOne("Aira.Domain.Testing.TestStep", "TestStep")
@@ -5073,6 +5597,11 @@ namespace Aira.Infrastructure.Persistence.Migrations
                     b.Navigation("QualityGateRules");
 
                     b.Navigation("TestSuites");
+                });
+
+            modelBuilder.Entity("Aira.Domain.Security.SecurityScan", b =>
+                {
+                    b.Navigation("Findings");
                 });
 
             modelBuilder.Entity("Aira.Domain.Testing.TestCase", b =>

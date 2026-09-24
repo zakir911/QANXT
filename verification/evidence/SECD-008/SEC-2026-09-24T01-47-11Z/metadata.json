@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-008",
+  "suite": "Security scanning",
+  "runId": "SEC-2026-09-24T01-47-11Z",
+  "objective": "A token that still authenticates after sign-out is reported",
+  "preconditions": [
+    "VULN_SESSION_SURVIVES_LOGOUT switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Session: the session-logout check against the lab",
+  "expected": "Exactly one SessionNotInvalidatedOnLogout finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "SessionNotInvalidatedOnLogout: A session token keeps working after sign-out (3 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 3
+  },
+  "startedAt": "2026-09-24T01:47:19.065Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "dc60f82",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-008/SEC-2026-09-24T01-47-11Z/vulnerable.json",
+      "bytes": 429,
+      "sha256": "989a95ad58923cf6f89ab1594e2f76484e502d1a90581cf8fe53e465f6b16dc4"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "testId": "SECPL-011",
+  "suite": "Security scopes, scans and findings",
+  "runId": "SEC-2026-09-24T01-47-11Z",
+  "objective": "A properly justified decision is accepted and recorded against the person who made it",
+  "preconditions": [
+    "a stored finding"
+  ],
+  "input": "Triage to Resolved with a justification of substance",
+  "expected": "Stored, carrying dispositionNote and dispositionByUserId, and written to the audit log",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "resolved, decided by 62376bc4-e8da-437a-aba1-3c95b70f58a9; audit entry written",
+  "metrics": null,
+  "startedAt": "2026-09-24T01:47:20.095Z",
+  "durationMs": 32,
+  "build": {
+    "commit": "dc60f82",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "finding.json",
+      "path": "evidence/SECPL-011/SEC-2026-09-24T01-47-11Z/finding.json",
+      "bytes": 910,
+      "sha256": "180d66f3edbe8b7138ca797fb787c6c23ff642004469638511c1b37d5a8ea899"
+    },
+    {
+      "file": "audit.json",
+      "path": "evidence/SECPL-011/SEC-2026-09-24T01-47-11Z/audit.json",
+      "bytes": 759,
+      "sha256": "5f9320a8a91e4ad221ec7b79a0b59095dd779ce998e08d937b5b5206f2355f54"
+    }
+  ]
+}

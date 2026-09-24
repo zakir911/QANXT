@@ -1,0 +1,32 @@
+{
+  "testId": "SECQ-005",
+  "suite": "Security gate, regression and triage",
+  "runId": "SEC-2026-09-24T01-47-11Z",
+  "objective": "A scan whose scope refused most of its requests does not pass",
+  "preconditions": [
+    "a clean scan in which the scope blocked 80 of 100 requests"
+  ],
+  "input": "Clean findings, heavily blocked coverage",
+  "expected": "REVIEW, naming the proportion refused. Coverage is what a reader needs in order to know what a clean result means",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "REVIEW: Only 2 of 5 configured check(s) executed. A result from a partial scan describes the part that ran and nothing else. 80% of the scan's requests were refused by its own scope. The findings describe the part of the application the scan was allowed to reach.",
+  "metrics": null,
+  "startedAt": "2026-09-24T01:47:19.757Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "dc60f82",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-005/SEC-2026-09-24T01-47-11Z/gate.json",
+      "bytes": 2380,
+      "sha256": "c783f896bd3ae274a4ed09f8d8506ab09462a977086c63c03e70fd29e5fe72a7"
+    }
+  ]
+}

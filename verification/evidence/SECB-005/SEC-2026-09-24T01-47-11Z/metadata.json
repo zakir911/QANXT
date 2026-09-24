@@ -1,0 +1,32 @@
+{
+  "testId": "SECB-005",
+  "suite": "Security gate, regression and triage",
+  "runId": "SEC-2026-09-24T01-47-11Z",
+  "objective": "A triage decision carries forward but the severity does not",
+  "preconditions": [
+    "a baseline finding accepted at Medium, now detected at Critical"
+  ],
+  "input": "The same fingerprint with a higher severity in this scan",
+  "expected": "The acceptance carries forward and the new severity is kept. A flaw that got worse since somebody accepted it should not inherit the old severity along with the decision",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "status Accepted carried forward; severity Critical (was Medium)",
+  "metrics": null,
+  "startedAt": "2026-09-24T01:47:19.767Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "dc60f82",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "comparison.json",
+      "path": "evidence/SECB-005/SEC-2026-09-24T01-47-11Z/comparison.json",
+      "bytes": 809,
+      "sha256": "17dcbc7e36fdf3e81e95e257c96367e581164138169c5605563f6f98687cbd75"
+    }
+  ]
+}

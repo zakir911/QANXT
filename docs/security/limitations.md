@@ -35,21 +35,34 @@ detector and the wrong way to estimate how it will do against an application nob
 
 `SECN-003` records this as not measurable here. The number describes this lab.
 
-## Findings are not persisted to the database
+## There is no security surface in the console
 
-The scan engine, the severity model, the gate, the regression comparison and the triage
-workflow are all executed code with tests behind them. They are driven by the golden suites
-rather than through stored scans, so:
+Scopes, scans, findings and triage are persisted and exposed through the API
+(`/api/v1/security/...`), and the whole path is verified end to end by `SECPL-001` through
+`SECPL-015`: the authorization, the refusals, the stored findings, the regression, and the
+triage decision that needs a person.
 
-- **IMPLEMENTED and VERIFIED**: every check, the scope guard, the severity model, the gate, the
-  regression comparison, the triage workflow, the evidence writer, the RBAC matrix.
-- **IMPLEMENTED, NOT TESTED end to end**: scan history across deployments, a findings list in
-  the console, trend lines over time. The domain entities (`SecurityScan`, `SecurityFinding`,
-  `SecurityBlockedRequest`) exist; no migration creates their tables and no controller exposes
-  them.
+What does not exist is a screen. There is no findings list, no scan history view and no trend
+line in the web console. Everything is reachable through the API and nothing is reachable by
+clicking, so:
 
-This is the largest gap between what the brief describes and what runs. It is recorded here
-and in the security verification report rather than left for someone to discover.
+- **IMPLEMENTED and VERIFIED**: every check, the scope guard, the severity model, the gate,
+  the regression comparison, the triage workflow, the evidence writer, the RBAC matrix, and
+  the stored scope/scan/finding lifecycle through the API.
+- **IMPLEMENTED, NOT TESTED**: nothing.
+- **NOT IMPLEMENTED**: the console screens, and trend analysis over stored scans. The data to
+  build both is in the database; the queries and the pages are not written.
+
+## The scanner does not run inside the worker
+
+The engine that issues security requests is driven by the golden suites, and the API records
+what it found. A scan is not yet something you start from the platform and watch — there is no
+security job type in the worker queue, so `POST /api/v1/security/scans` is an ingestion
+endpoint rather than the far end of a "start a scan" button.
+
+This is the largest remaining gap between what the brief describes and what runs. It is
+recorded here and in the security verification report rather than left for someone to
+discover.
 
 ## Authenticated scanning depends on the application's own sign-in
 

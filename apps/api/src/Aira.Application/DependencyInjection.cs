@@ -43,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<IScheduleService, ScheduleService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<ITestDataService, TestDataService>();
+        services.AddScoped<Security.ISecurityScanService, Security.SecurityScanService>();
         services.AddScoped<IRunComparisonService, RunComparisonService>();
         services.AddScoped<IAuditQueryService, AuditQueryService>();
         services.AddScoped<IAiRequestQueryService, AiRequestQueryService>();

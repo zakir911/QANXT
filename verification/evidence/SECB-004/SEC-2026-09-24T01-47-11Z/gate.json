@@ -1,0 +1,68 @@
+{
+  "outcome": 2,
+  "outcomeName": "FAIL",
+  "blocked": true,
+  "rules": [
+    {
+      "name": "A security scan ran",
+      "passed": true,
+      "measured": true,
+      "explanation": "7 request(s) issued under the standard profile."
+    },
+    {
+      "name": "Enough of the configured checks executed",
+      "passed": false,
+      "measured": true,
+      "explanation": "2 of 5 configured check(s) executed (40%; the policy requires 80%)."
+    },
+    {
+      "name": "The scan reached what it was aiming at",
+      "passed": true,
+      "measured": true,
+      "explanation": "0 of 7 request(s) were refused by the scope (0%)."
+    },
+    {
+      "name": "Every suppressed finding carries a written justification and a name",
+      "passed": true,
+      "measured": true,
+      "explanation": "No finding is suppressed without a reason."
+    },
+    {
+      "name": "Every finding carries evidence",
+      "passed": true,
+      "measured": true,
+      "explanation": "Every finding carries at least one request/response exchange."
+    },
+    {
+      "name": "No previously resolved finding has reappeared",
+      "passed": false,
+      "measured": true,
+      "explanation": "2 finding(s) previously resolved have been detected again: BOLA (High), BrokenFunctionLevelAuthorization (High)"
+    },
+    {
+      "name": "No new finding at or above High",
+      "passed": true,
+      "measured": true,
+      "explanation": "No new finding at or above High with better than low confidence."
+    },
+    {
+      "name": "No open finding at or above Critical",
+      "passed": true,
+      "measured": true,
+      "explanation": "No pre-existing finding at or above Critical."
+    }
+  ],
+  "reasons": [
+    "Only 2 of 5 configured check(s) executed. A result from a partial scan describes the part that ran and nothing else.",
+    "2 security finding(s) that were fixed have come back. A regression fails at any severity: something that was repaired has been undone."
+  ],
+  "summary": "BLOCKED. 2 open finding(s) (2 High) from 2 of 5 configured check(s), 7 request(s) issued. Findings describe what these tests reached; areas they did not reach are untested, not clean. Untested: DOM-based XSS (needs a browser-driven scan); cloud metadata (off by default).",
+  "counts": {
+    "total": 2,
+    "open": 2,
+    "suppressed": 0,
+    "regressions": 2,
+    "newFailing": 0,
+    "evidenceless": 0
+  }
+}

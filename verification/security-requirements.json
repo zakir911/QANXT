@@ -4,7 +4,8 @@
   "suites": [
     "security-scan",
     "security-gate",
-    "security"
+    "security",
+    "security-platform"
   ],
   "requirements": [
     {
@@ -444,6 +445,70 @@
         "SECF-001",
         "SECF-005",
         "SECQ-011"
+      ]
+    },
+    {
+      "id": "SEC-R51",
+      "statement": "A security scope is stored with the written authorization, the person who gave it and when, and cannot be enabled without one.",
+      "verifiedBy": [
+        "SECPL-001",
+        "SECPL-002",
+        "SECPL-003",
+        "SECPL-005"
+      ]
+    },
+    {
+      "id": "SEC-R52",
+      "statement": "Destructive testing and production can never be authorized together, refused where somebody configures it rather than one request at a time.",
+      "verifiedBy": [
+        "SECPL-004"
+      ]
+    },
+    {
+      "id": "SEC-R53",
+      "statement": "A scan cannot be recorded against an application with no enabled scope, and a finding with no evidence is refused rather than stored.",
+      "verifiedBy": [
+        "SECPL-006",
+        "SECPL-014"
+      ]
+    },
+    {
+      "id": "SEC-R54",
+      "statement": "A stored finding's first sighting is Potential; reproduction across scans is what makes it Confirmed.",
+      "verifiedBy": [
+        "SECPL-007",
+        "SECPL-008"
+      ]
+    },
+    {
+      "id": "SEC-R55",
+      "statement": "Stored findings have a stable identity: the same flaw reported again updates its row and keeps the new severity.",
+      "verifiedBy": [
+        "SECPL-008"
+      ]
+    },
+    {
+      "id": "SEC-R56",
+      "statement": "Triage through the API refuses a suppression with no justification or one too short to be one, and records the decision in the audit log.",
+      "verifiedBy": [
+        "SECPL-009",
+        "SECPL-010",
+        "SECPL-011"
+      ]
+    },
+    {
+      "id": "SEC-R57",
+      "statement": "A resolved finding detected again becomes a regression, its disposition does not survive, and the stored scan's gate reads FAIL.",
+      "verifiedBy": [
+        "SECPL-012",
+        "SECPL-013"
+      ]
+    },
+    {
+      "id": "SEC-R58",
+      "statement": "Security findings, scans and scopes are invisible to another tenant.",
+      "verifiedBy": [
+        "SECPL-015"
       ]
     }
   ]

@@ -1,0 +1,16 @@
+{
+  "case": "a POST declared passive",
+  "why": "The declared risk can be raised by the verb and never lowered. A check cannot talk its way past the guard by understating what it is about to do.",
+  "decision": {
+    "allowed": false,
+    "reason": "activeTestingNotAllowed",
+    "explanation": "The scope does not permit active testing.",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain",
+      "path",
+      "method"
+    ]
+  }
+}

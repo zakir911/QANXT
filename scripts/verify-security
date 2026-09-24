@@ -26,10 +26,11 @@ for arg in "$@"; do [[ "$arg" == "--no-platform" ]] && WITH_PLATFORM=false; done
 
 export GOLDEN_RUN_ID="${GOLDEN_RUN_ID:-SEC-$(date -u +%Y-%m-%dT%H-%M-%SZ)}"
 
-# The scanning and gate suites need only the lab. The `security` suite exercises AIRA's own
-# tenancy, credential handling and target policy through its API, so it needs the platform.
+# The scanning and gate suites need only the lab. `security-platform` exercises scopes, scans,
+# findings and triage through AIRA's own API, and `security` exercises AIRA's own tenancy,
+# credential handling and target policy — both need the platform.
 SUITES=(security-scan security-gate)
-$WITH_PLATFORM && SUITES+=(security)
+$WITH_PLATFORM && SUITES+=(security-platform security)
 
 if $WITH_PLATFORM; then
   section "Infrastructure"

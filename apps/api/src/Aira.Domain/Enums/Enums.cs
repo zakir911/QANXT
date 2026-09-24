@@ -364,5 +364,10 @@ public enum AuditAction
     // Schedules run without anybody present, so who changed one and when it fired are the
     // only record of why a run exists at all.
     ScheduleCreated = 30, ScheduleUpdated = 31, ScheduleDeleted = 32,
-    ScheduleFired = 33, ScheduleDisabledAutomatically = 34
+    ScheduleFired = 33, ScheduleDisabledAutomatically = 34,
+    // Security testing. Every one of these is a thing somebody has to be accountable for:
+    // authorizing an application to be tested, running a scan against it, and setting a
+    // finding aside. An audit trail is the whole reason a suppression needs a name.
+    SecurityScopeAuthorized = 35, SecurityScopeDisabled = 36,
+    SecurityScanRecorded = 37, SecurityFindingTriaged = 38
 }

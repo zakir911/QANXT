@@ -38,6 +38,7 @@ const SUITES = {
   security: () => import('./suites/security.mjs'),
   'security-scan': () => import('./suites/security-scan.mjs'),
   'security-gate': () => import('./suites/security-gate.mjs'),
+  'security-platform': () => import('./suites/security-platform.mjs'),
   reliability: () => import('./suites/reliability.mjs'),
   performance: () => import('./suites/performance.mjs')
 };
