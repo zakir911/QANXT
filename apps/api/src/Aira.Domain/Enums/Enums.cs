@@ -344,10 +344,34 @@ public enum ApiContractSource
 public enum AgentPhase
 {
     Pending = 0, Exploring = 1, Modelling = 2, Prioritizing = 3, Generating = 4,
-    Executing = 5, Investigating = 6, Proposing = 7, Done = 8
+    Executing = 5, Investigating = 6, Proposing = 7, Done = 8,
+    /// <summary>Drawing up what it intends to test, before testing any of it.</summary>
+    Planning = 9,
+    /// <summary>Comparing what the application can do against what is tested.</summary>
+    AnalysingGaps = 10,
+    /// <summary>Asking the security engine to scan what it selected.</summary>
+    SecurityTesting = 11,
+    /// <summary>Walking areas the existing tests do not reach.</summary>
+    ExploratoryTesting = 12,
+    /// <summary>Grouping failures that share a cause.</summary>
+    Correlating = 13,
+    /// <summary>Waiting for a person to answer a question it cannot answer itself.</summary>
+    AwaitingApproval = 14
 }
 
-public enum AgentRunStatus { Queued = 0, Running = 1, Completed = 2, Failed = 3, Cancelled = 4, Stopped = 5 }
+public enum AgentRunStatus
+{
+    Queued = 0, Running = 1, Completed = 2, Failed = 3, Cancelled = 4, Stopped = 5,
+    /// <summary>
+    /// The pass has a plan and is waiting for somebody to approve it.
+    /// </summary>
+    /// <remarks>
+    /// A state of its own rather than a flag on Running, because the two need different
+    /// answers to "is anything happening". A run waiting on a person is not stuck and is not
+    /// working, and a dashboard that cannot tell them apart will show one as the other.
+    /// </remarks>
+    AwaitingApproval = 6
+}
 
 /// <summary>What an agent concluded. Every one of these is a proposal for a person.</summary>
 public enum AgentFindingKind
@@ -397,5 +421,12 @@ public enum AuditAction
     // A scan that was authorized and then never ran is a gap in what somebody believes was
     // tested. Nothing else records it: the row's own status says what happened, but only the
     // trail says it happened while someone was expecting a result.
-    SecurityScanAbandoned = 40
+    SecurityScanAbandoned = 40,
+    /// <summary>A person approved what an autonomous pass proposed to test.</summary>
+    AgentPlanApproved = 41,
+    /// <summary>A person refused it. Recorded as prominently as an approval: a plan nobody
+    /// ran is a coverage decision too.</summary>
+    AgentPlanRejected = 42,
+    /// <summary>A person answered a question the agent stopped to ask mid-run.</summary>
+    AgentApprovalDecided = 43
 }

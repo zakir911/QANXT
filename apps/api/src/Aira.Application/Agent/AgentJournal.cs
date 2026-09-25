@@ -26,6 +26,9 @@ public sealed record AgentDecisionRecord(
     bool Allowed = true,
     AgentDenial Denial = AgentDenial.None,
     AgentActionRisk? Risk = null,
+    /// <summary>The person who made this decision, where one did. Stored in its own column
+    /// rather than in the evidence, which is masked.</summary>
+    Guid? ActorUserId = null,
     Guid? AiRequestId = null,
     decimal AiCostUsd = 0m);
 
@@ -123,6 +126,9 @@ public sealed class AgentJournal : IAgentJournal
             Allowed = decision.Allowed,
             Denial = decision.Denial == AgentDenial.None ? null : decision.Denial.ToString(),
             Risk = decision.Risk?.ToString(),
+            // Not masked. An identifier is not free text, and the masker cannot tell one from
+            // a credential.
+            ActorUserId = decision.ActorUserId,
             AiRequestId = decision.AiRequestId,
             AiCostUsd = decision.AiCostUsd,
             OccurredAt = _clock.UtcNow

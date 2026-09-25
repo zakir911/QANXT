@@ -76,6 +76,18 @@ public class AgentRun : BaseEntity, ITenantOwned, IAuditable
     /// <summary>How many journeys this pass has recorded, against <see cref="MaxNewJourneys"/>.</summary>
     public int JourneysCreated { get; set; }
 
+    /// <summary>
+    /// Where to pick up, when a pass that stopped for a person is queued again.
+    /// </summary>
+    /// <remarks>
+    /// Set when an approved plan re-queues the run. The phases before it are skipped rather
+    /// than repeated: crawling again would change the application map underneath a plan
+    /// somebody approved against the old one, and proposing a second plan would ask the same
+    /// person the same question about work they have already authorized. Cleared as the pass
+    /// resumes, so a later restart is not silently treated as a resume.
+    /// </remarks>
+    public AgentPhase? ResumeFromPhase { get; set; }
+
     // ---- What it did -------------------------------------------------------
     public Guid? DiscoveryRunId { get; set; }
     public Guid? TestSuiteId { get; set; }

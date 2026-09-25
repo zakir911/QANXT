@@ -5,6 +5,7 @@ using Aira.Application.Security;
 using Aira.Application.Testing;
 using Aira.Domain.Agent;
 using Aira.Domain.Enums;
+using Aira.Domain.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -39,10 +40,13 @@ public sealed class AgentLoop : IAgentLoop
     private readonly ITenantContext _tenant;
     private readonly IClock _clock;
     private readonly SecretMasker _masker;
+    private readonly IAgentJournal _journal;
+    private readonly IApplicationContextService _context;
     private readonly ILogger<AgentLoop> _logger;
 
     public AgentLoop(IAiraDbContext db, IDiscoveryService discovery, ITestGenerationService generation,
         ITestRunService runs, ITenantContext tenant, IClock clock, SecretMasker masker,
+        IAgentJournal journal, IApplicationContextService context,
         ILogger<AgentLoop> logger)
     {
         _db = db;
@@ -52,6 +56,8 @@ public sealed class AgentLoop : IAgentLoop
         _tenant = tenant;
         _clock = clock;
         _masker = masker;
+        _journal = journal;
+        _context = context;
         _logger = logger;
     }
 
@@ -74,12 +80,23 @@ public sealed class AgentLoop : IAgentLoop
         {
             var state = new PassState();
 
-            if (!await PhaseAsync(run, ++order, AgentPhase.Exploring, deadline, ct,
+            // A resumed pass already crawled and already had its plan answered. Re-crawling
+            // would change the application map underneath a plan somebody approved against the
+            // old one, so exploration is skipped and the model is simply re-read.
+            var resuming = run.ResumeFromPhase is not null;
+            if (resuming) run.ResumeFromPhase = null;
+
+            if (!resuming && !await PhaseAsync(run, ++order, AgentPhase.Exploring, deadline, ct,
                     () => ExploreAsync(run, deadline, ct))) { }
             else if (!await PhaseAsync(run, ++order, AgentPhase.Modelling, deadline, ct,
                     () => ModelAsync(run, state, ct))) { }
             else if (!await PhaseAsync(run, ++order, AgentPhase.Prioritizing, deadline, ct,
                     () => PrioritizeAsync(run, state, ct))) { }
+            // Planning is skipped on a resume: the plan was proposed and answered before the
+            // run was queued again, and proposing a second one would ask the same person the
+            // same question about work they have already authorized.
+            else if (!resuming && !await PhaseAsync(run, ++order, AgentPhase.Planning, deadline, ct,
+                    () => PlanAsync(run, state, ct))) { }
             else if (!await PhaseAsync(run, ++order, AgentPhase.Generating, deadline, ct,
                     () => GenerateAsync(run, state, ct))) { }
             else if (!await PhaseAsync(run, ++order, AgentPhase.Executing, deadline, ct,
@@ -123,11 +140,203 @@ public sealed class AgentLoop : IAgentLoop
 
     /// <summary>Carries what each phase learned to the next one. Deliberately in memory and
     /// per-pass: the agent has no state that outlives its own run.</summary>
+
+    // ---- Plan ------------------------------------------------------------------
+
+    /// <summary>
+    /// Draws up what the pass intends to test, and stops for a person if the policy says so.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Everything the plan rests on is counted from the graph, the coverage already stored, the
+    /// security scope and the operator's own business context. Nothing is asked of a model: this
+    /// is the screen where somebody authorizes work against a live environment, and a plan whose
+    /// numbers cannot be traced is a plan nobody can refuse intelligently.
+    /// </para>
+    /// <para>
+    /// If the run requires approval, the pass stops here rather than waiting. A pass holding a
+    /// background slot open until somebody wakes up is a pass starving every other run, so the
+    /// plan is recorded, the run goes to AwaitingApproval, and approving it queues the run again
+    /// to resume from generation.
+    /// </para>
+    /// </remarks>
+    private async Task<PhaseOutcome> PlanAsync(AgentRun run, PassState state, CancellationToken ct)
+    {
+        var context = await _context.GetAsync(run.ApplicationId, ct);
+        var business = context.IsSuccess ? context.Value! : ApplicationContextView.Empty(run.ApplicationId);
+
+        var endpoints = await _db.ApiEndpoints.AsNoTracking()
+            .CountAsync(e => e.ApplicationId == run.ApplicationId, ct);
+        var journeys = await _db.Journeys.AsNoTracking()
+            .CountAsync(j => j.ApplicationId == run.ApplicationId, ct);
+        var forms = state.Pages.Count(p => p.Kind == PageKind.Form);
+        var authPages = state.Pages.Count(p => p.RequiresAuthentication);
+
+        var scope = await _db.SecurityScopes.AsNoTracking()
+            .FirstOrDefaultAsync(s => s.ApplicationId == run.ApplicationId, ct);
+        var securityAuthorized = scope is { Enabled: true }
+            && !string.IsNullOrWhiteSpace(scope.AuthorizationNote);
+
+        var openFindings = securityAuthorized
+            ? await _db.SecurityFindings.AsNoTracking().CountAsync(
+                f => f.ApplicationId == run.ApplicationId
+                     && (f.Status == SecurityFindingStatus.Confirmed
+                         || f.Status == SecurityFindingStatus.Regressed), ct)
+            : 0;
+
+        // Coverage that exists, by dimension, so the plan can say how much of it is new work.
+        var existingUi = await _db.TestCases.AsNoTracking().CountAsync(
+            t => t.ApplicationId == run.ApplicationId && t.Kind == TestCaseKind.Ui && t.DeletedAt == null, ct);
+        var existingApi = await _db.TestCases.AsNoTracking().CountAsync(
+            t => t.ApplicationId == run.ApplicationId && t.Kind == TestCaseKind.Api && t.DeletedAt == null, ct);
+
+        var recentFailures = await _db.TestExecutions.AsNoTracking()
+            .Where(e => e.TestCase!.ApplicationId == run.ApplicationId
+                        && e.Status == ExecutionStatus.Failed)
+            .OrderByDescending(e => e.StartedAt)
+            .Take(50)
+            .CountAsync(ct);
+
+        // Pages a person excluded are not counted into anything. An excluded area is not a
+        // gap, and proposing work against it would be proposing to disobey.
+        var plannablePages = state.Pages.Count(p => !business.Excludes(p.Route));
+
+        var inputs = new PlanningInputs(
+            Objective: run.Objective ?? run.Name,
+            Pages: plannablePages,
+            Endpoints: endpoints,
+            Journeys: journeys,
+            Roles: Math.Max(1, authPages > 0 ? 2 : 1),
+            Forms: forms,
+            UploadWorkflows: 0,
+            Gaps: new Dictionary<TestDimension, int>
+            {
+                [TestDimension.Ui] = Math.Max(0, plannablePages - existingUi),
+                [TestDimension.Api] = Math.Max(0, endpoints - existingApi),
+                [TestDimension.Accessibility] = plannablePages
+            },
+            ExistingTests: new Dictionary<TestDimension, int>
+            {
+                [TestDimension.Ui] = existingUi,
+                [TestDimension.Api] = existingApi
+            },
+            CriticalAreas: business.CriticalJourneys.Concat(business.HighRiskAreas).Distinct().ToList(),
+            ExcludedAreas: business.ExcludedAreas,
+            SecurityAuthorized: securityAuthorized,
+            OpenSecurityFindings: openFindings,
+            RecentFailures: recentFailures,
+            ObservedSecondsPerTest: await ObservedSecondsAsync(run.ApplicationId, ct));
+
+        var proposed = AgentPlanModel.Build(inputs);
+
+        var plan = new AgentTestPlan
+        {
+            OrganizationId = run.OrganizationId,
+            AgentRunId = run.Id,
+            ApplicationId = run.ApplicationId,
+            Objective = inputs.Objective,
+            PagesDiscovered = inputs.Pages,
+            EndpointsDiscovered = inputs.Endpoints,
+            JourneysKnown = inputs.Journeys,
+            RolesKnown = inputs.Roles,
+            Summary = proposed.Summary,
+            NotCovered = string.Join('\n', proposed.NotCovered),
+            Status = AgentPlanStatus.Proposed
+        };
+        foreach (var category in proposed.Categories)
+            plan.Items.Add(new AgentTestPlanItem
+            {
+                OrganizationId = run.OrganizationId,
+                Category = category.Category,
+                TestCount = category.TestCount,
+                ToGenerate = category.ToGenerate,
+                Why = category.Why,
+                Risk = category.Risk,
+                Coverage = category.Coverage,
+                EstimatedSeconds = category.EstimatedSeconds,
+                EstimateFromHistory = category.EstimateFromHistory,
+                PotentialImpact = category.PotentialImpact,
+                Included = true
+            });
+
+        _db.AgentTestPlans.Add(plan);
+        await _db.SaveChangesAsync(ct);
+        state.PlanId = plan.Id;
+
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.Planning,
+            $"Proposed {proposed.TotalTests} test(s) across {proposed.Categories.Count} category(ies).",
+            proposed.Summary,
+            new[]
+            {
+                new AgentEvidence("pagesPlannable", inputs.Pages.ToString()),
+                new AgentEvidence("endpointsDiscovered", inputs.Endpoints.ToString()),
+                new AgentEvidence("journeysKnown", inputs.Journeys.ToString()),
+                new AgentEvidence("securityAuthorized", securityAuthorized.ToString()),
+                new AgentEvidence("openSecurityFindings", openFindings.ToString()),
+                new AgentEvidence("criticalAreasNamedByAPerson",
+                    inputs.CriticalAreas.Count == 0 ? "none" : string.Join(", ", inputs.CriticalAreas)),
+                new AgentEvidence("excludedByAPerson",
+                    inputs.ExcludedAreas.Count == 0 ? "none" : string.Join(", ", inputs.ExcludedAreas))
+            },
+            Tool: null,
+            Result: $"{proposed.TotalTests} test(s) proposed."), ct);
+
+        if (!run.RequireApprovalForHighRisk)
+            return PhaseOutcome.Ok(
+                $"Planned {proposed.TotalTests} test(s) across {proposed.Categories.Count} category(ies).",
+                "This run does not require plan approval, so the plan proceeds as proposed.");
+
+        // Stop rather than wait. Approving the plan queues the run again to resume from
+        // generation, so nothing holds a background slot open waiting for a person.
+        run.Status = AgentRunStatus.AwaitingApproval;
+        run.Phase = AgentPhase.AwaitingApproval;
+        run.StopReason = $"Waiting for somebody to approve the plan: {proposed.TotalTests} "
+                       + $"test(s) across {proposed.Categories.Count} category(ies).";
+        await _db.SaveChangesAsync(ct);
+
+        return PhaseOutcome.Stop(
+            $"Proposed {proposed.TotalTests} test(s) and stopped for approval.",
+            "Nothing has been tested. A plan is a proposal, and this run requires a person to "
+            + "approve one before any of it runs.");
+    }
+
+    /// <summary>
+    /// How long a test of each kind has actually taken on this application.
+    /// </summary>
+    /// <remarks>
+    /// Read from stored executions rather than guessed, and absent where there are none — the
+    /// plan says which of its estimates rest on history and which on a default, and it can only
+    /// say that if the two are distinguishable here.
+    /// </remarks>
+    private async Task<IReadOnlyDictionary<TestDimension, int>> ObservedSecondsAsync(
+        Guid applicationId, CancellationToken ct)
+    {
+        var observed = new Dictionary<TestDimension, int>();
+
+        var byKind = await _db.TestExecutions.AsNoTracking()
+            .Where(e => e.TestCase!.ApplicationId == applicationId && e.DurationMs > 0)
+            .GroupBy(e => e.TestCase!.Kind)
+            .Select(g => new { Kind = g.Key, AverageMs = g.Average(e => e.DurationMs) })
+            .ToListAsync(ct);
+
+        foreach (var entry in byKind)
+        {
+            var dimension = entry.Kind == TestCaseKind.Api ? TestDimension.Api : TestDimension.Ui;
+            var seconds = (int)Math.Ceiling(entry.AverageMs / 1000.0);
+            if (seconds > 0) observed[dimension] = seconds;
+        }
+
+        return observed;
+    }
+
     private sealed class PassState
     {
         public List<PageCandidate> Pages { get; } = new();
         public List<(PageCandidate Page, RiskAssessment Assessment)> Ranked { get; } = new();
         public List<Guid> GeneratedTestCaseIds { get; } = new();
+        /// <summary>The plan this pass is working to, once one has been proposed.</summary>
+        public Guid? PlanId { get; set; }
     }
 
     private sealed record PageCandidate(Guid Id, string Route, string NormalizedUrl, PageKind Kind,

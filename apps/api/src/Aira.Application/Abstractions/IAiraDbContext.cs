@@ -45,6 +45,8 @@ public interface IAiraDbContext
     DbSet<AgentApproval> AgentApprovals { get; }
     DbSet<ApplicationContext> ApplicationContexts { get; }
     DbSet<ApplicationMemory> ApplicationMemories { get; }
+    DbSet<AgentTestPlan> AgentTestPlans { get; }
+    DbSet<AgentTestPlanItem> AgentTestPlanItems { get; }
     DbSet<ApplicationPage> ApplicationPages { get; }
     DbSet<PageTransition> PageTransitions { get; }
     DbSet<ApplicationElement> ApplicationElements { get; }

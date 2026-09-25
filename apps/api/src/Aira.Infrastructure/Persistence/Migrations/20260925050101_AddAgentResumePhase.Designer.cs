@@ -3,6 +3,7 @@ using System;
 using Aira.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Aira.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AiraDbContext))]
-    partial class AiraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260925050101_AddAgentResumePhase")]
+    partial class AddAgentResumePhase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,10 +120,6 @@ namespace Aira.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid?>("ActorUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("actor_user_id");
-
                     b.Property<Guid>("AgentRunId")
                         .HasColumnType("uuid")
                         .HasColumnName("agent_run_id");
@@ -201,9 +200,6 @@ namespace Aira.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_agent_decisions");
-
-                    b.HasIndex("ActorUserId")
-                        .HasDatabaseName("ix_agent_decisions_actor_user_id");
 
                     b.HasIndex("AgentRunId", "Sequence")
                         .IsUnique()

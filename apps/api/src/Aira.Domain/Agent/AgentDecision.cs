@@ -65,6 +65,18 @@ public class AgentDecision : BaseEntity, ITenantOwned
     /// <summary>The risk the action was judged at, after the tool's floor was applied.</summary>
     public string? Risk { get; set; }
 
+    /// <summary>
+    /// The person behind this decision, where one made it rather than the agent.
+    /// </summary>
+    /// <remarks>
+    /// A typed column rather than a line of evidence, because evidence is masked on the way in
+    /// and the masker cannot tell an identifier from a credential — a bare GUID is a perfectly
+    /// good shape for an API key, so one written into prose comes back redacted. Weakening the
+    /// masker to preserve it would trade a real protection for a convenience. An id in its own
+    /// column is never free text and never masked, so the trail stays complete.
+    /// </remarks>
+    public Guid? ActorUserId { get; set; }
+
     /// <summary>The model call behind this, if any. Null means the decision was deterministic
     /// — which is the majority and is meant to be.</summary>
     public Guid? AiRequestId { get; set; }

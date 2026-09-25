@@ -16,7 +16,16 @@ namespace Aira.Api.Controllers;
 public sealed class AgentController : ApiControllerBase
 {
     private readonly IAgentService _agent;
-    public AgentController(IAgentService agent) => _agent = agent;
+    private readonly IAgentPlanService _plans;
+    private readonly IApplicationContextService _context;
+
+    public AgentController(
+        IAgentService agent, IAgentPlanService plans, IApplicationContextService context)
+    {
+        _agent = agent;
+        _plans = plans;
+        _context = context;
+    }
 
     /// <summary>Queues a bounded pass. Returns immediately; the pass runs in the background.</summary>
     [HttpPost("runs")]
@@ -43,4 +52,39 @@ public sealed class AgentController : ApiControllerBase
     [RequirePermission(Permissions.AgentRun)]
     public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
         => FromResult(await _agent.CancelAsync(id, ct));
+
+    // ---- The plan ----------------------------------------------------------
+
+    /// <summary>What a pass proposes to test, with the reasoning behind each category.</summary>
+    [HttpGet("runs/{id:guid}/plan")]
+    public async Task<IActionResult> GetPlan(Guid id, CancellationToken ct)
+        => FromResult(await _plans.GetAsync(id, ct));
+
+    /// <summary>
+    /// Approve, change or reject a plan.
+    /// </summary>
+    /// <remarks>
+    /// Needs <c>execution:run</c> rather than <c>agent:run</c>: this is the moment the work
+    /// described actually starts against a live environment, and starting a run is the
+    /// permission that governs that everywhere else in the product.
+    /// </remarks>
+    [HttpPost("runs/{id:guid}/plan/decision")]
+    [RequirePermission(Permissions.ExecutionRun)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> DecidePlan(
+        Guid id, [FromBody] PlanDecisionRequest request, CancellationToken ct)
+        => FromResult(await _plans.DecideAsync(id, request, ct));
+
+    // ---- Business context --------------------------------------------------
+
+    /// <summary>What a person has said about this application's priorities and exclusions.</summary>
+    [HttpGet("applications/{applicationId:guid}/context")]
+    public async Task<IActionResult> GetContext(Guid applicationId, CancellationToken ct)
+        => FromResult(await _context.GetAsync(applicationId, ct));
+
+    [HttpPut("applications/{applicationId:guid}/context")]
+    [RequirePermission(Permissions.ApplicationWrite)]
+    public async Task<IActionResult> SetContext(
+        Guid applicationId, [FromBody] ApplicationContextRequest request, CancellationToken ct)
+        => FromResult(await _context.SetAsync(applicationId, request, ct));
 }

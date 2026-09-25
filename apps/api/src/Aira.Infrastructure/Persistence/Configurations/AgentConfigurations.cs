@@ -27,6 +27,7 @@ public class AgentDecisionConfiguration : IEntityTypeConfiguration<AgentDecision
         b.Property(x => x.Denial).HasMaxLength(64);
         b.Property(x => x.Risk).HasMaxLength(32);
         b.Property(x => x.AiCostUsd).HasPrecision(12, 6);
+        b.HasIndex(x => x.ActorUserId);
 
         b.HasOne(x => x.AgentRun).WithMany(r => r.Decisions)
             .HasForeignKey(x => x.AgentRunId).OnDelete(DeleteBehavior.Cascade);
@@ -90,5 +91,44 @@ public class ApplicationMemoryConfiguration : IEntityTypeConfiguration<Applicati
         b.HasIndex(x => new { x.ApplicationId, x.LastSeenAt });
         b.Property(x => x.Subject).HasMaxLength(500).IsRequired();
         b.Property(x => x.Fact).HasMaxLength(4000).IsRequired();
+    }
+}
+
+/// <summary>
+/// The plan a person approves before anything runs.
+/// </summary>
+/// <remarks>
+/// A plan belongs to exactly one pass, and the items cascade with it: a plan without its
+/// categories is a summary with nothing behind it, which is the shape this whole phase exists
+/// to avoid.
+/// </remarks>
+public class AgentTestPlanConfiguration : IEntityTypeConfiguration<AgentTestPlan>
+{
+    public void Configure(EntityTypeBuilder<AgentTestPlan> b)
+    {
+        b.ToTable("agent_test_plans");
+        b.HasIndex(x => x.AgentRunId);
+        b.Property(x => x.Objective).HasMaxLength(1000);
+        b.Property(x => x.Summary).HasMaxLength(4000);
+        b.Property(x => x.NotCovered).HasMaxLength(8000);
+        b.Property(x => x.DecidedByEmail).HasMaxLength(320);
+        b.Property(x => x.DecisionNote).HasMaxLength(2000);
+
+        b.HasOne(x => x.AgentRun).WithMany()
+            .HasForeignKey(x => x.AgentRunId).OnDelete(DeleteBehavior.Cascade);
+        b.HasMany(x => x.Items).WithOne(i => i.AgentTestPlan)
+            .HasForeignKey(i => i.AgentTestPlanId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+public class AgentTestPlanItemConfiguration : IEntityTypeConfiguration<AgentTestPlanItem>
+{
+    public void Configure(EntityTypeBuilder<AgentTestPlanItem> b)
+    {
+        b.ToTable("agent_test_plan_items");
+        b.HasIndex(x => new { x.AgentTestPlanId, x.Category }).IsUnique();
+        b.Property(x => x.Why).HasMaxLength(2000).IsRequired();
+        b.Property(x => x.Coverage).HasMaxLength(1000);
+        b.Property(x => x.PotentialImpact).HasMaxLength(1000);
     }
 }

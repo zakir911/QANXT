@@ -159,6 +159,39 @@ public class AgentJournalTests
     }
 
     [Fact]
+    public async Task An_identifier_survives_masking_because_it_is_not_free_text()
+    {
+        var (journal, db, runId) = Create();
+        var actor = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        await journal.RecordAsync(runId, Decision() with { ActorUserId = actor });
+
+        // Found by writing a test that expected a GUID in the evidence and watching it come
+        // back redacted: the masker cannot tell an identifier from a credential, and a bare
+        // GUID is a perfectly good shape for an API key. Weakening the masker to preserve it
+        // would trade a real protection for a convenience, so identifiers get their own
+        // column and the trail stays complete without touching the masker.
+        var stored = await db.AgentDecisions.SingleAsync();
+        stored.ActorUserId.Should().Be(actor);
+    }
+
+    [Fact]
+    public async Task An_identifier_written_into_the_evidence_is_still_masked()
+    {
+        var (journal, db, runId) = Create();
+
+        await journal.RecordAsync(runId, Decision(new[]
+        {
+            new AgentEvidence("decidedBy", "33333333-3333-3333-3333-333333333333")
+        }));
+
+        // The other half of the same finding, pinned so nobody "fixes" the masker later to
+        // make an id survive in prose. Prose is where a secret would be.
+        (await db.AgentDecisions.SingleAsync())
+            .EvidenceJson.Should().NotContain("33333333-3333-3333-3333-333333333333");
+    }
+
+    [Fact]
     public async Task A_deterministic_decision_records_that_no_model_was_consulted()
     {
         var (journal, db, runId) = Create();

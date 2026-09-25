@@ -54,6 +54,8 @@ public class AiraDbContext : DbContext, IAiraDbContext
     public DbSet<AgentApproval> AgentApprovals => Set<AgentApproval>();
     public DbSet<ApplicationContext> ApplicationContexts => Set<ApplicationContext>();
     public DbSet<ApplicationMemory> ApplicationMemories => Set<ApplicationMemory>();
+    public DbSet<AgentTestPlan> AgentTestPlans => Set<AgentTestPlan>();
+    public DbSet<AgentTestPlanItem> AgentTestPlanItems => Set<AgentTestPlanItem>();
     public DbSet<ApplicationPage> ApplicationPages => Set<ApplicationPage>();
     public DbSet<PageTransition> PageTransitions => Set<PageTransition>();
     public DbSet<ApplicationElement> ApplicationElements => Set<ApplicationElement>();
