@@ -246,12 +246,28 @@ export default async function run() {
       detail: `${summary?.testsExecuted} executed, ${summary?.testsGenerated} generated`
     }), 'critical');
 
-  await claim('AQE-024', 'Risk findings are not duplicated by a resume',
-    'No route appears more than once among the risk findings',
+  await claim('AQE-024', 'Findings are not duplicated by a resume',
+    'No route appears more than once among the findings of any one kind',
     () => {
-      const routes = pass.findings.filter(f => f.route).map(f => f.route);
-      const duplicated = routes.filter((r, i) => routes.indexOf(r) !== i);
-      return { pass: duplicated.length === 0, detail: `${[...new Set(duplicated)].join(', ') || 'none'}` };
+      // Identity is the finding's own title, not its route. A route legitimately carries
+      // several findings that mean different things: a risk score and a statement about what
+      // is untested, and — for an endpoint — one per method, since GET and POST of the same
+      // path are two capabilities sharing one URL. Deduping on route alone called those
+      // duplicates; deduping on nothing would let a resume record the same finding twice,
+      // which is what this test exists to catch.
+      const seen = new Set();
+      const duplicated = new Set();
+      for (const finding of pass.findings) {
+        const key = `${finding.kind}:${finding.title}`;
+        if (seen.has(key)) duplicated.add(key);
+        seen.add(key);
+      }
+      return {
+        pass: duplicated.size === 0,
+        detail: duplicated.size
+          ? [...duplicated].slice(0, 5).join(' | ')
+          : `none, of ${seen.size} distinct finding(s)`
+      };
     }, 'critical');
 
   // ---- What it recorded ------------------------------------------------------------

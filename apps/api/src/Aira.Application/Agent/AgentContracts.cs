@@ -9,6 +9,10 @@ public sealed record StartAgentRunRequest(
     /// <summary>What to concentrate on, in the operator's words. Advisory: it steers
     /// prioritisation, it does not widen what the agent is allowed to do.</summary>
     string? Objective,
+    /// <summary>Which build of the application this pass is testing, in the operator's own
+    /// notation. Carried onto the verification run so the pass's results can be read as a
+    /// release assessment. Omitted, the pass is simply not assessed as a release.</summary>
+    string? BuildRef,
     bool? Explore,
     bool? Execute,
     int? MaxPages,
@@ -35,7 +39,10 @@ public sealed record AgentRunSummary(
     int PagesConsidered, int AreasAssessed, int TestsGenerated, int TestsExecuted,
     int FailuresInvestigated, int ProposalsMade, decimal AiCostUsd,
     string? StopReason, string? ErrorMessage, string? Summary,
-    Guid? DiscoveryRunId, Guid? TestSuiteId, Guid? TestRunId);
+    Guid? DiscoveryRunId, Guid? TestSuiteId, Guid? TestRunId,
+    /// <summary>The build this pass tested, or null when the operator named none. Null means
+    /// the pass is absent from every release assessment — not that it passed one.</summary>
+    string? BuildRef);
 
 public sealed record AgentStepView(
     int Order, AgentPhase Phase, bool Succeeded, string Description,

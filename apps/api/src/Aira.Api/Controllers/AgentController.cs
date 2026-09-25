@@ -78,6 +78,30 @@ public sealed class AgentController : ApiControllerBase
         Guid id, [FromBody] PlanDecisionRequest request, CancellationToken ct)
         => FromResult(await _plans.DecideAsync(id, request, ct));
 
+    // ---- The registry ------------------------------------------------------
+
+    /// <summary>Every tool the agent has, with the risk and permission each one carries.</summary>
+    /// <remarks>
+    /// Readable rather than internal, because a registry nobody can read is a list somebody
+    /// has to take on trust. Anyone reviewing what an autonomous pass is capable of should be
+    /// able to ask the running system rather than read the source — and a test that checks a
+    /// pass used only declared tools has to compare against this, not against a copy of it
+    /// that goes stale the first time a tool is added.
+    /// </remarks>
+    [HttpGet("tools")]
+    public IActionResult Tools()
+        => Ok(AgentToolRegistry.All.Select(tool => new
+        {
+            tool.Name,
+            tool.Purpose,
+            Risk = tool.Risk.ToString(),
+            tool.RequiredPermission,
+            AllowedEnvironments = tool.AllowedEnvironments.Select(e => e.ToString()),
+            tool.AuditRequired,
+            Input = tool.Input,
+            Output = tool.Output
+        }));
+
     // ---- Business context --------------------------------------------------
 
     /// <summary>What a person has said about this application's priorities and exclusions.</summary>

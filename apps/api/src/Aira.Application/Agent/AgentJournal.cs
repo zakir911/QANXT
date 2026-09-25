@@ -125,7 +125,13 @@ public sealed class AgentJournal : IAgentJournal
             Result = decision.Result is null ? null : _masker.MaskText(decision.Result),
             Allowed = decision.Allowed,
             Denial = decision.Denial == AgentDenial.None ? null : decision.Denial.ToString(),
-            Risk = decision.Risk?.ToString(),
+            // The risk the ladder judged it at, falling back to the tool's declared floor
+            // when a call site did not say. Recorded either way rather than left null: a
+            // decision that names a tool and not the risk reads as though nothing was
+            // weighed, and three call sites had already drifted into exactly that.
+            Risk = (decision.Risk
+                    ?? (decision.Tool is null ? null : AgentToolRegistry.Resolve(decision.Tool)?.Risk))
+                   ?.ToString(),
             // Not masked. An identifier is not free text, and the masker cannot tell one from
             // a credential.
             ActorUserId = decision.ActorUserId,

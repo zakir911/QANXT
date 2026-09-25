@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# The autonomous QA agent, from nothing to a report that distinguishes what was verified
+# from what merely exists.
+#
+#   ./scripts/verify-autonomous-qa
+#   ./scripts/verify-autonomous-qa --quick     # the three fastest suites only
+#
+#   infrastructure → test lab → AIRA → autonomous suites → report
+#
+# Narrower than ./scripts/verify-product on purpose. That one proves the platform can test an
+# application; this one proves that a pass nobody watched can plan, refuse, ask, execute and
+# write up what it found — and that every claim it makes is one a person can check afterwards.
+#
+# Exits non-zero if any suite failed, or if any requirement in
+# verification/autonomous-qa-requirements.json is not verified by a test that actually ran.
+set -uo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+section() { printf '\n\033[1m── %s ──\033[0m\n' "$1"; }
+fail() { printf '\n\033[31m%s\033[0m\n' "$1"; exit 1; }
+note() { printf '\033[2m%s\033[0m\n' "$1"; }
+
+QUICK=false
+for arg in "$@"; do [[ "$arg" == "--quick" ]] && QUICK=true; done
+
+export GOLDEN_RUN_ID="${GOLDEN_RUN_ID:-$(date -u +%Y-%m-%dT%H-%M-%SZ)}"
+
+# Listed explicitly rather than taken from --all, so adding a suite to this script is a
+# deliberate decision about what it asserts rather than something that happens by accident.
+#
+# Each of these drives one or more real passes against the lab. The pass is the expensive
+# part and the claims are the point: one pass carries thirty or fifty distinct assertions
+# about what it recorded.
+SUITES=(
+  agent-policy         # what the agent may do, what refuses it, and who is asked
+  agent-planning       # what a pass proposes, and what it admits it will not cover
+  agent-intelligence   # memory between passes, coverage, and the release assessment
+)
+
+# The rest take longer: each drives passes that generate, execute and investigate, or that
+# run against a deliberately broken application. In by default; --quick is the escape hatch.
+$QUICK || SUITES+=(agent-execution agent-injection agent-faults)
+
+section "Infrastructure"
+bash scripts/services-ctl.sh --with-database || fail "PostgreSQL and Redis did not start."
+
+section "AIRA"
+bash scripts/api-ctl.sh start && bash scripts/api-ctl.sh wait || fail "The API did not start."
+bash scripts/worker-ctl.sh start || fail "The worker did not start."
+
+section "Test lab"
+if [[ ! -f test-lab/banking-app/dist/index.html ]]; then
+  pnpm --filter @aira/test-lab build >/dev/null || fail "The banking application did not build."
+fi
+bash test-lab/scripts/lab-ctl.sh start || fail "The test lab did not start."
+bash test-lab/scripts/lab-ctl.sh reset >/dev/null
+
+section "Autonomous suites"
+note "${#SUITES[@]} suite(s): ${SUITES[*]}"
+suite_args=()
+for suite in "${SUITES[@]}"; do suite_args+=(--suite "$suite"); done
+
+node verification/golden-tests/run.mjs "${suite_args[@]}"
+golden_status=$?
+
+section "Report"
+node verification/golden-tests/autonomous-qa-report.mjs --run "$GOLDEN_RUN_ID"
+report_status=$?
+
+printf '\n'
+if [[ $golden_status -ne 0 ]]; then
+  printf '\033[31mAutonomous QA verification FAILED: a suite did not pass.\033[0m\n'
+  printf '  Report: verification/reports/AUTONOMOUS-QA-REPORT.md\n'
+  printf '          verification/reports/autonomous-qa-report.html\n'
+  exit 1
+fi
+if [[ $report_status -ne 0 ]]; then
+  # Not a softer failure than a failing test. A requirement whose tests did not run is the
+  # table claiming coverage this run did not show, and letting that pass green is exactly the
+  # mistake the report exists to prevent.
+  printf '\033[31mAutonomous QA verification FAILED: a requirement is not verified by this run.\033[0m\n'
+  printf '  Report: verification/reports/AUTONOMOUS-QA-REPORT.md\n'
+  exit 1
+fi
+
+# --quick runs three of the six suites, so requirements verified only by the other three
+# would read as unverified. The report exits non-zero for that, and it should: a green from
+# --quick would be a claim this invocation did not earn.
+$QUICK && note 'Run without --quick for the full set; --quick cannot verify every requirement.'
+
+printf '\033[32mAutonomous QA verified.\033[0m\n'
+printf '  Report:   verification/reports/AUTONOMOUS-QA-REPORT.md\n'
+printf '            verification/reports/autonomous-qa-report.html\n'
+printf '            verification/reports/autonomous-qa-report.json\n'
+printf '  Evidence: verification/evidence/<TEST-ID>/%s/\n' "$GOLDEN_RUN_ID"

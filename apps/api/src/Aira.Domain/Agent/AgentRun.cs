@@ -25,6 +25,17 @@ public class AgentRun : BaseEntity, ITenantOwned, IAuditable
     /// <summary>What the operator asked the agent to concentrate on, if anything.</summary>
     public string? Objective { get; set; }
 
+    /// <summary>
+    /// Which build of the application this pass is testing, in the operator's own notation.
+    /// </summary>
+    /// <remarks>
+    /// Carried onto the verification run the pass starts, because a release assessment is
+    /// keyed by build reference and a run with none is invisible to it. A pass started
+    /// without one is not assessed as a release — deliberately, and it says so, rather than
+    /// being folded into whatever build happened to be assessed last.
+    /// </remarks>
+    public string? ApplicationBuildRef { get; set; }
+
     public AgentRunStatus Status { get; set; } = AgentRunStatus.Queued;
     public AgentPhase Phase { get; set; } = AgentPhase.Pending;
 

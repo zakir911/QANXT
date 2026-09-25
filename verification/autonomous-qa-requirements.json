@@ -1,0 +1,156 @@
+{
+  "title": "Autonomous QA — requirements and the tests that verify them",
+  "note": "Each requirement names the golden tests that verify it. traceability.mjs checks this file against what actually ran: a requirement with no test, a test id that does not exist, and a named test that did not pass are all failures. A requirement with no test is recorded as NOT TESTED rather than quietly dropped — the point of the table is that it can disagree with the code.",
+  "requirements": [
+    {
+      "id": "AQ-R01",
+      "statement": "A pass explores an application, models it, ranks it and writes a plan, without a person steering each step.",
+      "verifiedBy": ["AQN-001", "AQN-002", "AQN-003", "AQE-001", "AQE-025"]
+    },
+    {
+      "id": "AQ-R02",
+      "statement": "The plan is a proposal a person approves before anything is generated or run.",
+      "verifiedBy": ["AQN-020", "AQN-021", "AQP-009", "AQP-015", "AQP-016", "AQP-020", "AQI-007"]
+    },
+    {
+      "id": "AQ-R03",
+      "statement": "Prioritisation is risk-based and the factors behind each score are stored, not just the score.",
+      "verifiedBy": ["AQN-010", "AQN-011", "AQN-012", "AQN-013"]
+    },
+    {
+      "id": "AQ-R04",
+      "statement": "A person can describe the application in their own words, and what they write changes what the pass does.",
+      "verifiedBy": ["AQI-009", "AQI-010", "AQI-011", "AQI-046", "AQE-033", "AQE-034", "AQE-035"]
+    },
+    {
+      "id": "AQ-R05",
+      "statement": "An area a person excluded is never touched, whatever its risk score.",
+      "verifiedBy": ["AQE-033", "AQE-034", "AQI-006", "AQI-045"]
+    },
+    {
+      "id": "AQ-R06",
+      "statement": "The platform compares what the application can do against what is tested, and separates what it cannot decide from what it found uncovered.",
+      "verifiedBy": ["AQI-039", "AQI-040", "AQI-041", "AQI-042", "AQI-043", "AQI-048", "AQI-049"]
+    },
+    {
+      "id": "AQ-R07",
+      "statement": "A coverage gap is a proposal, never a defect and never work the agent has already done.",
+      "verifiedBy": ["AQI-047", "AQI-052", "AQI-053"]
+    },
+    {
+      "id": "AQ-R08",
+      "statement": "A pass generates API tests as well as UI tests, and says which endpoints it chose.",
+      "verifiedBy": ["AQE-010", "AQE-011", "AQE-012", "AQE-012b"]
+    },
+    {
+      "id": "AQ-R09",
+      "statement": "Security testing goes through the existing security engine, which re-checks the scope; the agent selects and never scans directly.",
+      "verifiedBy": ["AQE-013", "AQE-014", "AQE-015", "AQE-016", "AQE-017", "AQP-031", "AQP-032", "AQP-033"]
+    },
+    {
+      "id": "AQ-R10",
+      "statement": "Every action the pass takes is recorded as a decision carrying the evidence it rests on.",
+      "verifiedBy": ["AQP-001", "AQP-006", "AQP-007", "AQI-032", "AQF-030"]
+    },
+    {
+      "id": "AQ-R11",
+      "statement": "A refused action is recorded rather than dropped, and names the rule that refused it.",
+      "verifiedBy": ["AQP-002", "AQP-003", "AQP-004", "AQP-005", "AQE-046", "AQE-047", "AQE-048", "AQE-049"]
+    },
+    {
+      "id": "AQ-R12",
+      "statement": "Every tool the agent may use is declared in a registry, and an unknown tool is refused rather than passed through.",
+      "verifiedBy": ["AQP-034", "AQP-035", "AQP-036"]
+    },
+    {
+      "id": "AQ-R13",
+      "statement": "A deterministic policy decides what the agent may do; no model output can widen it.",
+      "verifiedBy": ["AQP-023", "AQP-026", "AQP-036", "AQP-045", "AQX-001", "AQX-002"]
+    },
+    {
+      "id": "AQ-R14",
+      "statement": "Application content that tries to instruct the agent is treated as data, not as instructions.",
+      "verifiedBy": ["AQX-001", "AQX-005", "AQX-010", "AQX-015", "AQX-018", "AQX-025"]
+    },
+    {
+      "id": "AQ-R15",
+      "statement": "A pass never touches production and never performs a destructive action unless somebody who holds that permission asked for it.",
+      "verifiedBy": ["AQP-027", "AQP-028", "AQP-029", "AQP-030", "AQP-035", "AQI-035"]
+    },
+    {
+      "id": "AQ-R16",
+      "statement": "Model spend is attributed and bounded, and reported even when it is nothing.",
+      "verifiedBy": ["AQP-037", "AQP-038", "AQP-039", "AQE-042", "AQI-033"]
+    },
+    {
+      "id": "AQ-R17",
+      "statement": "A pass remembers what earlier passes over the same application established, and says when an estimate rests on history rather than defaults.",
+      "verifiedBy": ["AQI-001", "AQI-002", "AQI-003", "AQI-004", "AQI-018"]
+    },
+    {
+      "id": "AQ-R18",
+      "statement": "A failure is investigated and written up as a proposal with its evidence; the agent raises no defects and changes no tests.",
+      "verifiedBy": ["AQI-020", "AQI-021", "AQI-022", "AQI-023", "AQI-024", "AQE-036", "AQE-037", "AQE-038"]
+    },
+    {
+      "id": "AQ-R19",
+      "statement": "A pass is readable end to end: every phase, every decision, every question and every answer, in order.",
+      "verifiedBy": ["AQE-026", "AQE-027", "AQE-028", "AQE-029", "AQE-030", "AQE-031", "AQE-032", "AQE-044"]
+    },
+    {
+      "id": "AQ-R20",
+      "statement": "A person is asked before anything that changes state, and asking is not granting.",
+      "verifiedBy": ["AQP-009", "AQP-010", "AQP-011", "AQP-012", "AQP-013", "AQP-014", "AQP-015", "AQP-017"]
+    },
+    {
+      "id": "AQ-R21",
+      "statement": "An answer is attributed to the person who gave it, with their reason, and cannot be given twice.",
+      "verifiedBy": ["AQP-019", "AQP-021", "AQP-022", "AQP-040", "AQP-041", "AQP-042"]
+    },
+    {
+      "id": "AQ-R22",
+      "statement": "A release assessment exists for what a pass executed, always carries a security section, and never reports an unscanned build as clean.",
+      "verifiedBy": ["AQI-026", "AQI-027", "AQI-028", "AQI-036", "AQI-037", "AQI-038"]
+    },
+    {
+      "id": "AQ-R23",
+      "statement": "A pass against a broken, unreachable or unauthenticated application still finishes, still records what it did, and never reports a clean result it did not earn.",
+      "verifiedBy": ["AQF-001", "AQF-002", "AQF-008", "AQF-009", "AQF-013", "AQF-014", "AQF-028"]
+    },
+    {
+      "id": "AQ-R24",
+      "statement": "A resumed pass does not repeat work, does not ask the same question twice, and does not lose what earlier phases assembled.",
+      "verifiedBy": ["AQE-018", "AQE-019", "AQE-020", "AQE-021", "AQE-022", "AQE-023", "AQE-024"]
+    },
+    {
+      "id": "AQ-R25",
+      "statement": "One tenant cannot read another tenant's pass or its business context.",
+      "verifiedBy": ["AQP-043", "AQI-015"]
+    },
+    {
+      "id": "AQ-R26",
+      "statement": "No pass claims the application is secure, fully covered, or free of defects.",
+      "verifiedBy": ["AQI-029", "AQI-030", "AQI-031", "AQI-044", "AQF-008", "AQF-011", "AQF-029"]
+    },
+    {
+      "id": "AQ-R27",
+      "statement": "The bounds a pass ran under are reported on the pass itself, and a pass that ran out of budget says so rather than reporting a conclusion.",
+      "verifiedBy": ["AQP-024", "AQP-025", "AQP-044", "AQI-034"]
+    },
+    {
+      "id": "AQ-R28",
+      "statement": "A pass can be cancelled, and a cancelled pass is never reported as completed.",
+      "verifiedBy": ["AQF-025", "AQF-026", "AQF-027"]
+    },
+    {
+      "id": "AQ-R29",
+      "statement": "Every API surface of the agent refuses an unknown run, an unauthenticated caller and another tenant, rather than answering with an empty result.",
+      "verifiedBy": ["AQF-015", "AQF-016", "AQF-017", "AQF-018", "AQF-019", "AQF-020", "AQF-022", "AQF-023", "AQF-024"]
+    },
+    {
+      "id": "AQ-R30",
+      "statement": "A dimension the pass cannot assess is reported unknown rather than as a gap or as coverage.",
+      "verifiedBy": ["AQI-042", "AQI-044"]
+    }
+  ]
+}

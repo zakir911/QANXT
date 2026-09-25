@@ -171,6 +171,16 @@ public static class AgentToolRegistry
             Fields(("discoveryRunId", "The crawl."), ("pages", "How many it reached.")),
             AgentActionRisk.Interaction, Permissions.DiscoveryRun, NonProduction, AuditRequired: true),
 
+        // Reading only. It compares what discovery found against what tests exist, and every
+        // number it produces is a count of stored rows — so a gap it reports is a gap in the
+        // platform's own records, never an assertion about the application itself.
+        new("coverage.analyse", "Compare what the application can do against what is tested.",
+            Fields(("applicationId", "The application."),
+                   ("dimensions", "Which dimensions apply to each capability.")),
+            Fields(("gaps", "Capability and dimension pairs nothing covers."),
+                   ("unknown", "Pairs the platform could not decide either way.")),
+            AgentActionRisk.Observation, Permissions.TestRead, Anywhere, AuditRequired: true),
+
         new("test.generate", "Create test cases for an area that lacks coverage.",
             Fields(("target", "The page, endpoint or journey."), ("kind", "ui | api | security")),
             Fields(("testCaseIds", "What was created."), ("skippedAsDuplicate", "What was not, and why.")),

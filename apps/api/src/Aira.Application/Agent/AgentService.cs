@@ -66,6 +66,8 @@ public sealed class AgentService : IAgentService
                 ? $"Agent pass over {application.Name}"
                 : request.Name.Trim(),
             Objective = string.IsNullOrWhiteSpace(request.Objective) ? null : request.Objective.Trim(),
+            ApplicationBuildRef = string.IsNullOrWhiteSpace(request.BuildRef)
+                ? null : request.BuildRef.Trim(),
             Status = AgentRunStatus.Queued,
             Phase = AgentPhase.Pending,
 
@@ -128,7 +130,7 @@ public sealed class AgentService : IAgentService
                 r.PagesConsidered, r.AreasAssessed, r.TestsGenerated, r.TestsExecuted,
                 r.FailuresInvestigated, r.ProposalsMade, r.AiCostUsd,
                 r.StopReason, r.ErrorMessage, r.Summary,
-                r.DiscoveryRunId, r.TestSuiteId, r.TestRunId))
+                r.DiscoveryRunId, r.TestSuiteId, r.TestRunId, r.ApplicationBuildRef))
             .ToListAsync(ct);
     }
 
@@ -204,7 +206,7 @@ public sealed class AgentService : IAgentService
             run.PagesConsidered, run.AreasAssessed, run.TestsGenerated, run.TestsExecuted,
             run.FailuresInvestigated, run.ProposalsMade, run.AiCostUsd,
             run.StopReason, run.ErrorMessage, run.Summary,
-            run.DiscoveryRunId, run.TestSuiteId, run.TestRunId);
+            run.DiscoveryRunId, run.TestSuiteId, run.TestRunId, run.ApplicationBuildRef);
     }
 
     private static int Clamp(int? requested, int fallback, int min, int max)

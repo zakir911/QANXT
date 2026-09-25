@@ -161,14 +161,28 @@ export default async function run() {
       return { pass: withReason.length > 0, detail: `${withReason.length}/${noLoginPass.steps.length}` };
     });
 
-  await claimLogin('AQF-013', 'A pass never invents pages it did not reach',
-    'Every risk finding names a route the crawl recorded',
+  await claimLogin('AQF-013', 'A pass never invents a place it did not reach',
+    'Every finding names a route or an endpoint the crawl recorded',
     async () => {
-      const pages = await request(
-        `/api/v1/applications/${noLogin.application.id}/pages`, { token: noLogin.tenant.token });
-      const routes = new Set((pages.json ?? []).map(p => p.route));
-      const invented = noLoginPass.findings.filter(f => f.route && !routes.has(f.route));
-      return { pass: invented.length === 0, detail: `${invented.length} invented routes` };
+      // Pages and endpoints both, because a coverage gap about an endpoint carries the
+      // endpoint's url template rather than a page route. Checking only against pages
+      // reported every API finding as invented; checking against neither would let a pass
+      // name somewhere it never went, which is the thing this test exists to catch.
+      const [pages, endpoints] = await Promise.all([
+        request(`/api/v1/applications/${noLogin.application.id}/pages`, { token: noLogin.tenant.token }),
+        request(`/api/v1/applications/${noLogin.application.id}/api-endpoints`, { token: noLogin.tenant.token })
+      ]);
+      const known = new Set([
+        ...(pages.json ?? []).map(p => p.route),
+        ...(endpoints.json ?? []).map(e => e.urlTemplate)
+      ]);
+      const invented = noLoginPass.findings.filter(f => f.route && !known.has(f.route));
+      return {
+        pass: invented.length === 0,
+        detail: invented.length
+          ? `${invented.length} invented: ${invented.map(f => f.route).slice(0, 5).join(', ')}`
+          : `none, of ${known.size} place(s) the crawl recorded`
+      };
     }, 'critical');
 
   // ---- An application that is simply not there ----------------------------------

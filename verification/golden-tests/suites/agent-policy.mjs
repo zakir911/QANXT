@@ -11,8 +11,8 @@
 import { golden, suite } from '../harness.mjs';
 import { LAB, lab, request, requireEnvironment } from '../platform.mjs';
 import {
-  agentApprovals, authorizeSecurity, collect, decideApproval, decidePlan, decisionFor,
-  decisionsFor, evidenceValue, seedWorkspace, settle, startPass
+  agentApprovals, agentDecisions, authorizeSecurity, collect, decideApproval, decidePlan,
+  decisionFor, decisionsFor, evidenceValue, seedWorkspace, settle, startPass
 } from '../agent-pass.mjs';
 
 const BANK = LAB.banking;
@@ -201,19 +201,33 @@ export default async function run() {
     objective: 'Answering a question releases the pass',
     preconditions: ['the pass is parked on one unanswered question'],
     input: 'a granted approval with a reason',
-    expected: 'The run leaves awaitingApproval without anybody restarting it',
-    evidence: ['answer.json', 'released.json'], severity: 'critical',
+    expected: 'The pass resumes on its own and performs the action it asked about',
+    evidence: ['answer.json', 'released.json', 'after-decisions.json'], severity: 'critical',
     run: async () => {
       const response = await decideApproval(world.tenant, scanApproval.id, {
         grant: true, justification: 'Authorized for the golden lab, which exists to be tested.'
       });
       const after = await settle(world.tenant, runId, { timeoutMs: 120_000 });
+      const decisions = await agentDecisions(world.tenant, runId);
+
+      // Released from *this* question, and it acted. The earlier version asserted only that
+      // the run was no longer awaitingApproval, which a pass satisfies by finishing early
+      // and fails by correctly asking its next question — so it read the pass doing more
+      // work as a regression. What matters is that granting had an effect: the scan the
+      // question was about was queued, and the run is no longer parked on that approval.
+      const scanned = (decisions.json ?? []).some(d =>
+        d.tool === 'security.scan' && d.allowed && /queued/i.test(d.summary ?? ''));
+      const stillParkedOnThis = after?.status === 'awaitingApproval'
+        && after?.phase === 'securityTesting';
+
       return {
-        pass: response.ok && after?.status !== 'awaitingApproval',
-        detail: `answer ${response.status}, run ${after?.status} ${after?.phase}`,
+        pass: response.ok && scanned && !stillParkedOnThis,
+        detail: `answer ${response.status}, run ${after?.status} ${after?.phase}, `
+              + `scan queued: ${scanned}`,
         evidence: {
           'answer.json': response.text,
-          'released.json': JSON.stringify(after, null, 2)
+          'released.json': JSON.stringify(after, null, 2),
+          'after-decisions.json': JSON.stringify(decisions.json ?? [], null, 2)
         }
       };
     }
@@ -278,20 +292,43 @@ export default async function run() {
     }
   });
 
-  await budgetClaim('AQP-023', 'A spent test budget stops generation',
-    'A refusal names the test budget',
+  // The budget has two shapes and the pass must record both. Where work does not fit, it is
+  // trimmed and the trimming is named; where the budget is already gone, the attempt is
+  // refused and the refusal names the budget. An earlier version of these two looked only for
+  // the refusal, so when trimming was introduced the pass started quietly fitting the work
+  // instead — which is better behaviour and, to that test, indistinguishable from the bound
+  // having been forgotten.
+  const budgetRefusal = budgetPass.decisions.find(d => d.denial === 'TestBudgetSpent');
+  const budgetTrim = budgetPass.decisions.find(d =>
+    (d.evidence ?? []).some(e => e.name === 'trimmedToBudget' && /^yes/.test(e.value ?? '')));
+
+  await budgetClaim('AQP-023', 'A test budget shapes the work and is never exceeded',
+    'The pass either trims to the budget and says what it left out, or refuses and names the budget',
     () => {
-      const refused = budgetPass.decisions.find(d => d.denial === 'TestBudgetSpent');
-      return { pass: Boolean(refused), detail: refused?.reason?.slice(0, 160) ?? '(none)' };
+      const generated = budgetPass.summary?.testsGenerated ?? 0;
+      const bound = budgetPass.bounds?.maxGeneratedTests ?? 0;
+      const recorded = Boolean(budgetRefusal) || Boolean(budgetTrim);
+      return {
+        pass: generated <= bound && recorded,
+        detail: `${generated} generated of a budget of ${bound}; `
+              + (budgetRefusal ? 'refused as spent' : budgetTrim ? 'trimmed to fit' : 'NEITHER RECORDED')
+      };
     }, 'critical');
 
-  await budgetClaim('AQP-024', 'A spent budget is reported as a bound rather than a conclusion',
-    'The refusal says tests nobody asked for are a cost',
+  await budgetClaim('AQP-024', 'A budget is reported as a bound rather than a conclusion',
+    'What it left out is named as untested, not as tested and found working',
     () => {
-      const refused = budgetPass.decisions.find(d => d.denial === 'TestBudgetSpent');
+      // Whichever shape it took, a reader must be able to tell that the work was not done
+      // because of a limit — not because there was nothing there.
+      const refusalSaysCost = /an agent that writes them without limit is one/i
+        .test(budgetRefusal?.reason ?? '');
+      const trimSaysWhat = (budgetTrim?.evidence ?? []).some(e =>
+        e.name === 'trimmedToBudget' && /endpoint\(s\) discovered/.test(e.value ?? ''));
       return {
-        pass: /an agent that writes them without limit is one/i.test(refused?.reason ?? ''),
-        detail: refused?.reason?.slice(0, 200) ?? '(none)'
+        pass: refusalSaysCost || trimSaysWhat,
+        detail: budgetRefusal
+          ? budgetRefusal.reason.slice(0, 160)
+          : (budgetTrim?.evidence ?? []).find(e => e.name === 'trimmedToBudget')?.value ?? '(neither)'
       };
     });
 
@@ -412,12 +449,15 @@ export default async function run() {
   });
 
   const everyDecision = [...pass.decisions, ...budgetPass.decisions, ...unknownPass.decisions];
-  const KNOWN_TOOLS = new Set([
-    'browser.navigate', 'browser.click', 'browser.type', 'browser.select', 'browser.upload',
-    'browser.capture', 'browser.inspect', 'api.request', 'api.inspect', 'security.scan',
-    'security.validateScope', 'application.discover', 'test.generate', 'test.execute',
-    'test.retry', 'evidence.capture', 'report.generate'
-  ]);
+
+  // Read from the running platform, not copied into this file. The copy went stale the first
+  // time a tool was added, and a stale copy fails in the direction that matters least: it
+  // reports a declared tool as undeclared. Worse, it would never catch the case this test
+  // exists for — a pass using something the registry does not name — because the copy and
+  // the registry could drift apart in either direction.
+  const registry = await request('/api/v1/agent/tools', { token: world.tenant.token });
+  if (!registry.ok) throw new Error(`the tool registry is not readable: ${registry.status}`);
+  const KNOWN_TOOLS = new Set((registry.json ?? []).map(tool => tool.name));
 
   await registryClaim('AQP-034', 'Every tool a pass used is one the registry declares',
     'No decision names a tool outside the registry',

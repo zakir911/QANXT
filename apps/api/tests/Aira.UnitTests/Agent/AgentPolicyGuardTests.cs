@@ -1,3 +1,4 @@
+using System.Linq;
 using Aira.Application.Agent;
 using Aira.Application.Security;
 using Aira.Domain.Enums;
@@ -30,13 +31,22 @@ public class AgentPolicyGuardTests
             new HashSet<string>(permissions ?? Everything),
             new HashSet<string>(approvals ?? Array.Empty<string>()));
 
-    /// <summary>Every permission any tool asks for, so a test about one rung is not
-    /// accidentally answered by an earlier one.</summary>
-    private static readonly string[] Everything =
-    {
-        Permissions.TestWrite, Permissions.TestGenerate, Permissions.ExecutionRun,
-        Permissions.DiscoveryRun, Permissions.SecurityScan, Permissions.SecurityRead
-    };
+    /// <summary>
+    /// Every permission any tool asks for, so a test about one rung is not accidentally
+    /// answered by an earlier one.
+    /// </summary>
+    /// <remarks>
+    /// Read from the registry rather than listed by hand. The hand-written version went stale
+    /// the first time a tool was added with a permission nobody remembered to add here, and a
+    /// stale version fails in the worst direction: every test about a later rung starts
+    /// failing at the permission rung, and the failure says nothing about the rung under test.
+    /// </remarks>
+    private static readonly string[] Everything = AgentToolRegistry.All
+        .Select(tool => tool.RequiredPermission)
+        .Where(permission => permission is not null)
+        .Select(permission => permission!)
+        .Distinct()
+        .ToArray();
 
     /// <summary>A policy that permits as much as possible, so a refusal in a test is
     /// attributable to the thing the test is about.</summary>
@@ -104,6 +114,37 @@ public class AgentPolicyGuardTests
             tool.AuditRequired.Should().BeTrue(
                 $"'{tool.Name}' changes something and an unrecorded change is not auditable");
         }
+    }
+
+    [Fact]
+    public void Coverage_analysis_is_declared_read_only_and_available_everywhere()
+    {
+        // The gap analysis reads stored rows and writes nothing to the application, so it is
+        // the one assessment a pass can make about a system it has no authority to touch.
+        // Declaring it as anything above an observation would refuse it in exactly the case
+        // where it is most useful: an environment nobody has described.
+        var tool = AgentToolRegistry.Resolve("coverage.analyse");
+
+        tool.Should().NotBeNull();
+        tool!.Risk.Should().Be(AgentActionRisk.Observation);
+        tool.RequiredPermission.Should().Be(Permissions.TestRead);
+        tool.PermitsEnvironment(EnvironmentKind.Production).Should().BeTrue(
+            "reading what is tested changes nothing, wherever the application lives");
+        tool.AuditRequired.Should().BeTrue(
+            "a coverage number a team acts on has to be traceable to the pass that produced it");
+    }
+
+    [Fact]
+    public void Coverage_analysis_is_permitted_in_an_environment_nobody_has_described()
+    {
+        // The case this exists for: an application with no registered environment. Everything
+        // that writes is refused, and a pass that could not even say what is untested there
+        // would have nothing at all to report.
+        var decision = AgentPolicyGuard.Evaluate(
+            Permissive, Request("coverage.analyse") with { Environment = null }, State());
+
+        decision.Allowed.Should().BeTrue();
+        decision.Denial.Should().Be(AgentDenial.None);
     }
 
     // ---- The ladder, rung by rung -------------------------------------------

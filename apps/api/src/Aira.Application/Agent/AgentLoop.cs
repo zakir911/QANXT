@@ -101,19 +101,22 @@ public sealed class AgentLoop : IAgentLoop
                 (AgentPhase.Exploring, 1, () => ExploreAsync(run, deadline, ct)),
                 (AgentPhase.Modelling, 2, () => ModelAsync(run, state, ct)),
                 (AgentPhase.Prioritizing, 3, () => PrioritizeAsync(run, state, ct)),
-                (AgentPhase.Planning, 4, () => PlanAsync(run, state, ct)),
-                (AgentPhase.Generating, 5, () => GenerateAsync(run, state, ct)),
+                // Before planning, so the plan is drawn against what is actually uncovered
+                // rather than against a ranking that only knows about pages.
+                (AgentPhase.AnalysingGaps, 4, () => AnalyseCoverageAsync(run, state, ct)),
+                (AgentPhase.Planning, 5, () => PlanAsync(run, state, ct)),
+                (AgentPhase.Generating, 6, () => GenerateAsync(run, state, ct)),
                 // API, security and regression. Before these existed the loop injected
                 // discovery, generation and test runs and nothing else, so an autonomous pass
                 // produced UI tests however many endpoints the crawl had found and whatever
                 // the application had authorized. Each delegates to the engine that already
                 // does the work.
-                (AgentPhase.Generating, 5, () => ApiTestingAsync(run, state, ct)),
-                (AgentPhase.Prioritizing, 5, () => SelectRegressionAsync(run, state, ct)),
-                (AgentPhase.SecurityTesting, 6, () => SecurityTestingAsync(run, state, ct)),
-                (AgentPhase.Executing, 7, () => ExecuteAsync(run, state, deadline, ct)),
-                (AgentPhase.Investigating, 8, () => InvestigateAsync(run, state, ct)),
-                (AgentPhase.Proposing, 10, () => ProposeAsync(run, state, ct))
+                (AgentPhase.Generating, 6, () => ApiTestingAsync(run, state, ct)),
+                (AgentPhase.Prioritizing, 6, () => SelectRegressionAsync(run, state, ct)),
+                (AgentPhase.SecurityTesting, 7, () => SecurityTestingAsync(run, state, ct)),
+                (AgentPhase.Executing, 8, () => ExecuteAsync(run, state, deadline, ct)),
+                (AgentPhase.Investigating, 9, () => InvestigateAsync(run, state, ct)),
+                (AgentPhase.Proposing, 11, () => ProposeAsync(run, state, ct))
             };
 
             // Modelling and prioritising always re-run. The pass keeps nothing in memory
@@ -404,14 +407,26 @@ public sealed class AgentLoop : IAgentLoop
         // A budget is meant to shape work, not eliminate it, and a pass that silently drops
         // every API test because it wanted one too many is the worst version of a bound.
         var affordable = Math.Max(0, run.MaxGeneratedTests - run.TestsGenerated);
-        var trimmed = selected.Count > affordable;
+        var wanted = selected.Count;
+        var trimmed = wanted > affordable;
         if (trimmed) selected = selected.Take(affordable).ToList();
 
+        // A budget already fully spent is a refusal, and it goes through the ladder so that
+        // it is recorded as one. Returning here without asking was the other half of the trim
+        // fix getting it wrong: work was correctly not done, and the reason it was not done
+        // existed only in a phase description nobody queries. A bound that leaves no decision
+        // behind is indistinguishable from a phase that found nothing to do.
         if (selected.Count == 0)
+        {
+            var spent = await CheckAsync(run, state, "test.generate", AgentPhase.Generating,
+                newTests: wanted, ct: ct);
+
             return PhaseOutcome.Ok("No API tests were generated.",
-                $"The run's budget of {run.MaxGeneratedTests} test(s) is already spent, so there "
-                + $"is nothing left for the {endpoints.Count} discovered endpoint(s). They are "
-                + "untested by this pass rather than tested and found working.");
+                spent.Allowed
+                    ? $"There was nothing to generate for the {endpoints.Count} discovered "
+                      + "endpoint(s)."
+                    : spent.Reason);
+        }
 
         var decision = await CheckAsync(run, state, "test.generate", AgentPhase.Generating,
             newTests: selected.Count, ct: ct);
@@ -457,7 +472,8 @@ public sealed class AgentLoop : IAgentLoop
                         : "no")
             },
             Tool: "test.generate",
-            Result: $"{generated.Value.TestsCreated} API test(s)"), ct);
+            Result: $"{generated.Value.TestsCreated} API test(s)",
+            Risk: decision.EffectiveRisk), ct);
 
         return PhaseOutcome.Ok(
             $"Generated {generated.Value.TestsCreated} API test(s) across {selected.Count} endpoint(s).",
@@ -551,7 +567,8 @@ public sealed class AgentLoop : IAgentLoop
                 new AgentEvidence("targets", started.Value.Targets.ToString())
             },
             Tool: "security.scan",
-            Result: $"Queued as {started.Value.Reference}."), ct);
+            Result: $"Queued as {started.Value.Reference}.",
+            Risk: decision.EffectiveRisk), ct);
 
         return PhaseOutcome.Ok(
             $"Queued security scan {started.Value.Reference} ({started.Value.ChecksConfigured} check(s)).",
@@ -782,13 +799,17 @@ public sealed class AgentLoop : IAgentLoop
         AgentPhase.Exploring => 1,
         AgentPhase.Modelling => 2,
         AgentPhase.Prioritizing => 3,
-        AgentPhase.Planning => 4,
-        AgentPhase.Generating => 5,
-        AgentPhase.SecurityTesting => 6,
-        AgentPhase.Executing => 7,
-        AgentPhase.Investigating => 8,
-        AgentPhase.Correlating => 9,
-        AgentPhase.Proposing => 10,
+        AgentPhase.AnalysingGaps => 4,
+        AgentPhase.Planning => 5,
+        AgentPhase.Generating => 6,
+        AgentPhase.SecurityTesting => 7,
+        AgentPhase.Executing => 8,
+        AgentPhase.Investigating => 9,
+        AgentPhase.Correlating => 10,
+        AgentPhase.Proposing => 11,
+        // Never 0 for a phase the sequence contains: a phase whose order is zero is never
+        // skipped and never resumed past, so a pass that stopped in it would repeat
+        // everything before it on every resume.
         _ => 0
     };
 
@@ -826,6 +847,10 @@ public sealed class AgentLoop : IAgentLoop
 
         /// <summary>The scan this pass queued, if it queued one.</summary>
         public Guid? SecurityScanId { get; set; }
+
+        /// <summary>What the coverage phase established, once it has run. Null means the
+        /// question was never asked — not that there are no gaps.</summary>
+        public TestGapReport? Coverage { get; set; }
     }
 
     private sealed record PageCandidate(Guid Id, string Route, string NormalizedUrl, PageKind Kind,
@@ -1235,9 +1260,13 @@ public sealed class AgentLoop : IAgentLoop
             {
                 OrganizationId = run.OrganizationId,
                 AgentRunId = run.Id,
-                Kind = assessment.Factors.Any(f => f.Name.Contains("coverage", StringComparison.OrdinalIgnoreCase))
-                    ? AgentFindingKind.CoverageGap
-                    : AgentFindingKind.RiskArea,
+                // A risk finding, always. It used to be relabelled CoverageGap whenever a
+                // coverage factor contributed to the score, which was a second word for the
+                // same thing — and once a phase existed whose whole job is coverage, the two
+                // produced two findings per route that meant different things under one name.
+                // Risk is what this phase establishes; what is untested is the coverage
+                // phase's to say.
+                Kind = AgentFindingKind.RiskArea,
                 Severity = assessment.Level,
                 Title = $"{page.Route} — risk {assessment.Score}",
                 Detail = _masker.MaskText(string.Join(" ",
@@ -1326,6 +1355,194 @@ public sealed class AgentLoop : IAgentLoop
             LoadTimeMs = page.LoadTimeMs,
             ChangedElementCount = 0
         };
+    }
+
+
+    // ---- Coverage --------------------------------------------------------------
+    //
+    // What the application can do, against what is tested. The comparison itself is
+    // TestGapModel — a pure function with no database and no clock — so this method's whole
+    // job is to gather honest inputs for it and to record what came back.
+    //
+    // The distinction that matters is Unknown. A capability whose tests exist but have never
+    // run is not covered and is not uncovered: reporting it either way invents work or
+    // invents safety. The model draws that line; this phase preserves it into the findings
+    // rather than rounding it to whichever neighbour makes the numbers tidier.
+
+    private async Task<PhaseOutcome> AnalyseCoverageAsync(AgentRun run, PassState state, CancellationToken ct)
+    {
+        // Read-only, so it is checked against the ladder like everything else but can never
+        // be the thing that stops a pass: a refusal here means the coverage question goes
+        // unanswered, not that the pass proceeds as though it had been answered.
+        var permitted = await CheckAsync(run, state, "coverage.analyse", AgentPhase.AnalysingGaps, ct: ct);
+        if (!permitted.Allowed)
+            return PhaseOutcome.Ok("Coverage was not analysed.", permitted.Reason);
+
+        var pages = state.Pages.Where(p => !state.Business.Excludes(p.Route)).ToList();
+
+        var endpoints = await _db.ApiEndpoints.AsNoTracking()
+            .Where(e => e.ApplicationId == run.ApplicationId)
+            .OrderBy(e => e.UrlTemplate)
+            .Select(e => new { e.UrlTemplate, e.Method })
+            .Take(run.MaxTargets * 5)
+            .ToListAsync(ct);
+
+        var capabilities = new List<Capability>();
+        foreach (var page in pages)
+        {
+            capabilities.Add(new Capability(
+                page.Route, "page",
+                RequiresAuthentication: page.RequiresAuthentication,
+                // A page the crawl reached by navigating is not known to change state, and
+                // saying it does would inflate every count that follows.
+                ChangesState: false,
+                TakesInput: page.Kind == PageKind.Form,
+                BusinessCritical: state.Business.IsCritical(page.Route)));
+        }
+        foreach (var endpoint in endpoints.Where(e => !state.Business.Excludes(e.UrlTemplate)))
+        {
+            capabilities.Add(new Capability(
+                $"{endpoint.Method} {endpoint.UrlTemplate}", "endpoint",
+                RequiresAuthentication: false,
+                ChangesState: !string.Equals(endpoint.Method, "GET", StringComparison.OrdinalIgnoreCase),
+                TakesInput: !string.Equals(endpoint.Method, "GET", StringComparison.OrdinalIgnoreCase),
+                BusinessCritical: state.Business.IsCritical(endpoint.UrlTemplate)));
+        }
+
+        if (capabilities.Count == 0)
+            return PhaseOutcome.Ok("Nothing to assess coverage against.",
+                "Discovery found no pages or endpoints outside the areas a person excluded. "
+                + "This is not a statement that the application is covered.");
+
+        // Asked once, not once per page: whether this application has ever been scanned is a
+        // fact about the application.
+        var everScanned = await _db.SecurityFindings.AsNoTracking()
+            .AnyAsync(f => f.ApplicationId == run.ApplicationId, ct);
+
+        var signals = new List<CoverageSignal>();
+        foreach (var page in pages)
+        {
+            // The same match the risk scorer uses: a test covers a page if a step of it goes
+            // there. Naming a test after a page is not coverage of it.
+            var covering = await _db.TestSteps.AsNoTracking()
+                .Where(s => s.Url != null && s.Url.Contains(page.Route)
+                         && s.TestCase!.ApplicationId == run.ApplicationId)
+                .Select(s => s.TestCaseId)
+                .Distinct()
+                .ToListAsync(ct);
+
+            var executed = covering.Count == 0 ? 0 : await _db.TestCases.AsNoTracking()
+                .CountAsync(t => covering.Contains(t.Id) && t.ExecutionCount > 0, ct);
+
+            signals.Add(new CoverageSignal(page.Route, TestDimension.Ui, covering.Count, executed));
+
+            // Security coverage is the scan, not the tests. Assessable only when the
+            // application has authorized scanning at all; otherwise the platform genuinely
+            // cannot say, and Unknown is the honest answer rather than NotCovered.
+            signals.Add(new CoverageSignal(page.Route, TestDimension.Security,
+                everScanned ? 1 : 0, everScanned ? 1 : 0,
+                Assessable: state.SecurityScanId is not null || everScanned));
+
+            // Accessibility and visual are not assessed by this pass at all. Declared
+            // unassessable rather than omitted, so they land as Unknown and appear in the
+            // report as questions nobody answered instead of vanishing from the denominator.
+            signals.Add(new CoverageSignal(page.Route, TestDimension.Accessibility, 0, 0, Assessable: false));
+            signals.Add(new CoverageSignal(page.Route, TestDimension.Visual, 0, 0, Assessable: false));
+        }
+
+        foreach (var endpoint in endpoints.Where(e => !state.Business.Excludes(e.UrlTemplate)))
+        {
+            var identifier = $"{endpoint.Method} {endpoint.UrlTemplate}";
+            var covering = await _db.TestCases.AsNoTracking()
+                .Where(t => t.ApplicationId == run.ApplicationId && t.Kind == TestCaseKind.Api
+                         && t.Name.Contains(endpoint.UrlTemplate))
+                .Select(t => new { t.Id, t.ExecutionCount })
+                .ToListAsync(ct);
+
+            signals.Add(new CoverageSignal(identifier, TestDimension.Api,
+                covering.Count, covering.Count(c => c.ExecutionCount > 0)));
+            signals.Add(new CoverageSignal(identifier, TestDimension.Security, 0, 0,
+                Assessable: state.SecurityScanId is not null));
+        }
+
+        var report = TestGapModel.Analyse(capabilities, signals);
+        state.Coverage = report;
+
+        // Written once. Coverage re-runs on a resume because it reads the graph the plan was
+        // approved against, and a finding recorded twice is counted twice everywhere after.
+        var alreadyRecorded = await _db.AgentFindings
+            .AnyAsync(f => f.AgentRunId == run.Id && f.Kind == AgentFindingKind.CoverageGap
+                        && f.Title.StartsWith("Untested:"), ct);
+
+        if (!alreadyRecorded)
+        {
+            foreach (var capability in report.Capabilities.Where(c => c.HasGaps).Take(50))
+            {
+                var gaps = string.Join(", ", capability.Gaps);
+                var why = string.Join(" ", capability.Dimensions
+                    .Where(d => capability.Gaps.Contains(d.Dimension))
+                    .Select(d => $"{d.Dimension}: {d.Why}"));
+
+                _db.AgentFindings.Add(new AgentFinding
+                {
+                    OrganizationId = run.OrganizationId,
+                    AgentRunId = run.Id,
+                    Kind = AgentFindingKind.CoverageGap,
+                    Severity = capability.Capability.BusinessCritical ? RiskLevel.High : RiskLevel.Medium,
+                    Title = $"Untested: {capability.Capability.Identifier} ({gaps})",
+                    Detail = _masker.MaskText(why),
+                    Recommendation = "Decide whether this is worth covering. The agent has not "
+                                   + "written a test for it and has not decided that it should.",
+                    // Deterministic, but a gap is a gap in the platform's records rather than
+                    // a proven absence of testing — somebody may test this by hand.
+                    Confidence = 85,
+                    // Where it applies, for an endpoint as well as a page. Leaving an
+                    // endpoint's route null put the "where" in the title alone, so a reader
+                    // filtering findings by route saw the page gaps and none of the API ones
+                    // — an absence that reads as nothing to fix.
+                    Route = capability.Capability.Kind == "endpoint"
+                        ? capability.Capability.Identifier.Split(' ', 2).Last()
+                        : capability.Capability.Identifier,
+                    IsAiGenerated = false,
+                    CreatedAt = _clock.UtcNow
+                });
+            }
+            await _db.SaveChangesAsync(ct);
+        }
+
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.AnalysingGaps,
+            $"Assessed {report.Capabilities.Count} capability(ies): {report.NotCovered} "
+            + $"uncovered, {report.Unknown} unknown.",
+            report.Summary,
+            new[]
+            {
+                new AgentEvidence("capabilities", report.Capabilities.Count.ToString()),
+                new AgentEvidence("covered", report.Covered.ToString()),
+                new AgentEvidence("partiallyCovered", report.PartiallyCovered.ToString()),
+                new AgentEvidence("notCovered", report.NotCovered.ToString()),
+                // Named separately from the gaps because it is a different statement. An
+                // unknown is a question nobody answered, not a gap somebody should fill.
+                new AgentEvidence("unknown", report.Unknown.ToString()),
+                new AgentEvidence("businessCriticalWithGaps",
+                    report.Capabilities.Count(c => c.HasGaps && c.Capability.BusinessCritical).ToString()),
+                new AgentEvidence("measuredAgainst",
+                    $"{pages.Count} page(s) and {endpoints.Count} endpoint(s) discovery reached"),
+                new AgentEvidence("excludedByAPerson",
+                    state.Business.ExcludedAreas.Count == 0
+                        ? "none" : string.Join(", ", state.Business.ExcludedAreas))
+            },
+            Tool: "coverage.analyse", Result: $"{report.NotCovered} gap(s)",
+            Risk: AgentActionRisk.Observation), ct);
+
+        return PhaseOutcome.Ok(
+            $"Assessed {report.Capabilities.Count} capability(ies): {report.Covered} covered, "
+            + $"{report.PartiallyCovered} partial, {report.NotCovered} uncovered, "
+            + $"{report.Unknown} unknown.",
+            "Coverage is compared against what discovery reached. Anything it did not reach is "
+            + "absent from this assessment rather than covered by it, and a dimension this pass "
+            + "cannot assess is reported unknown rather than as a gap.",
+            report.Summary);
     }
 
     // ---- Generate ---------------------------------------------------------------
@@ -1447,9 +1664,16 @@ public sealed class AgentLoop : IAgentLoop
                 : PhaseOutcome.Ok("The tests were not run.", permitted.Reason);
         }
 
+        // The build reference travels with the run, because a release assessment is keyed by
+        // it. Without one the run is invisible to that report — which is the honest outcome
+        // when nobody said what build this is, and the wrong outcome when somebody did.
+        var ci = run.ApplicationBuildRef is null
+            ? null
+            : new CiContext(null, null, null, null, run.ApplicationBuildRef);
+
         var started = await _runs.StartAsync(new StartTestRunRequest(
             run.ProjectId, null, toRun, null,
-            null, true, null, null, $"{run.Name} — verification", RunTrigger.Agent, null), ct);
+            null, true, null, null, $"{run.Name} — verification", RunTrigger.Agent, ci), ct);
 
         if (started.IsFailure)
         {
@@ -1458,6 +1682,28 @@ public sealed class AgentLoop : IAgentLoop
 
         run.TestRunId = started.Value!.Id;
         await _db.SaveChangesAsync(ct);
+
+        // Which build this run counts against, recorded either way. A pass with no build
+        // reference is absent from every release assessment, and that absence has to be
+        // legible here rather than inferred from a report that simply does not mention it.
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.Executing,
+            run.ApplicationBuildRef is null
+                ? "Started a verification run against no named build."
+                : $"Started a verification run against build {run.ApplicationBuildRef}.",
+            run.ApplicationBuildRef is null
+                ? "Nobody said which build this pass is testing, so the run carries no build "
+                + "reference and does not appear in any release assessment. That is an absence "
+                + "of an assessment, not a passed one."
+                : "The build reference travels with the run, so the release assessment for this "
+                + "build includes what this pass executed.",
+            new[]
+            {
+                new AgentEvidence("testRunId", started.Value.Id.ToString()),
+                new AgentEvidence("buildRef", run.ApplicationBuildRef ?? "none"),
+                new AgentEvidence("testsQueued", toRun.Length.ToString())
+            },
+            Tool: "test.execute", Result: "started", Risk: AgentActionRisk.Interaction), ct);
 
         var final = await WaitForRunAsync(started.Value.Id, deadline, ct);
         if (final is null)
