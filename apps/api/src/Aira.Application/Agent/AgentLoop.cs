@@ -85,52 +85,52 @@ public sealed class AgentLoop : IAgentLoop
         {
             var state = new PassState();
 
-            // A resumed pass already crawled and already had its plan answered. Re-crawling
-            // would change the application map underneath a plan somebody approved against the
-            // old one, so exploration is skipped and the model is simply re-read.
-            // Where to pick up. A pass that stopped for a person resumes from the phase that
-            // asked; everything before it already happened and repeating it would re-crawl an
-            // application the approved plan was drawn against, or ask the same question twice.
+            // Where to pick up. A pass that stopped for a person resumes from the phase
+            // that asked, and everything before it is skipped rather than repeated.
+            //
+            // Written as an ordered list rather than an else-if chain because the chain got
+            // this wrong: the skip guard was applied to two phases and forgotten on the rest,
+            // so a resumed pass re-ran generation and produced the same API tests a second and
+            // third time. A real run showed three identical "Generated 2 API test(s)"
+            // decisions. One list, one guard, no way to forget a phase.
             var resumeFrom = run.ResumeFromPhase;
-            var resuming = resumeFrom is not null;
             run.ResumeFromPhase = null;
 
-            bool Skip(AgentPhase phase) => resumeFrom is { } from && PhaseOrder(phase) < PhaseOrder(from);
-
-            if (!Skip(AgentPhase.Exploring) && !resuming
-                && !await PhaseAsync(run, ++order, AgentPhase.Exploring, deadline, ct,
-                    () => ExploreAsync(run, deadline, ct))) { }
-            else if (!await PhaseAsync(run, ++order, AgentPhase.Modelling, deadline, ct,
-                    () => ModelAsync(run, state, ct))) { }
-            else if (!await PhaseAsync(run, ++order, AgentPhase.Prioritizing, deadline, ct,
-                    () => PrioritizeAsync(run, state, ct))) { }
-            // Planning is skipped on a resume: the plan was proposed and answered before the
-            // run was queued again, and proposing a second one would ask the same person the
-            // same question about work they have already authorized.
-            else if (!resuming
-                && !await PhaseAsync(run, ++order, AgentPhase.Planning, deadline, ct,
-                    () => PlanAsync(run, state, ct))) { }
-            else if (!await PhaseAsync(run, ++order, AgentPhase.Generating, deadline, ct,
-                    () => GenerateAsync(run, state, ct))) { }
-            // API, security and regression. Before these existed the loop injected discovery,
-            // generation and test runs and nothing else, so an autonomous pass produced UI
-            // tests however many endpoints the crawl had found and whatever the application
-            // had authorized. Each one delegates to the engine that already does the work.
-            else if (!await PhaseAsync(run, ++order, AgentPhase.Generating, deadline, ct,
-                    () => ApiTestingAsync(run, state, ct))) { }
-            else if (!await PhaseAsync(run, ++order, AgentPhase.Prioritizing, deadline, ct,
-                    () => SelectRegressionAsync(run, state, ct))) { }
-            else if (!Skip(AgentPhase.SecurityTesting)
-                && !await PhaseAsync(run, ++order, AgentPhase.SecurityTesting, deadline, ct,
-                    () => SecurityTestingAsync(run, state, ct))) { }
-            else if (!await PhaseAsync(run, ++order, AgentPhase.Executing, deadline, ct,
-                    () => ExecuteAsync(run, state, deadline, ct))) { }
-            else if (!await PhaseAsync(run, ++order, AgentPhase.Investigating, deadline, ct,
-                    () => InvestigateAsync(run, state, ct))) { }
-            else
+            var sequence = new (AgentPhase Phase, int Order, Func<Task<PhaseOutcome>> Body)[]
             {
-                await PhaseAsync(run, ++order, AgentPhase.Proposing, deadline, ct,
-                    () => ProposeAsync(run, state, ct));
+                (AgentPhase.Exploring, 1, () => ExploreAsync(run, deadline, ct)),
+                (AgentPhase.Modelling, 2, () => ModelAsync(run, state, ct)),
+                (AgentPhase.Prioritizing, 3, () => PrioritizeAsync(run, state, ct)),
+                (AgentPhase.Planning, 4, () => PlanAsync(run, state, ct)),
+                (AgentPhase.Generating, 5, () => GenerateAsync(run, state, ct)),
+                // API, security and regression. Before these existed the loop injected
+                // discovery, generation and test runs and nothing else, so an autonomous pass
+                // produced UI tests however many endpoints the crawl had found and whatever
+                // the application had authorized. Each delegates to the engine that already
+                // does the work.
+                (AgentPhase.Generating, 5, () => ApiTestingAsync(run, state, ct)),
+                (AgentPhase.Prioritizing, 5, () => SelectRegressionAsync(run, state, ct)),
+                (AgentPhase.SecurityTesting, 6, () => SecurityTestingAsync(run, state, ct)),
+                (AgentPhase.Executing, 7, () => ExecuteAsync(run, state, deadline, ct)),
+                (AgentPhase.Investigating, 8, () => InvestigateAsync(run, state, ct)),
+                (AgentPhase.Proposing, 10, () => ProposeAsync(run, state, ct))
+            };
+
+            // Modelling and prioritising always re-run. The pass keeps nothing in memory
+            // between queueings, so it has to re-read the graph, the business context and the
+            // plan, and re-derive the ranking that generation works from. Both are read-only
+            // and cheap; the one thing prioritising writes is guarded against duplicating.
+            var resumeOrder = resumeFrom is { } from ? PhaseOrder(from) : 0;
+
+            foreach (var (phase, phaseOrder, body) in sequence)
+            {
+                if (phaseOrder < resumeOrder && !AlwaysReRun.Contains(phase))
+                {
+                    await RecordSkippedAsync(run, ++order, phase, resumeFrom!.Value, ct);
+                    continue;
+                }
+
+                if (!await PhaseAsync(run, ++order, phase, deadline, ct, body)) break;
             }
 
             // Only a pass that is still Running here finished on its own terms. Anything
@@ -416,6 +416,7 @@ public sealed class AgentLoop : IAgentLoop
 
         state.ApiTestCaseIds.AddRange(generated.Value!.Tests.Select(t => t.TestCaseId));
         run.TestsGenerated += generated.Value.TestsCreated;
+        Assemble(run, state.ApiTestCaseIds);
         await _db.SaveChangesAsync(ct);
 
         await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
@@ -565,6 +566,8 @@ public sealed class AgentLoop : IAgentLoop
                 "No existing test for this application has failed or been unstable recently.");
 
         state.RegressionTestCaseIds.AddRange(reruns.Select(r => r.Id));
+        Assemble(run, state.RegressionTestCaseIds);
+        await _db.SaveChangesAsync(ct);
 
         await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
             AgentPhase.Prioritizing,
@@ -600,6 +603,53 @@ public sealed class AgentLoop : IAgentLoop
     /// otherwise misbehave — it is that "what may this pass do" has one answer, in one place,
     /// that a reader can check without following the loop's control flow.
     /// </remarks>
+    /// <summary>Adds ids to what the pass has assembled, without duplicating.</summary>
+    private static void Assemble(AgentRun run, IEnumerable<Guid> ids)
+    {
+        var known = ReadAssembled(run).ToHashSet();
+        foreach (var id in ids) known.Add(id);
+        run.AssembledTestCaseIds = string.Join(',', known);
+    }
+
+    private static IReadOnlyList<Guid> ReadAssembled(AgentRun run)
+        => string.IsNullOrWhiteSpace(run.AssembledTestCaseIds)
+            ? Array.Empty<Guid>()
+            : run.AssembledTestCaseIds
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(part => Guid.TryParse(part, out var id) ? id : Guid.Empty)
+                .Where(id => id != Guid.Empty)
+                .ToList();
+
+    /// <summary>
+    /// Records that a phase was skipped because the pass is resuming past it.
+    /// </summary>
+    /// <remarks>
+    /// A skipped phase leaves a step saying so. A timeline with a gap where generation should
+    /// be reads as a pass that failed to generate anything, which is a different and worse
+    /// story than one that had already done it.
+    /// </remarks>
+    private async Task RecordSkippedAsync(
+        AgentRun run, int order, AgentPhase phase, AgentPhase resumeFrom, CancellationToken ct)
+    {
+        var now = _clock.UtcNow;
+        _db.AgentSteps.Add(new AgentStep
+        {
+            OrganizationId = run.OrganizationId,
+            AgentRunId = run.Id,
+            Order = order,
+            Phase = phase,
+            Succeeded = true,
+            Description = $"Skipped {phase}: it ran before this pass stopped for a person.",
+            Rationale = $"The pass resumed at {resumeFrom}. Repeating an earlier phase would "
+                      + "duplicate what it produced, and re-planning would ask somebody a "
+                      + "question they have already answered.",
+            StartedAt = now,
+            CompletedAt = now,
+            CreatedAt = now
+        });
+        await _db.SaveChangesAsync(ct);
+    }
+
     /// <summary>
     /// Closes off questions nobody answered, when the pass ends for some other reason.
     /// </summary>
@@ -692,6 +742,17 @@ public sealed class AgentLoop : IAgentLoop
     /// numbers no longer match the order things happen in, and a resume that used them would
     /// skip the wrong half of the pass.
     /// </remarks>
+    /// <summary>
+    /// Phases a resumed pass repeats rather than skips.
+    /// </summary>
+    /// <remarks>
+    /// Read-only, and everything after them depends on what they put in memory. Skipping
+    /// these would leave a resumed pass generating tests for an empty ranking and executing
+    /// an empty list, which looks like a pass that found nothing to do.
+    /// </remarks>
+    private static readonly HashSet<AgentPhase> AlwaysReRun =
+        new() { AgentPhase.Modelling, AgentPhase.Prioritizing };
+
     private static int PhaseOrder(AgentPhase phase) => phase switch
     {
         AgentPhase.Exploring => 1,
@@ -1111,7 +1172,16 @@ public sealed class AgentLoop : IAgentLoop
         // Every assessed area becomes a finding, not only the ones acted on: the ranking is
         // the agent's reasoning, and hiding the part it chose not to work on would make the
         // choice unreviewable.
-        foreach (var (page, assessment) in state.Ranked.Where(r => r.Assessment.Score > 0))
+        //
+        // Written once per pass. Prioritising re-runs when a pass resumes — it is read-only
+        // and the later phases need its ranking — so without this a pass that stopped twice
+        // would show every area three times and the counts would treat that as real.
+        var alreadyRecorded = await _db.AgentFindings
+            .AnyAsync(f => f.AgentRunId == run.Id && f.Kind != AgentFindingKind.SuspectedDefect, ct);
+
+        foreach (var (page, assessment) in alreadyRecorded
+                     ? Array.Empty<(PageCandidate Page, RiskAssessment Assessment)>()
+                     : state.Ranked.Where(r => r.Assessment.Score > 0))
         {
             _db.AgentFindings.Add(new AgentFinding
             {
@@ -1258,6 +1328,11 @@ public sealed class AgentLoop : IAgentLoop
             .Select(t => t.Id)
             .ToListAsync(ct));
 
+        // Recorded on the run as well as in memory, so a pass that later stops for a person
+        // still executes these when it resumes past the phase that made them.
+        Assemble(run, state.GeneratedTestCaseIds);
+        await _db.SaveChangesAsync(ct);
+
         var warnings = summary.Warnings.Count > 0
             ? $" {summary.Warnings.Count} scenario(s) were dropped: {string.Join("; ", summary.Warnings.Take(3))}"
             : string.Empty;
@@ -1284,9 +1359,13 @@ public sealed class AgentLoop : IAgentLoop
         // Everything the pass assembled, not only what it wrote. A pass that ran only its own
         // output left the tests most likely to catch a regression — the ones that already
         // existed and had failed before — as the ones it never ran.
+        // What this pass assembled, including anything produced before it stopped for a
+        // person. The in-memory lists cover the phases that ran this time; the stored ones
+        // cover the phases that were skipped because they had already run.
         var toRun = state.GeneratedTestCaseIds
             .Concat(state.ApiTestCaseIds)
             .Concat(state.RegressionTestCaseIds)
+            .Concat(ReadAssembled(run))
             .Distinct()
             .ToArray();
 

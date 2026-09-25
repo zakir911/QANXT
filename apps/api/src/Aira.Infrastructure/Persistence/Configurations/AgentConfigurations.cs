@@ -132,3 +132,21 @@ public class AgentTestPlanItemConfiguration : IEntityTypeConfiguration<AgentTest
         b.Property(x => x.PotentialImpact).HasMaxLength(1000);
     }
 }
+
+/// <summary>
+/// The run itself.
+/// </summary>
+/// <remarks>
+/// Only the columns this phase added need saying. The rest were established by convention
+/// and changing them now would be a migration for no reason.
+/// </remarks>
+public class AgentRunConfiguration : IEntityTypeConfiguration<AgentRun>
+{
+    public void Configure(EntityTypeBuilder<AgentRun> b)
+    {
+        // Comma-separated GUIDs. Long enough for the ceiling on generated tests several times
+        // over, because truncating this silently would mean a resumed pass ran fewer tests
+        // than it assembled and reported the smaller number as the whole.
+        b.Property(x => x.AssembledTestCaseIds).HasMaxLength(40_000);
+    }
+}

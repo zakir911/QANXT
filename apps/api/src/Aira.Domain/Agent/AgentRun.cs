@@ -88,6 +88,18 @@ public class AgentRun : BaseEntity, ITenantOwned, IAuditable
     /// </remarks>
     public AgentPhase? ResumeFromPhase { get; set; }
 
+    /// <summary>
+    /// The tests this pass has assembled so far, comma separated.
+    /// </summary>
+    /// <remarks>
+    /// A pass that stops for a person is queued again from scratch and keeps nothing in
+    /// memory, so anything a skipped phase had produced would be lost — and execution would
+    /// run only whatever the phases after the resume point happened to rebuild. Generation
+    /// appends here as it goes and execution reads it, so what the pass runs is what the pass
+    /// assembled rather than what survived being restarted.
+    /// </remarks>
+    public string AssembledTestCaseIds { get; set; } = string.Empty;
+
     // ---- What it did -------------------------------------------------------
     public Guid? DiscoveryRunId { get; set; }
     public Guid? TestSuiteId { get; set; }
