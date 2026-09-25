@@ -152,7 +152,16 @@ const LIMITATIONS = [
   ['A coverage gap is a gap in the platform\'s records.', 'Somebody may be testing that capability '
     + 'by hand. The finding says what the platform knows, not what the team does.'],
   ['Injection resistance is tested against the payloads written for it.', 'Twenty-five of them. An '
-    + 'attack nobody thought of is untested, not defended.']
+    + 'attack nobody thought of is untested, not defended.'],
+  ['Almost none of this is reachable from the console.', 'The plan a person approves, the decision '
+    + 'log, the approval queue, the timeline, the business context and the coverage assessment are '
+    + 'all API-only. The console\'s agent page lists passes, shows one and cancels it. Everything '
+    + 'these tests verify, a person would today reach with curl — which makes the human-in-the-loop '
+    + 'requirement satisfied in the platform and not in the product.'],
+  ['Two defects found by running the platform are recorded and not fixed.', 'A worker job whose '
+    + 'completion is refused is re-queued with no attempt count, and a worker whose Redis connection '
+    + 'drops goes silently idle. Both are in verification/OBSERVED-DEFECTS.md, which separates what '
+    + 'was observed from what was only inferred.']
 ];
 
 // ---------------------------------------------------------------------------

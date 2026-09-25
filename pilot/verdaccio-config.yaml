@@ -1,0 +1,29 @@
+# Verdaccio, run locally as the pilot target for AIRA's autonomous agent.
+#
+# Authorized, non-production, and developed by somebody else: the three things the brief
+# asks of a pilot application. Nothing here is tuned to make AIRA look good — this is
+# Verdaccio's own shipped shape, with storage pointed at a scratch directory and the
+# uplink to npmjs removed so the pilot cannot reach the public registry.
+storage: ~/verdaccio-pilot/storage
+auth:
+  htpasswd:
+    file: ~/verdaccio-pilot/conf/htpasswd
+    max_users: 100
+# No uplinks. The pilot must not proxy to npmjs: a crawl that follows a package page must
+# not turn into traffic against somebody else's registry.
+uplinks: {}
+packages:
+  '@*/*':
+    access: $all
+    publish: $authenticated
+    unpublish: $authenticated
+  '**':
+    access: $all
+    publish: $authenticated
+    unpublish: $authenticated
+server:
+  keepAliveTimeout: 60
+web:
+  title: Verdaccio (AIRA pilot)
+log: { type: stdout, format: pretty, level: warn }
+listen: 0.0.0.0:4873
