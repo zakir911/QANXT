@@ -131,6 +131,47 @@ public sealed class AgentObservabilityService : IAgentObservabilityService
         approval.Justification = request.Justification.Trim();
         approval.DecidedAt = _clock.UtcNow;
 
+        // Saved before anything asks the database how many questions are still open.
+        //
+        // This is where a real pass got stuck: the count ran against the database while this
+        // approval's new status existed only in the change tracker, so the answer was always
+        // "one still pending" and the run was never released. It granted, reported granted,
+        // and sat at AwaitingApproval for ever — the worst shape of bug, because every visible
+        // signal said it had worked.
+        await _db.SaveChangesAsync(ct);
+
+        // Answering the last outstanding question releases the pass. Queued again rather than
+        // resumed in place: the runner is the only thing that runs the loop, and a second code
+        // path for "resume" would drift from the first.
+        var run = await _db.AgentRuns.FirstOrDefaultAsync(r => r.Id == approval.AgentRunId, ct);
+        var stillPending = await _db.AgentApprovals.CountAsync(
+            a => a.AgentRunId == approval.AgentRunId
+                 && a.Status == AgentApprovalStatus.Pending, ct);
+
+        if (run is { Status: AgentRunStatus.AwaitingApproval } && stillPending == 0)
+        {
+            if (request.Grant)
+            {
+                run.Status = AgentRunStatus.Queued;
+                run.Phase = AgentPhase.Pending;
+                run.StopReason = null;
+                // ResumeFromPhase was set when the pass parked, so it picks up at the phase
+                // that asked rather than starting over.
+            }
+            else
+            {
+                // Refused, and nothing else is outstanding. The pass has no reason to carry
+                // on and every reason to say what it did not do.
+                run.Status = AgentRunStatus.Stopped;
+                run.Phase = AgentPhase.Done;
+                run.CompletedAt = _clock.UtcNow;
+                run.StopReason =
+                    $"{approval.Tool} was refused by {_user.Email}: {approval.Justification}. "
+                    + "The pass stopped without performing it, and nothing it would have "
+                    + "established is known.";
+            }
+        }
+
         await _db.SaveChangesAsync(ct);
 
         await _audit.LogAsync(AuditAction.AgentApprovalDecided, nameof(AgentApproval), approval.Id,

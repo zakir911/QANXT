@@ -88,10 +88,17 @@ public sealed class AgentLoop : IAgentLoop
             // A resumed pass already crawled and already had its plan answered. Re-crawling
             // would change the application map underneath a plan somebody approved against the
             // old one, so exploration is skipped and the model is simply re-read.
-            var resuming = run.ResumeFromPhase is not null;
-            if (resuming) run.ResumeFromPhase = null;
+            // Where to pick up. A pass that stopped for a person resumes from the phase that
+            // asked; everything before it already happened and repeating it would re-crawl an
+            // application the approved plan was drawn against, or ask the same question twice.
+            var resumeFrom = run.ResumeFromPhase;
+            var resuming = resumeFrom is not null;
+            run.ResumeFromPhase = null;
 
-            if (!resuming && !await PhaseAsync(run, ++order, AgentPhase.Exploring, deadline, ct,
+            bool Skip(AgentPhase phase) => resumeFrom is { } from && PhaseOrder(phase) < PhaseOrder(from);
+
+            if (!Skip(AgentPhase.Exploring) && !resuming
+                && !await PhaseAsync(run, ++order, AgentPhase.Exploring, deadline, ct,
                     () => ExploreAsync(run, deadline, ct))) { }
             else if (!await PhaseAsync(run, ++order, AgentPhase.Modelling, deadline, ct,
                     () => ModelAsync(run, state, ct))) { }
@@ -100,7 +107,8 @@ public sealed class AgentLoop : IAgentLoop
             // Planning is skipped on a resume: the plan was proposed and answered before the
             // run was queued again, and proposing a second one would ask the same person the
             // same question about work they have already authorized.
-            else if (!resuming && !await PhaseAsync(run, ++order, AgentPhase.Planning, deadline, ct,
+            else if (!resuming
+                && !await PhaseAsync(run, ++order, AgentPhase.Planning, deadline, ct,
                     () => PlanAsync(run, state, ct))) { }
             else if (!await PhaseAsync(run, ++order, AgentPhase.Generating, deadline, ct,
                     () => GenerateAsync(run, state, ct))) { }
@@ -112,7 +120,8 @@ public sealed class AgentLoop : IAgentLoop
                     () => ApiTestingAsync(run, state, ct))) { }
             else if (!await PhaseAsync(run, ++order, AgentPhase.Prioritizing, deadline, ct,
                     () => SelectRegressionAsync(run, state, ct))) { }
-            else if (!await PhaseAsync(run, ++order, AgentPhase.SecurityTesting, deadline, ct,
+            else if (!Skip(AgentPhase.SecurityTesting)
+                && !await PhaseAsync(run, ++order, AgentPhase.SecurityTesting, deadline, ct,
                     () => SecurityTestingAsync(run, state, ct))) { }
             else if (!await PhaseAsync(run, ++order, AgentPhase.Executing, deadline, ct,
                     () => ExecuteAsync(run, state, deadline, ct))) { }
@@ -132,6 +141,8 @@ public sealed class AgentLoop : IAgentLoop
                 run.Status = AgentRunStatus.Completed;
                 run.StopReason ??= "The pass completed its plan.";
             }
+
+            await ExpireUnansweredAsync(run, ct);
         }
         catch (OperationCanceledException)
         {
@@ -475,7 +486,10 @@ public sealed class AgentLoop : IAgentLoop
                                   + "checks; production is not permitted for an unattended pass.",
                     ct: ct);
 
-            return PhaseOutcome.Ok("Security scanning was not performed.", decision.Reason);
+            return decision.Denial == AgentDenial.ApprovalRequired
+                ? await ParkForApprovalAsync(run, AgentPhase.SecurityTesting,
+                    "whether to scan this application", ct)
+                : PhaseOutcome.Ok("Security scanning was not performed.", decision.Reason);
         }
 
         var started = await _security.StartAsync(new StartSecurityScanRequest(
@@ -586,6 +600,58 @@ public sealed class AgentLoop : IAgentLoop
     /// otherwise misbehave — it is that "what may this pass do" has one answer, in one place,
     /// that a reader can check without following the loop's control flow.
     /// </remarks>
+    /// <summary>
+    /// Closes off questions nobody answered, when the pass ends for some other reason.
+    /// </summary>
+    /// <remarks>
+    /// A pending approval about a finished run is worse than no approval: it sits in a queue
+    /// implying somebody could still say yes. Expired is not granted and not refused — it is
+    /// the honest third answer, and what the pass would have done is reported as not done.
+    /// </remarks>
+    private async Task ExpireUnansweredAsync(AgentRun run, CancellationToken ct)
+    {
+        if (run.Status is AgentRunStatus.AwaitingApproval or AgentRunStatus.Running) return;
+
+        var pending = await _db.AgentApprovals
+            .Where(a => a.AgentRunId == run.Id && a.Status == AgentApprovalStatus.Pending)
+            .ToListAsync(ct);
+        if (pending.Count == 0) return;
+
+        foreach (var approval in pending) approval.Status = AgentApprovalStatus.Expired;
+
+        var tools = string.Join(", ", pending.Select(a => a.Tool).Distinct());
+        run.StopReason = $"{run.StopReason} Nobody answered {pending.Count} question(s) "
+                       + $"({tools}), so those actions were not performed and nothing they "
+                       + "would have established is known.";
+
+        await _db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// Parks the pass until somebody answers, and says where to pick it up.
+    /// </summary>
+    /// <remarks>
+    /// Found by running a real pass: the two phases that ask for approval filed their
+    /// questions and the pass carried on and finished, leaving two pending approvals about a
+    /// run that was already over. Nobody would ever answer them, and if they had it would
+    /// have changed nothing. An approval workflow that cannot be answered in time is
+    /// decoration, so the pass now stops the same way it stops for a plan — and answering the
+    /// last pending question queues it again from the phase that asked.
+    /// </remarks>
+    private async Task<PhaseOutcome> ParkForApprovalAsync(
+        AgentRun run, AgentPhase resumeFrom, string what, CancellationToken ct)
+    {
+        run.Status = AgentRunStatus.AwaitingApproval;
+        run.Phase = AgentPhase.AwaitingApproval;
+        run.ResumeFromPhase = resumeFrom;
+        run.StopReason = $"Waiting for somebody to answer: {what}";
+        await _db.SaveChangesAsync(ct);
+
+        return PhaseOutcome.Stop($"Stopped to ask about {what}.",
+            "Nothing was done. The pass resumes from here when the question is answered, and "
+            + "reports what it did not do if nobody answers.");
+    }
+
     private async Task<AgentPolicyDecision> CheckAsync(
         AgentRun run, PassState state, string tool, AgentPhase phase,
         int newTests = 0, int newJourneys = 0, CancellationToken ct = default)
@@ -618,6 +684,29 @@ public sealed class AgentLoop : IAgentLoop
         return decision;
     }
 
+    /// <summary>
+    /// Where a phase sits in the sequence, for deciding what a resumed pass skips.
+    /// </summary>
+    /// <remarks>
+    /// Explicit rather than the enum's numeric value: the enum grew by appending, so its
+    /// numbers no longer match the order things happen in, and a resume that used them would
+    /// skip the wrong half of the pass.
+    /// </remarks>
+    private static int PhaseOrder(AgentPhase phase) => phase switch
+    {
+        AgentPhase.Exploring => 1,
+        AgentPhase.Modelling => 2,
+        AgentPhase.Prioritizing => 3,
+        AgentPhase.Planning => 4,
+        AgentPhase.Generating => 5,
+        AgentPhase.SecurityTesting => 6,
+        AgentPhase.Executing => 7,
+        AgentPhase.Investigating => 8,
+        AgentPhase.Correlating => 9,
+        AgentPhase.Proposing => 10,
+        _ => 0
+    };
+
     private sealed class PassState
     {
         public List<PageCandidate> Pages { get; } = new();
@@ -646,9 +735,9 @@ public sealed class AgentLoop : IAgentLoop
         /// <summary>Permissions the pass's initiator held when it started, frozen.</summary>
         public IReadOnlySet<string> Permissions { get; set; } = new HashSet<string>();
 
-        /// <summary>Where this pass is running. Production is refused by the registry for
-        /// anything that changes state, whatever the run's policy says.</summary>
-        public EnvironmentKind Environment { get; set; } = EnvironmentKind.Qa;
+        /// <summary>Where this pass is running, or null when nothing says. Null permits
+        /// observation and refuses anything that writes.</summary>
+        public EnvironmentKind? Environment { get; set; }
 
         /// <summary>The scan this pass queued, if it queued one.</summary>
         public Guid? SecurityScanId { get; set; }
@@ -931,13 +1020,14 @@ public sealed class AgentLoop : IAgentLoop
     /// Which kind of environment this application lives in.
     /// </summary>
     /// <remarks>
-    /// Defaults to Production when nothing says otherwise. That looks backwards and is
-    /// deliberate: an unknown environment is the one case where guessing wrong in the other
-    /// direction lets an unattended pass act against a live system, and the registry refuses
-    /// everything state-changing in production. An application nobody has described is
-    /// therefore read-only to the agent until somebody describes it.
+    /// Returns null when nothing says, which is its own answer rather than a guess in either
+    /// direction. Reading an undescribed environment as production refuses everything with
+    /// "not authorized for production" — misleading, since the run never asked for it, and
+    /// useless to an operator trying to work out what to change. Reading it as non-production
+    /// would let an unattended pass write to a system nobody has identified. The guard takes
+    /// null as "observe, do not write", and says so.
     /// </remarks>
-    private async Task<EnvironmentKind> EnvironmentOfAsync(Guid applicationId, CancellationToken ct)
+    private async Task<EnvironmentKind?> EnvironmentOfAsync(Guid applicationId, CancellationToken ct)
     {
         var scope = await _db.SecurityScopes.AsNoTracking()
             .FirstOrDefaultAsync(s => s.ApplicationId == applicationId, ct);
@@ -958,8 +1048,8 @@ public sealed class AgentLoop : IAgentLoop
             .ToListAsync(ct);
 
         // One environment and no ambiguity: use it. Several, and nothing says which, so the
-        // safe assumption stands.
-        return only.Count == 1 && only[0] is { } single ? single : EnvironmentKind.Production;
+        // honest answer is that this is not known.
+        return only.Count == 1 && only[0] is { } single ? single : null;
     }
 
     /// <summary>Loads the plan a person answered, so later phases run what it says.</summary>
@@ -1224,7 +1314,10 @@ public sealed class AgentLoop : IAgentLoop
                                   + "wherever a journey submits a form.",
                     ct: ct);
 
-            return PhaseOutcome.Ok("The tests were not run.", permitted.Reason);
+            return permitted.Denial == AgentDenial.ApprovalRequired
+                ? await ParkForApprovalAsync(run, AgentPhase.Executing,
+                    $"whether to run {toRun.Length} test(s)", ct)
+                : PhaseOutcome.Ok("The tests were not run.", permitted.Reason);
         }
 
         var started = await _runs.StartAsync(new StartTestRunRequest(

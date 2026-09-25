@@ -84,6 +84,9 @@ public enum AgentDenial
     PermissionMissing = 4,
     EnvironmentNotPermitted = 5,
     ProductionNotPermitted = 6,
+    /// <summary>Nothing says what kind of environment this is, so nothing that changes state
+    /// may be sent to it.</summary>
+    EnvironmentUnknown = 13,
     DestructiveNotPermitted = 7,
     SecurityTestingNotPermitted = 8,
     TestBudgetSpent = 9,
@@ -95,7 +98,19 @@ public enum AgentDenial
 /// <summary>What the agent is asking to do.</summary>
 public sealed record AgentActionRequest(
     string ToolName,
-    EnvironmentKind Environment,
+    /// <summary>
+    /// Where this would run, or null when nothing says.
+    /// </summary>
+    /// <remarks>
+    /// Null is its own answer rather than a default. Treating an undescribed environment as
+    /// production refuses everything with "this run is not authorized for production", which
+    /// is misleading — the run was never asking for production — and leaves an operator with
+    /// no idea what to change. Treating it as non-production would let an unattended pass
+    /// write to something nobody has identified. So it is neither: observation and
+    /// interaction are permitted, anything that changes state is refused, and the refusal
+    /// says what to do about it.
+    /// </remarks>
+    EnvironmentKind? Environment,
     /// <summary>The risk the caller declares. It can raise the tool's floor, never lower it.</summary>
     AgentActionRisk? DeclaredRisk = null,
     /// <summary>How many tests this action would create, for the budget rung.</summary>
@@ -187,20 +202,36 @@ public static class AgentPolicyGuard
                 passed, tool.Risk);
         passed.Add("permission");
 
-        var isProduction = request.Environment == EnvironmentKind.Production;
-        if (isProduction && !policy.AllowProduction)
-            return Deny(AgentDenial.ProductionNotPermitted,
-                "This run is not authorized for production, and production is off by default.",
-                passed, tool.Risk);
-
-        if (!tool.PermitsEnvironment(request.Environment))
-            return Deny(AgentDenial.EnvironmentNotPermitted,
-                $"'{tool.Name}' may not be used against a {request.Environment} environment, "
-                + "whatever the run's policy allows.", passed, tool.Risk);
-        passed.Add("environment");
-
-        // The declared risk raises the tool's floor and can never lower it.
+        // The declared risk raises the tool's floor and can never lower it. Computed before
+        // the environment rungs because what an unknown environment permits depends on it.
         var risk = request.DeclaredRisk is { } declared && declared > tool.Risk ? declared : tool.Risk;
+
+        if (request.Environment is { } environment)
+        {
+            if (environment == EnvironmentKind.Production && !policy.AllowProduction)
+                return Deny(AgentDenial.ProductionNotPermitted,
+                    "This run is not authorized for production, and production is off by default.",
+                    passed, risk);
+
+            if (!tool.PermitsEnvironment(environment))
+                return Deny(AgentDenial.EnvironmentNotPermitted,
+                    $"'{tool.Name}' may not be used against a {environment} environment, "
+                    + "whatever the run's policy allows.", passed, risk);
+        }
+        else if (risk >= AgentActionRisk.StateChanging)
+        {
+            // Accurate and actionable. The old behaviour read an undescribed environment as
+            // production and refused everything with "not authorized for production", which
+            // was misleading — the run never asked for production — and told an operator
+            // nothing about what to change.
+            return Deny(AgentDenial.EnvironmentUnknown,
+                $"'{tool.Name}' would change something and nothing says what kind of "
+                + "environment this application lives in. Register an environment for it, or "
+                + "name one on its security scope, and this will run. Until then only "
+                + "observation is permitted: an unattended pass must not write to a system "
+                + "nobody has identified.", passed, risk);
+        }
+        passed.Add("environment");
 
         if (risk == AgentActionRisk.Destructive && !policy.AllowDestructiveActions)
             return Deny(AgentDenial.DestructiveNotPermitted,

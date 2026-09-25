@@ -48,7 +48,7 @@ public class AgentPolicyGuardTests
     };
 
     private static AgentActionRequest Request(
-        string tool, EnvironmentKind env = EnvironmentKind.Staging,
+        string tool, EnvironmentKind? env = EnvironmentKind.Staging,
         AgentActionRisk? risk = null, int newTests = 0, int newJourneys = 0)
         => new(tool, env, risk, newTests, newJourneys);
 
@@ -179,6 +179,63 @@ public class AgentPolicyGuardTests
         // whole reason the registry carries an environment list at all.
         decision.Allowed.Should().BeFalse();
         decision.Denial.Should().Be(AgentDenial.EnvironmentNotPermitted);
+    }
+
+    [Fact]
+    public void An_undescribed_environment_permits_observation_and_refuses_writing()
+    {
+        // Found by running a real pass against the lab, where the application had no
+        // environment record. Everything was refused with "this run is not authorized for
+        // production" — misleading, because the run never asked for production, and useless
+        // to an operator trying to work out what to change.
+        var observe = AgentPolicyGuard.Evaluate(
+            Permissive, Request("browser.inspect", env: null), State());
+        observe.Allowed.Should().BeTrue(observe.Reason);
+
+        var generate = AgentPolicyGuard.Evaluate(
+            Permissive, Request("test.generate", env: null), State());
+        generate.Allowed.Should().BeTrue(generate.Reason);
+
+        var write = AgentPolicyGuard.Evaluate(
+            Permissive, Request("test.execute", env: null), State());
+        write.Allowed.Should().BeFalse();
+        write.Denial.Should().Be(AgentDenial.EnvironmentUnknown);
+    }
+
+    [Fact]
+    public void The_refusal_for_an_unknown_environment_says_what_to_change()
+    {
+        var decision = AgentPolicyGuard.Evaluate(
+            Permissive, Request("test.execute", env: null), State());
+
+        // A refusal an operator cannot act on is a refusal they route around.
+        decision.Reason.Should().Contain("Register an environment for it");
+        decision.Reason.Should().Contain("name one on its security scope");
+        decision.Reason.Should().NotContain("not authorized for production");
+    }
+
+    [Fact]
+    public void An_unknown_environment_is_not_quietly_read_as_production()
+    {
+        var decision = AgentPolicyGuard.Evaluate(
+            Permissive with { AllowProduction = false },
+            Request("test.execute", env: null), State());
+
+        // The distinction the original defect turned on: "we do not know" and "it is
+        // production" lead to the same refusal and to completely different fixes.
+        decision.Denial.Should().NotBe(AgentDenial.ProductionNotPermitted);
+    }
+
+    [Fact]
+    public void A_declared_risk_still_raises_the_floor_when_the_environment_is_unknown()
+    {
+        var decision = AgentPolicyGuard.Evaluate(
+            Permissive, Request("browser.click", env: null, risk: AgentActionRisk.StateChanging),
+            State());
+
+        // Otherwise a caller that knows its click submits a payment gets waved through
+        // against a system nobody has identified.
+        decision.Denial.Should().Be(AgentDenial.EnvironmentUnknown);
     }
 
     [Fact]
