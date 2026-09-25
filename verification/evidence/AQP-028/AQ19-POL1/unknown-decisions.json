@@ -1,0 +1,125 @@
+[
+  {
+    "id": "9b078cc1-66d6-4df8-b60d-aaa447336514",
+    "sequence": 1,
+    "phase": "planning",
+    "summary": "Proposed 32 test(s) across 4 category(ies).",
+    "reason": "32 test(s) across 4 category(ies) for \"Release validation\", 26 of which do not exist yet. Roughly 8 minute(s) — an estimate from defaults, because this application has no execution history yet. 4 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+    "evidence": [
+      {
+        "name": "pagesPlannable",
+        "value": "6"
+      },
+      {
+        "name": "endpointsDiscovered",
+        "value": "14"
+      },
+      {
+        "name": "journeysKnown",
+        "value": "0"
+      },
+      {
+        "name": "securityAuthorized",
+        "value": "False"
+      },
+      {
+        "name": "openSecurityFindings",
+        "value": "0"
+      },
+      {
+        "name": "criticalAreasNamedByAPerson",
+        "value": "none"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "none"
+      }
+    ],
+    "result": "32 test(s) proposed.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T07:33:36.2794+00:00"
+  },
+  {
+    "id": "a609d0cd-2b42-4a70-8988-de36d82f70f5",
+    "sequence": 2,
+    "phase": "planning",
+    "summary": "The plan was approved by ag***@example.test.",
+    "reason": "Approved to exercise the unknown-environment rung.",
+    "evidence": [
+      {
+        "name": "decidedBy",
+        "value": "ag***@example.test"
+      },
+      {
+        "name": "categoriesIncluded",
+        "value": "Visual, Api, Smoke, Accessibility"
+      },
+      {
+        "name": "categoriesExcluded",
+        "value": "none"
+      },
+      {
+        "name": "testsPlanned",
+        "value": "32"
+      }
+    ],
+    "result": "Approved",
+    "allowed": true,
+    "actorUserId": "185d423e-02f7-4bc3-872c-d9d61f3cfa58",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T07:33:37.562718+00:00"
+  },
+  {
+    "id": "411dc3e6-d5f4-4a49-bb42-ca3e86631eb5",
+    "sequence": 3,
+    "phase": "generating",
+    "tool": "test.generate",
+    "summary": "Wanted to use test.generate.",
+    "reason": "This would take the run past 6 new test(s). Tests nobody asked for are a cost, and an agent that writes them without limit is one.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission → environment → risk → security"
+      },
+      {
+        "name": "deniedAt",
+        "value": "TestBudgetSpent"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "TestBudgetSpent",
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T07:33:41.401447+00:00"
+  },
+  {
+    "id": "408c6c67-71e1-46b1-b070-048d67d81bbd",
+    "sequence": 4,
+    "phase": "executing",
+    "tool": "test.execute",
+    "summary": "Wanted to use test.execute.",
+    "reason": "'test.execute' would change something and nothing says what kind of environment this application lives in. Register an environment for it, or name one on its security scope, and this will run. Until then only observation is permitted: an unattended pass must not write to a system nobody has identified.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission"
+      },
+      {
+        "name": "deniedAt",
+        "value": "EnvironmentUnknown"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "EnvironmentUnknown",
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T07:33:41.422284+00:00"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-042",
+  "suite": "Autonomous policy",
+  "runId": "AQ19-POL1",
+  "objective": "An identifier survives in the record rather than being masked away",
+  "preconditions": [
+    "passes have run against the lab"
+  ],
+  "input": "every decision recorded by the passes in this suite",
+  "expected": "The approver's id is readable even though the narrative masks their address",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "actor a2b5cf4b-7000-420a-87b5-4dcf853980ad, summary \"The plan was approved by ag***@example.test.\"",
+  "metrics": null,
+  "startedAt": "2026-09-25T07:33:43.617Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "78dcad9",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-042/AQ19-POL1/decisions.json",
+      "bytes": 3704,
+      "sha256": "11e3015c17de26b6e6e374dfd67fad501eedab3aabe8334fa811d49d0a1f9406"
+    }
+  ]
+}

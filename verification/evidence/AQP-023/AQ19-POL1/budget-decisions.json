@@ -1,0 +1,125 @@
+[
+  {
+    "id": "7352658c-5c2e-4b8c-81f9-a1c0cf68177b",
+    "sequence": 1,
+    "phase": "planning",
+    "summary": "Proposed 110 test(s) across 6 category(ies).",
+    "reason": "110 test(s) across 6 category(ies) for \"Release validation\", 35 of which do not exist yet. Roughly 34 minute(s) — an estimate from defaults, because this application has no execution history yet. 3 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+    "evidence": [
+      {
+        "name": "pagesPlannable",
+        "value": "10"
+      },
+      {
+        "name": "endpointsDiscovered",
+        "value": "14"
+      },
+      {
+        "name": "journeysKnown",
+        "value": "0"
+      },
+      {
+        "name": "securityAuthorized",
+        "value": "True"
+      },
+      {
+        "name": "openSecurityFindings",
+        "value": "0"
+      },
+      {
+        "name": "criticalAreasNamedByAPerson",
+        "value": "payment"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "none"
+      }
+    ],
+    "result": "110 test(s) proposed.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T07:33:11.071437+00:00"
+  },
+  {
+    "id": "5a670171-ed35-4021-8cf1-a43a3e1a4d96",
+    "sequence": 2,
+    "phase": "planning",
+    "summary": "The plan was approved by ag***@example.test.",
+    "reason": "Approved to spend the budget.",
+    "evidence": [
+      {
+        "name": "decidedBy",
+        "value": "ag***@example.test"
+      },
+      {
+        "name": "categoriesIncluded",
+        "value": "CriticalJourney, Security, Visual, Smoke, Api, Accessibility"
+      },
+      {
+        "name": "categoriesExcluded",
+        "value": "none"
+      },
+      {
+        "name": "testsPlanned",
+        "value": "110"
+      }
+    ],
+    "result": "Approved",
+    "allowed": true,
+    "actorUserId": "a2b5cf4b-7000-420a-87b5-4dcf853980ad",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T07:33:13.198969+00:00"
+  },
+  {
+    "id": "3d142403-9800-4923-84a9-52bd9c2f79d1",
+    "sequence": 3,
+    "phase": "generating",
+    "tool": "test.generate",
+    "summary": "Wanted to use test.generate.",
+    "reason": "This would take the run past 1 new test(s). Tests nobody asked for are a cost, and an agent that writes them without limit is one.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission → environment → risk → security"
+      },
+      {
+        "name": "deniedAt",
+        "value": "TestBudgetSpent"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "TestBudgetSpent",
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T07:33:16.177316+00:00"
+  },
+  {
+    "id": "00529240-6813-4ad5-8ecf-a563d65ca209",
+    "sequence": 4,
+    "phase": "securityTesting",
+    "tool": "security.scan",
+    "summary": "Wanted to use security.scan.",
+    "reason": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission → environment → risk → security → creation-budget"
+      },
+      {
+        "name": "deniedAt",
+        "value": "ApprovalRequired"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "ApprovalRequired",
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T07:33:16.190208+00:00"
+  }
+]

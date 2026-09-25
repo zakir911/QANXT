@@ -1,0 +1,38 @@
+{
+  "testId": "AQP-031",
+  "suite": "Autonomous policy",
+  "runId": "AQ19-POL1",
+  "objective": "An unscanned application is not planned for security testing",
+  "preconditions": [
+    "a pass has run against an application whose environment nothing identifies"
+  ],
+  "input": "agent run 39d627bf-b9a1-4667-9729-a25529b0966a",
+  "expected": "No security category appears for an application with no scope",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "absent, as it should be",
+  "metrics": null,
+  "startedAt": "2026-09-25T07:33:43.611Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "78dcad9",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "unknown-decisions.json",
+      "path": "evidence/AQP-031/AQ19-POL1/unknown-decisions.json",
+      "bytes": 3782,
+      "sha256": "cb44d8fe2a458055d3738c2c54ac70aa94fbc6afbf6800ed0dcf15ce54f3d343"
+    },
+    {
+      "file": "unknown-run.json",
+      "path": "evidence/AQP-031/AQ19-POL1/unknown-run.json",
+      "bytes": 1070,
+      "sha256": "630d55c960faa66aca71c450a23f0d36141054c0320fcfcc8b8b604673c5cfc4"
+    }
+  ]
+}

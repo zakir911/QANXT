@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-025",
+  "suite": "Autonomous policy",
+  "runId": "AQ19-POL1",
+  "objective": "The run reports the bounds it actually ran under",
+  "preconditions": [
+    "a pass has run with a test budget of one"
+  ],
+  "input": "agent run 05fe636f-30c9-4376-97b2-1d725d42ceb4",
+  "expected": "The bounds on the run match what was asked for",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "{\"explore\":false,\"execute\":true,\"maxPages\":10,\"maxDepth\":3,\"maxTargets\":3,\"maxGeneratedTests\":1,\"timeBudgetSeconds\":900,\"maxAiCostUsd\":1}",
+  "metrics": null,
+  "startedAt": "2026-09-25T07:33:16.234Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "78dcad9",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "budget-decisions.json",
+      "path": "evidence/AQP-025/AQ19-POL1/budget-decisions.json",
+      "bytes": 3701,
+      "sha256": "4496b4affa611d87b9121b2e908eabfe9c212a4425414eb5b0c6de89a60db3ab"
+    }
+  ]
+}

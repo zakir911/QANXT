@@ -45,7 +45,8 @@ const SUITES = {
   // The autonomous agent. Each of these drives one or more real passes and then makes many
   // distinct claims about what the pass recorded — the pass is the expensive part, the claims
   // are the point.
-  'agent-planning': () => import('./suites/agent-planning.mjs')
+  'agent-planning': () => import('./suites/agent-planning.mjs'),
+  'agent-policy': () => import('./suites/agent-policy.mjs')
 };
 
 const argv = process.argv.slice(2);
