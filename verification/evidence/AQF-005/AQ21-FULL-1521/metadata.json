@@ -1,0 +1,44 @@
+{
+  "testId": "AQF-005",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ21-FULL-1521",
+  "objective": "A failed phase is recorded as failed rather than omitted",
+  "preconditions": [
+    "a pass has run against a lab whose sign-in API answers 500"
+  ],
+  "input": "agent run 46769708-191f-4234-9d07-c4d9f4ef5075",
+  "expected": "Any unsuccessful step says so rather than disappearing",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "0 failed steps of 36",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:27:41.839Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c6758a8",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQF-005/AQ21-FULL-1521/run.json",
+      "bytes": 1164,
+      "sha256": "757a6aafddfcab4702f505775e0aa41a7e9fde0a8f0bcc16cc6961b831a853a1"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-005/AQ21-FULL-1521/decisions.json",
+      "bytes": 7780,
+      "sha256": "ddd97886a34689da2a284c8ea6ce38eedf3ead96aa1910c94f34637e049f5087"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQF-005/AQ21-FULL-1521/steps.json",
+      "bytes": 14006,
+      "sha256": "5e31370dea8fdee05c61ca06cc47981ecaa4e86f8d4651345d3215839919f433"
+    }
+  ]
+}

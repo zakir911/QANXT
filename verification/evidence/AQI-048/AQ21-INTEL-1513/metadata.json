@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-048",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ21-INTEL-1513",
+  "objective": "A gap names which dimension is missing",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run 4c0e50d2-f781-4cf1-9bc8-ad4e8608774d",
+  "expected": "Each finding says whether it is UI, API, security, accessibility or visual",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "0 of 24 without a dimension",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:15:25.959Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "0e5dbe2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-048/AQ21-INTEL-1513/coverage-decision.json",
+      "bytes": 1287,
+      "sha256": "1b7e228e58167558240b1f4f78bf1ffab340c5bc4614865bbc97afc4d17057cb"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-048/AQ21-INTEL-1513/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "638be6cd635d45b5b7794c448f5a00da2a8b700c070626e5317a7d205d7a0d39"
+    }
+  ]
+}

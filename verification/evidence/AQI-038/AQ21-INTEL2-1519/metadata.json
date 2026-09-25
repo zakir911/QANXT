@@ -1,0 +1,32 @@
+{
+  "testId": "AQI-038",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ21-INTEL2-1519",
+  "objective": "The verification run carries the build reference it was given",
+  "preconditions": [
+    "a pass has run and its tests have executed"
+  ],
+  "input": "agent run 7807aac0-63ee-4f87-a711-6eae98853efb",
+  "expected": "The test run the pass started records the build, so the assessment can find it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "applicationBuildRef golden-muh3wzlo",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:21:14.885Z",
+  "durationMs": 4,
+  "build": {
+    "commit": "0e5dbe2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "release.json",
+      "path": "evidence/AQI-038/AQ21-INTEL2-1519/release.json",
+      "bytes": 702,
+      "sha256": "5ca5c7be9b62ebad7d941e3ed6f685778331a29fae628737897718095e0dc5dd"
+    }
+  ]
+}

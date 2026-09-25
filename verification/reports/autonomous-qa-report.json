@@ -1,14 +1,14 @@
 {
-  "runId": "AQ19-ALL3-1456",
-  "generatedAt": "2026-09-25T15:07:39.867Z",
+  "runId": "AQ21-FULL-1521",
+  "generatedAt": "2026-09-25T15:29:08.483Z",
   "verdict": "AIRA's autonomous QA agent behaved as specified against its own lab in this run.",
   "totals": {
-    "tests": 251,
-    "passed": 251,
+    "tests": 253,
+    "passed": 253,
     "failed": 0,
     "notVerified": 0,
-    "evidenceFiles": 711,
-    "evidenceIntact": 711
+    "evidenceFiles": 714,
+    "evidenceIntact": 714
   },
   "families": [
     {
@@ -50,8 +50,8 @@
       "prefix": "AQI-",
       "name": "Intelligence and coverage",
       "what": "Memory between passes, coverage, and the release assessment",
-      "total": 55,
-      "passed": 55
+      "total": 57,
+      "passed": 57
     }
   ],
   "requirements": [
@@ -636,7 +636,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The pass started a real test run",
-      "detail": "4527c6c0-f605-4a5f-81b7-1b227751f703",
+      "detail": "60d60183-a03b-4471-bf2e-e9758217f131",
       "evidence": 5
     },
     {
@@ -645,7 +645,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The run it started is readable and reached a verdict",
-      "detail": "200 failed",
+      "detail": "200 passed",
       "evidence": 5
     },
     {
@@ -690,7 +690,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The pass asked the security engine to scan",
-      "detail": "Queued security scan SCAN-20260925-FE3A63.",
+      "detail": "Queued security scan SCAN-20260925-E2697F.",
       "evidence": 5
     },
     {
@@ -699,7 +699,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The scan is identified so it can be read back",
-      "detail": "64e40ed9-fc3f-461c-88a0-9fb9b221c621",
+      "detail": "acc93ae7-4705-45be-82ce-51efa5ca16ad",
       "evidence": 5
     },
     {
@@ -726,7 +726,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The scan the pass queued is a real scan",
-      "detail": "200 SCAN-20260925-FE3A63 completed",
+      "detail": "200 SCAN-20260925-E2697F completed",
       "evidence": 5
     },
     {
@@ -789,7 +789,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "Findings are not duplicated by a resume",
-      "detail": "none, of 35 distinct finding(s)",
+      "detail": "none, of 34 distinct finding(s)",
       "evidence": 5
     },
     {
@@ -852,7 +852,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The timeline records that a person answered",
-      "detail": "security.scan was granted by agentexec-rvm9xpmbsv@example.test | test.execute was granted by agentexec-rvm9xpmbsv@example.test",
+      "detail": "security.scan was granted by agentexec-4szv7esjec@example.test | test.execute was granted by agentexec-4szv7esjec@example.test",
       "evidence": 5
     },
     {
@@ -924,7 +924,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The pass reports how many areas it assessed",
-      "detail": "10 assessed, 35 findings",
+      "detail": "10 assessed, 34 findings",
       "evidence": 5
     },
     {
@@ -942,7 +942,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The pass reports its proposals",
-      "detail": "35",
+      "detail": "34",
       "evidence": 5
     },
     {
@@ -996,7 +996,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A refused pass says what it therefore does not know",
-      "detail": "security.scan was refused by agentrefused-cshw1rkeo4@example.test: Refused by the golden suite to exercise the refusal path.. The pass stopped without performing it, and nothing it would have establis",
+      "detail": "security.scan was refused by agentrefused-sxhoh34lq9@example.test: Refused by the golden suite to exercise the refusal path.. The pass stopped without performing it, and nothing it would have establis",
       "evidence": 2
     },
     {
@@ -1014,7 +1014,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A refusal records who refused and why",
-      "detail": "agentrefused-cshw1rkeo4@example.test: Refused by the golden suite to exercise the refusal path.",
+      "detail": "agentrefused-sxhoh34lq9@example.test: Refused by the golden suite to exercise the refusal path.",
       "evidence": 2
     },
     {
@@ -1158,7 +1158,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "A pass for an application that does not exist is refused",
-      "detail": "404 {\"code\":\"not_found\",\"title\":\"The application was not found.\",\"status\":404,\"correlationId\":\"105f8f2c345343a28daa3055ed907",
+      "detail": "404 {\"code\":\"not_found\",\"title\":\"The application was not found.\",\"status\":404,\"correlationId\":\"dfbc0c4405ae41e9a18e3bdbde364",
       "evidence": 1
     },
     {
@@ -1302,7 +1302,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A second pass reads the execution history the first left",
-      "detail": "4 of 7 from history",
+      "detail": "3 of 6 from history",
       "evidence": 4
     },
     {
@@ -1311,7 +1311,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The second plan says its estimates rest on this application",
-      "detail": "115 test(s) across 7 category(ies) for \"Release validation\", 27 of which do not exist yet. Roughly 30 minute(s) — an estimate from how long these tests have taken on this application before. 4 area(s)",
+      "detail": "114 test(s) across 6 category(ies) for \"Release validation\", 27 of which do not exist yet. Roughly 29 minute(s) — an estimate from how long these tests have taken on this application before. 4 area(s)",
       "evidence": 4
     },
     {
@@ -1374,7 +1374,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "Business context reads back as it was written",
-      "detail": "{\"applicationId\":\"20679ba2-92ba-4c24-b2e9-31c8bf99c2ad\",\"criticalJourneys\":[\"payment\",\"login\"],\"highRiskAreas\":[\"authentication\"],\"excludedAreas\":[\"/statements\"],\"notes\":\"The golden lab.\",\"updatedAt\":",
+      "detail": "{\"applicationId\":\"be8cca14-3a5b-4519-8fef-805891455052\",\"criticalJourneys\":[\"payment\",\"login\"],\"highRiskAreas\":[\"authentication\"],\"excludedAreas\":[\"/statements\"],\"notes\":\"The golden lab.\",\"updatedAt\":",
       "evidence": 4
     },
     {
@@ -1392,7 +1392,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "Context records who last changed it",
-      "detail": "4b031b50-7d17-4c4e-85a6-f4d5c59fd6d0",
+      "detail": "d80eb8da-f6a2-4495-8115-6791e0da4128",
       "evidence": 4
     },
     {
@@ -1446,7 +1446,7 @@
       "result": "PASS",
       "severity": "medium",
       "objective": "A category with nothing new to write says so",
-      "detail": "3 categories need nothing new",
+      "detail": "2 categories need nothing new",
       "evidence": 4
     },
     {
@@ -1473,7 +1473,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "A pass records how many failures it investigated",
-      "detail": "1",
+      "detail": "0",
       "evidence": 4
     },
     {
@@ -1482,7 +1482,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "Every finding a pass makes is a proposal",
-      "detail": "35 of 35 carry a recommendation",
+      "detail": "34 of 34 carry a recommendation",
       "evidence": 4
     },
     {
@@ -1491,7 +1491,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A finding says how sure the pass is",
-      "detail": "0 of 35",
+      "detail": "0 of 34",
       "evidence": 4
     },
     {
@@ -1509,7 +1509,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "Every finding points somewhere a person can go and look",
-      "detail": "35 finding(s): 34 by route, 1 by execution, 0 pointing nowhere",
+      "detail": "34 finding(s): 34 by route, 0 by execution, 0 pointing nowhere",
       "evidence": 4
     },
     {
@@ -1527,7 +1527,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A release assessment covers the run the pass started",
-      "detail": "build golden-muh39q47, 1 run(s), 10 test(s)",
+      "detail": "build golden-muh420cb, 1 run(s), 10 test(s)",
       "evidence": 1
     },
     {
@@ -1536,7 +1536,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A release assessment always carries a security section",
-      "detail": "NOT SECURITY TESTED. No security scan covers this build, so nothing is known about its security posture from AIRA. This is not the same as having been tested and found clean, and a",
+      "detail": "NEEDS REVIEW. partial coverage (6 of 27 configured check(s) ran). 44 finding(s) open across 1 scan(s), 44 first seen in this build. Findings describe what these tests reached; area",
       "evidence": 1
     },
     {
@@ -1545,7 +1545,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "An unscanned build is not described as secure",
-      "detail": "scanned false, verdict notScanned: NOT SECURITY TESTED. No security scan covers this build, so nothing is known about its security posture from AIRA. This is not the same as h",
+      "detail": "scanned true, verdict needsReview: NEEDS REVIEW. partial coverage (6 of 27 configured check(s) ran). 44 finding(s) open across 1 scan(s), 44 first seen in this build. Findings",
       "evidence": 1
     },
     {
@@ -1617,7 +1617,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The pass records which build its verification run counts against",
-      "detail": "Started a verification run against build golden-muh39q47. (buildRef golden-muh39q47)",
+      "detail": "Started a verification run against build golden-muh420cb. (buildRef golden-muh420cb)",
       "evidence": 1
     },
     {
@@ -1635,7 +1635,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The verification run carries the build reference it was given",
-      "detail": "applicationBuildRef golden-muh39q47",
+      "detail": "applicationBuildRef golden-muh420cb",
       "evidence": 1
     },
     {
@@ -1779,7 +1779,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The second pass reaches the coverage question too",
-      "detail": "Assessed 24 capability(ies): 18 uncovered, 34 unknown.",
+      "detail": "Assessed 24 capability(ies): 19 uncovered, 34 unknown.",
       "evidence": 2
     },
     {
@@ -1789,6 +1789,24 @@
       "severity": "critical",
       "objective": "A gap about an endpoint names the endpoint it is about",
       "detail": "14 endpoint gap(s), 0 without a route",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-056",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "A scan the pass queued counts towards its own release assessment",
+      "detail": "scanned true, 1 scan(s) cover build golden-muh420cb; verdict needsReview",
+      "evidence": 1
+    },
+    {
+      "testId": "AQI-057",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "A named priority that matches nothing is reported, not silently ignored",
+      "detail": "named areas matching nothing: authentication",
       "evidence": 2
     },
     {
@@ -1833,7 +1851,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The plan is attached to the run that produced it",
-      "detail": "61280aea-10bd-4cc8-91d5-f582cec60eb6",
+      "detail": "015b1386-b334-4fbb-80ef-ab361e113964",
       "evidence": 3
     },
     {
@@ -2175,7 +2193,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "Approving a plan records who approved it and what they left out",
-      "detail": "status approved, decidedBy agentplan-w8ho6po9wa@example.test, excluded criticalJourney,accessibility,visual, items 6 of 6",
+      "detail": "status approved, decidedBy agentplan-0nic8mgv9g@example.test, excluded criticalJourney,accessibility,visual, items 6 of 6",
       "evidence": 2
     },
     {
@@ -2184,7 +2202,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "A plan is decided once",
-      "detail": "409 {\"code\":\"plan_already_decided\",\"title\":\"This plan was already approved by agentplan-w8ho6po9wa@example.test. A plan is decided once; start another pass to test something else.\",\"status\":409,\"correlati",
+      "detail": "409 {\"code\":\"plan_already_decided\",\"title\":\"This plan was already approved by agentplan-0nic8mgv9g@example.test. A plan is decided once; start another pass to test something else.\",\"status\":409,\"correlati",
       "evidence": 1
     },
     {
@@ -2382,7 +2400,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "A question is answered once",
-      "detail": "409 {\"code\":\"approval_already_decided\",\"title\":\"This was already granted by agentpolicy-27p03esb56@example.test.\",\"status\":409,\"correlationId\":\"5251328b28994e40ad4904f189b981a0\"}",
+      "detail": "409 {\"code\":\"approval_already_decided\",\"title\":\"This was already granted by agentpolicy-b5ecnx5mcm@example.test.\",\"status\":409,\"correlationId\":\"54596ae89b9b48458fe91f5f6669aa89\"}",
       "evidence": 1
     },
     {
@@ -2391,7 +2409,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A granted answer is stored with who gave it and why",
-      "detail": "granted by agentpolicy-27p03esb56@example.test: Authorized for the golden lab, which exists to be tested.",
+      "detail": "granted by agentpolicy-b5ecnx5mcm@example.test: Authorized for the golden lab, which exists to be tested.",
       "evidence": 1
     },
     {
@@ -2553,7 +2571,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A decision a person took is attributed to them",
-      "detail": "723db844-3cbe-426a-8b64-4ff3e7744c2d",
+      "detail": "73b22441-c613-41a3-85e6-0def9378b263",
       "evidence": 1
     },
     {
@@ -2571,7 +2589,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "An identifier survives in the record rather than being masked away",
-      "detail": "actor 723db844-3cbe-426a-8b64-4ff3e7744c2d, summary \"The plan was approved by ag***@example.test.\"",
+      "detail": "actor 73b22441-c613-41a3-85e6-0def9378b263, summary \"The plan was approved by ag***@example.test.\"",
       "evidence": 1
     },
     {

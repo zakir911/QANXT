@@ -1,0 +1,32 @@
+{
+  "testId": "AQI-056",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ21-INTEL2-1519",
+  "objective": "A scan the pass queued counts towards its own release assessment",
+  "preconditions": [
+    "a pass has run and its tests have executed"
+  ],
+  "input": "agent run 7807aac0-63ee-4f87-a711-6eae98853efb",
+  "expected": "The security section of the build the pass tested is not NOT SCANNED",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "scanned true, 1 scan(s) cover build golden-muh3wzlo; verdict needsReview",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:21:14.872Z",
+  "durationMs": 13,
+  "build": {
+    "commit": "0e5dbe2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "release.json",
+      "path": "evidence/AQI-056/AQ21-INTEL2-1519/release.json",
+      "bytes": 41255,
+      "sha256": "3cd1099702f6a0d941557397cdbb84689167e59e95dc35d1268f84e64dff9bf4"
+    }
+  ]
+}

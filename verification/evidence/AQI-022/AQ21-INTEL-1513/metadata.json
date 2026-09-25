@@ -1,0 +1,50 @@
+{
+  "testId": "AQI-022",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ21-INTEL-1513",
+  "objective": "A finding says how sure the pass is",
+  "preconditions": [
+    "two autonomous passes have run over the same application"
+  ],
+  "input": "agent runs 4c0e50d2-f781-4cf1-9bc8-ad4e8608774d and e77bfc44-747a-4d1e-b4f0-0ed6deb37c70",
+  "expected": "Every finding carries a confidence below certainty",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 of 35",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:15:25.813Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "0e5dbe2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "first.json",
+      "path": "evidence/AQI-022/AQ21-INTEL-1513/first.json",
+      "bytes": 1263,
+      "sha256": "1b5aa7877ec5efc0ef77c43fa4dc395f0ec7c2fc4a78e9029189f5caa8e0fc61"
+    },
+    {
+      "file": "second.json",
+      "path": "evidence/AQI-022/AQ21-INTEL-1513/second.json",
+      "bytes": 757,
+      "sha256": "a9c7be1c1fb51c8743e49371ff0b6ea3df6edb63eea6a98432b71ee7cb92a19a"
+    },
+    {
+      "file": "first-plan.json",
+      "path": "evidence/AQI-022/AQ21-INTEL-1513/first-plan.json",
+      "bytes": 4850,
+      "sha256": "a47a8be7225fcb504f777413d7c01ff6828853433e8218f22557d73afb89bcba"
+    },
+    {
+      "file": "second-plan.json",
+      "path": "evidence/AQI-022/AQ21-INTEL-1513/second-plan.json",
+      "bytes": 5181,
+      "sha256": "51bfbb01ef2173c230d7544604ad14c96748e192e3a3c95039cd353c56c28c31"
+    }
+  ]
+}

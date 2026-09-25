@@ -1,0 +1,44 @@
+{
+  "testId": "AQP-016",
+  "suite": "Autonomous policy",
+  "runId": "AQ21-FULL-1521",
+  "objective": "The pass waits rather than proceeding without an answer",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank"
+  ],
+  "input": "agent run 9fbb2d85-fac8-4e88-8639-b073b8310bf1",
+  "expected": "The run is parked at awaiting approval",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "awaitingApproval: Waiting for somebody to answer: whether to scan this application",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:21:50.538Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c6758a8",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-016/AQ21-FULL-1521/decisions.json",
+      "bytes": 5360,
+      "sha256": "d1fbc5f13c710350d24cd6a08ee827c6e9017e0dc03ad717fdc0aae4afddbfab"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQP-016/AQ21-FULL-1521/approvals.json",
+      "bytes": 731,
+      "sha256": "7ed35ea943e3656dfa3cf764fccab2b2cc32b13ae36a236f0a110f2d86353f3d"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQP-016/AQ21-FULL-1521/run.json",
+      "bytes": 806,
+      "sha256": "c27c399d68a514d76024be852cb7d012537ad19c976c150edccb023b146d24dc"
+    }
+  ]
+}

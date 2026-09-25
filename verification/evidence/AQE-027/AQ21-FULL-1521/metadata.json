@@ -1,0 +1,56 @@
+{
+  "testId": "AQE-027",
+  "suite": "Autonomous execution",
+  "runId": "AQ21-FULL-1521",
+  "objective": "A step that did nothing says why",
+  "preconditions": [
+    "a full autonomous pass has run with every question answered"
+  ],
+  "input": "agent run c482d5b1-37e4-4cac-9643-c5b8b5fca0cc",
+  "expected": "Steps carry a rationale, including the ones that decided to do nothing",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "36/36",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:26:03.003Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "c6758a8",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQE-027/AQ21-FULL-1521/run.json",
+      "bytes": 1203,
+      "sha256": "b99210c3ef5f04a97cf0d89588239eec039d8dba96cf64a32ef4fda1a9ec87f3"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQE-027/AQ21-FULL-1521/decisions.json",
+      "bytes": 8835,
+      "sha256": "235b06fcd007b207ca99383061c529c75f7ff7607aa64fdcf58225ff9a3dee5e"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQE-027/AQ21-FULL-1521/approvals.json",
+      "bytes": 1831,
+      "sha256": "0ed66a21936b536577bbd0e88f7714efa0f235884573d18debaceb6f7bf974c1"
+    },
+    {
+      "file": "timeline.json",
+      "path": "evidence/AQE-027/AQ21-FULL-1521/timeline.json",
+      "bytes": 16979,
+      "sha256": "8d7fb977536c64512929ee828e8d0a275faf2e22945c65bd942fc9e914bdda31"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQE-027/AQ21-FULL-1521/steps.json",
+      "bytes": 14487,
+      "sha256": "be7004fa60c1b25d27fcb96a159d4c8c96cff0f783243cd0139a2e18e0873fb3"
+    }
+  ]
+}

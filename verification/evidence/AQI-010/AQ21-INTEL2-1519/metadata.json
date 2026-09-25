@@ -1,0 +1,50 @@
+{
+  "testId": "AQI-010",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ21-INTEL2-1519",
+  "objective": "Context is normalised rather than stored verbatim",
+  "preconditions": [
+    "two autonomous passes have run over the same application"
+  ],
+  "input": "agent runs 7807aac0-63ee-4f87-a711-6eae98853efb and e03fada5-9fbc-4729-b055-98bb30513dfa",
+  "expected": "Entries are trimmed and lower-cased so matching is literal",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "[\"payment\",\"login\"]",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:20:28.953Z",
+  "durationMs": 16,
+  "build": {
+    "commit": "0e5dbe2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "first.json",
+      "path": "evidence/AQI-010/AQ21-INTEL2-1519/first.json",
+      "bytes": 1264,
+      "sha256": "a9a2c77aa1295fa9d31c6d35b98778e6209884f698e6b1c43e6b9af83e9a38fc"
+    },
+    {
+      "file": "second.json",
+      "path": "evidence/AQI-010/AQ21-INTEL2-1519/second.json",
+      "bytes": 756,
+      "sha256": "f81639076a93b036265dc0e8564a376450521289423cd37e22c9b8af504a79e1"
+    },
+    {
+      "file": "first-plan.json",
+      "path": "evidence/AQI-010/AQ21-INTEL2-1519/first-plan.json",
+      "bytes": 4850,
+      "sha256": "28a28233b884de8e4e6971dd3f1c0ec00058903e7ace83d1356445dbbce3f373"
+    },
+    {
+      "file": "second-plan.json",
+      "path": "evidence/AQI-010/AQ21-INTEL2-1519/second-plan.json",
+      "bytes": 5181,
+      "sha256": "cb8841ee5fee38ffccf61a6e385db4f5884de459d6b808086155c430bda33a61"
+    }
+  ]
+}

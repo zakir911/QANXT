@@ -1,0 +1,32 @@
+{
+  "testId": "AQI-026",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ21-INTEL-1513",
+  "objective": "A release assessment covers the run the pass started",
+  "preconditions": [
+    "a pass has run and its tests have executed"
+  ],
+  "input": "agent run 4c0e50d2-f781-4cf1-9bc8-ad4e8608774d",
+  "expected": "The release report for the build the pass named includes the pass's own run",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "build golden-muh3pb2q, 1 run(s), 10 test(s)",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:15:25.815Z",
+  "durationMs": 95,
+  "build": {
+    "commit": "0e5dbe2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "release.json",
+      "path": "evidence/AQI-026/AQ21-INTEL-1513/release.json",
+      "bytes": 2109,
+      "sha256": "a9343b99fd9380220c9ab536502051f1aeef403deaf634d2fdcb2ef7b0db741f"
+    }
+  ]
+}

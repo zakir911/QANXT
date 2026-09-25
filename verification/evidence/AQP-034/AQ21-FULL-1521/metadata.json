@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-034",
+  "suite": "Autonomous policy",
+  "runId": "AQ21-FULL-1521",
+  "objective": "Every tool a pass used is one the registry declares",
+  "preconditions": [
+    "passes have run against the lab"
+  ],
+  "input": "every decision recorded by the passes in this suite",
+  "expected": "No decision names a tool outside the registry",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "all declared",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:22:33.383Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "c6758a8",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-034/AQ21-FULL-1521/decisions.json",
+      "bytes": 5360,
+      "sha256": "d1fbc5f13c710350d24cd6a08ee827c6e9017e0dc03ad717fdc0aae4afddbfab"
+    }
+  ]
+}

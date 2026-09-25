@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-041",
+  "suite": "Autonomous policy",
+  "runId": "AQ21-FULL-1521",
+  "objective": "A decision the agent took has no person attributed to it",
+  "preconditions": [
+    "passes have run against the lab"
+  ],
+  "input": "every decision recorded by the passes in this suite",
+  "expected": "Autonomous decisions carry no actor",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 wrongly attributed",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:22:33.386Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c6758a8",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-041/AQ21-FULL-1521/decisions.json",
+      "bytes": 5360,
+      "sha256": "d1fbc5f13c710350d24cd6a08ee827c6e9017e0dc03ad717fdc0aae4afddbfab"
+    }
+  ]
+}

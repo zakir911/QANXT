@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-052",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ21-INTEL2-1519",
+  "objective": "A coverage gap is never recorded as a defect",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run 7807aac0-63ee-4f87-a711-6eae98853efb",
+  "expected": "No coverage finding is classified as a suspected defect",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 gap(s) recorded as defects",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:21:14.901Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "0e5dbe2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-052/AQ21-INTEL2-1519/coverage-decision.json",
+      "bytes": 1391,
+      "sha256": "237ec016de72f63a38bfbeccd408de60d61aa397d523097c171fda6a5f38c289"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-052/AQ21-INTEL2-1519/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "1d40a638b5c3004168a0331f60ca5f3d519c1a337b2c0b5caacf16357ddbecca"
+    }
+  ]
+}

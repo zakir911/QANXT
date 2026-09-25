@@ -1,0 +1,32 @@
+{
+  "testId": "AQX-025",
+  "suite": "Autonomous prompt injection",
+  "runId": "AQ21-FULL-1521",
+  "objective": "Nothing in the pass claims the application is safe because injection failed",
+  "preconditions": [
+    "passes have run against applications carrying injection text"
+  ],
+  "input": "the recorded passes",
+  "expected": "The plan still reports what it does not cover",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "4 uncovered areas named",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:27:12.992Z",
+  "durationMs": 8,
+  "build": {
+    "commit": "c6758a8",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQX-025/AQ21-FULL-1521/decisions.json",
+      "bytes": 3547,
+      "sha256": "d3c7f461853009d3b1474fcfb2c72fbc22c14f283d2c1a1c02853347f62a65ac"
+    }
+  ]
+}

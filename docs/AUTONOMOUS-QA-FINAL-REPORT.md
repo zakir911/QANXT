@@ -23,14 +23,14 @@ whole report is for.
 
 | | |
 | --- | --- |
-| Autonomous golden tests | **251**, all passing, 0 not verified |
+| Autonomous golden tests | **253**, all passing, 0 not verified |
 | Requirements traced to tests that ran | **30 of 30** |
 | Evidence files recorded, hashes still matching | 711 / 711 |
 | Unit tests | 885 |
 | Integration tests | 57 |
 | Independent applications the agent has run against | **1** |
 | Defects found by the golden tests | 7 in the product |
-| Defects found by one afternoon of the pilot | **2 more, that the 251 had missed** |
+| Defects found by one afternoon of the pilot | **2 more, that the 251 before them had missed** |
 
 The last line is the most useful number in this document.
 
@@ -177,12 +177,13 @@ Each of §53's rules, and what holds it.
 
 ## The honest summary
 
-An autonomous pass plans, refuses, asks, executes and writes up what it found, and 251 tests
+An autonomous pass plans, refuses, asks, executes and writes up what it found, and 253 tests
 say so with evidence. Thirty requirements are traced to tests that actually ran.
 
 Two things should temper that. Almost none of it is reachable from the console, so what has
 been verified is a platform rather than a product. And pointing it at one unfamiliar
 application for an afternoon found two defects that 251 tests had not — including a security
-report that said nothing was known about a build it had just scanned.
+report that said nothing was known about a build it had just scanned. The suite is 253 now
+because those two findings became tests; it was not 253 when it mattered.
 
 The second is the more useful finding. It is an argument for more pilots, not for more tests.

@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-039",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ21-INTEL2-1519",
+  "objective": "A pass compares what the application can do against what is tested",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run 7807aac0-63ee-4f87-a711-6eae98853efb",
+  "expected": "The pass records a coverage decision naming the tool that made it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Assessed 24 capability(ies): 24 uncovered, 44 unknown.",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:21:14.893Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "0e5dbe2",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-039/AQ21-INTEL2-1519/coverage-decision.json",
+      "bytes": 1391,
+      "sha256": "237ec016de72f63a38bfbeccd408de60d61aa397d523097c171fda6a5f38c289"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-039/AQ21-INTEL2-1519/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "1d40a638b5c3004168a0331f60ca5f3d519c1a337b2c0b5caacf16357ddbecca"
+    }
+  ]
+}

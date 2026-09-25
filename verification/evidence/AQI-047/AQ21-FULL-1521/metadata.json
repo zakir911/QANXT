@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-047",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ21-FULL-1521",
+  "objective": "Each gap becomes a proposal rather than a task",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run 0edc6cd2-bcb1-4030-b050-d89ac0758265",
+  "expected": "Every coverage finding recommends a decision, not an action taken",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "24 gap finding(s), 0 without a proposal",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:25:08.384Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "c6758a8",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-047/AQ21-FULL-1521/coverage-decision.json",
+      "bytes": 1391,
+      "sha256": "7c2cfa442a69d274b1a587bc3e35ebfcd12802d646c4e814779d682b546846c3"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-047/AQ21-FULL-1521/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "42758420d2238c15c48137ea149fb8ff6e469b3c0c0a48bf75d4b0024f0fd1e6"
+    }
+  ]
+}

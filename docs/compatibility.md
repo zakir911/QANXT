@@ -92,7 +92,7 @@ both VERIFIED from memory — which is exactly the mistake this table exists to 
 
 | | Status |
 | --- | --- |
-| A full pass, questions answered, against the lab | VERIFIED — 251 golden tests |
+| A full pass, questions answered, against the lab | VERIFIED — 253 golden tests |
 | A full pass against an independent application | VERIFIED — once, on Verdaccio |
 | A pass resumed after stopping for a person | VERIFIED |
 | A pass against a broken, unreachable or unauthenticated application | VERIFIED |
