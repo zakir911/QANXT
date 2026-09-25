@@ -1,0 +1,217 @@
+[
+  {
+    "id": "6d7be7a3-3333-430b-a8f1-c0e2d1dc8123",
+    "sequence": 1,
+    "phase": "prioritizing",
+    "summary": "Left 1 page(s) alone because a person excluded them.",
+    "reason": "An exclusion is honoured absolutely rather than weighed against a risk score. Somebody who writes 'never touch this' is not expressing a preference that a high enough number can outvote.",
+    "evidence": [
+      {
+        "name": "excludedRoutes",
+        "value": "/statements"
+      },
+      {
+        "name": "exclusionsAsWritten",
+        "value": "/statements"
+      },
+      {
+        "name": "pagesRemaining",
+        "value": "10"
+      }
+    ],
+    "result": "10 page(s) remain in scope for this pass.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T09:45:05.977193+00:00"
+  },
+  {
+    "id": "d4f89328-acbe-42b4-b3d1-1b6580a4dc00",
+    "sequence": 2,
+    "phase": "planning",
+    "summary": "Proposed 114 test(s) across 6 category(ies).",
+    "reason": "114 test(s) across 6 category(ies) for \"Release validation\", 37 of which do not exist yet. Roughly 36 minute(s) — an estimate from defaults, because this application has no execution history yet. 4 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+    "evidence": [
+      {
+        "name": "pagesPlannable",
+        "value": "10"
+      },
+      {
+        "name": "endpointsDiscovered",
+        "value": "14"
+      },
+      {
+        "name": "journeysKnown",
+        "value": "0"
+      },
+      {
+        "name": "securityAuthorized",
+        "value": "True"
+      },
+      {
+        "name": "openSecurityFindings",
+        "value": "0"
+      },
+      {
+        "name": "criticalAreasNamedByAPerson",
+        "value": "payment, login, authentication"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "/statements"
+      }
+    ],
+    "result": "114 test(s) proposed.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T09:45:06.341686+00:00"
+  },
+  {
+    "id": "89f53607-4418-454f-b5ce-005b23320227",
+    "sequence": 3,
+    "phase": "planning",
+    "summary": "The plan was approved by ag***@example.test.",
+    "reason": "Approved for the golden run.",
+    "evidence": [
+      {
+        "name": "decidedBy",
+        "value": "ag***@example.test"
+      },
+      {
+        "name": "categoriesIncluded",
+        "value": "Security, Smoke, Accessibility, CriticalJourney, Api, Visual"
+      },
+      {
+        "name": "categoriesExcluded",
+        "value": "none"
+      },
+      {
+        "name": "testsPlanned",
+        "value": "114"
+      }
+    ],
+    "result": "Approved",
+    "allowed": true,
+    "actorUserId": "be30d9d9-b87a-4f05-bbcf-408e9bc759d1",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T09:45:08.271424+00:00"
+  },
+  {
+    "id": "0c911603-ccde-4d02-b03b-054fccec424f",
+    "sequence": 4,
+    "phase": "generating",
+    "tool": "test.generate",
+    "summary": "Generated 10 API test(s) for 10 endpoint(s).",
+    "reason": "Endpoints discovered by the crawl, minus anything a person excluded. Mutating requests were left out.",
+    "evidence": [
+      {
+        "name": "endpointsConsidered",
+        "value": "14"
+      },
+      {
+        "name": "endpointsSelected",
+        "value": "10"
+      },
+      {
+        "name": "endpointsExcludedByAPerson",
+        "value": "none"
+      },
+      {
+        "name": "mutatingIncluded",
+        "value": "False"
+      },
+      {
+        "name": "trimmedToBudget",
+        "value": "yes — 14 endpoint(s) discovered, 10 within the run's remaining budget of 10"
+      }
+    ],
+    "result": "10 API test(s)",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T09:45:12.439385+00:00"
+  },
+  {
+    "id": "fd9a2c62-6eb8-4c4e-9d46-f2efc14278c8",
+    "sequence": 5,
+    "phase": "securityTesting",
+    "tool": "security.scan",
+    "summary": "Wanted to use security.scan.",
+    "reason": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission → environment → risk → security → creation-budget"
+      },
+      {
+        "name": "deniedAt",
+        "value": "ApprovalRequired"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "ApprovalRequired",
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T09:45:12.484439+00:00"
+  },
+  {
+    "id": "5ed27f8d-822a-4158-9dff-779362a7e73c",
+    "sequence": 6,
+    "phase": "securityTesting",
+    "tool": "security.scan",
+    "summary": "Queued security scan SCAN-20260925-1652DC.",
+    "reason": "The application carries an enabled scope and the plan included security testing. The engine decides what may be sent; this pass only asked.",
+    "evidence": [
+      {
+        "name": "securityScanId",
+        "value": "73c42b51-5dc6-4932-8f05-991220806c85"
+      },
+      {
+        "name": "profile",
+        "value": "standard"
+      },
+      {
+        "name": "checksConfigured",
+        "value": "27"
+      },
+      {
+        "name": "targets",
+        "value": "25"
+      }
+    ],
+    "result": "Queued as SCAN-20260925-1652DC.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T09:45:17.830176+00:00"
+  },
+  {
+    "id": "b2e03424-a6e6-47ed-bd18-16360443b742",
+    "sequence": 7,
+    "phase": "executing",
+    "tool": "test.execute",
+    "summary": "Wanted to use test.execute.",
+    "reason": "'test.execute' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission → environment → risk → security → creation-budget"
+      },
+      {
+        "name": "deniedAt",
+        "value": "ApprovalRequired"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "ApprovalRequired",
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T09:45:17.849887+00:00"
+  }
+]

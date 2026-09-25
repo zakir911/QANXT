@@ -46,7 +46,8 @@ const SUITES = {
   // distinct claims about what the pass recorded — the pass is the expensive part, the claims
   // are the point.
   'agent-planning': () => import('./suites/agent-planning.mjs'),
-  'agent-policy': () => import('./suites/agent-policy.mjs')
+  'agent-policy': () => import('./suites/agent-policy.mjs'),
+  'agent-execution': () => import('./suites/agent-execution.mjs')
 };
 
 const argv = process.argv.slice(2);

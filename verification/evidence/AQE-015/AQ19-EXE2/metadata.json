@@ -1,0 +1,56 @@
+{
+  "testId": "AQE-015",
+  "suite": "Autonomous execution",
+  "runId": "AQ19-EXE2",
+  "objective": "An unattended scan uses the standard profile",
+  "preconditions": [
+    "a full autonomous pass has run with every question answered"
+  ],
+  "input": "agent run b4fa5c5f-d474-4ed0-89ca-c45b2c710949",
+  "expected": "The decision records the profile it asked for",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "standard",
+  "metrics": null,
+  "startedAt": "2026-09-25T09:45:44.734Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "3f0581e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQE-015/AQ19-EXE2/run.json",
+      "bytes": 1202,
+      "sha256": "8eb369f55d9f63e60357d6890d0357cf7b5ad39200d5b157c0cf5f4ed762d80e"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQE-015/AQ19-EXE2/decisions.json",
+      "bytes": 6436,
+      "sha256": "38272a06e75bc0ff59d13a2a2afa4b89ee02bf2c3fc53fa9d27829e29dd46ca9"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQE-015/AQ19-EXE2/approvals.json",
+      "bytes": 1831,
+      "sha256": "20c5be92d5e70b39437f1712810ff8a7f4d31ab9071eb555b092314a77724d4c"
+    },
+    {
+      "file": "timeline.json",
+      "path": "evidence/AQE-015/AQ19-EXE2/timeline.json",
+      "bytes": 14405,
+      "sha256": "7e3f3036deedef8f2d76aac50931e1a957d27737529602b9c9c8c7ae0b3b6fe4"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQE-015/AQ19-EXE2/steps.json",
+      "bytes": 12371,
+      "sha256": "ade8198a59271bf3e13d20156662522589edb3df186a911f6cf658df9124ef67"
+    }
+  ]
+}

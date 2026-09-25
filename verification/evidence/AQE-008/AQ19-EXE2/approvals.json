@@ -1,0 +1,50 @@
+[
+  {
+    "id": "b1ab2406-a643-4222-a004-4bdfa2f9a9de",
+    "tool": "security.scan",
+    "reason": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "proposal": "Scan 11 page(s) of this application within its authorized scope.",
+    "evidence": [
+      {
+        "name": "pagesDiscovered",
+        "value": "11"
+      },
+      {
+        "name": "scopeAuthorized",
+        "value": "yes — checked before planning"
+      }
+    ],
+    "risk": "StateChanging",
+    "expectedImpact": "Requests within the scope's rate limits. No destructive checks; production is not permitted for an unattended pass.",
+    "status": "granted",
+    "decidedByEmail": "agentexec-476x6x50cx@example.test",
+    "justification": "Authorized for the golden test lab, which exists to be tested.",
+    "decidedAt": "2026-09-25T09:45:14.402472+00:00"
+  },
+  {
+    "id": "1ca55436-e4e8-4edc-8119-f364cea38537",
+    "tool": "test.execute",
+    "reason": "'test.execute' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "proposal": "Run 12 test(s) against this application.",
+    "evidence": [
+      {
+        "name": "generated",
+        "value": "0"
+      },
+      {
+        "name": "apiTests",
+        "value": "0"
+      },
+      {
+        "name": "reRuns",
+        "value": "0"
+      }
+    ],
+    "risk": "StateChanging",
+    "expectedImpact": "Drives the application as a user would, and creates records wherever a journey submits a form.",
+    "status": "granted",
+    "decidedByEmail": "agentexec-476x6x50cx@example.test",
+    "justification": "Authorized for the golden test lab, which exists to be tested.",
+    "decidedAt": "2026-09-25T09:45:20.475032+00:00"
+  }
+]

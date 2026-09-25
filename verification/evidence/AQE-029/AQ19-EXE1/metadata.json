@@ -1,0 +1,56 @@
+{
+  "testId": "AQE-029",
+  "suite": "Autonomous execution",
+  "runId": "AQ19-EXE1",
+  "objective": "The timeline distinguishes a refusal from a decision",
+  "preconditions": [
+    "a full autonomous pass has run with every question answered"
+  ],
+  "input": "agent run efd4978f-20bc-47fa-965b-446e6b02de6a",
+  "expected": "Entries carry different kinds",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "phase, decision, refusal, approval-requested, approval-granted, run",
+  "metrics": null,
+  "startedAt": "2026-09-25T09:42:09.613Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "3f0581e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQE-029/AQ19-EXE1/run.json",
+      "bytes": 1198,
+      "sha256": "5480b3f1b31051cbe871b24b9096131b8e0c3304848fa9138d6edebd3e5b6700"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQE-029/AQ19-EXE1/decisions.json",
+      "bytes": 8777,
+      "sha256": "7798bebc0976edc99d441b16316c67d71b09a3b964079c039d958709003d0de8"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQE-029/AQ19-EXE1/approvals.json",
+      "bytes": 1830,
+      "sha256": "9cf84cfe51e893c173b6f6633a7d8733212d4c6a0f37269da3abe7c9d60c70ff"
+    },
+    {
+      "file": "timeline.json",
+      "path": "evidence/AQE-029/AQ19-EXE1/timeline.json",
+      "bytes": 15773,
+      "sha256": "ea17aa557cf20894e7b16b1bd7311047f89a6c5017016e01c0566eaaaec858da"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQE-029/AQ19-EXE1/steps.json",
+      "bytes": 12397,
+      "sha256": "452edb0cbac5693dad0f3ea8983853651198a23bd11d76dd7d0b898bc4b58393"
+    }
+  ]
+}

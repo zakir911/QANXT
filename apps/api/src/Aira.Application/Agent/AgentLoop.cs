@@ -396,6 +396,23 @@ public sealed class AgentLoop : IAgentLoop
                       + "a person excluded."
                     : "Discovery found no API endpoints for this application.");
 
+        // Trimmed to what the budget affords rather than asked for wholesale.
+        //
+        // The first version requested every discovered endpoint at once, so an application
+        // with more endpoints than the run's remaining test budget produced no API tests at
+        // all — the policy refused the batch and the phase reported that as "not permitted".
+        // A budget is meant to shape work, not eliminate it, and a pass that silently drops
+        // every API test because it wanted one too many is the worst version of a bound.
+        var affordable = Math.Max(0, run.MaxGeneratedTests - run.TestsGenerated);
+        var trimmed = selected.Count > affordable;
+        if (trimmed) selected = selected.Take(affordable).ToList();
+
+        if (selected.Count == 0)
+            return PhaseOutcome.Ok("No API tests were generated.",
+                $"The run's budget of {run.MaxGeneratedTests} test(s) is already spent, so there "
+                + $"is nothing left for the {endpoints.Count} discovered endpoint(s). They are "
+                + "untested by this pass rather than tested and found working.");
+
         var decision = await CheckAsync(run, state, "test.generate", AgentPhase.Generating,
             newTests: selected.Count, ct: ct);
         if (!decision.Allowed)
@@ -430,7 +447,14 @@ public sealed class AgentLoop : IAgentLoop
                 new AgentEvidence("endpointsSelected", selected.Count.ToString()),
                 new AgentEvidence("endpointsExcludedByAPerson",
                     excluded.Count == 0 ? "none" : string.Join(", ", excluded.Take(10))),
-                new AgentEvidence("mutatingIncluded", run.AllowDestructiveActions.ToString())
+                new AgentEvidence("mutatingIncluded", run.AllowDestructiveActions.ToString()),
+                // Named, because an endpoint left out for want of budget is untested rather
+                // than tested and found working, and the count alone would not say which.
+                new AgentEvidence("trimmedToBudget",
+                    trimmed
+                        ? $"yes — {endpoints.Count} endpoint(s) discovered, {selected.Count} within "
+                          + $"the run's remaining budget of {affordable}"
+                        : "no")
             },
             Tool: "test.generate",
             Result: $"{generated.Value.TestsCreated} API test(s)"), ct);
@@ -1140,7 +1164,13 @@ public sealed class AgentLoop : IAgentLoop
         var excluded = state.Pages.Where(p => state.Business.Excludes(p.Route)).ToList();
         var plannable = state.Pages.Where(p => !state.Business.Excludes(p.Route)).ToList();
 
-        if (excluded.Count > 0)
+        // Once per run. Prioritising re-runs on every resume because later phases need its
+        // ranking, and without this the same exclusion was recorded four times in one pass —
+        // a trail that repeats itself is one nobody finishes reading.
+        var alreadySaid = await _db.AgentDecisions
+            .AnyAsync(d => d.AgentRunId == run.Id && d.Summary.Contains("excluded them"), ct);
+
+        if (excluded.Count > 0 && !alreadySaid)
             await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
                 AgentPhase.Prioritizing,
                 $"Left {excluded.Count} page(s) alone because a person excluded them.",
