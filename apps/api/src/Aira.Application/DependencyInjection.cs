@@ -61,6 +61,7 @@ public static class DependencyInjection
         services.AddScoped<IApplicationContextService, ApplicationContextService>();
         services.AddScoped<IApplicationMemoryService, ApplicationMemoryService>();
         services.AddScoped<IAgentPlanService, AgentPlanService>();
+        services.AddScoped<IAgentObservabilityService, AgentObservabilityService>();
         services.AddScoped<IAiOrchestrator, AiOrchestrator>();
         services.AddSingleton<ISchemaValidator, SchemaValidator>();
         services.AddScoped<IDashboardService, DashboardService>();

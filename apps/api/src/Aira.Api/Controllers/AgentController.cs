@@ -18,13 +18,16 @@ public sealed class AgentController : ApiControllerBase
     private readonly IAgentService _agent;
     private readonly IAgentPlanService _plans;
     private readonly IApplicationContextService _context;
+    private readonly IAgentObservabilityService _observability;
 
     public AgentController(
-        IAgentService agent, IAgentPlanService plans, IApplicationContextService context)
+        IAgentService agent, IAgentPlanService plans, IApplicationContextService context,
+        IAgentObservabilityService observability)
     {
         _agent = agent;
         _plans = plans;
         _context = context;
+        _observability = observability;
     }
 
     /// <summary>Queues a bounded pass. Returns immediately; the pass runs in the background.</summary>
@@ -87,4 +90,35 @@ public sealed class AgentController : ApiControllerBase
     public async Task<IActionResult> SetContext(
         Guid applicationId, [FromBody] ApplicationContextRequest request, CancellationToken ct)
         => FromResult(await _context.SetAsync(applicationId, request, ct));
+
+    // ---- Reading back what it did ------------------------------------------
+
+    /// <summary>Every decision the pass made, in order, with the evidence behind each.</summary>
+    [HttpGet("runs/{id:guid}/decisions")]
+    public async Task<IActionResult> Decisions(Guid id, CancellationToken ct)
+        => FromResult(await _observability.DecisionsAsync(id, ct));
+
+    /// <summary>Questions the pass stopped to ask, answered or not.</summary>
+    [HttpGet("runs/{id:guid}/approvals")]
+    public async Task<IActionResult> Approvals(Guid id, CancellationToken ct)
+        => FromResult(await _observability.ApprovalsAsync(id, ct));
+
+    /// <summary>
+    /// Answer one of those questions.
+    /// </summary>
+    /// <remarks>
+    /// Needs <c>execution:run</c> for the same reason approving a plan does: granting one is
+    /// what lets the pass perform the action it stopped for.
+    /// </remarks>
+    [HttpPost("approvals/{approvalId:guid}/decision")]
+    [RequirePermission(Permissions.ExecutionRun)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> DecideApproval(
+        Guid approvalId, [FromBody] AgentApprovalDecisionRequest request, CancellationToken ct)
+        => FromResult(await _observability.DecideApprovalAsync(approvalId, request, ct));
+
+    /// <summary>The pass as a sequence of moments, assembled from what was recorded.</summary>
+    [HttpGet("runs/{id:guid}/timeline")]
+    public async Task<IActionResult> Timeline(Guid id, CancellationToken ct)
+        => FromResult(await _observability.TimelineAsync(id, ct));
 }
