@@ -41,7 +41,11 @@ const SUITES = {
   'security-platform': () => import('./suites/security-platform.mjs'),
   'security-worker': () => import('./suites/security-worker.mjs'),
   reliability: () => import('./suites/reliability.mjs'),
-  performance: () => import('./suites/performance.mjs')
+  performance: () => import('./suites/performance.mjs'),
+  // The autonomous agent. Each of these drives one or more real passes and then makes many
+  // distinct claims about what the pass recorded — the pass is the expensive part, the claims
+  // are the point.
+  'agent-planning': () => import('./suites/agent-planning.mjs')
 };
 
 const argv = process.argv.slice(2);

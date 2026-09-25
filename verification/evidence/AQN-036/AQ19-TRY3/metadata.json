@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-036",
+  "suite": "Autonomous planning",
+  "runId": "AQ19-TRY3",
+  "objective": "The planning decision records what a person excluded",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run b9cac21e-6c3f-44d5-a57f-b38c71c8613d",
+  "expected": "The evidence quotes the exclusion rather than only its effect",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "/statements",
+  "metrics": null,
+  "startedAt": "2026-09-25T07:30:26.853Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "1c80cfd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-036/AQ19-TRY3/plan.json",
+      "bytes": 4708,
+      "sha256": "9703e01b825483bf5d3e28c19ee0930f8c2a49a113d895e5b5d294f621c96cba"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-036/AQ19-TRY3/run.json",
+      "bytes": 759,
+      "sha256": "c6bed32ec4567a33ed072da19c92843cb2880846bb179f4049015d42d255f001"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-036/AQ19-TRY3/decisions.json",
+      "bytes": 2083,
+      "sha256": "568717de7a77d0f88a806d1994a87c7e7920094ba754e6292a4561c9ef7eb994"
+    }
+  ]
+}

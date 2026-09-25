@@ -102,6 +102,42 @@ public class AgentPlanModelTests
     }
 
     [Fact]
+    public void Naming_a_critical_area_is_enough_even_with_no_journey_recorded()
+    {
+        var plan = AgentPlanModel.Build(Inputs(journeys: 0, critical: new[] { "payment" }));
+
+        // Journeys are recorded by the recorder and by generation, never by discovery, so a
+        // freshly crawled application has none. The first version only proposed journey tests
+        // when some were already stored — so an operator could write "payment is critical",
+        // watch the plan come back without a journey category, and have no way to tell their
+        // instruction had gone nowhere. A golden test against a freshly discovered lab caught it.
+        var journey = plan.Categories.Single(c => c.Category == AgentPlanCategory.CriticalJourney);
+        journey.Risk.Should().Be(RiskLevel.Critical);
+        journey.Why.Should().Contain("payment");
+        journey.Why.Should().Contain("better than ignoring what somebody told us matters");
+    }
+
+    [Fact]
+    public void Covering_a_named_area_without_a_recorded_journey_says_it_is_the_weaker_thing()
+    {
+        var plan = AgentPlanModel.Build(Inputs(journeys: 0, critical: new[] { "payment" }));
+
+        plan.NotCovered.Should().Contain(n =>
+            n.Contains("nothing here follows a path a real user was seen to take"));
+    }
+
+    [Fact]
+    public void No_journeys_and_nobody_naming_any_is_stated_as_a_gap()
+    {
+        var plan = AgentPlanModel.Build(Inputs(journeys: 0, critical: Array.Empty<string>()));
+
+        plan.Categories.Should().NotContain(c => c.Category == AgentPlanCategory.CriticalJourney);
+        // The plan covers pages and endpoints. Saying so is what stops it reading as coverage
+        // of what people use the application for.
+        plan.NotCovered.Should().Contain(n => n.Contains("Business journeys"));
+    }
+
+    [Fact]
     public void With_nobody_saying_what_matters_the_plan_admits_it_is_guessing()
     {
         var plan = AgentPlanModel.Build(Inputs(critical: Array.Empty<string>()));

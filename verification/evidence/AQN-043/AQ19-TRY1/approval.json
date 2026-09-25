@@ -1,0 +1,89 @@
+{
+  "id": "1532401a-2a25-4a0c-b37e-b9eb73d6cf14",
+  "agentRunId": "70b7b4b3-70d3-4794-a59e-628b691d0373",
+  "applicationId": "f775a63c-a8ba-4d74-a02a-ef76c7dd5e89",
+  "status": "approved",
+  "objective": "Release validation",
+  "pagesDiscovered": 8,
+  "endpointsDiscovered": 14,
+  "journeysKnown": 0,
+  "rolesKnown": 2,
+  "summary": "94 test(s) across 5 category(ies) for \"Release validation\", 30 of which do not exist yet. Roughly 28 minute(s) — an estimate from defaults, because this application has no execution history yet. 3 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+  "notCovered": [
+    "1 area(s) a person excluded: /admin. Nothing in this plan touches them.",
+    "Anything discovery did not reach. The plan is drawn from the application map, and an application is larger than its crawl.",
+    "2 role(s) are known, and cross-role authorization is only covered where the security scope permits testing it."
+  ],
+  "items": [
+    {
+      "id": "406aa10d-e85e-4781-9222-d34f6d44b6a5",
+      "category": "smoke",
+      "testCount": 8,
+      "toGenerate": 8,
+      "why": "One reachability check per discovered page (8). Cheap, and it separates an application that is down from a suite that is broken.",
+      "risk": "low",
+      "coverage": "8 page(s) reachable and rendering",
+      "estimatedSeconds": 240,
+      "estimateFromHistory": false,
+      "potentialImpact": "Read-only navigation. Nothing is submitted.",
+      "included": true
+    },
+    {
+      "id": "03289660-0b83-46be-888b-63bee0e8fee9",
+      "category": "api",
+      "testCount": 14,
+      "toGenerate": 14,
+      "why": "14 endpoint(s) discovered, 14 with no API test. An endpoint the UI happens to exercise is not an endpoint that is tested.",
+      "risk": "high",
+      "coverage": "14 endpoint(s): status, shape and contract",
+      "estimatedSeconds": 70,
+      "estimateFromHistory": false,
+      "potentialImpact": "Issues requests directly. State-changing verbs are exercised where the contract declares them.",
+      "included": true
+    },
+    {
+      "id": "82c230c6-b337-4867-8fd3-70523c127b1f",
+      "category": "security",
+      "testCount": 56,
+      "toGenerate": 0,
+      "why": "The application carries an enabled security scope. 1 form(s), 0 upload workflow(s), 2 role(s) and 14 endpoint(s) imply 56 check(s).",
+      "risk": "high",
+      "coverage": "56 check(s) within the authorized scope",
+      "estimatedSeconds": 1120,
+      "estimateFromHistory": false,
+      "potentialImpact": "Sends crafted requests within the scope. Destructive checks are excluded unless separately authorized.",
+      "included": true
+    },
+    {
+      "id": "17edc32b-5650-4b0c-945d-f52800b2dcc1",
+      "category": "accessibility",
+      "testCount": 8,
+      "toGenerate": 8,
+      "why": "8 page(s) have no accessibility check. Automated checks find a minority of real barriers and are worth running for that minority.",
+      "risk": "medium",
+      "coverage": "8 page(s), axe-core rules",
+      "estimatedSeconds": 120,
+      "estimateFromHistory": false,
+      "potentialImpact": "Read-only inspection of the rendered page.",
+      "included": false
+    },
+    {
+      "id": "bc4abe56-f352-4797-9a1f-f51416902874",
+      "category": "visual",
+      "testCount": 8,
+      "toGenerate": 0,
+      "why": "Baselines for the most connected pages, so an unintended visual change has something to be different from.",
+      "risk": "low",
+      "coverage": "8 page(s) baselined",
+      "estimatedSeconds": 160,
+      "estimateFromHistory": false,
+      "potentialImpact": "Screenshots only. A first run establishes baselines rather than failing.",
+      "included": false
+    }
+  ],
+  "totalTests": 78,
+  "estimatedSeconds": 1430,
+  "decidedByEmail": "agentplan-t20l3ais26@example.test",
+  "decidedAt": "2026-09-25T07:26:53.1709207+00:00",
+  "decisionNote": "Smoke, API and security for this cycle."
+}

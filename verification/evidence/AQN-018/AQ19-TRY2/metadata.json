@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-018",
+  "suite": "Autonomous planning",
+  "runId": "AQ19-TRY2",
+  "objective": "The summary describes the time as an estimate rather than a duration",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run 13743179-92e8-4bf2-ac1b-4f5644ef865f",
+  "expected": "The word \"estimate\" appears in the plan summary",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "100 test(s) across 6 category(ies) for \"Release validation\", 33 of which do not exist yet. Roughly 32 minute(s) — an estimate from defaults, because this applic",
+  "metrics": null,
+  "startedAt": "2026-09-25T07:29:25.039Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "1c80cfd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-018/AQ19-TRY2/plan.json",
+      "bytes": 4697,
+      "sha256": "d20f8fa225f1206610296e6a859b1436dd778f7c1cc85053ce8dfbb92285e0ea"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-018/AQ19-TRY2/run.json",
+      "bytes": 758,
+      "sha256": "d25907bc7d45acb2616a4b9f6ba003dd900dc974e56a2165fe1787f85fbe615b"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-018/AQ19-TRY2/decisions.json",
+      "bytes": 1248,
+      "sha256": "f0ea2fa31859cde43b2d96b51810a00902cea0d8a2fceac9cc4ac93dff8129b6"
+    }
+  ]
+}

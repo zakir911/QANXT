@@ -111,24 +111,60 @@ public static class AgentPlanModel
                 "Read-only navigation. Nothing is submitted."));
 
         // ---- Critical journeys -----------------------------------------------
-        if (inputs.Journeys > 0)
+        //
+        // A person naming what matters is enough on its own. Journeys are recorded by the
+        // recorder and by generation, not by discovery, so a freshly crawled application has
+        // none — and the first version of this only proposed journey tests when some were
+        // already stored. An operator could write "payment is critical", watch the plan come
+        // back with no journey category at all, and have no way to tell that their instruction
+        // had gone nowhere. Found by a golden test against a freshly discovered lab.
+        if (inputs.Journeys > 0 || inputs.CriticalAreas.Count > 0)
         {
-            var critical = Math.Max(inputs.CriticalAreas.Count, Math.Min(inputs.Journeys, 8));
-            var why = inputs.CriticalAreas.Count > 0
-                ? $"{inputs.Journeys} journey(s) known, and a person named "
-                  + $"{inputs.CriticalAreas.Count} area(s) as business-critical: "
-                  + $"{string.Join(", ", inputs.CriticalAreas.Take(5))}."
-                : $"{inputs.Journeys} journey(s) known. Nobody has said which matter most, so "
-                  + "the most connected ones are covered and this is a guess rather than a "
-                  + "priority.";
+            var fromAPerson = inputs.CriticalAreas.Count > 0;
+            var critical = fromAPerson
+                ? Math.Max(inputs.CriticalAreas.Count, Math.Min(inputs.Journeys, 8))
+                : Math.Min(inputs.Journeys, 8);
+
+            var why = (fromAPerson, inputs.Journeys) switch
+            {
+                (true, 0) =>
+                    $"No journey has been recorded for this application yet, and a person named "
+                    + $"{inputs.CriticalAreas.Count} area(s) as business-critical: "
+                    + $"{string.Join(", ", inputs.CriticalAreas.Take(5))}. These are covered "
+                    + "from what discovery walked, which is weaker than a recorded journey and "
+                    + "better than ignoring what somebody told us matters.",
+                (true, _) =>
+                    $"{inputs.Journeys} journey(s) known, and a person named "
+                    + $"{inputs.CriticalAreas.Count} area(s) as business-critical: "
+                    + $"{string.Join(", ", inputs.CriticalAreas.Take(5))}.",
+                _ =>
+                    $"{inputs.Journeys} journey(s) known. Nobody has said which matter most, so "
+                    + "the most connected ones are covered and this is a guess rather than a "
+                    + "priority."
+            };
 
             categories.Add(Category(
                 AgentPlanCategory.CriticalJourney, critical * 2, critical,
                 why,
-                inputs.CriticalAreas.Count > 0 ? RiskLevel.Critical : RiskLevel.High,
-                $"{critical} journey(s), happy path and one failure path each",
+                fromAPerson ? RiskLevel.Critical : RiskLevel.High,
+                inputs.Journeys == 0
+                    ? $"{critical} area(s) a person named, happy path and one failure path each"
+                    : $"{critical} journey(s), happy path and one failure path each",
                 TestDimension.Ui, critical * 2, inputs,
                 "Drives real forms. Creates records in the environment under test."));
+
+            if (inputs.Journeys == 0)
+                notCovered.Add(
+                    "No journey has been recorded for this application, so nothing here follows "
+                    + "a path a real user was seen to take. The journey tests are assembled from "
+                    + "pages discovery walked.");
+        }
+        else
+        {
+            notCovered.Add(
+                "Business journeys. None are recorded and nobody has named any, so this plan "
+                + "covers pages and endpoints rather than the things people use the application "
+                + "to do.");
         }
 
         // ---- API --------------------------------------------------------------

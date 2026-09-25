@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-014",
+  "suite": "Autonomous planning",
+  "runId": "AQ19-TRY1",
+  "objective": "Security testing is planned for an authorized application",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run 70b7b4b3-70d3-4794-a59e-628b691d0373",
+  "expected": "A security category is present because the application carries an enabled scope",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "56 checks",
+  "metrics": null,
+  "startedAt": "2026-09-25T07:26:53.118Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "1c80cfd",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-014/AQ19-TRY1/plan.json",
+      "bytes": 3773,
+      "sha256": "e310ed71702af8e1f553b0a734b0b11cfad1f59dca921c1f974e7eecd943d9aa"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-014/AQ19-TRY1/run.json",
+      "bytes": 757,
+      "sha256": "85ecbb7a3f8ec3fe365daa03ddf70326f4bc8f0a020ea9f1dfb33a560143f9e4"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-014/AQ19-TRY1/decisions.json",
+      "bytes": 1242,
+      "sha256": "88b10781df9046c0c3b00f636cfcfc54631fda497e8cf19fbc7711bf0370190b"
+    }
+  ]
+}
