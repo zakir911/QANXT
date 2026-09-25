@@ -25,7 +25,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import {
-  newTenant, createProject, registerApplication, createEnvironment, runDiscovery, request
+  newTenant, createProject, createEnvironment, runDiscovery, request
 } from '../verification/golden-tests/platform.mjs';
 import {
   agentApprovals, agentDecisions, agentPlan, agentRun, agentTimeline, authorizeSecurity,
@@ -65,10 +65,28 @@ log(`Tenant and project created (${project.id}).`);
 // the pilot deliberately does not hand the agent credentials. An unauthenticated pass is the
 // honest starting point for an application nobody has onboarded before: whatever it reaches,
 // it reaches as an anonymous visitor.
-const application = await registerApplication(tenant, project.id, {
-  name: 'Verdaccio', baseUrl: BASE, loginUrl: `${BASE}/`,
-  username: '', password: '', maxPages: 25
+// Registered through the API directly rather than through the golden harness's helper,
+// because that helper labels everything "Test lab application" — and the one thing this
+// record must not say is that Verdaccio is part of the lab.
+const registered = await request('/api/v1/applications', {
+  token: tenant.token, method: 'POST',
+  body: {
+    projectId: project.id, name: 'Verdaccio', baseUrl: BASE,
+    description: 'Verdaccio 6.10.4 — an independently developed private npm registry, '
+               + 'run locally for this pilot. Not written for AIRA and not part of the test lab.',
+    allowedDomains: new URL(BASE).hostname,
+    maxPages: 25, maxCrawlDepth: 3, explorationTimeoutSeconds: 240,
+    // No credentials. An application nobody has onboarded before starts as an anonymous
+    // visitor sees it, and what the agent cannot reach that way is a finding about the
+    // pilot rather than something to work around.
+    authStrategy: 'none', loginUrl: null, credentials: null
+  }
 });
+if (!registered.ok) {
+  console.error(`Could not register the application: ${registered.status} ${registered.text.slice(0, 400)}`);
+  process.exit(1);
+}
+const application = registered.json;
 log(`Application registered (${application.id}).`);
 
 const environment = await createEnvironment(tenant, project.id, {
