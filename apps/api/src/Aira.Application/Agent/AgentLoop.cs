@@ -888,6 +888,24 @@ public sealed class AgentLoop : IAgentLoop
             return false;
         }
 
+        if (!outcome.Continue && run.Status == AgentRunStatus.Running)
+        {
+            // A phase that stopped the pass short did not complete a plan, and until now the
+            // loop fell through to "The pass completed its plan." A pass pointed at an
+            // application nothing was listening on found no pages, stopped in modelling, and
+            // reported itself completed — a clean-looking result for work that never happened,
+            // which is the exact shape this platform refuses everywhere else. Found by a
+            // golden test that pointed a pass at a dead port.
+            run.Status = AgentRunStatus.Stopped;
+            run.Phase = AgentPhase.Done;
+            run.StopReason =
+                $"The pass stopped during the {phase.ToString().ToLowerInvariant()} phase: "
+                + $"{outcome.Description}"
+                + (outcome.Rationale is null ? "" : $" {outcome.Rationale}")
+                + " It did not complete a plan, and nothing it would have established is known.";
+            return false;
+        }
+
         return outcome.Continue;
     }
 

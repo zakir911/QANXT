@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-025",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ19-FLT2",
+  "objective": "A pass can be cancelled and says who stopped it",
+  "preconditions": [
+    "a pass is running or waiting"
+  ],
+  "input": "a cancel request",
+  "expected": "The run reaches cancelled and records why",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "cancel 204, run cancelled: Cancelled by a person.",
+  "metrics": null,
+  "startedAt": "2026-09-25T10:03:41.387Z",
+  "durationMs": 3054,
+  "build": {
+    "commit": "95b46b4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "cancelled.json",
+      "path": "evidence/AQF-025/AQ19-FLT2/cancelled.json",
+      "bytes": 697,
+      "sha256": "1f56e38ee794a4318501169ff2b66e0f100fee36f5a97d36abed178b9af4b001"
+    }
+  ]
+}

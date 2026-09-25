@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-028",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ19-FLT1",
+  "objective": "No pass in this suite reported a clean result it had not earned",
+  "preconditions": [
+    "passes have run against deliberately broken applications"
+  ],
+  "input": "the recorded passes",
+  "expected": "Every pass that executed nothing says so rather than reporting success",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 dishonest",
+  "metrics": null,
+  "startedAt": "2026-09-25T09:57:50.787Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "95b46b4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-028/AQ19-FLT1/decisions.json",
+      "bytes": 5486,
+      "sha256": "a6fe287bb35a0e080692a28a3027a5ecda05897ce03c45105d48ed0f7d6becbe"
+    }
+  ]
+}

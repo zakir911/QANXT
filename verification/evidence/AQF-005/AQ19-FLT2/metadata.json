@@ -1,0 +1,44 @@
+{
+  "testId": "AQF-005",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ19-FLT2",
+  "objective": "A failed phase is recorded as failed rather than omitted",
+  "preconditions": [
+    "a pass has run against a lab whose sign-in API answers 500"
+  ],
+  "input": "agent run 847462da-39d9-4764-856c-fe5295558da5",
+  "expected": "Any unsuccessful step says so rather than disappearing",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "0 failed steps of 32",
+  "metrics": null,
+  "startedAt": "2026-09-25T10:02:26.319Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "95b46b4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQF-005/AQ19-FLT2/run.json",
+      "bytes": 1166,
+      "sha256": "8ba5923777b23eefdc9412b92552c3db596377a9645004f789e67d04fb5f68b5"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-005/AQ19-FLT2/decisions.json",
+      "bytes": 5487,
+      "sha256": "8cc47ec066cacb3dd7d69a95f3acf88a89b169718401bd3a0087dcb44c958070"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQF-005/AQ19-FLT2/steps.json",
+      "bytes": 11966,
+      "sha256": "e7c0792bfe9aafd78a9114fc6d50581eafe24fd6d4b106457195dad9e7138f68"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-014",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ19-FLT1",
+  "objective": "An application that cannot be reached is reported rather than assumed empty",
+  "preconditions": [
+    "an application is registered against a port nothing is listening on"
+  ],
+  "input": "http://127.0.0.1:4399",
+  "expected": "Discovery reports a problem, or the pass reports having nothing to work from — never a clean pass over an application that was never reachable",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "status completed, 0 pages, 0 uncovered entries",
+  "metrics": null,
+  "startedAt": "2026-09-25T09:57:29.313Z",
+  "durationMs": 3041,
+  "build": {
+    "commit": "95b46b4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "absent.json",
+      "path": "evidence/AQF-014/AQ19-FLT1/absent.json",
+      "bytes": 696,
+      "sha256": "624015a5605d908207bf78fd4210970537e4f9e94adcdbc833863e3c2df8a67b"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "testId": "AQF-013",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ19-FLT2",
+  "objective": "A pass never invents pages it did not reach",
+  "preconditions": [
+    "a pass has run against a lab with no sign-in control"
+  ],
+  "input": "agent run cd295d31-ec18-4b9f-abcb-0c5fb4a254a2",
+  "expected": "Every risk finding names a route the crawl recorded",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 invented routes",
+  "metrics": null,
+  "startedAt": "2026-09-25T10:03:20.353Z",
+  "durationMs": 8,
+  "build": {
+    "commit": "95b46b4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQF-013/AQ19-FLT2/run.json",
+      "bytes": 1168,
+      "sha256": "9c01c9069aedc510b2c77773c1bf0b779c090ebfde8916127e6f8f5a47f64c73"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-013/AQ19-FLT2/decisions.json",
+      "bytes": 5489,
+      "sha256": "7ffd5dc76f333d539ca7596cf182cd4392495848774ee05c4bedddfe15beb259"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQF-013/AQ19-FLT2/steps.json",
+      "bytes": 11965,
+      "sha256": "1970c673274df5e14cec502c2fc61790774b9b11a3c75fae26d0503f100f80be"
+    }
+  ]
+}

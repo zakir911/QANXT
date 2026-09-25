@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-019",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ19-FLT1",
+  "objective": "Answering an approval that does not exist is refused",
+  "preconditions": [
+    "the platform is running"
+  ],
+  "input": "a deliberately wrong request",
+  "expected": "The API answers 404 rather than recording a decision about nothing",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "404",
+  "metrics": null,
+  "startedAt": "2026-09-25T09:57:32.375Z",
+  "durationMs": 5,
+  "build": {
+    "commit": "95b46b4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AQF-019/AQ19-FLT1/response.json",
+      "bytes": 37,
+      "sha256": "f2a5e65ce8cc28c5fd872d29200b65ce128300553bde15c5e2d8334a80c4ab95"
+    }
+  ]
+}
