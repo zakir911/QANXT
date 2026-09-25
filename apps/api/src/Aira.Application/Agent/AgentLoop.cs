@@ -535,7 +535,12 @@ public sealed class AgentLoop : IAgentLoop
 
         var started = await _security.StartAsync(new StartSecurityScanRequest(
             ApplicationId: run.ApplicationId,
-            Profile: SecurityProfile.Standard), ct);
+            Profile: SecurityProfile.Standard,
+            // The build travels with the scan. Without it the release assessment has to work
+            // out which build a scan covered by comparing timestamps against the build's test
+            // runs, and this pass produces the ordering that breaks: the scan finishes moments
+            // before the verification run starts, so no window drawn from the run contains it.
+            ApplicationBuildRef: run.ApplicationBuildRef), ct);
 
         if (!started.IsSuccess)
         {
@@ -1468,6 +1473,13 @@ public sealed class AgentLoop : IAgentLoop
         var report = TestGapModel.Analyse(capabilities, signals);
         state.Coverage = report;
 
+        // Which of the operator's named areas correspond to nothing the crawl reached.
+        var named = state.Business.CriticalJourneys.Concat(state.Business.HighRiskAreas).ToList();
+        var unmatched = named
+            .Where(area => !capabilities.Any(c =>
+                c.Identifier.Contains(area, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+
         // Written once. Coverage re-runs on a resume because it reads the graph the plan was
         // approved against, and a finding recorded twice is counted twice everywhere after.
         var alreadyRecorded = await _db.AgentFindings
@@ -1526,6 +1538,14 @@ public sealed class AgentLoop : IAgentLoop
                 new AgentEvidence("unknown", report.Unknown.ToString()),
                 new AgentEvidence("businessCriticalWithGaps",
                     report.Capabilities.Count(c => c.HasGaps && c.Capability.BusinessCritical).ToString()),
+                // The quiet failure this exists to stop. Critical areas are matched against
+                // routes by substring, so somebody who writes a journey in English — "search
+                // for a package" — names something no route can ever contain. Their input is
+                // accepted, stored and echoed back, and changes nothing. Naming the ones that
+                // matched nothing is the difference between an operator learning that and an
+                // operator believing the pass is prioritising what they asked for.
+                new AgentEvidence("namedAreasMatchingNothingDiscoveryReached",
+                    unmatched.Count == 0 ? "none" : string.Join(", ", unmatched)),
                 new AgentEvidence("measuredAgainst",
                     $"{pages.Count} page(s) and {endpoints.Count} endpoint(s) discovery reached"),
                 new AgentEvidence("excludedByAPerson",

@@ -218,8 +218,13 @@ public sealed class RunComparisonService : IRunComparisonService
 
         // The window is the build's own runs, so a release tested across three days is not
         // assessed on a scan that ran a week before any of them.
+        //
+        // Anchored on when the first run STARTED rather than when it finished. Anchoring on
+        // its completion put the window's start after most of the testing had happened, so a
+        // scan running alongside the tests — which is the ordering an autonomous pass
+        // produces, and the ordering a pipeline produces — fell outside it.
         var security = await _security.ForBuildAsync(
-            projectId, runs[0].CompletedAt, latest.CompletedAt, ct);
+            projectId, runs[0].StartedAt ?? runs[0].CompletedAt, latest.CompletedAt, reference, ct);
 
         var summary = Describe(reference, runs.Count, outstanding.Count, unstable.Count, comparison)
             + $" Security: {security.Summary}";

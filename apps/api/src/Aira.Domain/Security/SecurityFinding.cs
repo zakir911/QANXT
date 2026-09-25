@@ -97,6 +97,21 @@ public class SecurityScan : BaseEntity, ITenantOwned, IAuditable
     public SecurityProfile Profile { get; set; } = SecurityProfile.Passive;
     public string Status { get; set; } = "running";
 
+    /// <summary>
+    /// Which build of the application this scan covered, when whoever started it said.
+    /// </summary>
+    /// <remarks>
+    /// Recorded rather than inferred. Without it, "which build did this scan cover" is
+    /// answered by comparing the scan's timestamps against the build's test runs, and every
+    /// such comparison has a boundary where the right answer and the computed one differ: a
+    /// scan that finished a second before the run started covered the same build and falls
+    /// outside any window drawn from the run. A release report that gets this wrong says
+    /// nothing is known about a build that was in fact scanned, which is the most
+    /// consequential wrong answer it can give. Null means nobody said, and the time window is
+    /// the fallback.
+    /// </remarks>
+    public string? ApplicationBuildRef { get; set; }
+
     /// <summary>Copied from the scope at the moment the scan started, so a report can say
     /// what was authorized then rather than what the scope says now.</summary>
     public string? ScopeSnapshotJson { get; set; }

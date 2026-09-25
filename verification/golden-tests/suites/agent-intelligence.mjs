@@ -415,6 +415,34 @@ export default async function run() {
       };
     });
 
+  await releaseClaim('AQI-056', 'A scan the pass queued counts towards its own release assessment',
+    'The security section of the build the pass tested is not NOT SCANNED',
+    async () => {
+      // The defect the Verdaccio pilot found. A build tested by a single run had a security
+      // window of [that run's end, that run's end] — an instant no scan can fall into — so a
+      // pass that had queued a scan, waited for it and executed against the same build still
+      // reported NOT SECURITY TESTED. A false "nothing is known" on a security section is the
+      // most consequential wrong answer a release report can give, and one run per build is
+      // the common case in a pipeline.
+      //
+      // No unit test of the posture service can catch this: the bad window came from the
+      // caller. This is the test that reaches both halves.
+      const scan = firstPass.decisions.find(d =>
+        d.tool === 'security.scan' && d.allowed && /queued/i.test(d.summary ?? ''));
+      if (!scan) return { pass: false, detail: 'the pass queued no scan, so there is nothing to count' };
+
+      const response = await releaseReport();
+      if (!response.ok) return { pass: false, detail: `release report ${response.status}`, body: response.json };
+
+      const security = response.json?.security ?? {};
+      return {
+        pass: security.scanned === true && security.scansCoveringThisBuild >= 1,
+        detail: `scanned ${security.scanned}, ${security.scansCoveringThisBuild} scan(s) cover `
+              + `build ${BUILD_REF}; verdict ${security.verdict}`,
+        body: response.json
+      };
+    });
+
   await releaseClaim('AQI-038', 'The verification run carries the build reference it was given',
     'The test run the pass started records the build, so the assessment can find it',
     async () => {
@@ -632,6 +660,25 @@ async function coverageClaims(world, firstPass, secondPass) {
           : `${critical.length} critical gap(s), ${wrong.length} not ranked high`
       };
     });
+
+  await claim('AQI-057', 'A named priority that matches nothing is reported, not silently ignored',
+    'The coverage decision names the areas a person asked for that correspond to no capability',
+    () => {
+      // The Verdaccio pilot's most important finding. Critical areas are matched to routes by
+      // substring, so an operator who writes a journey in English — "search for a package" —
+      // names something no route can contain. The input was accepted, stored and echoed back
+      // in the plan's narrative, and changed no severity anywhere. Nobody was told.
+      //
+      // The evidence must be present either way: "none" when everything matched is a
+      // statement, and a missing field is not.
+      const reported = value('namedAreasMatchingNothingDiscoveryReached');
+      return {
+        pass: reported !== null,
+        detail: reported === null
+          ? 'the decision does not say whether the named areas matched anything'
+          : `named areas matching nothing: ${reported}`
+      };
+    }, 'critical');
 
   await claim('AQI-051', 'The number of business-critical gaps is stated rather than left to be counted',
     'The decision carries its own count of critical gaps',

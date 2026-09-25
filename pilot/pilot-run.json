@@ -1,0 +1,1469 @@
+{
+  "target": {
+    "baseUrl": "http://localhost:4873",
+    "product": "Verdaccio",
+    "version": "6.10.4",
+    "note": "Independently developed. Run locally with no uplink for this pilot."
+  },
+  "ranAt": "2026-09-25T15:08:17.843Z",
+  "applicationId": "4c052ec5-8089-4a77-96eb-f87656ba895a",
+  "projectId": "a2545d30-b240-4c6f-aa53-23539ce9ec10",
+  "agentRunId": "f6eaa176-957e-4e9a-9836-f0a6a5a88514",
+  "discovery": {
+    "discoveryRunId": "667bd2ab-1369-44ff-a227-a40e83265cf6",
+    "pages": [
+      {
+        "route": "/",
+        "title": "Verdaccio (AIRA pilot)",
+        "kind": "unknown"
+      },
+      {
+        "route": "/-/web/detail/pilot-cli",
+        "title": "Verdaccio (AIRA pilot)",
+        "kind": "detail"
+      },
+      {
+        "route": "/-/web/detail/pilot-core",
+        "title": "Verdaccio (AIRA pilot)",
+        "kind": "detail"
+      },
+      {
+        "route": "/-/web/detail/pilot-utils",
+        "title": "Verdaccio (AIRA pilot)",
+        "kind": "detail"
+      }
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "urlTemplate": "http://localhost:4873/-/verdaccio/data/package/readme/pilot-core"
+      },
+      {
+        "method": "GET",
+        "urlTemplate": "http://localhost:4873/-/verdaccio/data/package/readme/pilot-cli"
+      },
+      {
+        "method": "GET",
+        "urlTemplate": "http://localhost:4873/-/verdaccio/data/sidebar/pilot-utils"
+      },
+      {
+        "method": "GET",
+        "urlTemplate": "http://localhost:4873/-/verdaccio/data/sidebar/pilot-cli"
+      },
+      {
+        "method": "GET",
+        "urlTemplate": "http://localhost:4873/-/verdaccio/data/package/readme/pilot-utils"
+      },
+      {
+        "method": "GET",
+        "urlTemplate": "http://localhost:4873/-/verdaccio/data/packages"
+      },
+      {
+        "method": "GET",
+        "urlTemplate": "http://localhost:4873/-/verdaccio/data/sidebar/pilot-core"
+      }
+    ]
+  },
+  "answers": [
+    {
+      "kind": "plan",
+      "note": "approved"
+    },
+    {
+      "kind": "approval",
+      "tool": "security.scan",
+      "status": 200
+    },
+    {
+      "kind": "approval",
+      "tool": "test.execute",
+      "status": 200
+    }
+  ],
+  "summary": {
+    "id": "f6eaa176-957e-4e9a-9836-f0a6a5a88514",
+    "projectId": "a2545d30-b240-4c6f-aa53-23539ce9ec10",
+    "applicationId": "4c052ec5-8089-4a77-96eb-f87656ba895a",
+    "applicationName": "Verdaccio",
+    "name": "Verdaccio pilot pass",
+    "objective": "Find out what this registry does and what nothing covers.",
+    "status": "completed",
+    "phase": "done",
+    "createdAt": "2026-09-25T15:07:53.633325+00:00",
+    "startedAt": "2026-09-25T15:08:10.013755+00:00",
+    "completedAt": "2026-09-25T15:08:16.584855+00:00",
+    "pagesConsidered": 4,
+    "areasAssessed": 4,
+    "testsGenerated": 11,
+    "testsExecuted": 11,
+    "failuresInvestigated": 0,
+    "proposalsMade": 15,
+    "aiCostUsd": 0,
+    "stopReason": "The pass completed its plan.",
+    "summary": "Considered 4 page(s) and scored 4 area(s). Generated 11 test(s) for areas that had none. Ran 11 of them to check they hold on the application as it is now. 15 proposal(s) for review: 15 medium. Everything above is a proposal. The agent did not raise a defect, change a test, approve a healing proposal or alter a quality gate — it has no authority to do any of those.",
+    "testSuiteId": "7b689d1f-f61a-4a82-8985-0c1457822a20",
+    "testRunId": "90c05133-dfe2-4730-b3d5-346be36e70cf",
+    "buildRef": "verdaccio-6.10.4"
+  },
+  "bounds": {
+    "explore": false,
+    "execute": true,
+    "maxPages": 20,
+    "maxDepth": 3,
+    "maxTargets": 5,
+    "maxGeneratedTests": 12,
+    "timeBudgetSeconds": 900,
+    "maxAiCostUsd": 1,
+    "maxActions": 500,
+    "maxNewJourneys": 25,
+    "allowProduction": false,
+    "allowDestructiveActions": false,
+    "allowSecurityTesting": true,
+    "requireApprovalForHighRisk": true,
+    "maxParallelWorkers": 5,
+    "actionsTaken": 6
+  },
+  "steps": [
+    {
+      "order": 1,
+      "phase": "exploring",
+      "succeeded": true,
+      "description": "Skipped Exploring: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:08:04.92549+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 1,
+      "phase": "exploring",
+      "succeeded": true,
+      "description": "Skipped Exploring: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at Generating. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:07:59.743504+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 1,
+      "phase": "exploring",
+      "succeeded": true,
+      "description": "Skipped Exploring: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:08:10.017645+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 1,
+      "phase": "exploring",
+      "succeeded": true,
+      "description": "Skipped exploration.",
+      "rationale": "Exploration was disabled for this pass, so the existing knowledge graph is used as it stands.",
+      "startedAt": "2026-09-25T15:07:54.644092+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 2,
+      "phase": "modelling",
+      "succeeded": true,
+      "description": "Read 4 page(s) from the knowledge graph.",
+      "rationale": "The graph is the agent's whole picture of the application; it does not browse to form one.",
+      "startedAt": "2026-09-25T15:08:10.021636+00:00",
+      "durationMs": 8
+    },
+    {
+      "order": 2,
+      "phase": "modelling",
+      "succeeded": true,
+      "description": "Read 4 page(s) from the knowledge graph.",
+      "rationale": "The graph is the agent's whole picture of the application; it does not browse to form one.",
+      "startedAt": "2026-09-25T15:08:04.929093+00:00",
+      "durationMs": 7
+    },
+    {
+      "order": 2,
+      "phase": "modelling",
+      "succeeded": true,
+      "description": "Read 4 page(s) from the knowledge graph.",
+      "rationale": "The graph is the agent's whole picture of the application; it does not browse to form one.",
+      "startedAt": "2026-09-25T15:07:59.747661+00:00",
+      "durationMs": 8
+    },
+    {
+      "order": 2,
+      "phase": "modelling",
+      "succeeded": true,
+      "description": "Read 4 page(s) from the knowledge graph.",
+      "rationale": "The graph is the agent's whole picture of the application; it does not browse to form one.",
+      "startedAt": "2026-09-25T15:07:54.647424+00:00",
+      "durationMs": 9
+    },
+    {
+      "order": 3,
+      "phase": "prioritizing",
+      "succeeded": true,
+      "description": "Scored 4 area(s) and chose the top 4 to work on.",
+      "rationale": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering.",
+      "detail": "/ (27); /-/web/detail/pilot-cli (27); /-/web/detail/pilot-core (27); /-/web/detail/pilot-utils (27)",
+      "startedAt": "2026-09-25T15:07:59.759555+00:00",
+      "durationMs": 15
+    },
+    {
+      "order": 3,
+      "phase": "prioritizing",
+      "succeeded": true,
+      "description": "Scored 4 area(s) and chose the top 4 to work on.",
+      "rationale": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering.",
+      "detail": "/ (27); /-/web/detail/pilot-cli (27); /-/web/detail/pilot-core (27); /-/web/detail/pilot-utils (27)",
+      "startedAt": "2026-09-25T15:07:54.65989+00:00",
+      "durationMs": 18
+    },
+    {
+      "order": 3,
+      "phase": "prioritizing",
+      "succeeded": true,
+      "description": "Scored 4 area(s) and chose the top 4 to work on.",
+      "rationale": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering.",
+      "detail": "/-/web/detail/pilot-cli (12); /-/web/detail/pilot-core (12); /-/web/detail/pilot-utils (12); / (5)",
+      "startedAt": "2026-09-25T15:08:10.033321+00:00",
+      "durationMs": 25
+    },
+    {
+      "order": 3,
+      "phase": "prioritizing",
+      "succeeded": true,
+      "description": "Scored 4 area(s) and chose the top 4 to work on.",
+      "rationale": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering.",
+      "detail": "/-/web/detail/pilot-cli (12); /-/web/detail/pilot-core (12); /-/web/detail/pilot-utils (12); / (5)",
+      "startedAt": "2026-09-25T15:08:04.939496+00:00",
+      "durationMs": 27
+    },
+    {
+      "order": 4,
+      "phase": "analysingGaps",
+      "succeeded": true,
+      "description": "Assessed 11 capability(ies): 0 covered, 0 partial, 11 uncovered, 19 unknown.",
+      "rationale": "Coverage is compared against what discovery reached. Anything it did not reach is absent from this assessment rather than covered by it, and a dimension this pass cannot assess is reported unknown rather than as a gap.",
+      "detail": "11 capability(ies) assessed across 30 applicable dimension(s): 0 covered, 0 partial, 11 not covered, 19 unknown. Coverage is measured against what discovery reached; anything it did not reach is absent from this report rather than covered by it.",
+      "startedAt": "2026-09-25T15:07:54.681692+00:00",
+      "durationMs": 30
+    },
+    {
+      "order": 4,
+      "phase": "analysingGaps",
+      "succeeded": true,
+      "description": "Skipped AnalysingGaps: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at Generating. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:07:59.776807+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 4,
+      "phase": "analysingGaps",
+      "succeeded": true,
+      "description": "Skipped AnalysingGaps: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:08:04.967987+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 4,
+      "phase": "analysingGaps",
+      "succeeded": true,
+      "description": "Skipped AnalysingGaps: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:08:10.060717+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 5,
+      "phase": "planning",
+      "succeeded": true,
+      "description": "Skipped Planning: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:08:04.969111+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 5,
+      "phase": "planning",
+      "succeeded": true,
+      "description": "Proposed 51 test(s) and stopped for approval.",
+      "rationale": "Nothing has been tested. A plan is a proposal, and this run requires a person to approve one before any of it runs.",
+      "startedAt": "2026-09-25T15:07:54.715262+00:00",
+      "durationMs": 17
+    },
+    {
+      "order": 5,
+      "phase": "planning",
+      "succeeded": true,
+      "description": "Skipped Planning: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:08:10.06218+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 5,
+      "phase": "planning",
+      "succeeded": true,
+      "description": "Skipped Planning: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at Generating. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:07:59.777841+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 6,
+      "phase": "generating",
+      "succeeded": true,
+      "description": "Skipped Generating: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:08:10.063673+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 6,
+      "phase": "generating",
+      "succeeded": true,
+      "description": "Generated 4 test(s) across 8 step(s) for 4 uncovered area(s).",
+      "rationale": "Produced by the built-in deterministic planner; no external model was used.",
+      "detail": "Generated 4 scenarios covering \"Find out what this registry does and what nothing covers.\" from 4 discovered pages using AIRA's built-in rules (no model provider configured).",
+      "startedAt": "2026-09-25T15:07:59.781222+00:00",
+      "durationMs": 40
+    },
+    {
+      "order": 6,
+      "phase": "generating",
+      "succeeded": true,
+      "description": "Skipped Generating: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:08:04.970256+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 7,
+      "phase": "generating",
+      "succeeded": true,
+      "description": "Skipped Generating: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:08:04.971246+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 7,
+      "phase": "generating",
+      "succeeded": true,
+      "description": "Skipped Generating: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:08:10.065641+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 7,
+      "phase": "generating",
+      "succeeded": true,
+      "description": "Generated 7 API test(s) across 7 endpoint(s).",
+      "rationale": "The API testing engine authored them; the agent chose the endpoints and recorded why.",
+      "startedAt": "2026-09-25T15:07:59.824242+00:00",
+      "durationMs": 71
+    },
+    {
+      "order": 8,
+      "phase": "prioritizing",
+      "succeeded": true,
+      "description": "No regression selection in this plan.",
+      "rationale": "Nothing that already existed was selected for re-running.",
+      "startedAt": "2026-09-25T15:08:04.972944+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 8,
+      "phase": "prioritizing",
+      "succeeded": true,
+      "description": "No regression selection in this plan.",
+      "rationale": "Nothing that already existed was selected for re-running.",
+      "startedAt": "2026-09-25T15:08:10.067691+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 8,
+      "phase": "prioritizing",
+      "succeeded": true,
+      "description": "No regression selection in this plan.",
+      "rationale": "Nothing that already existed was selected for re-running.",
+      "startedAt": "2026-09-25T15:07:59.899788+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 9,
+      "phase": "securityTesting",
+      "succeeded": true,
+      "description": "Stopped to ask about whether to scan this application.",
+      "rationale": "Nothing was done. The pass resumes from here when the question is answered, and reports what it did not do if nobody answers.",
+      "startedAt": "2026-09-25T15:07:59.904013+00:00",
+      "durationMs": 12
+    },
+    {
+      "order": 9,
+      "phase": "securityTesting",
+      "succeeded": true,
+      "description": "Queued security scan SCAN-20260925-CDD2F1 (8 check(s)).",
+      "rationale": "A queued scan is not a result. Its verdict appears when a worker reports.",
+      "startedAt": "2026-09-25T15:08:04.975967+00:00",
+      "durationMs": 15
+    },
+    {
+      "order": 9,
+      "phase": "securityTesting",
+      "succeeded": true,
+      "description": "Skipped SecurityTesting: it ran before this pass stopped for a person.",
+      "rationale": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered.",
+      "startedAt": "2026-09-25T15:08:10.068925+00:00",
+      "durationMs": 0
+    },
+    {
+      "order": 10,
+      "phase": "executing",
+      "succeeded": true,
+      "description": "Ran 11 test(s) (0 generated, 0 API, 0 re-run): 11 passed, 0 failed, 0 blocked.",
+      "rationale": "A generated test that cannot pass on the application as it is now is worth knowing about before anyone relies on it.",
+      "startedAt": "2026-09-25T15:08:10.071697+00:00",
+      "durationMs": 6486
+    },
+    {
+      "order": 10,
+      "phase": "executing",
+      "succeeded": true,
+      "description": "Stopped to ask about whether to run 11 test(s).",
+      "rationale": "Nothing was done. The pass resumes from here when the question is answered, and reports what it did not do if nobody answers.",
+      "startedAt": "2026-09-25T15:08:04.994665+00:00",
+      "durationMs": 9
+    },
+    {
+      "order": 11,
+      "phase": "investigating",
+      "succeeded": true,
+      "description": "No failures to investigate.",
+      "rationale": "Every generated test passed, so there was nothing to diagnose.",
+      "startedAt": "2026-09-25T15:08:16.562722+00:00",
+      "durationMs": 2
+    },
+    {
+      "order": 12,
+      "phase": "proposing",
+      "succeeded": true,
+      "description": "Wrote up 15 proposal(s).",
+      "rationale": "The pass ends with a write-up rather than an action, because acting on these is a person's decision.",
+      "startedAt": "2026-09-25T15:08:16.569108+00:00",
+      "durationMs": 13
+    }
+  ],
+  "findings": [
+    {
+      "id": "dacb6aa4-42f8-45a7-8c31-b9fbd32cd7a9",
+      "kind": "riskArea",
+      "severity": "medium",
+      "title": "/-/web/detail/pilot-utils — risk 27",
+      "detail": "/-/web/detail/pilot-utils scores 27 (medium risk), mainly because of no test coverage and changes data. Nothing tests this route, so there is no evidence it works and no warning when it stops. This page can change state: 1 input(s) and 16 action(s). A defect here writes something wrong rather than merely displaying something wrong.",
+      "recommendation": "Generate a test for this route — it has none.",
+      "confidence": 90,
+      "route": "/-/web/detail/pilot-utils",
+      "isAiGenerated": false
+    },
+    {
+      "id": "df153788-8a95-4d3b-aa68-9e5dc8369783",
+      "kind": "riskArea",
+      "severity": "medium",
+      "title": "/ — risk 27",
+      "detail": "/ scores 27 (medium risk), mainly because of no test coverage and changes data. Nothing tests this route, so there is no evidence it works and no warning when it stops. This page can change state: 1 input(s) and 7 action(s). A defect here writes something wrong rather than merely displaying something wrong.",
+      "recommendation": "Generate a test for this route — it has none.",
+      "confidence": 90,
+      "route": "/",
+      "isAiGenerated": false
+    },
+    {
+      "id": "19f21b97-814f-4748-83b5-84637f8a0674",
+      "kind": "riskArea",
+      "severity": "medium",
+      "title": "/-/web/detail/pilot-cli — risk 27",
+      "detail": "/-/web/detail/pilot-cli scores 27 (medium risk), mainly because of no test coverage and changes data. Nothing tests this route, so there is no evidence it works and no warning when it stops. This page can change state: 1 input(s) and 16 action(s). A defect here writes something wrong rather than merely displaying something wrong.",
+      "recommendation": "Generate a test for this route — it has none.",
+      "confidence": 90,
+      "route": "/-/web/detail/pilot-cli",
+      "isAiGenerated": false
+    },
+    {
+      "id": "57314edc-67cd-498a-ba76-6133a1f0ed18",
+      "kind": "riskArea",
+      "severity": "medium",
+      "title": "/-/web/detail/pilot-core — risk 27",
+      "detail": "/-/web/detail/pilot-core scores 27 (medium risk), mainly because of no test coverage and changes data. Nothing tests this route, so there is no evidence it works and no warning when it stops. This page can change state: 1 input(s) and 16 action(s). A defect here writes something wrong rather than merely displaying something wrong.",
+      "recommendation": "Generate a test for this route — it has none.",
+      "confidence": 90,
+      "route": "/-/web/detail/pilot-core",
+      "isAiGenerated": false
+    },
+    {
+      "id": "3bc5815e-1e46-4948-a462-cb015967111c",
+      "kind": "coverageGap",
+      "severity": "medium",
+      "title": "Untested: GET http://localhost:4873/-/verdaccio/data/sidebar/pilot-core (Api)",
+      "detail": "Api: No test covers this capability along this dimension.",
+      "recommendation": "Decide whether this is worth covering. The agent has not written a test for it and has not decided that it should.",
+      "confidence": 85,
+      "route": "http://localhost:4873/-/verdaccio/data/sidebar/pilot-core",
+      "isAiGenerated": false
+    },
+    {
+      "id": "407debc5-02e1-403a-8abf-f3fb5c9ef0f8",
+      "kind": "coverageGap",
+      "severity": "medium",
+      "title": "Untested: /-/web/detail/pilot-utils (Ui)",
+      "detail": "Ui: No test covers this capability along this dimension.",
+      "recommendation": "Decide whether this is worth covering. The agent has not written a test for it and has not decided that it should.",
+      "confidence": 85,
+      "route": "/-/web/detail/pilot-utils",
+      "isAiGenerated": false
+    },
+    {
+      "id": "4f74c9a9-5a71-4794-877a-d1fa285cfc46",
+      "kind": "coverageGap",
+      "severity": "medium",
+      "title": "Untested: GET http://localhost:4873/-/verdaccio/data/sidebar/pilot-utils (Api)",
+      "detail": "Api: No test covers this capability along this dimension.",
+      "recommendation": "Decide whether this is worth covering. The agent has not written a test for it and has not decided that it should.",
+      "confidence": 85,
+      "route": "http://localhost:4873/-/verdaccio/data/sidebar/pilot-utils",
+      "isAiGenerated": false
+    },
+    {
+      "id": "8fb0572d-f42d-4e26-951d-6c5072786340",
+      "kind": "coverageGap",
+      "severity": "medium",
+      "title": "Untested: GET http://localhost:4873/-/verdaccio/data/packages (Api)",
+      "detail": "Api: No test covers this capability along this dimension.",
+      "recommendation": "Decide whether this is worth covering. The agent has not written a test for it and has not decided that it should.",
+      "confidence": 85,
+      "route": "http://localhost:4873/-/verdaccio/data/packages",
+      "isAiGenerated": false
+    },
+    {
+      "id": "9588a305-b723-4ba5-82d4-93b9b2f3ec1f",
+      "kind": "coverageGap",
+      "severity": "medium",
+      "title": "Untested: /-/web/detail/pilot-cli (Ui)",
+      "detail": "Ui: No test covers this capability along this dimension.",
+      "recommendation": "Decide whether this is worth covering. The agent has not written a test for it and has not decided that it should.",
+      "confidence": 85,
+      "route": "/-/web/detail/pilot-cli",
+      "isAiGenerated": false
+    },
+    {
+      "id": "9e383fde-102b-496f-a9e2-2afd6e966d93",
+      "kind": "coverageGap",
+      "severity": "medium",
+      "title": "Untested: GET http://localhost:4873/-/verdaccio/data/sidebar/pilot-cli (Api)",
+      "detail": "Api: No test covers this capability along this dimension.",
+      "recommendation": "Decide whether this is worth covering. The agent has not written a test for it and has not decided that it should.",
+      "confidence": 85,
+      "route": "http://localhost:4873/-/verdaccio/data/sidebar/pilot-cli",
+      "isAiGenerated": false
+    },
+    {
+      "id": "412d9238-ce33-4dcf-8a1c-ae20b413ab46",
+      "kind": "coverageGap",
+      "severity": "medium",
+      "title": "Untested: /-/web/detail/pilot-core (Ui)",
+      "detail": "Ui: No test covers this capability along this dimension.",
+      "recommendation": "Decide whether this is worth covering. The agent has not written a test for it and has not decided that it should.",
+      "confidence": 85,
+      "route": "/-/web/detail/pilot-core",
+      "isAiGenerated": false
+    },
+    {
+      "id": "b7437f55-584b-4005-a893-01f076c4e104",
+      "kind": "coverageGap",
+      "severity": "medium",
+      "title": "Untested: / (Ui)",
+      "detail": "Ui: No test covers this capability along this dimension.",
+      "recommendation": "Decide whether this is worth covering. The agent has not written a test for it and has not decided that it should.",
+      "confidence": 85,
+      "route": "/",
+      "isAiGenerated": false
+    },
+    {
+      "id": "20547ee5-a24e-4b0a-ada0-efff1dca7c74",
+      "kind": "coverageGap",
+      "severity": "medium",
+      "title": "Untested: GET http://localhost:4873/-/verdaccio/data/package/readme/pilot-core (Api)",
+      "detail": "Api: No test covers this capability along this dimension.",
+      "recommendation": "Decide whether this is worth covering. The agent has not written a test for it and has not decided that it should.",
+      "confidence": 85,
+      "route": "http://localhost:4873/-/verdaccio/data/package/readme/pilot-core",
+      "isAiGenerated": false
+    },
+    {
+      "id": "237d0ebe-60aa-48c7-bcdd-cab26a05fe13",
+      "kind": "coverageGap",
+      "severity": "medium",
+      "title": "Untested: GET http://localhost:4873/-/verdaccio/data/package/readme/pilot-utils (Api)",
+      "detail": "Api: No test covers this capability along this dimension.",
+      "recommendation": "Decide whether this is worth covering. The agent has not written a test for it and has not decided that it should.",
+      "confidence": 85,
+      "route": "http://localhost:4873/-/verdaccio/data/package/readme/pilot-utils",
+      "isAiGenerated": false
+    },
+    {
+      "id": "3678367a-d975-42ea-a868-352429086a14",
+      "kind": "coverageGap",
+      "severity": "medium",
+      "title": "Untested: GET http://localhost:4873/-/verdaccio/data/package/readme/pilot-cli (Api)",
+      "detail": "Api: No test covers this capability along this dimension.",
+      "recommendation": "Decide whether this is worth covering. The agent has not written a test for it and has not decided that it should.",
+      "confidence": 85,
+      "route": "http://localhost:4873/-/verdaccio/data/package/readme/pilot-cli",
+      "isAiGenerated": false
+    }
+  ],
+  "plan": {
+    "id": "1aca9d50-a066-49bf-9b00-cb3319fb4c2e",
+    "agentRunId": "f6eaa176-957e-4e9a-9836-f0a6a5a88514",
+    "applicationId": "4c052ec5-8089-4a77-96eb-f87656ba895a",
+    "status": "approved",
+    "objective": "Find out what this registry does and what nothing covers.",
+    "pagesDiscovered": 4,
+    "endpointsDiscovered": 7,
+    "journeysKnown": 0,
+    "rolesKnown": 1,
+    "summary": "51 test(s) across 6 category(ies) for \"Find out what this registry does and what nothing covers.\", 18 of which do not exist yet. Roughly 17 minute(s) — an estimate from defaults, because this application has no execution history yet. 3 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+    "notCovered": [
+      "No journey has been recorded for this application, so nothing here follows a path a real user was seen to take. The journey tests are assembled from pages discovery walked.",
+      "2 area(s) a person excluded: /-/verdaccio/sec, /-/npm/v1/tokens. Nothing in this plan touches them.",
+      "Anything discovery did not reach. The plan is drawn from the application map, and an application is larger than its crawl."
+    ],
+    "items": [
+      {
+        "id": "f47aecbb-21a4-422d-b5bf-1223544b860c",
+        "category": "smoke",
+        "testCount": 4,
+        "toGenerate": 4,
+        "why": "One reachability check per discovered page (4). Cheap, and it separates an application that is down from a suite that is broken.",
+        "risk": "low",
+        "coverage": "4 page(s) reachable and rendering",
+        "estimatedSeconds": 120,
+        "estimateFromHistory": false,
+        "potentialImpact": "Read-only navigation. Nothing is submitted.",
+        "included": true
+      },
+      {
+        "id": "99680366-baee-4e61-aa9d-bcb730e86cf8",
+        "category": "criticalJourney",
+        "testCount": 6,
+        "toGenerate": 3,
+        "why": "No journey has been recorded for this application yet, and a person named 3 area(s) as business-critical: search for a package, read a package page, login. These are covered from what discovery walked, which is weaker than a recorded journey and better than ignoring what somebody told us matters.",
+        "risk": "critical",
+        "coverage": "3 area(s) a person named, happy path and one failure path each",
+        "estimatedSeconds": 180,
+        "estimateFromHistory": false,
+        "potentialImpact": "Drives real forms. Creates records in the environment under test.",
+        "included": true
+      },
+      {
+        "id": "fc637b41-9706-476f-9f54-4df86e81d585",
+        "category": "api",
+        "testCount": 7,
+        "toGenerate": 7,
+        "why": "7 endpoint(s) discovered, 7 with no API test. An endpoint the UI happens to exercise is not an endpoint that is tested.",
+        "risk": "high",
+        "coverage": "7 endpoint(s): status, shape and contract",
+        "estimatedSeconds": 35,
+        "estimateFromHistory": false,
+        "potentialImpact": "Issues requests directly. State-changing verbs are exercised where the contract declares them.",
+        "included": true
+      },
+      {
+        "id": "96fabdfe-118f-4146-b8ec-af39af31a91b",
+        "category": "security",
+        "testCount": 26,
+        "toGenerate": 0,
+        "why": "The application carries an enabled security scope. 0 form(s), 0 upload workflow(s), 1 role(s) and 7 endpoint(s) imply 26 check(s).",
+        "risk": "high",
+        "coverage": "26 check(s) within the authorized scope",
+        "estimatedSeconds": 520,
+        "estimateFromHistory": false,
+        "potentialImpact": "Sends crafted requests within the scope. Destructive checks are excluded unless separately authorized.",
+        "included": true
+      },
+      {
+        "id": "82153e7b-a9d7-4f21-a4f2-7b9aaba8bb67",
+        "category": "accessibility",
+        "testCount": 4,
+        "toGenerate": 4,
+        "why": "4 page(s) have no accessibility check. Automated checks find a minority of real barriers and are worth running for that minority.",
+        "risk": "medium",
+        "coverage": "4 page(s), axe-core rules",
+        "estimatedSeconds": 60,
+        "estimateFromHistory": false,
+        "potentialImpact": "Read-only inspection of the rendered page.",
+        "included": true
+      },
+      {
+        "id": "578fb70c-5593-42ab-ad27-393f7c8c39c6",
+        "category": "visual",
+        "testCount": 4,
+        "toGenerate": 0,
+        "why": "Baselines for the most connected pages, so an unintended visual change has something to be different from.",
+        "risk": "low",
+        "coverage": "4 page(s) baselined",
+        "estimatedSeconds": 80,
+        "estimateFromHistory": false,
+        "potentialImpact": "Screenshots only. A first run establishes baselines rather than failing.",
+        "included": true
+      }
+    ],
+    "totalTests": 51,
+    "estimatedSeconds": 995,
+    "decidedByEmail": "pilot-ukoovsqym5@example.test",
+    "decidedAt": "2026-09-25T15:07:56.662887+00:00",
+    "decisionNote": "Approved for the pilot; the registry is ours and disposable."
+  },
+  "decisions": [
+    {
+      "id": "a228fd4e-f207-460b-b134-243b61567503",
+      "sequence": 1,
+      "phase": "analysingGaps",
+      "tool": "coverage.analyse",
+      "summary": "Assessed 11 capability(ies): 11 uncovered, 19 unknown.",
+      "reason": "11 capability(ies) assessed across 30 applicable dimension(s): 0 covered, 0 partial, 11 not covered, 19 unknown. Coverage is measured against what discovery reached; anything it did not reach is absent from this report rather than covered by it.",
+      "evidence": [
+        {
+          "name": "capabilities",
+          "value": "11"
+        },
+        {
+          "name": "covered",
+          "value": "0"
+        },
+        {
+          "name": "partiallyCovered",
+          "value": "0"
+        },
+        {
+          "name": "notCovered",
+          "value": "11"
+        },
+        {
+          "name": "unknown",
+          "value": "19"
+        },
+        {
+          "name": "businessCriticalWithGaps",
+          "value": "0"
+        },
+        {
+          "name": "measuredAgainst",
+          "value": "4 page(s) and 7 endpoint(s) discovery reached"
+        },
+        {
+          "name": "excludedByAPerson",
+          "value": "/-/verdaccio/sec, /-/npm/v1/tokens"
+        }
+      ],
+      "result": "11 gap(s)",
+      "allowed": true,
+      "risk": "Observation",
+      "modelContributed": false,
+      "aiCostUsd": 0,
+      "occurredAt": "2026-09-25T15:07:54.710193+00:00"
+    },
+    {
+      "id": "bc84b43f-5d33-49bf-8d85-8e5bd6ac3080",
+      "sequence": 2,
+      "phase": "planning",
+      "summary": "Proposed 51 test(s) across 6 category(ies).",
+      "reason": "51 test(s) across 6 category(ies) for \"Find out what this registry does and what nothing covers.\", 18 of which do not exist yet. Roughly 17 minute(s) — an estimate from defaults, because this application has no execution history yet. 3 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+      "evidence": [
+        {
+          "name": "pagesPlannable",
+          "value": "4"
+        },
+        {
+          "name": "endpointsDiscovered",
+          "value": "7"
+        },
+        {
+          "name": "journeysKnown",
+          "value": "0"
+        },
+        {
+          "name": "securityAuthorized",
+          "value": "True"
+        },
+        {
+          "name": "openSecurityFindings",
+          "value": "0"
+        },
+        {
+          "name": "criticalAreasNamedByAPerson",
+          "value": "search for a package, read a package page, login"
+        },
+        {
+          "name": "excludedByAPerson",
+          "value": "/-/verdaccio/sec, /-/npm/v1/tokens"
+        }
+      ],
+      "result": "51 test(s) proposed.",
+      "allowed": true,
+      "modelContributed": false,
+      "aiCostUsd": 0,
+      "occurredAt": "2026-09-25T15:07:54.729459+00:00"
+    },
+    {
+      "id": "e042f1ce-6119-4eae-8319-2720c5449407",
+      "sequence": 3,
+      "phase": "planning",
+      "summary": "The plan was approved by pi***@example.test.",
+      "reason": "Approved for the pilot; the registry is ours and disposable.",
+      "evidence": [
+        {
+          "name": "decidedBy",
+          "value": "pi***@example.test"
+        },
+        {
+          "name": "categoriesIncluded",
+          "value": "Visual, Accessibility, Security, CriticalJourney, Smoke, Api"
+        },
+        {
+          "name": "categoriesExcluded",
+          "value": "none"
+        },
+        {
+          "name": "testsPlanned",
+          "value": "51"
+        }
+      ],
+      "result": "Approved",
+      "allowed": true,
+      "actorUserId": "264ef62a-28ee-41c8-9d54-09a222956fcb",
+      "modelContributed": false,
+      "aiCostUsd": 0,
+      "occurredAt": "2026-09-25T15:07:56.668965+00:00"
+    },
+    {
+      "id": "c385f480-145d-4403-b884-16b1d483adac",
+      "sequence": 4,
+      "phase": "generating",
+      "tool": "test.generate",
+      "summary": "Generated 7 API test(s) for 7 endpoint(s).",
+      "reason": "Endpoints discovered by the crawl, minus anything a person excluded. Mutating requests were left out.",
+      "evidence": [
+        {
+          "name": "endpointsConsidered",
+          "value": "7"
+        },
+        {
+          "name": "endpointsSelected",
+          "value": "7"
+        },
+        {
+          "name": "endpointsExcludedByAPerson",
+          "value": "none"
+        },
+        {
+          "name": "mutatingIncluded",
+          "value": "False"
+        },
+        {
+          "name": "trimmedToBudget",
+          "value": "no"
+        }
+      ],
+      "result": "7 API test(s)",
+      "allowed": true,
+      "risk": "Observation",
+      "modelContributed": false,
+      "aiCostUsd": 0,
+      "occurredAt": "2026-09-25T15:07:59.893368+00:00"
+    },
+    {
+      "id": "8af72efd-e731-4cf8-b1a7-8c9a21f21da4",
+      "sequence": 5,
+      "phase": "securityTesting",
+      "tool": "security.scan",
+      "summary": "Wanted to use security.scan.",
+      "reason": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+      "evidence": [
+        {
+          "name": "policyRungsPassed",
+          "value": "tool → cancellation → budget → permission → environment → risk → security → creation-budget"
+        },
+        {
+          "name": "deniedAt",
+          "value": "ApprovalRequired"
+        }
+      ],
+      "result": "Not performed.",
+      "allowed": false,
+      "denial": "ApprovalRequired",
+      "risk": "StateChanging",
+      "modelContributed": false,
+      "aiCostUsd": 0,
+      "occurredAt": "2026-09-25T15:07:59.908434+00:00"
+    },
+    {
+      "id": "dc6dfe4f-e88f-45a7-9422-1c1537ae6582",
+      "sequence": 6,
+      "phase": "securityTesting",
+      "tool": "security.scan",
+      "summary": "Queued security scan SCAN-20260925-CDD2F1.",
+      "reason": "The application carries an enabled scope and the plan included security testing. The engine decides what may be sent; this pass only asked.",
+      "evidence": [
+        {
+          "name": "securityScanId",
+          "value": "2d62f0fe-6234-4d95-8464-d935179a7022"
+        },
+        {
+          "name": "profile",
+          "value": "standard"
+        },
+        {
+          "name": "checksConfigured",
+          "value": "8"
+        },
+        {
+          "name": "targets",
+          "value": "11"
+        }
+      ],
+      "result": "Queued as SCAN-20260925-CDD2F1.",
+      "allowed": true,
+      "risk": "StateChanging",
+      "modelContributed": false,
+      "aiCostUsd": 0,
+      "occurredAt": "2026-09-25T15:08:04.989562+00:00"
+    },
+    {
+      "id": "bee009db-f888-4246-993e-50d7232d317f",
+      "sequence": 7,
+      "phase": "executing",
+      "tool": "test.execute",
+      "summary": "Wanted to use test.execute.",
+      "reason": "'test.execute' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+      "evidence": [
+        {
+          "name": "policyRungsPassed",
+          "value": "tool → cancellation → budget → permission → environment → risk → security → creation-budget"
+        },
+        {
+          "name": "deniedAt",
+          "value": "ApprovalRequired"
+        }
+      ],
+      "result": "Not performed.",
+      "allowed": false,
+      "denial": "ApprovalRequired",
+      "risk": "StateChanging",
+      "modelContributed": false,
+      "aiCostUsd": 0,
+      "occurredAt": "2026-09-25T15:08:04.998331+00:00"
+    },
+    {
+      "id": "79e8da84-593c-49e4-ae6c-cdd39f3dbcd5",
+      "sequence": 8,
+      "phase": "executing",
+      "tool": "test.execute",
+      "summary": "Started a verification run against build verdaccio-6.10.4.",
+      "reason": "The build reference travels with the run, so the release assessment for this build includes what this pass executed.",
+      "evidence": [
+        {
+          "name": "testRunId",
+          "value": "90c05133-dfe2-4730-b3d5-346be36e70cf"
+        },
+        {
+          "name": "buildRef",
+          "value": "verdaccio-6.10.4"
+        },
+        {
+          "name": "testsQueued",
+          "value": "11"
+        }
+      ],
+      "result": "started",
+      "allowed": true,
+      "risk": "Interaction",
+      "modelContributed": false,
+      "aiCostUsd": 0,
+      "occurredAt": "2026-09-25T15:08:10.54359+00:00"
+    }
+  ],
+  "approvals": [
+    {
+      "id": "621ba376-68ee-4c01-a82c-f37d70efd6bd",
+      "tool": "security.scan",
+      "reason": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+      "proposal": "Scan 4 page(s) of this application within its authorized scope.",
+      "evidence": [
+        {
+          "name": "pagesDiscovered",
+          "value": "4"
+        },
+        {
+          "name": "scopeAuthorized",
+          "value": "yes — checked before planning"
+        }
+      ],
+      "risk": "StateChanging",
+      "expectedImpact": "Requests within the scope's rate limits. No destructive checks; production is not permitted for an unattended pass.",
+      "status": "granted",
+      "decidedByEmail": "pilot-ukoovsqym5@example.test",
+      "justification": "Granted for the pilot. The registry is local, disposable and owned by us.",
+      "decidedAt": "2026-09-25T15:08:02.71151+00:00"
+    },
+    {
+      "id": "3aa9a47e-cfcc-4733-a94b-14fb5f596e01",
+      "tool": "test.execute",
+      "reason": "'test.execute' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+      "proposal": "Run 11 test(s) against this application.",
+      "evidence": [
+        {
+          "name": "generated",
+          "value": "0"
+        },
+        {
+          "name": "apiTests",
+          "value": "0"
+        },
+        {
+          "name": "reRuns",
+          "value": "0"
+        }
+      ],
+      "risk": "StateChanging",
+      "expectedImpact": "Drives the application as a user would, and creates records wherever a journey submits a form.",
+      "status": "granted",
+      "decidedByEmail": "pilot-ukoovsqym5@example.test",
+      "justification": "Granted for the pilot. The registry is local, disposable and owned by us.",
+      "decidedAt": "2026-09-25T15:08:05.749078+00:00"
+    }
+  ],
+  "timeline": [
+    {
+      "at": "2026-09-25T15:07:54.644092+00:00",
+      "kind": "phase",
+      "phase": "exploring",
+      "title": "Skipped exploration.",
+      "detail": "Exploration was disabled for this pass, so the existing knowledge graph is used as it stands."
+    },
+    {
+      "at": "2026-09-25T15:07:54.647424+00:00",
+      "kind": "phase",
+      "phase": "modelling",
+      "title": "Read 4 page(s) from the knowledge graph.",
+      "detail": "The graph is the agent's whole picture of the application; it does not browse to form one."
+    },
+    {
+      "at": "2026-09-25T15:07:54.65989+00:00",
+      "kind": "phase",
+      "phase": "prioritizing",
+      "title": "Scored 4 area(s) and chose the top 4 to work on.",
+      "detail": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering."
+    },
+    {
+      "at": "2026-09-25T15:07:54.681692+00:00",
+      "kind": "phase",
+      "phase": "analysingGaps",
+      "title": "Assessed 11 capability(ies): 0 covered, 0 partial, 11 uncovered, 19 unknown.",
+      "detail": "Coverage is compared against what discovery reached. Anything it did not reach is absent from this assessment rather than covered by it, and a dimension this pass cannot assess is reported unknown rather than as a gap."
+    },
+    {
+      "at": "2026-09-25T15:07:54.710193+00:00",
+      "kind": "decision",
+      "phase": "analysingGaps",
+      "title": "Assessed 11 capability(ies): 11 uncovered, 19 unknown.",
+      "detail": "11 capability(ies) assessed across 30 applicable dimension(s): 0 covered, 0 partial, 11 not covered, 19 unknown. Coverage is measured against what discovery reached; anything it did not reach is absent from this report rather than covered by it.",
+      "link": "decision:a228fd4e-f207-460b-b134-243b61567503"
+    },
+    {
+      "at": "2026-09-25T15:07:54.715262+00:00",
+      "kind": "phase",
+      "phase": "planning",
+      "title": "Proposed 51 test(s) and stopped for approval.",
+      "detail": "Nothing has been tested. A plan is a proposal, and this run requires a person to approve one before any of it runs."
+    },
+    {
+      "at": "2026-09-25T15:07:54.729459+00:00",
+      "kind": "decision",
+      "phase": "planning",
+      "title": "Proposed 51 test(s) across 6 category(ies).",
+      "detail": "51 test(s) across 6 category(ies) for \"Find out what this registry does and what nothing covers.\", 18 of which do not exist yet. Roughly 17 minute(s) — an estimate from defaults, because this application has no execution history yet. 3 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+      "link": "decision:bc84b43f-5d33-49bf-8d85-8e5bd6ac3080"
+    },
+    {
+      "at": "2026-09-25T15:07:56.668965+00:00",
+      "kind": "decision",
+      "phase": "planning",
+      "title": "The plan was approved by pi***@example.test.",
+      "detail": "Approved for the pilot; the registry is ours and disposable.",
+      "link": "decision:e042f1ce-6119-4eae-8319-2720c5449407"
+    },
+    {
+      "at": "2026-09-25T15:07:59.743504+00:00",
+      "kind": "phase",
+      "phase": "exploring",
+      "title": "Skipped Exploring: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at Generating. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:07:59.747661+00:00",
+      "kind": "phase",
+      "phase": "modelling",
+      "title": "Read 4 page(s) from the knowledge graph.",
+      "detail": "The graph is the agent's whole picture of the application; it does not browse to form one."
+    },
+    {
+      "at": "2026-09-25T15:07:59.759555+00:00",
+      "kind": "phase",
+      "phase": "prioritizing",
+      "title": "Scored 4 area(s) and chose the top 4 to work on.",
+      "detail": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering."
+    },
+    {
+      "at": "2026-09-25T15:07:59.776807+00:00",
+      "kind": "phase",
+      "phase": "analysingGaps",
+      "title": "Skipped AnalysingGaps: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at Generating. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:07:59.777841+00:00",
+      "kind": "phase",
+      "phase": "planning",
+      "title": "Skipped Planning: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at Generating. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:07:59.781222+00:00",
+      "kind": "phase",
+      "phase": "generating",
+      "title": "Generated 4 test(s) across 8 step(s) for 4 uncovered area(s).",
+      "detail": "Produced by the built-in deterministic planner; no external model was used."
+    },
+    {
+      "at": "2026-09-25T15:07:59.824242+00:00",
+      "kind": "phase",
+      "phase": "generating",
+      "title": "Generated 7 API test(s) across 7 endpoint(s).",
+      "detail": "The API testing engine authored them; the agent chose the endpoints and recorded why."
+    },
+    {
+      "at": "2026-09-25T15:07:59.893368+00:00",
+      "kind": "decision",
+      "phase": "generating",
+      "title": "Generated 7 API test(s) for 7 endpoint(s).",
+      "detail": "Endpoints discovered by the crawl, minus anything a person excluded. Mutating requests were left out.",
+      "link": "decision:c385f480-145d-4403-b884-16b1d483adac"
+    },
+    {
+      "at": "2026-09-25T15:07:59.899788+00:00",
+      "kind": "phase",
+      "phase": "prioritizing",
+      "title": "No regression selection in this plan.",
+      "detail": "Nothing that already existed was selected for re-running."
+    },
+    {
+      "at": "2026-09-25T15:07:59.904013+00:00",
+      "kind": "phase",
+      "phase": "securityTesting",
+      "title": "Stopped to ask about whether to scan this application.",
+      "detail": "Nothing was done. The pass resumes from here when the question is answered, and reports what it did not do if nobody answers."
+    },
+    {
+      "at": "2026-09-25T15:07:59.908434+00:00",
+      "kind": "refusal",
+      "phase": "securityTesting",
+      "title": "Wanted to use security.scan.",
+      "detail": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+      "link": "decision:8af72efd-e731-4cf8-b1a7-8c9a21f21da4"
+    },
+    {
+      "at": "2026-09-25T15:07:59.912686+00:00",
+      "kind": "approval-requested",
+      "phase": "awaitingApproval",
+      "title": "Asked for approval to use security.scan",
+      "detail": "Scan 4 page(s) of this application within its authorized scope.",
+      "link": "approval:621ba376-68ee-4c01-a82c-f37d70efd6bd"
+    },
+    {
+      "at": "2026-09-25T15:08:02.71151+00:00",
+      "kind": "approval-granted",
+      "phase": "awaitingApproval",
+      "title": "security.scan was granted by pilot-ukoovsqym5@example.test",
+      "detail": "Granted for the pilot. The registry is local, disposable and owned by us.",
+      "link": "approval:621ba376-68ee-4c01-a82c-f37d70efd6bd"
+    },
+    {
+      "at": "2026-09-25T15:08:04.92549+00:00",
+      "kind": "phase",
+      "phase": "exploring",
+      "title": "Skipped Exploring: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:08:04.929093+00:00",
+      "kind": "phase",
+      "phase": "modelling",
+      "title": "Read 4 page(s) from the knowledge graph.",
+      "detail": "The graph is the agent's whole picture of the application; it does not browse to form one."
+    },
+    {
+      "at": "2026-09-25T15:08:04.939496+00:00",
+      "kind": "phase",
+      "phase": "prioritizing",
+      "title": "Scored 4 area(s) and chose the top 4 to work on.",
+      "detail": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering."
+    },
+    {
+      "at": "2026-09-25T15:08:04.967987+00:00",
+      "kind": "phase",
+      "phase": "analysingGaps",
+      "title": "Skipped AnalysingGaps: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:08:04.969111+00:00",
+      "kind": "phase",
+      "phase": "planning",
+      "title": "Skipped Planning: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:08:04.970256+00:00",
+      "kind": "phase",
+      "phase": "generating",
+      "title": "Skipped Generating: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:08:04.971246+00:00",
+      "kind": "phase",
+      "phase": "generating",
+      "title": "Skipped Generating: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:08:04.972944+00:00",
+      "kind": "phase",
+      "phase": "prioritizing",
+      "title": "No regression selection in this plan.",
+      "detail": "Nothing that already existed was selected for re-running."
+    },
+    {
+      "at": "2026-09-25T15:08:04.975967+00:00",
+      "kind": "phase",
+      "phase": "securityTesting",
+      "title": "Queued security scan SCAN-20260925-CDD2F1 (8 check(s)).",
+      "detail": "A queued scan is not a result. Its verdict appears when a worker reports."
+    },
+    {
+      "at": "2026-09-25T15:08:04.989562+00:00",
+      "kind": "decision",
+      "phase": "securityTesting",
+      "title": "Queued security scan SCAN-20260925-CDD2F1.",
+      "detail": "The application carries an enabled scope and the plan included security testing. The engine decides what may be sent; this pass only asked.",
+      "link": "decision:dc6dfe4f-e88f-45a7-9422-1c1537ae6582"
+    },
+    {
+      "at": "2026-09-25T15:08:04.994665+00:00",
+      "kind": "phase",
+      "phase": "executing",
+      "title": "Stopped to ask about whether to run 11 test(s).",
+      "detail": "Nothing was done. The pass resumes from here when the question is answered, and reports what it did not do if nobody answers."
+    },
+    {
+      "at": "2026-09-25T15:08:04.998331+00:00",
+      "kind": "refusal",
+      "phase": "executing",
+      "title": "Wanted to use test.execute.",
+      "detail": "'test.execute' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+      "link": "decision:bee009db-f888-4246-993e-50d7232d317f"
+    },
+    {
+      "at": "2026-09-25T15:08:05.001377+00:00",
+      "kind": "approval-requested",
+      "phase": "awaitingApproval",
+      "title": "Asked for approval to use test.execute",
+      "detail": "Run 11 test(s) against this application.",
+      "link": "approval:3aa9a47e-cfcc-4733-a94b-14fb5f596e01"
+    },
+    {
+      "at": "2026-09-25T15:08:05.749078+00:00",
+      "kind": "approval-granted",
+      "phase": "awaitingApproval",
+      "title": "test.execute was granted by pilot-ukoovsqym5@example.test",
+      "detail": "Granted for the pilot. The registry is local, disposable and owned by us.",
+      "link": "approval:3aa9a47e-cfcc-4733-a94b-14fb5f596e01"
+    },
+    {
+      "at": "2026-09-25T15:08:10.013755+00:00",
+      "kind": "run",
+      "phase": "pending",
+      "title": "Pass started: Verdaccio pilot pass",
+      "detail": "Find out what this registry does and what nothing covers."
+    },
+    {
+      "at": "2026-09-25T15:08:10.017645+00:00",
+      "kind": "phase",
+      "phase": "exploring",
+      "title": "Skipped Exploring: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:08:10.021636+00:00",
+      "kind": "phase",
+      "phase": "modelling",
+      "title": "Read 4 page(s) from the knowledge graph.",
+      "detail": "The graph is the agent's whole picture of the application; it does not browse to form one."
+    },
+    {
+      "at": "2026-09-25T15:08:10.033321+00:00",
+      "kind": "phase",
+      "phase": "prioritizing",
+      "title": "Scored 4 area(s) and chose the top 4 to work on.",
+      "detail": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering."
+    },
+    {
+      "at": "2026-09-25T15:08:10.060717+00:00",
+      "kind": "phase",
+      "phase": "analysingGaps",
+      "title": "Skipped AnalysingGaps: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:08:10.06218+00:00",
+      "kind": "phase",
+      "phase": "planning",
+      "title": "Skipped Planning: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:08:10.063673+00:00",
+      "kind": "phase",
+      "phase": "generating",
+      "title": "Skipped Generating: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:08:10.065641+00:00",
+      "kind": "phase",
+      "phase": "generating",
+      "title": "Skipped Generating: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:08:10.067691+00:00",
+      "kind": "phase",
+      "phase": "prioritizing",
+      "title": "No regression selection in this plan.",
+      "detail": "Nothing that already existed was selected for re-running."
+    },
+    {
+      "at": "2026-09-25T15:08:10.068925+00:00",
+      "kind": "phase",
+      "phase": "securityTesting",
+      "title": "Skipped SecurityTesting: it ran before this pass stopped for a person.",
+      "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+    },
+    {
+      "at": "2026-09-25T15:08:10.071697+00:00",
+      "kind": "phase",
+      "phase": "executing",
+      "title": "Ran 11 test(s) (0 generated, 0 API, 0 re-run): 11 passed, 0 failed, 0 blocked.",
+      "detail": "A generated test that cannot pass on the application as it is now is worth knowing about before anyone relies on it."
+    },
+    {
+      "at": "2026-09-25T15:08:10.54359+00:00",
+      "kind": "decision",
+      "phase": "executing",
+      "title": "Started a verification run against build verdaccio-6.10.4.",
+      "detail": "The build reference travels with the run, so the release assessment for this build includes what this pass executed.",
+      "link": "decision:79e8da84-593c-49e4-ae6c-cdd39f3dbcd5"
+    },
+    {
+      "at": "2026-09-25T15:08:16.562722+00:00",
+      "kind": "phase",
+      "phase": "investigating",
+      "title": "No failures to investigate.",
+      "detail": "Every generated test passed, so there was nothing to diagnose."
+    },
+    {
+      "at": "2026-09-25T15:08:16.569108+00:00",
+      "kind": "phase",
+      "phase": "proposing",
+      "title": "Wrote up 15 proposal(s).",
+      "detail": "The pass ends with a write-up rather than an action, because acting on these is a person's decision."
+    },
+    {
+      "at": "2026-09-25T15:08:16.584855+00:00",
+      "kind": "run",
+      "phase": "done",
+      "title": "Pass completed",
+      "detail": "The pass completed its plan."
+    }
+  ],
+  "testRun": {
+    "id": "90c05133-dfe2-4730-b3d5-346be36e70cf",
+    "projectId": "a2545d30-b240-4c6f-aa53-23539ce9ec10",
+    "name": "Verdaccio pilot pass — verification",
+    "status": "passed",
+    "trigger": "agent",
+    "browser": "chromium",
+    "createdAt": "2026-09-25T15:08:10.075987+00:00",
+    "startedAt": "2026-09-25T15:08:10.464264+00:00",
+    "completedAt": "2026-09-25T15:08:15.533101+00:00",
+    "durationMs": 5068,
+    "totalCount": 11,
+    "passedCount": 11,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 0,
+    "flakyCount": 0,
+    "qualityGatePassed": true,
+    "applicationBuildRef": "verdaccio-6.10.4",
+    "contractBreakingChangeCount": 0,
+    "contractPotentiallyBreakingChangeCount": 0
+  },
+  "release": {
+    "projectId": "a2545d30-b240-4c6f-aa53-23539ce9ec10",
+    "projectName": "Verdaccio pilot",
+    "buildRef": "verdaccio-6.10.4",
+    "runCount": 1,
+    "firstRunAt": "2026-09-25T15:08:15.533101+00:00",
+    "lastRunAt": "2026-09-25T15:08:15.533101+00:00",
+    "testsCovered": 11,
+    "passed": 11,
+    "failed": 0,
+    "blocked": 0,
+    "healed": 0,
+    "flaky": 0,
+    "passRatePercent": 100,
+    "outstandingFailures": [],
+    "unstable": [],
+    "breakingContractChanges": 0,
+    "potentiallyBreakingContractChanges": 0,
+    "security": {
+      "verdict": "notScanned",
+      "scanned": false,
+      "scansCoveringThisBuild": 0,
+      "openCritical": 0,
+      "openHigh": 0,
+      "openMedium": 0,
+      "openLow": 0,
+      "regressions": 0,
+      "newSincePreviousBuild": 0,
+      "unjustifiedSuppressions": 0,
+      "checksConfigured": 0,
+      "checksExecuted": 0,
+      "untestedAreas": [],
+      "summary": "NOT SECURITY TESTED. No security scan covers this build, so nothing is known about its security posture from AIRA. This is not the same as having been tested and found clean, and a release decision should not read it as such."
+    },
+    "summary": "Build verdaccio-6.10.4 was tested by 1 run(s). Nothing is failing in the most recent one. There is no earlier build to compare against, so nothing here says what changed. Security: NOT SECURITY TESTED. No security scan covers this build, so nothing is known about its security posture from AIRA. This is not the same as having been tested and found clean, and a release decision should not read it as such."
+  }
+}

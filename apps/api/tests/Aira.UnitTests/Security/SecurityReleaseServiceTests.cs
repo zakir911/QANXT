@@ -127,6 +127,151 @@ public class SecurityReleaseServiceTests
         }
     }
 
+    /// <summary>A scan with its own start and end, so the window can be tested at all.</summary>
+    private static SecurityScan ScanBetween(Guid projectId, DateTimeOffset started, DateTimeOffset? completed)
+        => new()
+        {
+            OrganizationId = OrgId, ProjectId = projectId, ApplicationId = Guid.NewGuid(),
+            Reference = $"SCAN-{Guid.NewGuid():N}"[..16], Profile = SecurityProfile.Standard,
+            Status = completed is null ? "running" : "completed",
+            StartedAt = started, CompletedAt = completed,
+            ScopeSnapshotJson = Snapshot
+        };
+
+    // ---- The build reference, which is not a heuristic -----------------------
+
+    [Fact]
+    public async Task A_scan_that_recorded_this_build_covers_it_whatever_the_clock_says()
+    {
+        // The root cause the Verdaccio pilot exposed. An autonomous pass finishes its scan
+        // moments before it starts the verification run, so no window drawn from that run can
+        // contain the scan — and the release report said nothing was known about a build that
+        // had just been scanned as part of the same pass. A scan that states which build it
+        // covered removes the guess entirely.
+        var (service, db, projectId, tenant) = Create();
+        var scan = ScanBetween(projectId, Noon.AddMinutes(-10), Noon.AddMinutes(-9));
+        scan.ApplicationBuildRef = "build-42";
+        await SeedAsync(db, tenant, scan);
+
+        var posture = await service.ForBuildAsync(projectId, Noon, Noon.AddMinutes(5), "build-42");
+
+        posture.Scanned.Should().BeTrue(
+            "the scan said which build it covered, and it was this one");
+        posture.ScansCoveringThisBuild.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task A_scan_that_recorded_a_different_build_never_covers_this_one()
+    {
+        // The other direction, and the one that keeps the first honest. A scan that named a
+        // build is excluded from every other build even when its timestamps overlap — it
+        // already said what it covered, and a window must not talk it into covering more.
+        var (service, db, projectId, tenant) = Create();
+        var scan = ScanBetween(projectId, Noon.AddMinutes(1), Noon.AddMinutes(4));
+        scan.ApplicationBuildRef = "some-other-build";
+        await SeedAsync(db, tenant, scan);
+
+        var posture = await service.ForBuildAsync(projectId, Noon, Noon.AddMinutes(5), "build-42");
+
+        posture.Scanned.Should().BeFalse();
+        posture.Verdict.Should().Be(SecurityPostureVerdict.NotScanned);
+    }
+
+    [Fact]
+    public async Task A_scan_that_named_no_build_still_falls_back_to_the_window()
+    {
+        // Scans predating the build reference, and scans a person started by hand, name no
+        // build. They must keep working, or adding the column would quietly stop counting
+        // every scan already in the database.
+        var (service, db, projectId, tenant) = Create();
+        await SeedAsync(db, tenant, ScanBetween(projectId, Noon.AddMinutes(1), Noon.AddMinutes(4)));
+
+        var posture = await service.ForBuildAsync(projectId, Noon, Noon.AddMinutes(5), "build-42");
+
+        posture.Scanned.Should().BeTrue();
+    }
+
+    // ---- The window ---------------------------------------------------------
+    //
+    // Every other test in this file passes (null, null) and so never exercised the window at
+    // all. The pilot against Verdaccio found what that left uncovered: a build tested by one
+    // run reported NOT SECURITY TESTED although a scan had just covered it, because the
+    // window was [that run's end, that run's end] — an instant nothing can fall into.
+
+    [Fact]
+    public async Task A_scan_running_alongside_the_tests_covers_the_build()
+    {
+        // The ordering an autonomous pass produces, and the one a pipeline produces: the scan
+        // is queued first and finishes while the tests are still running.
+        var (service, db, projectId, tenant) = Create();
+        var runStarted = Noon;
+        var runFinished = Noon.AddMinutes(5);
+        await SeedAsync(db, tenant, ScanBetween(projectId, Noon.AddMinutes(-1), Noon.AddMinutes(4)));
+
+        var posture = await service.ForBuildAsync(projectId, runStarted, runFinished);
+
+        posture.Scanned.Should().BeTrue(
+            "the scan overlapped the window the build was tested in");
+        posture.ScansCoveringThisBuild.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task A_scan_wholly_inside_the_window_covers_the_build()
+    {
+        // The easy case, kept because widening the rule must not lose it. It does not pin the
+        // single-run regression: that came from the window the CALLER passed — anchored on the
+        // first run's completion, which for one run is its own end — and no test of this
+        // service can reach it. AQI-056 pins that end to end.
+        var (service, db, projectId, tenant) = Create();
+        await SeedAsync(db, tenant, ScanBetween(projectId, Noon.AddMinutes(1), Noon.AddMinutes(4)));
+
+        var posture = await service.ForBuildAsync(projectId, Noon, Noon.AddMinutes(5));
+
+        posture.Scanned.Should().BeTrue();
+        posture.Verdict.Should().NotBe(SecurityPostureVerdict.NotScanned);
+    }
+
+    [Fact]
+    public async Task A_scan_that_finished_before_the_build_was_tested_does_not_cover_it()
+    {
+        // The other half. Widening the window must not turn "a scan happened once" into
+        // "this build was scanned" — that is the claim the whole section exists to refuse.
+        var (service, db, projectId, tenant) = Create();
+        await SeedAsync(db, tenant,
+            ScanBetween(projectId, Noon.AddDays(-7), Noon.AddDays(-7).AddMinutes(10)));
+
+        var posture = await service.ForBuildAsync(projectId, Noon, Noon.AddMinutes(5));
+
+        posture.Scanned.Should().BeFalse();
+        posture.Verdict.Should().Be(SecurityPostureVerdict.NotScanned);
+    }
+
+    [Fact]
+    public async Task A_scan_that_started_after_the_build_finished_does_not_cover_it()
+    {
+        var (service, db, projectId, tenant) = Create();
+        await SeedAsync(db, tenant,
+            ScanBetween(projectId, Noon.AddHours(2), Noon.AddHours(2).AddMinutes(10)));
+
+        var posture = await service.ForBuildAsync(projectId, Noon, Noon.AddMinutes(5));
+
+        posture.Scanned.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task A_scan_still_running_when_the_build_was_tested_counts()
+    {
+        // It was looking at this build. Excluding it would report the build unscanned on the
+        // strength of the scan not having finished yet, which is a statement about the clock
+        // rather than about the application.
+        var (service, db, projectId, tenant) = Create();
+        await SeedAsync(db, tenant, ScanBetween(projectId, Noon.AddMinutes(1), null));
+
+        var posture = await service.ForBuildAsync(projectId, Noon, Noon.AddMinutes(5));
+
+        posture.Scanned.Should().BeTrue();
+    }
+
     // -----------------------------------------------------------------------
 
     [Fact]

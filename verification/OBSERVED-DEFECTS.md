@@ -1,8 +1,12 @@
 # Defects observed outside the golden suites
 
 These were found while running the platform during the autonomous-QA work, not by a test.
-They are recorded here rather than fixed, because each is outside the phase that found it.
-Nothing here is a golden-test failure; nothing here is verified by a test either.
+Two are recorded and not fixed, because each is outside the phase that found it. The third
+was fixed, because it was a wrong answer on a security report and that is not something to
+write down and leave.
+
+The two defects the Verdaccio pilot found in the agent itself are in
+`pilot/PILOT-REPORT.md`, next to what the pass got right.
 
 ## A worker job whose completion is refused stays pending, with no attempt count
 

@@ -40,8 +40,12 @@ public sealed record ReleaseSecurityPosture(
 public interface ISecurityReleaseService
 {
     /// <summary>The security posture of everything tested under a build reference.</summary>
+    /// <param name="buildRef">The build, when the caller knows it. A scan that recorded this
+    /// same reference counts whatever its timestamps say; the window is only the fallback for
+    /// scans that never recorded one.</param>
     Task<ReleaseSecurityPosture> ForBuildAsync(
-        Guid projectId, DateTimeOffset? from, DateTimeOffset? to, CancellationToken ct = default);
+        Guid projectId, DateTimeOffset? from, DateTimeOffset? to,
+        string? buildRef = null, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -67,11 +71,39 @@ public sealed class SecurityReleaseService : ISecurityReleaseService
     public SecurityReleaseService(IAiraDbContext db) => _db = db;
 
     public async Task<ReleaseSecurityPosture> ForBuildAsync(
-        Guid projectId, DateTimeOffset? from, DateTimeOffset? to, CancellationToken ct = default)
+        Guid projectId, DateTimeOffset? from, DateTimeOffset? to,
+        string? buildRef = null, CancellationToken ct = default)
     {
+        // Two ways a scan can belong to a build, and the first one is not a heuristic.
+        //
+        // If the scan recorded this build reference, it covers this build. Full stop. That is
+        // somebody stating the relationship rather than the platform deducing it, and it is
+        // the only version that has no boundary case.
+        //
+        // Otherwise, fall back to the window. A scan covers the build if it OVERLAPS the
+        // window the build was tested in, not if it is contained by it.
+        //
+        // Containment was wrong in the case that matters most. A build tested by one run has
+        // a window of [that run's end, that run's end] — a single instant no scan can fall
+        // into — so every single-run build read NOT SECURITY TESTED however thoroughly it had
+        // been scanned. That is the common case in a pipeline, and a false "nothing is known"
+        // on a security section is the most consequential wrong answer this report can give.
+        // It also excluded the normal ordering, where a scan starts before the tests do.
+        var reference = string.IsNullOrWhiteSpace(buildRef) ? null : buildRef.Trim();
+
         var query = _db.SecurityScans.AsNoTracking().Where(s => s.ProjectId == projectId);
-        if (from is { } start) query = query.Where(s => s.StartedAt >= start);
-        if (to is { } end) query = query.Where(s => s.StartedAt <= end);
+        var start = from;
+        var end = to;
+
+        query = query.Where(s =>
+            // Stated: this scan says it covered this build.
+            (reference != null && s.ApplicationBuildRef == reference)
+            // Or inferred: it never said, and it overlapped the window. A scan that named a
+            // *different* build is excluded either way — it said which build it covered, and
+            // it was not this one.
+            || (s.ApplicationBuildRef == null
+                && (end == null || s.StartedAt <= end)
+                && (start == null || s.CompletedAt == null || s.CompletedAt >= start)));
 
         var scans = await query.OrderBy(s => s.StartedAt).ToListAsync(ct);
 

@@ -18,7 +18,10 @@ public sealed record StartSecurityScanRequest(
     /// <summary>Synthetic identities the scan may sign in as. Never real accounts.</summary>
     IReadOnlyList<SecurityScanIdentity>? Identities = null,
     /// <summary>Set when a schedule asked for this rather than a person.</summary>
-    SecurityScanTrigger? Trigger = null);
+    SecurityScanTrigger? Trigger = null,
+    /// <summary>Which build this scan covers, when the caller knows. Recorded on the scan so
+    /// a release assessment can match it directly instead of guessing from timestamps.</summary>
+    string? ApplicationBuildRef = null);
 
 /// <summary>
 /// A schedule that started a scan: who set it up, and which schedule it was.
@@ -175,6 +178,8 @@ public sealed class SecurityScanLauncher : ISecurityScanLauncher
             Reference = $"SCAN-{now:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}",
             Profile = request.Profile,
             Status = SecurityScanStatus.Queued,
+            ApplicationBuildRef = string.IsNullOrWhiteSpace(request.ApplicationBuildRef)
+                ? null : request.ApplicationBuildRef.Trim(),
             AuthorizationNote = scope.AuthorizationNote,
             // The snapshot is written now, from the scope as authorized now, so a gate evaluated
             // later reads what this scan was permitted rather than what the scope says then.
