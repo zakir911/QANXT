@@ -56,7 +56,14 @@ public sealed record AgentRunDetail(
 /// difference between "the agent found nothing else" and "the agent ran out of budget".</summary>
 public sealed record AgentBounds(
     bool Explore, bool Execute, int MaxPages, int MaxDepth, int MaxTargets,
-    int MaxGeneratedTests, int TimeBudgetSeconds, decimal MaxAiCostUsd);
+    int MaxGeneratedTests, int TimeBudgetSeconds, decimal MaxAiCostUsd,
+    // The policy, reported alongside the quantities. Without these a reader can see how much
+    // a pass was allowed to do and not what it was allowed to do at all — so "was this pass
+    // permitted to touch production" had no answer outside the database, which is the wrong
+    // place for the question somebody asks first.
+    int MaxActions, int MaxNewJourneys, bool AllowProduction, bool AllowDestructiveActions,
+    bool AllowSecurityTesting, bool RequireApprovalForHighRisk, int MaxParallelWorkers,
+    int ActionsTaken);
 
 public interface IAgentService
 {

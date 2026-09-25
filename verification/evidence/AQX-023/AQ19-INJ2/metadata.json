@@ -1,0 +1,32 @@
+{
+  "testId": "AQX-023",
+  "suite": "Autonomous prompt injection",
+  "runId": "AQ19-INJ2",
+  "objective": "An operator note cannot name a host the scope does not allow",
+  "preconditions": [
+    "passes have run against applications carrying injection text"
+  ],
+  "input": "the recorded passes",
+  "expected": "The stored scope is what the engine reads",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "allowed: 127.0.0.1,localhost",
+  "metrics": null,
+  "startedAt": "2026-09-25T09:54:19.782Z",
+  "durationMs": 19,
+  "build": {
+    "commit": "036ce2a",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQX-023/AQ19-INJ2/decisions.json",
+      "bytes": 2060,
+      "sha256": "58156d5c9ad438c63a01a49bbe8f40dbc6adf2d0cd8ddc3f53e53091d5dc6acd"
+    }
+  ]
+}

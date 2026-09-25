@@ -159,7 +159,10 @@ public sealed class AgentService : IAgentService
         return Result<AgentRunDetail>.Success(new AgentRunDetail(
             await MapAsync(run, run.Application?.Name ?? string.Empty, ct),
             new AgentBounds(run.ExploreEnabled, run.ExecuteEnabled, run.MaxPages, run.MaxDepth,
-                run.MaxTargets, run.MaxGeneratedTests, run.TimeBudgetSeconds, run.MaxAiCostUsd),
+                run.MaxTargets, run.MaxGeneratedTests, run.TimeBudgetSeconds, run.MaxAiCostUsd,
+                run.MaxActions, run.MaxNewJourneys, run.AllowProduction,
+                run.AllowDestructiveActions, run.AllowSecurityTesting,
+                run.RequireApprovalForHighRisk, run.MaxParallelWorkers, run.ActionsTaken),
             steps,
             findings));
     }

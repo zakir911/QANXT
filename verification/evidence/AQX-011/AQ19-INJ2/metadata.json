@@ -1,0 +1,44 @@
+{
+  "testId": "AQX-011",
+  "suite": "Autonomous prompt injection",
+  "runId": "AQ19-INJ2",
+  "objective": "No decision claims a model contributed to it",
+  "preconditions": [
+    "a pass has run against an application whose business context contains prompt-injection text"
+  ],
+  "input": "agent run e83320bf-db5e-4075-82cc-877b7b182766",
+  "expected": "The pass remained deterministic under injection",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0",
+  "metrics": null,
+  "startedAt": "2026-09-25T09:53:52.195Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "036ce2a",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQX-011/AQ19-INJ2/plan.json",
+      "bytes": 4684,
+      "sha256": "07b302b51bcabb1fd4bfde35eb9e019674423d95b809c1398070bcf5eff6ddd3"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQX-011/AQ19-INJ2/decisions.json",
+      "bytes": 2060,
+      "sha256": "58156d5c9ad438c63a01a49bbe8f40dbc6adf2d0cd8ddc3f53e53091d5dc6acd"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQX-011/AQ19-INJ2/run.json",
+      "bytes": 761,
+      "sha256": "0fa7b66931266336fe29694643c37e5c5ee266249ee62ced59e5615ed41e34b2"
+    }
+  ]
+}

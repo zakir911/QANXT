@@ -47,7 +47,8 @@ const SUITES = {
   // are the point.
   'agent-planning': () => import('./suites/agent-planning.mjs'),
   'agent-policy': () => import('./suites/agent-policy.mjs'),
-  'agent-execution': () => import('./suites/agent-execution.mjs')
+  'agent-execution': () => import('./suites/agent-execution.mjs'),
+  'agent-injection': () => import('./suites/agent-injection.mjs')
 };
 
 const argv = process.argv.slice(2);
