@@ -358,6 +358,17 @@ public enum AgentFindingKind
 
 public enum JourneySource { Discovered = 0, Recorded = 1, Manual = 2, AiProposed = 3 }
 
+/// <summary>
+/// How well established a journey is, as distinct from who produced it.
+/// </summary>
+/// <remarks>
+/// The distinction the platform relies on when it describes an application. <c>Observed</c>
+/// means the steps were seen to work end to end. <c>UserProvided</c> means a person said so.
+/// <c>Inferred</c> means the platform guessed from structure — a form with these fields is
+/// probably a registration — and a guess is never reported as confirmed functionality.
+/// </remarks>
+public enum JourneyEvidence { Observed = 0, UserProvided = 1, Inferred = 2 }
+
 public enum TestDataKind { Static = 0, Generated = 1, Random = 2, SeededRandom = 3, SecretReference = 4, EnvironmentSpecific = 5 }
 
 public enum AuditAction

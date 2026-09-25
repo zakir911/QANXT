@@ -43,6 +43,8 @@ public interface IAiraDbContext
     DbSet<AgentFinding> AgentFindings { get; }
     DbSet<AgentDecision> AgentDecisions { get; }
     DbSet<AgentApproval> AgentApprovals { get; }
+    DbSet<ApplicationContext> ApplicationContexts { get; }
+    DbSet<ApplicationMemory> ApplicationMemories { get; }
     DbSet<ApplicationPage> ApplicationPages { get; }
     DbSet<PageTransition> PageTransitions { get; }
     DbSet<ApplicationElement> ApplicationElements { get; }

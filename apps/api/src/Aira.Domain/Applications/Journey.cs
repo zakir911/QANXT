@@ -16,6 +16,19 @@ public class Journey : BaseEntity, ITenantOwned, IAuditable
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public JourneySource Source { get; set; } = JourneySource.Discovered;
+
+    /// <summary>
+    /// How well established this journey is: seen happening, asserted by a person, or guessed
+    /// from structure.
+    /// </summary>
+    /// <remarks>
+    /// Separate from <see cref="Source"/>, which says who produced it. The two answer different
+    /// questions and conflating them is how an inference becomes a claim: a journey the agent
+    /// proposed from the shape of a form has source AiProposed and evidence Inferred, and it is
+    /// the second of those that decides whether the platform may describe the application as
+    /// supporting it. Nothing reports an inferred journey as functionality the application has.
+    /// </remarks>
+    public JourneyEvidence Evidence { get; set; } = JourneyEvidence.Inferred;
     public RiskLevel Risk { get; set; } = RiskLevel.Medium;
     /// <summary>0-100 composite of business criticality, change frequency and failure history.</summary>
     public int RiskScore { get; set; }

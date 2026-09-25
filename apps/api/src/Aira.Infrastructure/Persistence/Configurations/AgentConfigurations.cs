@@ -54,3 +54,41 @@ public class AgentApprovalConfiguration : IEntityTypeConfiguration<AgentApproval
             .HasForeignKey(x => x.AgentRunId).OnDelete(DeleteBehavior.Cascade);
     }
 }
+
+/// <summary>
+/// The operator's standing description of an application.
+/// </summary>
+/// <remarks>
+/// One row per application, enforced by a unique index rather than by callers remembering to
+/// check: two rows of business context would mean two different answers to "what must never be
+/// touched", and the planner would read whichever came back first.
+/// </remarks>
+public class ApplicationContextConfiguration : IEntityTypeConfiguration<ApplicationContext>
+{
+    public void Configure(EntityTypeBuilder<ApplicationContext> b)
+    {
+        b.ToTable("application_contexts");
+        b.HasIndex(x => x.ApplicationId).IsUnique();
+        b.Property(x => x.CriticalJourneys).HasMaxLength(20_000);
+        b.Property(x => x.HighRiskAreas).HasMaxLength(20_000);
+        b.Property(x => x.ExcludedAreas).HasMaxLength(20_000);
+        b.Property(x => x.Notes).HasMaxLength(20_000);
+
+        b.HasOne(x => x.Application).WithMany()
+            .HasForeignKey(x => x.ApplicationId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+public class ApplicationMemoryConfiguration : IEntityTypeConfiguration<ApplicationMemory>
+{
+    public void Configure(EntityTypeBuilder<ApplicationMemory> b)
+    {
+        b.ToTable("application_memories");
+        // One fact per (application, kind, subject). Seeing it again strengthens the row that
+        // is there rather than adding a second one saying the same thing more recently.
+        b.HasIndex(x => new { x.ApplicationId, x.Kind, x.Subject }).IsUnique();
+        b.HasIndex(x => new { x.ApplicationId, x.LastSeenAt });
+        b.Property(x => x.Subject).HasMaxLength(500).IsRequired();
+        b.Property(x => x.Fact).HasMaxLength(4000).IsRequired();
+    }
+}
