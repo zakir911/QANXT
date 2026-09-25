@@ -1,0 +1,38 @@
+{
+  "testId": "AQP-030",
+  "suite": "Autonomous policy",
+  "runId": "AQ19-ALL2-1212",
+  "objective": "An unknown environment still permits observation",
+  "preconditions": [
+    "a pass has run against an application whose environment nothing identifies"
+  ],
+  "input": "agent run 3ce8e536-6370-42f2-a663-19619cff7322",
+  "expected": "The pass reached a plan, which needs reading but not writing",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "planned 32 test(s)",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:13:23.171Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "unknown-decisions.json",
+      "path": "evidence/AQP-030/AQ19-ALL2-1212/unknown-decisions.json",
+      "bytes": 5261,
+      "sha256": "97418db0ecc5ad160ff8e52670128cf058cd53e61cae68682bc0abc200386851"
+    },
+    {
+      "file": "unknown-run.json",
+      "path": "evidence/AQP-030/AQ19-ALL2-1212/unknown-run.json",
+      "bytes": 1074,
+      "sha256": "487f6c10f4dd27f0ff44442c99784166eb3569b803dbbacb48159c989b1f4eaf"
+    }
+  ]
+}

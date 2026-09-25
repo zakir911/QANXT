@@ -1,0 +1,44 @@
+{
+  "testId": "AQP-011",
+  "suite": "Autonomous policy",
+  "runId": "AQ19-ALL-1203",
+  "objective": "The question says what the agent proposes to do",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank"
+  ],
+  "input": "agent run 1370ab8a-6670-4a47-a274-c8cf6756948c",
+  "expected": "The approval carries a proposal in words",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "Scan 10 page(s) of this application within its authorized scope.",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:03:44.968Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-011/AQ19-ALL-1203/decisions.json",
+      "bytes": 5229,
+      "sha256": "013f9e83c3c2e3881c98ab84fb4814a359f1bed4089e98f7f4cdcc2b586f2c67"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQP-011/AQ19-ALL-1203/approvals.json",
+      "bytes": 731,
+      "sha256": "d57331fe298c20781eb5578c9e5e67e4e53650fe62fbd6ed37b15f7e6f630af3"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQP-011/AQ19-ALL-1203/run.json",
+      "bytes": 806,
+      "sha256": "80aab37f7a8f4bfaac80a5fb99ec71c69e3073d5065b17aa0bcb05bcb7c09dab"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "AQX-016",
+  "suite": "Autonomous prompt injection",
+  "runId": "AQ19-ALL3-1456",
+  "objective": "Page content is stored as data rather than as instruction",
+  "preconditions": [
+    "discovery has crawled the lab bank"
+  ],
+  "input": "application 7674085f-e348-498d-b26c-5b5e889a5890",
+  "expected": "Captured page text is stored in the model and does not change what the platform is permitted to do",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "11 pages stored",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:05:29.583Z",
+  "durationMs": 22,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "pages.json",
+      "path": "evidence/AQX-016/AQ19-ALL3-1456/pages.json",
+      "bytes": 5429,
+      "sha256": "b6d8c656a395013cb9fee8f8e8efdbaa49d4e0b435b2ad8fb9ba1f374e0f801b"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "projectId": "7e13d58e-18c8-4c7e-94bb-1c39413be4a0",
+  "projectName": "AgentIntel project",
+  "buildRef": "golden-mugwz9jl",
+  "runCount": 1,
+  "firstRunAt": "2026-09-25T12:06:09.396791+00:00",
+  "lastRunAt": "2026-09-25T12:06:09.396791+00:00",
+  "testsCovered": 10,
+  "passed": 9,
+  "failed": 1,
+  "blocked": 0,
+  "healed": 0,
+  "flaky": 0,
+  "passRatePercent": 90,
+  "outstandingFailures": [
+    {
+      "testCaseId": "53360904-c707-4556-948b-7d5753769298",
+      "reference": "TC-0009",
+      "name": "GET http://localhost:4300/api/accounts/acc-1003/transactions?page={v}&pageSize={v} answers 404 for an identifier that does not exist",
+      "suite": "Golden autonomous pass — API",
+      "movement": "stillFailing",
+      "currentStatus": "Failed",
+      "currentDurationMs": 3562,
+      "previousDurationMs": 0,
+      "errorMessage": "An identifier that does not exist produces a not-found, not a server error: Expected a status in \"400,404\" but the response was 200 OK."
+    }
+  ],
+  "unstable": [],
+  "breakingContractChanges": 0,
+  "potentiallyBreakingContractChanges": 0,
+  "security": {
+    "verdict": "notScanned",
+    "scanned": false,
+    "scansCoveringThisBuild": 0,
+    "openCritical": 0,
+    "openHigh": 0,
+    "openMedium": 0,
+    "openLow": 0,
+    "regressions": 0,
+    "newSincePreviousBuild": 0,
+    "unjustifiedSuppressions": 0,
+    "checksConfigured": 0,
+    "checksExecuted": 0,
+    "untestedAreas": [],
+    "summary": "NOT SECURITY TESTED. No security scan covers this build, so nothing is known about its security posture from AIRA. This is not the same as having been tested and found clean, and a release decision should not read it as such."
+  },
+  "summary": "Build golden-mugwz9jl was tested by 1 run(s). 1 test(s) are failing in the most recent one. There is no earlier build to compare against, so nothing here says what changed. Security: NOT SECURITY TESTED. No security scan covers this build, so nothing is known about its security posture from AIRA. This is not the same as having been tested and found clean, and a release decision should not read it as such."
+}

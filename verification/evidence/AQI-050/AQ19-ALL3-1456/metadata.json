@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-050",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ19-ALL3-1456",
+  "objective": "A gap in an area a person called critical is ranked above one that is not",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run ebb00310-b693-4a96-9431-b871a4d74421",
+  "expected": "Business-critical capabilities carry the higher severity",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "3 critical gap(s), 0 not ranked high",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:03:27.861Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-050/AQ19-ALL3-1456/coverage-decision.json",
+      "bytes": 1287,
+      "sha256": "59cdb8aff3db75db91d85a4ffeb8bc5f84184969f4b85b0c4ed75ea416ffcf41"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-050/AQ19-ALL3-1456/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "7c3a1b620309fd1040358d406892512783d0a0104484870a91530c9bd1b8b5ad"
+    }
+  ]
+}

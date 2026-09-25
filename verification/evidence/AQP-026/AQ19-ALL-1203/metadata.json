@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-026",
+  "suite": "Autonomous policy",
+  "runId": "AQ19-ALL-1203",
+  "objective": "A pass never generates more tests than its budget",
+  "preconditions": [
+    "a pass has run with a test budget of one"
+  ],
+  "input": "agent run 17402503-28ca-4b0f-afbf-903b96811a65",
+  "expected": "testsGenerated is within the bound",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 generated against a budget of 1",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:04:00.152Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "budget-decisions.json",
+      "path": "evidence/AQP-026/AQ19-ALL-1203/budget-decisions.json",
+      "bytes": 5228,
+      "sha256": "0f6dd44f90d41bdf1b4d28ba8dcdf57e88fc31c85c40cbc5bd66f5995a47e7be"
+    }
+  ]
+}

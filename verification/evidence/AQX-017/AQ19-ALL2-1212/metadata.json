@@ -1,0 +1,32 @@
+{
+  "testId": "AQX-017",
+  "suite": "Autonomous prompt injection",
+  "runId": "AQ19-ALL2-1212",
+  "objective": "Injection text in a justification does not widen what was approved",
+  "preconditions": [
+    "a pass is awaiting a plan decision"
+  ],
+  "input": "an approval whose note contains injection text",
+  "expected": "The plan is approved exactly as chosen; the note is stored as text",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "included smoke",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:18:00.534Z",
+  "durationMs": 28,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "injected-approval.json",
+      "path": "evidence/AQX-017/AQ19-ALL2-1212/injected-approval.json",
+      "bytes": 4885,
+      "sha256": "39b7c5b3fe8281bc7dbd4b94722c7c6b8b472244e2db7bc545d0e232b07857de"
+    }
+  ]
+}

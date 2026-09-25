@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-011",
+  "suite": "Autonomous planning",
+  "runId": "AQ19-ALL-1203",
+  "objective": "Every category carries a risk level",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run c5a5a848-e0f3-4839-8860-47ef5aca47fb",
+  "expected": "Each item is classified rather than left unranked",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "smoke:low criticalJourney:critical api:high security:high accessibility:medium visual:low",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:05:10.524Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-011/AQ19-ALL-1203/plan.json",
+      "bytes": 4708,
+      "sha256": "fa5c43d7e33e80bccc239c94dab54b1ac80a951ba8af010e667e672c6927b327"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-011/AQ19-ALL-1203/run.json",
+      "bytes": 760,
+      "sha256": "df290bff686078c0dac05b29ea07bc21daf30c6e3aef768445f4fd933faf3ef6"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-011/AQ19-ALL-1203/decisions.json",
+      "bytes": 3468,
+      "sha256": "e9cb6613583dbdd580699e0ba7f62c19df1b279e39e6963e85589426c7b079ba"
+    }
+  ]
+}

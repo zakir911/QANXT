@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-021",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ19-ALL2-1212",
+  "objective": "A malformed agent run request is refused",
+  "preconditions": [
+    "the platform is running"
+  ],
+  "input": "a deliberately wrong request",
+  "expected": "A request with no application is rejected rather than defaulted",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "404",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:19:38.655Z",
+  "durationMs": 5,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AQF-021/AQ19-ALL2-1212/response.json",
+      "bytes": 37,
+      "sha256": "f2a5e65ce8cc28c5fd872d29200b65ce128300553bde15c5e2d8334a80c4ab95"
+    }
+  ]
+}

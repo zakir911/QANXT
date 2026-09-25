@@ -1,0 +1,56 @@
+{
+  "testId": "AQE-045",
+  "suite": "Autonomous execution",
+  "runId": "AQ19-ALL2-1212",
+  "objective": "A finished pass leaves no question anybody could still answer",
+  "preconditions": [
+    "a full autonomous pass has run with every question answered"
+  ],
+  "input": "agent run 2601fea6-cafb-476f-8c32-acb2a91cb7eb",
+  "expected": "Approvals are granted, refused or expired — never pending on a finished run",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "security.scan:granted test.execute:granted",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:16:56.323Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQE-045/AQ19-ALL2-1212/run.json",
+      "bytes": 1230,
+      "sha256": "ecfd378a77c9001bbf1b957be2532fd202636919f554744d8fd00f97646d88a3"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQE-045/AQ19-ALL2-1212/decisions.json",
+      "bytes": 8721,
+      "sha256": "ca537bfde339f8cad8a8d6f2b1e37cffda730addd7a4bd8c264814f4b3515f1c"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQE-045/AQ19-ALL2-1212/approvals.json",
+      "bytes": 1831,
+      "sha256": "0a1cd581f13a558bbeed0dbdcb1b04ba37b1f14fb39a746a3c7cd58a799c1e5b"
+    },
+    {
+      "file": "timeline.json",
+      "path": "evidence/AQE-045/AQ19-ALL2-1212/timeline.json",
+      "bytes": 17016,
+      "sha256": "5f015be18f32d2fbe5220d30f21af0574093a3436b561e90625dcdc1d430942d"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQE-045/AQ19-ALL2-1212/steps.json",
+      "bytes": 14528,
+      "sha256": "768c5961762d675af339e309a17e05cd5d73986206d7313adf93a5398c266cb9"
+    }
+  ]
+}

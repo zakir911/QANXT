@@ -1,0 +1,38 @@
+{
+  "testId": "AQP-020",
+  "suite": "Autonomous policy",
+  "runId": "AQ19-ALL-1203",
+  "objective": "Answering a question releases the pass",
+  "preconditions": [
+    "the pass is parked on one unanswered question"
+  ],
+  "input": "a granted approval with a reason",
+  "expected": "The run leaves awaitingApproval without anybody restarting it",
+  "severity": "critical",
+  "result": "FAIL",
+  "detail": "answer 200, run awaitingApproval awaitingApproval",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:03:44.984Z",
+  "durationMs": 3036,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "answer.json",
+      "path": "evidence/AQP-020/AQ19-ALL-1203/answer.json",
+      "bytes": 780,
+      "sha256": "75759e5c74d88d6d01d68cbe7ce0f8c681dd09717264158299a33631c7690ad4"
+    },
+    {
+      "file": "released.json",
+      "path": "evidence/AQP-020/AQ19-ALL-1203/released.json",
+      "bytes": 798,
+      "sha256": "1938f15acc0053ac54bccfb1e39b2a9946049f445a253c75d4acc2f018fd7c1b"
+    }
+  ]
+}

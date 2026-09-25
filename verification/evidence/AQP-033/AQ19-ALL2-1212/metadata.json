@@ -1,0 +1,38 @@
+{
+  "testId": "AQP-033",
+  "suite": "Autonomous policy",
+  "runId": "AQ19-ALL2-1212",
+  "objective": "An absence of authorization is not described as an absence of risk",
+  "preconditions": [
+    "a pass has run against an application whose environment nothing identifies"
+  ],
+  "input": "agent run 3ce8e536-6370-42f2-a663-19619cff7322",
+  "expected": "The wording distinguishes the two",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "Security testing. This application has no enabled security scope, so nothing may be scanned. That is an absence of authorization, not an absence of risk.",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:13:23.173Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "unknown-decisions.json",
+      "path": "evidence/AQP-033/AQ19-ALL2-1212/unknown-decisions.json",
+      "bytes": 5261,
+      "sha256": "97418db0ecc5ad160ff8e52670128cf058cd53e61cae68682bc0abc200386851"
+    },
+    {
+      "file": "unknown-run.json",
+      "path": "evidence/AQP-033/AQ19-ALL2-1212/unknown-run.json",
+      "bytes": 1074,
+      "sha256": "487f6c10f4dd27f0ff44442c99784166eb3569b803dbbacb48159c989b1f4eaf"
+    }
+  ]
+}

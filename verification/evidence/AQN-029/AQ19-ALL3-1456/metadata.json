@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-029",
+  "suite": "Autonomous planning",
+  "runId": "AQ19-ALL3-1456",
+  "objective": "A risk finding explains itself rather than giving a bare score",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run 61280aea-10bd-4cc8-91d5-f582cec60eb6",
+  "expected": "Each finding carries detail beyond its title",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "0 thin of 34",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:01:16.490Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-029/AQ19-ALL3-1456/plan.json",
+      "bytes": 4708,
+      "sha256": "67ea587b31f69a8652b5b0c25760c416ccad9b46ad48715c986c181b72726e41"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-029/AQ19-ALL3-1456/run.json",
+      "bytes": 760,
+      "sha256": "9e032eb1866d7998b3a37c9282aa22c45a134c463610412a2aaf22a53bc10992"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-029/AQ19-ALL3-1456/decisions.json",
+      "bytes": 3468,
+      "sha256": "f676f24edd822e6bbb3d6affd48f80c9de2fa0d3f79bdd5da96b7bffb9959d91"
+    }
+  ]
+}

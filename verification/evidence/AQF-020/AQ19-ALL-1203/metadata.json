@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-020",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ19-ALL-1203",
+  "objective": "Business context for an application that does not exist is refused",
+  "preconditions": [
+    "the platform is running"
+  ],
+  "input": "a deliberately wrong request",
+  "expected": "Setting it answers an error rather than creating orphaned context",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "404",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:10:39.798Z",
+  "durationMs": 8,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AQF-020/AQ19-ALL-1203/response.json",
+      "bytes": 37,
+      "sha256": "f2a5e65ce8cc28c5fd872d29200b65ce128300553bde15c5e2d8334a80c4ab95"
+    }
+  ]
+}

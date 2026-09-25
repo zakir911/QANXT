@@ -1,0 +1,44 @@
+{
+  "testId": "AQF-013",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ19-ALL2-1212",
+  "objective": "A pass never invents a place it did not reach",
+  "preconditions": [
+    "a pass has run against a lab with no sign-in control"
+  ],
+  "input": "agent run 45463d82-f38a-4b09-965c-ecd9539d745f",
+  "expected": "Every finding names a route or an endpoint the crawl recorded",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "none, of 2 place(s) the crawl recorded",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:19:29.817Z",
+  "durationMs": 25,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQF-013/AQ19-ALL2-1212/run.json",
+      "bytes": 1167,
+      "sha256": "96cba3ba55670094e77c8a0ea85c87a1b4a3be628d545d93de5dd379ea5c0564"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-013/AQ19-ALL2-1212/decisions.json",
+      "bytes": 7680,
+      "sha256": "e533e44b2a32a464c3ac2f9853003326794ba904b2e3fe8d2a5b665034028357"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQF-013/AQ19-ALL2-1212/steps.json",
+      "bytes": 14001,
+      "sha256": "ded91de0e71130ae08f499466a02ef9723e841f94ec668ffe0ed663d43f090b2"
+    }
+  ]
+}

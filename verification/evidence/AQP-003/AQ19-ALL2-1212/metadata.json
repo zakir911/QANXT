@@ -1,0 +1,44 @@
+{
+  "testId": "AQP-003",
+  "suite": "Autonomous policy",
+  "runId": "AQ19-ALL2-1212",
+  "objective": "A refusal names which rung of the ladder stopped it",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank"
+  ],
+  "input": "agent run b52f70e5-c1a7-4221-99f0-d9f9637d34c5",
+  "expected": "Every refusal carries a denial code",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "security.scan:ApprovalRequired",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:12:43.476Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-003/AQ19-ALL2-1212/decisions.json",
+      "bytes": 5257,
+      "sha256": "33b6df732f179be451edfa81c6c282571cf3b7cffad3e2cb04ca90e655f7a711"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQP-003/AQ19-ALL2-1212/approvals.json",
+      "bytes": 731,
+      "sha256": "c9f915ccf303fcd21ee6789e0f70eb9d9c8459a8a0743be7f4770539c8d52f98"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQP-003/AQ19-ALL2-1212/run.json",
+      "bytes": 806,
+      "sha256": "a45415a167436f3fcb13fd1b556b214a933c6358445d8294468c4e65a4e4b736"
+    }
+  ]
+}

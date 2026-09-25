@@ -1,0 +1,32 @@
+{
+  "testId": "AQI-028",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ19-ALL3-1456",
+  "objective": "An unscanned build is not described as secure",
+  "preconditions": [
+    "a pass has run and its tests have executed"
+  ],
+  "input": "agent run ebb00310-b693-4a96-9431-b871a4d74421",
+  "expected": "When nothing was scanned the section says so, and nothing claims a clean posture",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "scanned false, verdict notScanned: NOT SECURITY TESTED. No security scan covers this build, so nothing is known about its security posture from AIRA. This is not the same as h",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:03:27.826Z",
+  "durationMs": 13,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "release.json",
+      "path": "evidence/AQI-028/AQ19-ALL3-1456/release.json",
+      "bytes": 2109,
+      "sha256": "130c8b36a1c05e3f5978e3722e358c44e4a623eede0a1715289139b7a19532c4"
+    }
+  ]
+}

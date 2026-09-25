@@ -1,0 +1,32 @@
+{
+  "testId": "AQI-027",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-25T11-59-29Z",
+  "objective": "A release assessment always carries a security section",
+  "preconditions": [
+    "a pass has run and its tests have executed"
+  ],
+  "input": "agent run 7ac924d5-1d8c-47c3-9662-223f0bcb60e5",
+  "expected": "Security is present with a summary, whether or not anything was scanned",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "NOT SECURITY TESTED. No security scan covers this build, so nothing is known about its security posture from AIRA. This is not the same as having been tested and found clean, and a",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:01:24.184Z",
+  "durationMs": 14,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "release.json",
+      "path": "evidence/AQI-027/2026-09-25T11-59-29Z/release.json",
+      "bytes": 2109,
+      "sha256": "1eaf70f70462db1055820d1e9a2489371b0ba1f152e40bcf7af159ba1157b2c6"
+    }
+  ]
+}

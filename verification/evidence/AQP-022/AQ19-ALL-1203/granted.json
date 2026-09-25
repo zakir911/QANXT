@@ -1,0 +1,22 @@
+{
+  "id": "aa1331e2-1931-4873-b3a9-6230e8259b1f",
+  "tool": "security.scan",
+  "reason": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+  "proposal": "Scan 10 page(s) of this application within its authorized scope.",
+  "evidence": [
+    {
+      "name": "pagesDiscovered",
+      "value": "10"
+    },
+    {
+      "name": "scopeAuthorized",
+      "value": "yes — checked before planning"
+    }
+  ],
+  "risk": "StateChanging",
+  "expectedImpact": "Requests within the scope's rate limits. No destructive checks; production is not permitted for an unattended pass.",
+  "status": "granted",
+  "decidedByEmail": "agentpolicy-5dsxidrppk@example.test",
+  "justification": "Authorized for the golden lab, which exists to be tested.",
+  "decidedAt": "2026-09-25T12:03:44.988995+00:00"
+}

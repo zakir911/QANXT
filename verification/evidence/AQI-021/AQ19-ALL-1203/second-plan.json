@@ -1,0 +1,113 @@
+{
+  "id": "c138adca-7485-41c6-8361-3ff8b46ed467",
+  "agentRunId": "7acf2cd6-b857-4ef3-aa87-bf7a4d12966d",
+  "applicationId": "ab7e305f-75f3-482a-bcb9-8dafa94eb20f",
+  "status": "proposed",
+  "objective": "Release validation",
+  "pagesDiscovered": 10,
+  "endpointsDiscovered": 14,
+  "journeysKnown": 0,
+  "rolesKnown": 2,
+  "summary": "115 test(s) across 7 category(ies) for \"Release validation\", 27 of which do not exist yet. Roughly 29 minute(s) — an estimate from how long these tests have taken on this application before. 4 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+  "notCovered": [
+    "No journey has been recorded for this application, so nothing here follows a path a real user was seen to take. The journey tests are assembled from pages discovery walked.",
+    "1 area(s) a person excluded: /statements. Nothing in this plan touches them.",
+    "Anything discovery did not reach. The plan is drawn from the application map, and an application is larger than its crawl.",
+    "2 role(s) are known, and cross-role authorization is only covered where the security scope permits testing it."
+  ],
+  "items": [
+    {
+      "id": "1e0109d6-ff74-45df-95aa-7c05084971fc",
+      "category": "smoke",
+      "testCount": 10,
+      "toGenerate": 8,
+      "why": "One reachability check per discovered page (10). Cheap, and it separates an application that is down from a suite that is broken.",
+      "risk": "low",
+      "coverage": "10 page(s) reachable and rendering",
+      "estimatedSeconds": 40,
+      "estimateFromHistory": true,
+      "potentialImpact": "Read-only navigation. Nothing is submitted.",
+      "included": true
+    },
+    {
+      "id": "2a341439-6010-42b8-aaa0-0149a4dded39",
+      "category": "criticalJourney",
+      "testCount": 6,
+      "toGenerate": 3,
+      "why": "No journey has been recorded for this application yet, and a person named 3 area(s) as business-critical: payment, login, authentication. These are covered from what discovery walked, which is weaker than a recorded journey and better than ignoring what somebody told us matters.",
+      "risk": "critical",
+      "coverage": "3 area(s) a person named, happy path and one failure path each",
+      "estimatedSeconds": 24,
+      "estimateFromHistory": true,
+      "potentialImpact": "Drives real forms. Creates records in the environment under test.",
+      "included": true
+    },
+    {
+      "id": "06bed1cb-a3c3-4b3a-82ee-53bbf870032e",
+      "category": "api",
+      "testCount": 14,
+      "toGenerate": 6,
+      "why": "14 endpoint(s) discovered, 6 with no API test. An endpoint the UI happens to exercise is not an endpoint that is tested.",
+      "risk": "high",
+      "coverage": "14 endpoint(s): status, shape and contract",
+      "estimatedSeconds": 42,
+      "estimateFromHistory": true,
+      "potentialImpact": "Issues requests directly. State-changing verbs are exercised where the contract declares them.",
+      "included": true
+    },
+    {
+      "id": "0df8a742-c95a-4e88-8b37-a0b791974e16",
+      "category": "security",
+      "testCount": 64,
+      "toGenerate": 0,
+      "why": "The application carries an enabled security scope. 2 form(s), 0 upload workflow(s), 2 role(s) and 14 endpoint(s) imply 64 check(s).",
+      "risk": "high",
+      "coverage": "64 check(s) within the authorized scope",
+      "estimatedSeconds": 1280,
+      "estimateFromHistory": false,
+      "potentialImpact": "Sends crafted requests within the scope. Destructive checks are excluded unless separately authorized.",
+      "included": true
+    },
+    {
+      "id": "779f46bf-0186-4473-8650-4f2a12f8fdf0",
+      "category": "accessibility",
+      "testCount": 10,
+      "toGenerate": 10,
+      "why": "10 page(s) have no accessibility check. Automated checks find a minority of real barriers and are worth running for that minority.",
+      "risk": "medium",
+      "coverage": "10 page(s), axe-core rules",
+      "estimatedSeconds": 150,
+      "estimateFromHistory": false,
+      "potentialImpact": "Read-only inspection of the rendered page.",
+      "included": true
+    },
+    {
+      "id": "2b479581-a6c9-477e-a7aa-7ce8cdab2e49",
+      "category": "visual",
+      "testCount": 10,
+      "toGenerate": 0,
+      "why": "Baselines for the most connected pages, so an unintended visual change has something to be different from.",
+      "risk": "low",
+      "coverage": "10 page(s) baselined",
+      "estimatedSeconds": 200,
+      "estimateFromHistory": false,
+      "potentialImpact": "Screenshots only. A first run establishes baselines rather than failing.",
+      "included": true
+    },
+    {
+      "id": "02abd125-bb1e-4080-b196-ff2d0c78f9fb",
+      "category": "regression",
+      "testCount": 1,
+      "toGenerate": 0,
+      "why": "1 test(s) failed in the last run. Re-running them is how a fix is confirmed and how a flake is told from a defect.",
+      "risk": "high",
+      "coverage": "1 previously failing test(s)",
+      "estimatedSeconds": 4,
+      "estimateFromHistory": true,
+      "potentialImpact": "Repeats what already ran.",
+      "included": true
+    }
+  ],
+  "totalTests": 115,
+  "estimatedSeconds": 1740
+}

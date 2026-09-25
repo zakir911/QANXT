@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-024",
+  "suite": "Autonomous policy",
+  "runId": "AQ19-ALL2-1212",
+  "objective": "A spent budget is reported as a bound rather than a conclusion",
+  "preconditions": [
+    "a pass has run with a test budget of one"
+  ],
+  "input": "agent run 70dd5125-87bd-4ff0-9dcb-9b010a8dce50",
+  "expected": "The refusal says tests nobody asked for are a cost",
+  "severity": "high",
+  "result": "FAIL",
+  "detail": "(none)",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:12:58.784Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "budget-decisions.json",
+      "path": "evidence/AQP-024/AQ19-ALL2-1212/budget-decisions.json",
+      "bytes": 5255,
+      "sha256": "560eb8670d3c613c9326dcf305572e784b237f5c5740ea2b7bc8118654258503"
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+[
+  {
+    "id": "e0a306fb-9200-488a-bc06-d1f4111ae74b",
+    "sequence": 1,
+    "phase": "analysingGaps",
+    "tool": "coverage.analyse",
+    "summary": "Assessed 20 capability(ies): 20 uncovered, 32 unknown.",
+    "reason": "20 capability(ies) assessed across 52 applicable dimension(s): 0 covered, 0 partial, 20 not covered, 32 unknown. Coverage is measured against what discovery reached; anything it did not reach is absent from this report rather than covered by it.",
+    "evidence": [
+      {
+        "name": "capabilities",
+        "value": "20"
+      },
+      {
+        "name": "covered",
+        "value": "0"
+      },
+      {
+        "name": "partiallyCovered",
+        "value": "0"
+      },
+      {
+        "name": "notCovered",
+        "value": "20"
+      },
+      {
+        "name": "unknown",
+        "value": "32"
+      },
+      {
+        "name": "businessCriticalWithGaps",
+        "value": "0"
+      },
+      {
+        "name": "measuredAgainst",
+        "value": "6 page(s) and 14 endpoint(s) discovery reached"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "none"
+      }
+    ],
+    "result": "20 gap(s)",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T12:04:18.485135+00:00"
+  },
+  {
+    "id": "0db04c9f-8415-4f41-a0a0-c1802ffe1a9a",
+    "sequence": 2,
+    "phase": "planning",
+    "summary": "Proposed 32 test(s) across 4 category(ies).",
+    "reason": "32 test(s) across 4 category(ies) for \"Release validation\", 26 of which do not exist yet. Roughly 8 minute(s) — an estimate from defaults, because this application has no execution history yet. 4 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+    "evidence": [
+      {
+        "name": "pagesPlannable",
+        "value": "6"
+      },
+      {
+        "name": "endpointsDiscovered",
+        "value": "14"
+      },
+      {
+        "name": "journeysKnown",
+        "value": "0"
+      },
+      {
+        "name": "securityAuthorized",
+        "value": "False"
+      },
+      {
+        "name": "openSecurityFindings",
+        "value": "0"
+      },
+      {
+        "name": "criticalAreasNamedByAPerson",
+        "value": "none"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "none"
+      }
+    ],
+    "result": "32 test(s) proposed.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T12:04:18.518655+00:00"
+  },
+  {
+    "id": "77806a78-d54d-41bc-9dd1-9a3758a20fe7",
+    "sequence": 3,
+    "phase": "planning",
+    "summary": "The plan was approved by ag***@example.test.",
+    "reason": "Approved to exercise the unknown-environment rung.",
+    "evidence": [
+      {
+        "name": "decidedBy",
+        "value": "ag***@example.test"
+      },
+      {
+        "name": "categoriesIncluded",
+        "value": "Visual, Accessibility, Api, Smoke"
+      },
+      {
+        "name": "categoriesExcluded",
+        "value": "none"
+      },
+      {
+        "name": "testsPlanned",
+        "value": "32"
+      }
+    ],
+    "result": "Approved",
+    "allowed": true,
+    "actorUserId": "db32bd45-f3d9-4b01-b967-2b25a69ffa4c",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T12:04:21.474371+00:00"
+  },
+  {
+    "id": "71be277f-4540-4854-aa70-158b0d038c28",
+    "sequence": 4,
+    "phase": "generating",
+    "tool": "test.generate",
+    "summary": "Generated 4 API test(s) for 4 endpoint(s).",
+    "reason": "Endpoints discovered by the crawl, minus anything a person excluded. Mutating requests were left out.",
+    "evidence": [
+      {
+        "name": "endpointsConsidered",
+        "value": "14"
+      },
+      {
+        "name": "endpointsSelected",
+        "value": "4"
+      },
+      {
+        "name": "endpointsExcludedByAPerson",
+        "value": "none"
+      },
+      {
+        "name": "mutatingIncluded",
+        "value": "False"
+      },
+      {
+        "name": "trimmedToBudget",
+        "value": "yes — 14 endpoint(s) discovered, 4 within the run's remaining budget of 4"
+      }
+    ],
+    "result": "4 API test(s)",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T12:04:23.740973+00:00"
+  },
+  {
+    "id": "b2484eb7-7b6d-4af9-b97f-d18465394584",
+    "sequence": 5,
+    "phase": "executing",
+    "tool": "test.execute",
+    "summary": "Wanted to use test.execute.",
+    "reason": "'test.execute' would change something and nothing says what kind of environment this application lives in. Register an environment for it, or name one on its security scope, and this will run. Until then only observation is permitted: an unattended pass must not write to a system nobody has identified.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission"
+      },
+      {
+        "name": "deniedAt",
+        "value": "EnvironmentUnknown"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "EnvironmentUnknown",
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-25T12:04:23.77507+00:00"
+  }
+]

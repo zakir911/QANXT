@@ -1,0 +1,50 @@
+{
+  "testId": "AQI-015",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ19-ALL3-1456",
+  "objective": "One tenant cannot read another tenant's business context",
+  "preconditions": [
+    "two autonomous passes have run over the same application"
+  ],
+  "input": "agent runs ebb00310-b693-4a96-9431-b871a4d74421 and 09951dbd-c182-4ea1-88bd-4e1b358b0d95",
+  "expected": "The request is refused",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "404",
+  "metrics": null,
+  "startedAt": "2026-09-25T15:03:12.162Z",
+  "durationMs": 15194,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "first.json",
+      "path": "evidence/AQI-015/AQ19-ALL3-1456/first.json",
+      "bytes": 1263,
+      "sha256": "ffef2996c758f842a57ec3f3095041ced58bb377b42e7341f6e62d34d6317ab5"
+    },
+    {
+      "file": "second.json",
+      "path": "evidence/AQI-015/AQ19-ALL3-1456/second.json",
+      "bytes": 756,
+      "sha256": "ba4da954db3e0713c00c6d421c8dcb13141e6e91906ed582be2f36af047f75c3"
+    },
+    {
+      "file": "first-plan.json",
+      "path": "evidence/AQI-015/AQ19-ALL3-1456/first-plan.json",
+      "bytes": 4850,
+      "sha256": "6bc1447ede1bb43a440b8c03cac33c7e3d2217ef0e4191aee97612733fb49f36"
+    },
+    {
+      "file": "second-plan.json",
+      "path": "evidence/AQI-015/AQ19-ALL3-1456/second-plan.json",
+      "bytes": 5181,
+      "sha256": "bfd05fbe4e25dfda08be7572839736cd420f49b6fc90723e3bb8a796d55545bd"
+    }
+  ]
+}

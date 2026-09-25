@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-053",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-25T11-59-29Z",
+  "objective": "A resumed pass does not count the same gap twice",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run 7ac924d5-1d8c-47c3-9662-223f0bcb60e5",
+  "expected": "The second pass records no duplicate coverage findings",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 duplicate(s) of 24",
+  "metrics": null,
+  "startedAt": "2026-09-25T12:01:24.243Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "90fe0e7",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-053/2026-09-25T11-59-29Z/coverage-decision.json",
+      "bytes": 1287,
+      "sha256": "468cd84ee99a02347a436c7a98dc8f016c284d7f435fb749fd599eff6f247025"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-053/2026-09-25T11-59-29Z/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "e2fcbd67e502db99d7f29ad45cc5407abbdf02dfff57250c2e6d8a3c58194b5a"
+    }
+  ]
+}
