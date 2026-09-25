@@ -16,7 +16,17 @@ public sealed record StartAgentRunRequest(
     int? MaxTargets,
     int? MaxGeneratedTests,
     int? TimeBudgetSeconds,
-    decimal? MaxAiCostUsd);
+    decimal? MaxAiCostUsd,
+    /// <summary>
+    /// What this pass may do at all, as distinct from how much of it.
+    /// </summary>
+    /// <remarks>
+    /// Clamped on the way in, and the two flags that are decisions rather than quantities —
+    /// production and destructive — are cleared unless the caller separately holds the
+    /// permission that governs each one everywhere else in the product. Asking for them in a
+    /// request body is not the same as being permitted them.
+    /// </remarks>
+    AgentPolicy? Policy = null);
 
 public sealed record AgentRunSummary(
     Guid Id, Guid ProjectId, Guid ApplicationId, string ApplicationName, string Name,

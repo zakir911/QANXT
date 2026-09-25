@@ -1,3 +1,4 @@
+using Aira.Application.Security;
 using Aira.Application.Abstractions;
 using Aira.Domain.Agent;
 using Aira.Domain.Common;
@@ -50,6 +51,12 @@ public sealed class AgentService : IAgentService
                 "An agent pass is already running for this application. Wait for it to finish, or cancel it.");
         }
 
+        // Clamped once, here, so the run carries the answer rather than re-deriving it.
+        var policy = AgentPolicy.Clamp(
+            request.Policy ?? AgentPolicy.Default,
+            mayUseProduction: _currentUser.HasPermission(Permissions.SecurityProduction),
+            mayBeDestructive: _currentUser.HasPermission(Permissions.SecurityScanDestructive));
+
         var run = new AgentRun
         {
             OrganizationId = organizationId.Value,
@@ -73,6 +80,19 @@ public sealed class AgentService : IAgentService
                 AgentDefaults.TimeBudgetSecondsCeiling),
             MaxAiCostUsd = Math.Clamp(request.MaxAiCostUsd ?? AgentDefaults.MaxAiCostUsd, 0m,
                 AgentDefaults.MaxAiCostUsdCeiling),
+
+            // The policy, frozen with the bounds and clamped the same way. Production and
+            // destructive are cleared rather than clamped: they are decisions rather than
+            // quantities, and the caller does not get them by asking — they get them by
+            // holding the permission that governs each one everywhere else in the product.
+            MaxActions = policy.MaxActions,
+            MaxNewJourneys = policy.MaxNewJourneys,
+            AllowProduction = policy.AllowProduction,
+            AllowDestructiveActions = policy.AllowDestructiveActions,
+            AllowSecurityTesting = policy.AllowSecurityTesting
+                                   && _currentUser.HasPermission(Permissions.SecurityScan),
+            RequireApprovalForHighRisk = policy.RequireApprovalForHighRisk,
+            MaxParallelWorkers = policy.MaxParallelWorkers,
 
             CreatedByUserId = _currentUser.UserId,
             CreatedAt = _clock.UtcNow

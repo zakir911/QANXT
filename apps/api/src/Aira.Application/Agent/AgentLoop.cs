@@ -42,13 +42,18 @@ public sealed class AgentLoop : IAgentLoop
     private readonly SecretMasker _masker;
     private readonly IAgentJournal _journal;
     private readonly IApplicationContextService _context;
+    private readonly IApiTestService _apiTests;
+    private readonly ISecurityScanLauncher _security;
     private readonly ILogger<AgentLoop> _logger;
 
     public AgentLoop(IAiraDbContext db, IDiscoveryService discovery, ITestGenerationService generation,
         ITestRunService runs, ITenantContext tenant, IClock clock, SecretMasker masker,
         IAgentJournal journal, IApplicationContextService context,
+        IApiTestService apiTests, ISecurityScanLauncher security,
         ILogger<AgentLoop> logger)
     {
+        _apiTests = apiTests;
+        _security = security;
         _db = db;
         _discovery = discovery;
         _generation = generation;
@@ -99,6 +104,16 @@ public sealed class AgentLoop : IAgentLoop
                     () => PlanAsync(run, state, ct))) { }
             else if (!await PhaseAsync(run, ++order, AgentPhase.Generating, deadline, ct,
                     () => GenerateAsync(run, state, ct))) { }
+            // API, security and regression. Before these existed the loop injected discovery,
+            // generation and test runs and nothing else, so an autonomous pass produced UI
+            // tests however many endpoints the crawl had found and whatever the application
+            // had authorized. Each one delegates to the engine that already does the work.
+            else if (!await PhaseAsync(run, ++order, AgentPhase.Generating, deadline, ct,
+                    () => ApiTestingAsync(run, state, ct))) { }
+            else if (!await PhaseAsync(run, ++order, AgentPhase.Prioritizing, deadline, ct,
+                    () => SelectRegressionAsync(run, state, ct))) { }
+            else if (!await PhaseAsync(run, ++order, AgentPhase.SecurityTesting, deadline, ct,
+                    () => SecurityTestingAsync(run, state, ct))) { }
             else if (!await PhaseAsync(run, ++order, AgentPhase.Executing, deadline, ct,
                     () => ExecuteAsync(run, state, deadline, ct))) { }
             else if (!await PhaseAsync(run, ++order, AgentPhase.Investigating, deadline, ct,
@@ -330,13 +345,313 @@ public sealed class AgentLoop : IAgentLoop
         return observed;
     }
 
+
+    // ---- API testing ------------------------------------------------------------
+
+    /// <summary>
+    /// Generates API tests for endpoints the plan asked for.
+    /// </summary>
+    /// <remarks>
+    /// The existing API testing engine does the work. The agent's contribution is choosing
+    /// which endpoints are worth it and recording why — and before this phase existed, it made
+    /// no such choice at all: the loop injected discovery, generation and test runs, and an
+    /// autonomous pass produced UI tests and nothing else, however many endpoints the crawl
+    /// had found. An endpoint the UI happens to exercise is not an endpoint that is tested.
+    /// </remarks>
+    private async Task<PhaseOutcome> ApiTestingAsync(
+        AgentRun run, PassState state, CancellationToken ct)
+    {
+        if (!state.PlanIncludes(AgentPlanCategory.Api))
+            return PhaseOutcome.Ok("No API testing in this plan.",
+                "The plan did not include the API category, or a person switched it off.");
+
+        var endpoints = await _db.ApiEndpoints.AsNoTracking()
+            .Where(e => e.ApplicationId == run.ApplicationId)
+            .OrderBy(e => e.UrlTemplate)
+            .Select(e => new { e.Id, Path = e.UrlTemplate, Method = e.Method })
+            .Take(run.MaxTargets * 5)
+            .ToListAsync(ct);
+
+        var excluded = endpoints
+            .Where(e => state.Business.Excludes(e.Path))
+            .Select(e => e.Path)
+            .ToList();
+        var selected = endpoints.Where(e => !state.Business.Excludes(e.Path)).ToList();
+
+        if (selected.Count == 0)
+            return PhaseOutcome.Ok("No endpoints to test.",
+                excluded.Count > 0
+                    ? $"{excluded.Count} endpoint(s) were discovered and every one is in an area "
+                      + "a person excluded."
+                    : "Discovery found no API endpoints for this application.");
+
+        var decision = await CheckAsync(run, state, "test.generate", AgentPhase.Generating,
+            newTests: selected.Count, ct: ct);
+        if (!decision.Allowed)
+            return PhaseOutcome.Ok("API test generation was not permitted.", decision.Reason);
+
+        var generated = await _apiTests.GenerateAsync(new GenerateApiTestsRequest(
+            ApplicationId: run.ApplicationId,
+            ApiEndpointIds: selected.Select(e => e.Id).ToArray(),
+            SuiteName: $"{run.Name} — API",
+            // Mutating requests are left out unless the run is separately permitted them. A
+            // pass nobody is watching should not be the thing that discovers what a POST does.
+            IncludeMutating: run.AllowDestructiveActions,
+            MaxTests: Math.Max(1, run.MaxGeneratedTests - state.GeneratedTestCaseIds.Count)), ct);
+
+        if (!generated.IsSuccess)
+            return PhaseOutcome.Ok("API tests could not be generated.",
+                generated.Error?.Message ?? "The API testing engine refused.");
+
+        state.ApiTestCaseIds.AddRange(generated.Value!.Tests.Select(t => t.TestCaseId));
+        run.TestsGenerated += generated.Value.TestsCreated;
+        await _db.SaveChangesAsync(ct);
+
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.Generating,
+            $"Generated {generated.Value.TestsCreated} API test(s) for {selected.Count} endpoint(s).",
+            "Endpoints discovered by the crawl, minus anything a person excluded. Mutating "
+            + (run.AllowDestructiveActions ? "requests are permitted for this run." : "requests were left out."),
+            new[]
+            {
+                new AgentEvidence("endpointsConsidered", endpoints.Count.ToString()),
+                new AgentEvidence("endpointsSelected", selected.Count.ToString()),
+                new AgentEvidence("endpointsExcludedByAPerson",
+                    excluded.Count == 0 ? "none" : string.Join(", ", excluded.Take(10))),
+                new AgentEvidence("mutatingIncluded", run.AllowDestructiveActions.ToString())
+            },
+            Tool: "test.generate",
+            Result: $"{generated.Value.TestsCreated} API test(s)"), ct);
+
+        return PhaseOutcome.Ok(
+            $"Generated {generated.Value.TestsCreated} API test(s) across {selected.Count} endpoint(s).",
+            "The API testing engine authored them; the agent chose the endpoints and recorded why.");
+    }
+
+    // ---- Security testing -------------------------------------------------------
+
+    /// <summary>
+    /// Asks the security engine to scan, where the application has authorized it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The agent selects; the engine decides. This queues a scan through the same launcher a
+    /// person uses, which re-checks the scope, the profile, the permissions and the
+    /// environment — so there is no path from the agent to issuing a security request, and an
+    /// agent that somehow asked for something it should not get is refused by the thing that
+    /// has always refused it.
+    /// </para>
+    /// <para>
+    /// Standard profile, always. A pass nobody is watching does not get to be the run that
+    /// discovers what a destructive check does, and the permissions that would allow one
+    /// belong to a person rather than to a loop.
+    /// </para>
+    /// </remarks>
+    private async Task<PhaseOutcome> SecurityTestingAsync(
+        AgentRun run, PassState state, CancellationToken ct)
+    {
+        if (!run.AllowSecurityTesting)
+            return PhaseOutcome.Ok("Security testing is off for this run.",
+                "Nothing about this application's security has been established by this pass.");
+
+        if (!state.PlanIncludes(AgentPlanCategory.Security))
+            return PhaseOutcome.Ok("No security testing in this plan.",
+                "The application has no enabled security scope, or a person switched the "
+                + "category off. Either way this is an absence of testing, not a clean result.");
+
+        var decision = await CheckAsync(run, state, "security.scan", AgentPhase.SecurityTesting, ct: ct);
+        if (!decision.Allowed)
+        {
+            if (decision.Denial == AgentDenial.ApprovalRequired)
+                await _journal.RequestApprovalAsync(run.Id, "security.scan", decision.Reason,
+                    $"Scan {state.Pages.Count} page(s) of this application within its authorized scope.",
+                    decision.EffectiveRisk.ToString(),
+                    new[]
+                    {
+                        new AgentEvidence("pagesDiscovered", state.Pages.Count.ToString()),
+                        new AgentEvidence("scopeAuthorized", "yes — checked before planning")
+                    },
+                    expectedImpact: "Requests within the scope's rate limits. No destructive "
+                                  + "checks; production is not permitted for an unattended pass.",
+                    ct: ct);
+
+            return PhaseOutcome.Ok("Security scanning was not performed.", decision.Reason);
+        }
+
+        var started = await _security.StartAsync(new StartSecurityScanRequest(
+            ApplicationId: run.ApplicationId,
+            Profile: SecurityProfile.Standard), ct);
+
+        if (!started.IsSuccess)
+        {
+            // A refusal from the engine is the system working. Recorded as what it is rather
+            // than as a failure of the pass.
+            await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+                AgentPhase.SecurityTesting,
+                "The security engine refused the scan.",
+                started.Error?.Message ?? "No reason was given.",
+                new[] { new AgentEvidence("refusedBy", "the security engine, before anything was queued") },
+                Tool: "security.scan", Result: "Not scanned.", Allowed: false), ct);
+
+            return PhaseOutcome.Ok("The security engine refused the scan.",
+                started.Error?.Message
+                + " Nothing about this application's security has been established.");
+        }
+
+        state.SecurityScanId = started.Value!.SecurityScanId;
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.SecurityTesting,
+            $"Queued security scan {started.Value.Reference}.",
+            "The application carries an enabled scope and the plan included security testing. "
+            + "The engine decides what may be sent; this pass only asked.",
+            new[]
+            {
+                new AgentEvidence("securityScanId", started.Value.SecurityScanId.ToString()),
+                new AgentEvidence("profile", "standard"),
+                new AgentEvidence("checksConfigured", started.Value.ChecksConfigured.ToString()),
+                new AgentEvidence("targets", started.Value.Targets.ToString())
+            },
+            Tool: "security.scan",
+            Result: $"Queued as {started.Value.Reference}."), ct);
+
+        return PhaseOutcome.Ok(
+            $"Queued security scan {started.Value.Reference} ({started.Value.ChecksConfigured} check(s)).",
+            "A queued scan is not a result. Its verdict appears when a worker reports.");
+    }
+
+    // ---- Regression selection ----------------------------------------------------
+
+    /// <summary>
+    /// Picks existing tests worth re-running, using the selector a pipeline already uses.
+    /// </summary>
+    /// <remarks>
+    /// Before this, an autonomous pass ran only what it had just generated, which meant the
+    /// tests most likely to catch a regression — the ones that already existed and had failed
+    /// before — were the ones it never ran.
+    /// </remarks>
+    private async Task<PhaseOutcome> SelectRegressionAsync(
+        AgentRun run, PassState state, CancellationToken ct)
+    {
+        if (!state.PlanIncludes(AgentPlanCategory.Regression))
+            return PhaseOutcome.Ok("No regression selection in this plan.",
+                "Nothing that already existed was selected for re-running.");
+
+        var reruns = await _db.TestCases.AsNoTracking()
+            .Where(t => t.ApplicationId == run.ApplicationId
+                        && t.DeletedAt == null
+                        && t.IsEnabled
+                        && (t.LastStatus == ExecutionStatus.Failed || t.FlakinessScore > 0))
+            .OrderByDescending(t => t.FailCount)
+            .Take(run.MaxTargets * 10)
+            .Select(t => new { t.Id, t.Reference, t.FailCount, t.FlakinessScore })
+            .ToListAsync(ct);
+
+        if (reruns.Count == 0)
+            return PhaseOutcome.Ok("Nothing to re-run.",
+                "No existing test for this application has failed or been unstable recently.");
+
+        state.RegressionTestCaseIds.AddRange(reruns.Select(r => r.Id));
+
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.Prioritizing,
+            $"Selected {reruns.Count} existing test(s) to re-run.",
+            "A test that failed recently is the cheapest way to tell a fix from a flake, and a "
+            + "test that has been unstable is the cheapest way to find out whether it still is.",
+            new[]
+            {
+                new AgentEvidence("previouslyFailing",
+                    string.Join(", ", reruns.Where(r => r.FailCount > 0)
+                        .Select(r => r.Reference).Take(10))),
+                new AgentEvidence("unstable",
+                    string.Join(", ", reruns.Where(r => r.FlakinessScore > 0)
+                        .Select(r => r.Reference).Take(10))),
+                new AgentEvidence("selected", reruns.Count.ToString())
+            },
+            Tool: null,
+            Result: $"{reruns.Count} test(s) selected."), ct);
+
+        return PhaseOutcome.Ok(
+            $"Selected {reruns.Count} existing test(s) to re-run.",
+            "Tests that failed or were unstable recently, which a pass that ran only its own "
+            + "output would never have touched.");
+    }
+
+    // ---- The policy gate ----------------------------------------------------------
+
+    /// <summary>
+    /// Asks the policy engine whether the pass may do something, and records the answer.
+    /// </summary>
+    /// <remarks>
+    /// Every action the loop takes goes through here. The point is not that the loop would
+    /// otherwise misbehave — it is that "what may this pass do" has one answer, in one place,
+    /// that a reader can check without following the loop's control flow.
+    /// </remarks>
+    private async Task<AgentPolicyDecision> CheckAsync(
+        AgentRun run, PassState state, string tool, AgentPhase phase,
+        int newTests = 0, int newJourneys = 0, CancellationToken ct = default)
+    {
+        var approvals = await _journal.GrantedApprovalsAsync(run.Id, ct);
+        var elapsed = run.StartedAt is { } startedAt
+            ? (int)(_clock.UtcNow - startedAt).TotalMinutes
+            : 0;
+
+        var policy = new AgentPolicy(
+            run.MaxActions, run.TimeBudgetSeconds / 60, run.MaxGeneratedTests, run.MaxNewJourneys,
+            run.AllowProduction, run.AllowDestructiveActions, run.AllowSecurityTesting,
+            run.RequireApprovalForHighRisk, run.MaxParallelWorkers);
+
+        var decision = AgentPolicyGuard.Evaluate(
+            policy,
+            new AgentActionRequest(tool, state.Environment, NewTests: newTests, NewJourneys: newJourneys),
+            new AgentRunState(run.ActionsTaken, elapsed, run.TestsGenerated, run.JourneysCreated,
+                run.Status == AgentRunStatus.Cancelled, state.Permissions, approvals));
+
+        run.ActionsTaken += 1;
+        await _db.SaveChangesAsync(ct);
+
+        if (!decision.Allowed)
+            await _journal.RecordActionAsync(run.Id, phase,
+                new AgentActionRequest(tool, state.Environment), decision,
+                Array.Empty<AgentEvidence>(),
+                $"Wanted to use {tool}.", ct: ct);
+
+        return decision;
+    }
+
     private sealed class PassState
     {
         public List<PageCandidate> Pages { get; } = new();
         public List<(PageCandidate Page, RiskAssessment Assessment)> Ranked { get; } = new();
         public List<Guid> GeneratedTestCaseIds { get; } = new();
+        public List<Guid> ApiTestCaseIds { get; } = new();
+        public List<Guid> RegressionTestCaseIds { get; } = new();
+
         /// <summary>The plan this pass is working to, once one has been proposed.</summary>
         public Guid? PlanId { get; set; }
+
+        /// <summary>The categories the plan still includes after a person answered it.</summary>
+        public HashSet<AgentPlanCategory> PlannedCategories { get; } = new();
+
+        /// <summary>Whether a plan was drawn up at all. A pass with no plan runs its default
+        /// sequence; a pass with one runs what the plan says and nothing else.</summary>
+        public bool HasPlan { get; set; }
+
+        public bool PlanIncludes(AgentPlanCategory category)
+            => !HasPlan || PlannedCategories.Contains(category);
+
+        /// <summary>What a person said about this application. Empty when nobody has said
+        /// anything, which is not the same as nothing being critical.</summary>
+        public ApplicationContextView Business { get; set; } = ApplicationContextView.Empty(Guid.Empty);
+
+        /// <summary>Permissions the pass's initiator held when it started, frozen.</summary>
+        public IReadOnlySet<string> Permissions { get; set; } = new HashSet<string>();
+
+        /// <summary>Where this pass is running. Production is refused by the registry for
+        /// anything that changes state, whatever the run's policy says.</summary>
+        public EnvironmentKind Environment { get; set; } = EnvironmentKind.Qa;
+
+        /// <summary>The scan this pass queued, if it queued one.</summary>
+        public Guid? SecurityScanId { get; set; }
     }
 
     private sealed record PageCandidate(Guid Id, string Route, string NormalizedUrl, PageKind Kind,
@@ -550,6 +865,19 @@ public sealed class AgentLoop : IAgentLoop
 
     private async Task<PhaseOutcome> ModelAsync(AgentRun run, PassState state, CancellationToken ct)
     {
+        // What a person has said about this application, loaded once and carried through the
+        // pass. Nothing downstream re-reads it, so an operator editing the context mid-run
+        // cannot change what a pass already decided — which is the behaviour somebody would
+        // want if they were trying to widen a pass that was already refused something.
+        var context = await _context.GetAsync(run.ApplicationId, ct);
+        state.Business = context.IsSuccess
+            ? context.Value!
+            : ApplicationContextView.Empty(run.ApplicationId);
+
+        state.Permissions = await FrozenPermissionsAsync(run, ct);
+        state.Environment = await EnvironmentOfAsync(run.ApplicationId, ct);
+        await LoadPlanAsync(run, state, ct);
+
         var pages = await _db.ApplicationPages.AsNoTracking()
             .Where(p => p.ApplicationId == run.ApplicationId)
             .OrderBy(p => p.Depth).ThenBy(p => p.Route)
@@ -572,11 +900,114 @@ public sealed class AgentLoop : IAgentLoop
             "The graph is the agent's whole picture of the application; it does not browse to form one.");
     }
 
+
+    /// <summary>
+    /// The permissions the pass acts with: the ones its initiator held when it started.
+    /// </summary>
+    /// <remarks>
+    /// Read from the initiator's roles rather than from an ambient request, because there is
+    /// no request — the pass runs in a background service. Frozen for the pass, so a person
+    /// whose role is widened mid-run does not widen a pass already in flight, and one whose
+    /// role is narrowed does not have a running pass fail halfway with a confusing refusal.
+    /// A pass with no initiator holds nothing, which is the safe direction: everything above
+    /// an observation is refused rather than allowed.
+    /// </remarks>
+    private async Task<IReadOnlySet<string>> FrozenPermissionsAsync(AgentRun run, CancellationToken ct)
+    {
+        if (run.CreatedByUserId is not { } userId) return new HashSet<string>();
+
+        var permissions = await _db.Users.AsNoTracking()
+            .Where(u => u.Id == userId)
+            .SelectMany(u => u.UserRoles!)
+            .SelectMany(ur => ur.Role!.RolePermissions!)
+            .Select(rp => rp.Permission!.Name)
+            .Distinct()
+            .ToListAsync(ct);
+
+        return new HashSet<string>(permissions, StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// Which kind of environment this application lives in.
+    /// </summary>
+    /// <remarks>
+    /// Defaults to Production when nothing says otherwise. That looks backwards and is
+    /// deliberate: an unknown environment is the one case where guessing wrong in the other
+    /// direction lets an unattended pass act against a live system, and the registry refuses
+    /// everything state-changing in production. An application nobody has described is
+    /// therefore read-only to the agent until somebody describes it.
+    /// </remarks>
+    private async Task<EnvironmentKind> EnvironmentOfAsync(Guid applicationId, CancellationToken ct)
+    {
+        var scope = await _db.SecurityScopes.AsNoTracking()
+            .FirstOrDefaultAsync(s => s.ApplicationId == applicationId, ct);
+
+        if (scope?.EnvironmentId is { } environmentId)
+        {
+            var kind = await _db.Environments.AsNoTracking()
+                .Where(e => e.Id == environmentId)
+                .Select(e => (EnvironmentKind?)e.Kind)
+                .FirstOrDefaultAsync(ct);
+            if (kind is { } known) return known;
+        }
+
+        var only = await _db.Environments.AsNoTracking()
+            .Where(e => e.ProjectId == _db.Applications
+                .Where(a => a.Id == applicationId).Select(a => a.ProjectId).FirstOrDefault())
+            .Select(e => (EnvironmentKind?)e.Kind)
+            .ToListAsync(ct);
+
+        // One environment and no ambiguity: use it. Several, and nothing says which, so the
+        // safe assumption stands.
+        return only.Count == 1 && only[0] is { } single ? single : EnvironmentKind.Production;
+    }
+
+    /// <summary>Loads the plan a person answered, so later phases run what it says.</summary>
+    private async Task LoadPlanAsync(AgentRun run, PassState state, CancellationToken ct)
+    {
+        var plan = await _db.AgentTestPlans.AsNoTracking()
+            .Include(p => p.Items)
+            .OrderByDescending(p => p.CreatedAt)
+            .FirstOrDefaultAsync(p => p.AgentRunId == run.Id, ct);
+
+        if (plan is null) return;
+
+        state.PlanId = plan.Id;
+        state.HasPlan = true;
+        foreach (var item in plan.Items.Where(i => i.Included))
+            state.PlannedCategories.Add(item.Category);
+    }
+
     // ---- Prioritise ------------------------------------------------------------
 
     private async Task<PhaseOutcome> PrioritizeAsync(AgentRun run, PassState state, CancellationToken ct)
     {
-        foreach (var page in state.Pages)
+        // Dropped before scoring rather than filtered after it. An excluded area that gets a
+        // risk score appears in the findings, on the dashboard and in the report as somewhere
+        // worth testing — which is an argument with the person who excluded it, made in a
+        // place they will never see.
+        var excluded = state.Pages.Where(p => state.Business.Excludes(p.Route)).ToList();
+        var plannable = state.Pages.Where(p => !state.Business.Excludes(p.Route)).ToList();
+
+        if (excluded.Count > 0)
+            await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+                AgentPhase.Prioritizing,
+                $"Left {excluded.Count} page(s) alone because a person excluded them.",
+                "An exclusion is honoured absolutely rather than weighed against a risk score. "
+                + "Somebody who writes 'never touch this' is not expressing a preference that a "
+                + "high enough number can outvote.",
+                new[]
+                {
+                    new AgentEvidence("excludedRoutes",
+                        string.Join(", ", excluded.Select(p => p.Route).Take(20))),
+                    new AgentEvidence("exclusionsAsWritten",
+                        string.Join(", ", state.Business.ExcludedAreas)),
+                    new AgentEvidence("pagesRemaining", plannable.Count.ToString())
+                },
+                Tool: null,
+                Result: $"{plannable.Count} page(s) remain in scope for this pass."), ct);
+
+        foreach (var page in plannable)
         {
             var signals = await GatherSignalsAsync(run, page, ct);
             state.Ranked.Add((page, RiskScorer.Score(signals)));
@@ -760,14 +1191,44 @@ public sealed class AgentLoop : IAgentLoop
                 "Execution was disabled for this pass, so the generated tests are left for a person to run.");
         }
 
-        if (state.GeneratedTestCaseIds.Count == 0)
+        // Everything the pass assembled, not only what it wrote. A pass that ran only its own
+        // output left the tests most likely to catch a regression — the ones that already
+        // existed and had failed before — as the ones it never ran.
+        var toRun = state.GeneratedTestCaseIds
+            .Concat(state.ApiTestCaseIds)
+            .Concat(state.RegressionTestCaseIds)
+            .Distinct()
+            .ToArray();
+
+        if (toRun.Length == 0)
         {
-            return PhaseOutcome.Ok("Ran nothing: no tests were generated this pass.",
-                "There is nothing new to execute, so no run was started.");
+            return PhaseOutcome.Ok("Ran nothing: this pass assembled no tests.",
+                "Nothing was generated and nothing existing was selected, so no run was "
+                + "started. This is not a result about the application.");
+        }
+
+        var permitted = await CheckAsync(run, state, "test.execute", AgentPhase.Executing, ct: ct);
+        if (!permitted.Allowed)
+        {
+            if (permitted.Denial == AgentDenial.ApprovalRequired)
+                await _journal.RequestApprovalAsync(run.Id, "test.execute", permitted.Reason,
+                    $"Run {toRun.Length} test(s) against this application.",
+                    permitted.EffectiveRisk.ToString(),
+                    new[]
+                    {
+                        new AgentEvidence("generated", state.GeneratedTestCaseIds.Count.ToString()),
+                        new AgentEvidence("apiTests", state.ApiTestCaseIds.Count.ToString()),
+                        new AgentEvidence("reRuns", state.RegressionTestCaseIds.Count.ToString())
+                    },
+                    expectedImpact: "Drives the application as a user would, and creates records "
+                                  + "wherever a journey submits a form.",
+                    ct: ct);
+
+            return PhaseOutcome.Ok("The tests were not run.", permitted.Reason);
         }
 
         var started = await _runs.StartAsync(new StartTestRunRequest(
-            run.ProjectId, null, state.GeneratedTestCaseIds.ToArray(), null,
+            run.ProjectId, null, toRun, null,
             null, true, null, null, $"{run.Name} — verification", RunTrigger.Agent, null), ct);
 
         if (started.IsFailure)
@@ -789,8 +1250,10 @@ public sealed class AgentLoop : IAgentLoop
         await _db.SaveChangesAsync(ct);
 
         return PhaseOutcome.Ok(
-            $"Ran {final.TotalCount} generated test(s): {final.PassedCount} passed, "
-            + $"{final.FailedCount} failed, {final.BlockedCount} blocked.",
+            $"Ran {final.TotalCount} test(s) ({state.GeneratedTestCaseIds.Count} generated, "
+            + $"{state.ApiTestCaseIds.Count} API, {state.RegressionTestCaseIds.Count} re-run): "
+            + $"{final.PassedCount} passed, {final.FailedCount} failed, "
+            + $"{final.BlockedCount} blocked.",
             "A generated test that cannot pass on the application as it is now is worth knowing "
             + "about before anyone relies on it.");
     }
