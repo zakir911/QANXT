@@ -103,9 +103,15 @@ exists, the task is to make the agent call it and record why.
   `Aira.Application/Healing/` are empty directories.** Healing lives in `Diagnosis/`. An
   earlier absence check of mine pointed at `Application/Healing` and passed having read
   nothing, for exactly this reason.
-- **Flakiness is computed in four places** (`ExecutionIngestService`, `TestRunService`,
-  `RunComparisonService`, `QualityGateEvaluator`, `DashboardService`) with no shared
-  definition. §19 needs one definition, not a fifth.
+- ~~**Flakiness is computed in four places** with no shared definition.~~ **Wrong, corrected
+  after reading the code properly.** It is computed in exactly one place —
+  `ExecutionIngestService`, at ingest, from the last ten executions — and everything else
+  (`RegressionScoring`, `DashboardService`, `QualityGateEvaluator`, `RunComparisonService`)
+  reads the stored score or counts `ExecutionStatus.Flaky`. The original claim came from
+  grepping for the word rather than reading what each hit did. §19 therefore needs a history
+  *surface* the planner can read, not a definition — there is already one, and its bar is
+  deliberately high: five recent runs, at least three verdict changes, and a majority
+  oscillating, with only a pass ever relabelled so a real failure is never softened.
 - **The agent has no unit tests.** Its 10 tests are integration tests that exercise the API
   surface; `AgentLoop` itself — 34KB, the most consequential file in this phase — is tested
   only through a live loop.
