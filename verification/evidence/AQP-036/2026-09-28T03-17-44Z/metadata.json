@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-036",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "No pass acted with a model deciding for it",
+  "preconditions": [
+    "passes have run against the lab"
+  ],
+  "input": "every decision recorded by the passes in this suite",
+  "expected": "No decision in these passes was attributed to a model",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "0 model-contributed",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:18:52.516Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-036/2026-09-28T03-17-44Z/decisions.json",
+      "bytes": 7482,
+      "sha256": "2eab6aa2a1415595146d5fab5d12fa1616bf6e73134376645cdad3feddf80dd4"
+    }
+  ]
+}

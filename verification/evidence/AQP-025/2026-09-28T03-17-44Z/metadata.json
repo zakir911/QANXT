@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-025",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "The run reports the bounds it actually ran under",
+  "preconditions": [
+    "a pass has run with a test budget of one"
+  ],
+  "input": "agent run d1d7465e-a2ef-419e-8e28-ed9b75adf1bd",
+  "expected": "The bounds on the run match what was asked for",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "{\"explore\":false,\"execute\":true,\"maxPages\":10,\"maxDepth\":3,\"maxTargets\":3,\"maxGeneratedTests\":1,\"timeBudgetSeconds\":900,\"maxAiCostUsd\":1,\"maxActions\":500,\"maxNewJourneys\":25,\"allowProduction\":false,\"allowDestructiveActions\":false,\"allowSecurityTesting\":true,\"requireApprovalForHighRisk\":true,\"maxParallelWorkers\":5,\"actionsTaken\":3}",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:18:25.206Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "budget-decisions.json",
+      "path": "evidence/AQP-025/2026-09-28T03-17-44Z/budget-decisions.json",
+      "bytes": 7479,
+      "sha256": "d29329349c69399f73a51b3602627d8219737fd7692a905f95280459a187e1aa"
+    }
+  ]
+}

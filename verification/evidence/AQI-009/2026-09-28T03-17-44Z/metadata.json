@@ -1,0 +1,50 @@
+{
+  "testId": "AQI-009",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "Business context reads back as it was written",
+  "preconditions": [
+    "two autonomous passes have run over the same application"
+  ],
+  "input": "agent runs 2f39348e-451d-4df1-820a-7140e11c8a34 and 9e4ed3fd-4c5b-4174-8745-1a276a48d638",
+  "expected": "The stored context matches what the operator set",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "{\"applicationId\":\"df5e55b0-3900-4c06-81fd-e06348ac6bb5\",\"criticalJourneys\":[\"payment\",\"login\"],\"highRiskAreas\":[\"authentication\"],\"excludedAreas\":[\"/statements\"],\"notes\":\"The golden lab.\",\"updatedAt\":",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:20:41.743Z",
+  "durationMs": 5,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "first.json",
+      "path": "evidence/AQI-009/2026-09-28T03-17-44Z/first.json",
+      "bytes": 1391,
+      "sha256": "4e0356ccfcafd3626a9dfa9c4a09233c743fabd55d3bbe47b4e1d92dcbce9304"
+    },
+    {
+      "file": "second.json",
+      "path": "evidence/AQI-009/2026-09-28T03-17-44Z/second.json",
+      "bytes": 757,
+      "sha256": "ffa887b4ceb023f5726ccf3718cf402e997f2c2e17f312742c2062c1b230fe49"
+    },
+    {
+      "file": "first-plan.json",
+      "path": "evidence/AQI-009/2026-09-28T03-17-44Z/first-plan.json",
+      "bytes": 4850,
+      "sha256": "2f2ea8044fe5d478f781a183ebfaa9e152ff5bc10f9379315bd222696067488e"
+    },
+    {
+      "file": "second-plan.json",
+      "path": "evidence/AQI-009/2026-09-28T03-17-44Z/second-plan.json",
+      "bytes": 4695,
+      "sha256": "a0e45bb6b339ab138da5573243577769337b21aab08ae318c1f97b14a4c3bb8d"
+    }
+  ]
+}

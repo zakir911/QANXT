@@ -1,0 +1,38 @@
+{
+  "testId": "AQP-027",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "An unknown environment refuses anything that writes",
+  "preconditions": [
+    "a pass has run against an application whose environment nothing identifies"
+  ],
+  "input": "agent run 834a6abc-e8e1-4fce-9677-ec0d70f2202c",
+  "expected": "A refusal names the unknown environment",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "'test.execute' would change something and nothing says what kind of environment this application lives in. Register an environment for it, or name one on its se",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:18:52.506Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "unknown-decisions.json",
+      "path": "evidence/AQP-027/2026-09-28T03-17-44Z/unknown-decisions.json",
+      "bytes": 10480,
+      "sha256": "93ef5c55a50c4d6dec7aa32485298d34ea8646cea78615ff65d7faedfc97fe19"
+    },
+    {
+      "file": "unknown-run.json",
+      "path": "evidence/AQP-027/2026-09-28T03-17-44Z/unknown-run.json",
+      "bytes": 1306,
+      "sha256": "fae1bf56c5356999cce34d950b5e8f848596fc643aa6ce9a31dfbd9c5791a892"
+    }
+  ]
+}

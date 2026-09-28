@@ -1,0 +1,44 @@
+{
+  "testId": "AQF-007",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "The plan still names what it does not cover",
+  "preconditions": [
+    "a pass has run against a lab whose sign-in API answers 500"
+  ],
+  "input": "agent run d0c0fe7b-29aa-4f4e-90bb-4af242260605",
+  "expected": "notCovered survives a broken application",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "2",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:24:07.024Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQF-007/2026-09-28T03-17-44Z/run.json",
+      "bytes": 1336,
+      "sha256": "716fbc8cc002154b238c3b1319eee497bbbde74135c2929fec2a07fb473b7fe5"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-007/2026-09-28T03-17-44Z/decisions.json",
+      "bytes": 16524,
+      "sha256": "08338bac3eb3849d530429a95af303cc2271332c0f74b2304453f0e58c98218d"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQF-007/2026-09-28T03-17-44Z/steps.json",
+      "bytes": 14422,
+      "sha256": "b355c72a962fa8d1bd76796cc152018e9c4a48ab12ce9c3c90d913bb3941dd07"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-024",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "A budget is reported as a bound rather than a conclusion",
+  "preconditions": [
+    "a pass has run with a test budget of one"
+  ],
+  "input": "agent run d1d7465e-a2ef-419e-8e28-ed9b75adf1bd",
+  "expected": "What it left out is named as untested, not as tested and found working",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "yes — 14 endpoint(s) discovered, 1 within the run's remaining budget of 1",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:18:25.206Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "budget-decisions.json",
+      "path": "evidence/AQP-024/2026-09-28T03-17-44Z/budget-decisions.json",
+      "bytes": 7479,
+      "sha256": "d29329349c69399f73a51b3602627d8219737fd7692a905f95280459a187e1aa"
+    }
+  ]
+}

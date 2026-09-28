@@ -1,0 +1,32 @@
+{
+  "testId": "AQI-026",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "A release assessment covers the run the pass started",
+  "preconditions": [
+    "a pass has run and its tests have executed"
+  ],
+  "input": "agent run 2f39348e-451d-4df1-820a-7140e11c8a34",
+  "expected": "The release report for the build the pass named includes the pass's own run",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "build golden-mukoiwhz, 1 run(s), 10 test(s)",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:21:27.305Z",
+  "durationMs": 15,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "release.json",
+      "path": "evidence/AQI-026/2026-09-28T03-17-44Z/release.json",
+      "bytes": 40657,
+      "sha256": "caff97c42b10ba2fb808e7620517c168b80e33fddeb412ea1cc4b0d23a162281"
+    }
+  ]
+}

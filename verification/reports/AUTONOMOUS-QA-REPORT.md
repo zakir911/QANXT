@@ -2,7 +2,7 @@
 
 **AIRA's autonomous QA agent behaved as specified against its own lab in this run.**
 
-Run `AQ-FINAL2-0242` · 271 autonomous test(s) · 271 passed, 0 failed, 0 not verified
+Run `2026-09-28T03-17-44Z` · 271 autonomous test(s) · 271 passed, 0 failed, 0 not verified
 
 > **What this report is, and is not.** It describes what AIRA's autonomous agent did against
 > the golden lab in this run. It does not say that any application is defect-free, secure or
@@ -374,4 +374,4 @@ _Nothing was declared and left unexecuted in this run._
 
 ---
 
-Generated from `verification/reports/golden-results.jsonl` for run `AQ-FINAL2-0242`. Every figure is derived from a recorded execution; nothing in this report is asserted.
+Generated from `verification/reports/golden-results.jsonl` for run `2026-09-28T03-17-44Z`. Every figure is derived from a recorded execution; nothing in this report is asserted.

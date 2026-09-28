@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-035",
+  "suite": "Autonomous planning",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "The planning decision carries the evidence it rests on",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run d9c4925d-9f19-4478-9fed-8e20e2c194ff",
+  "expected": "It names the pages, endpoints and authorization it counted",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "pagesPlannable, endpointsDiscovered, journeysKnown, securityAuthorized, openSecurityFindings, criticalAreasNamedByAPerson, excludedByAPerson",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:19:38.153Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-035/2026-09-28T03-17-44Z/plan.json",
+      "bytes": 4708,
+      "sha256": "a913b4c3750df458224765652f029191f6a27eb6762b73a1369ddf6f06de6397"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-035/2026-09-28T03-17-44Z/run.json",
+      "bytes": 760,
+      "sha256": "1957fbb13428569711eb2246492680daf03bf4be1374365d95a6b7531d833ef2"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-035/2026-09-28T03-17-44Z/decisions.json",
+      "bytes": 3578,
+      "sha256": "0839d96dd58a9f58bf38060ee888596eabbd3c03425da29d3738d5cdc654c246"
+    }
+  ]
+}

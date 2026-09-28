@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-029",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "No pass claimed coverage of an area it never reached",
+  "preconditions": [
+    "passes have run against deliberately broken applications"
+  ],
+  "input": "the recorded passes",
+  "expected": "Every plan names what it does not cover",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 plans with no uncovered list",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:25:24.950Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-029/2026-09-28T03-17-44Z/decisions.json",
+      "bytes": 16524,
+      "sha256": "08338bac3eb3849d530429a95af303cc2271332c0f74b2304453f0e58c98218d"
+    }
+  ]
+}

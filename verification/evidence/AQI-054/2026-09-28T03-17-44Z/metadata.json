@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-054",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "The second pass reaches the coverage question too",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run 2f39348e-451d-4df1-820a-7140e11c8a34",
+  "expected": "A pass parked at its plan has still assessed coverage, because the plan rests on it",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "Assessed 24 capability(ies): 18 uncovered, 34 unknown.",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:21:27.378Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-054/2026-09-28T03-17-44Z/coverage-decision.json",
+      "bytes": 1390,
+      "sha256": "1dc61890167f1d00a0f1952670d5ad546ebef2e9f3dff3e83225f9e8f3360687"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-054/2026-09-28T03-17-44Z/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "0cf4d77f779170e10cd5e7df983722816be155050eaa792583ea73bcad077758"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "testId": "AQN-043",
+  "suite": "Autonomous planning",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "Approving a plan records who approved it and what they left out",
+  "preconditions": [
+    "a pass is awaiting a decision on its plan"
+  ],
+  "input": "an approval naming a subset of categories",
+  "expected": "The plan is approved, the excluded categories stay in it marked excluded, and the decision is recorded against a named person",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status approved, decidedBy agentplan-1lq9yh3qac@example.test, excluded criticalJourney,accessibility,visual, items 6 of 6",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:19:38.167Z",
+  "durationMs": 16,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "approval.json",
+      "path": "evidence/AQN-043/2026-09-28T03-17-44Z/approval.json",
+      "bytes": 4880,
+      "sha256": "de788ad3c7bf66e1b4d58662507230bbae26add91454669b01fae0b0a130dd4b"
+    },
+    {
+      "file": "plan-after.json",
+      "path": "evidence/AQN-043/2026-09-28T03-17-44Z/plan-after.json",
+      "bytes": 3320,
+      "sha256": "458499bea271f0018c6d5e77235a122fda1b63b518bc246d6100bf364e95ab7d"
+    }
+  ]
+}

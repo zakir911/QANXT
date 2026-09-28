@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-017",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-28T03-17-44Z",
+  "objective": "Decisions for a run that does not exist are refused",
+  "preconditions": [
+    "the platform is running"
+  ],
+  "input": "a deliberately wrong request",
+  "expected": "Reading them answers 404 rather than an empty list",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "404",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:25:06.668Z",
+  "durationMs": 5,
+  "build": {
+    "commit": "db45dce",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AQF-017/2026-09-28T03-17-44Z/response.json",
+      "bytes": 37,
+      "sha256": "f2a5e65ce8cc28c5fd872d29200b65ce128300553bde15c5e2d8334a80c4ab95"
+    }
+  ]
+}
