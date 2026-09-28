@@ -2,8 +2,12 @@
  * Reproduces the crawler's sign-in against the lab bank, using the worker's own browser
  * pool and authenticator, and reports what the page actually did.
  */
-import { BrowserPool } from '/home/user/AIRA/apps/browser-worker/dist/browser/browser-pool.js';
-import { performLogin } from '/home/user/AIRA/apps/browser-worker/dist/browser/authenticator.js';
+// Resolved from this file rather than from an absolute path, so the script works wherever
+// the repository is checked out. It used to hard-code one, which the QA NXT rename rewrote
+// into a directory that does not exist.
+const worker = new URL('../../apps/browser-worker/dist/browser/', import.meta.url).href;
+const { BrowserPool } = await import(`${worker}browser-pool.js`);
+const { performLogin } = await import(`${worker}authenticator.js`);
 
 const B = 'http://localhost:4300';
 const logger = { info: () => {}, warn: () => {}, error: () => {}, child: () => logger, debug: () => {} };

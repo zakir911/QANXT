@@ -1,5 +1,7 @@
 import { chromium } from 'playwright';
-const { performLogin } = await import('/home/user/AIRA/apps/browser-worker/dist/browser/authenticator.js');
+// Resolved from this file, not from an absolute path — see repro-discovery-login.mjs.
+const { performLogin } = await import(
+  new URL('../../apps/browser-worker/dist/browser/authenticator.js', import.meta.url).href);
 const B = 'http://localhost:4300';
 const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
 const context = await browser.newContext();

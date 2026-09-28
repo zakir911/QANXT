@@ -6,7 +6,7 @@
 
 ## 1. Repository inspection
 
-The repository `zakir911/AIRA` was inspected before any code was written.
+The repository `zakir911/QANXT` was inspected before any code was written.
 
 | Item | Finding |
 |---|---|
