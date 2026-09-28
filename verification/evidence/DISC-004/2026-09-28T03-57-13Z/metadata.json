@@ -1,0 +1,32 @@
+{
+  "testId": "DISC-004",
+  "suite": "Discovery",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "The sign-in page is discovered and recognised as public",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "The discovered page for /login",
+  "expected": "A page at /login exists and is not marked as requiring authentication",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "found, requiresAuthentication=false",
+  "metrics": null,
+  "startedAt": "2026-09-28T03:59:54.837Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "login-page.json",
+      "path": "evidence/DISC-004/2026-09-28T03-57-13Z/login-page.json",
+      "bytes": 602,
+      "sha256": "d974cad96035d4eda277e2c16d793b2242ebfd2e87d1c92f81d7071a28050531"
+    }
+  ]
+}

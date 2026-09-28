@@ -1,0 +1,38 @@
+{
+  "testId": "REG-010",
+  "suite": "Regression selection",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "The same change produces the same selection and the same scores",
+  "preconditions": [
+    "nothing has run between the two selections"
+  ],
+  "input": "The same selection request, twice",
+  "expected": "Identical tests, identical scores, identical component points — nothing learned, nothing tuned, nothing that drifts on its own",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "identical across both runs: 2 test(s)",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:19:17.059Z",
+  "durationMs": 24,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "first.json",
+      "path": "evidence/REG-010/2026-09-28T03-57-13Z/first.json",
+      "bytes": 6870,
+      "sha256": "6cc98c548b0f3b740cfc1c4b5ca310d00c59021dc24c2b9bd2933b35080efa70"
+    },
+    {
+      "file": "second.json",
+      "path": "evidence/REG-010/2026-09-28T03-57-13Z/second.json",
+      "bytes": 6870,
+      "sha256": "6cc98c548b0f3b740cfc1c4b5ca310d00c59021dc24c2b9bd2933b35080efa70"
+    }
+  ]
+}

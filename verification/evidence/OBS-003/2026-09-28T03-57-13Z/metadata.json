@@ -1,0 +1,34 @@
+{
+  "testId": "OBS-003",
+  "suite": "Isolation, audit and observability",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A correlation id survives from the caller through the queue to the execution the worker ran",
+  "preconditions": [
+    "the banking application is running and a worker is available"
+  ],
+  "input": "Start a run with a caller-supplied correlation id and read the execution back",
+  "expected": "The execution records a correlation id, and it is the one the caller supplied",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run passed; the execution carries correlation \"golden-run-i7o3q1msz2\" (supplied \"golden-run-i7o3q1msz2\")",
+  "metrics": {
+    "matched": 1
+  },
+  "startedAt": "2026-09-28T04:24:58.675Z",
+  "durationMs": 2054,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "execution-correlation.json",
+      "path": "evidence/OBS-003/2026-09-28T03-57-13Z/execution-correlation.json",
+      "bytes": 227,
+      "sha256": "a29716471963e95e4a02c50eafba7e60835541476d6a246c61180f9295998d0e"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "SECW-002",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A scan cannot be started against an application discovery has not walked",
+  "preconditions": [
+    "an authorized application, nothing discovered"
+  ],
+  "input": "POST /api/v1/security/scans/start",
+  "expected": "400 naming discovery. A scan with no targets issues no requests and would still be stored as a scan, and a stored scan with no findings is read as a clean result",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "400: Nothing has been discovered for this application, so there is nowhere to point a security check. Run discovery first. A scan with no targets would issue no requests and still be recorded as a scan, which reads as a clean result.",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:25:39.014Z",
+  "durationMs": 10,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECW-002/2026-09-28T03-57-13Z/response.json",
+      "bytes": 405,
+      "sha256": "aae3760580cc8faa8dc895a5420da6c0dd61b4dfa54908d5bddfe11f48f7272e"
+    }
+  ]
+}

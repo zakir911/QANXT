@@ -43,8 +43,24 @@ const settle = async () => {
   await page.waitForTimeout(600);
 };
 
-const shot = async (name, note) => {
+/**
+ * Photographs a page, optionally after proving it shows what the caption claims.
+ *
+ * Without `expect` this waits and shoots, which is fine for a page whose caption only names
+ * where it is. It is not fine for a caption that asserts content: "the Verification Center,
+ * reading the last golden run" is false of a Verification Center that has no run to read, and
+ * a screenshot cannot be argued with afterwards. A missing expectation is a hard failure
+ * rather than a warning, because a guide illustrated with the wrong picture is worse than one
+ * with no pictures.
+ */
+const shot = async (name, note, expect) => {
   await settle();
+  if (expect) {
+    await expect.first().waitFor({ state: 'visible', timeout: 30_000 }).catch(() => {
+      throw new Error(`${name}: the page never showed what the caption claims (${note})`);
+    });
+    await page.waitForTimeout(300);
+  }
   await page.screenshot({ path: `${OUT}${name}.png` });
   shots.push({ name, note, url: page.url() });
   console.log(`  ${name}.png — ${note}`);
@@ -86,16 +102,21 @@ try {
   await shot('03-dashboard-empty', 'the dashboard immediately after installing');
 
   // 4. Each page the guide points at.
-  for (const [label, name, note] of [
-    ['Projects', '04-projects', 'where the first project is created'],
-    ['Applications', '05-applications', 'where the application under test is registered'],
-    ['Discovery', '06-discovery', 'the crawl that builds the application model'],
-    ['Verification', '07-verification-centre', 'the Verification Center, reading the last golden run']
+  for (const [label, name, note, expect] of [
+    ['Projects', '04-projects', 'where the first project is created', null],
+    ['Applications', '05-applications', 'where the application under test is registered', null],
+    // A fresh install has no crawl, so this is the empty state and the caption says so.
+    ['Discovery', '06-discovery', 'the discovery page before the first crawl', null],
+    // The only caption here that asserts content rather than location, so the only one that
+    // needs proving. A golden result is a count of tests against a total; an empty Verification
+    // Center shows neither.
+    ['Verification', '07-verification-centre', 'the Verification Center, reading the last golden run',
+      () => page.getByText(/\d+ of \d+ golden tests? passed/).first()]
   ]) {
     const link = page.getByRole('link', { name: label });
     if (await link.count()) {
       await link.first().click();
-      await shot(name, note);
+      await shot(name, note, expect ? expect() : undefined);
     } else {
       console.log(`  (no "${label}" link — skipped)`);
     }

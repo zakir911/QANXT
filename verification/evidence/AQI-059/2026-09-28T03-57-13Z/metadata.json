@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-059",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A duplicate is reported and never deleted",
+  "preconditions": [
+    "a pass has run end to end over an application"
+  ],
+  "input": "agent run c6c99cb7-176a-4947-809a-d74b9afafb86",
+  "expected": "The decision states that no test was deleted or changed",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "none — the agent has no authority to delete or change a test",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:37:27.462Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQI-059/2026-09-28T03-57-13Z/decisions.json",
+      "bytes": 18445,
+      "sha256": "508d5779accbbf3e5e09c0968f84cca45856a7e25b803ab0e2ff19683bcfd950"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/AQI-059/2026-09-28T03-57-13Z/findings.json",
+      "bytes": 23958,
+      "sha256": "565728d558dc95573a3a550b08674118ad9035b2c6cf1da7b50a295c43502fc8"
+    }
+  ]
+}

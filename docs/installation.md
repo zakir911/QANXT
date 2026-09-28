@@ -415,7 +415,7 @@ encrypted before they are stored and never come back out of the API.
 **Discovery → run it** against the application. It crawls within the bounds you set and
 builds the model everything else works from.
 
-![The discovery page, which crawls the application and builds its model](images/06-discovery.png)
+![The discovery page before the first crawl, with the button that starts one](images/06-discovery.png)
 
 From there: **Test cases → Generate** writes tests from the model, and **Test runs → New
 run** executes them in a real browser and keeps the screenshots, video, trace and network
@@ -462,20 +462,35 @@ browser extension, the console and the shared types. All of them should pass.
 This is the serious one and takes about 25 minutes. It starts the infrastructure, builds and
 starts six purpose-built applications, audits their ground truth, runs the product's own
 tests, runs all **34 golden suites** against them, then writes the reports and the
-certification. It exits 0 only if every quality gate passes. The test count is whatever those
-suites contain on the day; the report it writes states it, so this page does not have to.
+certification. It exits 0 only if every quality gate passes.
+
+On the machine this guide was written on, that is **761 of 771 golden tests passed, 0 failed,
+10 not verified**, every quality gate green, and a certification answering YES to all ten of
+its questions. The suites grow, so treat the count as the shape of the answer rather than a
+number to match; the report it writes states the day's.
 
 The console shows the result at **Verification**:
 
-![The Verification Center showing the golden result and every quality gate green](images/07-verification-centre.png)
+![The Verification Center: 761 of 771 golden tests passed, 10 not verified, every quality gate green](images/07-verification-centre.png)
 
-The numbers in that screenshot are the ones the run behind it produced. Yours will differ as
-the suites grow; what should match is that no quality gate is red.
+Yours will differ as the suites grow. What should match is that no quality gate is red, and
+that whatever could not run is counted as **not verified** rather than folded into the pass
+total.
 
-Four tests read **not verified** rather than passed on most machines — Firefox and WebKit
-where those browsers are not installed, generation quality where no model provider is
-configured, and one reconciliation test that waits longer than the suite is willing to. That
-is the intended behaviour: a test that could not run is never counted as one that passed.
+Ten tests read **not verified** rather than passed on a machine like this one, and each says
+why in its own words:
+
+| | Why it could not run |
+| --- | --- |
+| `EXEC-015`, `EXEC-016` | Firefox and WebKit are not installed here and could not be downloaded. |
+| `GEN-016` | No model provider is configured, so generation quality cannot be judged. |
+| `REL-007` | This deployment reconciles stranded executions after ten minutes — longer than the suite is willing to wait. |
+| `SECN-001`, `SECW-N001` | Production security testing is off by default and there is no production environment to point at. |
+| `SECN-002`, `SECN-003`, `SECW-N002`, `SECW-N003` | Covered elsewhere, or not measurable here — each names what covers it instead. |
+
+That is the intended behaviour, and it is the whole point of the distinction: **a test that
+could not run is never counted as one that passed.** A suite that reported these ten as passes
+would be claiming things about browsers it never opened.
 
 ### 4. One area at a time
 
@@ -638,7 +653,7 @@ something nobody checked, it links to each vendor's own instructions.
 | Path B, end to end, including `make setup`, `make dev`, `make test` and `./scripts/verify-product` | **Linux** (Ubuntu 24.04, x86-64) |
 | The first-run path in §6 — organization, project, application, discovery | Linux, in a real Chromium |
 | `make test` — 885 unit, 57 integration, 262 Node tests | Linux |
-| `./scripts/verify-product` — every golden suite, exit 0 | Linux |
+| `./scripts/verify-product` — 761 of 771 golden tests, 10 not verified, every gate green, CERTIFIED | Linux |
 | `./scripts/verify-autonomous-qa` — 271 golden tests, 30 of 30 requirements, exit 0 | Linux |
 | `./scripts/verify-security` and `./scripts/verify-continuous-quality` | Linux |
 

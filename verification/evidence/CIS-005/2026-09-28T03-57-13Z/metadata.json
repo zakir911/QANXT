@@ -1,0 +1,37 @@
+{
+  "testId": "CIS-005",
+  "suite": "CI simulation",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A rejected token is an authentication error and never a security policy violation",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"bad-credentials\"",
+  "expected": "Exit 4, and no mention of a security policy — a routine credential rotation must not be routed to a security review",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "exit 4; bad credentials",
+  "metrics": {
+    "airaExit": 4,
+    "pipelineExit": 4
+  },
+  "startedAt": "2026-09-28T04:19:47.670Z",
+  "durationMs": 174,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-005/2026-09-28T03-57-13Z/pipeline.log",
+      "bytes": 707,
+      "sha256": "fe9e464f6da74708ee516ae6fe7bece8a91c7616636ffc40aeb5ff73850e08d9"
+    }
+  ]
+}

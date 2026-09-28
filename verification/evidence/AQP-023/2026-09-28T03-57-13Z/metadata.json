@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-023",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A test budget shapes the work and is never exceeded",
+  "preconditions": [
+    "a pass has run with a test budget of one"
+  ],
+  "input": "agent run cbfc4fc2-4d8f-4a12-b042-37fd6ee482be",
+  "expected": "The pass either trims to the budget and says what it left out, or refuses and names the budget",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 generated of a budget of 1; trimmed to fit",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:30:52.103Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "budget-decisions.json",
+      "path": "evidence/AQP-023/2026-09-28T03-57-13Z/budget-decisions.json",
+      "bytes": 7479,
+      "sha256": "4e855be5097dd01c107a5263404e1c94330528dde08e5dd88d82c06b69e0302f"
+    }
+  ]
+}

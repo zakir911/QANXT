@@ -1,0 +1,37 @@
+{
+  "testId": "HEAL-N08",
+  "suite": "Self-healing",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "Healing is refused: a link with the same words leads somewhere else",
+  "preconditions": [
+    "FAULT_CONTROL_IS_LINK_ELSEWHERE is enabled",
+    "the project is on healingPolicy=auto — the permissive setting"
+  ],
+  "input": "The same unedited sign-in test",
+  "expected": "The run FAILS, no heal is applied, and the browser never reaches /welcome",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 63%",
+  "metrics": {
+    "applied": 0,
+    "candidates": 1,
+    "reachedWelcome": false
+  },
+  "startedAt": "2026-09-28T04:15:53.224Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "HEAL-N08.json",
+      "path": "evidence/HEAL-N08/2026-09-28T03-57-13Z/HEAL-N08.json",
+      "bytes": 4774,
+      "sha256": "65512986eb18b5d5587e607f508afad41dc42a260e6f6329178f5dbc93f7d032"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "testId": "REL-002",
+  "suite": "Reliability",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "An unstable application produces unstable results, and they are recorded",
+  "preconditions": [
+    "the flaky case answers after 100ms, 800ms, 2.5s or 6s at random",
+    "the project's action timeout is two seconds, so two of those four delays are too slow"
+  ],
+  "input": "The same test executed twenty times with no retries",
+  "expected": "Both verdicts occur, and the application's own record of the delays explains them",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "6 passed, 14 failed across 20 runs; delays the application served: 100ms, 800ms, 2500ms, 6000ms",
+  "metrics": {
+    "runs": 20,
+    "passed": 6,
+    "failed": 14,
+    "flakinessRate": 0.7
+  },
+  "startedAt": "2026-09-28T04:26:28.074Z",
+  "durationMs": 69134,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "flakiness.json",
+      "path": "evidence/REL-002/2026-09-28T03-57-13Z/flakiness.json",
+      "bytes": 4861,
+      "sha256": "553d3ead0e317616aadfd54ead24822908a7b5977f114be44ac5a89d4b1608bd"
+    }
+  ]
+}

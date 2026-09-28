@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-027",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "Only one pass at a time runs against an application",
+  "preconditions": [
+    "a pass is already in flight"
+  ],
+  "input": "a second start request for the same application",
+  "expected": "The second is refused rather than racing the first",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "first 202, second 409",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:35:41.090Z",
+  "durationMs": 22,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "second-start.json",
+      "path": "evidence/AQF-027/2026-09-28T03-57-13Z/second-start.json",
+      "bytes": 198,
+      "sha256": "00a79128e2003d50c2c178a393de338899688356b438e1e17106630c84dc9bd3"
+    }
+  ]
+}

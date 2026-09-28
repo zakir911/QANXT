@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-028",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "The ssrf finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-918, OWASP A10:2021, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-918, A10:2021, High (15/19) — High (15/19): straightforward to exploit, serious impact, no account needed, reaches credentials, publicly reachable.",
+  "metrics": {
+    "score": 15,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-28T04:25:34.826Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-028/2026-09-28T03-57-13Z/mapping.json",
+      "bytes": 1025,
+      "sha256": "7fa9bda0588ee4a0bc1689e74292170c6295c89e11b319b93ddb1407905adf96"
+    }
+  ]
+}

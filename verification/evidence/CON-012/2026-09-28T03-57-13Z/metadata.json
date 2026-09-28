@@ -1,0 +1,32 @@
+{
+  "testId": "CON-012",
+  "suite": "API contracts",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A generated unauthenticated-refusal test fails if the endpoint stops requiring credentials",
+  "preconditions": [
+    "a generated security test exists"
+  ],
+  "input": "An API test asserting a refusal, run against an endpoint that answers anyway",
+  "expected": "A failure — this is the check that catches authorization being removed, which every signed-in test carries on passing through",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run failed; \"The endpoint refuses a caller with no credentials: Expected a status in \"401,403\" but the response was 200 OK.\"",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:17:42.082Z",
+  "durationMs": 2062,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "execution.json",
+      "path": "evidence/CON-012/2026-09-28T03-57-13Z/execution.json",
+      "bytes": 4242,
+      "sha256": "74badf865711b45afd66cd36ab1e7cdc57db18454c679df6ab2def84653a49d1"
+    }
+  ]
+}

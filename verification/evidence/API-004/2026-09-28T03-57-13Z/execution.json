@@ -1,0 +1,79 @@
+{
+  "id": "b3529392-1c57-4052-b45c-1c5b9a5bbf9a",
+  "testRunId": "492b54c7-7acb-4fdd-90c5-ba6cca3d5cfc",
+  "testCaseId": "6bc0634b-5f77-488d-a182-2d3346d7f10c",
+  "reference": "TC-0003",
+  "name": "The accounts endpoint refuses an unauthenticated caller",
+  "objective": "",
+  "expectedResults": "",
+  "status": "passed",
+  "startedAt": "2026-09-28T04:16:47.919739+00:00",
+  "completedAt": "2026-09-28T04:16:47.945+00:00",
+  "durationMs": 21,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-29925",
+  "correlationId": "7522aec825074b63ac4c27b9f388bf83",
+  "stepsTotal": 1,
+  "stepsPassed": 1,
+  "stepsFailed": 0,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 1,
+  "actions": [
+    {
+      "id": "596aff64-1dce-4610-b7c6-01dca1222cd9",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "Read the accounts with no credentials at all — 401 in 1ms",
+      "status": "passed",
+      "startedAt": "2026-09-28T04:16:47.928+00:00",
+      "durationMs": 4,
+      "url": "http://localhost:4300/api/accounts",
+      "wasHealed": false
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "187c7497-6a37-4870-a9cd-ec6094953a62",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 573,
+      "isMasked": true,
+      "testActionId": "596aff64-1dce-4610-b7c6-01dca1222cd9"
+    },
+    {
+      "id": "31781c17-73ed-4139-b8c9-d2931d78fecf",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 715,
+      "isMasked": true
+    },
+    {
+      "id": "a78e69df-bea4-4a29-b990-69f425fea8aa",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 1004,
+      "isMasked": false
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "f734096a-166c-4dd6-adeb-a405e63ed389",
+      "method": "GET",
+      "url": "http://localhost:4300/api/accounts",
+      "statusCode": 401,
+      "durationMs": 1,
+      "isFailed": true,
+      "resourceType": "apiTest",
+      "testActionId": "596aff64-1dce-4610-b7c6-01dca1222cd9",
+      "actionOrder": 1
+    }
+  ],
+  "healingEvents": []
+}

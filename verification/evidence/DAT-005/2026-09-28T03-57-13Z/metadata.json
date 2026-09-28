@@ -1,0 +1,38 @@
+{
+  "testId": "DAT-005",
+  "suite": "Test data",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "Neither a read nor a preview ever returns a sensitive value",
+  "preconditions": [
+    "a data set with a secret reference and a field marked sensitive"
+  ],
+  "input": "GET the data set, and GET its preview",
+  "expected": "The reference is shown by name; the sensitive value is masked. A preview that prints a password is a password in somebody's shell history",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "neither the read nor the preview returned the sensitive value",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:23:26.718Z",
+  "durationMs": 45,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "read.json",
+      "path": "evidence/DAT-005/2026-09-28T03-57-13Z/read.json",
+      "bytes": 593,
+      "sha256": "73fd45e46a2e35d40eb803fcab0eaf73194b557826c3f6cb7738d2e05de4e104"
+    },
+    {
+      "file": "preview.json",
+      "path": "evidence/DAT-005/2026-09-28T03-57-13Z/preview.json",
+      "bytes": 241,
+      "sha256": "a8dd8d120692746171b387df035d9de988b12ad6d1bea8ad7970b2bca66b49ff"
+    }
+  ]
+}

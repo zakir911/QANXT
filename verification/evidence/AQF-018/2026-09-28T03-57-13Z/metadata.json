@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-018",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A timeline for a run that does not exist is refused",
+  "preconditions": [
+    "the platform is running"
+  ],
+  "input": "a deliberately wrong request",
+  "expected": "An empty timeline would read as a pass that recorded nothing",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "404",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:35:22.836Z",
+  "durationMs": 5,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AQF-018/2026-09-28T03-57-13Z/response.json",
+      "bytes": 37,
+      "sha256": "f2a5e65ce8cc28c5fd872d29200b65ce128300553bde15c5e2d8334a80c4ab95"
+    }
+  ]
+}

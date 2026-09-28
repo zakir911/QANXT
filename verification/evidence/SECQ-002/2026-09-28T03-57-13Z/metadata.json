@@ -1,0 +1,40 @@
+{
+  "testId": "SECQ-002",
+  "suite": "Security gate, regression and triage",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "Two real findings from a real scan block the build",
+  "preconditions": [
+    "the access-control lab with BOLA and vertical escalation switched on"
+  ],
+  "input": "A live scan, its findings passed to the gate under the default policy",
+  "expected": "FAIL, naming the two categories — and the findings are the ones the scan actually produced, not a fixture",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "FAIL; 2 finding(s) [BOLA, BrokenFunctionLevelAuthorization]; Only 2 of 5 configured check(s) executed. A result from a partial scan describes the part that ran and nothing else.",
+  "metrics": {
+    "findings": 2
+  },
+  "startedAt": "2026-09-28T04:25:35.025Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-002/2026-09-28T03-57-13Z/gate.json",
+      "bytes": 2237,
+      "sha256": "913f7e952a66529dbc3caaaa5291931c7970a0faaedc884e573fab1bb99d8f01"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/SECQ-002/2026-09-28T03-57-13Z/findings.json",
+      "bytes": 784,
+      "sha256": "8d8b77ab715caa9b6bbf83eec96cee6cd5f7eecec43c2edc17357ec98d6f9067"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-018",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A scan that covered materially less than the one before it is flagged as not comparable",
+  "preconditions": [
+    "the application with several scans"
+  ],
+  "input": "A scan executing one of five checks, then the trend",
+  "expected": "That point reports comparableToPrevious false with the reason. A drop in findings after a narrowed scan is not an improvement, and a trend line that slopes down anyway is the most dangerous chart a security tool can produce",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "This scan executed 1 check(s) against the previous scan's 5. A drop in findings cannot be read as an improvement.",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:25:38.755Z",
+  "durationMs": 30,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "trend.json",
+      "path": "evidence/SECPL-018/2026-09-28T03-57-13Z/trend.json",
+      "bytes": 3567,
+      "sha256": "ae99ddfb83a71c9a03190cffd648e894cab961ecbb8ba099950bdbeb5c82a8ec"
+    }
+  ]
+}

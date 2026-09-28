@@ -1,0 +1,12 @@
+{
+  "case": "cloud metadata, despite an allowlist that names it",
+  "why": "Never a legitimate target, whatever the scope says. A scope cannot opt in to this.",
+  "decision": {
+    "allowed": false,
+    "reason": "domainNotAllowed",
+    "explanation": "'169.254.169.254' is never a legitimate target, whatever the scope allows.",
+    "checksPassed": [
+      "authorization"
+    ]
+  }
+}

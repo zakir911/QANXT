@@ -1,0 +1,32 @@
+{
+  "testId": "REG-012",
+  "suite": "Regression selection",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A selection that would contain no tests is refused rather than returned empty",
+  "preconditions": [
+    "a tag filter that matches nothing"
+  ],
+  "input": "A selection restricted to a tag no test carries",
+  "expected": "A refusal saying a run with nothing in it would report success without testing anything",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 400: No enabled tests matched this selection. A regression run with nothing in it would report success without testing anything.",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:19:17.092Z",
+  "durationMs": 12,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/REG-012/2026-09-28T03-57-13Z/refusal.json",
+      "bytes": 243,
+      "sha256": "7344a44e77008cf009e74fb0040810142d03fb19180270bdca144f88b27dbbd1"
+    }
+  ]
+}

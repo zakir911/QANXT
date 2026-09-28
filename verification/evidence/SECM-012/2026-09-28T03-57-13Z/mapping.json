@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_NO_INPUT_VALIDATION",
+    "type": "MissingInputValidation",
+    "endpoint": "POST /api/notes",
+    "severity": "medium",
+    "cwe": "CWE-20",
+    "owaspApi": "API8:2023",
+    "detectBy": "A non-string, an empty value and an oversized value are all accepted."
+  },
+  "got": {
+    "cwe": "CWE-20",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A04:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "limited",
+      "privilegeRequired": "authenticatedUser",
+      "affectedData": "nonSensitive",
+      "exposure": "authenticatedUsers",
+      "requiresUnusualConditions": false,
+      "score": 11,
+      "maxScore": 19,
+      "severity": "Medium",
+      "explanation": "Medium (11/19): trivial to exploit, limited impact, any signed-in user, reaches non-sensitive data, reachable by signed-in users."
+    }
+  }
+}

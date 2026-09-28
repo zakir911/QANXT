@@ -1,0 +1,72 @@
+[
+  {
+    "case": "http-400",
+    "status": "failed",
+    "isLikelyApplicationDefect": true,
+    "isHealable": false,
+    "summary": "The step before this one made an API call that was rejected with 400."
+  },
+  {
+    "case": "http-401",
+    "status": "failed",
+    "isLikelyApplicationDefect": false,
+    "isHealable": false,
+    "summary": "The step before this one made an API call that was refused with 401."
+  },
+  {
+    "case": "http-403",
+    "status": "failed",
+    "isLikelyApplicationDefect": false,
+    "isHealable": false,
+    "summary": "The step before this one made an API call that was refused with 403."
+  },
+  {
+    "case": "http-404",
+    "status": "failed",
+    "isLikelyApplicationDefect": true,
+    "isHealable": false,
+    "summary": "The step before this one made an API call that was rejected with 404."
+  },
+  {
+    "case": "http-500",
+    "status": "failed",
+    "isLikelyApplicationDefect": true,
+    "isHealable": false,
+    "summary": "The step failed because the API call it made returned 500."
+  },
+  {
+    "case": "timeout",
+    "status": "failed",
+    "isLikelyApplicationDefect": true,
+    "isHealable": false,
+    "summary": "An assertion failed on outcome reads \"OK 42\"."
+  },
+  {
+    "case": "connection-reset",
+    "status": "failed",
+    "isLikelyApplicationDefect": false,
+    "isHealable": false,
+    "summary": "The step before this one made an API call that never completed."
+  },
+  {
+    "case": "js-error",
+    "status": "failed",
+    "isLikelyApplicationDefect": true,
+    "isHealable": false,
+    "summary": "An assertion failed on outcome reads \"OK 42\"."
+  },
+  {
+    "case": "wrong-value",
+    "status": "failed",
+    "isLikelyApplicationDefect": true,
+    "isHealable": false,
+    "summary": "An assertion failed on outcome reads \"OK 42\"."
+  },
+  {
+    "case": "missing-element",
+    "status": "failed",
+    "isLikelyApplicationDefect": false,
+    "isHealable": true,
+    "summary": "The element this step targets has changed."
+  }
+]

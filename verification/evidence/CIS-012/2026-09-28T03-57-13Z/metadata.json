@@ -1,0 +1,37 @@
+{
+  "testId": "CIS-012",
+  "suite": "CI simulation",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A failure inside AIRA is reported as a defect in AIRA, not as a finding about the application",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"aira-internal-error\"",
+  "expected": "Exit 8 and a message that says so. INJECTED: the CLI is pointed at a local responder answering 500. This verifies the classification and the pipeline branch; it does NOT verify that AIRA returns 500 under any condition",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "exit 8; AIRA failed internally",
+  "metrics": {
+    "airaExit": 8,
+    "pipelineExit": 8
+  },
+  "startedAt": "2026-09-28T04:20:02.379Z",
+  "durationMs": 276,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-012/2026-09-28T03-57-13Z/pipeline.log",
+      "bytes": 809,
+      "sha256": "eb68e96228c66f73a89b1f5a9ac7e1540e4e892aef2befc2d387a559fee8bf6d"
+    }
+  ]
+}

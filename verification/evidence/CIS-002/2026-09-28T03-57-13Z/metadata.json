@@ -1,0 +1,43 @@
+{
+  "testId": "CIS-002",
+  "suite": "CI simulation",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A defect in the deployment fails the pipeline, and the evidence is still published",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"regression-failure\"",
+  "expected": "Exit 1, the failing test named in the summary, the passing test still reported as passing, and the artifacts uploaded despite the failure",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "exit 1; 1 passed, 1 failed; artifacts published: ok",
+  "metrics": {
+    "airaExit": 1,
+    "pipelineExit": 1
+  },
+  "startedAt": "2026-09-28T04:19:40.912Z",
+  "durationMs": 3304,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-002/2026-09-28T03-57-13Z/pipeline.log",
+      "bytes": 1341,
+      "sha256": "db4f5a4c7dc1245354ce798a499e0129b81ad9145f3d3030cb946299f32ff258"
+    },
+    {
+      "file": "summary.md",
+      "path": "evidence/CIS-002/2026-09-28T03-57-13Z/summary.md",
+      "bytes": 631,
+      "sha256": "a7e485758b6e1cb7f33a77b164a4239bbfa138e0fd553f8ba17475f7d5312d4a"
+    }
+  ]
+}

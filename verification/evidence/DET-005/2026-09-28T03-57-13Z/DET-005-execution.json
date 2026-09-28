@@ -1,0 +1,42 @@
+{
+  "id": "DET-005",
+  "case": "http-404",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "714768c4-32e8-495b-9291-b4af5a9f5815",
+    "category": "applicationDefect",
+    "categoryConfidence": 80,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15006ms).",
+    "signature": "b9dd0c8826052784601a4359ad7e54920cfe8ac149610ced56f2e11307f72e51",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T04:06:15.71661+00:00",
+    "lastSeenAt": "2026-09-28T04:06:15.71661+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was rejected with 404.",
+      "likelyCause": "GET /api/answer → 404 in 0ms — either the request the application sent was wrong, or the data the test used is not acceptable to this endpoint.",
+      "evidence": "GET /api/answer → 404 in 0ms, made by step 3. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15006ms).",
+      "suggestedAction": "Read the request in the network evidence before looking at the failing step.",
+      "category": "applicationDefect",
+      "confidence": 80,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"15230919-c3ae-4e48-9b04-8ecff220342d\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"1a00f384-7333-47fd-8795-063da70c4b7f\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"30c9111b-357f-4203-a4ea-4ef0ce159df3\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"410df958-6ba2-4cda-b190-914931fcc228\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"84ce0722-801f-41fc-b96c-a9cd5d318fbf\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"865f248e-fac1-4dea-a482-f0099968e9e4\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"8c2b444a-354c-4d4d-8ae7-384bd70b2c59\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"d64a47f1-acfa-4a47-b042-dda2bc23e579\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}], \"executionId\": \"f97577b6-abf3-43ea-ba95-657acb566809\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15006ms)."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

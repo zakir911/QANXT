@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-037",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "Model spend is reported even when it is nothing",
+  "preconditions": [
+    "passes have run against the lab"
+  ],
+  "input": "every decision recorded by the passes in this suite",
+  "expected": "Every decision carries a cost figure rather than leaving it null",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "0 without a cost",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:31:16.412Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-037/2026-09-28T03-57-13Z/decisions.json",
+      "bytes": 7483,
+      "sha256": "1343a89076f94d1c8d37387d3d43fc567675a2c08154665236fbfe1a61da0565"
+    }
+  ]
+}

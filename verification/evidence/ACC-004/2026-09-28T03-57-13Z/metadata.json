@@ -1,0 +1,38 @@
+{
+  "testId": "ACC-004",
+  "suite": "Accessibility",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A failing check names the rule, the element and where to read about it",
+  "preconditions": [
+    "two faults producing critical violations"
+  ],
+  "input": "A strict scan of a page with a missing label and an unnamed button",
+  "expected": "The message carries both rule ids, a CSS selector for each, and the Deque help URL — somebody has to be able to fix this without opening the platform",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "2 violation(s); message 361B, names rules: true, carries help URL: true",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:24:05.900Z",
+  "durationMs": 2066,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "message.txt",
+      "path": "evidence/ACC-004/2026-09-28T03-57-13Z/message.txt",
+      "bytes": 365,
+      "sha256": "efe7a47ec0afe167a9e3d43c071c98c91a96cc2bf2397343fa373c9a22a863cc"
+    },
+    {
+      "file": "scan.json",
+      "path": "evidence/ACC-004/2026-09-28T03-57-13Z/scan.json",
+      "bytes": 2744,
+      "sha256": "60e962a1d259a8ea327c02428e687e3d09b6105c7a308b8ae443eabba58b1003"
+    }
+  ]
+}

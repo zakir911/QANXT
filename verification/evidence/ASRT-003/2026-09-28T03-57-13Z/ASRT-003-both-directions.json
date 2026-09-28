@@ -1,0 +1,57 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "f627e414-db6c-4fc7-848c-e574050d784d",
+      "order": 5,
+      "action": "assertUrl",
+      "description": "The address contains \"/dashboard\"",
+      "status": "passed",
+      "startedAt": "2026-09-28T04:02:50.353+00:00",
+      "durationMs": 39,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "5dd3a4b8-9566-4bfe-822f-91fc3773f5c0",
+      "order": 5,
+      "action": "assertUrl",
+      "description": "The address contains \"/nowhere-at-all\"",
+      "status": "failed",
+      "startedAt": "2026-09-28T04:02:52.434+00:00",
+      "durationMs": 15010,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false,
+      "errorMessage": "Expected the URL to contain \"/nowhere-at-all\" but it was \"http://localhost:4300/dashboard\"."
+    },
+    "failure": {
+      "id": "a2a7a192-67a2-4fa3-87cb-6908d3b33e34",
+      "category": "applicationDefect",
+      "categoryConfidence": 80,
+      "rawMessage": "Expected the URL to contain \"/nowhere-at-all\" but it was \"http://localhost:4300/dashboard\".",
+      "signature": "533306f7ad610eb459cfa773f1c04d0cb13d7482f3277faa4d0cfcae9912b2e0",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-28T04:03:10.353258+00:00",
+      "lastSeenAt": "2026-09-28T04:03:10.353258+00:00",
+      "analysis": {
+        "summary": "The API answered correctly and the page showed something else.",
+        "likelyCause": "Every API call the failing step made succeeded (POST /api/session → 200 in 0ms; GET /api/dashboard → 200 in 0ms), so the data was right and what was rendered from it was not. The defect is in the front end rather than the service.",
+        "evidence": "2 API call(s) during the failing step, all successful. Engine message: Expected the URL to contain \"/nowhere-at-all\" but it was \"http://localhost:4300/dashboard\".",
+        "suggestedAction": "Compare the response body in the network evidence with what the failure screenshot shows. Start with the rendering, not the endpoint.",
+        "category": "applicationDefect",
+        "confidence": 80,
+        "isLikelyApplicationDefect": true,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2cda2064-8476-4e3f-9c44-88a7ce611f8b\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"30f8391a-6384-46cf-b510-1f945dcc3d46\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"4386b9cd-3c2d-48d5-8041-f4695ae65c6c\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"685d1b29-5797-413d-b3d3-5a1de87d5975\", \"kind\": \"Screenshot\", \"name\": \"step-5-failure.png\"}, {\"id\": \"b7e59967-ca29-423c-8b64-375f968c20ac\", \"kind\": \"AccessibilityTree\", \"name\": \"step-5-failure.a11y.json\"}, {\"id\": \"ba53a1cb-6ce0-4119-aee9-94d05010b455\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"bbd4d072-2fbf-4107-8ebc-1d74d38663c9\", \"kind\": \"DomSnapshot\", \"name\": \"step-5-failure.html\"}, {\"id\": \"ce2d5a55-909b-44c4-bfa5-1705de835532\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"2e0b44c7-4422-44fc-96ff-b411e8e09c67\"}"
+      }
+    }
+  }
+}

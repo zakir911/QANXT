@@ -1,0 +1,34 @@
+{
+  "case": "http-403",
+  "lab": "authorizationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "a5a35406-ed6f-41d7-bf78-269c9984eb5a",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15059ms).",
+    "signature": "63a1edf0fdd599ffb8cf3ce6d8e9512c4041606922e610a95aa105ffa6ede287",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T04:09:05.32603+00:00",
+    "lastSeenAt": "2026-09-28T04:09:05.32603+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was refused with 403.",
+      "likelyCause": "GET /api/answer → 403 in 0ms — the session was not accepted, so the page had nothing to render.",
+      "evidence": "GET /api/answer → 403 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15059ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1b531f4e-ad2b-4263-9e5e-be22dedaaa8d\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"5181ba93-b053-47db-bfcd-ee6980f45614\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"5d7334a7-f838-44eb-bb1a-1d423d7fc847\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"76305a65-8231-49b2-a789-9621b112e930\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"b2cc4afa-fbbb-49b4-904a-e3f738d35627\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"b4bf722c-f3a3-45ad-adf7-585efe1b4cd5\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"c6979233-eb94-4a36-902c-b17f9805cad4\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"d368b51e-d51a-4c78-b463-cb323d25a885\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"2d8f80be-6fe4-43be-be30-84458bf9fb63\"}"
+    }
+  }
+}

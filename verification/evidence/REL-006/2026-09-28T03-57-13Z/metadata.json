@@ -1,0 +1,32 @@
+{
+  "testId": "REL-006",
+  "suite": "Reliability",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "When the configured model provider cannot be reached, nothing is fabricated",
+  "preconditions": [
+    "a project configured to use a hosted provider for which no key exists"
+  ],
+  "input": "A failing test in that project",
+  "expected": "The run still fails, an analysis is still produced by the deterministic rules, and no result is invented",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run failed; analysis present, produced by local (deterministic rules)",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:28:05.626Z",
+  "durationMs": 18172,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "ai-unavailable.json",
+      "path": "evidence/REL-006/2026-09-28T03-57-13Z/ai-unavailable.json",
+      "bytes": 2375,
+      "sha256": "841534db5aa29267bada21b9ffb5103d83e3bd2ba8f0e908be6bd3abf72e4b81"
+    }
+  ]
+}

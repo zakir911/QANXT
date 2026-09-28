@@ -1,0 +1,29 @@
+{
+  "status": "failed",
+  "failure": {
+    "id": "c99523a7-3222-4379-b070-f5762a95cab2",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15024ms).",
+    "signature": "3fdc1b59eed3dfc9ce61386202db9d2a07b6f9f61a1c4942bb831e756821f0ac",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T04:28:23.175878+00:00",
+    "lastSeenAt": "2026-09-28T04:28:23.175878+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that returned 500.",
+      "likelyCause": "GET /api/answer → 500 in 0ms — the page had nothing to render, so the step that followed found nothing. The fault is in the application or a service it depends on, not in the test.",
+      "evidence": "GET /api/answer → 500 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15024ms).",
+      "suggestedAction": "Take this request to the team that owns the endpoint. The failing assertion is the symptom; this call is the cause.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0597185f-1938-4bf0-a956-ea1ad31db3b1\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"6ceaff09-c089-4119-94f3-df757fd70b75\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"793b6309-4c1a-47f6-973e-822751cfddcf\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"7e9b62a7-54ab-40dc-957b-b356accea73c\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"8e968df6-0e06-4b23-a1bf-67df63271ce4\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"b1963315-942e-40f5-8333-bb13ed4ac8c6\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"d14d0571-ab8b-4269-b516-788c60e5e85a\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"ff6130b2-fd2e-4251-84a2-ce54826471ae\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"50729112-9949-4fc6-8b6c-0ccc1b852a8b\"}"
+    }
+  }
+}

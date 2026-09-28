@@ -1,0 +1,38 @@
+{
+  "testId": "AQE-047",
+  "suite": "Autonomous execution",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A refused pass says what it therefore does not know",
+  "preconditions": [
+    "a pass has been refused permission for the action it asked about"
+  ],
+  "input": "agent run 915da62f-fe36-4b8d-ac10-794ee5784f2e",
+  "expected": "The stop reason names what was not established",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "security.scan was refused by agentrefused-kllw9fi7w8@example.test: Refused by the golden suite to exercise the refusal path.. The pass stopped without performing it, and nothing it would have establis",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:33:05.617Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "refused-run.json",
+      "path": "evidence/AQE-047/2026-09-28T03-57-13Z/refused-run.json",
+      "bytes": 933,
+      "sha256": "b8f3b82d142b67d64e930e2adc3a59ca9f45f5f6655e8537b4819997544e374f"
+    },
+    {
+      "file": "refused-approvals.json",
+      "path": "evidence/AQE-047/2026-09-28T03-57-13Z/refused-approvals.json",
+      "bytes": 926,
+      "sha256": "6f5b75493d774583edfaeddaf4102c238de1469f3e26a935d82d79ea793e322e"
+    }
+  ]
+}

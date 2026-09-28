@@ -1,0 +1,32 @@
+{
+  "testId": "HEAL-G08",
+  "suite": "Self-healing",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "Raising the confidence threshold stops a heal that would otherwise be applied",
+  "preconditions": [
+    "the renamed-control scenario heals at a threshold of 75"
+  ],
+  "input": "The same project with healingConfidenceThreshold raised to 100",
+  "expected": "The heal is no longer applied and the run fails",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "at threshold 100: failed, 0 heal(s) applied, best candidate 79%",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:16:27.448Z",
+  "durationMs": 16123,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "threshold.json",
+      "path": "evidence/HEAL-G08/2026-09-28T03-57-13Z/threshold.json",
+      "bytes": 4818,
+      "sha256": "e3e19aa4c5b4524207fa527ca326b6fbb9accca6ae65078e102e5b06ef71a3dd"
+    }
+  ]
+}

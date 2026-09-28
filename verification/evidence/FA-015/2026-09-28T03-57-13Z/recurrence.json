@@ -1,0 +1,54 @@
+{
+  "first": {
+    "id": "46da69e3-bd56-4894-9769-17ff6cc89908",
+    "category": "applicationDefect",
+    "categoryConfidence": 95,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15078ms).",
+    "signature": "f532cc8cc3efe70dc1df549562ab7b8359852445347bf2e7ab18fbf505a82bda",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T04:11:30.36698+00:00",
+    "lastSeenAt": "2026-09-28T04:11:30.366981+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made returned 500.",
+      "likelyCause": "GET /api/answer → 500 in 0ms — the fault is in the application or a service it depends on, not in the test.",
+      "evidence": "The failing step made 1 API call(s); GET /api/answer → 500 in 0ms. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15078ms).",
+      "suggestedAction": "Take this request to the team that owns the endpoint. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 95,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"32dc5b8b-cf7a-4e49-8c2c-2c6c8d81c0b6\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"43f4cb1b-4440-43bf-93dc-bea68dae2ca7\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"5103a239-6d5e-40cf-b55c-c686e58cb503\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"6e9a4651-3d62-42fe-b032-3cf5b39479f3\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"abaf5a7e-7c48-401a-b8ec-e56e8681ad20\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"b9ab8123-224f-4676-aa6d-24ae7b8b19fc\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"ce8fa4e8-b74f-46f2-9a0b-1956aeac2e10\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"f9acaefe-e8f5-481f-aea6-3c976f414b42\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}], \"executionId\": \"56e39337-70de-4beb-8b50-620b3b03fb99\"}"
+    }
+  },
+  "second": {
+    "id": "193eef7e-f0eb-4182-8aa7-2d03bba4fd4c",
+    "category": "applicationDefect",
+    "categoryConfidence": 95,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15098ms).",
+    "signature": "f532cc8cc3efe70dc1df549562ab7b8359852445347bf2e7ab18fbf505a82bda",
+    "isNewFailure": false,
+    "isRegression": false,
+    "occurrenceCount": 2,
+    "firstSeenAt": "2026-09-28T04:11:30.36698+00:00",
+    "lastSeenAt": "2026-09-28T04:11:48.320642+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made returned 500.",
+      "likelyCause": "GET /api/answer → 500 in 0ms — the fault is in the application or a service it depends on, not in the test.",
+      "evidence": "The failing step made 1 API call(s); GET /api/answer → 500 in 0ms. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15098ms).",
+      "suggestedAction": "Take this request to the team that owns the endpoint. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 95,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"47134462-2b55-499a-a311-d52763629b48\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"48035fa9-c44d-40d8-b869-7085a1e530ab\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"65bb1de4-a1ef-472f-978c-8e3b9b558208\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"6d1d838c-3732-4dde-92b5-1dd52d186939\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"71fbe775-94a6-4537-9f86-4bef96202442\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"722a7b2c-39ce-4ad8-815e-26377f601cfe\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"b2530570-818b-4869-9a28-04217f3c992c\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"c4d5bad2-3fc3-4717-8f91-84b691c0a5ea\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"3d38c379-dea1-4685-900d-09a17a846f1b\"}"
+    }
+  }
+}

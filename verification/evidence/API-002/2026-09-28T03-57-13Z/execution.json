@@ -1,0 +1,110 @@
+{
+  "id": "043c1dd2-f8ad-4394-862d-45f931ac7b58",
+  "testRunId": "a5dbedd1-1e01-4c36-9386-a55411a87012",
+  "testCaseId": "0174493f-9831-4420-b736-85195881a8e0",
+  "reference": "TC-0002",
+  "name": "Accounts endpoint answers for a signed-in session",
+  "objective": "",
+  "expectedResults": "",
+  "status": "passed",
+  "startedAt": "2026-09-28T04:16:43.795662+00:00",
+  "completedAt": "2026-09-28T04:16:43.843+00:00",
+  "durationMs": 44,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-29925",
+  "correlationId": "bbff75236ec64b128623341d5abed222",
+  "stepsTotal": 2,
+  "stepsPassed": 2,
+  "stepsFailed": 0,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 0,
+  "actions": [
+    {
+      "id": "6cfb7442-914b-4af9-a9e4-b5d2b317852e",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "Sign in through the API — 200 in 6ms",
+      "status": "passed",
+      "startedAt": "2026-09-28T04:16:43.804+00:00",
+      "durationMs": 9,
+      "url": "http://localhost:4300/api/session",
+      "wasHealed": false
+    },
+    {
+      "id": "b47ebfdd-5120-4feb-a24c-a8316b169a15",
+      "order": 2,
+      "action": "apiRequest",
+      "description": "Read the accounts that session can see — 200 in 4ms",
+      "status": "passed",
+      "startedAt": "2026-09-28T04:16:43.821+00:00",
+      "durationMs": 6,
+      "url": "http://localhost:4300/api/accounts",
+      "wasHealed": false
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "4e1a4d80-4f71-403a-b3d7-89b6aab413a9",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 2286,
+      "isMasked": true
+    },
+    {
+      "id": "5cbc75ea-7f7c-45c1-bd93-5966f804cc9f",
+      "kind": "other",
+      "name": "step-2-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 1203,
+      "isMasked": true,
+      "testActionId": "b47ebfdd-5120-4feb-a24c-a8316b169a15"
+    },
+    {
+      "id": "9a30e610-17c8-46d0-9399-0c55f53043a7",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 772,
+      "isMasked": true,
+      "testActionId": "6cfb7442-914b-4af9-a9e4-b5d2b317852e"
+    },
+    {
+      "id": "b046c1db-6ccf-45a0-bb2d-5b878df3a576",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 1008,
+      "isMasked": false
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "5689678c-3f99-46a9-a6f7-01e5c4d42f7c",
+      "method": "POST",
+      "url": "http://localhost:4300/api/session",
+      "statusCode": 200,
+      "durationMs": 6,
+      "isFailed": false,
+      "resourceType": "apiTest",
+      "testActionId": "6cfb7442-914b-4af9-a9e4-b5d2b317852e",
+      "actionOrder": 1
+    },
+    {
+      "id": "54f95b94-b8b1-4e00-aa70-4dad527f87fb",
+      "method": "GET",
+      "url": "http://localhost:4300/api/accounts",
+      "statusCode": 200,
+      "durationMs": 4,
+      "isFailed": false,
+      "resourceType": "apiTest",
+      "testActionId": "b47ebfdd-5120-4feb-a24c-a8316b169a15",
+      "actionOrder": 2
+    }
+  ],
+  "healingEvents": []
+}

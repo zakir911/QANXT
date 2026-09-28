@@ -1,0 +1,34 @@
+{
+  "case": "http-500",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "764929ae-968f-4baf-9e95-a35e60ebaecd",
+    "category": "applicationDefect",
+    "categoryConfidence": 95,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15000ms).",
+    "signature": "82438351c6eaf16aaba5ea932781fd8f519ec3a4a021f60f0d05d07996935274",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T04:09:41.158765+00:00",
+    "lastSeenAt": "2026-09-28T04:09:41.158766+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made returned 500.",
+      "likelyCause": "GET /api/answer → 500 in 0ms — the fault is in the application or a service it depends on, not in the test.",
+      "evidence": "The failing step made 1 API call(s); GET /api/answer → 500 in 0ms. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15000ms).",
+      "suggestedAction": "Take this request to the team that owns the endpoint. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 95,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0149669d-469b-4d49-9c5d-41320ee57b46\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"3d75bf9e-085d-4005-91cd-d158b5d358e8\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"5f390130-6f2d-4f62-8d71-ffe22f3c24f6\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"8e3b6f50-4175-40b8-b8f0-8a1213c5a9c4\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"ab689bcd-d6fc-4c6d-ae9b-e383a44ee3ac\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"b290da9c-1351-4e2c-827d-85983fe5d449\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"bdf37c6d-3bf6-43fc-9d2e-2f1665a0a0c2\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"da4b3b4f-2144-4176-a1f4-80813ad09319\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}], \"executionId\": \"bb6003f6-eb19-45c6-8744-aa23c26cdc0e\"}"
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "id": "d9f4ac87-0ef0-4c43-b3b5-9fcc1b32ef16",
+  "testRunId": "0e3b3290-20b8-4858-b898-6b17e410ff3f",
+  "testCaseId": "0174493f-9831-4420-b736-85195881a8e0",
+  "reference": "TC-0002",
+  "name": "Accounts endpoint answers for a signed-in session",
+  "objective": "",
+  "expectedResults": "",
+  "status": "failed",
+  "startedAt": "2026-09-28T04:16:49.976778+00:00",
+  "completedAt": "2026-09-28T04:16:50.001+00:00",
+  "durationMs": 21,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-29925",
+  "correlationId": "97f34c5fac05423ea5980d5dbb80ced4",
+  "stepsTotal": 2,
+  "stepsPassed": 0,
+  "stepsFailed": 1,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 1,
+  "errorMessage": "POST http://localhost:4300/api/session returned 500 Internal Server Error.",
+  "actions": [
+    {
+      "id": "5cd01186-f601-4eda-945c-2ff2bedbe0dc",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "Sign in through the API",
+      "status": "failed",
+      "startedAt": "2026-09-28T04:16:49.985+00:00",
+      "durationMs": 5,
+      "url": "http://localhost:4300/api/session",
+      "wasHealed": false,
+      "errorMessage": "POST http://localhost:4300/api/session returned 500 Internal Server Error."
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "55a03357-74a3-4836-add9-d970ee14c22f",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 1000,
+      "isMasked": false
+    },
+    {
+      "id": "99e22e63-4a4f-41ce-b973-fce3c96ac391",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 874,
+      "isMasked": true
+    },
+    {
+      "id": "9fc67b8e-9135-4929-9c7e-6444cda95dd9",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 736,
+      "isMasked": true,
+      "testActionId": "5cd01186-f601-4eda-945c-2ff2bedbe0dc"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "0b4880b8-bd33-429b-9b1c-4e7ce402430b",
+      "method": "POST",
+      "url": "http://localhost:4300/api/session",
+      "statusCode": 500,
+      "durationMs": 3,
+      "isFailed": true,
+      "resourceType": "apiTest",
+      "testActionId": "5cd01186-f601-4eda-945c-2ff2bedbe0dc",
+      "actionOrder": 1
+    }
+  ],
+  "failure": {
+    "id": "b5527763-c7bf-44e0-a6c4-85fb43567ff2",
+    "category": "applicationDefect",
+    "categoryConfidence": 95,
+    "rawMessage": "POST http://localhost:4300/api/session returned 500 Internal Server Error.",
+    "signature": "71ca04fc798348f611080a7df2b5d1de8125e67738484e87853717c8e556d796",
+    "isNewFailure": true,
+    "isRegression": true,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T04:16:50.030318+00:00",
+    "lastSeenAt": "2026-09-28T04:16:50.030318+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made returned 500.",
+      "likelyCause": "POST /api/session → 500 in 3ms — the fault is in the application or a service it depends on, not in the test.",
+      "evidence": "The failing step made 1 API call(s); POST /api/session → 500 in 3ms. Engine message: POST http://localhost:4300/api/session returned 500 Internal Server Error.",
+      "suggestedAction": "Take this request to the team that owns the endpoint. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 95,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"55a03357-74a3-4836-add9-d970ee14c22f\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"99e22e63-4a4f-41ce-b973-fce3c96ac391\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"9fc67b8e-9135-4929-9c7e-6444cda95dd9\", \"kind\": \"Other\", \"name\": \"step-1-request.http.json\"}], \"executionId\": \"d9f4ac87-0ef0-4c43-b3b5-9fcc1b32ef16\"}"
+    }
+  },
+  "healingEvents": []
+}

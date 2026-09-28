@@ -1,0 +1,32 @@
+{
+  "testId": "HEAL-G05",
+  "suite": "Self-healing",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "Healing at run time does not rewrite the stored test",
+  "preconditions": [
+    "HEAL-G03 healed a locator"
+  ],
+  "input": "The stored test case, read back after the healed run",
+  "expected": "The step still holds the original locator; the change is a proposal, not an edit",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "the stored click still targets {\"strategy\":\"testId\",\"value\":\"login-submit\",\"exact\":false,\"fallbacks\":[]}",
+  "metrics": null,
+  "startedAt": "2026-09-28T04:12:56.023Z",
+  "durationMs": 9,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "stored-test.json",
+      "path": "evidence/HEAL-G05/2026-09-28T03-57-13Z/stored-test.json",
+      "bytes": 1664,
+      "sha256": "41e2286082c39e525f36321d79a317ba51ebd0846822bd887b01817be96ff668"
+    }
+  ]
+}

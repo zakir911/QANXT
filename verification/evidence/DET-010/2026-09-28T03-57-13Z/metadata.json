@@ -1,0 +1,36 @@
+{
+  "testId": "DET-010",
+  "suite": "Failure detection",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "A wrong value failure is detected and reported as a failure",
+  "preconditions": [
+    "the failure lab is running",
+    "the test targets /case/wrong-value"
+  ],
+  "input": "The same four-step test: open /case/wrong-value, press the button, expect \"OK 42\"",
+  "expected": "The run FAILS, with the failing step, an error message and a screenshot",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15059ms).; 2 screenshot(s); classified applicationDefect",
+  "metrics": {
+    "screenshots": 2,
+    "consoleErrors": 0
+  },
+  "startedAt": "2026-09-28T04:07:28.662Z",
+  "durationMs": 18114,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DET-010-execution.json",
+      "path": "evidence/DET-010/2026-09-28T03-57-13Z/DET-010-execution.json",
+      "bytes": 2532,
+      "sha256": "feb67a486173837287e327189c4a776a9787774ff86272c66918bb7d98d3f196"
+    }
+  ]
+}

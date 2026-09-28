@@ -1,0 +1,36 @@
+{
+  "testId": "REL-005",
+  "suite": "Reliability",
+  "runId": "2026-09-28T03-57-13Z",
+  "objective": "Ten runs started at the same moment all reach a verdict",
+  "preconditions": [
+    "the lab bank is healthy"
+  ],
+  "input": "Ten test runs started concurrently",
+  "expected": "Every one reaches a terminal status; none is left running",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "10/10 reached a verdict, 10 passed; statuses: passed",
+  "metrics": {
+    "started": 10,
+    "terminal": 10,
+    "passed": 10
+  },
+  "startedAt": "2026-09-28T04:27:57.465Z",
+  "durationMs": 8161,
+  "build": {
+    "commit": "436a5fe",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "concurrency.json",
+      "path": "evidence/REL-005/2026-09-28T03-57-13Z/concurrency.json",
+      "bytes": 713,
+      "sha256": "7dce04622d7d4183b9378e1d86703ec0007aad5fed2b918d018bf90a36c3fc2d"
+    }
+  ]
+}
