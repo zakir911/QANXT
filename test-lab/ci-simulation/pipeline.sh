@@ -27,7 +27,7 @@ ARTIFACTS="${ARTIFACTS:-ci-artifacts}"
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-60}"
 REVIEW_BLOCKS="${REVIEW_BLOCKS:-false}"
 MODE="${MODE:-impacted}"
-QA NXT="${QANXT_CLI:-node $(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/packages/cli/dist/qanxt.js}"
+QANXT="${QANXT_CLI:-node $(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/packages/cli/dist/qanxt.js}"
 
 stage() { printf '::stage::%s::%s\n' "$1" "$2"; }
 say()   { printf '\n\033[1m▸ %s\033[0m\n' "$1"; }
@@ -114,7 +114,7 @@ if [[ -n "${TEST_IDS:-}" ]]; then
   stage select skipped
 else
   # shellcheck disable=SC2086
-  $QA NXT regression select \
+  $QANXT regression select \
     --since "${BASE_REF:-HEAD~1}" \
     --mode "$MODE" \
     --explain \
@@ -140,10 +140,10 @@ args=(--report-dir "$ARTIFACTS" --timeout "${RUN_TIMEOUT:-300}"
 if [[ -n "${TEST_IDS:-}" ]]; then
   for id in $TEST_IDS; do args+=(--test "$id"); done
   # shellcheck disable=SC2086
-  $QA NXT run "${args[@]}"
+  $QANXT run "${args[@]}"
 else
   # shellcheck disable=SC2086
-  $QA NXT regression run --since "${BASE_REF:-HEAD~1}" --mode "$MODE" "${args[@]}"
+  $QANXT regression run --since "${BASE_REF:-HEAD~1}" --mode "$MODE" "${args[@]}"
 fi
 status=$?
 stage test "exit-$status"
