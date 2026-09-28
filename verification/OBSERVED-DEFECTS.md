@@ -62,38 +62,60 @@ until the worker was restarted.
 **Not fixed.** Reconnecting a stream consumer after its Redis connection drops, and saying so
 in the log when it happens, is worker work rather than agent work.
 
-## COR-005 reports an authorization problem instead of a front-end one, once in eight runs
+## Failure analysis blames the session when the evidence it needs has not arrived
 
-**Observed.** The full golden run immediately after the QA NXT rename
-(`2026-09-28T12-09-52Z`) reported one failure:
+**How this was found.** COR-005 failed on the full golden run after the QA NXT rename, and
+again on the next one. An earlier version of this entry said it was "not the rename" and
+filed it as a single observation in eight runs. Both halves of that were too thin, and the
+second was wrong about the sample: COR-005 has now been read across all eighteen recorded
+runs, and it has failed three times — once on `2026-09-22T07-20-51Z`, which is six days
+before the rename.
 
+**What COR-005 asserts.** A journey opens the lab bank's dashboard with `FAULT_WRONG_BALANCE`
+enabled: every request succeeds and the total rendered on the page is wrong. The diagnosis
+should be `applicationDefect` — "The API answered correctly and the page showed something
+else." On the failing runs it was `authenticationIssue` at 85% — "The session was not
+authorised." — which sends a reader to the account and the session lifetime for a defect that
+is in the rendering.
+
+**The mechanism, as far as the evidence carries it.** `FailureAnalysisService` builds
+`AuthErrorCount` from every network event in the execution:
+
+```csharp
+AuthErrorCount: completion.NetworkEvents.Count(n => n.StatusCode is 401 or 403),
 ```
-critical COR-005  2 API call(s), 0 failed;
-                  authenticationIssue at 85%: "The session was not authorised."
+
+That is execution-wide, not step-wide. A single-page application asks "is anyone signed in?"
+as it loads and is answered 401 when nobody is, so an execution that begins signed out
+carries a 401 that has nothing to do with the step that later failed.
+`DeterministicFailureClassifier` has a rule for exactly this case, and it is ordered ahead of
+the authorization rule:
+
+```csharp
+if (api.EveryCallDuringFailingStepSucceeded && IsAssertionFailure(input.FailingAction, lowered))
 ```
 
-COR-005 drives a journey that opens the dashboard with `FAULT_WRONG_BALANCE` enabled, where
-every request succeeds and the total on the page is wrong. It expects the diagnosis to be
-`applicationDefect` — "The API answered correctly and the page showed something else." On
-this run it got `authenticationIssue` instead.
+On the failing runs it did not fire, and the verdict fell through to the authorization rule,
+whose guard only excludes locator misses (`!IsLocatorMiss(lowered)`) — a narrower exclusion
+than this case needs, since an assertion on text is not a locator miss.
 
-**What is established.** The test has now run eight times on record: seven passes and this one
-failure, the failure being the only run after the rename. Re-running the correlation suite
-against the same renamed build three times produced three passes, with the expected
-`applicationDefect at 80%` each time. The rename's diff against the banking lab
-(`test-lab/banking-app/server.js`) changes prose only — the product name in a title, a body
-string and an error page — and touches no cookie, session or authentication path. The
-classification differs while the assertion about failed calls does not: `failedCalls.length
-=== 0` held on the failing run too, so the 401 the classifier reasoned from was not among the
-API calls the run recorded.
+**Established.** Three failures in eighteen runs, one of them pre-rename. The stored evidence
+for the failing runs lists two API calls for the failing step, both 200, so had the
+correlation been present at classification time the earlier rule would have matched. The
+analysis text on those runs cites only "1 request(s) returned 401 or 403" and never mentions
+the step's own calls, while passing runs cite "2 API call(s) during the failing step". The
+rename changed no authentication path: its diff against the browser worker is import paths
+and one temp-directory default, and against the banking lab it is prose only.
 
-**What is not established.** Why it happened on that run. The suite passes in isolation, so
-the trigger involves state left by something earlier in a full run rather than anything in
-the correlation suite itself. Nothing here identifies what that state is.
+**Inferred, not established.** That the correlation was absent when the classifier ran —
+a race between analysis and the linking of network events to the actions that made them,
+which would explain why this appears under the load of a full run and not when the
+correlation suite runs alone (three passes in a row that way). Nothing here proves the
+ordering; it is the explanation that fits, and it should be confirmed before anything is
+changed on the strength of it.
 
-**Not fixed, and not called a flake.** One failure in eight is a real observation about a
-critical test, and a test that occasionally attributes a front-end defect to authorization is
-worth understanding rather than re-running until it is green. What can be said today is that
-it is not the rename: the rename changed no authentication code the lab uses, and the test
-passes repeatedly on the renamed build. Investigating the ordering dependency is its own
-piece of work.
+**Not fixed here, and not a flake.** A classifier that answers confidently from evidence it
+does not have is a worse failure than one that says it cannot tell, and this one answers
+with the wrong department. It is a correctness defect in failure attribution, it predates
+the rename, and changing the precedence of failure classification deserves its own change
+with its own verification rather than riding along with a product rename.
