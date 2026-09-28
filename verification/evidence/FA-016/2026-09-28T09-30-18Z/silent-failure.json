@@ -1,0 +1,68 @@
+{
+  "status": "failed",
+  "confirmationStep": {
+    "id": "f88c5600-709b-42b6-b699-03b16b56899a",
+    "order": 8,
+    "action": "assertVisible",
+    "description": "payment-confirmation is visible",
+    "status": "passed",
+    "startedAt": "2026-09-28T09:45:22.36+00:00",
+    "durationMs": 57,
+    "url": "http://localhost:4300/payments",
+    "wasHealed": false,
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "payment-confirmation",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"payment-confirmation\""
+  },
+  "recordStep": {
+    "id": "39a13b17-4ca8-4326-86ce-b6287c63f5ec",
+    "order": 9,
+    "action": "assertVisible",
+    "description": "payments-table is visible",
+    "status": "failed",
+    "startedAt": "2026-09-28T09:45:22.426+00:00",
+    "durationMs": 15034,
+    "url": "http://localhost:4300/payments",
+    "wasHealed": false,
+    "healingConfidence": 58,
+    "errorMessage": "testId=\"payments-table\" could not be used: No element matched testId=\"payments-table\".",
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "payments-table",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"payments-table\"",
+    "locatorAlternativesJson": "[{\"rank\": 1, \"score\": 58, \"breakdown\": {\"testId\": 11, \"uniqueness\": 12}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"payments-empty\", \"strategy\": \"testId\", \"fallbacks\": [{\"exact\": false, \"value\": \"#root > div > main > section > p\", \"strategy\": \"css\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"/html[1]/body[1]/div[1]/div[1]/main[1]/section[1]/p[1]\", \"strategy\": \"xpath\", \"fallbacks\": []}]}}]"
+  },
+  "failure": {
+    "id": "64579eca-3f35-4eaa-8256-fa6ad252729e",
+    "category": "locatorChange",
+    "categoryConfidence": 63,
+    "rawMessage": "testId=\"payments-table\" could not be used: No element matched testId=\"payments-table\".",
+    "signature": "408e43c5631eb4ab83d993cbd81462914306a3c8ebee60559fdf59a93abe97a4",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T09:45:40.512253+00:00",
+    "lastSeenAt": "2026-09-28T09:45:40.512254+00:00",
+    "analysis": {
+      "summary": "The element payments-table is visible targets has changed.",
+      "likelyCause": "The stored locator () no longer matches anything, but an element closely resembling the original was found: testId=\"payments-empty\". The application's markup changed rather than its behaviour.",
+      "evidence": "A healing candidate scored 58% against the original element's recorded signals.",
+      "suggestedAction": "Review the healing proposal carefully: at 58% confidence it is a suggestion, not a certainty.",
+      "category": "locatorChange",
+      "confidence": 63,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1d5dcf85-70bd-44bf-bbef-935338b0f243\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"1e08df3d-7c80-4a8d-884b-5c64706a1b3a\", \"kind\": \"Screenshot\", \"name\": \"step-9-failure.png\"}, {\"id\": \"4c04a69b-4bc2-457f-9292-8f7ffcdd6a30\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"5ac7ee61-09a6-4ddf-b1e8-d80ea69f2911\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"a0662fb3-74b9-4bed-af5c-1d2180ab67c4\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"a9525643-2f39-4e54-95d6-4ea05da6d2c5\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"d1c5c6b6-9d1f-463b-aef5-794a6724480d\", \"kind\": \"DomSnapshot\", \"name\": \"step-9-failure.html\"}, {\"id\": \"ed864aac-57f1-4b09-921e-9ea1320125f1\", \"kind\": \"AccessibilityTree\", \"name\": \"step-9-failure.a11y.json\"}], \"executionId\": \"3ec715fc-f4db-4605-b0ba-61712d6867f3\"}"
+    }
+  }
+}

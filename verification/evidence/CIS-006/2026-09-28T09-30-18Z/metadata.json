@@ -1,0 +1,37 @@
+{
+  "testId": "CIS-006",
+  "suite": "CI simulation",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "An unreachable platform is reported as knowing nothing, never as a pass",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"platform-unreachable\"",
+  "expected": "Exit 5, and the words \"Nothing is known about quality\" in the build log",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "exit 5; the platform could not be reached",
+  "metrics": {
+    "airaExit": 5,
+    "pipelineExit": 5
+  },
+  "startedAt": "2026-09-28T09:53:18.530Z",
+  "durationMs": 175,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-006/2026-09-28T09-30-18Z/pipeline.log",
+      "bytes": 784,
+      "sha256": "e9cd9eed0616ec9bd895bda73434580886f93f9e170e52dd05e12703571eb216"
+    }
+  ]
+}

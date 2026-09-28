@@ -1,0 +1,39 @@
+{
+  "fault": "FAULT_MAINTENANCE_PAGE",
+  "policy": "auto",
+  "threshold": 85,
+  "bestConfidence": null,
+  "status": "failed",
+  "stepsPassed": 1,
+  "stepsTotal": 5,
+  "healingEvents": [],
+  "healed": [],
+  "reachedWelcome": false,
+  "executionId": "8cf9e9c2-2af1-448b-b4c6-47c2d3f66e8b",
+  "failure": {
+    "id": "d340e15a-2c98-4744-8766-6f00ea97845e",
+    "category": "locatorChange",
+    "categoryConfidence": 65,
+    "rawMessage": "testId=\"username\" could not be used: No element matched testId=\"username\".",
+    "signature": "21156862b72ead747ae4296487c11af65c28d70e3ac14cf9543daf3a7b010dfe",
+    "isNewFailure": true,
+    "isRegression": true,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T09:49:41.20546+00:00",
+    "lastSeenAt": "2026-09-28T09:49:41.20546+00:00",
+    "analysis": {
+      "summary": "Enter a value in username could not find the element it needed.",
+      "likelyCause": "The element is absent from the page. Either the UI changed and the locator is stale, or an earlier step left the application somewhere other than the expected page.",
+      "evidence": "testId=\"username\" could not be used: No element matched testId=\"username\".",
+      "suggestedAction": "Compare the failure screenshot with the expected page. If the page is right but the element moved, update the locator; if the page is wrong, the failure is earlier in the journey.",
+      "category": "locatorChange",
+      "confidence": 65,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"06d0fbb6-670c-4d05-bf78-f029321700d8\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"2122880f-695e-47ec-8f82-42f881714436\", \"kind\": \"DomSnapshot\", \"name\": \"step-2-failure.html\"}, {\"id\": \"384e041d-e02c-47f3-858f-2e9844b3b6cf\", \"kind\": \"Screenshot\", \"name\": \"step-2-failure.png\"}, {\"id\": \"431da864-32b9-4051-beca-349df1c40183\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"78d1b1de-55a7-4b89-8a77-dfc14c939e9e\", \"kind\": \"AccessibilityTree\", \"name\": \"step-2-failure.a11y.json\"}, {\"id\": \"7ec4b9c1-b5b7-4d10-a115-f8707e08a897\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"97542b43-8392-48d0-b5f8-a47fcd814114\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"8cf9e9c2-2af1-448b-b4c6-47c2d3f66e8b\"}"
+    }
+  }
+}

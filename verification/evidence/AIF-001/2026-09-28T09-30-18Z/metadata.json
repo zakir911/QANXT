@@ -1,0 +1,37 @@
+{
+  "testId": "AIF-001",
+  "suite": "AI provider failure",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A provider that never answers fails the request visibly instead of returning nothing",
+  "preconditions": [
+    "an application is registered",
+    "AI fault injection is enabled"
+  ],
+  "input": "A generation request while the provider is faulted with Timeout",
+  "expected": "The request fails with an error naming the problem, and no test case is stored",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 503; 0 test case(s) created; model request recorded: true (status failed); message \"The request to the model provider timed out. (simulated)\"",
+  "metrics": {
+    "status": 503,
+    "fabricated": 0,
+    "reachedTheModel": 1
+  },
+  "startedAt": "2026-09-28T09:58:32.323Z",
+  "durationMs": 62,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AIF-001/2026-09-28T09-30-18Z/response.json",
+      "bytes": 436,
+      "sha256": "7fb18e5f2d611b12f9e5df70e67c737ab1a1da09fdc3611ed438cb32754586f9"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "testId": "SECS-009",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A fetch endpoint that accepts only its own origin produces no SSRF finding",
+  "preconditions": [
+    "the lab left in its ordinary, fully vulnerable state"
+  ],
+  "input": "GET /api/fetch?url=<same origin>, which the lab ground truth calls correct",
+  "expected": "No finding. Any finding here is a false positive on an endpoint that does nothing wrong",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "the application's own origin answered 200; the check's internal destinations produced 1 finding(s), which is the separate detection scenario",
+  "metrics": {
+    "findings": 0
+  },
+  "startedAt": "2026-09-28T09:58:38.369Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "result.json",
+      "path": "evidence/SECS-009/2026-09-28T09-30-18Z/result.json",
+      "bytes": 257,
+      "sha256": "ce712b265e7af2088d0d5fce01b4306ccf8fdec6cf540c01a8e91a9b4351a0ab"
+    }
+  ]
+}

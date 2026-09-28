@@ -1,0 +1,83 @@
+$ aira test-data import
+[exit 0]
+{
+  "id": "791dfe72-bc29-4079-a549-49398aed0b78",
+  "projectId": "9076c17d-b515-4ed5-9c58-10b023cc6102",
+  "name": "Round trip (DAT-007)",
+  "description": "Written by a person, read by the CLI",
+  "fields": [
+    {
+      "id": "90760b56-19b5-47c7-808d-30e75036c647",
+      "key": "customerEmail",
+      "kind": "seededRandom",
+      "generatorJson": "{\"type\":\"email\"}",
+      "seed": 99,
+      "isSensitive": false
+    },
+    {
+      "id": "63b51a06-98d1-4891-8cd0-f78894e552dd",
+      "key": "orderReference",
+      "kind": "static",
+      "value": "AIRA-TEST-007",
+      "isSensitive": false
+    },
+    {
+      "id": "d7ddb0df-5890-492a-b25a-f5d9b24586db",
+      "key": "password",
+      "kind": "secretReference",
+      "value": "${secret:app_password}",
+      "isSensitive": true
+    }
+  ],
+  "createdAt": "2026-09-28T09:56:27.6488192+00:00"
+}
+
+
+$ aira test-data preview
+[exit 0]
+customerEmail            aira.samuel.8791@example.test
+orderReference           AIRA-TEST-007
+password                 ${secret:app_password}
+
+A seeded field shows the value every run will use. Sensitive fields are masked.
+
+
+$ aira test-data export
+[exit 0]
+Wrote /tmp/aira-data-6MfCsT/exported.json
+1 field(s) reference a secret by name. No secret values are in this file.
+
+
+$ aira test-data import (round trip)
+[exit 0]
+{
+  "id": "9e0e6de8-ca3e-43f8-983c-ddcd1e4df69b",
+  "projectId": "9076c17d-b515-4ed5-9c58-10b023cc6102",
+  "name": "Round trip again",
+  "description": "Written by a person, read by the CLI",
+  "fields": [
+    {
+      "id": "2d844a56-a359-469b-98d4-6a7bdd0bf151",
+      "key": "customerEmail",
+      "kind": "seededRandom",
+      "generatorJson": "{\"type\": \"email\"}",
+      "seed": 99,
+      "isSensitive": false
+    },
+    {
+      "id": "971b9589-0be8-40b1-8a28-1e9b48b13a58",
+      "key": "orderReference",
+      "kind": "static",
+      "value": "AIRA-TEST-007",
+      "isSensitive": false
+    },
+    {
+      "id": "d45a1504-aa4a-4f36-9ce4-5ab2c20da9f4",
+      "key": "password",
+      "kind": "secretReference",
+      "value": "${secret:app_password}",
+      "isSensitive": true
+    }
+  ],
+  "createdAt": "2026-09-28T09:56:28.1288872+00:00"
+}

@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-014",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "The rate-limit finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-770, OWASP API4:2023, severity Medium, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-770, A04:2021, Medium (11/19) — Medium (11/19): trivial to exploit, minimal impact, no account needed, reaches non-sensitive data, publicly reachable.",
+  "metrics": {
+    "score": 11,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-28T09:58:37.961Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-014/2026-09-28T09-30-18Z/mapping.json",
+      "bytes": 1181,
+      "sha256": "50012f73cf2a5256a1245596532df3c605da4041871c51f3129eac97880ca61e"
+    }
+  ]
+}

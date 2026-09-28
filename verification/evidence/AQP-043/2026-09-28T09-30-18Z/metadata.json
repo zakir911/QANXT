@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-043",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "One tenant cannot read another tenant's pass",
+  "preconditions": [
+    "passes have run against the lab"
+  ],
+  "input": "every decision recorded by the passes in this suite",
+  "expected": "A second organization asking for this run is refused",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "404",
+  "metrics": null,
+  "startedAt": "2026-09-28T10:04:15.788Z",
+  "durationMs": 15201,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-043/2026-09-28T09-30-18Z/decisions.json",
+      "bytes": 7481,
+      "sha256": "df450b5e6f2176fdb34037102f20008828cbcac0196edf87181e0eb757182a86"
+    }
+  ]
+}

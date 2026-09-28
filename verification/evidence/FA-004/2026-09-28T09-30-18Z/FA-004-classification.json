@@ -1,0 +1,34 @@
+{
+  "case": "http-403",
+  "lab": "authorizationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "b46aae4d-6645-4260-a4a9-e797da7c15f3",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15008ms).",
+    "signature": "f89eb354dbfdfef2a4676f2aafe737af1e36539ea1325177b30870ba8aea19de",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T09:42:30.05015+00:00",
+    "lastSeenAt": "2026-09-28T09:42:30.050151+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was refused with 403.",
+      "likelyCause": "GET /api/answer → 403 in 0ms — the session was not accepted, so the page had nothing to render.",
+      "evidence": "GET /api/answer → 403 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15008ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"023760c3-338b-4fd8-8c58-eb3ab81519ec\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"2232cde8-fc69-401e-bb9a-e01c745f60a7\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"2497555c-386e-4a4a-be49-11b9da2b3019\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"41a3fce8-ca2c-481f-b8e3-aafb8c7cb2f7\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"4b85d938-b39d-4f02-9be8-4058964e232e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"93cf599a-68bc-48e0-ab13-effe73f1e89c\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"acfe0f25-924c-46a4-bcfa-3e1e53e75a63\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"afd267bd-777f-4027-887d-6fca1856a35b\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}], \"executionId\": \"6ea2fdde-6408-4a49-aeb0-622ec389f11d\"}"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "testId": "RLS-001",
+  "suite": "Release quality",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A test that passed before and fails now is reported as newly failing",
+  "preconditions": [
+    "two runs of the same tests, with a defect deployed between them"
+  ],
+  "input": "GET /api/v1/release/compare for the second run",
+  "expected": "The broken test is newlyFailing and the healthy one is stillPassing — the distinction a release decision is made from",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "TC-0002: newlyFailing; TC-0001: stillPassing; \"1 test(s) that used to pass now fail.\"",
+  "metrics": {
+    "newlyFailing": 1
+  },
+  "startedAt": "2026-09-28T09:56:34.834Z",
+  "durationMs": 13,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "comparison.json",
+      "path": "evidence/RLS-001/2026-09-28T09-30-18Z/comparison.json",
+      "bytes": 1730,
+      "sha256": "e9a4b10f3140fda94ad388cdcfc600051a68fab670151e01172ced82a0b75b02"
+    }
+  ]
+}

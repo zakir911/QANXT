@@ -1,0 +1,340 @@
+[
+  {
+    "id": "2029135f-ce1a-47e3-982f-679d0899c151",
+    "sequence": 1,
+    "phase": "analysingGaps",
+    "tool": "coverage.analyse",
+    "summary": "Assessed 20 capability(ies): 20 uncovered, 32 unknown.",
+    "reason": "20 capability(ies) assessed across 52 applicable dimension(s): 0 covered, 0 partial, 20 not covered, 32 unknown. Coverage is measured against what discovery reached; anything it did not reach is absent from this report rather than covered by it.",
+    "evidence": [
+      {
+        "name": "capabilities",
+        "value": "20"
+      },
+      {
+        "name": "covered",
+        "value": "0"
+      },
+      {
+        "name": "partiallyCovered",
+        "value": "0"
+      },
+      {
+        "name": "notCovered",
+        "value": "20"
+      },
+      {
+        "name": "unknown",
+        "value": "32"
+      },
+      {
+        "name": "businessCriticalWithGaps",
+        "value": "0"
+      },
+      {
+        "name": "namedAreasMatchingNothingDiscoveryReached",
+        "value": "none"
+      },
+      {
+        "name": "measuredAgainst",
+        "value": "6 page(s) and 14 endpoint(s) discovery reached"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "none"
+      }
+    ],
+    "result": "20 gap(s)",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T10:04:08.675646+00:00"
+  },
+  {
+    "id": "6cc3d217-32cc-432f-986c-7d0cc53acfc3",
+    "sequence": 2,
+    "phase": "planning",
+    "summary": "Proposed 32 test(s) across 4 category(ies).",
+    "reason": "32 test(s) across 4 category(ies) for \"Release validation\", 26 of which do not exist yet. Roughly 8 minute(s) — an estimate from defaults, because this application has no execution history yet. 4 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+    "evidence": [
+      {
+        "name": "pagesPlannable",
+        "value": "6"
+      },
+      {
+        "name": "endpointsDiscovered",
+        "value": "14"
+      },
+      {
+        "name": "journeysKnown",
+        "value": "0"
+      },
+      {
+        "name": "securityAuthorized",
+        "value": "False"
+      },
+      {
+        "name": "openSecurityFindings",
+        "value": "0"
+      },
+      {
+        "name": "criticalAreasNamedByAPerson",
+        "value": "none"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "none"
+      }
+    ],
+    "result": "32 test(s) proposed.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T10:04:08.7076+00:00"
+  },
+  {
+    "id": "cf80fa9e-e850-4b24-8c86-05fd3c96fba3",
+    "sequence": 3,
+    "phase": "planning",
+    "summary": "The plan was approved by ag***@example.test.",
+    "reason": "Approved to exercise the unknown-environment rung.",
+    "evidence": [
+      {
+        "name": "decidedBy",
+        "value": "ag***@example.test"
+      },
+      {
+        "name": "categoriesIncluded",
+        "value": "Api, Accessibility, Smoke, Visual"
+      },
+      {
+        "name": "categoriesExcluded",
+        "value": "none"
+      },
+      {
+        "name": "testsPlanned",
+        "value": "32"
+      }
+    ],
+    "result": "Approved",
+    "allowed": true,
+    "actorUserId": "e681a63d-6e51-441e-a501-4d4bee7d2178",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T10:04:09.723915+00:00"
+  },
+  {
+    "id": "0bd944e1-efe0-40cd-99f1-a33f74c84ee2",
+    "sequence": 4,
+    "phase": "generating",
+    "tool": "test.generate",
+    "summary": "No duplication check was possible for 2 new test(s).",
+    "reason": "This application had no tests before this pass, so there is nothing the new ones could duplicate. That is an absence of anything to compare against, not a finding that they are all distinct.",
+    "evidence": [
+      {
+        "name": "newTests",
+        "value": "2"
+      },
+      {
+        "name": "existingCompared",
+        "value": "0"
+      },
+      {
+        "name": "testsDeletedOrChanged",
+        "value": "none — the agent has no authority to delete or change a test"
+      }
+    ],
+    "result": "nothing to compare against",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T10:04:13.830653+00:00"
+  },
+  {
+    "id": "d4ca12e7-5f76-4784-8552-612cfee8da70",
+    "sequence": 5,
+    "phase": "generating",
+    "tool": "test.generate",
+    "summary": "Generated 4 API test(s) for 4 endpoint(s).",
+    "reason": "Endpoints discovered by the crawl, minus anything a person excluded. Mutating requests were left out.",
+    "evidence": [
+      {
+        "name": "endpointsConsidered",
+        "value": "14"
+      },
+      {
+        "name": "endpointsSelected",
+        "value": "4"
+      },
+      {
+        "name": "endpointsExcludedByAPerson",
+        "value": "none"
+      },
+      {
+        "name": "mutatingIncluded",
+        "value": "False"
+      },
+      {
+        "name": "trimmedToBudget",
+        "value": "yes — 14 endpoint(s) discovered, 4 within the run's remaining budget of 4"
+      }
+    ],
+    "result": "4 API test(s)",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T10:04:13.915615+00:00"
+  },
+  {
+    "id": "613ed22d-82d2-40b9-aff3-cf1f59851384",
+    "sequence": 6,
+    "phase": "prioritizing",
+    "summary": "Selected 0 of 0 existing test(s) to re-run.",
+    "reason": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's.",
+    "evidence": [
+      {
+        "name": "considered",
+        "value": "0"
+      },
+      {
+        "name": "selected",
+        "value": "0"
+      },
+      {
+        "name": "why",
+        "value": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's."
+      },
+      {
+        "name": "reasonsUsed",
+        "value": "none — no test's history contributed a point"
+      },
+      {
+        "name": "notSelected",
+        "value": "none — there were no existing tests to consider"
+      }
+    ],
+    "result": "0 test(s) selected.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T10:04:13.927835+00:00"
+  },
+  {
+    "id": "369695df-b3e8-4f45-80df-1e68fc77f279",
+    "sequence": 7,
+    "phase": "executing",
+    "tool": "test.execute",
+    "summary": "Wanted to use test.execute.",
+    "reason": "'test.execute' would change something and nothing says what kind of environment this application lives in. Register an environment for it, or name one on its security scope, and this will run. Until then only observation is permitted: an unattended pass must not write to a system nobody has identified.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission"
+      },
+      {
+        "name": "deniedAt",
+        "value": "EnvironmentUnknown"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "EnvironmentUnknown",
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T10:04:13.946429+00:00"
+  },
+  {
+    "id": "c084c1ef-a782-4828-8cfc-7e0f605e81b7",
+    "sequence": 8,
+    "phase": "proposing",
+    "summary": "No candidate for the permanent suite.",
+    "reason": "Nothing this pass could see qualifies as a candidate: there is no confirmed security finding for this application and no journey the platform has observed end to end. An empty candidate list is not a finding that the suite is complete.",
+    "evidence": [
+      {
+        "name": "securityFindingsConsidered",
+        "value": "0"
+      },
+      {
+        "name": "observedJourneysConsidered",
+        "value": "0"
+      },
+      {
+        "name": "journeyPromotionLimitation",
+        "value": "A journey needs 3 observations to be proposed, and the platform records only that a journey was observed, not how many times. No journey can reach the bar on this path until it does."
+      },
+      {
+        "name": "proposed",
+        "value": "0"
+      },
+      {
+        "name": "belowTheBar",
+        "value": "none — there were no candidates at all"
+      },
+      {
+        "name": "testsCreated",
+        "value": "none — creating a permanent test changes state, and the agent asks before it changes state"
+      }
+    ],
+    "result": "no candidates",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T10:04:13.987062+00:00"
+  },
+  {
+    "id": "90f952be-ed1e-4ce9-ac63-61e43a76c604",
+    "sequence": 9,
+    "phase": "proposing",
+    "tool": "report.generate",
+    "summary": "Release assessment: NotAssessed.",
+    "reason": "NOT ASSESSED. This pass executed no tests and ran no scan, so nothing is known about the release from it. This is a statement about the run, not about the application, and it is not a clean result.",
+    "evidence": [
+      {
+        "name": "verdict",
+        "value": "NotAssessed"
+      },
+      {
+        "name": "functional",
+        "value": "0/0 passed"
+      },
+      {
+        "name": "api",
+        "value": "0/0 passed"
+      },
+      {
+        "name": "securityScanned",
+        "value": "False"
+      },
+      {
+        "name": "criticalJourneysFailed",
+        "value": "0"
+      },
+      {
+        "name": "gate",
+        "value": "none configured"
+      },
+      {
+        "name": "blockingFactors",
+        "value": "none"
+      },
+      {
+        "name": "untestedAreas",
+        "value": "Accessibility — a pass does not assess it; the platform tests it elsewhere.; Visual appearance — a pass does not assess it; the platform tests it elsewhere.; Security — no scan was run by this pass."
+      },
+      {
+        "name": "overallScore",
+        "value": "none — deliberately. A single number is the thing everybody reads and nobody can act on, and it cannot be checked."
+      }
+    ],
+    "result": "NotAssessed",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T10:04:14.00008+00:00"
+  }
+]

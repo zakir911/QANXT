@@ -1,0 +1,49 @@
+{
+  "healable": [
+    {
+      "name": "renamed control",
+      "confidence": 79
+    },
+    {
+      "name": "test id changed",
+      "confidence": 93
+    }
+  ],
+  "wrongTarget": [
+    {
+      "name": "FAULT_AMBIGUOUS_CONTROLS",
+      "confidence": 51
+    },
+    {
+      "name": "FAULT_CONTROL_IS_LINK_ELSEWHERE",
+      "confidence": 63
+    }
+  ],
+  "unusable": [
+    {
+      "name": "FAULT_CONTROL_MOVED_TO_DIALOG",
+      "confidence": 84,
+      "status": "failed"
+    },
+    {
+      "name": "FAULT_CONTROL_DISABLED",
+      "confidence": 94,
+      "status": "failed"
+    },
+    {
+      "name": "FAULT_CONTROL_HIDDEN",
+      "confidence": 93,
+      "status": "failed"
+    },
+    {
+      "name": "FAULT_DUPLICATE_CONTROLS",
+      "confidence": 84,
+      "status": "failed"
+    }
+  ],
+  "lowestHealable": 79,
+  "highestWrongTarget": 63,
+  "margin": 16,
+  "chosenThreshold": 75,
+  "note": "A threshold is only safe if it sits above every wrong-target candidate and below every correct one."
+}

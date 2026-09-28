@@ -1,0 +1,40 @@
+{
+  "findingId": "SECE-004-excessive-data",
+  "title": "The response carries passwordHash, apiToken",
+  "category": "SensitiveDataExposure",
+  "severityScore": null,
+  "severityFactors": {
+    "exploitability": "trivial",
+    "impact": "serious",
+    "privilegeRequired": "authenticatedUser",
+    "affectedData": "credentials",
+    "exposure": "authenticatedUsers",
+    "requiresUnusualConditions": false,
+    "score": 15,
+    "maxScore": 19,
+    "severity": "High",
+    "explanation": "High (15/19): trivial to exploit, serious impact, any signed-in user, reaches credentials, reachable by signed-in users."
+  },
+  "confidence": "Medium",
+  "cwe": "CWE-213",
+  "cweConfidence": "confirmed",
+  "owaspApiCategory": "API3:2023",
+  "owaspWebCategory": "A01:2021",
+  "owaspEdition": null,
+  "owaspEditionVerifiedAgainstSource": false,
+  "environment": null,
+  "endpoint": "/api/users",
+  "parameter": null,
+  "observedAsRole": "alice",
+  "testId": null,
+  "exchanges": 1,
+  "recordedAt": "2026-09-28T09:58:38.389Z",
+  "files": [
+    "request.txt",
+    "response.txt",
+    "sanitized-request.txt",
+    "sanitized-response.txt",
+    "reproduction.md",
+    "metadata.json"
+  ]
+}

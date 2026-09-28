@@ -1,0 +1,35 @@
+{
+  "case": "timeout",
+  "lab": "timeout",
+  "accept": [
+    "timingIssue",
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "49759564-dbe3-4a67-a0c3-a82b25c34cf3",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15101ms).",
+    "signature": "aa21a6b8b71aebf3037c836fe1cf9c756616749f05efd753ed13c36ddecd788c",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T09:43:26.646952+00:00",
+    "lastSeenAt": "2026-09-28T09:43:26.646952+00:00",
+    "analysis": {
+      "summary": "An assertion failed on outcome reads \"OK 42\".",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15101ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"257342d5-1d2f-4734-8178-6976fef64169\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"52edb842-ac9a-417d-a133-0aeaea02ce64\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"624ac3e0-2127-443a-9396-6690e0744c34\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"68440104-be50-4f6e-9fdc-d4e1f63fb552\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"aecc1a76-b6d5-4e60-8ad9-2a2f827d9712\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"c6e7e10a-974a-4962-a6b9-3df422cee0c9\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"e95d889d-b803-4a86-aae0-bd4379c69405\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"03590dee-84b4-49f6-a1db-fe7900c6fbe0\"}"
+    }
+  }
+}

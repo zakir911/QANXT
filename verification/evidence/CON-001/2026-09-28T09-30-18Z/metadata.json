@@ -1,0 +1,35 @@
+{
+  "testId": "CON-001",
+  "suite": "API contracts",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "The API inventory reports which observed endpoints nothing tests",
+  "preconditions": [
+    "discovery has run against the lab bank"
+  ],
+  "input": "Inventory for Lab Bank contracts after discovery",
+  "expected": "Every observed endpoint listed, with a test count; the accounts endpoint counted as covered and the rest as not",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "14 endpoint(s) observed, 2 covered by an API test, 0 with a baseline; GET /api/accounts testCount=1",
+  "metrics": {
+    "endpoints": 14,
+    "covered": 2
+  },
+  "startedAt": "2026-09-28T09:50:53.471Z",
+  "durationMs": 14,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "inventory.json",
+      "path": "evidence/CON-001/2026-09-28T09-30-18Z/inventory.json",
+      "bytes": 8010,
+      "sha256": "51f0340154a19fbbb3fcf647630cd94c0a061bb21f798c605942a548df2d9c38"
+    }
+  ]
+}

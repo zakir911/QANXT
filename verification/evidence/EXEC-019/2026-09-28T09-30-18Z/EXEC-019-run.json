@@ -1,0 +1,158 @@
+{
+  "run": {
+    "id": "da849a33-2670-441a-97ee-e805f8ab3f2f",
+    "projectId": "492545aa-31e6-498b-b7ea-6588fc16e8db",
+    "name": "EXEC pagination",
+    "status": "passed",
+    "trigger": "manual",
+    "browser": "chromium",
+    "createdAt": "2026-09-28T09:35:19.300948+00:00",
+    "startedAt": "2026-09-28T09:35:19.31726+00:00",
+    "completedAt": "2026-09-28T09:35:20.165331+00:00",
+    "durationMs": 848,
+    "totalCount": 1,
+    "passedCount": 1,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 0,
+    "flakyCount": 0,
+    "qualityGatePassed": true,
+    "contractBreakingChangeCount": 0,
+    "contractPotentiallyBreakingChangeCount": 0
+  },
+  "actions": [
+    {
+      "id": "579b32b2-9446-4d10-b96a-22039cc271aa",
+      "order": 1,
+      "action": "navigate",
+      "description": "Go to http://localhost:4300/login",
+      "status": "passed",
+      "startedAt": "2026-09-28T09:35:19.351+00:00",
+      "durationMs": 63,
+      "url": "about:blank",
+      "wasHealed": false
+    },
+    {
+      "id": "7c8ca416-6576-42d2-8f97-af490b00cd57",
+      "order": 2,
+      "action": "fill",
+      "description": "Enter a value in username",
+      "status": "passed",
+      "startedAt": "2026-09-28T09:35:19.428+00:00",
+      "durationMs": 67,
+      "url": "http://localhost:4300/login",
+      "maskedValue": "***REDACTED***",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"username\""
+    },
+    {
+      "id": "aa1ffd30-555c-4827-bd62-9c888a8d5847",
+      "order": 3,
+      "action": "fill",
+      "description": "Enter a value in password",
+      "status": "passed",
+      "startedAt": "2026-09-28T09:35:19.51+00:00",
+      "durationMs": 36,
+      "url": "http://localhost:4300/login",
+      "maskedValue": "***REDACTED***",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "password",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"password\""
+    },
+    {
+      "id": "ce8dc720-d0c6-445b-9914-8fa199d6c896",
+      "order": 4,
+      "action": "click",
+      "description": "Press login-submit",
+      "status": "passed",
+      "startedAt": "2026-09-28T09:35:19.554+00:00",
+      "durationMs": 79,
+      "url": "http://localhost:4300/login",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "login-submit",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"login-submit\""
+    },
+    {
+      "id": "18feb305-fc8c-4d3e-ae56-9c8a03ad21d3",
+      "order": 5,
+      "action": "navigate",
+      "description": "Go to http://localhost:4300/accounts/acc-1001",
+      "status": "passed",
+      "startedAt": "2026-09-28T09:35:19.645+00:00",
+      "durationMs": 54,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false
+    },
+    {
+      "id": "f786bb5f-59af-46b6-9e5a-4b99ec80e2c4",
+      "order": 6,
+      "action": "assertVisible",
+      "description": "transactions-table is visible",
+      "status": "passed",
+      "startedAt": "2026-09-28T09:35:19.715+00:00",
+      "durationMs": 76,
+      "url": "http://localhost:4300/accounts/acc-1001",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "transactions-table",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"transactions-table\""
+    },
+    {
+      "id": "79d87afa-ccf3-4f9f-a69a-1e8785a59287",
+      "order": 7,
+      "action": "click",
+      "description": "Press page-next",
+      "status": "passed",
+      "startedAt": "2026-09-28T09:35:19.801+00:00",
+      "durationMs": 43,
+      "url": "http://localhost:4300/accounts/acc-1001",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "page-next",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"page-next\""
+    },
+    {
+      "id": "d2c60791-84b3-4bc0-ba19-40bfdf61621a",
+      "order": 8,
+      "action": "assertText",
+      "description": "page-indicator reads \"Page 2 of 12\"",
+      "status": "passed",
+      "startedAt": "2026-09-28T09:35:19.854+00:00",
+      "durationMs": 55,
+      "url": "http://localhost:4300/accounts/acc-1001",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "page-indicator",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"page-indicator\""
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "testRunId": "5b13944d-b992-45ba-945d-87a0a980466d",
+  "endpointsObserved": 1,
+  "endpointsWithBaseline": 1,
+  "endpointsWithoutBaseline": 0,
+  "breakingCount": 1,
+  "potentiallyBreakingCount": 0,
+  "nonBreakingCount": 0,
+  "changes": [
+    {
+      "id": "b95c81f8-345a-464f-a8c8-aacdcaa8406c",
+      "method": "GET",
+      "urlTemplate": "http://localhost:4300/api/accounts",
+      "kind": "breaking",
+      "path": "$.accounts[].balance",
+      "baselineType": "number",
+      "observedType": "string",
+      "description": "\"accounts[].balance\" changed from number to string. A caller that parses it as the old type will fail.",
+      "isAcknowledged": false
+    }
+  ],
+  "notes": []
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "ACC-005",
+  "suite": "Accessibility",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A run with no accessibility step reports the metric as unmeasured, never as zero",
+  "preconditions": [
+    "a gate rule on accessibility, and a run that checks nothing"
+  ],
+  "input": "A run of a test with no checkAccessibility step, against a project with an accessibility gate rule",
+  "expected": "The rule is reported as not measured and sent for review — a rule that passed because nothing looked reads as a guarantee that the page is accessible",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "rule measured=false passed=false; outcome review; \"The number of critical or serious accessibility violations was not measured for this run, so this rule could not be eval\"",
+  "metrics": null,
+  "startedAt": "2026-09-28T09:57:08.694Z",
+  "durationMs": 2119,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/ACC-005/2026-09-28T09-30-18Z/gate.json",
+      "bytes": 1515,
+      "sha256": "c91f5a68deb2d6d3fc60046ce25116d7f64515ccaaf6c2061c680c0a8613abda"
+    }
+  ]
+}

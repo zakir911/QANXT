@@ -1,0 +1,30 @@
+{
+  "expected": {
+    "id": "VULN_OPEN_REDIRECT",
+    "type": "OpenRedirect",
+    "endpoint": "GET /redirect?next=",
+    "severity": "medium",
+    "cwe": "CWE-601",
+    "owaspWeb": "A01:2021",
+    "detectBy": "An absolute external URL is returned in Location."
+  },
+  "got": {
+    "cwe": "CWE-601",
+    "cweConfidence": "confirmed",
+    "owaspWeb": "A01:2021",
+    "owaspApi": "API8:2023",
+    "confidence": "Medium",
+    "severity": {
+      "exploitability": "trivial",
+      "impact": "minimal",
+      "privilegeRequired": "none",
+      "affectedData": "nonSensitive",
+      "exposure": "public",
+      "requiresUnusualConditions": false,
+      "score": 11,
+      "maxScore": 19,
+      "severity": "Medium",
+      "explanation": "Medium (11/19): trivial to exploit, minimal impact, no account needed, reaches non-sensitive data, publicly reachable."
+    }
+  }
+}

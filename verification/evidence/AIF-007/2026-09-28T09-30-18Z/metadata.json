@@ -1,0 +1,36 @@
+{
+  "testId": "AIF-007",
+  "suite": "AI provider failure",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A provider outage does not stop a test run: the model plans, and something else executes",
+  "preconditions": [
+    "an imported journey exists",
+    "AI fault injection is enabled"
+  ],
+  "input": "A run started while every model request would fail",
+  "expected": "The run executes and passes, unaffected by the provider being down",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run passed with 1 passed / 0 failed, while every model request would have failed",
+  "metrics": {
+    "passed": 1,
+    "failed": 0
+  },
+  "startedAt": "2026-09-28T09:58:32.654Z",
+  "durationMs": 2071,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AIF-007/2026-09-28T09-30-18Z/run.json",
+      "bytes": 148,
+      "sha256": "3be07b87624a6d791094760a1e123cd24814d363918c150b9a2be932eb743556"
+    }
+  ]
+}

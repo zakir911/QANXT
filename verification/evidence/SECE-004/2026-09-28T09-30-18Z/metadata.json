@@ -1,0 +1,34 @@
+{
+  "testId": "SECE-004",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "Evidence is written in both raw and sanitized form, and hashed",
+  "preconditions": [
+    "a real finding from the detection scenarios"
+  ],
+  "input": "The excessive-data finding, whose response carries synthetic secrets",
+  "expected": "request, response, sanitized-request, sanitized-response, reproduction.md, metadata.json and sha256.txt, with the secrets present in the raw copy and absent from the sanitized one",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "6 file(s); the secret is present in the raw copy and absent in the sanitized one",
+  "metrics": {
+    "files": 6
+  },
+  "startedAt": "2026-09-28T09:58:38.381Z",
+  "durationMs": 8,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "written.json",
+      "path": "evidence/SECE-004/2026-09-28T09-30-18Z/written.json",
+      "bytes": 241,
+      "sha256": "dfea9490102f89d837e118c3ee9ad75cdfa3c3f22fefbdf505bc24342c199c60"
+    }
+  ]
+}

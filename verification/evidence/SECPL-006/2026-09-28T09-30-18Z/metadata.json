@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-006",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A finding with no evidence is refused rather than stored",
+  "preconditions": [
+    "an authorized scope"
+  ],
+  "input": "A scan whose finding declares zero exchanges",
+  "expected": "400, naming the finding. Filtering evidence-free findings out later means every list, count and report has to remember to — and one of them will not",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "400: ",
+  "metrics": null,
+  "startedAt": "2026-09-28T09:58:38.591Z",
+  "durationMs": 5,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECPL-006/2026-09-28T09-30-18Z/response.json",
+      "bytes": 388,
+      "sha256": "c325b79fb3b7069d9e0073b4a7b9baf0e396470d0e8fb363adb84a7c746b50c4"
+    }
+  ]
+}

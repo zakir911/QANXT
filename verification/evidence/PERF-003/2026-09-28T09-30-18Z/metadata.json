@@ -1,0 +1,35 @@
+{
+  "testId": "PERF-003",
+  "suite": "Performance baseline",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "How long generating a suite from one requirement takes",
+  "preconditions": [
+    "the application has been discovered"
+  ],
+  "input": "Three generations from the same requirement, each into its own suite",
+  "expected": "Three generations that produce cases, with their durations recorded",
+  "severity": "low",
+  "result": "PASS",
+  "detail": "generation: median 35ms (min 33ms, p95 126ms, max 126ms, n=3); 5/5/5 case(s) per attempt; provider local/aira-rules-v1 — the built-in rules, not a hosted model",
+  "metrics": {
+    "generationMs": 35,
+    "generationP95Ms": 126
+  },
+  "startedAt": "2026-09-28T10:02:29.148Z",
+  "durationMs": 15263,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "generation-timings.json",
+      "path": "evidence/PERF-003/2026-09-28T09-30-18Z/generation-timings.json",
+      "bytes": 677,
+      "sha256": "95079afc22df1839edb2b10f05c5b42a1e8a18fed53890734a01d088b38374c1"
+    }
+  ]
+}

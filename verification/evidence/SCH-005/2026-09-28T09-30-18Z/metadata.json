@@ -1,0 +1,32 @@
+{
+  "testId": "SCH-005",
+  "suite": "Scheduling",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A schedule pointed at unauthorized production is refused when it is created",
+  "preconditions": [
+    "a production environment that nobody has authorized for testing"
+  ],
+  "input": "A schedule with that environment",
+  "expected": "Refused with the security reason, at the moment somebody is looking at it — rather than failing silently every night once they are not",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "403 security_policy: Environment 'prod' is production and testing it has not been authorized. Authorize it explicitly with POST /api/v1/environments/{id}/authorize-production, with a note saying why.",
+  "metrics": null,
+  "startedAt": "2026-09-28T09:56:07.334Z",
+  "durationMs": 8,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusal.json",
+      "path": "evidence/SCH-005/2026-09-28T09-30-18Z/refusal.json",
+      "bytes": 337,
+      "sha256": "5f23ce08360d6cf81584e949d67780e44f945a6e6c74ffeed76d4bcfef9d8bf5"
+    }
+  ]
+}

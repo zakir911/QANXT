@@ -1,0 +1,34 @@
+{
+  "case": "connection-reset",
+  "lab": "networkError",
+  "accept": [
+    "networkIssue"
+  ],
+  "actual": "networkIssue",
+  "failure": {
+    "id": "09f6383b-486a-4524-a478-59d4e22876ed",
+    "category": "networkIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15004ms).",
+    "signature": "6796eaf9731ba977563449eba105683460834cc10c48cd0a997c344c19337eaa",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T09:43:44.456765+00:00",
+    "lastSeenAt": "2026-09-28T09:43:44.456765+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that never completed.",
+      "likelyCause": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE) — the request did not reach the service, so the page had nothing to render.",
+      "evidence": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE), made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15004ms).",
+      "suggestedAction": "Confirm the service is running and reachable from the worker, then re-run.",
+      "category": "networkIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"20e348eb-fa06-401e-8098-f11130aa9200\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"2f0e0680-0f8b-4fd8-99c1-fc332512ed3f\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"5fde7a92-e754-4035-ad65-4ba5f8cbf19b\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"625b5e01-c992-4e46-864b-25d0005807f8\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"b064b187-ec46-417e-9b1e-48900415c0dc\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"b223bfe3-0cd4-485c-9f16-19db5e06f178\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"ba79ebc5-1062-4954-a50f-f3224a2f1df4\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"e323ebbe-65ec-47e4-b116-8f030e63f342\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}], \"executionId\": \"8ad7c2cf-fdf5-4923-a180-f95e50f4fa30\"}"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "AQI-028",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "An unscanned build is not described as secure",
+  "preconditions": [
+    "a pass has run and its tests have executed"
+  ],
+  "input": "agent run e3cee5e2-ac7f-451f-b922-47e23889366d",
+  "expected": "When nothing was scanned the section says so, and nothing claims a clean posture",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "scanned true, verdict needsReview: NEEDS REVIEW. partial coverage (6 of 27 configured check(s) ran). 44 finding(s) open across 1 scan(s), 44 first seen in this build. Findings",
+  "metrics": null,
+  "startedAt": "2026-09-28T10:10:24.410Z",
+  "durationMs": 19,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "release.json",
+      "path": "evidence/AQI-028/2026-09-28T09-30-18Z/release.json",
+      "bytes": 41255,
+      "sha256": "2320e5fba4e2c0885e6a98e676046a3aefbee2a80e9a5491375a2d11eb379d5c"
+    }
+  ]
+}

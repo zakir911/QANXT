@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-004",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "The missing-authz finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-862, OWASP A01:2021, severity Critical, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-862, A01:2021, Critical (18/19) — Critical (18/19): trivial to exploit, severe impact, no account needed, reaches personal data, publicly reachable.",
+  "metrics": {
+    "score": 18,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-28T09:58:37.706Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-004/2026-09-28T09-30-18Z/mapping.json",
+      "bytes": 910,
+      "sha256": "2439b50288fe870591591a75d347b91bf7a39ebb8eacb152e7473dcaef09fde2"
+    }
+  ]
+}

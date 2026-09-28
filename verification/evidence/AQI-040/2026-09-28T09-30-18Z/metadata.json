@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-040",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "The coverage decision carries the counts it rests on",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run e3cee5e2-ac7f-451f-b922-47e23889366d",
+  "expected": "Every count the summary quotes is present as evidence",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "capabilities, covered, partiallyCovered, notCovered, unknown",
+  "metrics": null,
+  "startedAt": "2026-09-28T10:10:24.467Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-040/2026-09-28T09-30-18Z/coverage-decision.json",
+      "bytes": 1391,
+      "sha256": "1735da5a23c9eebc37f47adf12f6f5d84c88286ce0e766dc2caad9a5ebbccc43"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-040/2026-09-28T09-30-18Z/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "b3170bb609751f013c23d43327941cfc09b697a78f3351c5e4dec8ab03c9b024"
+    }
+  ]
+}

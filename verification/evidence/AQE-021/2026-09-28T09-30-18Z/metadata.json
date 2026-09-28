@@ -1,0 +1,56 @@
+{
+  "testId": "AQE-021",
+  "suite": "Autonomous execution",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A resumed pass does not propose a second plan",
+  "preconditions": [
+    "a full autonomous pass has run with every question answered"
+  ],
+  "input": "agent run 3bb0ddba-cc3a-4e80-b559-0033bf4ea7d0",
+  "expected": "Exactly one plan proposal decision exists",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 proposals",
+  "metrics": null,
+  "startedAt": "2026-09-28T10:05:37.720Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQE-021/2026-09-28T09-30-18Z/run.json",
+      "bytes": 1355,
+      "sha256": "d75370c757343791a7c9a97b7275dd582bc973dc4aca578ebe8c0f5977e168f0"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQE-021/2026-09-28T09-30-18Z/decisions.json",
+      "bytes": 18523,
+      "sha256": "f600c140441ae1f26a0c9009c4b122aa0f197216facfff43b9763dbca098dd39"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQE-021/2026-09-28T09-30-18Z/approvals.json",
+      "bytes": 1831,
+      "sha256": "9ed3bd204f2466eb164b08c56e034a6acd9b3f08eb3f8358d22cbdf71668247a"
+    },
+    {
+      "file": "timeline.json",
+      "path": "evidence/AQE-021/2026-09-28T09-30-18Z/timeline.json",
+      "bytes": 20882,
+      "sha256": "0e443c61e914f2e9376a7ecf1df6676d427ca2ed897ff5fe64fbd38004ed3ef3"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQE-021/2026-09-28T09-30-18Z/steps.json",
+      "bytes": 14871,
+      "sha256": "1d84384549bc2b43ea65df3a2a2caf370a7a037e77d7e7d6b67aeab3b305ae91"
+    }
+  ]
+}

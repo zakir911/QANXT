@@ -1,0 +1,39 @@
+{
+  "testId": "DISC-008",
+  "suite": "Discovery",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "Discovery finds the application's links",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "Ground-truth links on the discovered pages",
+  "expected": "Every declared link appears in the model",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "4/4 found; classified as link; 93 element(s) of that kind",
+  "metrics": {
+    "expected": 4,
+    "found": 4,
+    "kinds": [
+      "link"
+    ],
+    "ofKind": 93
+  },
+  "startedAt": "2026-09-28T09:33:12.223Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DISC-008-elements.json",
+      "path": "evidence/DISC-008/2026-09-28T09-30-18Z/DISC-008-elements.json",
+      "bytes": 11047,
+      "sha256": "ebb0836b5225c49c9a9434128874223db8e3414afc5c691b62ddc40a64d67b1f"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "testId": "DISC-002",
+  "suite": "Discovery",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "Every page the application has is discovered",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "The discovered page list against the hand-written ground truth",
+  "expected": "Recall is 1.0 — no declared page is missing",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "recall 100.0% (9/9)",
+  "metrics": {
+    "recall": 1,
+    "expected": 9,
+    "found": 9
+  },
+  "startedAt": "2026-09-28T09:33:12.215Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "page-score.json",
+      "path": "evidence/DISC-002/2026-09-28T09-30-18Z/page-score.json",
+      "bytes": 535,
+      "sha256": "2556bac992ca7ccb3edeaf2121eee2d53ea7c6040bd246ded8fa224f08374ac3"
+    }
+  ]
+}

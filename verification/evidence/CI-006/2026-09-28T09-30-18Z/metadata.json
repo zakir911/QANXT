@@ -1,0 +1,38 @@
+{
+  "testId": "CI-006",
+  "suite": "CI integration",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "The JUnit XML reports the same counts as the run it came from",
+  "preconditions": [
+    "a run with one pass and one failure"
+  ],
+  "input": "A run of both tests",
+  "expected": "A testsuites element whose tests and failures counts match the run, so the CI system's own test view agrees with AIRA's",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "junit tests=2 failures=1; run 2 test(s), 1 failed",
+  "metrics": null,
+  "startedAt": "2026-09-28T09:53:01.084Z",
+  "durationMs": 3244,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "junit.xml",
+      "path": "evidence/CI-006/2026-09-28T09-30-18Z/junit.xml",
+      "bytes": 1036,
+      "sha256": "e9a29468d5d615e63b90317816bbedfbc1839425733a1b8f3a469a3e9a268d5d"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/CI-006/2026-09-28T09-30-18Z/run.json",
+      "bytes": 357,
+      "sha256": "006db5b090ee0418c58d47a04bd325a0f35309a1e3250c091ba12bccb1128e61"
+    }
+  ]
+}

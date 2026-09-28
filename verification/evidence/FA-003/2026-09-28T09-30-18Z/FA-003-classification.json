@@ -1,0 +1,34 @@
+{
+  "case": "http-401",
+  "lab": "authenticationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "b2a3682f-8500-4891-b34c-f292103d4558",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15065ms).",
+    "signature": "b46b46b7e10d84384c73f382884821f9c5acb32f13c0d1acb954cdafda55d8d5",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T09:42:11.755197+00:00",
+    "lastSeenAt": "2026-09-28T09:42:11.755197+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was refused with 401.",
+      "likelyCause": "GET /api/answer → 401 in 0ms — the session was not accepted, so the page had nothing to render.",
+      "evidence": "GET /api/answer → 401 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15065ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0bab9db8-7725-4de1-b5e4-a39730f96137\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"2510fe38-7534-4471-be88-321d738e60c8\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"2d3b8391-5f5f-415b-8d72-b91dd0413060\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"32c63e6a-dbe7-4e3e-83a7-d0f9ffc606c1\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"4f8552e8-e64c-464c-8005-846be3ab0f2d\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"a951773e-5e47-4d90-9280-4cea91b7da6a\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"caaf2df3-0d0b-4d7f-9031-a13acdc16bd8\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"e64afbd4-1a34-4459-8fbe-a060baf91753\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"06a56ef5-2c26-4553-8e39-64524d15db45\"}"
+    }
+  }
+}

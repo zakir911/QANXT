@@ -1,0 +1,37 @@
+{
+  "testId": "HEAL-M02",
+  "suite": "Self-healing",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "The scorer separates a break that should heal from one that must not",
+  "preconditions": [
+    "every healing scenario above has executed and recorded its confidence"
+  ],
+  "input": "The best candidate confidence in each scenario",
+  "expected": "The lowest confidence among the healable breaks is above the highest among the refusals",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "healable: renamed control 79%, test id changed 93%; highest wrong-target candidate 63% (AMBIGUOUS_CONTROLS 51%, CONTROL_IS_LINK_ELSEWHERE 63%); margin +16 points. Findable-but-unusable controls scored 84%, 94%, 93%, 84% and all failed anyway.",
+  "metrics": {
+    "lowestHealable": 79,
+    "highestWrongTarget": 63,
+    "margin": 16,
+    "threshold": 75
+  },
+  "startedAt": "2026-09-28T09:49:57.966Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "confidence-separation.json",
+      "path": "evidence/HEAL-M02/2026-09-28T09-30-18Z/confidence-separation.json",
+      "bytes": 987,
+      "sha256": "d0076e62296b2829f9dc27eaf6937ab6a2827745d3ca49e4c71644dffa25c607"
+    }
+  ]
+}

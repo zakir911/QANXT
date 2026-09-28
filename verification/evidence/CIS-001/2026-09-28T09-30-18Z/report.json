@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-28T09:53:11.481Z",
+  "project": {
+    "id": "fd5bbafa-558a-46da-8db4-ef4babfdcbf9",
+    "name": "CI simulation",
+    "key": "GKV7E15",
+    "description": "Golden verification",
+    "applicationCount": 1,
+    "testCaseCount": 2,
+    "openDefectCount": 0,
+    "createdAt": "2026-09-28T09:53:07.994587+00:00"
+  },
+  "run": {
+    "id": "23b5c6f4-72f9-402b-ae80-dcd28a3f71e3",
+    "name": "GKV7E15 run 2026-09-28 09:53",
+    "status": "passed",
+    "trigger": "cicd",
+    "browser": "chromium",
+    "startedAt": "2026-09-28T09:53:08.398864+00:00",
+    "completedAt": "2026-09-28T09:53:08.485717+00:00",
+    "durationMs": 86,
+    "ci": {
+      "provider": "simulation",
+      "buildId": "4471",
+      "branch": "feature/accounts",
+      "commitSha": "deadbeefcafe0000111122223333444455556666",
+      "applicationBuildRef": null
+    },
+    "environment": {
+      "id": "762f3cf3-5b7e-477d-a322-e74e11db2aef",
+      "key": "qa",
+      "name": "Lab QA"
+    },
+    "contracts": null,
+    "url": null
+  },
+  "totals": {
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "blocked": 0,
+    "healed": 0,
+    "flaky": 0
+  },
+  "qualityGate": {
+    "passed": true,
+    "summary": "No quality gates are configured for this project, so the run does not block.",
+    "rules": []
+  },
+  "tests": [
+    {
+      "id": "f4bc30c2-fb06-44f3-ba68-53fe4a3f7fc6",
+      "reference": "TC-0001",
+      "name": "The application answers",
+      "suite": "Smoke",
+      "priority": "medium",
+      "status": "passed",
+      "verdict": "passed",
+      "qualification": null,
+      "durationMs": 31,
+      "attempt": 1,
+      "steps": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "healed": 0
+      },
+      "consoleErrors": 0,
+      "networkErrors": 0,
+      "message": null,
+      "browser": "chromium",
+      "browserVersion": "141.0.7390.37",
+      "correlationId": "bfd79decdd5943d88320ec943db205e8",
+      "url": null
+    },
+    {
+      "id": "08670b6f-881f-4575-aeb2-1597eabc610f",
+      "reference": "TC-0002",
+      "name": "An account carries its sort code",
+      "suite": "Regression",
+      "priority": "medium",
+      "status": "passed",
+      "verdict": "passed",
+      "qualification": null,
+      "durationMs": 49,
+      "attempt": 1,
+      "steps": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "healed": 0
+      },
+      "consoleErrors": 0,
+      "networkErrors": 0,
+      "message": null,
+      "browser": "chromium",
+      "browserVersion": "141.0.7390.37",
+      "correlationId": "bfd79decdd5943d88320ec943db205e8",
+      "url": null
+    }
+  ]
+}

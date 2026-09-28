@@ -1,0 +1,29 @@
+{
+  "status": "failed",
+  "failure": {
+    "id": "274fa004-13fb-4236-8841-5be26f860d59",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15015ms).",
+    "signature": "dfcea886a6202f7d8c8015fc33a7c0a0799ead6ca59c97bb055cbe20dfabcbb4",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T10:01:22.661859+00:00",
+    "lastSeenAt": "2026-09-28T10:01:22.661859+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that returned 500.",
+      "likelyCause": "GET /api/answer → 500 in 0ms — the page had nothing to render, so the step that followed found nothing. The fault is in the application or a service it depends on, not in the test.",
+      "evidence": "GET /api/answer → 500 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15015ms).",
+      "suggestedAction": "Take this request to the team that owns the endpoint. The failing assertion is the symptom; this call is the cause.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"01cc6b1b-3341-435d-b740-5f0139b7a7dd\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"304ea62a-3b06-4a4c-9959-3fce0f041b27\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"3f0ea1da-d532-4561-b783-cdd952184d93\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"421ce58c-2418-4095-a60c-79b95cf47785\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"915345e8-d2e0-490c-ae35-5004dab703a3\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"a72468eb-9825-4b35-bf50-ace0007f5801\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"cb0d6506-c1cf-4e3b-b948-b271c96b753d\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"d09773e6-f88b-4004-b93b-3540087cd484\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"fff08bfc-4c27-475a-a5c5-9e2565008267\"}"
+    }
+  }
+}

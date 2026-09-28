@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-007",
+  "suite": "Autonomous planning",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "The plan proposes more than one category of testing",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run c8eb1b62-0424-4b5a-99a2-c683d136538c",
+  "expected": "At least three categories, so a plan is a strategy rather than a single suite",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "6 categories",
+  "metrics": null,
+  "startedAt": "2026-09-28T10:03:02.777Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-007/2026-09-28T09-30-18Z/plan.json",
+      "bytes": 4708,
+      "sha256": "74fa0c4321cf1dd483c021feafe610b2727942ad4833d94d7200f6f67c248515"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-007/2026-09-28T09-30-18Z/run.json",
+      "bytes": 758,
+      "sha256": "90e610a86d4169cb1d65d8e070ff4a1d8ccfde47b7342fef94b61dccb9b1930d"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-007/2026-09-28T09-30-18Z/decisions.json",
+      "bytes": 3580,
+      "sha256": "94fb11dba8779530e06aa229c7e9af004a3262c4f6a2364c74afc80156d30083"
+    }
+  ]
+}

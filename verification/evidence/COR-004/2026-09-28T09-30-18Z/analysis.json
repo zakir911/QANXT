@@ -1,0 +1,14 @@
+{
+  "summary": "The step failed because the API call it made never completed.",
+  "likelyCause": "POST /api/session did not complete (apiRequestContext.fetch: socket hang up) — the request did not reach the service, or the service did not answer.",
+  "evidence": "POST /api/session did not complete (apiRequestContext.fetch: socket hang up). Engine message: POST http://localhost:4300/api/session did not complete: apiRequestContext.fetch: socket hang up",
+  "suggestedAction": "Confirm the service is running and reachable from the worker, then re-run.",
+  "category": "networkIssue",
+  "confidence": 90,
+  "isLikelyApplicationDefect": false,
+  "isHealable": false,
+  "producedByAi": false,
+  "provider": "local",
+  "model": "aira-rules-v1",
+  "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"a336c5b8-70d3-4911-b326-329116320378\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"c55bb050-9bec-4a57-abd8-8aee02324a4f\", \"kind\": \"Other\", \"name\": \"step-1-request.http.json\"}, {\"id\": \"da39035d-f180-4e67-9818-92b58e5d138b\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"6b5b7d5b-9f6f-4ec8-9952-4fe808a6cea1\"}"
+}

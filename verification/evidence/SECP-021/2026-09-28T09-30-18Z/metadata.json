@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-021",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "The template-injection check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_TEMPLATE_INJECTION"
+  ],
+  "input": "The same template-injection check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "3 arithmetic marker(s) returned unevaluated",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-28T09:58:38.097Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-021/2026-09-28T09-30-18Z/corrected.json",
+      "bytes": 160,
+      "sha256": "1b5722e1aaf71b1303a70b2958b4464980c088f54ecf3549968df38c7e5eb396"
+    }
+  ]
+}

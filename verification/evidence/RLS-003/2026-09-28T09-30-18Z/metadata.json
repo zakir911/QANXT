@@ -1,0 +1,32 @@
+{
+  "testId": "RLS-003",
+  "suite": "Release quality",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A failure present in both runs is still failing, never newly failing",
+  "preconditions": [
+    "two runs against the same broken deployment"
+  ],
+  "input": "A comparison of two runs that both failed the same way",
+  "expected": "stillFailing and nothing newly failing, so a pipeline gated on regressions does not block on a defect somebody already knows about",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "TC-0002: stillFailing; unchanged=true; \"Nothing changed. 1 test(s) are still failing, as they were before.\"",
+  "metrics": null,
+  "startedAt": "2026-09-28T09:56:34.858Z",
+  "durationMs": 4112,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "comparison.json",
+      "path": "evidence/RLS-003/2026-09-28T09-30-18Z/comparison.json",
+      "bytes": 1748,
+      "sha256": "eb91e3d745f4ed855f8089c705ba2816fa9b8a1343b7ca1942ad85746c3ff561"
+    }
+  ]
+}

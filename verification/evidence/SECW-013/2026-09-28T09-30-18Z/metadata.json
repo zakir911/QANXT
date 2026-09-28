@@ -1,0 +1,34 @@
+{
+  "testId": "SECW-013",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A DOM sink no response can reveal is found by driving a real browser",
+  "preconditions": [
+    "the xss lab with VULN_DOM_XSS on, discovered and authorized"
+  ],
+  "input": "A scan narrowed to xss.dom",
+  "expected": "A DomXSS finding at /dom, carrying evidence. The fragment never reaches the server, so nothing in any response distinguishes the vulnerable page from the corrected one — a finding here can only come from having watched the page execute it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "DomXSS at /dom (high, high, CWE-79)",
+  "metrics": {
+    "findings": 1
+  },
+  "startedAt": "2026-09-28T09:59:16.720Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "scan.json",
+      "path": "evidence/SECW-013/2026-09-28T09-30-18Z/scan.json",
+      "bytes": 1500,
+      "sha256": "28a5686d10195ffa4f7d50cbc623aa4c1a75f14ce287bc34e1a3619318cca3b8"
+    }
+  ]
+}

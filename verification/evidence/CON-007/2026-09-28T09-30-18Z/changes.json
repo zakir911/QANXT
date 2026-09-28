@@ -1,0 +1,22 @@
+{
+  "testRunId": "42273732-1acf-4342-9f50-3f7c75c25318",
+  "endpointsObserved": 1,
+  "endpointsWithBaseline": 1,
+  "endpointsWithoutBaseline": 0,
+  "breakingCount": 0,
+  "potentiallyBreakingCount": 0,
+  "nonBreakingCount": 1,
+  "changes": [
+    {
+      "id": "bf0e086d-e2f2-4b13-a22a-db4f0b3960a5",
+      "method": "GET",
+      "urlTemplate": "http://localhost:4300/api/accounts",
+      "kind": "nonBreaking",
+      "path": "$.accounts[].nickname",
+      "observedType": "string",
+      "description": "\"accounts[].nickname\" is new, as string. Existing callers are unaffected.",
+      "isAcknowledged": false
+    }
+  ],
+  "notes": []
+}

@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-027",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A redirect to an arbitrary host is reported, with the Location read and never followed",
+  "preconditions": [
+    "VULN_OPEN_REDIRECT switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Request handling: the open-redirect check against the lab",
+  "expected": "Exactly one OpenRedirect finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "OpenRedirect: 'next' redirects to any host (2 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 2
+  },
+  "startedAt": "2026-09-28T09:58:38.224Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-027/2026-09-28T09-30-18Z/vulnerable.json",
+      "bytes": 398,
+      "sha256": "114f4bd2c5d38e6a615afea22dedac718012df08e6ed5a607bf2c86ca009a72b"
+    }
+  ]
+}

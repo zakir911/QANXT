@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-016",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "The reflected-xss finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-79, OWASP A03:2021, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-79, A03:2021, High (14/19) — High (14/19): straightforward to exploit, serious impact, no account needed, reaches personal data, publicly reachable.",
+  "metrics": {
+    "score": 14,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-28T09:58:37.996Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-016/2026-09-28T09-30-18Z/mapping.json",
+      "bytes": 885,
+      "sha256": "5f1cfd7eb2612ed15d66b5bedabe039e55e42661c14856c19fa5646f6c933bff"
+    }
+  ]
+}

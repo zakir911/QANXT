@@ -1,0 +1,38 @@
+{
+  "testId": "DISC-013",
+  "suite": "Discovery",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "Discovered elements carry a stable preferred locator, not a structural path",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "The preferred locator of every discovered element",
+  "expected": "At least 80% prefer a test id, role or label over css or xpath",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "100.0% stable of 259 element(s): testId=240 role=19",
+  "metrics": {
+    "stableLocatorShare": 1,
+    "strategies": {
+      "testId": 240,
+      "role": 19
+    }
+  },
+  "startedAt": "2026-09-28T09:33:12.226Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "locator-strategies.json",
+      "path": "evidence/DISC-013/2026-09-28T09-30-18Z/locator-strategies.json",
+      "bytes": 89,
+      "sha256": "d7c22aa6d14d7438eb48d941ae4faa2cdd764b8c876231427a182ad218f5d246"
+    }
+  ]
+}

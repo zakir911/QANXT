@@ -1,0 +1,71 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "fe8eaf12-7de4-4fa0-9198-ea3aec87264c",
+      "order": 2,
+      "action": "assertAttribute",
+      "description": "username's name is \"username\"",
+      "status": "passed",
+      "startedAt": "2026-09-28T09:37:10.971+00:00",
+      "durationMs": 72,
+      "url": "http://localhost:4300/login",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"username\""
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "a41bb88b-1aa3-4ba6-b81f-6d86003bca29",
+      "order": 2,
+      "action": "assertAttribute",
+      "description": "username's name is \"account-number\"",
+      "status": "failed",
+      "startedAt": "2026-09-28T09:37:13.046+00:00",
+      "durationMs": 15098,
+      "url": "http://localhost:4300/login",
+      "wasHealed": false,
+      "errorMessage": "Expected attribute \"name\" to be \"account-number\" but it was \"username\" (waited 15051ms).",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"username\""
+    },
+    "failure": {
+      "id": "ab48d6de-f52b-4df7-99e8-18fadbe2f4da",
+      "category": "authenticationIssue",
+      "categoryConfidence": 85,
+      "rawMessage": "Expected attribute \"name\" to be \"account-number\" but it was \"username\" (waited 15051ms).",
+      "signature": "9d02ebd8357ac846790b373c77f5bfe545486830ec753112ad79809c1445fe89",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-28T09:37:31.84372+00:00",
+      "lastSeenAt": "2026-09-28T09:37:31.84372+00:00",
+      "analysis": {
+        "summary": "The step before this one made an API call that was refused with 401.",
+        "likelyCause": "GET /api/session → 401 in 0ms — the session was not accepted, so the page had nothing to render.",
+        "evidence": "GET /api/session → 401 in 0ms, made by step 1. Engine message: Expected attribute \"name\" to be \"account-number\" but it was \"username\" (waited 15051ms).",
+        "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+        "category": "authenticationIssue",
+        "confidence": 85,
+        "isLikelyApplicationDefect": false,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "aira-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0141b1ac-80d9-4d2e-a7b7-41e8d5a19d29\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"20d027bf-fe37-4089-806b-ecc37e827547\", \"kind\": \"DomSnapshot\", \"name\": \"step-2-failure.html\"}, {\"id\": \"50a9af0d-9312-4592-a7c1-6c1bd7776ddb\", \"kind\": \"Screenshot\", \"name\": \"step-2-failure.png\"}, {\"id\": \"81ebf458-83c9-4e2f-a92e-a9e1fd58b06c\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"a334877b-da03-4fe2-9abe-3ac1b1990cdb\", \"kind\": \"AccessibilityTree\", \"name\": \"step-2-failure.a11y.json\"}, {\"id\": \"bd300f68-5c19-4290-99dd-19bd49eaf6a3\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"e5f06017-ddde-4855-b4fd-6a4e245b54a5\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"fd413fab-a35c-42b1-b50f-565927375c29\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"4c2624ba-d245-4b9e-b4a0-478725412fa5\"}"
+      }
+    }
+  }
+}

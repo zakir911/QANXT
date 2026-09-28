@@ -1,0 +1,32 @@
+{
+  "testId": "SECW-005",
+  "suite": "Security scans AIRA runs itself",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "Every finding the worker reported arrived with a severity and confidence the platform recognises",
+  "preconditions": [
+    "the completed scan"
+  ],
+  "input": "The stored findings",
+  "expected": "Each carries a severity band and a confidence level, both from the shared vocabulary. A finding whose confidence did not survive the trip reads as whatever the receiving side defaults to, and every default is a judgement nobody made",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "4 finding(s); 0 carry a severity or confidence outside the shared vocabulary",
+  "metrics": null,
+  "startedAt": "2026-09-28T09:58:57.483Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "findings.json",
+      "path": "evidence/SECW-005/2026-09-28T09-30-18Z/findings.json",
+      "bytes": 689,
+      "sha256": "72a0487c48e509a9cd7ca06d0435fa62c72d1ef4c3f00db6f5031c9e198d3abb"
+    }
+  ]
+}

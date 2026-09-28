@@ -1,0 +1,38 @@
+{
+  "testId": "CON-009",
+  "suite": "API contracts",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A breaking change can be acknowledged, and the acknowledgement carries forward",
+  "preconditions": [
+    "CON-008 produced a breaking change"
+  ],
+  "input": "Acknowledge the removed-field change, then run again with the same fault",
+  "expected": "The acknowledgement is refused without a reason, accepted with one, and the same change on the next run comes back already acknowledged",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "without a reason: 400; with one: 204; the same change on the next run: acknowledged=true",
+  "metrics": null,
+  "startedAt": "2026-09-28T09:51:05.912Z",
+  "durationMs": 4145,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "acknowledgement.json",
+      "path": "evidence/CON-009/2026-09-28T09-30-18Z/acknowledgement.json",
+      "bytes": 345,
+      "sha256": "4cb4d30d457f6cd0dbf6f3592e50396a1a4cb7502874dc440fde68c7804aa2c3"
+    },
+    {
+      "file": "second-run-changes.json",
+      "path": "evidence/CON-009/2026-09-28T09-30-18Z/second-run-changes.json",
+      "bytes": 663,
+      "sha256": "5cc9a72d1af882c5bcba5a90bc4776482ec44fd1f08fe8f7acc484d6176cd60a"
+    }
+  ]
+}

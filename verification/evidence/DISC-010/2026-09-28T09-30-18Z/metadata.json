@@ -1,0 +1,32 @@
+{
+  "testId": "DISC-010",
+  "suite": "Discovery",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "Tabular content is discovered on the pages that have it",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "Pages the ground truth says contain a table",
+  "expected": "Each is discovered with elements captured",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "/accounts:19 /transactions:35 /dashboard:39 /beneficiaries:17",
+  "metrics": null,
+  "startedAt": "2026-09-28T09:33:12.224Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "tables.json",
+      "path": "evidence/DISC-010/2026-09-28T09-30-18Z/tables.json",
+      "bytes": 340,
+      "sha256": "a75e38b0f5d0732eb55bffb61356d629c1d9aef9f407d83ccad99c7627ce8966"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "testId": "SECS-006",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T09-30-18Z",
+  "objective": "A fully attributed session cookie produces no cookie finding",
+  "preconditions": [
+    "the lab left in its ordinary, fully vulnerable state"
+  ],
+  "input": "GET /strict (cookie), which the lab ground truth calls correct",
+  "expected": "No finding. Any finding here is a false positive on an endpoint that does nothing wrong",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "no finding",
+  "metrics": {
+    "findings": 0
+  },
+  "startedAt": "2026-09-28T09:58:38.352Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "5f3f4e3",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "result.json",
+      "path": "evidence/SECS-006/2026-09-28T09-30-18Z/result.json",
+      "bytes": 119,
+      "sha256": "95a19eb1666ca648c24318acc75f603ca24203f6d4b44757c0881bd5351a5758"
+    }
+  ]
+}

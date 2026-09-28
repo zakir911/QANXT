@@ -1,0 +1,42 @@
+{
+  "id": "DET-011",
+  "case": "missing-element",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "2d51ac8a-3148-4a4b-8433-84fe109443af",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "4fa39db711c146b040e36c2e2b17d1001d9d73d005985122f62860c78692488b",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T09:41:29.46228+00:00",
+    "lastSeenAt": "2026-09-28T09:41:29.46228+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "aira-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"25c1e81e-d669-4ff5-9137-16718ba90853\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"6b83960a-0af4-45be-ba9e-e73f3dcfc6c6\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"9179a8b2-32cc-4c65-85f3-9a37d6bacc1e\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"9b9a29b0-c494-4b24-9093-0ac27dee528a\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"b18d0a7b-fecb-4f1c-84fb-741841a2a49c\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"e427457c-be78-49c8-9539-e00b3ff8f12b\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"fbb0ed4e-de5a-46a9-9e9b-ea7291b81725\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}], \"executionId\": \"e1eadeba-ad76-4b69-9ff2-1f2f6310d97f\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\"."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}
