@@ -14,13 +14,13 @@ instead](#windows), below.
 
 ## Contents
 
-1. [Before you begin](#1-before-you-begin)
+1. [Before you begin](#1-before-you-begin) — [hardware](#hardware-requirements) · [system](#system-requirements)
 2. [Choosing how to install](#2-choosing-how-to-install)
 3. [Prerequisites](#3-prerequisites) — [Windows](#windows) · [macOS](#macos) · [Linux](#linux)
 4. [Path A — Docker](#4-path-a--docker)
 5. [Path B — from source](#5-path-b--from-source)
 6. [Your first five minutes](#6-your-first-five-minutes)
-7. [Checking it really works](#7-checking-it-really-works)
+7. [Checking it really works](#7-checking-it-really-works) — [per-area gates](#4-one-area-at-a-time)
 8. [Settings worth knowing](#8-settings-worth-knowing)
 9. [When it does not work](#9-when-it-does-not-work)
 10. [Updating, resetting, removing](#10-updating-resetting-removing)
@@ -45,17 +45,32 @@ AIRA is not a single program. Installing it starts five things that talk to each
 A sixth, the **demo bank** on `http://localhost:4200`, is a small application to point AIRA
 at so you have something to test on the first day.
 
-### What you need
+### Hardware requirements
 
-| | Minimum | Comfortable |
+| | Minimum | Comfortable | Why |
+| --- | --- | --- | --- |
+| Memory | 8 GB | 16 GB | Each browser the worker opens wants about 1 GB. The API, PostgreSQL and Redis together sit under 1 GB at rest. |
+| Free disk | 10 GB | 20 GB | Browsers and container images are most of it; after that it is the video, traces and screenshots every run leaves behind. |
+| CPU | 2 cores | 4 cores | One core is enough to run the platform. Browsers are what use the rest. |
+| Architecture | 64-bit | — | x86-64 and ARM64 both. Apple Silicon and Intel Macs both work. |
+| Network | During installation | — | To download the toolchain and a browser. AIRA does not need the internet to run afterwards unless you configure a hosted model provider. |
+
+**If you intend to run the verification suites**, budget more: they start the platform, six
+test-lab applications and nine deliberately vulnerable ones, and drive real browsers against
+them. 16 GB of memory, 30 GB of free disk and 4 cores is the comfortable floor for those, and
+they are not needed to use the product.
+
+### System requirements
+
+| | Supported | Notes |
 | --- | --- | --- |
-| Memory | 8 GB | 16 GB — each browser the worker opens wants about 1 GB |
-| Free disk | 10 GB | 20 GB — browsers, container images, and the video and traces of every run |
-| CPU | 2 cores | 4 cores |
-| Network | Needed during installation, to download the toolchain and a browser | — |
+| **Linux** | Ubuntu 22.04+, Debian 12+, or any distribution with the toolchain below | What this was developed and verified on |
+| **macOS** | 13 Ventura or later | Apple Silicon and Intel |
+| **Windows** | 10 version 2004 or later, or Windows 11 | Through **WSL2**. There is no native Windows path; [§3](#windows) sets WSL2 up. |
+| **Browser for the console** | Any current Chromium-based browser, Firefox or Safari | This is the browser *you* use. The browser the worker drives is separate and installed for you. |
 
-A 64-bit machine. Apple Silicon and Intel Macs both work; on Windows you need a version
-that supports WSL2 (Windows 10 version 2004 or later, or Windows 11).
+Docker (Path A) needs only Docker and Git. From source (Path B) you also need the .NET SDK,
+Node, pnpm, PostgreSQL and Redis — the versions are in [§3](#3-prerequisites).
 
 ### Nothing here needs administrator rights afterwards
 
@@ -434,9 +449,9 @@ Path B only — this needs the source and the toolchain.
 make test
 ```
 
-Runs every suite that does not need a browser: 171 unit tests, 57 integration tests against
-a real PostgreSQL, and the Node suites for the worker, the CLI, the extension, the console
-and the test lab. All of them should pass.
+Runs every suite that does not need a browser: **885 unit tests**, **57 integration tests**
+against a real PostgreSQL, and **262 Node tests** across the browser worker, the CLI, the
+browser extension, the console and the shared types. All of them should pass.
 
 ### 3. The whole product, proved against a test lab
 
@@ -446,17 +461,46 @@ and the test lab. All of them should pass.
 
 This is the serious one and takes about 25 minutes. It starts the infrastructure, builds and
 starts six purpose-built applications, audits their ground truth, runs the product's own
-tests, runs 130 golden tests against them, then writes the reports and the certification. It
-exits 0 only if every quality gate passes.
+tests, runs all **34 golden suites** against them, then writes the reports and the
+certification. It exits 0 only if every quality gate passes. The test count is whatever those
+suites contain on the day; the report it writes states it, so this page does not have to.
 
 The console shows the result at **Verification**:
 
-![The Verification Center showing 126 of 130 golden tests passed and every quality gate green](images/07-verification-centre.png)
+![The Verification Center showing the golden result and every quality gate green](images/07-verification-centre.png)
+
+The numbers in that screenshot are the ones the run behind it produced. Yours will differ as
+the suites grow; what should match is that no quality gate is red.
 
 Four tests read **not verified** rather than passed on most machines — Firefox and WebKit
 where those browsers are not installed, generation quality where no model provider is
 configured, and one reconciliation test that waits longer than the suite is willing to. That
 is the intended behaviour: a test that could not run is never counted as one that passed.
+
+### 4. One area at a time
+
+`verify-product` covers everything. When you only want to prove one area — or when you are
+changing one and want the fast answer — each has its own gate, and each writes its own report
+and exits non-zero if a requirement it claims is not verified by a test that actually ran.
+
+```bash
+./scripts/verify-continuous-quality   # CI, contracts, schedules, gates, accessibility, visual
+./scripts/verify-security             # the security engine against the vulnerable labs
+./scripts/verify-autonomous-qa        # the autonomous agent, end to end
+```
+
+Each is also a `make` target: `make verify-continuous-quality`, `make verify-security`,
+`make verify-autonomous-qa`. `make help` lists all of them.
+
+`verify-autonomous-qa` takes about 10 minutes and finishes with a line worth reading:
+
+```
+271 passed, 0 failed, 0 not verified of 271 golden tests
+Requirements: 30 verified, 0 failed, 0 not verified, 0 not tested
+```
+
+The second line is the one that matters. A requirement no passing test covers is reported as
+**not tested** and fails the gate, rather than being quietly absent from a green summary.
 
 ---
 
@@ -593,13 +637,16 @@ something nobody checked, it links to each vendor's own instructions.
 | --- | --- |
 | Path B, end to end, including `make setup`, `make dev`, `make test` and `./scripts/verify-product` | **Linux** (Ubuntu 24.04, x86-64) |
 | The first-run path in §6 — organization, project, application, discovery | Linux, in a real Chromium |
-| `make test` — 171 unit, 57 integration, and every Node suite | Linux |
-| `./scripts/verify-product` — 130 golden tests, exit 0 | Linux |
+| `make test` — 885 unit, 57 integration, 262 Node tests | Linux |
+| `./scripts/verify-product` — every golden suite, exit 0 | Linux |
+| `./scripts/verify-autonomous-qa` — 271 golden tests, 30 of 30 requirements, exit 0 | Linux |
+| `./scripts/verify-security` and `./scripts/verify-continuous-quality` | Linux |
 
 ### Not verified
 
 | | Why |
 | --- | --- |
+| **The minimum hardware column** in §1 | Nobody has run AIRA on 8 GB and 2 cores. Those figures are derived from what the parts actually consume, not measured on such a machine. The comfortable column is what this was developed and verified on. |
 | Any step on **Windows** or **macOS** | Neither operating system was available here. The prerequisites are the ones the code actually requires, and the commands are the vendors' documented ones, but nobody has walked them end to end. Treat §3 for those two platforms as carefully-derived rather than tested. |
 | **Path A end to end** | Two of the four images build and run here; the console and demo-bank images could not be built in this environment because the image registry they need is unreachable, so the full compose stack has never been started in one piece. `docs/verification-status.md` has the detail. |
 | **WSL2** | The Linux instructions are what WSL2 runs, and nothing in them depends on the kernel, but the WSL2 route itself has not been walked. |

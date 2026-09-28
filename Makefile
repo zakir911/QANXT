@@ -2,7 +2,10 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
-.PHONY: help setup dev test build migrate db-reset api worker console demo-bank clean docker-up docker-down docker-logs docker-reset lint verify verify-all
+.PHONY: help setup dev test build migrate db-reset api worker console demo-bank clean \
+	docker-up docker-down docker-logs docker-reset lint verify verify-all verify-product \
+	verify-continuous-quality verify-security verify-autonomous-qa golden demo \
+	demo-continuous-quality lab lab-stop
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -27,6 +30,12 @@ verify-product: ## Prove the product against the test lab: golden suite, evidenc
 
 verify-continuous-quality: ## Prove continuous quality: CI, contracts, schedules, gates, a11y, visual — and traceability
 	@bash scripts/verify-continuous-quality
+
+verify-security: ## Prove the security engine against the vulnerable labs, with its scope guard
+	@bash scripts/verify-security
+
+verify-autonomous-qa: ## Prove the autonomous agent: plan, refuse, ask, execute — and trace every requirement
+	@bash scripts/verify-autonomous-qa
 
 golden: ## Run the golden test suite against a running platform and test lab
 	@bash scripts/run-golden-tests --all

@@ -50,6 +50,15 @@ The loop it runs, and which section of this manual covers each part:
 The same application model also feeds **security testing** (§10) — once somebody has authorized
 it in writing, which is the one part of the product that starts switched off.
 
+You can also hand the whole loop to the **autonomous agent** (§11), which walks it inside
+bounds you set, stops to show you its plan before it writes anything, and writes up what it
+found along with what it could not establish. It proposes; it has no authority to change
+anything.
+
+**What you need to run it.** Any current browser for the console. The machine AIRA itself runs
+on wants 8 GB of memory and 10 GB of free disk at a minimum, 16 GB and 20 GB comfortably, and
+every requirement is in [the installation guide](installation.md#hardware-requirements).
+
 Two ideas run through all of it, and the product is easier to use if you know them:
 
 - **A pass means it ran.** The action executed, the expected behaviour was observed, the
@@ -602,6 +611,52 @@ If nobody has described the application the card says so plainly, and says what 
 being critical. If you named an area the agent could not find, it tells you which one rather
 than quietly matching nothing.
 
+### What a pass works out for itself
+
+Between exploring and writing up, a pass does seven things you did not ask it for. Each one
+produces a proposal and a decision you can read; none of them changes anything.
+
+| | What it produces |
+| --- | --- |
+| **Coverage gaps** | What the application can do, against what is tested, dimension by dimension — UI, API, security, accessibility, visual. |
+| **Duplicates** | Whether a test it just wrote repeats one that already existed. |
+| **What to re-run first** | An order over your existing tests, from each test's own history. |
+| **Reactions to what it saw** | Somewhere else worth looking, argued from a response the run actually received. |
+| **Grouped failures** | Failures that appear to share one cause, gathered under it. |
+| **Promotion candidates** | What this pass did that might deserve a permanent place in the suite. |
+| **A release verdict** | What it measured, what it did not, and what that allows it to say. |
+
+**Uncovered and unknown are counted separately.** A capability the platform cannot decide
+about is reported as unknown, not as covered and not as a gap — as a gap it invents work, as
+coverage it invents safety. The coverage decision also names what it was measured against, in
+pages and endpoints discovery actually reached, because coverage measured against a crawl that
+reached half the application is a different number from coverage of the application.
+
+**A duplicate is reported, never deleted.** The agent has no authority to remove or change a
+test, and a test that quietly disappeared because something judged it redundant is a coverage
+gap with no record of itself.
+
+**Priority is arithmetic you can check.** Every point in a test's score is attributed to a
+named reason — changed, failing, business-critical, unstable, never run, stale — so when you
+disagree with an order you can see which rule produced it rather than be told a model felt
+strongly. Tests left out are reported as a bound that was reached, not as a judgement that
+they did not matter.
+
+**Grouping never hides a failure.** Every failure appears either inside a group or in the
+ungrouped list, and the two always add up to the number that went in. A group is a way of
+reading failures, not a way of reducing them.
+
+**Nothing is promoted without a person.** Creating a permanent test changes state, so the
+pass proposes and stops. A candidate that falls below the bar is named rather than dropped,
+and where the platform cannot measure something the bar needs, the pass says so instead of
+working around it.
+
+**There is no overall score, and the assessment says why.** A single number is the thing
+everybody reads and nobody can act on, and it cannot be checked. What you get instead is a
+verdict, the things it rests on, and an explicit list of what this pass did not measure —
+accessibility and visual appearance, which the platform tests elsewhere, and security where no
+scan covered the build. A pass that measured very little will not report a clear release.
+
 ### The timeline and the decision log
 
 ![The run timeline: every phase, question and decision in the order it happened](images/manual/15b-agent-timeline.png)
@@ -838,6 +893,24 @@ Worth knowing before you rely on it:
   A page that says "ignore your instructions" is treated as content, never as a command.
 - **It does not invent numbers.** Every figure on the dashboard is computed from stored
   executions. Where there is nothing to compute from, it says so.
+
+On the autonomous agent specifically:
+
+- **It does not act on what it finds.** Everything a pass produces is a proposal: a coverage
+  gap, a duplicate, a candidate for the permanent suite, a release verdict. It raises no
+  defect, writes no permanent test and changes no gate.
+- **It does not delete or edit a test**, including one it has just decided is a duplicate of
+  another.
+- **It does not report a score.** There is no single number for a pass, deliberately, and the
+  assessment says why rather than leaving you to notice the absence.
+- **It does not treat what it could not decide as good news.** Unknown coverage is counted
+  apart from covered and apart from uncovered, and a pass that measured very little says so
+  instead of reporting a clear release.
+- **It does not widen itself by reacting to evidence.** Something the run observed can argue
+  for more work; it never argues for more permission, and every action still goes through the
+  same policy check.
+- **It does not quietly run out.** A pass that stopped because it reached a bound says which
+  bound, so "it found nothing else" is never confused with "it ran out of budget".
 
 On the security side specifically:
 
