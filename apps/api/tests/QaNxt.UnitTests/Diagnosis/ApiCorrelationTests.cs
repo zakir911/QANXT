@@ -360,4 +360,75 @@ public class ApiCorrelationTests
         // A verdict that lists twenty requests is not a verdict.
         verdict.Evidence.Should().Contain("and 2 more");
     }
+
+    // ---- Where the fetch is attributed must not change the diagnosis -------------
+    //
+    // COR-005 failed intermittently for two years' worth of runs' worth of reasons that all
+    // came down to one: whether a page's fetch lands inside the navigate that started it or
+    // the assertion that trips over the result is a matter of milliseconds. The data arrives
+    // correctly either way, so the verdict must be the same either way.
+
+    [Fact]
+    public void A_wrong_page_is_a_front_end_defect_when_the_failing_step_made_the_calls()
+    {
+        var correlation = ApiCorrelation.Build(Completion(
+            Call("GET", "http://app/api/session", 200, 2),
+            Call("GET", "http://app/api/dashboard", 200, 2)), failingActionOrder: 2);
+
+        var verdict = DeterministicFailureClassifier.Classify(Input(
+            "Expected the element to contain \"£74,343.08\" but it read \"£81,797.38\"",
+            "assertText", correlation, authErrors: 1));
+
+        verdict.Category.Should().Be(FailureCategory.ApplicationDefect);
+        verdict.Summary.Should().Be("The API answered correctly and the page showed something else.");
+    }
+
+    [Fact]
+    public void A_wrong_page_is_still_a_front_end_defect_when_the_step_before_made_the_calls()
+    {
+        // The same execution, with both calls attributed to the navigate instead. This is the
+        // shape that produced "The session was not authorised." for a wrong total: the failing
+        // step had made no calls of its own, so the negative could not be stated and the
+        // verdict fell through to a rule that counts 401s across the whole execution. The 401
+        // is the application's own signed-out probe, which every single-page application makes.
+        var correlation = ApiCorrelation.Build(Completion(
+            Call("GET", "http://app/api/session", 200, 1),
+            Call("GET", "http://app/api/dashboard", 200, 1)), failingActionOrder: 2);
+
+        var verdict = DeterministicFailureClassifier.Classify(Input(
+            "Expected the element to contain \"£74,343.08\" but it read \"£81,797.38\"",
+            "assertText", correlation, authErrors: 1));
+
+        verdict.Category.Should().Be(FailureCategory.ApplicationDefect);
+        verdict.Summary.Should().Be("The API answered correctly and the page showed something else.");
+        verdict.LikelyCause.Should().Contain("the step before it");
+    }
+
+    [Fact]
+    public void A_refusal_on_the_failing_step_is_still_an_authorization_problem()
+    {
+        // The widened negative must not swallow the real thing. Here the call the failing step
+        // made was itself refused, which is a session problem and must stay one.
+        var correlation = ApiCorrelation.Build(Completion(
+            Call("GET", "http://app/api/dashboard", 401, 2)), failingActionOrder: 2);
+
+        var verdict = DeterministicFailureClassifier.Classify(Input(
+            "Expected the element to contain \"OK 42\" but it read \"failed\"",
+            "assertText", correlation, authErrors: 1));
+
+        verdict.Category.Should().Be(FailureCategory.AuthenticationIssue);
+    }
+
+    [Fact]
+    public void A_refusal_on_the_preceding_step_is_still_an_authorization_problem()
+    {
+        var correlation = ApiCorrelation.Build(Completion(
+            Call("GET", "http://app/api/dashboard", 403, 1)), failingActionOrder: 2);
+
+        var verdict = DeterministicFailureClassifier.Classify(Input(
+            "Expected the element to contain \"OK 42\" but it read \"failed\"",
+            "assertText", correlation, authErrors: 1));
+
+        verdict.Category.Should().Be(FailureCategory.AuthenticationIssue);
+    }
 }

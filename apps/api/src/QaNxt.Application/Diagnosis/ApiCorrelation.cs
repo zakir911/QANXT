@@ -59,11 +59,19 @@ public sealed record ApiCorrelation(
     /// feature exists for — which is what the first run of COR-002 showed.</summary>
     IReadOnlyList<CorrelatedApiCall> FailedDuringPrecedingStep,
     /// <summary>Failed requests attributed to some other step, or to none.</summary>
-    IReadOnlyList<CorrelatedApiCall> FailedElsewhere)
+    IReadOnlyList<CorrelatedApiCall> FailedElsewhere,
+    /// <summary>Every request the step before the failing one made, successful ones included.
+    ///
+    /// The failures of that step already have a home above. Its successes matter for the
+    /// same reason: a navigate fetches the data and the assertion one step later is what
+    /// notices the page is wrong, so when the failing step itself made no calls, the
+    /// preceding step's calls are the evidence about whether the data arrived.</summary>
+    IReadOnlyList<CorrelatedApiCall> DuringPrecedingStep)
 {
     public static readonly ApiCorrelation None = new(
         null, Array.Empty<CorrelatedApiCall>(), Array.Empty<CorrelatedApiCall>(),
-        Array.Empty<CorrelatedApiCall>(), Array.Empty<CorrelatedApiCall>());
+        Array.Empty<CorrelatedApiCall>(), Array.Empty<CorrelatedApiCall>(),
+        Array.Empty<CorrelatedApiCall>());
 
     /// <summary>True when the failing step made API calls and every one of them worked.
     ///
@@ -71,6 +79,25 @@ public sealed record ApiCorrelation(
     /// showed something else, which points at the front end rather than the service.</summary>
     public bool EveryCallDuringFailingStepSucceeded =>
         DuringFailingStep.Count > 0 && FailedDuringFailingStep.Count == 0;
+
+    /// <summary>True when calls were observed around the failing step and none of them failed.
+    ///
+    /// Whether a page's fetch is attributed to the navigate that started it or to the
+    /// assertion that trips over the result is a matter of milliseconds, and COR-005 failed
+    /// intermittently on exactly that: with both calls attributed to the navigate, the
+    /// failing step had made none of its own, the interesting negative could not be stated,
+    /// and the verdict fell through to a rule that counts 401s across the whole execution
+    /// and blamed the session for a wrong total. The data arrived correctly in both
+    /// attributions; only the bookkeeping differed.</summary>
+    public bool EveryCallAroundTheFailingStepSucceeded =>
+        (DuringFailingStep.Count > 0 || DuringPrecedingStep.Count > 0)
+        && FailedDuringFailingStep.Count == 0
+        && FailedDuringPrecedingStep.Count == 0;
+
+    /// <summary>The calls the negative rests on — the failing step's own where it made any,
+    /// otherwise the preceding step's.</summary>
+    public IReadOnlyList<CorrelatedApiCall> CallsBehindTheNegative =>
+        DuringFailingStep.Count > 0 ? DuringFailingStep : DuringPrecedingStep;
 
     /// <summary>Builds the correlation from a completion report.
     ///
@@ -93,9 +120,11 @@ public sealed record ApiCorrelation(
 
         var failedDuring = during.Where(Failed).ToArray();
 
-        var failedPreceding = failingActionOrder is null or <= 1
+        var preceding = failingActionOrder is null or <= 1
             ? Array.Empty<CorrelatedApiCall>()
-            : calls.Where(c => c.ActionOrder == failingActionOrder - 1).Where(Failed).ToArray();
+            : calls.Where(c => c.ActionOrder == failingActionOrder - 1).ToArray();
+
+        var failedPreceding = preceding.Where(Failed).ToArray();
 
         var failedElsewhere = calls
             .Where(Failed)
@@ -104,7 +133,7 @@ public sealed record ApiCorrelation(
             .ToArray();
 
         return new ApiCorrelation(
-            failingActionOrder, during, failedDuring, failedPreceding, failedElsewhere);
+            failingActionOrder, during, failedDuring, failedPreceding, failedElsewhere, preceding);
     }
 
     private static bool Failed(CorrelatedApiCall call) => call.IsFailed || call.StatusCode >= 400;

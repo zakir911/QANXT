@@ -188,15 +188,17 @@ public static class DeterministicFailureClassifier
         // The interesting negative. The data arrived correctly and the page still showed
         // something else, which points at the front end rather than the service — and
         // saves whoever reads this from starting with the API.
-        if (api.EveryCallDuringFailingStepSucceeded && IsAssertionFailure(input.FailingAction, lowered))
+        if (api.EveryCallAroundTheFailingStepSucceeded && IsAssertionFailure(input.FailingAction, lowered))
         {
+            var behind = api.CallsBehindTheNegative;
+            var whose = api.DuringFailingStep.Count > 0 ? "the failing step" : "the step before it";
             return new DeterministicVerdict(
                 FailureCategory.ApplicationDefect, 80,
                 "The API answered correctly and the page showed something else.",
-                $"Every API call the failing step made succeeded ({Cite(api.DuringFailingStep)}), "
+                $"Every API call {whose} made succeeded ({Cite(behind)}), "
                 + "so the data was right and what was rendered from it was not. The defect is in "
                 + "the front end rather than the service.",
-                $"{api.DuringFailingStep.Count} API call(s) during the failing step, all successful. "
+                $"{behind.Count} API call(s) during {whose}, all successful. "
                 + $"Engine message: {message}",
                 "Compare the response body in the network evidence with what the failure "
                 + "screenshot shows. Start with the rendering, not the endpoint.",
