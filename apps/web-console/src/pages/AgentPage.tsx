@@ -269,7 +269,13 @@ function PassDetail({ runId, detail, canAct, isCancelling, onCancel }: {
       >
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <StatusBadge status={summary.status} />
-          <span className="badge bg-surface-sunken text-ink-muted">{humanize(summary.phase)}</span>
+          {/* The phase badge says where in the pass this is. When a pass stops, the status and
+              the phase are the same word — a run awaiting approval is in the awaiting-approval
+              phase — and two badges reading "Awaiting approval" side by side tell a reader
+              once and cost them a second read to be sure they are not two different things. */}
+          {humanize(summary.phase) !== humanize(summary.status) && (
+            <span className="badge bg-surface-sunken text-ink-muted">{humanize(summary.phase)}</span>
+          )}
           {summary.stopReason && <span className="text-xs text-ink-muted">{summary.stopReason}</span>}
         </div>
 

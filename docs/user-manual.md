@@ -567,7 +567,7 @@ Worth reading before you rely on any of it:
 out what is not covered, plans tests for the gaps, runs them, groups what failed and writes up
 what it found.
 
-![A completed agent pass: its bounds and counters, the plan it proposed, and what a person said about the application](images/manual/15-agent.png)
+![A pass stopped for a plan decision: its bounds and counters, and the plan it is waiting on](images/manual/15-agent.png)
 
 You give it bounds before it starts — pages, depth, targets, tests, a time budget and a spend
 limit — and the counters are shown next to those bounds on purpose, because that is what lets
@@ -604,11 +604,13 @@ than quietly matching nothing.
 
 ### The timeline and the decision log
 
-![The run timeline, and beneath it the decision log with the evidence under each decision](images/manual/15b-agent-timeline.png)
+![The run timeline: every phase, question and decision in the order it happened](images/manual/15b-agent-timeline.png)
 
 **Timeline** is every phase, question and decision in the order it happened. Refusals and
 failed phases are marked differently from ordinary progress, so a pass that was stopped does
 not read like one that finished.
+
+![The decision log, with the evidence under each decision](images/manual/15c-agent-decisions.png)
 
 **Decisions** is the audit trail. It carries the count, how many were refused, and the total
 model spend across all of them. Every permitted decision shows the evidence it rests on — the
@@ -869,6 +871,12 @@ Each screenshot must prove its own caption before it is taken: the script waits 
 content the caption describes and **fails** if it never appears. An earlier version without
 that check produced a screenshot of an empty agent page under a caption about an agent's
 report, which is the kind of quiet wrongness this product exists to object to.
+
+Waiting is not sufficient on a page taller than the screen. A caption about the decision log
+once passed the check while the decision log was a thousand pixels below the fold — present in
+the document, absent from the picture. Captions about something further down the page are now
+proved against the frame itself: the script measures where the element is and fails if it is
+not in the photograph.
 
 Regenerate them against your own installation:
 

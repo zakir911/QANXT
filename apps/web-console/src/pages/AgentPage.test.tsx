@@ -1,5 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -131,6 +131,14 @@ function respond(path: string): unknown {
   return null;
 }
 
+/** The card for the selected pass, as opposed to its row in the list of passes. */
+function detailCard(): HTMLElement {
+  const heading = screen.getByRole('heading', { name: RUN.name });
+  const card = heading.closest('section');
+  if (!card) throw new Error('the selected pass has no card');
+  return card as HTMLElement;
+}
+
 function renderPage() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
@@ -150,6 +158,30 @@ describe('AgentPage', () => {
     expect(await screen.findByText('The agent is waiting for an answer')).toBeInTheDocument();
     expect(screen.getByText(/Nothing has been generated or run/)).toBeInTheDocument();
     expect(screen.getByText(PLAN.summary)).toBeInTheDocument();
+  });
+
+  test('a stopped pass says its state once rather than twice', async () => {
+    // RUN is awaitingApproval in both status and phase, which is what the API sends for a
+    // pass stopped for a plan decision. Two badges reading "Awaiting approval" side by side
+    // was what the manual screenshot caught; a reader has to look twice to be sure they are
+    // not two different facts. Scoped to the pass itself — the list on the left badges every
+    // pass too, and that one is a different pass being named, not the same fact twice.
+    renderPage();
+    expect(await screen.findByText('The agent is waiting for an answer')).toBeInTheDocument();
+    expect(within(detailCard()).getAllByText('Awaiting approval')).toHaveLength(1);
+  });
+
+  test('a phase that differs from the status is still shown', async () => {
+    // The phase badge earns its place whenever it says something the status does not.
+    const running = { ...RUN, status: 'running', phase: 'executing' };
+    apiRequest.mockImplementation((path: string) => Promise.resolve(
+      path === '/api/v1/agent/runs/run-1'
+        ? { summary: running, bounds: BOUNDS, steps: [], findings: [] }
+        : path.startsWith('/api/v1/agent/runs?') ? [running] : respond(path)
+    ));
+    renderPage();
+    expect(await screen.findByText('Executing')).toBeInTheDocument();
+    expect(within(detailCard()).getByText('Running')).toBeInTheDocument();
   });
 
   test('the plan names what it does not cover, before anybody approves it', async () => {

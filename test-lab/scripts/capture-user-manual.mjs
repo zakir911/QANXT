@@ -226,6 +226,25 @@ const shot = async (name, note, expect) => {
   console.log(`  ${name}.png — ${note}`);
 };
 
+/**
+ * Proves a locator is actually in the photographed frame.
+ *
+ * `shot`'s expectation uses Playwright's idea of visible, which means the element has a box
+ * and is not hidden — not that it is on the screen. A caption about the decision log passed
+ * that check while the decision log was a thousand pixels below the fold, which is the same
+ * class of wrongness the expectation exists to prevent, one level down.
+ */
+const inFrame = async (locator, name) => {
+  const box = await locator.first().boundingBox();
+  const size = page.viewportSize();
+  if (!box || !size) throw new Error(`${name}: could not measure what the caption claims`);
+  if (box.y + box.height < 0 || box.y > size.height) {
+    throw new Error(
+      `${name}: what the caption claims is outside the frame (y=${Math.round(box.y)}, `
+      + `viewport ${size.height}px)`);
+  }
+};
+
 const openPath = async (path) => { await page.goto(`${CONSOLE}${path}`, { waitUntil: 'domcontentloaded' }); };
 
 try {
@@ -284,14 +303,34 @@ try {
   await shot('14-healing', 'a healing proposal awaiting review', page.getByRole('button', { name: 'Approve' }));
 
   await openPath('/agent');
-  await shot('15-agent', 'the autonomous agent, after a completed pass', page.getByText('First autonomous pass'));
+  // The seeded pass stops for a plan decision and stays there, so this is a pass waiting on a
+  // person rather than a finished one. The caption said "after a completed pass" for one
+  // capture, proved only by the run's name being on screen — which is true of a pass in any
+  // state. The expectation is now the thing the caption actually claims.
+  await shot('15-agent', 'a pass stopped for a plan decision, with the plan it is waiting on',
+    page.getByText('The agent is waiting for an answer'));
 
   // The page is taller than the viewport, and everything that makes the pass auditable — the
   // order things happened in, and each decision with the evidence under it — is below the fold.
   // One screenshot of the summary would illustrate the claim that the agent reports, and leave
   // the claim that it can be argued with unillustrated.
-  await page.getByRole('heading', { name: 'Timeline' }).scrollIntoViewIfNeeded();
-  await shot('15b-agent-timeline', 'the run timeline and the decision log beneath it',
+  // Two shots rather than one. The first draft scrolled to the timeline and captioned the
+  // decision log "beneath it" — the decision log was a thousand pixels further down, so the
+  // caption described something no reader of that image could see. Each is now photographed
+  // where it is, and each caption is proved against the frame it is in.
+  const scrollTo = async (heading, name) => {
+    await page.getByRole('heading', { name: heading })
+      .evaluate(node => node.scrollIntoView({ block: 'start' }));
+    await page.waitForTimeout(400);
+    await inFrame(page.getByRole('heading', { name: heading }), name);
+  };
+
+  await scrollTo('Timeline', '15b-agent-timeline');
+  await shot('15b-agent-timeline', 'the run timeline: every phase and decision in order',
+    page.getByRole('heading', { name: 'Timeline' }));
+
+  await scrollTo(/^Decisions \(\d+\)$/, '15c-agent-decisions');
+  await shot('15c-agent-decisions', 'the decision log, with the evidence under each decision',
     page.getByRole('heading', { name: /^Decisions \(\d+\)$/ }));
 
   await openPath('/insights');
