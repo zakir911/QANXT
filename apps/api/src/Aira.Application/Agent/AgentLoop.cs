@@ -483,6 +483,35 @@ public sealed class AgentLoop : IAgentLoop
             "The API testing engine authored them; the agent chose the endpoints and recorded why.");
     }
 
+    /// <summary>
+    /// Records that selection ran and chose nothing.
+    /// </summary>
+    /// <remarks>
+    /// The two ways it can choose nothing are different statements and both need saying: no
+    /// test existed to consider, or every test's history argued against re-running it. Returning
+    /// silently would make either indistinguishable from the phase never having run.
+    /// </remarks>
+    private async Task RecordNoSelectionAsync(
+        AgentRun run, int considered, int ordered, string why, CancellationToken ct)
+        => await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.Prioritizing,
+            $"Selected 0 of {considered} existing test(s) to re-run.",
+            why,
+            new[]
+            {
+                new AgentEvidence("considered", considered.ToString()),
+                new AgentEvidence("selected", "0"),
+                new AgentEvidence("why", why),
+                new AgentEvidence("reasonsUsed",
+                    "none — no test's history contributed a point"),
+                new AgentEvidence("notSelected",
+                    considered == 0
+                        ? "none — there were no existing tests to consider"
+                        : $"{ordered} test(s) whose history did not argue for a re-run")
+            },
+            Tool: null,
+            Result: "0 test(s) selected."), ct);
+
     // ---- Security testing -------------------------------------------------------
 
     /// <summary>
@@ -617,9 +646,16 @@ public sealed class AgentLoop : IAgentLoop
             .ToListAsync(ct);
 
         if (candidates.Count == 0)
+        {
+            await RecordNoSelectionAsync(run, 0, 0,
+                "This application has no existing enabled tests, so there is nothing that could "
+                + "be re-run. That is an absence of tests, not a finding that nothing needs "
+                + "re-running.", ct);
+
             return PhaseOutcome.Ok("Nothing to re-run.",
                 "This application has no existing enabled tests, so there is nothing that could "
                 + "be re-run. That is not a statement that nothing needs re-running.");
+        }
 
         // Explainable rules with fixed weights, and every point attributed to a named reason.
         // The order two runs over the same data produce is the same order, which is most of
@@ -646,11 +682,18 @@ public sealed class AgentLoop : IAgentLoop
         var selected = ordered.Where(p => p.Score > 0).Take(run.MaxTargets * 10).ToList();
 
         if (selected.Count == 0)
+        {
+            await RecordNoSelectionAsync(run, candidates.Count, ordered.Count,
+                "No test has failed recently, been unstable, or gone stale, so nothing about any "
+                + "of their histories argues for a re-run. Re-running all of them anyway would "
+                + "not be selection.", ct);
+
             return PhaseOutcome.Ok(
                 $"Nothing to re-run: none of {candidates.Count} existing test(s) has a history "
                 + "that argues for it.",
                 "No test has failed recently, been unstable, or gone stale. Re-running all of "
                 + "them anyway would not be selection.");
+        }
 
         state.RegressionTestCaseIds.AddRange(selected.Select(p => p.TestCaseId));
         Assemble(run, state.RegressionTestCaseIds);
