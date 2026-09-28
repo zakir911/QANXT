@@ -1,0 +1,38 @@
+{
+  "testId": "AQE-046",
+  "suite": "Autonomous execution",
+  "runId": "AQ-FINAL-0216",
+  "objective": "A refused pass stops",
+  "preconditions": [
+    "a pass has been refused permission for the action it asked about"
+  ],
+  "input": "agent run 04eecb05-38fc-4f71-be39-dec61db83875",
+  "expected": "The run is stopped rather than completed",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "stopped",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:19:28.773Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "0b64488",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "refused-run.json",
+      "path": "evidence/AQE-046/AQ-FINAL-0216/refused-run.json",
+      "bytes": 933,
+      "sha256": "aac8ac3d7b31c26714b0137d2895bd42e10ef1e3eaafb5cfe43d38d0890d22f5"
+    },
+    {
+      "file": "refused-approvals.json",
+      "path": "evidence/AQE-046/AQ-FINAL-0216/refused-approvals.json",
+      "bytes": 926,
+      "sha256": "3b742ad57197643175dce4b653d4edbd821ab98b8397e241b844300fb5f8501f"
+    }
+  ]
+}

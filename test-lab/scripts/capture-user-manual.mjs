@@ -286,6 +286,14 @@ try {
   await openPath('/agent');
   await shot('15-agent', 'the autonomous agent, after a completed pass', page.getByText('First autonomous pass'));
 
+  // The page is taller than the viewport, and everything that makes the pass auditable — the
+  // order things happened in, and each decision with the evidence under it — is below the fold.
+  // One screenshot of the summary would illustrate the claim that the agent reports, and leave
+  // the claim that it can be argued with unillustrated.
+  await page.getByRole('heading', { name: 'Timeline' }).scrollIntoViewIfNeeded();
+  await shot('15b-agent-timeline', 'the run timeline and the decision log beneath it',
+    page.getByRole('heading', { name: /^Decisions \(\d+\)$/ }));
+
   await openPath('/insights');
   // An empty question box teaches nothing; the answer is the feature.
   await page.getByRole('button', { name: 'Which failures are likely application defects?' }).click();

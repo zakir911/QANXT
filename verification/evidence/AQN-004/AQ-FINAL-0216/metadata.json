@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-004",
+  "suite": "Autonomous planning",
+  "runId": "AQ-FINAL-0216",
+  "objective": "The reason the pass stopped says it is waiting for a person",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run fa8ea12b-994c-412f-8ebd-c0b323fbf290",
+  "expected": "stopReason names the wait rather than describing a finished pass",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "Waiting for somebody to approve the plan: 114 test(s) across 6 category(ies).",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:16:30.069Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "0b64488",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-004/AQ-FINAL-0216/plan.json",
+      "bytes": 4708,
+      "sha256": "1c534218f6920a248ae821e4262a5074bbfdc85387c00524132eab6ee7783997"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-004/AQ-FINAL-0216/run.json",
+      "bytes": 758,
+      "sha256": "f852927ec1693d15873a3322586616993f1e1acfd200c42deb1b6fb02914282a"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-004/AQ-FINAL-0216/decisions.json",
+      "bytes": 3580,
+      "sha256": "c23228a13105c453b89dae0d08d1569657452505dfd34b8a6530bb808b93e3c9"
+    }
+  ]
+}

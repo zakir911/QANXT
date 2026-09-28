@@ -1,0 +1,44 @@
+{
+  "testId": "AQF-009",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ-FINAL-0216",
+  "objective": "A pass that cannot sign in still finishes",
+  "preconditions": [
+    "a pass has run against a lab with no sign-in control"
+  ],
+  "input": "agent run d9113778-73ff-438d-8f57-4ecb4672a3be",
+  "expected": "The run ends rather than hanging on an element that is not there",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "completed",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:21:40.438Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "0b64488",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQF-009/AQ-FINAL-0216/run.json",
+      "bytes": 1338,
+      "sha256": "b8bdcce4c28a522d432643df5d09f2839ef77a79730a8bb59a15fa36e58dcec2"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-009/AQ-FINAL-0216/decisions.json",
+      "bytes": 16525,
+      "sha256": "0813b9f0e85478595ee6b19474682d05ef2fecb2933574124c72115f3019fcdf"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQF-009/AQ-FINAL-0216/steps.json",
+      "bytes": 14423,
+      "sha256": "a739848b5000a36ebdfce8c126d6e335a1ed50bf96830ee7ab4931c59879fb02"
+    }
+  ]
+}

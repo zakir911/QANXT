@@ -1,0 +1,32 @@
+{
+  "testId": "AQN-042",
+  "suite": "Autonomous planning",
+  "runId": "AQ-FINAL-0216",
+  "objective": "Approving a plan with every category switched off is refused",
+  "preconditions": [
+    "a pass is awaiting a decision on its plan"
+  ],
+  "input": "an approval naming no categories",
+  "expected": "The API refuses it: a pass that tests nothing and finishes reporting as though it had run is worse than one nobody started",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "400 {\"code\":\"validation_failed\",\"title\":\"Approving a plan with every category switched off would start a pass that tests nothing and reports as though it had run. Reject it instead.\",\"status\":400,\"correla",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:16:30.096Z",
+  "durationMs": 11,
+  "build": {
+    "commit": "0b64488",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "empty-approval.json",
+      "path": "evidence/AQN-042/AQ-FINAL-0216/empty-approval.json",
+      "bytes": 243,
+      "sha256": "ee4e5d4f2b58215e87227ea501a09ce6da8a8a6cd93b9e188bca661b67c26927"
+    }
+  ]
+}

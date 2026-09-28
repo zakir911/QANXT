@@ -1,0 +1,44 @@
+{
+  "testId": "AQP-020",
+  "suite": "Autonomous policy",
+  "runId": "AQ-FINAL-0216",
+  "objective": "Answering a question releases the pass",
+  "preconditions": [
+    "the pass is parked on one unanswered question"
+  ],
+  "input": "a granted approval with a reason",
+  "expected": "The pass resumes on its own and performs the action it asked about",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "answer 200, run awaitingApproval awaitingApproval, scan queued: true",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:17:00.515Z",
+  "durationMs": 6055,
+  "build": {
+    "commit": "0b64488",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "answer.json",
+      "path": "evidence/AQP-020/AQ-FINAL-0216/answer.json",
+      "bytes": 780,
+      "sha256": "f60c61eada9d4622b51f1bbbad797de91d1626e8f6b2c553be8fca9d0656a269"
+    },
+    {
+      "file": "released.json",
+      "path": "evidence/AQP-020/AQ-FINAL-0216/released.json",
+      "bytes": 795,
+      "sha256": "69a152587a7dca4b1e4f152b66b289654c74ff0351dbc8d62604f953ff6eae5e"
+    },
+    {
+      "file": "after-decisions.json",
+      "path": "evidence/AQP-020/AQ-FINAL-0216/after-decisions.json",
+      "bytes": 10479,
+      "sha256": "e6049bca01b5bab336119323684b36dad692b4960537db6ac3c9ceea7b540bc3"
+    }
+  ]
+}

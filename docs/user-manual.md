@@ -563,19 +563,66 @@ Worth reading before you rely on any of it:
 
 ## 11. The autonomous agent
 
-**Agent → Start a pass.** The agent explores an application, scores where the risk is,
-generates tests for what is not covered, runs them, and writes up what it found.
+**Agent → Start a pass.** The agent explores an application, scores where the risk is, works
+out what is not covered, plans tests for the gaps, runs them, groups what failed and writes up
+what it found.
 
-![A completed agent pass with its bounds, counts and every phase it went through](images/manual/15-agent.png)
+![A completed agent pass: its bounds and counters, the plan it proposed, and what a person said about the application](images/manual/15-agent.png)
 
 You give it bounds before it starts — pages, depth, targets, tests, a time budget and a spend
-limit — and it reports against them. **It proposes; it has no authority.** It cannot raise a
-defect, change a test, approve a healing proposal or alter a quality gate. The summary on
-every pass says so.
+limit — and the counters are shown next to those bounds on purpose, because that is what lets
+you tell "it found nothing else" apart from "it ran out of budget". Model spend is reported as
+a figure, not a status.
+
+**It proposes; it has no authority.** It cannot raise a defect, change a test, delete a
+duplicate, approve a healing proposal or alter a quality gate. The summary on every pass says
+so.
+
+### The plan, before anything runs
+
+The pass stops after planning and asks. Nothing has been generated and nothing has been run
+while that question is open, and the card says which of the two it is rather than leaving you
+to infer it from a spinner.
+
+The plan is a list of categories with a count against each. You can switch a category off
+before you approve, and switching one off is recorded as a decision with your name on it — so
+a later reader asking why nothing covered, say, the payment pages finds an answer instead of a
+gap. Approving without changing anything means all of them.
+
+**Questions** collects everything else the pass had to ask. Anything that changes state stops
+and asks; asking is not granting, and a refusal is recorded as fully as an approval.
+
+### What a person said about this application
+
+Critical journeys, high-risk areas and areas to leave alone, as somebody described them. The
+pass loads them once, when it starts: editing them cannot widen a pass already running.
+
+If nobody has described the application the card says so plainly, and says what follows from it
+— the pass scored the application on its structure alone, which is not the same as nothing
+being critical. If you named an area the agent could not find, it tells you which one rather
+than quietly matching nothing.
+
+### The timeline and the decision log
+
+![The run timeline, and beneath it the decision log with the evidence under each decision](images/manual/15b-agent-timeline.png)
+
+**Timeline** is every phase, question and decision in the order it happened. Refusals and
+failed phases are marked differently from ordinary progress, so a pass that was stopped does
+not read like one that finished.
+
+**Decisions** is the audit trail. It carries the count, how many were refused, and the total
+model spend across all of them. Every permitted decision shows the evidence it rests on — the
+platform will not record one without — and every refusal names the rule that refused it.
+Evidence is masked before it is stored and shown exactly as stored.
 
 **What it did** lists every phase, including the ones that decided to do nothing, with the
-reasoning. Prioritisation is deterministic: the same application produces the same ordering,
-so you can argue with it.
+reasoning and the time each took. A phase that found nothing still reports: "no candidate for
+the permanent suite" and "this phase did not run" are different facts, and the log distinguishes
+them.
+
+Prioritisation is deterministic: the same application produces the same ordering, so you can
+argue with it. What the agent scores, and what it deliberately does not, is set out in
+[the agent reference](agent.md).
 
 ---
 

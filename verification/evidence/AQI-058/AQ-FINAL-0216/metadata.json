@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-058",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ-FINAL-0216",
+  "objective": "A pass checks whether the tests it wrote already existed",
+  "preconditions": [
+    "a pass has run end to end over an application"
+  ],
+  "input": "agent run 8f2f8fdf-382f-4cb2-989b-84e965496e75",
+  "expected": "A decision records the comparison of new tests against existing ones",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "No duplication check was possible for 2 new test(s).",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:23:53.792Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "0b64488",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQI-058/AQ-FINAL-0216/decisions.json",
+      "bytes": 18465,
+      "sha256": "bc0597014fd25ff172251f3b95b8a30a2f5d3a0bbb732a751c3fbc8a4332ba2a"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/AQI-058/AQ-FINAL-0216/findings.json",
+      "bytes": 23595,
+      "sha256": "aaa2c12da84ab2a270f59f0694843b39819ecc0651b83df30959b2846f9887a4"
+    }
+  ]
+}

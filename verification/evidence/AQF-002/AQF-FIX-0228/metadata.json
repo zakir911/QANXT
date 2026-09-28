@@ -1,0 +1,44 @@
+{
+  "testId": "AQF-002",
+  "suite": "Autonomous fault handling",
+  "runId": "AQF-FIX-0228",
+  "objective": "A pass against a broken application does not report a clean result",
+  "preconditions": [
+    "a pass has run against a lab whose sign-in API answers 500"
+  ],
+  "input": "agent run 92520362-5d8e-41f9-88e2-a6b57be27f38",
+  "expected": "It either recorded failures or recorded that it could not establish anything",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "executed 1, investigated 1, proposals 6",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:28:59.152Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "0b64488",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQF-002/AQF-FIX-0228/run.json",
+      "bytes": 1336,
+      "sha256": "b404d3223969567dd8a4a29d937e6e04c1202349506fc2b43a84e47994e338c9"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-002/AQF-FIX-0228/decisions.json",
+      "bytes": 16523,
+      "sha256": "7b0cf005eff4c5ddc54cc27029fe990c76230adce83e1f6c7389a66c8661889b"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQF-002/AQF-FIX-0228/steps.json",
+      "bytes": 14434,
+      "sha256": "2745ca7c3bd271068994b0f8d4fa261b9a07057378ee5e3ceaad31b3fb32d992"
+    }
+  ]
+}

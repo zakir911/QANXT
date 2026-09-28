@@ -168,6 +168,13 @@ export default async function run() {
       // endpoint's url template rather than a page route. Checking only against pages
       // reported every API finding as invented; checking against neither would let a pass
       // name somewhere it never went, which is the thing this test exists to catch.
+      //
+      // Deliberately strict about spelling as well as existence. It failed once on a pass
+      // whose reaction-to-evidence finding said "/api/session" while every endpoint record in
+      // the same pass said "http://localhost:4300/api/session" — the place was real, the name
+      // was not one anything else used, and a route nothing else uses joins to nothing. If a
+      // pass ever does reach somewhere the graph has no record of, this fails too, and that is
+      // also worth being told about rather than smoothing over here.
       const [pages, endpoints] = await Promise.all([
         request(`/api/v1/applications/${noLogin.application.id}/pages`, { token: noLogin.tenant.token }),
         request(`/api/v1/applications/${noLogin.application.id}/api-endpoints`, { token: noLogin.tenant.token })

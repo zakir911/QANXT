@@ -2560,11 +2560,47 @@ public sealed class AgentLoop : IAgentLoop
         var securityAuthorized = await _db.SecurityScopes.AsNoTracking()
             .AnyAsync(scope => scope.ApplicationId == run.ApplicationId && scope.Enabled, ct);
 
+        // The graph's own spelling for each place, so a reaction to evidence names somewhere a
+        // reader can find. The graph is not uniform about this — a page is a path and an
+        // endpoint is an absolute template — and reducing an observed URL to its path produced
+        // findings about "/api/session" in a run whose endpoint records all said
+        // "http://localhost:4300/api/session". Two names for one endpoint in one pass breaks
+        // every join a reader or the assessment might make: the business-critical check matches
+        // a finding's route against the areas a person named, and it cannot match a spelling
+        // nothing else uses.
+        var knownEndpoints = await _db.ApiEndpoints.AsNoTracking()
+            .Where(e => e.ApplicationId == run.ApplicationId)
+            .Select(e => e.UrlTemplate)
+            .ToListAsync(ct);
+        var knownPages = await _db.ApplicationPages.AsNoTracking()
+            .Where(p => p.ApplicationId == run.ApplicationId)
+            .Select(p => p.Route)
+            .ToListAsync(ct);
+
+        // Falls back to the path as observed. A place the graph does not know is still a place
+        // the run reached, so it is reported rather than dropped — but it is reported as what
+        // was seen, never as a graph record that does not exist.
+        string Locate(string url)
+        {
+            var path = RouteOf(url);
+
+            var endpoint = knownEndpoints.FirstOrDefault(t =>
+                    string.Equals(t, url, StringComparison.OrdinalIgnoreCase))
+                ?? knownEndpoints.FirstOrDefault(t =>
+                    path is not null
+                    && string.Equals(RouteOf(t), path, StringComparison.OrdinalIgnoreCase));
+            if (endpoint is not null) return endpoint;
+
+            var page = knownPages.FirstOrDefault(r =>
+                path is not null && string.Equals(r, path, StringComparison.OrdinalIgnoreCase));
+            return page ?? path ?? url;
+        }
+
         // One observation per distinct status-and-route, so ten 403s on one endpoint argue once.
         var observations = errors
             .Select(e => new MidRunObservation(
                 What: $"{e.Method} returned {e.StatusCode}",
-                Where: RouteOf(e.Url) ?? e.Url,
+                Where: Locate(e.Url),
                 HttpStatus: e.StatusCode,
                 Detail: $"Observed during the verification run this pass started."))
             .GroupBy(o => (o.HttpStatus, o.Where))
