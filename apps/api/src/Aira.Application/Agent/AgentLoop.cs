@@ -379,8 +379,23 @@ public sealed class AgentLoop : IAgentLoop
         AgentRun run, PassState state, CancellationToken ct)
     {
         if (!state.PlanIncludes(AgentPlanCategory.Api))
+        {
+            await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+                AgentPhase.Generating,
+                "No API testing in this plan.",
+                "The plan did not include the API category, or a person switched it off. The "
+                + "discovered endpoints are untested by this pass rather than tested and found "
+                + "working, and that was somebody's decision rather than the agent's.",
+                new[]
+                {
+                    new AgentEvidence("apiTestsGenerated", "0"),
+                    new AgentEvidence("reason", "the plan does not include the API category")
+                },
+                Tool: null, Result: "not in this plan"), ct);
+
             return PhaseOutcome.Ok("No API testing in this plan.",
                 "The plan did not include the API category, or a person switched it off.");
+        }
 
         var endpoints = await _db.ApiEndpoints.AsNoTracking()
             .Where(e => e.ApplicationId == run.ApplicationId)
@@ -626,8 +641,17 @@ public sealed class AgentLoop : IAgentLoop
         AgentRun run, PassState state, CancellationToken ct)
     {
         if (!state.PlanIncludes(AgentPlanCategory.Regression))
+        {
+            // A person switching a category off is itself a decision about what this pass did,
+            // and the decision log is where somebody looks to find out why nothing was re-run.
+            await RecordNoSelectionAsync(run, 0, 0,
+                "The plan does not include regression, either because it was not proposed or "
+                + "because a person switched it off. Nothing that already existed was selected "
+                + "for re-running, and that was somebody's decision rather than the agent's.", ct);
+
             return PhaseOutcome.Ok("No regression selection in this plan.",
                 "Nothing that already existed was selected for re-running.");
+        }
 
         // Every enabled test for the application, not only the ones that have failed. Which of
         // them is worth re-running is TestHistoryModel's judgement, and it can only make it if
@@ -2170,7 +2194,24 @@ public sealed class AgentLoop : IAgentLoop
         AgentRun run, PassState state, IReadOnlyList<Guid> before, IReadOnlyList<Guid> created,
         CancellationToken ct)
     {
-        if (created.Count == 0) return;
+        if (created.Count == 0)
+        {
+            await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+                AgentPhase.Generating,
+                "No duplication check was needed: this pass generated no tests.",
+                "There is nothing to compare against what already exists. That is an absence of "
+                + "new tests, not a finding that the suite contains no duplicates.",
+                new[]
+                {
+                    new AgentEvidence("newTests", "0"),
+                    new AgentEvidence("existingCompared", before.Count.ToString()),
+                    new AgentEvidence("testsDeletedOrChanged",
+                        "none — the agent has no authority to delete or change a test")
+                },
+                Tool: "test.generate", Result: "nothing generated to check",
+                Risk: AgentActionRisk.Observation), ct);
+            return;
+        }
 
         if (before.Count == 0)
         {

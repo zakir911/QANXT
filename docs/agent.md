@@ -42,11 +42,12 @@ the run and its conclusions are worth nothing if they cannot be read back.
 | **Prioritize** | Scores every page deterministically and picks the top areas. Anything a person excluded is dropped before scoring, not filtered after it. |
 | **Analyse gaps** | Compares what the application can do against what is tested, dimension by dimension. Reports what is uncovered, and separately what it could not decide. |
 | **Plan** | Draws up what it intends to test and stops. Nothing below this line happens until a person answers. |
-| **Generate** | Creates tests for prioritised areas that have *no* coverage, and API tests for discovered endpoints. It does not duplicate coverage that exists. |
+| **Generate** | Creates tests for prioritised areas that have *no* coverage, and API tests for discovered endpoints. Then checks whether any of them repeat a test that already existed — and reports the duplicates rather than deleting them. |
 | **Security** | Asks the security engine to scan, within the scope the application has authorized. The agent selects; the engine decides. |
 | **Execute** | Runs what the pass assembled, to find out whether those tests hold against the application as it is now. |
-| **Investigate** | Reads the failures and their analyses, and records each as a proposal. |
-| **Propose** | Adds regression and instability findings from execution history, then writes the summary. |
+| **Investigate** | Reads the failures and their analyses, records each as a proposal, and notes what the run saw that argues for looking somewhere else. |
+| **Correlate** | Groups failures that appear to share one cause. Seventeen red tests caused by one endpoint returning 500 is one problem. |
+| **Propose** | Adds regression and instability findings, says what might deserve a permanent place in the suite, reaches a release verdict, and writes the summary. |
 
 Between every phase the agent checks three things: the wall clock, the model spend, and
 whether somebody cancelled. Hitting one stops the pass and names which one, so "the agent
@@ -155,6 +156,65 @@ pass does not assess them — the platform tests both elsewhere.
 Coverage is measured against what discovery reached. Anything the crawl never walked is
 absent from the assessment rather than covered by it, and the assessment says so in its own
 words every time.
+
+## What it proposes, and never does
+
+Six of the phases above produce judgements that a less careful agent would act on. None of
+them acts. Each decision says so in its own evidence, because a claim like this is worth
+nothing unless it is checkable on the record rather than in a document:
+
+| It judged | It recorded | It did not |
+| --- | --- | --- |
+| A generated test duplicates an existing one | Which test it repeats, and how alike they are | Delete either. `testsDeletedOrChanged: none` |
+| Something deserves a permanent place in the regression suite | The candidate, the bar it met, and whether a person is still needed | Create a test. `testsCreated: none` |
+| An error response argues for looking elsewhere | The observation verbatim, and what it would establish | Generate or run anything. `actedOn: nothing` |
+| Failures share a cause | The group, its confidence, and every failure inside and outside it | Raise a defect, or close any of them |
+| A release is or is not shippable | The verdict, the counts, the blocking factors and the untested areas | Alter a quality gate |
+| Coverage is missing somewhere | The capability, the dimension, and why | Write the test for it unasked |
+
+The grouping and duplication rules in particular are **structural and deterministic rather
+than a model's judgement**. A model could decide "these two tests mean the same thing" more
+cleverly and would sometimes be wrong in a direction nobody could audit — a test silently not
+written because something judged it a duplicate is a coverage gap with no record. Occasionally
+over-cautious is the right failure here: the worst case is one redundant test, which a person
+can see and delete.
+
+## Why the release verdict has no score
+
+`Clear`, `NeedsReview`, `Blocked`, `NotAssessed` — and no number.
+
+A single score is the thing everybody reads and nobody can act on, and an AI-generated one is
+worse: it launders several measured facts and a few unmeasured ones into a figure that looks
+authoritative and cannot be checked. So the assessment reports the counts, the configured
+gate's verdict, and the blocking factors by name. The absence of a score is itself recorded in
+the decision's evidence, so somebody looking for one finds that sentence instead of inventing
+their own.
+
+`NotAssessed` is the verdict that earns its place. A pass where almost nothing executed has not
+found a clean release — it has found nothing — and every other verdict would read as a
+statement about the application rather than about the pass.
+
+In practice a pass reports `NeedsReview` rather than `Clear` far more often than you might
+expect, and that is correct: accessibility and visual appearance are never assessed by a pass,
+so there is always something in the untested list.
+
+## Reading a pass in the console
+
+**Agent → a pass.** The plan is the first thing on the screen when it needs an answer, because
+a pass waiting on somebody must not be something a reader discovers below three cards of
+counters.
+
+- **The plan** can be narrowed rather than only accepted. Switching a category off is the
+  point: a plan a person can only accept whole is a notification, not a proposal. The button
+  says what is actually being approved.
+- **Questions** carry the tool, what the agent proposes, what would happen if granted, the
+  evidence and the risk. Answering needs a reason of at least ten characters — the same bar the
+  API enforces, applied in the form so a designed refusal is not a confusing error.
+- **The timeline** distinguishes a refusal from a decision by colour. On this screen the
+  refusals are the reassuring entries: they are the pass declining something nobody authorized.
+- **The decision log** counts the refusals in its own heading, and a decision with no evidence
+  is labelled as only possible on a refusal — because the platform will not record a permitted
+  one without.
 
 ## Bounds
 

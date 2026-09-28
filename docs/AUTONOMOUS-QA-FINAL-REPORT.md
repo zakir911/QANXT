@@ -64,30 +64,48 @@ The full matrix is in `verification/reports/AUTONOMOUS-QA-REPORT.md`.
 
 ## IMPLEMENTED — and NOT VERIFIED end to end
 
-Seven models have unit tests and no caller. They work in isolation; nothing a user can reach
-calls them, so no golden test can establish that they work in the product. They are listed
-rather than counted as delivered.
+**Nothing.** Every model with unit tests is now reachable from a pass and pinned by a named
+golden test. All eight that were once on this list are wired in:
 
-| Component | Brief section | State |
+| Component | Brief section | Where it runs now |
 | --- | --- | --- |
-| `TestDuplicationModel` | §12 duplication | IMPLEMENTED, unreachable |
-| `DynamicSelectionModel` | §14 dynamic selection | IMPLEMENTED, unreachable |
-| `ExploratoryModel` | §15 exploratory mode | IMPLEMENTED, unreachable |
-| `FailureCorrelationModel` | §21 root-cause correlation | IMPLEMENTED, unreachable |
-| `RegressionPromotionModel` | §25, §26 promotion | IMPLEMENTED, unreachable |
-| `TestHistoryModel` | §19 historical intelligence | IMPLEMENTED, unreachable |
-| `AutonomousAssessmentModel` | §36, §37 release judgement | IMPLEMENTED, unreachable |
+| `TestGapModel` | §10 gap analysis | The `AnalysingGaps` phase |
+| `TestDuplicationModel` | §12 duplication | After generation, reporting duplicates it cannot delete |
+| `DynamicSelectionModel` | §14 dynamic selection | Investigating, from the error responses the run produced |
+| `ExploratoryModel` | §15 exploratory mode | Exploring, reporting the crawl as a fraction of what is known |
+| `TestHistoryModel` | §19 historical intelligence | Prioritising, replacing a hand-rolled sort by fail count |
+| `FailureCorrelationModel` | §21 root-cause correlation | The `Correlating` phase, which existed in the enum with nothing behind it |
+| `RegressionPromotionModel` | §25, §26 promotion | Proposing, and it proposes rather than promotes |
+| `AutonomousAssessmentModel` | §36, §37 release judgement | Proposing, with no overall score |
 
-`TestGapModel` was in this list and is not any more: it is now the `AnalysingGaps` phase, and
-`AQI-039`–`AQI-055` pin it.
+The section is kept rather than deleted. It is where the next component that exists and cannot
+be reached belongs, and a report with no such heading reads as though the question was never
+asked.
+
+### What wiring them exposed
+
+Three things, none of which unit tests could have found:
+
+1. **Five phases returned early without recording anything** when there was nothing to do. A
+   phase that ran and left nothing behind is indistinguishable from a phase that never ran, and
+   "the pass looked and found nothing to group" is a different statement from "the pass did not
+   look". The golden run found six failures, all of that shape. I fixed three, missed regression
+   selection, and the tests caught it.
+2. **A platform gap that had been invisible.** A journey needs three observations to qualify for
+   the permanent suite, and the platform records only *that* a journey was observed, not how
+   many times — so no journey can reach the bar. That is now stated in the decision's evidence;
+   without it a reader concludes none was worth keeping.
+3. **Three field names I invented** (`OccurrenceCount` on a security finding, `TimesObserved` on
+   a journey) which the compiler rejected. The real sighting count comes through
+   `SecurityScanFindings`; the journey count does not exist, which is finding 2.
 
 ## NOT TESTED
 
-- **The autonomous QA dashboard and run timeline in the console (§34, §35).** The console's
-  agent page lists passes, shows one and cancels it. The plan a person approves, the decision
-  log, the approval queue, the timeline, the business context and the coverage assessment are
-  **API-only**. A person would today answer the agent's questions with curl. The
-  human-in-the-loop requirement is satisfied in the platform and not in the product.
+- ~~**The autonomous QA dashboard and run timeline in the console (§34, §35).**~~ **Built.** The
+  console now carries the plan a person approves (and can narrow category by category), the
+  approval queue, the decision log, the timeline and the business context. 16 tests cover what a
+  person does there and the two ways the screen could lie: showing a blank where the API sent
+  something, and letting an answer through without its reason.
 - **Firefox and WebKit.** Supported in code; neither binary has ever launched here.
   `EXEC-015` and `EXEC-016` attempt a real run and report NOT VERIFIED with the reason.
 - **Any model provider.** `AI_PROVIDER=local` throughout. Every generated test came from the
@@ -180,10 +198,15 @@ Each of §53's rules, and what holds it.
 An autonomous pass plans, refuses, asks, executes and writes up what it found, and 253 tests
 say so with evidence. Thirty requirements are traced to tests that actually ran.
 
-Two things should temper that. Almost none of it is reachable from the console, so what has
-been verified is a platform rather than a product. And pointing it at one unfamiliar
-application for an afternoon found two defects that 251 tests had not — including a security
-report that said nothing was known about a build it had just scanned. The suite is 253 now
-because those two findings became tests; it was not 253 when it mattered.
+One thing should temper it. Pointing the platform at one unfamiliar application for an
+afternoon found two defects that 251 tests had not — including a security report that said
+nothing was known about a build it had just scanned. The suite is larger now because those
+findings became tests; it was not larger when it mattered.
+
+The console gap that stood here in the previous version of this report is closed: a person can
+now read a plan, narrow it, answer the agent's questions and read every refusal without
+touching curl. And nothing implemented is unreachable any more. Both were real shortfalls and
+both were found by asking what a person could actually do with this, rather than by counting
+what passed.
 
 The second is the more useful finding. It is an argument for more pilots, not for more tests.

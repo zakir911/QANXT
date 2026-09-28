@@ -759,7 +759,10 @@ async function wiredModelClaims(world, firstPass) {
 
   // ---- Duplication (§12) --------------------------------------------------------------
 
-  const dedupe = find(/Checked \d+ new test\(s\) against/);
+  // All three duplication summaries, because the two empty cases are statements too: nothing
+  // was generated, or nothing existed to compare against. An earlier version of this matched
+  // only the first and reported the check as missing when it had in fact run and said so.
+  const dedupe = find(/Checked \d+ new test\(s\) against|No duplication check was/);
 
   await claim('AQI-058', 'A pass checks whether the tests it wrote already existed',
     'A decision records the comparison of new tests against existing ones',
@@ -806,12 +809,22 @@ async function wiredModelClaims(world, firstPass) {
     }, 'critical');
 
   await claim('AQI-062', 'Tests left out are reported as a bound rather than a judgement',
-    'The decision says what was not selected and why that is not a verdict on them',
+    'The decision explains why each was left out, rather than giving a bare count',
     () => {
+      // Three honest answers, and the claim is that it gives one of them rather than a number
+      // on its own: there were no tests to consider, their histories did not argue for a
+      // re-run, or the pass's selection budget stopped before them. An earlier version of this
+      // allowed only the last two and failed on the first — which is the most common case on a
+      // fresh application and the least ambiguous of the three.
       const notSelected = evidenceValue(selection, 'notSelected');
+      if (notSelected === null) {
+        return { pass: false, detail: 'the decision does not say what was left out' };
+      }
+      const explains = /no existing tests|did not argue|budget/i.test(notSelected);
+      const bareNumber = /^\d+$/.test(notSelected.trim());
       return {
-        pass: notSelected === null || /did not argue|budget/i.test(notSelected),
-        detail: notSelected ?? '(nothing was considered)'
+        pass: explains && !bareNumber,
+        detail: notSelected
       };
     });
 
