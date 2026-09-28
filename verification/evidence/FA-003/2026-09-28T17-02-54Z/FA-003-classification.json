@@ -1,0 +1,34 @@
+{
+  "case": "http-401",
+  "lab": "authenticationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "f424c2ff-562f-46ff-aefa-6a9821539536",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15038ms).",
+    "signature": "b472eb7354af23965012eb44968470892dbd9a35f4e93a5e40577b1a07f65375",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T17:15:06.872376+00:00",
+    "lastSeenAt": "2026-09-28T17:15:06.872377+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was refused with 401.",
+      "likelyCause": "GET /api/answer → 401 in 0ms — the session was not accepted, so the page had nothing to render.",
+      "evidence": "GET /api/answer → 401 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15038ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0b0e525d-2e01-4ffa-b0c9-18b34a5004f9\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"16cf00b8-8ea4-446f-9114-290de0e63aeb\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"88248058-7e3f-4bf3-9bdd-d4ba3aa83bae\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"9d59a904-31fb-4255-b5e0-d1069096cc26\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"aa118289-d5ed-4eea-be8f-644b22975603\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"cb62da48-d9b4-4638-9726-891cfe7d3cad\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"cb9d682f-42fb-42c0-a41a-22a073741881\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"cc915f24-d5d4-403c-abea-a529a95f3326\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"900d4d54-60e0-49c2-aba3-9d60c9a9098e\"}"
+    }
+  }
+}

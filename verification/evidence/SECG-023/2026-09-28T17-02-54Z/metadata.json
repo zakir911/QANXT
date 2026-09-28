@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-023",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "The scope guard refuses no HTTP method",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "no HTTP method",
+  "expected": "Refused with methodNotAllowed. A request that names no verb is refused rather than guessed at.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "methodNotAllowed: The request names no HTTP method.",
+  "metrics": {
+    "rungsPassed": 4
+  },
+  "startedAt": "2026-09-28T17:31:54.127Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-023/2026-09-28T17-02-54Z/decision.json",
+      "bytes": 342,
+      "sha256": "dfec6cd474bbd53351393a9b15f8db6736c99b01e18e6ba6711d21e2312596ad"
+    }
+  ]
+}

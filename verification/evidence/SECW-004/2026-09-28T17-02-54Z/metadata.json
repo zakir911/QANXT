@@ -1,0 +1,36 @@
+{
+  "testId": "SECW-004",
+  "suite": "Security scans QA NXT runs itself",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A worker runs the scan against the application and reports back",
+  "preconditions": [
+    "a queued scan and a running worker"
+  ],
+  "input": "The queued job, consumed from qanxt:security",
+  "expected": "The scan completes, having issued real requests, and its findings are stored against the application. This is the claim the whole capability rests on and nothing else in the suite establishes it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "completed: 30 request(s), 4 finding(s), 4 check(s) executed",
+  "metrics": {
+    "requestsIssued": 30,
+    "findings": 4,
+    "executed": 4
+  },
+  "startedAt": "2026-09-28T17:32:12.046Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "scan.json",
+      "path": "evidence/SECW-004/2026-09-28T17-02-54Z/scan.json",
+      "bytes": 2839,
+      "sha256": "d9560b8e29b58ab50e9d3bf4a14ddad26323b9a2b799766d30da9134936ea8cd"
+    }
+  ]
+}

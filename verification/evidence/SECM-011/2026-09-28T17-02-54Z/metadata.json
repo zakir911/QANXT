@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-011",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "The mass-assignment finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-915, OWASP API3:2023, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-915, A01:2021, High (14/19) — High (14/19): trivial to exploit, serious impact, any signed-in user, reaches personal data, reachable by signed-in users.",
+  "metrics": {
+    "score": 14,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-28T17:31:53.612Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-011/2026-09-28T17-02-54Z/mapping.json",
+      "bytes": 901,
+      "sha256": "c3c4a1681f8e31de007826401dadbf788b89afbf37c5b523073ef6b20bf2834e"
+    }
+  ]
+}

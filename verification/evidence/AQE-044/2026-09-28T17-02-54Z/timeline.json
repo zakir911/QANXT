@@ -1,0 +1,443 @@
+[
+  {
+    "at": "2026-09-28T17:38:20.472906+00:00",
+    "kind": "phase",
+    "phase": "exploring",
+    "title": "Skipped exploration.",
+    "detail": "Exploration was disabled for this pass, so the existing knowledge graph is used as it stands."
+  },
+  {
+    "at": "2026-09-28T17:38:20.477138+00:00",
+    "kind": "phase",
+    "phase": "modelling",
+    "title": "Read 11 page(s) from the knowledge graph.",
+    "detail": "The graph is the agent's whole picture of the application; it does not browse to form one."
+  },
+  {
+    "at": "2026-09-28T17:38:20.495716+00:00",
+    "kind": "phase",
+    "phase": "prioritizing",
+    "title": "Scored 10 area(s) and chose the top 3 to work on.",
+    "detail": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering."
+  },
+  {
+    "at": "2026-09-28T17:38:20.499609+00:00",
+    "kind": "decision",
+    "phase": "prioritizing",
+    "title": "Left 1 page(s) alone because a person excluded them.",
+    "detail": "An exclusion is honoured absolutely rather than weighed against a risk score. Somebody who writes 'never touch this' is not expressing a preference that a high enough number can outvote.",
+    "link": "decision:252f2423-e0ec-42ca-ac13-55dbd037daa9"
+  },
+  {
+    "at": "2026-09-28T17:38:20.553382+00:00",
+    "kind": "phase",
+    "phase": "analysingGaps",
+    "title": "Assessed 24 capability(ies): 0 covered, 0 partial, 24 uncovered, 44 unknown.",
+    "detail": "Coverage is compared against what discovery reached. Anything it did not reach is absent from this assessment rather than covered by it, and a dimension this pass cannot assess is reported unknown rather than as a gap."
+  },
+  {
+    "at": "2026-09-28T17:38:20.616286+00:00",
+    "kind": "decision",
+    "phase": "analysingGaps",
+    "title": "Assessed 24 capability(ies): 24 uncovered, 44 unknown.",
+    "detail": "24 capability(ies) assessed across 68 applicable dimension(s): 0 covered, 0 partial, 24 not covered, 44 unknown. 3 of the capabilities with gaps were called business-critical by a person. Coverage is measured against what discovery reached; anything it did not reach is absent from this report rather than covered by it.",
+    "link": "decision:818c4e30-8e8e-4cf2-a917-cc4792831aab"
+  },
+  {
+    "at": "2026-09-28T17:38:20.621773+00:00",
+    "kind": "phase",
+    "phase": "planning",
+    "title": "Proposed 114 test(s) and stopped for approval.",
+    "detail": "Nothing has been tested. A plan is a proposal, and this run requires a person to approve one before any of it runs."
+  },
+  {
+    "at": "2026-09-28T17:38:20.640745+00:00",
+    "kind": "decision",
+    "phase": "planning",
+    "title": "Proposed 114 test(s) across 6 category(ies).",
+    "detail": "114 test(s) across 6 category(ies) for \"Release validation\", 37 of which do not exist yet. Roughly 36 minute(s) — an estimate from defaults, because this application has no execution history yet. 4 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+    "link": "decision:4b569e5f-fb90-408b-ad48-01722ca45117"
+  },
+  {
+    "at": "2026-09-28T17:38:21.701123+00:00",
+    "kind": "decision",
+    "phase": "planning",
+    "title": "The plan was approved by ag***@example.test.",
+    "detail": "Approved for the golden run.",
+    "link": "decision:aeaedf29-ae01-4828-b10e-a2b776238233"
+  },
+  {
+    "at": "2026-09-28T17:38:25.656939+00:00",
+    "kind": "phase",
+    "phase": "exploring",
+    "title": "Skipped Exploring: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at Generating. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:25.662372+00:00",
+    "kind": "phase",
+    "phase": "modelling",
+    "title": "Read 11 page(s) from the knowledge graph.",
+    "detail": "The graph is the agent's whole picture of the application; it does not browse to form one."
+  },
+  {
+    "at": "2026-09-28T17:38:25.677577+00:00",
+    "kind": "phase",
+    "phase": "prioritizing",
+    "title": "Scored 10 area(s) and chose the top 3 to work on.",
+    "detail": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering."
+  },
+  {
+    "at": "2026-09-28T17:38:25.717043+00:00",
+    "kind": "phase",
+    "phase": "analysingGaps",
+    "title": "Skipped AnalysingGaps: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at Generating. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:25.718685+00:00",
+    "kind": "phase",
+    "phase": "planning",
+    "title": "Skipped Planning: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at Generating. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:25.722384+00:00",
+    "kind": "phase",
+    "phase": "generating",
+    "title": "Generated 2 test(s) across 7 step(s) for 3 uncovered area(s).",
+    "detail": "Produced by the built-in deterministic planner; no external model was used."
+  },
+  {
+    "at": "2026-09-28T17:38:25.75908+00:00",
+    "kind": "decision",
+    "phase": "generating",
+    "title": "No duplication check was possible for 2 new test(s).",
+    "detail": "This application had no tests before this pass, so there is nothing the new ones could duplicate. That is an absence of anything to compare against, not a finding that they are all distinct.",
+    "link": "decision:2c142dbb-d57b-42d0-877f-877459d9d9bf"
+  },
+  {
+    "at": "2026-09-28T17:38:25.763914+00:00",
+    "kind": "phase",
+    "phase": "generating",
+    "title": "Generated 10 API test(s) across 10 endpoint(s).",
+    "detail": "The API testing engine authored them; the agent chose the endpoints and recorded why."
+  },
+  {
+    "at": "2026-09-28T17:38:25.878959+00:00",
+    "kind": "decision",
+    "phase": "generating",
+    "title": "Generated 10 API test(s) for 10 endpoint(s).",
+    "detail": "Endpoints discovered by the crawl, minus anything a person excluded. Mutating requests were left out.",
+    "link": "decision:f9934e14-3d07-45cd-82a6-2f891700446f"
+  },
+  {
+    "at": "2026-09-28T17:38:25.888742+00:00",
+    "kind": "phase",
+    "phase": "prioritizing",
+    "title": "No regression selection in this plan.",
+    "detail": "Nothing that already existed was selected for re-running."
+  },
+  {
+    "at": "2026-09-28T17:38:25.890726+00:00",
+    "kind": "decision",
+    "phase": "prioritizing",
+    "title": "Selected 0 of 0 existing test(s) to re-run.",
+    "detail": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's.",
+    "link": "decision:019ee0c7-7196-43a4-861c-acd2f2c5c722"
+  },
+  {
+    "at": "2026-09-28T17:38:25.897709+00:00",
+    "kind": "phase",
+    "phase": "securityTesting",
+    "title": "Stopped to ask about whether to scan this application.",
+    "detail": "Nothing was done. The pass resumes from here when the question is answered, and reports what it did not do if nobody answers."
+  },
+  {
+    "at": "2026-09-28T17:38:25.902147+00:00",
+    "kind": "refusal",
+    "phase": "securityTesting",
+    "title": "Wanted to use security.scan.",
+    "detail": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "link": "decision:aaada0c9-1a9a-42c2-8ed2-d858b07b7f4f"
+  },
+  {
+    "at": "2026-09-28T17:38:25.907495+00:00",
+    "kind": "approval-requested",
+    "phase": "awaitingApproval",
+    "title": "Asked for approval to use security.scan",
+    "detail": "Scan 11 page(s) of this application within its authorized scope.",
+    "link": "approval:b86a2b71-49bc-4af7-986f-734782d842f9"
+  },
+  {
+    "at": "2026-09-28T17:38:27.743029+00:00",
+    "kind": "approval-granted",
+    "phase": "awaitingApproval",
+    "title": "security.scan was granted by agentexec-16be4nstni@example.test",
+    "detail": "Authorized for the golden test lab, which exists to be tested.",
+    "link": "approval:b86a2b71-49bc-4af7-986f-734782d842f9"
+  },
+  {
+    "at": "2026-09-28T17:38:30.928433+00:00",
+    "kind": "phase",
+    "phase": "exploring",
+    "title": "Skipped Exploring: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:30.934271+00:00",
+    "kind": "phase",
+    "phase": "modelling",
+    "title": "Read 11 page(s) from the knowledge graph.",
+    "detail": "The graph is the agent's whole picture of the application; it does not browse to form one."
+  },
+  {
+    "at": "2026-09-28T17:38:30.94741+00:00",
+    "kind": "phase",
+    "phase": "prioritizing",
+    "title": "Scored 10 area(s) and chose the top 3 to work on.",
+    "detail": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering."
+  },
+  {
+    "at": "2026-09-28T17:38:31.011716+00:00",
+    "kind": "phase",
+    "phase": "analysingGaps",
+    "title": "Skipped AnalysingGaps: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:31.01403+00:00",
+    "kind": "phase",
+    "phase": "planning",
+    "title": "Skipped Planning: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:31.016105+00:00",
+    "kind": "phase",
+    "phase": "generating",
+    "title": "Skipped Generating: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:31.018153+00:00",
+    "kind": "phase",
+    "phase": "generating",
+    "title": "Skipped Generating: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at SecurityTesting. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:31.020726+00:00",
+    "kind": "phase",
+    "phase": "prioritizing",
+    "title": "No regression selection in this plan.",
+    "detail": "Nothing that already existed was selected for re-running."
+  },
+  {
+    "at": "2026-09-28T17:38:31.023238+00:00",
+    "kind": "decision",
+    "phase": "prioritizing",
+    "title": "Selected 0 of 0 existing test(s) to re-run.",
+    "detail": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's.",
+    "link": "decision:311e5415-225c-46e0-b74d-5d89ce34d05e"
+  },
+  {
+    "at": "2026-09-28T17:38:31.028997+00:00",
+    "kind": "phase",
+    "phase": "securityTesting",
+    "title": "Queued security scan SCAN-20260928-92025A (27 check(s)).",
+    "detail": "A queued scan is not a result. Its verdict appears when a worker reports."
+  },
+  {
+    "at": "2026-09-28T17:38:31.048189+00:00",
+    "kind": "decision",
+    "phase": "securityTesting",
+    "title": "Queued security scan SCAN-20260928-92025A.",
+    "detail": "The application carries an enabled scope and the plan included security testing. The engine decides what may be sent; this pass only asked.",
+    "link": "decision:2abcfa49-5785-40e8-8a5a-c23d10c46ced"
+  },
+  {
+    "at": "2026-09-28T17:38:31.05551+00:00",
+    "kind": "phase",
+    "phase": "executing",
+    "title": "Stopped to ask about whether to run 12 test(s).",
+    "detail": "Nothing was done. The pass resumes from here when the question is answered, and reports what it did not do if nobody answers."
+  },
+  {
+    "at": "2026-09-28T17:38:31.064709+00:00",
+    "kind": "refusal",
+    "phase": "executing",
+    "title": "Wanted to use test.execute.",
+    "detail": "'test.execute' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "link": "decision:250b91a5-a0a5-4f20-9f68-3778c405461b"
+  },
+  {
+    "at": "2026-09-28T17:38:31.068141+00:00",
+    "kind": "approval-requested",
+    "phase": "awaitingApproval",
+    "title": "Asked for approval to use test.execute",
+    "detail": "Run 12 test(s) against this application.",
+    "link": "approval:488ba522-4c4a-4d10-b0b1-73c89975134e"
+  },
+  {
+    "at": "2026-09-28T17:38:33.78884+00:00",
+    "kind": "approval-granted",
+    "phase": "awaitingApproval",
+    "title": "test.execute was granted by agentexec-16be4nstni@example.test",
+    "detail": "Authorized for the golden test lab, which exists to be tested.",
+    "link": "approval:488ba522-4c4a-4d10-b0b1-73c89975134e"
+  },
+  {
+    "at": "2026-09-28T17:38:36.085497+00:00",
+    "kind": "run",
+    "phase": "pending",
+    "title": "Pass started: Golden autonomous pass",
+    "detail": "Release validation"
+  },
+  {
+    "at": "2026-09-28T17:38:36.089174+00:00",
+    "kind": "phase",
+    "phase": "exploring",
+    "title": "Skipped Exploring: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:36.09347+00:00",
+    "kind": "phase",
+    "phase": "modelling",
+    "title": "Read 11 page(s) from the knowledge graph.",
+    "detail": "The graph is the agent's whole picture of the application; it does not browse to form one."
+  },
+  {
+    "at": "2026-09-28T17:38:36.106364+00:00",
+    "kind": "phase",
+    "phase": "prioritizing",
+    "title": "Scored 10 area(s) and chose the top 3 to work on.",
+    "detail": "Risk is scored deterministically from coverage, change, failure history and what a failure would cost, so the same application always produces the same ordering."
+  },
+  {
+    "at": "2026-09-28T17:38:36.163245+00:00",
+    "kind": "phase",
+    "phase": "analysingGaps",
+    "title": "Skipped AnalysingGaps: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:36.165024+00:00",
+    "kind": "phase",
+    "phase": "planning",
+    "title": "Skipped Planning: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:36.166678+00:00",
+    "kind": "phase",
+    "phase": "generating",
+    "title": "Skipped Generating: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:36.16797+00:00",
+    "kind": "phase",
+    "phase": "generating",
+    "title": "Skipped Generating: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:36.170226+00:00",
+    "kind": "phase",
+    "phase": "prioritizing",
+    "title": "No regression selection in this plan.",
+    "detail": "Nothing that already existed was selected for re-running."
+  },
+  {
+    "at": "2026-09-28T17:38:36.171861+00:00",
+    "kind": "decision",
+    "phase": "prioritizing",
+    "title": "Selected 0 of 0 existing test(s) to re-run.",
+    "detail": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's.",
+    "link": "decision:922835e1-7597-4db9-80eb-0fae4853fdc5"
+  },
+  {
+    "at": "2026-09-28T17:38:36.175945+00:00",
+    "kind": "phase",
+    "phase": "securityTesting",
+    "title": "Skipped SecurityTesting: it ran before this pass stopped for a person.",
+    "detail": "The pass resumed at Executing. Repeating an earlier phase would duplicate what it produced, and re-planning would ask somebody a question they have already answered."
+  },
+  {
+    "at": "2026-09-28T17:38:36.179593+00:00",
+    "kind": "phase",
+    "phase": "executing",
+    "title": "Ran 12 test(s) (0 generated, 0 API, 0 re-run): 11 passed, 1 failed, 0 blocked.",
+    "detail": "A generated test that cannot pass on the application as it is now is worth knowing about before anyone relies on it."
+  },
+  {
+    "at": "2026-09-28T17:38:36.290496+00:00",
+    "kind": "decision",
+    "phase": "executing",
+    "title": "Started a verification run against no named build.",
+    "detail": "Nobody said which build this pass is testing, so the run carries no build reference and does not appear in any release assessment. That is an absence of an assessment, not a passed one.",
+    "link": "decision:5068250c-947b-4279-9fe4-cfa9da3d2ba2"
+  },
+  {
+    "at": "2026-09-28T17:38:57.323388+00:00",
+    "kind": "phase",
+    "phase": "investigating",
+    "title": "Investigated 1 failure(s).",
+    "detail": "Each one is recorded as a proposal with its evidence. The agent raises no defects and changes no tests."
+  },
+  {
+    "at": "2026-09-28T17:38:57.44135+00:00",
+    "kind": "decision",
+    "phase": "investigating",
+    "title": "Observed 5 distinct error response(s); 5 argue for something else to be looked at.",
+    "detail": "A fixed phase order makes a pass reproducible and also makes it blind. Evidence the run produced can argue for more work — and only for more. Nothing here widens what the policy permits or reaches outside the authorized scope.",
+    "link": "decision:d7c739e6-ff08-4afc-b7c0-833b4ad9e015"
+  },
+  {
+    "at": "2026-09-28T17:38:57.472713+00:00",
+    "kind": "phase",
+    "phase": "correlating",
+    "title": "Nothing to correlate: one failure cannot share a cause with anything.",
+    "detail": "Correlation groups failures that share a cause. With fewer than two there is nothing to group, which is not the same as having found no common cause."
+  },
+  {
+    "at": "2026-09-28T17:38:57.484959+00:00",
+    "kind": "decision",
+    "phase": "correlating",
+    "title": "Nothing to correlate: 1 failure(s).",
+    "detail": "Correlation groups failures that share a cause. With fewer than two there is nothing to group, which is not the same as having found no common cause.",
+    "link": "decision:19eb7fe5-11ab-43fa-bf77-1784a8e9d0cf"
+  },
+  {
+    "at": "2026-09-28T17:38:57.492686+00:00",
+    "kind": "phase",
+    "phase": "proposing",
+    "title": "Wrote up 40 proposal(s).",
+    "detail": "The pass ends with a write-up rather than an action, because acting on these is a person's decision."
+  },
+  {
+    "at": "2026-09-28T17:38:57.516858+00:00",
+    "kind": "decision",
+    "phase": "proposing",
+    "title": "No candidate for the permanent suite.",
+    "detail": "Nothing this pass could see qualifies as a candidate: there is no confirmed security finding for this application and no journey the platform has observed end to end. An empty candidate list is not a finding that the suite is complete.",
+    "link": "decision:921d0f7d-b6de-4342-b0a6-e341da2bff3b"
+  },
+  {
+    "at": "2026-09-28T17:38:57.539783+00:00",
+    "kind": "decision",
+    "phase": "proposing",
+    "title": "Release assessment: NeedsReview.",
+    "detail": "NEEDS REVIEW. 12 test(s) executed. 1 test(s) failed. No security scan covers this pass. Nothing here blocks on its own; a person decides.",
+    "link": "decision:18e7ce17-4043-47ff-86ec-aa845bda9051"
+  },
+  {
+    "at": "2026-09-28T17:38:57.549088+00:00",
+    "kind": "run",
+    "phase": "done",
+    "title": "Pass completed",
+    "detail": "The pass completed its plan."
+  }
+]

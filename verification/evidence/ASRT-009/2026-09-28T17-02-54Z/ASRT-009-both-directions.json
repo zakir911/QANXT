@@ -1,0 +1,71 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "96510f09-8a58-48fe-8b6f-25c212ae84ca",
+      "order": 6,
+      "action": "assertCount",
+      "description": "[data-testid^=\"account-row-\"] matches 3 element(s)",
+      "status": "passed",
+      "startedAt": "2026-09-28T17:09:43.502+00:00",
+      "durationMs": 18,
+      "url": "http://localhost:4300/accounts",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "css",
+        "value": "[data-testid^=\"account-row-\"]",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "css=[data-testid^=\"account-row-\"]"
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "173f8e01-9b95-4965-9b18-7883c3634b2b",
+      "order": 6,
+      "action": "assertCount",
+      "description": "[data-testid^=\"account-row-\"] matches 10 element(s)",
+      "status": "failed",
+      "startedAt": "2026-09-28T17:09:45.609+00:00",
+      "durationMs": 15065,
+      "url": "http://localhost:4300/accounts",
+      "wasHealed": false,
+      "errorMessage": "Expected 10 matching elements but found 3.",
+      "locatorUsed": {
+        "strategy": "css",
+        "value": "[data-testid^=\"account-row-\"]",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "css=[data-testid^=\"account-row-\"]"
+    },
+    "failure": {
+      "id": "ef9f14bb-310f-412f-b7ca-381e7575945b",
+      "category": "applicationDefect",
+      "categoryConfidence": 80,
+      "rawMessage": "Expected 10 matching elements but found 3.",
+      "signature": "c20d67fe27a8e43d58d0f4ceeaa5cad41850d0d262c38778f8ec7f463e308043",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-28T17:10:02.990453+00:00",
+      "lastSeenAt": "2026-09-28T17:10:02.990453+00:00",
+      "analysis": {
+        "summary": "The API answered correctly and the page showed something else.",
+        "likelyCause": "Every API call the failing step made succeeded (GET /api/accounts → 200 in 0ms), so the data was right and what was rendered from it was not. The defect is in the front end rather than the service.",
+        "evidence": "1 API call(s) during the failing step, all successful. Engine message: Expected 10 matching elements but found 3.",
+        "suggestedAction": "Compare the response body in the network evidence with what the failure screenshot shows. Start with the rendering, not the endpoint.",
+        "category": "applicationDefect",
+        "confidence": 80,
+        "isLikelyApplicationDefect": true,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "qanxt-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"e7ce7c49-63e2-4bcb-873a-accab6986fb4\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"0d7399bf-c00a-4003-8f9e-a279984deea2\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"27df4018-940e-4bd3-83f0-55bf700998d3\", \"kind\": \"Screenshot\", \"name\": \"step-6-failure.png\"}, {\"id\": \"37289361-0a32-452e-bfdb-08f2cf926755\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"56aa4ea9-0c62-47de-8c83-4a5d0ca41a8a\", \"kind\": \"DomSnapshot\", \"name\": \"step-6-failure.html\"}, {\"id\": \"588afce0-3328-495d-b0f2-6f90aacf5c0e\", \"kind\": \"AccessibilityTree\", \"name\": \"step-6-failure.a11y.json\"}, {\"id\": \"808b778c-bb94-4443-8026-fbe41b18d2b9\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"fd4d2db1-6e07-48d9-b50f-78c140a2d296\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"2b507753-babf-4cb1-879e-6e8baf4fd0ac\"}"
+      }
+    }
+  }
+}

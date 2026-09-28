@@ -1,0 +1,34 @@
+{
+  "testId": "AUD-003",
+  "suite": "Isolation, audit and observability",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "Changing a quality gate is recorded, because it changes what the platform will let through",
+  "preconditions": [
+    "a project exists"
+  ],
+  "input": "Create a gate rule, then read the trail filtered to gate changes",
+  "expected": "A qualityGateChanged record exists and names the rule",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "2 qualityGateChanged record(s); the new rule is named: true",
+  "metrics": {
+    "records": 2
+  },
+  "startedAt": "2026-09-28T17:31:16.860Z",
+  "durationMs": 22,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "gate-audit.json",
+      "path": "evidence/AUD-003/2026-09-28T17-02-54Z/gate-audit.json",
+      "bytes": 401,
+      "sha256": "d4e48e26870f62b0b9c909b1de81fa5557859e89910574a801a6bac2a03a8851"
+    }
+  ]
+}

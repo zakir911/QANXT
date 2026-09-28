@@ -1,0 +1,79 @@
+{
+  "id": "7c7fa45b-c5ed-4408-8b06-78489532eb25",
+  "testRunId": "9e506dfe-14d7-4798-8f58-4da64898506a",
+  "testCaseId": "71720ab8-2e66-4e08-af1e-e3aecab233ba",
+  "reference": "TC-0004",
+  "name": "GET http://localhost:4300/api/dashboard refuses an unauthenticated caller",
+  "objective": "The endpoint was observed to require authentication. This asserts it still does. Authorization being removed is the failure nobody notices, because every signed-in test carries on passing.",
+  "expectedResults": "",
+  "status": "passed",
+  "startedAt": "2026-09-28T17:24:04.990366+00:00",
+  "completedAt": "2026-09-28T17:24:05.015+00:00",
+  "durationMs": 21,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-3486",
+  "correlationId": "5222bc8eee8342dda6d2917b6b16cb18",
+  "stepsTotal": 1,
+  "stepsPassed": 1,
+  "stepsFailed": 0,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 1,
+  "actions": [
+    {
+      "id": "4c557b40-b71d-48f8-aae4-4cf9d59c2577",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "GET http://localhost:4300/api/dashboard with no credentials — 401 in 2ms",
+      "status": "passed",
+      "startedAt": "2026-09-28T17:24:04.999+00:00",
+      "durationMs": 4,
+      "url": "http://localhost:4300/api/dashboard",
+      "wasHealed": false
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "5bb457bf-a732-43a1-8956-7885e0925c33",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 574,
+      "isMasked": true,
+      "testActionId": "4c557b40-b71d-48f8-aae4-4cf9d59c2577"
+    },
+    {
+      "id": "5d2f2284-ffc7-4f1e-8851-a1cb3e2e07e7",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 716,
+      "isMasked": true
+    },
+    {
+      "id": "f949ae4f-32b9-4184-b23a-d2d925c6a484",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 1001,
+      "isMasked": false
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "4acbafec-3210-494e-b7ba-1bdc8ee444b7",
+      "method": "GET",
+      "url": "http://localhost:4300/api/dashboard",
+      "statusCode": 401,
+      "durationMs": 2,
+      "isFailed": true,
+      "resourceType": "apiTest",
+      "testActionId": "4c557b40-b71d-48f8-aae4-4cf9d59c2577",
+      "actionOrder": 1
+    }
+  ],
+  "healingEvents": []
+}

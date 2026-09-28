@@ -1,0 +1,38 @@
+{
+  "testId": "AQP-028",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "The refusal says what to change rather than only what is wrong",
+  "preconditions": [
+    "a pass has run against an application whose environment nothing identifies"
+  ],
+  "input": "agent run 0eb28c6e-eefc-409a-b48b-76134eed05e4",
+  "expected": "It names registering an environment or naming one on the scope",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "'test.execute' would change something and nothing says what kind of environment this application lives in. Register an environment for it, or name one on its security scope, and this will run. Until then only observation",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:37:35.858Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "unknown-decisions.json",
+      "path": "evidence/AQP-028/2026-09-28T17-02-54Z/unknown-decisions.json",
+      "bytes": 10481,
+      "sha256": "6813ff44d6d9db3381911355e1e733a4e56b9719dfda8c39313ca83cc94e9741"
+    },
+    {
+      "file": "unknown-run.json",
+      "path": "evidence/AQP-028/2026-09-28T17-02-54Z/unknown-run.json",
+      "bytes": 1306,
+      "sha256": "638118d65286302c83607404c6329e6813e8f480598b01602fed1d6ce2e07c5b"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "case": "http-500",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "ec9930ac-6be3-4300-8531-94aaed96028a",
+    "category": "applicationDefect",
+    "categoryConfidence": 95,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15093ms).",
+    "signature": "85e1f5153d3527380e14a9dda825538d3cea4d96c18ae5d88bc5081fa7d4d0d7",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T17:16:06.94041+00:00",
+    "lastSeenAt": "2026-09-28T17:16:06.94041+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made returned 500.",
+      "likelyCause": "GET /api/answer → 500 in 0ms — the fault is in the application or a service it depends on, not in the test.",
+      "evidence": "The failing step made 1 API call(s); GET /api/answer → 500 in 0ms. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15093ms).",
+      "suggestedAction": "Take this request to the team that owns the endpoint. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 95,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0805c055-88a4-4461-baf6-e11729528070\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"0d8fbec8-2253-4e59-b25e-93581e7e0bf0\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"1ac2a1f9-5fcb-463c-aa6e-0bb10e0c4859\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"218ea163-0da9-4aab-856a-c69fef80506e\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"2af879b7-c2e4-4c20-83ef-a3e5938967e0\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"31f735fb-8c73-41ef-a63e-84c8442d2347\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"743ce462-3e62-425d-a0ca-2e2ffc61aa10\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"faed175d-98a3-4ec8-acbe-0f8134a91b35\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"53a08fb2-3f7f-49dc-9cf0-140af919f852\"}"
+    }
+  }
+}

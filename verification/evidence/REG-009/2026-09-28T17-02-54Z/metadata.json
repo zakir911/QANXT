@@ -1,0 +1,42 @@
+{
+  "testId": "REG-009",
+  "suite": "Regression selection",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A pipeline can select, inspect and run a regression set through the CLI",
+  "preconditions": [
+    "the CLI is built",
+    "the lab bank is running"
+  ],
+  "input": "\"qanxt regression select --explain\", then \"qanxt regression run\", on a change to the accounts area",
+  "expected": "select exits 0 and prints each test's components; run exits 0 and executes only the selected tests; the selection is written as an artifact",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "select exit 0, run exit 0; artifact: 3/5 test(s)",
+  "metrics": {
+    "selectExit": 0,
+    "runExit": 0
+  },
+  "startedAt": "2026-09-28T17:25:35.686Z",
+  "durationMs": 6467,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "cli-output.txt",
+      "path": "evidence/REG-009/2026-09-28T17-02-54Z/cli-output.txt",
+      "bytes": 2611,
+      "sha256": "d28d30929b381e08cde3ea1dd28175dbbf342f63020e2cd19c08a2aa85e788e1"
+    },
+    {
+      "file": "regression-selection.json",
+      "path": "evidence/REG-009/2026-09-28T17-02-54Z/regression-selection.json",
+      "bytes": 7618,
+      "sha256": "5be6478d2ee990321e48c12075d30c33eb8fe0656f03c73b93652f02915d6bc5"
+    }
+  ]
+}

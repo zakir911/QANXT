@@ -1,0 +1,33 @@
+{
+  "testId": "CON-014",
+  "suite": "API contracts",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A contract check can read what a crawl observed, not only what an API test called",
+  "preconditions": [
+    "a completed discovery run",
+    "baselines captured"
+  ],
+  "input": "Contract check against discovery run 64b94e5e-d232-42ad-bba7-8d6f5764c203",
+  "expected": "A result that names how many endpoints it compared, for teams whose API coverage comes from driving the UI",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "14 endpoint(s) compared from the crawl, 0 breaking",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:24:09.130Z",
+  "durationMs": 23,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "check.json",
+      "path": "evidence/CON-014/2026-09-28T17-02-54Z/check.json",
+      "bytes": 265,
+      "sha256": "7f74ba4de78f3124d97e3fb7487f3869a0fc99c6c6a31eb75764e3c69ec83e56"
+    }
+  ]
+}

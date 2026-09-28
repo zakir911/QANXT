@@ -1,0 +1,35 @@
+$ qanxt api-test add --file api-tests.json   (exit 0)
+  ✓ TC-0001 Dashboard totals answer for a signed-in session 2 request(s), 4 assertion(s) → API — from the pipeline
+      note Request 1 is a POST, so it changes data. It will be refused in any environment that does not permit destructive tests.
+
+  1 created.
+
+$ qanxt api-test list                        (exit 0)
+    TC-0001 Dashboard totals answer for a signed-in session
+
+  1 API test(s).
+
+$ qanxt api-test run     [API healthy]       (exit 0)
+Running 1 API test(s)
+Run queued API tests d344e951-05e5-438f-bfd0-49afb153b803
+  queued — 0/1 finished
+  passed — 1/1 finished
+
+  ✓ TC-0001 Dashboard totals answer for a signed-in session 95ms
+
+  1 passed · 0 failed · 0 blocked · 0 healed · 0 flaky · 127ms
+
+  Quality gate passed. No quality gates are configured for this project, so the run does not block.
+
+$ qanxt api-test run     [FAULT_API_500]     (exit 1)
+Running 1 API test(s)
+Run queued API tests cc69973a-cc5a-4377-ac7c-2cc9a7db52fc
+  running — 0/1 finished
+  failed — 1/1 finished
+
+  ✗ TC-0001 Dashboard totals answer for a signed-in session 28ms
+      POST http://localhost:4300/api/session returned 500 Internal Server Error.
+
+  0 passed · 1 failed · 0 blocked · 0 healed · 0 flaky · 70ms
+
+  Quality gate passed. No quality gates are configured for this project, so the run does not block.

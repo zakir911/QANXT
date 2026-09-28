@@ -1,0 +1,35 @@
+{
+  "testId": "ISO-007",
+  "suite": "Isolation, audit and observability",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "The audit trail is scoped to one organization, and there is no parameter that would widen it",
+  "preconditions": [
+    "both tenants have produced audit records by registering and creating projects"
+  ],
+  "input": "GET /api/v1/audit as each tenant, and an attempt to ask for the other organization",
+  "expected": "Neither tenant's records appear in the other's trail, including when the other's organization id is supplied",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "tenant A sees 9 record(s) from 1 org(s); tenant B 1 from 1; forcing organizationId returned 1 org(s), tenant A's included: false",
+  "metrics": {
+    "tenantAOrgs": 1,
+    "tenantBOrgs": 1
+  },
+  "startedAt": "2026-09-28T17:31:16.749Z",
+  "durationMs": 50,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "audit-isolation.json",
+      "path": "evidence/ISO-007/2026-09-28T17-02-54Z/audit-isolation.json",
+      "bytes": 424,
+      "sha256": "f1ca19701fa79f03dea7cf7b654dbd9917a7445061766d722ae9df6349d2f64b"
+    }
+  ]
+}

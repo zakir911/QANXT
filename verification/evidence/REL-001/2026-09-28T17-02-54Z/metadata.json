@@ -1,0 +1,37 @@
+{
+  "testId": "REL-001",
+  "suite": "Reliability",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A deterministic test gives the same verdict ten times running",
+  "preconditions": [
+    "the lab bank is healthy and unchanged between runs"
+  ],
+  "input": "The same test case executed ten times",
+  "expected": "Ten passes, no other verdict",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "10/10 passed; verdicts: passed; duration 440–683ms (median 504ms)",
+  "metrics": {
+    "runs": 10,
+    "distinctVerdicts": 1,
+    "minMs": 440,
+    "maxMs": 683
+  },
+  "startedAt": "2026-09-28T17:32:31.521Z",
+  "durationMs": 20477,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "repeatability.json",
+      "path": "evidence/REL-001/2026-09-28T17-02-54Z/repeatability.json",
+      "bytes": 953,
+      "sha256": "88b71cb2162680863d0a389f99633f6edae51bbdff720da5a97ea20e2d10055b"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "testId": "CIS-010",
+  "suite": "CI simulation",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A REVIEW verdict reaches the pipeline as its own exit code",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"review-blocks\"",
+  "expected": "Exit 7, and a summary saying a person must look — not a pass, not a failure",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "QA NXT exited 7, the pipeline exited 7; review required, and this pipeline blocks on review",
+  "metrics": {
+    "qanxtExit": 7,
+    "pipelineExit": 7
+  },
+  "startedAt": "2026-09-28T17:26:21.149Z",
+  "durationMs": 3271,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-010/2026-09-28T17-02-54Z/pipeline.log",
+      "bytes": 1433,
+      "sha256": "61b8123e3a3a7d068d963a28badb2cd2f9a491fb085c60cf52536ec109f41557"
+    },
+    {
+      "file": "summary.md",
+      "path": "evidence/CIS-010/2026-09-28T17-02-54Z/summary.md",
+      "bytes": 782,
+      "sha256": "c4d7f678cd43fe9a85ddaeafc7da3be26c755e433ce7b2f55422ed4d7c5db0de"
+    }
+  ]
+}

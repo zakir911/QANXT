@@ -1,0 +1,35 @@
+{
+  "testId": "SECW-011",
+  "suite": "Security scans QA NXT runs itself",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "Discovery is what decides where a scan points",
+  "preconditions": [
+    "the discovery run above"
+  ],
+  "input": "The discovered surface and the scan that was started from it",
+  "expected": "The surface names its own caveats, starting with the one saying it describes what discovery walked. A scan inherits that limit, and a reader who is told the coverage fraction without it will read it as a fraction of the application",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "discovery completed, 5 surface item(s), 5 caveat(s)",
+  "metrics": {
+    "items": 5,
+    "caveats": 5
+  },
+  "startedAt": "2026-09-28T17:32:14.092Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "surface.json",
+      "path": "evidence/SECW-011/2026-09-28T17-02-54Z/surface.json",
+      "bytes": 3766,
+      "sha256": "8dd42d6358621ee2f8462006831a262c99d61d223822f1e7cafb56b17814ec2b"
+    }
+  ]
+}

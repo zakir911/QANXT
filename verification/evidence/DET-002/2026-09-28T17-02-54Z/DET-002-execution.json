@@ -1,0 +1,42 @@
+{
+  "id": "DET-002",
+  "case": "http-400",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "1e21b3c8-85d3-48b6-a88d-00a37e802107",
+    "category": "applicationDefect",
+    "categoryConfidence": 80,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15018ms).",
+    "signature": "551081a9b0bf0198ba859525028cc84471c4734ec21b9a0453c9d8e90f6a7545",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T17:11:34.401909+00:00",
+    "lastSeenAt": "2026-09-28T17:11:34.401909+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was rejected with 400.",
+      "likelyCause": "GET /api/answer → 400 in 0ms — either the request the application sent was wrong, or the data the test used is not acceptable to this endpoint.",
+      "evidence": "GET /api/answer → 400 in 0ms, made by step 3. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15018ms).",
+      "suggestedAction": "Read the request in the network evidence before looking at the failing step.",
+      "category": "applicationDefect",
+      "confidence": 80,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"309f36a5-cda5-44ca-a527-6819113dbe1f\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"417a939b-ff8e-4512-b6b2-e061b23c8484\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"42d772c2-8694-4d8d-a84e-d4272cd61d5e\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"619930e8-7c5f-4c67-8a8a-2ee2c7fd4580\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"9a133a0e-3882-4278-87d1-2b40c737605f\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b589de78-6a03-433a-92d1-ab70e6033ef8\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"d069a5a3-383f-448d-81b2-d78fd7062377\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"f640b371-5da6-40d0-b5c6-7455d226a62a\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}], \"executionId\": \"511c5638-22fa-4866-ac4e-07d469572d6c\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15018ms)."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

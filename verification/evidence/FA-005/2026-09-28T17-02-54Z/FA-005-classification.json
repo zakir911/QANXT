@@ -1,0 +1,34 @@
+{
+  "case": "http-404",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "cf3f1f2f-177d-4cdd-8272-0d5e0305d3e3",
+    "category": "applicationDefect",
+    "categoryConfidence": 80,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15072ms).",
+    "signature": "1283dc5aafd4da43b2846bb7e5d6d410b73779b642293128935b2154b0944115",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T17:15:47.102731+00:00",
+    "lastSeenAt": "2026-09-28T17:15:47.102731+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was rejected with 404.",
+      "likelyCause": "GET /api/answer → 404 in 0ms — either the request the application sent was wrong, or the data the test used is not acceptable to this endpoint.",
+      "evidence": "GET /api/answer → 404 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15072ms).",
+      "suggestedAction": "Read the request in the network evidence before looking at the failing step.",
+      "category": "applicationDefect",
+      "confidence": 80,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"190082d3-af51-417f-8e3f-ffaea86e2658\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"1bc8c780-5c68-4f98-8bf2-e906ca477348\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"1c41435e-5412-4a65-9336-8bfecae1cc38\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"2a07c9c2-519c-4806-b471-c419413bb689\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"4c817442-9ccc-48de-9332-0e0fd2204122\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"61bad75f-16ae-442a-8a7c-15d722615459\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"7bf43c4d-a8ee-429d-b15f-4dffbce452cd\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"ad094b7e-799b-43af-ab71-b4f97193c224\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"936d17a4-b04e-446a-9748-f242206e49fc\"}"
+    }
+  }
+}

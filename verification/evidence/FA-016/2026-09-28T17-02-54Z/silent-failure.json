@@ -1,0 +1,68 @@
+{
+  "status": "failed",
+  "confirmationStep": {
+    "id": "30fb418d-d176-4456-92cb-b76a45ca5b35",
+    "order": 8,
+    "action": "assertVisible",
+    "description": "payment-confirmation is visible",
+    "status": "passed",
+    "startedAt": "2026-09-28T17:18:15.542+00:00",
+    "durationMs": 47,
+    "url": "http://localhost:4300/payments",
+    "wasHealed": false,
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "payment-confirmation",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"payment-confirmation\""
+  },
+  "recordStep": {
+    "id": "cf333669-46d2-4071-91b2-07081a66d992",
+    "order": 9,
+    "action": "assertVisible",
+    "description": "payments-table is visible",
+    "status": "failed",
+    "startedAt": "2026-09-28T17:18:15.601+00:00",
+    "durationMs": 15024,
+    "url": "http://localhost:4300/payments",
+    "wasHealed": false,
+    "healingConfidence": 58,
+    "errorMessage": "testId=\"payments-table\" could not be used: No element matched testId=\"payments-table\".",
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "payments-table",
+      "exact": false,
+      "fallbacks": []
+    },
+    "locatorDescription": "testId=\"payments-table\"",
+    "locatorAlternativesJson": "[{\"rank\": 1, \"score\": 58, \"breakdown\": {\"testId\": 11, \"uniqueness\": 12}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"payments-empty\", \"strategy\": \"testId\", \"fallbacks\": [{\"exact\": false, \"value\": \"#root > div > main > section > p\", \"strategy\": \"css\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"/html[1]/body[1]/div[1]/div[1]/main[1]/section[1]/p[1]\", \"strategy\": \"xpath\", \"fallbacks\": []}]}}]"
+  },
+  "failure": {
+    "id": "3c40c2bd-809f-4d46-be4d-8da625ae42c8",
+    "category": "applicationDefect",
+    "categoryConfidence": 80,
+    "rawMessage": "testId=\"payments-table\" could not be used: No element matched testId=\"payments-table\".",
+    "signature": "c4f7ca3292c708d5d981a911e504a1b51ac4180535d1bf0fd44fad732c827839",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T17:18:33.057253+00:00",
+    "lastSeenAt": "2026-09-28T17:18:33.057254+00:00",
+    "analysis": {
+      "summary": "The API answered correctly and the page showed something else.",
+      "likelyCause": "Every API call the step before it made succeeded (GET /api/payments → 200 in 0ms), so the data was right and what was rendered from it was not. The defect is in the front end rather than the service.",
+      "evidence": "1 API call(s) during the step before it, all successful. Engine message: testId=\"payments-table\" could not be used: No element matched testId=\"payments-table\".",
+      "suggestedAction": "Compare the response body in the network evidence with what the failure screenshot shows. Start with the rendering, not the endpoint.",
+      "category": "applicationDefect",
+      "confidence": 80,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"360cafa3-736a-40c3-88cd-44391b7cf201\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"5482a959-1f6f-4e3a-a2b8-2f1aa252c3be\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"90d8e7b7-ff08-4212-89e0-4ee83c52ef6c\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"ac1b0e75-0fc2-47fa-b01a-044ad25695b6\", \"kind\": \"DomSnapshot\", \"name\": \"step-9-failure.html\"}, {\"id\": \"b9b9052c-acea-4af2-9f36-7a92f1a7ddae\", \"kind\": \"AccessibilityTree\", \"name\": \"step-9-failure.a11y.json\"}, {\"id\": \"bbbe5d16-4f2e-415a-8e51-e44795614266\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"c5b6385f-464f-4f1d-8c5d-e906d1efdf96\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"e4345281-db45-49da-adb7-896166db7929\", \"kind\": \"Screenshot\", \"name\": \"step-9-failure.png\"}], \"executionId\": \"93d64110-fc8b-4c39-b491-955b86113055\"}"
+    }
+  }
+}

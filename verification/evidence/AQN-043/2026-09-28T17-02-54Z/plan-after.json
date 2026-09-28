@@ -1,0 +1,80 @@
+[
+  {
+    "id": "e04c7d04-b169-44b9-8680-422c40ca9326",
+    "category": "smoke",
+    "testCount": 10,
+    "toGenerate": 10,
+    "why": "One reachability check per discovered page (10). Cheap, and it separates an application that is down from a suite that is broken.",
+    "risk": "low",
+    "coverage": "10 page(s) reachable and rendering",
+    "estimatedSeconds": 300,
+    "estimateFromHistory": false,
+    "potentialImpact": "Read-only navigation. Nothing is submitted.",
+    "included": true
+  },
+  {
+    "id": "dac6b79c-551f-46bd-9086-533b28c5945d",
+    "category": "criticalJourney",
+    "testCount": 6,
+    "toGenerate": 3,
+    "why": "No journey has been recorded for this application yet, and a person named 3 area(s) as business-critical: payment, login, authentication. These are covered from what discovery walked, which is weaker than a recorded journey and better than ignoring what somebody told us matters.",
+    "risk": "critical",
+    "coverage": "3 area(s) a person named, happy path and one failure path each",
+    "estimatedSeconds": 180,
+    "estimateFromHistory": false,
+    "potentialImpact": "Drives real forms. Creates records in the environment under test.",
+    "included": false
+  },
+  {
+    "id": "039b0a6c-fcd9-4151-9cb4-f5da277fb5d9",
+    "category": "api",
+    "testCount": 14,
+    "toGenerate": 14,
+    "why": "14 endpoint(s) discovered, 14 with no API test. An endpoint the UI happens to exercise is not an endpoint that is tested.",
+    "risk": "high",
+    "coverage": "14 endpoint(s): status, shape and contract",
+    "estimatedSeconds": 70,
+    "estimateFromHistory": false,
+    "potentialImpact": "Issues requests directly. State-changing verbs are exercised where the contract declares them.",
+    "included": true
+  },
+  {
+    "id": "abde1320-08f9-40a3-a694-85e6f6324da9",
+    "category": "security",
+    "testCount": 64,
+    "toGenerate": 0,
+    "why": "The application carries an enabled security scope. 2 form(s), 0 upload workflow(s), 2 role(s) and 14 endpoint(s) imply 64 check(s).",
+    "risk": "high",
+    "coverage": "64 check(s) within the authorized scope",
+    "estimatedSeconds": 1280,
+    "estimateFromHistory": false,
+    "potentialImpact": "Sends crafted requests within the scope. Destructive checks are excluded unless separately authorized.",
+    "included": true
+  },
+  {
+    "id": "65d41149-47b3-4335-8fb9-805048f92a41",
+    "category": "accessibility",
+    "testCount": 10,
+    "toGenerate": 10,
+    "why": "10 page(s) have no accessibility check. Automated checks find a minority of real barriers and are worth running for that minority.",
+    "risk": "medium",
+    "coverage": "10 page(s), axe-core rules",
+    "estimatedSeconds": 150,
+    "estimateFromHistory": false,
+    "potentialImpact": "Read-only inspection of the rendered page.",
+    "included": false
+  },
+  {
+    "id": "c7a29a36-b9d5-490a-9bd4-e45f19c8e821",
+    "category": "visual",
+    "testCount": 10,
+    "toGenerate": 0,
+    "why": "Baselines for the most connected pages, so an unintended visual change has something to be different from.",
+    "risk": "low",
+    "coverage": "10 page(s) baselined",
+    "estimatedSeconds": 200,
+    "estimateFromHistory": false,
+    "potentialImpact": "Screenshots only. A first run establishes baselines rather than failing.",
+    "included": false
+  }
+]

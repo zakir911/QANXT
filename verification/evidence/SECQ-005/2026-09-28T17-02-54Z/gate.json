@@ -1,0 +1,68 @@
+{
+  "outcome": 1,
+  "outcomeName": "REVIEW",
+  "blocked": false,
+  "rules": [
+    {
+      "name": "A security scan ran",
+      "passed": true,
+      "measured": true,
+      "explanation": "20 request(s) issued under the standard profile."
+    },
+    {
+      "name": "Enough of the configured checks executed",
+      "passed": false,
+      "measured": true,
+      "explanation": "2 of 5 configured check(s) executed (40%; the policy requires 80%)."
+    },
+    {
+      "name": "The scan reached what it was aiming at",
+      "passed": false,
+      "measured": true,
+      "explanation": "80 of 100 request(s) were refused by the scope (80%)."
+    },
+    {
+      "name": "Every suppressed finding carries a written justification and a name",
+      "passed": true,
+      "measured": true,
+      "explanation": "No finding is suppressed without a reason."
+    },
+    {
+      "name": "Every finding carries evidence",
+      "passed": true,
+      "measured": true,
+      "explanation": "Every finding carries at least one request/response exchange."
+    },
+    {
+      "name": "No previously resolved finding has reappeared",
+      "passed": true,
+      "measured": true,
+      "explanation": "No regression."
+    },
+    {
+      "name": "No new finding at or above High",
+      "passed": true,
+      "measured": true,
+      "explanation": "No new finding at or above High with better than low confidence."
+    },
+    {
+      "name": "No open finding at or above Critical",
+      "passed": true,
+      "measured": true,
+      "explanation": "No pre-existing finding at or above Critical."
+    }
+  ],
+  "reasons": [
+    "Only 2 of 5 configured check(s) executed. A result from a partial scan describes the part that ran and nothing else.",
+    "80% of the scan's requests were refused by its own scope. The findings describe the part of the application the scan was allowed to reach."
+  ],
+  "summary": "Within the configured scope and test coverage, no security findings were detected by the executed QA NXT security tests (2 of 5 configured check(s), 20 request(s) issued). This is not a statement that the application is secure or that no vulnerabilities exist. Untested: DOM-based XSS (needs a browser-driven scan); cloud metadata (off by default).",
+  "counts": {
+    "total": 0,
+    "open": 0,
+    "suppressed": 0,
+    "regressions": 0,
+    "newFailing": 0,
+    "evidenceless": 0
+  }
+}

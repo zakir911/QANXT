@@ -1,0 +1,539 @@
+[
+  {
+    "id": "c04001d0-12b0-4093-9aad-a116d79d58a5",
+    "sequence": 1,
+    "phase": "analysingGaps",
+    "tool": "coverage.analyse",
+    "summary": "Assessed 3 capability(ies): 3 uncovered, 5 unknown.",
+    "reason": "3 capability(ies) assessed across 8 applicable dimension(s): 0 covered, 0 partial, 3 not covered, 5 unknown. Coverage is measured against what discovery reached; anything it did not reach is absent from this report rather than covered by it.",
+    "evidence": [
+      {
+        "name": "capabilities",
+        "value": "3"
+      },
+      {
+        "name": "covered",
+        "value": "0"
+      },
+      {
+        "name": "partiallyCovered",
+        "value": "0"
+      },
+      {
+        "name": "notCovered",
+        "value": "3"
+      },
+      {
+        "name": "unknown",
+        "value": "5"
+      },
+      {
+        "name": "businessCriticalWithGaps",
+        "value": "0"
+      },
+      {
+        "name": "namedAreasMatchingNothingDiscoveryReached",
+        "value": "none"
+      },
+      {
+        "name": "measuredAgainst",
+        "value": "1 page(s) and 2 endpoint(s) discovery reached"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "none"
+      }
+    ],
+    "result": "3 gap(s)",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:23.895951+00:00"
+  },
+  {
+    "id": "e8623324-1dc7-4e5c-ac4d-8b8149097778",
+    "sequence": 2,
+    "phase": "planning",
+    "summary": "Proposed 12 test(s) across 5 category(ies).",
+    "reason": "12 test(s) across 5 category(ies) for \"Release validation\", 4 of which do not exist yet. Roughly 4 minute(s) — an estimate from defaults, because this application has no execution history yet. 2 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+    "evidence": [
+      {
+        "name": "pagesPlannable",
+        "value": "1"
+      },
+      {
+        "name": "endpointsDiscovered",
+        "value": "2"
+      },
+      {
+        "name": "journeysKnown",
+        "value": "0"
+      },
+      {
+        "name": "securityAuthorized",
+        "value": "True"
+      },
+      {
+        "name": "openSecurityFindings",
+        "value": "0"
+      },
+      {
+        "name": "criticalAreasNamedByAPerson",
+        "value": "none"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "none"
+      }
+    ],
+    "result": "12 test(s) proposed.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:23.930169+00:00"
+  },
+  {
+    "id": "10c9eb9f-c43a-4dd3-8890-2233c58873f6",
+    "sequence": 3,
+    "phase": "planning",
+    "summary": "The plan was approved by ag***@example.test.",
+    "reason": "Approved against a deliberately broken application.",
+    "evidence": [
+      {
+        "name": "decidedBy",
+        "value": "ag***@example.test"
+      },
+      {
+        "name": "categoriesIncluded",
+        "value": "Api, Security, Visual, Smoke, Accessibility"
+      },
+      {
+        "name": "categoriesExcluded",
+        "value": "none"
+      },
+      {
+        "name": "testsPlanned",
+        "value": "12"
+      }
+    ],
+    "result": "Approved",
+    "allowed": true,
+    "actorUserId": "9f71f49d-9619-4c6c-8e66-f406821dc87f",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:25.107725+00:00"
+  },
+  {
+    "id": "5c373a4b-1b11-48c7-9592-72667a9ce88d",
+    "sequence": 4,
+    "phase": "generating",
+    "tool": "test.generate",
+    "summary": "Generated 1 API test(s) for 2 endpoint(s).",
+    "reason": "Endpoints discovered by the crawl, minus anything a person excluded. Mutating requests were left out.",
+    "evidence": [
+      {
+        "name": "endpointsConsidered",
+        "value": "2"
+      },
+      {
+        "name": "endpointsSelected",
+        "value": "2"
+      },
+      {
+        "name": "endpointsExcludedByAPerson",
+        "value": "none"
+      },
+      {
+        "name": "mutatingIncluded",
+        "value": "False"
+      },
+      {
+        "name": "trimmedToBudget",
+        "value": "no"
+      }
+    ],
+    "result": "1 API test(s)",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:29.030444+00:00"
+  },
+  {
+    "id": "5b799e95-47e6-44b0-b765-f9987eed9f91",
+    "sequence": 5,
+    "phase": "prioritizing",
+    "summary": "Selected 0 of 0 existing test(s) to re-run.",
+    "reason": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's.",
+    "evidence": [
+      {
+        "name": "considered",
+        "value": "0"
+      },
+      {
+        "name": "selected",
+        "value": "0"
+      },
+      {
+        "name": "why",
+        "value": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's."
+      },
+      {
+        "name": "reasonsUsed",
+        "value": "none — no test's history contributed a point"
+      },
+      {
+        "name": "notSelected",
+        "value": "none — there were no existing tests to consider"
+      }
+    ],
+    "result": "0 test(s) selected.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:29.040744+00:00"
+  },
+  {
+    "id": "618174a3-e641-4259-b56e-1133a7c0bae2",
+    "sequence": 6,
+    "phase": "securityTesting",
+    "tool": "security.scan",
+    "summary": "Wanted to use security.scan.",
+    "reason": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission → environment → risk → security → creation-budget"
+      },
+      {
+        "name": "deniedAt",
+        "value": "ApprovalRequired"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "ApprovalRequired",
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:29.052926+00:00"
+  },
+  {
+    "id": "49a1a9e1-f1d4-4867-8f3a-0e2356d7c760",
+    "sequence": 7,
+    "phase": "prioritizing",
+    "summary": "Selected 0 of 0 existing test(s) to re-run.",
+    "reason": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's.",
+    "evidence": [
+      {
+        "name": "considered",
+        "value": "0"
+      },
+      {
+        "name": "selected",
+        "value": "0"
+      },
+      {
+        "name": "why",
+        "value": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's."
+      },
+      {
+        "name": "reasonsUsed",
+        "value": "none — no test's history contributed a point"
+      },
+      {
+        "name": "notSelected",
+        "value": "none — there were no existing tests to consider"
+      }
+    ],
+    "result": "0 test(s) selected.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:34.112311+00:00"
+  },
+  {
+    "id": "adbcd678-9763-4707-8a25-046aa21a509a",
+    "sequence": 8,
+    "phase": "securityTesting",
+    "tool": "security.scan",
+    "summary": "Queued security scan SCAN-20260928-9346B8.",
+    "reason": "The application carries an enabled scope and the plan included security testing. The engine decides what may be sent; this pass only asked.",
+    "evidence": [
+      {
+        "name": "securityScanId",
+        "value": "d4a31496-cac7-4dcf-a6d1-a25121f11658"
+      },
+      {
+        "name": "profile",
+        "value": "standard"
+      },
+      {
+        "name": "checksConfigured",
+        "value": "19"
+      },
+      {
+        "name": "targets",
+        "value": "3"
+      }
+    ],
+    "result": "Queued as SCAN-20260928-9346B8.",
+    "allowed": true,
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:34.293304+00:00"
+  },
+  {
+    "id": "05f0e9ec-c5ee-4db6-8e51-dfac2ba601b4",
+    "sequence": 9,
+    "phase": "executing",
+    "tool": "test.execute",
+    "summary": "Wanted to use test.execute.",
+    "reason": "'test.execute' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission → environment → risk → security → creation-budget"
+      },
+      {
+        "name": "deniedAt",
+        "value": "ApprovalRequired"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "ApprovalRequired",
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:34.307867+00:00"
+  },
+  {
+    "id": "2604e5fe-b6a2-4e7d-b656-c5660f9db9c8",
+    "sequence": 10,
+    "phase": "prioritizing",
+    "summary": "Selected 0 of 0 existing test(s) to re-run.",
+    "reason": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's.",
+    "evidence": [
+      {
+        "name": "considered",
+        "value": "0"
+      },
+      {
+        "name": "selected",
+        "value": "0"
+      },
+      {
+        "name": "why",
+        "value": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's."
+      },
+      {
+        "name": "reasonsUsed",
+        "value": "none — no test's history contributed a point"
+      },
+      {
+        "name": "notSelected",
+        "value": "none — there were no existing tests to consider"
+      }
+    ],
+    "result": "0 test(s) selected.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:39.38196+00:00"
+  },
+  {
+    "id": "19b30b82-6a55-41bc-bff0-ff9419a74818",
+    "sequence": 11,
+    "phase": "executing",
+    "tool": "test.execute",
+    "summary": "Started a verification run against no named build.",
+    "reason": "Nobody said which build this pass is testing, so the run carries no build reference and does not appear in any release assessment. That is an absence of an assessment, not a passed one.",
+    "evidence": [
+      {
+        "name": "testRunId",
+        "value": "f700c811-d4d3-440f-9627-bf730efe94c1"
+      },
+      {
+        "name": "buildRef",
+        "value": "none"
+      },
+      {
+        "name": "testsQueued",
+        "value": "1"
+      }
+    ],
+    "result": "started",
+    "allowed": true,
+    "risk": "Interaction",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:39.410521+00:00"
+  },
+  {
+    "id": "dd887674-99d4-4157-8542-83449c76a7fc",
+    "sequence": 12,
+    "phase": "investigating",
+    "summary": "Observed 1 distinct error response(s); 1 argue for something else to be looked at.",
+    "reason": "A fixed phase order makes a pass reproducible and also makes it blind. Evidence the run produced can argue for more work — and only for more. Nothing here widens what the policy permits or reaches outside the authorized scope.",
+    "evidence": [
+      {
+        "name": "errorResponsesObserved",
+        "value": "1"
+      },
+      {
+        "name": "distinctObservations",
+        "value": "1"
+      },
+      {
+        "name": "statuses",
+        "value": "401"
+      },
+      {
+        "name": "proposed",
+        "value": "1"
+      },
+      {
+        "name": "securityAuthorized",
+        "value": "True"
+      },
+      {
+        "name": "actedOn",
+        "value": "nothing — this pass had spent its budget by the time it saw these, so each is a proposal for a person or for the next pass"
+      }
+    ],
+    "result": "1 proposal(s)",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:42.44963+00:00"
+  },
+  {
+    "id": "79bfeef3-7e58-42e4-b543-26265334e2de",
+    "sequence": 13,
+    "phase": "correlating",
+    "tool": "failure.correlate",
+    "summary": "Nothing to correlate: 1 failure(s).",
+    "reason": "Correlation groups failures that share a cause. With fewer than two there is nothing to group, which is not the same as having found no common cause.",
+    "evidence": [
+      {
+        "name": "failuresIn",
+        "value": "1"
+      },
+      {
+        "name": "accountedFor",
+        "value": "1"
+      },
+      {
+        "name": "groups",
+        "value": "0"
+      },
+      {
+        "name": "ungrouped",
+        "value": "1"
+      },
+      {
+        "name": "executionsExamined",
+        "value": "1"
+      }
+    ],
+    "result": "nothing to group",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:42.461188+00:00"
+  },
+  {
+    "id": "fd035130-0680-4f1f-8f35-95fc93f0ed5c",
+    "sequence": 14,
+    "phase": "proposing",
+    "summary": "No candidate for the permanent suite.",
+    "reason": "Nothing this pass could see qualifies as a candidate: there is no confirmed security finding for this application and no journey the platform has observed end to end. An empty candidate list is not a finding that the suite is complete.",
+    "evidence": [
+      {
+        "name": "securityFindingsConsidered",
+        "value": "0"
+      },
+      {
+        "name": "observedJourneysConsidered",
+        "value": "0"
+      },
+      {
+        "name": "journeyPromotionLimitation",
+        "value": "A journey needs 3 observations to be proposed, and the platform records only that a journey was observed, not how many times. No journey can reach the bar on this path until it does."
+      },
+      {
+        "name": "proposed",
+        "value": "0"
+      },
+      {
+        "name": "belowTheBar",
+        "value": "none — there were no candidates at all"
+      },
+      {
+        "name": "testsCreated",
+        "value": "none — creating a permanent test changes state, and the agent asks before it changes state"
+      }
+    ],
+    "result": "no candidates",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:42.478735+00:00"
+  },
+  {
+    "id": "f7b5367b-5b06-41c7-832a-560b69ebfc15",
+    "sequence": 15,
+    "phase": "proposing",
+    "tool": "report.generate",
+    "summary": "Release assessment: NeedsReview.",
+    "reason": "NEEDS REVIEW. 1 test(s) executed. 1 test(s) failed. No security scan covers this pass. Nothing here blocks on its own; a person decides.",
+    "evidence": [
+      {
+        "name": "verdict",
+        "value": "NeedsReview"
+      },
+      {
+        "name": "functional",
+        "value": "0/0 passed"
+      },
+      {
+        "name": "api",
+        "value": "0/1 passed"
+      },
+      {
+        "name": "securityScanned",
+        "value": "False"
+      },
+      {
+        "name": "criticalJourneysFailed",
+        "value": "0"
+      },
+      {
+        "name": "gate",
+        "value": "True"
+      },
+      {
+        "name": "blockingFactors",
+        "value": "none"
+      },
+      {
+        "name": "untestedAreas",
+        "value": "Accessibility — a pass does not assess it; the platform tests it elsewhere.; Visual appearance — a pass does not assess it; the platform tests it elsewhere.; Security — no scan was run by this pass."
+      },
+      {
+        "name": "overallScore",
+        "value": "none — deliberately. A single number is the thing everybody reads and nobody can act on, and it cannot be checked."
+      }
+    ],
+    "result": "NeedsReview",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T17:40:42.487719+00:00"
+  }
+]

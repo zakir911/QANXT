@@ -1,0 +1,36 @@
+{
+  "testId": "DET-007",
+  "suite": "Failure detection",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A timeout failure is detected and reported as a failure",
+  "preconditions": [
+    "the failure lab is running",
+    "the test targets /case/timeout"
+  ],
+  "input": "The same four-step test: open /case/timeout, press the button, expect \"OK 42\"",
+  "expected": "The run FAILS, with the failing step, an error message and a screenshot",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15067ms).; 2 screenshot(s); classified applicationDefect",
+  "metrics": {
+    "screenshots": 2,
+    "consoleErrors": 0
+  },
+  "startedAt": "2026-09-28T17:12:47.039Z",
+  "durationMs": 20127,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DET-007-execution.json",
+      "path": "evidence/DET-007/2026-09-28T17-02-54Z/DET-007-execution.json",
+      "bytes": 2556,
+      "sha256": "d7f6a32e72f903a5028bb38a57aadd4f65942f4673541d10954ad63d1376d3f2"
+    }
+  ]
+}

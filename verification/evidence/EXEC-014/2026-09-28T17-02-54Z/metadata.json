@@ -1,0 +1,42 @@
+{
+  "testId": "EXEC-014",
+  "suite": "Browser execution",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "Console and network activity are recorded for the execution",
+  "preconditions": [
+    "EXEC-001 executed"
+  ],
+  "input": "GET /executions/{id}/console and /network",
+  "expected": "The network log contains the application's own API calls",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "8 network event(s) of which 7 are API calls; 1 console event(s)",
+  "metrics": {
+    "networkEvents": 8,
+    "apiCalls": 7,
+    "consoleEvents": 1
+  },
+  "startedAt": "2026-09-28T17:07:56.107Z",
+  "durationMs": 29,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "console.json",
+      "path": "evidence/EXEC-014/2026-09-28T17-02-54Z/console.json",
+      "bytes": 356,
+      "sha256": "9349fea59dc412e7c0211de700c80f9bbe1c1c80441e055e98dde8d3dc5ccb05"
+    },
+    {
+      "file": "network.json",
+      "path": "evidence/EXEC-014/2026-09-28T17-02-54Z/network.json",
+      "bytes": 23438,
+      "sha256": "73797addc5b2080f1094206b5c9cda9b0ed02e77e141ab1ba0bc2384a5bbcbf5"
+    }
+  ]
+}

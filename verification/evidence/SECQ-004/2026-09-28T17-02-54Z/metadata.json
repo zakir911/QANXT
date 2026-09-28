@@ -1,0 +1,32 @@
+{
+  "testId": "SECQ-004",
+  "suite": "Security gate, regression and triage",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A partial scan does not pass, however clean it was",
+  "preconditions": [
+    "a scan that ran one of five configured checks and found nothing"
+  ],
+  "input": "Clean coverage with one of five checks executed",
+  "expected": "REVIEW. \"Nothing found\" from a fifth of a scan describes a fifth of an application",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "REVIEW: Only 1 of 5 configured check(s) executed. A result from a partial scan describes the part that ran and nothing else.",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:31:54.186Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-004/2026-09-28T17-02-54Z/gate.json",
+      "bytes": 2229,
+      "sha256": "c476165032952775614c4269865e1557f843bc45c7c35d731640ebe50e5a6dc7"
+    }
+  ]
+}

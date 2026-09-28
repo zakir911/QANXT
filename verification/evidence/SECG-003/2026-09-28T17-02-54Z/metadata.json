@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-003",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "The scope guard refuses no written authorization",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "no written authorization",
+  "expected": "Refused with scopeMissing. Authorization is a written statement by a person, not a default.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "scopeMissing: The security scope carries no written authorization.",
+  "metrics": {
+    "rungsPassed": 0
+  },
+  "startedAt": "2026-09-28T17:31:54.122Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-003/2026-09-28T17-02-54Z/decision.json",
+      "bytes": 288,
+      "sha256": "75d2b833db7e9e30f78284ff1c5a9061f5947bbb64def98c5b3becabf2f377ca"
+    }
+  ]
+}

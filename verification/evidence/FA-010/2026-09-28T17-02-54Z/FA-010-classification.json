@@ -1,0 +1,35 @@
+{
+  "case": "wrong-value",
+  "lab": "assertionFailed",
+  "accept": [
+    "applicationDefect",
+    "dataIssue"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "f5fe21da-e0a9-4f94-bd87-a5bba83ccf7c",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15091ms).",
+    "signature": "a467425ad46edfe818ccdd9394dcb6ceae0ef2adb94fb7f106cd341a5501f6ff",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T17:17:20.292587+00:00",
+    "lastSeenAt": "2026-09-28T17:17:20.292587+00:00",
+    "analysis": {
+      "summary": "An assertion failed on outcome reads \"OK 42\".",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15091ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"01bd8ffa-3b98-4fbd-94fc-bc11b2c82563\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"2fcf9a9d-7ee1-4340-a913-4377beea8e01\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"328efed7-6548-4520-9307-4820b2a7b5d2\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"3a278aba-da66-458e-954c-fe527e93ee49\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"4b09f5c5-401b-4b91-a26c-0ddca7c50208\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"bbc4bb6a-2a3e-4ab0-bd6b-10a274340bdf\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"dbdd4cf5-9c52-4dcd-a30d-d868a0835ee1\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"97125185-0382-4cd0-aa72-866828713735\"}"
+    }
+  }
+}

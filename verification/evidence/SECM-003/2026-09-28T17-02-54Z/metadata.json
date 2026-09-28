@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-003",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "The readonly-write finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-269, OWASP A01:2021, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-269, A01:2021, High (14/19) — High (14/19): trivial to exploit, serious impact, any signed-in user, reaches personal data, reachable by signed-in users.",
+  "metrics": {
+    "score": 14,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-28T17:31:53.431Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-003/2026-09-28T17-02-54Z/mapping.json",
+      "bytes": 883,
+      "sha256": "f757f8855b7ad8a106315cea2db7981cbedc6b6a18c8b79d2b24aa823f191f4a"
+    }
+  ]
+}

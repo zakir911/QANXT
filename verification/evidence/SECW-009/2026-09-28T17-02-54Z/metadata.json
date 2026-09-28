@@ -1,0 +1,32 @@
+{
+  "testId": "SECW-009",
+  "suite": "Security scans QA NXT runs itself",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "Starting a scan is recorded in the audit trail as its own act",
+  "preconditions": [
+    "the scans started above"
+  ],
+  "input": "The audit log",
+  "expected": "A securityScanStarted entry naming the person, the scan and what it was configured to run — distinct from securityScanRecorded. Starting a scan is the moment authorization is spent, and a scan that starts and never reports leaves only this line behind",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "3 start entr(ies); first names 4 configured check(s) and 5 target(s)",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:32:14.085Z",
+  "durationMs": 6,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "audit.json",
+      "path": "evidence/SECW-009/2026-09-28T17-02-54Z/audit.json",
+      "bytes": 1592,
+      "sha256": "79fe21184cafc65dcc90bd23f556c29d555f38fbfbd6659937e7cdbf6b455eb3"
+    }
+  ]
+}

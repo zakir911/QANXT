@@ -1,0 +1,34 @@
+{
+  "case": "connection-reset",
+  "lab": "networkError",
+  "accept": [
+    "networkIssue"
+  ],
+  "actual": "networkIssue",
+  "failure": {
+    "id": "d35ad086-e699-4f83-895b-ae6ce5a3e746",
+    "category": "networkIssue",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15057ms).",
+    "signature": "3fd13a472b907bfa216053d9ed21a8e3712487ac7aaa59b7cb9add896fdd8524",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T17:16:43.844718+00:00",
+    "lastSeenAt": "2026-09-28T17:16:43.844719+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made never completed.",
+      "likelyCause": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE) — the request did not reach the service, or the service did not answer.",
+      "evidence": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE). Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15057ms).",
+      "suggestedAction": "Confirm the service is running and reachable from the worker, then re-run.",
+      "category": "networkIssue",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0d30bfd8-c100-4256-b57c-d27ae516c75e\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"46d67258-e4d1-411e-8d32-769965028bde\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"90952383-e5d9-48bf-a716-364deb28402b\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"a32d1f1f-0159-418b-b3b8-e367268cee51\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"b45a8e71-7406-42d4-8747-5d3c1a32a29a\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"bdf3e201-cc81-45d6-a6b3-6ca61e60b940\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"c6eadd4f-9142-4f51-a690-4a01e4d0ffda\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"c78ea953-73cd-46e0-b4c5-4fbeec742944\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"11fd6e78-13fd-41c1-b561-2c63e60155d4\"}"
+    }
+  }
+}

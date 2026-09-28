@@ -1,0 +1,41 @@
+{
+  "testId": "DAT-002",
+  "suite": "Test data",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A seeded field resolves to the same value every time, through the platform",
+  "preconditions": [
+    "a data set with seeded fields of every generator type"
+  ],
+  "input": "The same data set previewed twice",
+  "expected": "Identical values both times, for every type — a seed exists so that a failure can be reproduced, and a value that moves makes that impossible",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "16 generator type(s), every one reproducible",
+  "metrics": {
+    "types": 16,
+    "drifted": 0
+  },
+  "startedAt": "2026-09-28T17:29:44.037Z",
+  "durationMs": 303,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "first.json",
+      "path": "evidence/DAT-002/2026-09-28T17-02-54Z/first.json",
+      "bytes": 2172,
+      "sha256": "8697d9dc80f0eead399df3090629770bd7ee8b950677106c96c970eb94539f32"
+    },
+    {
+      "file": "second.json",
+      "path": "evidence/DAT-002/2026-09-28T17-02-54Z/second.json",
+      "bytes": 2172,
+      "sha256": "8697d9dc80f0eead399df3090629770bd7ee8b950677106c96c970eb94539f32"
+    }
+  ]
+}

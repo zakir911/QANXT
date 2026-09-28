@@ -1,0 +1,12 @@
+{
+  "case": "a non-http scheme",
+  "why": "Only http and https are ever issued.",
+  "decision": {
+    "allowed": false,
+    "reason": "domainNotAllowed",
+    "explanation": "Scheme 'file:' is not permitted.",
+    "checksPassed": [
+      "authorization"
+    ]
+  }
+}

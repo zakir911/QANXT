@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-038",
+  "suite": "Autonomous planning",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "Decisions are numbered in the order they happened",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run 8b513cad-5f77-47c5-bcdc-58dca3dc8b93",
+  "expected": "Sequence numbers ascend without gaps from one",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "1,2,3",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:36:22.654Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-038/2026-09-28T17-02-54Z/plan.json",
+      "bytes": 4708,
+      "sha256": "752eea741ed91513d2a73d424d7a60070cb18c9976202813563062414313caa8"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-038/2026-09-28T17-02-54Z/run.json",
+      "bytes": 760,
+      "sha256": "e79cd841a5d2f5356ebbfdc360c80f42b5dbc8caafeb33812977f9454f76054b"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-038/2026-09-28T17-02-54Z/decisions.json",
+      "bytes": 3580,
+      "sha256": "c1a84d97134abd019f2845d4c544f52b235826002b857ed7c71193f2f287cde8"
+    }
+  ]
+}

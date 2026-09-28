@@ -1,0 +1,39 @@
+{
+  "testId": "DISC-007",
+  "suite": "Discovery",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "Discovery finds the application's buttons",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "Ground-truth buttons on the discovered pages",
+  "expected": "Every declared button appears in the model",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "5/5 found; classified as button; 24 element(s) of that kind",
+  "metrics": {
+    "expected": 5,
+    "found": 5,
+    "kinds": [
+      "button"
+    ],
+    "ofKind": 24
+  },
+  "startedAt": "2026-09-28T17:05:54.620Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DISC-007-elements.json",
+      "path": "evidence/DISC-007/2026-09-28T17-02-54Z/DISC-007-elements.json",
+      "bytes": 11298,
+      "sha256": "5154792fb0fce0f2f98133af6913700a589c6aed443ce1fbec488d6839fdeaa5"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "AQN-045",
+  "suite": "Autonomous planning",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "An approved plan releases the pass to carry on",
+  "preconditions": [
+    "the plan has been approved"
+  ],
+  "input": "agent run 8b513cad-5f77-47c5-bcdc-58dca3dc8b93",
+  "expected": "The run leaves awaitingApproval and reaches a further state without anybody restarting it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status awaitingApproval, phase awaitingApproval, Waiting for somebody to answer: whether to scan this application",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:36:22.720Z",
+  "durationMs": 6037,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "resumed.json",
+      "path": "evidence/AQN-045/2026-09-28T17-02-54Z/resumed.json",
+      "bytes": 804,
+      "sha256": "a9054c6067798a81d6069c6ebcf0431b0bd0cc6bc0aba819dfd36cfa7d1efdb9"
+    }
+  ]
+}

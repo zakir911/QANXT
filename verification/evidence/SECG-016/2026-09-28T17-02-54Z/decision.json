@@ -1,0 +1,17 @@
+{
+  "case": "production, unauthorized",
+  "why": "Production security testing is disabled by default, which the brief requires.",
+  "decision": {
+    "allowed": false,
+    "reason": "productionNotAuthorized",
+    "explanation": "Production, and the scope does not authorize testing it.",
+    "checksPassed": [
+      "authorization",
+      "target-policy",
+      "domain",
+      "path",
+      "method",
+      "risk"
+    ]
+  }
+}

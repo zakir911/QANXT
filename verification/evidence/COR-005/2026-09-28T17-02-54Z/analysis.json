@@ -1,0 +1,14 @@
+{
+  "summary": "The API answered correctly and the page showed something else.",
+  "likelyCause": "Every API call the failing step made succeeded (GET /api/dashboard → 200 in 0ms), so the data was right and what was rendered from it was not. The defect is in the front end rather than the service.",
+  "evidence": "1 API call(s) during the failing step, all successful. Engine message: Expected the element to contain \"£74,343.08\" but it read \"£81,797.38\" (waited 15039ms).",
+  "suggestedAction": "Compare the response body in the network evidence with what the failure screenshot shows. Start with the rendering, not the endpoint.",
+  "category": "applicationDefect",
+  "confidence": 80,
+  "isLikelyApplicationDefect": true,
+  "isHealable": false,
+  "producedByAi": false,
+  "provider": "local",
+  "model": "qanxt-rules-v1",
+  "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"3d1bde0f-540c-4eb6-8bd8-dbe01134441d\", \"kind\": \"AccessibilityTree\", \"name\": \"step-2-failure.a11y.json\"}, {\"id\": \"426bda9b-4a64-4614-89d4-f8686f05862b\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"78cf1213-0619-4fac-ab64-4a63b530a68f\", \"kind\": \"Screenshot\", \"name\": \"step-2-failure.png\"}, {\"id\": \"936e5f36-5b83-46f8-8200-2eadca22ba4e\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"a60baf9b-cd52-479a-9c4b-235883ba578e\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"b00850f2-34c3-41b6-aea2-a81cf61809f6\", \"kind\": \"DomSnapshot\", \"name\": \"step-2-failure.html\"}, {\"id\": \"d578ba94-f0e8-4c43-8547-6be7fac4448a\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"e94f2fb1-9e97-48cf-aa15-969fcc1214be\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"3ab8a5db-1054-49bf-bc56-b4c918523647\"}"
+}

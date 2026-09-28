@@ -1,0 +1,34 @@
+{
+  "case": "http-400",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "302715cf-427b-4d99-a228-b5308532f459",
+    "category": "applicationDefect",
+    "categoryConfidence": 80,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15025ms).",
+    "signature": "c7a9d5500a109af3441ab34b434d919ccc5771630b49695b004fe8aafc021018",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T17:14:46.526694+00:00",
+    "lastSeenAt": "2026-09-28T17:14:46.526695+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was rejected with 400.",
+      "likelyCause": "GET /api/answer → 400 in 0ms — either the request the application sent was wrong, or the data the test used is not acceptable to this endpoint.",
+      "evidence": "GET /api/answer → 400 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15025ms).",
+      "suggestedAction": "Read the request in the network evidence before looking at the failing step.",
+      "category": "applicationDefect",
+      "confidence": 80,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"41430baa-12a8-4782-92dd-e75027563224\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"43ec7cb7-4dd3-43d5-b799-767d89e50dac\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"440922ae-293d-4aa8-b76f-c6b047c28b3b\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"6780edff-a408-4170-8b2f-945f8312c655\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b012d431-7032-4b14-b5be-23760ed63c8e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"c88ca4c8-5c5d-4e9c-ad6e-9ca22321c448\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"d2339e93-3b68-495f-9135-b3739336cf0a\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"f4fa8d0e-ce54-41e2-bae8-435d348dff88\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"df6a120b-c21c-4256-8568-6e4f2d630a08\"}"
+    }
+  }
+}

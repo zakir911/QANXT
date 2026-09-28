@@ -1,0 +1,32 @@
+{
+  "testId": "SEC-G01",
+  "suite": "Security and multi-tenancy",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "Every data endpoint refuses an unauthenticated request",
+  "preconditions": [
+    "tenant A has a project, an application, a test case and an execution"
+  ],
+  "input": "Six endpoints called with no Authorization header",
+  "expected": "Each answers 401, and none returns data",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "6/6 refused with 401; other statuses: none",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:31:53.007Z",
+  "durationMs": 9,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "unauthenticated.json",
+      "path": "evidence/SEC-G01/2026-09-28T17-02-54Z/unauthenticated.json",
+      "bytes": 614,
+      "sha256": "584d8ff319a9bcff09d72d1e312c6797ecfde33487a2ad8a9a7e26911f9d79a6"
+    }
+  ]
+}

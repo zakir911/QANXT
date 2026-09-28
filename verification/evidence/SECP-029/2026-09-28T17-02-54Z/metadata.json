@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-029",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "The no-csp check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_NO_CSP"
+  ],
+  "input": "The same no-csp check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "no finding",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-28T17:31:53.968Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-029/2026-09-28T17-02-54Z/corrected.json",
+      "bytes": 119,
+      "sha256": "95a19eb1666ca648c24318acc75f603ca24203f6d4b44757c0881bd5351a5758"
+    }
+  ]
+}

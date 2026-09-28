@@ -1,0 +1,35 @@
+{
+  "testId": "REL-004",
+  "suite": "Reliability",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A test that only passes on a retry is not reported as a clean pass",
+  "preconditions": [
+    "the flaky case fails roughly half the time at a two-second action timeout"
+  ],
+  "input": "Six runs of the flaky test with two retries allowed",
+  "expected": "Retried runs are recorded with their attempt number and reported as flaky rather than passed",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0/6 run(s) needed a retry; verdicts: failed, passed, passed, failed, failed, failed",
+  "metrics": {
+    "runs": 6,
+    "retried": 0
+  },
+  "startedAt": "2026-09-28T17:33:57.382Z",
+  "durationMs": 20254,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "retries.json",
+      "path": "evidence/REL-004/2026-09-28T17-02-54Z/retries.json",
+      "bytes": 980,
+      "sha256": "af0e95247c47390e494e7e0a9eaa341a36e06e5df2ee59a8b5b40ec420310d13"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "testId": "AIF-003",
+  "suite": "AI provider failure",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A reply that is not JSON is refused rather than partially parsed",
+  "preconditions": [
+    "an application is registered",
+    "AI fault injection is enabled"
+  ],
+  "input": "A generation request while the provider is faulted with MalformedJson",
+  "expected": "The request fails with an error naming the problem, and no test case is stored",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 503; 0 test case(s) created; model request recorded: true (status schemaRejected); message \"The model's response did not satisfy the test_plan schema: The response was not valid JSON: 'C' is a\"",
+  "metrics": {
+    "status": 503,
+    "fabricated": 0,
+    "reachedTheModel": 1
+  },
+  "startedAt": "2026-09-28T17:31:48.322Z",
+  "durationMs": 54,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AIF-003/2026-09-28T17-02-54Z/response.json",
+      "bytes": 611,
+      "sha256": "47bc414102ee847d6f4e9cdf8c4feec02b8d21a8115e049012623102c36fb221"
+    }
+  ]
+}

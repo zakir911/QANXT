@@ -1,0 +1,40 @@
+{
+  "testId": "SECB-004",
+  "suite": "Security gate, regression and triage",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A resolved finding detected again is marked as a regression",
+  "preconditions": [
+    "a baseline in which the real BOLA finding was resolved"
+  ],
+  "input": "The live scan compared against that baseline",
+  "expected": "isRegression true and status Regressed, which the gate then fails at any severity",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "2 regression(s); gate FAIL",
+  "metrics": {
+    "regressions": 2
+  },
+  "startedAt": "2026-09-28T17:31:54.191Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "comparison.json",
+      "path": "evidence/SECB-004/2026-09-28T17-02-54Z/comparison.json",
+      "bytes": 1388,
+      "sha256": "6c1592ccab735bc67097e94570fe5d677c763980be5205d70c8e25ae00cb9f26"
+    },
+    {
+      "file": "gate.json",
+      "path": "evidence/SECB-004/2026-09-28T17-02-54Z/gate.json",
+      "bytes": 2390,
+      "sha256": "262ef00c9d6936c8ad079d081fa68879407463b72f940663b7f5f47d49f17bcc"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-026",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A cancelled pass is not reported as completed",
+  "preconditions": [
+    "a pass has been cancelled"
+  ],
+  "input": "the cancelled run",
+  "expected": "Its status distinguishes it from a pass that finished its plan",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 cancelled of 1",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:42:04.327Z",
+  "durationMs": 26,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "cancelled-status.json",
+      "path": "evidence/AQF-026/2026-09-28T17-02-54Z/cancelled-status.json",
+      "bytes": 743,
+      "sha256": "8c8d71c874ba6934569a7c5955be6ce8f038241d03fbe154ec331deea6104145"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-024",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "The upload-type finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-434, OWASP A04:2021, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-434, A04:2021, High (13/19) — High (13/19): straightforward to exploit, serious impact, any signed-in user, reaches personal data, publicly reachable.",
+  "metrics": {
+    "score": 13,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-28T17:31:53.883Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-024/2026-09-28T17-02-54Z/mapping.json",
+      "bytes": 909,
+      "sha256": "270331cdd2dd6c80a9771f16c1d5ad72e23dbf62e93956667911e4d79f0ffc55"
+    }
+  ]
+}

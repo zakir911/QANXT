@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-014",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A scan cannot be recorded against an application nobody has authorized",
+  "preconditions": [
+    "a second application with no security scope"
+  ],
+  "input": "A scan recorded against it",
+  "expected": "Refused as a security policy violation. If a scan somehow ran, that is a defect worth surfacing rather than a record worth keeping",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "403: ",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:32:00.668Z",
+  "durationMs": 11,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECPL-014/2026-09-28T17-02-54Z/response.json",
+      "bytes": 384,
+      "sha256": "c04e732ef10c33ddbc5a3aca5a3c6a302b1ad8fe99b52175f59e987d3eed5a5a"
+    }
+  ]
+}

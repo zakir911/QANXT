@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-045",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "Approval for high-risk actions cannot be switched off by asking",
+  "preconditions": [
+    "passes have run against the lab"
+  ],
+  "input": "every decision recorded by the passes in this suite",
+  "expected": "A pass started asking for no approvals still asks",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 question(s) asked, run awaitingApproval",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:37:51.091Z",
+  "durationMs": 12188,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-045/2026-09-28T17-02-54Z/decisions.json",
+      "bytes": 7482,
+      "sha256": "5b76a997c364f233ac0024bd8c82a071c0f7900e7c219ffd9b170e57aee727ab"
+    }
+  ]
+}

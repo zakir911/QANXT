@@ -1,0 +1,42 @@
+{
+  "id": "DET-008",
+  "case": "connection-reset",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "214ad331-2874-4180-bf7a-869df7efd935",
+    "category": "networkIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15028ms).",
+    "signature": "041bea1beda66f07137c4ab76419b67ecab2e0bc947afe2ebd9775510c00f037",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T17:13:24.942288+00:00",
+    "lastSeenAt": "2026-09-28T17:13:24.942289+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that never completed.",
+      "likelyCause": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE) — the request did not reach the service, so the page had nothing to render.",
+      "evidence": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE), made by step 3. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15028ms).",
+      "suggestedAction": "Confirm the service is running and reachable from the worker, then re-run.",
+      "category": "networkIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"481a81dd-bcce-4b98-8765-30aee958b7a9\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"5d1db9e3-4358-4159-87eb-c5a0d863c328\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"7b589a3d-6ae9-4756-ad9d-5d04605dd6bd\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"86902ab7-fa7c-427f-b487-e3ae869bd634\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"a422c428-041d-4b6b-91be-c8ab8f70c90f\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"a60364f5-a752-4dd3-9c08-8d65f7f3b7db\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"bc74c93e-bba9-42ce-8570-2c8eed0318c1\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"d7f0052b-b562-4e5b-a6e2-209f20cbbb70\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}], \"executionId\": \"3b4d204f-e4e7-42f5-aa69-5252b93385a9\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15028ms)."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

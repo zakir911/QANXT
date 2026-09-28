@@ -1,0 +1,33 @@
+{
+  "testId": "CON-011",
+  "suite": "API contracts",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A generated API test executes and passes against the application it was generated from",
+  "preconditions": [
+    "CON-010 generated tests",
+    "no faults enabled"
+  ],
+  "input": "Run the generated unauthenticated-refusal test",
+  "expected": "It passes: the endpoint still refuses a caller with no credentials",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "\"GET http://localhost:4300/api/dashboard refuses an unauthenticated caller\" ran and passed in 21ms",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:24:04.955Z",
+  "durationMs": 2071,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "execution.json",
+      "path": "evidence/CON-011/2026-09-28T17-02-54Z/execution.json",
+      "bytes": 2474,
+      "sha256": "d40414ab7b0dfa414f490ef77d438b387600dc6ef329c6fb70d8a976ba37373b"
+    }
+  ]
+}

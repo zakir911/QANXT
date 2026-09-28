@@ -1,0 +1,34 @@
+{
+  "case": "http-403",
+  "lab": "authorizationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "00e79ecb-c013-4217-82f2-bc2bb4a160d4",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15068ms).",
+    "signature": "2c85f40aecb0b94899df8fc3bba03e3b71692519c7968a75c0cad79a8b7cd999",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T17:15:26.766911+00:00",
+    "lastSeenAt": "2026-09-28T17:15:26.766911+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was refused with 403.",
+      "likelyCause": "GET /api/answer → 403 in 0ms — the session was not accepted, so the page had nothing to render.",
+      "evidence": "GET /api/answer → 403 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15068ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1bb9a76b-632d-4a8b-81b5-76c0bce757a9\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"3d2e663f-0cc6-4f54-adaa-32f32801b403\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"4d30211a-fced-4551-911f-e6209017f4b8\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"5735b526-9df4-41e2-85eb-1edae4530c7f\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"b370c995-2e02-439e-a779-0ecbfff33b7a\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"c188159d-7710-486b-99a4-1db355d4075f\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"d0270dc9-2a12-4d77-bf40-bd256501410f\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"ed496eb8-59dd-49da-b153-01fa2e1ab2a0\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"f7393849-f1d8-41f5-b7a5-39512ff559a2\"}"
+    }
+  }
+}

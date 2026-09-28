@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-067",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-28T17-02-54Z",
+  "objective": "A candidate below the bar is named rather than dropped",
+  "preconditions": [
+    "a pass has run end to end over an application"
+  ],
+  "input": "agent run 4fd98375-3263-47ae-8e51-d90442143652",
+  "expected": "The decision lists what did not qualify and why",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "none — there were no candidates at all",
+  "metrics": null,
+  "startedAt": "2026-09-28T17:43:50.798Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "257f562",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQI-067/2026-09-28T17-02-54Z/decisions.json",
+      "bytes": 18464,
+      "sha256": "84dc681bc6129b87d70d46ceea4ab6ddf33b09943de8339cdb0e97be40bb4743"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/AQI-067/2026-09-28T17-02-54Z/findings.json",
+      "bytes": 24019,
+      "sha256": "8c33e2ad74b2e80903536fe72eec6709def178ac106ba9ed767131568e979a97"
+    }
+  ]
+}
