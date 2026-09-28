@@ -1,8 +1,8 @@
 import type { Page } from 'playwright';
 import type {
   ElementFingerprint, HealingEventReport, HealingSettings, LocatorDescriptor, RankedLocator
-} from '@aira/shared-types';
-import { describeLocator } from '@aira/shared-types';
+} from '@qa-nxt/shared-types';
+import { describeLocator } from '@qa-nxt/shared-types';
 import { resolveLocator } from '../browser/locator-resolver.js';
 import { extractPage, type RawPageCapture } from '../discovery/page-extractor.js';
 import type { Logger } from '../util/logger.js';

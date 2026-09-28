@@ -34,7 +34,7 @@ async release(jobId: string, reason: string): Promise<void> {
 
 There is no attempt counter, no backoff and no dead-letter. A job that can never succeed —
 an expired token is not something a retry refreshes — is left pending and is eligible for the
-stale-job reclaim sweep. Six such jobs were still in `aira:security` at the end of this
+stale-job reclaim sweep. Six such jobs were still in `qanxt:security` at the end of this
 session.
 
 **What is established:** the refusal, the absence of an attempt count in `release()`, and six

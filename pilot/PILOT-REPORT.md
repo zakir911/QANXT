@@ -1,6 +1,6 @@
 # The Verdaccio pilot
 
-One bounded autonomous pass, against an application AIRA has never seen and nobody wrote for
+One bounded autonomous pass, against an application QA NXT has never seen and nobody wrote for
 it. This is the only evidence in the project that says anything about how the platform
 behaves outside its own lab, and the interesting half is what it got wrong.
 
@@ -94,7 +94,7 @@ The pass queued a security scan; it ran, executed six checks and issued 54 reque
 Verdaccio, and completed at 15:08:14. The release assessment for the same build reported:
 
 > **NOT SECURITY TESTED.** No security scan covers this build, so nothing is known about its
-> security posture from AIRA.
+> security posture from QA NXT.
 
 The window for "scans covering this build" was `[first run's completion, last run's
 completion]` and tested for containment. For a build with one run — the normal case in a
@@ -135,7 +135,7 @@ the report says so rather than presenting 11 capabilities as the application.
 
 ## What this pilot does NOT establish
 
-- **That AIRA works on arbitrary applications.** One application, one pass, one afternoon.
+- **That QA NXT works on arbitrary applications.** One application, one pass, one afternoon.
 - **That Verdaccio is defect-free, secure or well covered.** Eleven generated tests passed.
   That is a statement about eleven tests.
 - **That the security scan found nothing worth knowing.** It ran and reported; what it found

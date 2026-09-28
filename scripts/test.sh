@@ -20,7 +20,7 @@ if ! docker ps >/dev/null 2>&1 && ! pg_isready -h "${PGHOST:-localhost}" >/dev/n
   echo "note: PostgreSQL does not appear to be running."
   echo "      Start it with: bash scripts/services-ctl.sh --with-database"
 fi
-if ! dotnet test apps/api/Aira.sln; then failed+=("dotnet"); fi
+if ! dotnet test apps/api/QaNxt.sln; then failed+=("dotnet"); fi
 
 if [[ ${#failed[@]} -gt 0 ]]; then
   printf '\n\033[31mFailed suites: %s\033[0m\n' "${failed[*]}"

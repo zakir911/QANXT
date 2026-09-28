@@ -5,13 +5,13 @@
 Three ways in, all the same path:
 
 ```bash
-aira security scan --application-id <id> --wait
+qanxt security scan --application-id <id> --wait
 ```
 
 `POST /api/v1/security/scans/start`, or **Security → Run a scan** in the console. All need
 `security:scan`, and the control is absent without it.
 
-AIRA queues a job, a worker consumes it and issues the requests, and the worker reports back
+QA NXT queues a job, a worker consumes it and issues the requests, and the worker reports back
 what it did. Four things are settled before the job exists, and all four refuse rather than
 degrade:
 
@@ -89,7 +89,7 @@ must hold; see [scope-and-authorization.md](scope-and-authorization.md).
 ## Verifying the capability itself
 
 ```bash
-./scripts/verify-security                  # everything, including AIRA's own security
+./scripts/verify-security                  # everything, including QA NXT's own security
 ./scripts/verify-security --no-platform    # the lab only; no database or API needed
 ```
 
@@ -109,20 +109,20 @@ order to run a security scan was an obstacle rather than a check.
 ## From the command line
 
 ```bash
-aira security scope     --application-id <id>
-aira security scan      --application-id <id> [--checks a,b] [--wait] [--timeout 600]
-aira security impact    --application-id <id> --project-id <id> --changed <paths>
-aira security scans     --application-id <id> [--take 10]
-aira security findings  --application-id <id> [--status confirmed]
-aira security gate      --scan-id <id>
-aira security triage    --finding-id <id> --status falsePositive --reason "<what you checked>"
+qanxt security scope     --application-id <id>
+qanxt security scan      --application-id <id> [--checks a,b] [--wait] [--timeout 600]
+qanxt security impact    --application-id <id> --project-id <id> --changed <paths>
+qanxt security scans     --application-id <id> [--take 10]
+qanxt security findings  --application-id <id> [--status confirmed]
+qanxt security gate      --scan-id <id>
+qanxt security triage    --finding-id <id> --status falsePositive --reason "<what you checked>"
 ```
 
-`aira security impact` answers which checks a change calls for. It is built for a pipeline,
+`qanxt security impact` answers which checks a change calls for. It is built for a pipeline,
 because a pipeline is the only place the changed paths exist:
 
 ```bash
-git diff --name-only origin/main... | aira security impact \
+git diff --name-only origin/main... | qanxt security impact \
   --application-id <id> --project-id <id> --changed -
 ```
 
@@ -131,13 +131,13 @@ percentage, because a reader who sees "62% selected" cannot tell whether the mis
 the part that matters. It exits 7 when the selection is narrowed, so a pipeline learns that
 before it runs the scan rather than after.
 
-`aira security scan --wait` exits on the gate exactly as `aira security gate` does. Without
+`qanxt security scan --wait` exits on the gate exactly as `qanxt security gate` does. Without
 `--wait` it exits 7, because the scan it queued has not run: a pipeline step that exited 0 on
 "a scan has been queued" would be reporting a build as security-tested at the moment nothing
 had been tested. A wait that runs out also exits 7 rather than 0 — a scan nobody finished is a
 scan nobody ran.
 
-`aira security gate` is the one a pipeline runs:
+`qanxt security gate` is the one a pipeline runs:
 
 | Exit | Meaning |
 | --- | --- |
@@ -149,28 +149,28 @@ scan nobody ran.
 **Exit 7 is not a pass.** It covers "no scan ran", "the scan covered a fifth of what it was
 configured to", "the scope refused most of its requests" and "a low-confidence finding needs a
 look". A pipeline that swallows 7 reintroduces exactly the green-build-nobody-scanned failure
-the gate exists to prevent, which is why `.github/workflows/aira-security.yml` fails on it
-unless `AIRA_SECURITY_ALLOW_REVIEW` is explicitly set.
+the gate exists to prevent, which is why `.github/workflows/qanxt-security.yml` fails on it
+unless `QANXT_SECURITY_ALLOW_REVIEW` is explicitly set.
 
-`aira security triage` refuses a suppression with no reason before the request leaves the
+`qanxt security triage` refuses a suppression with no reason before the request leaves the
 machine, so an operator finds out from the CLI rather than from a 400.
 
 Two smaller things the CLI does on purpose:
 
-- `aira security scans` on an application with no scans says *"That is not a clean result.
+- `qanxt security scans` on an application with no scans says *"That is not a clean result.
   Nothing has been tested."* rather than printing an empty table.
-- `aira security findings` with nothing to show says the result *"says nothing about whether
+- `qanxt security findings` with nothing to show says the result *"says nothing about whether
   the application has been scanned, or about what any scan covered"* — because "no findings"
   invites the reader to hear "secure", and the command has no idea whether anything was ever
   run.
 
 ## The GitHub Actions workflow
 
-`.github/workflows/aira-security.yml` runs nightly rather than per-push. A security scan
+`.github/workflows/qanxt-security.yml` runs nightly rather than per-push. A security scan
 issues real requests against a running environment; running one per commit teaches people to
 ignore it.
 
-It uses `AIRA_SECURITY_TOKEN`, separate from the functional `AIRA_TOKEN`. Security findings
+It uses `QANXT_SECURITY_TOKEN`, separate from the functional `QANXT_TOKEN`. Security findings
 are a working description of how to break the application, and the account that reads them
 should be one somebody chose for that rather than whichever token was already in the
 repository. For this workflow it needs `security:read` and nothing more.

@@ -1,13 +1,13 @@
 /**
  * Accessibility checks, as a test step.
  *
- * AIRA runs axe-core against the page and reports what it finds. Two things about that are
+ * QA NXT runs axe-core against the page and reports what it finds. Two things about that are
  * worth stating plainly, because a tool that overstates them does real damage.
  *
  * **Automated checks find a minority of accessibility problems.** axe-core's own
  * documentation puts it at roughly a third of WCAG issues. A page with no violations has
  * not been shown to be accessible; it has been shown to have no violations a machine can
- * find. AIRA never reports a clean result as "accessible" — it reports the number of
+ * find. QA NXT never reports a clean result as "accessible" — it reports the number of
  * violations found, and the rules it ran.
  *
  * **A violation is a finding, not a verdict.** Some are unambiguous (an image with no

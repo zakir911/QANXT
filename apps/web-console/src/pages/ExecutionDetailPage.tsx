@@ -114,7 +114,7 @@ export default function ExecutionDetailPage() {
                 <p className="text-xs text-ink-muted">
                   {data.failure.analysis.producedByAi
                     ? `Analysed by ${data.failure.analysis.provider} ${data.failure.analysis.model} at ${data.failure.analysis.confidence}% confidence.`
-                    : `Classified by AIRA's built-in rules at ${data.failure.analysis.confidence}% confidence.`}
+                    : `Classified by QA NXT's built-in rules at ${data.failure.analysis.confidence}% confidence.`}
                   {data.failure.analysis.isLikelyApplicationDefect && ' This looks like a defect in the application, not the test.'}
                 </p>
               </div>

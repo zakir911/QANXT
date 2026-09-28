@@ -1,8 +1,8 @@
-# AIRA user manual
+# QA NXT user manual
 
 How to use the platform, screen by screen.
 
-This assumes AIRA is installed and running. If it is not, start with
+This assumes QA NXT is installed and running. If it is not, start with
 **[the installation guide](installation.md)**.
 
 Every screenshot here is of the real product, holding real results. They were captured by
@@ -13,10 +13,10 @@ driving a live installation, not assembled by hand — see
 
 ## Contents
 
-1. [What AIRA does](#1-what-aira-does)
+1. [What QA NXT does](#1-what-qanxt-does)
 2. [Getting around](#2-getting-around)
 3. [Setting up a workspace](#3-setting-up-a-workspace)
-4. [Discovery: teaching AIRA the application](#4-discovery-teaching-aira-the-application)
+4. [Discovery: teaching QA NXT the application](#4-discovery-teaching-qanxt-the-application)
 5. [Getting tests](#5-getting-tests)
 6. [Running tests](#6-running-tests)
 7. [Reading a result](#7-reading-a-result)
@@ -29,13 +29,13 @@ driving a live installation, not assembled by hand — see
 14. [Settings: people, providers and quality gates](#14-settings-people-providers-and-quality-gates)
 15. [Running from a pipeline](#15-running-from-a-pipeline)
 16. [Glossary](#16-glossary)
-17. [What AIRA will not do](#17-what-aira-will-not-do)
+17. [What QA NXT will not do](#17-what-qanxt-will-not-do)
 
 ---
 
-## 1. What AIRA does
+## 1. What QA NXT does
 
-AIRA tests a web application by driving a real browser, and keeps the evidence.
+QA NXT tests a web application by driving a real browser, and keeps the evidence.
 
 The loop it runs, and which section of this manual covers each part:
 
@@ -55,19 +55,19 @@ bounds you set, stops to show you its plan before it writes anything, and writes
 found along with what it could not establish. It proposes; it has no authority to change
 anything.
 
-**What you need to run it.** Any current browser for the console. The machine AIRA itself runs
+**What you need to run it.** Any current browser for the console. The machine QA NXT itself runs
 on wants 8 GB of memory and 10 GB of free disk at a minimum, 16 GB and 20 GB comfortably, and
 every requirement is in [the installation guide](installation.md#hardware-requirements).
 
 Two ideas run through all of it, and the product is easier to use if you know them:
 
 - **A pass means it ran.** The action executed, the expected behaviour was observed, the
-  assertion held, and there is evidence. AIRA would rather tell you it could not check
+  assertion held, and there is evidence. QA NXT would rather tell you it could not check
   something than tell you it passed.
 - **Nothing changes itself without asking.** The agent proposes; a repaired locator is a
   suggestion until you approve it; the platform never edits your tests behind your back.
 
-A third applies wherever security is involved: **untested is not the same as clean**, and AIRA
+A third applies wherever security is involved: **untested is not the same as clean**, and QA NXT
 reports the difference rather than rounding it down to a green tick.
 
 ---
@@ -76,7 +76,7 @@ reports the difference rather than rounding it down to a green tick.
 
 Sign in at `http://localhost:5173`.
 
-![The AIRA sign-in page with an email and password filled in](images/manual/01-sign-in.png)
+![The QA NXT sign-in page with an email and password filled in](images/manual/01-sign-in.png)
 
 Once you are in, two controls in the top bar matter more than anything else:
 
@@ -114,23 +114,23 @@ keep it short.
 | **Base URL** | Where the crawl starts. **Point this at a page behind the sign-in**, such as `/dashboard` — see the warning below. |
 | **Login URL** | The sign-in page. |
 | **Credentials** | A test account. Encrypted before storage; the API never returns them, and a password typed during a run is stored as `***REDACTED***`. |
-| **Allowed domains** | Where AIRA may go. Anything else is refused, and a test that tries is reported `blocked` rather than failed. |
+| **Allowed domains** | Where QA NXT may go. Anything else is refused, and a test that tries is reported `blocked` rather than failed. |
 
 ![The applications page listing the registered Demo Bank application](images/manual/04-applications.png)
 
-> **Choose the base URL with care.** AIRA crawls outward from it. If the root of your
+> **Choose the base URL with care.** QA NXT crawls outward from it. If the root of your
 > application bounces every visitor to the sign-in page, a crawl starting there can reach
 > exactly one page — and discovery will report "completed" while it does it. Give it a page
 > a signed-in user would land on.
 
 ---
 
-## 4. Discovery: teaching AIRA the application
+## 4. Discovery: teaching QA NXT the application
 
 Everything downstream works from a model of your application, and discovery is what builds
 it. **Discovery → run it** against an application.
 
-AIRA signs in with the credentials you stored, crawls within the bounds you set, and records
+QA NXT signs in with the credentials you stored, crawls within the bounds you set, and records
 each page, the elements on it, how pages link to each other, and the API calls the pages make
 while it drives them.
 
@@ -162,7 +162,7 @@ Two ways in, and they coexist.
 ### Generate them from a requirement
 
 **Test cases → Generate.** Write the requirement in plain English — *"Customer can sign in
-and view their account balance"* — and AIRA plans tests against the model discovery built.
+and view their account balance"* — and QA NXT plans tests against the model discovery built.
 
 ![The test case list, showing generated and imported tests](images/manual/07-test-cases.png)
 
@@ -172,11 +172,11 @@ names its action, its target and its expectation, and you can edit it.
 ![A generated test case showing its steps, targets and assertions](images/manual/08-generated-test.png)
 
 > **Read generated tests before you trust them.** They are a first draft written from the
-> model, not from your intent. Where AIRA cannot tell what a success looks like, it says so
+> model, not from your intent. Where QA NXT cannot tell what a success looks like, it says so
 > in the expected result rather than inventing an assertion — a test that cannot fail is
 > worse than no test.
 
-**With no model provider configured**, generation uses AIRA's built-in deterministic rules,
+**With no model provider configured**, generation uses QA NXT's built-in deterministic rules,
 and every result is labelled as such. To use a hosted model instead, see
 [§14](#14-settings-people-providers-and-quality-gates).
 
@@ -233,7 +233,7 @@ It has four parts:
 
 1. **Execution** — duration, how many steps passed, which browser and version, which worker,
    and a correlation id that ties this run to the server logs.
-2. **Diagnosis** — what kind of problem this is, how confident AIRA is, and what it suggests
+2. **Diagnosis** — what kind of problem this is, how confident QA NXT is, and what it suggests
    you do. Covered in [§8](#8-when-a-test-fails).
 3. **The tabs** — **Steps**, **Evidence**, **Console**, **Network**.
 4. **What the browser did** — every step with its action, target, duration and outcome.
@@ -266,7 +266,7 @@ exists to answer it quickly.
 | **Network issue** / **Timing issue** | A request failed at the network layer, or something was slower than the test allowed. |
 
 Every analysis names what produced it. With no model provider configured it reads
-*"Classified by AIRA's built-in rules"* with a confidence — it never implies a model looked
+*"Classified by QA NXT's built-in rules"* with a confidence — it never implies a model looked
 at something a rule decided.
 
 **An analysis never changes a verdict.** It explains a failure; it cannot turn one into a
@@ -276,7 +276,7 @@ pass.
 
 ## 9. When the application changes: self-healing
 
-When a locator stops matching, AIRA looks for the element the step *meant* to reach — by
+When a locator stops matching, QA NXT looks for the element the step *meant* to reach — by
 role, accessible name, text, test id, position in the page, and neighbours — and scores how
 confident it is.
 
@@ -299,7 +299,7 @@ Set it per project:
 
 This is the part worth trusting, and it is measured rather than asserted. When the control a
 step needs **no longer exists**, or when two candidates are equally plausible, or when
-something with the same label now does something different, AIRA **fails the test**. It does
+something with the same label now does something different, QA NXT **fails the test**. It does
 not click the nearest thing that looks close enough.
 
 The platform's own verification measures this as a **false-healing rate**, and publishes it
@@ -310,7 +310,7 @@ as a number rather than folding it into a success rate — see
 
 ## 10. Security testing
 
-AIRA can test an application's security as well as its behaviour. **Security** in the left-hand
+QA NXT can test an application's security as well as its behaviour. **Security** in the left-hand
 nav, then pick an application at the top of the page — everything below is about that one
 application.
 
@@ -352,8 +352,8 @@ only job is to say what a person agreed to.
 Writing one needs `security:authorize` (project admin and above), and today it is an API call:
 
 ```bash
-curl -X PUT "$AIRA_API_URL/api/v1/security/applications/$APP_ID/scope" \
-  -H "authorization: Bearer $AIRA_TOKEN" -H 'content-type: application/json' \
+curl -X PUT "$QANXT_API_URL/api/v1/security/applications/$APP_ID/scope" \
+  -H "authorization: Bearer $QANXT_TOKEN" -H 'content-type: application/json' \
   -d '{
     "enabled": true,
     "authorizationNote": "Authorized by R. Patel, Head of Engineering, for staging only. Ticket SEC-114, 2026-09-24.",
@@ -381,7 +381,7 @@ causes a problem.
 ### Run a scan
 
 **Run a scan → Scan this application.** It needs `security:scan`, and the card is absent
-without it. AIRA queues a job, a worker issues the requests, and the result appears on this page
+without it. QA NXT queues a job, a worker issues the requests, and the result appears on this page
 when the worker reports. The button runs the **standard** profile; the other profiles, and
 narrowing a scan to particular checks, come from the CLI or the API.
 
@@ -400,7 +400,7 @@ running something smaller:
 > reads `NOT SCANNED`, and the CLI exits `7`. "A scan has been queued" and "this build has been
 > security tested" are different statements, and only one of them is true at that point.
 
-If no worker ever reports, AIRA stops waiting and marks the scan **abandoned**, with the reason
+If no worker ever reports, QA NXT stops waiting and marks the scan **abandoned**, with the reason
 on the card. That is a platform problem — go and look at your workers — and it is deliberately
 not a finding about the application, and never a pass.
 
@@ -472,7 +472,7 @@ twice, **Low** a single unreproduced indicator. Hover a severity badge to see it
 new High finding fails a build but a new High at Low confidence goes to review.
 
 Every finding carries the request and response that establish it. A finding with no exchange
-behind it is **refused rather than recorded** — AIRA does not store a claim nobody can check.
+behind it is **refused rather than recorded** — QA NXT does not store a claim nobody can check.
 Secrets are redacted before evidence is written.
 
 ### Triage
@@ -517,11 +517,11 @@ Self-healing cannot touch a security finding, and nothing automated can close on
 
 A schedule can fire a security scan instead of a test run. It appears on **Schedules** with a
 `security scan` badge, and it is created through the API today — neither the console nor
-`aira schedule add` will make one:
+`qanxt schedule add` will make one:
 
 ```bash
-curl -X POST "$AIRA_API_URL/api/v1/schedules" \
-  -H "authorization: Bearer $AIRA_TOKEN" -H 'content-type: application/json' \
+curl -X POST "$QANXT_API_URL/api/v1/schedules" \
+  -H "authorization: Bearer $QANXT_TOKEN" -H 'content-type: application/json' \
   -d '{"projectId":"'"$PROJECT_ID"'","name":"Nightly security scan",
        "cronExpression":"0 2 * * *","timeZone":"Europe/London",
        "kind":"securityScan","applicationId":"'"$APP_ID"'"}'
@@ -542,10 +542,10 @@ cron is the only trigger there is.
 This is the sentence the product will print, and the strongest one it has:
 
 > Within the configured scope and test coverage, no security findings were detected by the
-> executed AIRA security tests. This is not a statement that the application is secure or that
+> executed QA NXT security tests. This is not a statement that the application is secure or that
 > no vulnerabilities exist.
 
-It is always followed by what was **not** tested. AIRA will not say an application is secure,
+It is always followed by what was **not** tested. QA NXT will not say an application is secure,
 will not say it has no vulnerabilities, and will not let an empty findings list stand in for
 either.
 
@@ -553,7 +553,7 @@ either.
 
 Worth reading before you rely on any of it:
 
-- **Discovery bounds what can be tested.** An endpoint AIRA never found was never scanned. This
+- **Discovery bounds what can be tested.** An endpoint QA NXT never found was never scanned. This
   is why coverage is reported as tested-versus-untested rather than as a percentage.
 - **DOM-based XSS needs a browser.** A worker-run scan does it; a response-only scan reports it
   as untested rather than absent.
@@ -700,7 +700,7 @@ over the same records, and the page tells you so before you ask.
 ## 13. The Verification Center
 
 **Verification** shows what the platform's own golden test suite found the last time it ran —
-AIRA tested against purpose-built applications with known answers.
+QA NXT tested against purpose-built applications with known answers.
 
 ![The Verification Center: 126 of 130 golden tests passed, every quality gate green](images/manual/17-verification.png)
 
@@ -723,14 +723,14 @@ pretend otherwise.
 scanner against a purpose-built vulnerable lab with known answers:
 
 ```bash
-./scripts/verify-security                  # everything, including AIRA's own security
+./scripts/verify-security                  # everything, including QA NXT's own security
 ./scripts/verify-security --no-platform    # the lab only; no database or API needed
 ```
 
 It writes `verification/reports/SECURITY-VERIFICATION-REPORT.md` and
 `SECURITY-TRACEABILITY.md`, and exits non-zero if any suite failed or any security requirement
 is unverified. That report declares what is NOT VERIFIED as prominently as what passed — the
-permitted production path among them. What the script proves is that AIRA's security *testing*
+permitted production path among them. What the script proves is that QA NXT's security *testing*
 works. It is not a statement about the security of anything.
 
 ---
@@ -760,7 +760,7 @@ session that person already holds **immediately**, not when their token happens 
 
 ### AI providers
 
-Shows each provider and whether a key is configured. **AIRA built-in rules** is always
+Shows each provider and whether a key is configured. **QA NXT built-in rules** is always
 available, needs no key, works offline, and is labelled wherever its output appears. Set
 `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` or `GEMINI_API_KEY` and restart to use a hosted model.
 
@@ -774,20 +774,20 @@ an explicit permission, because weakening one is a release decision rather than 
 
 ## 15. Running from a pipeline
 
-The `aira` CLI starts a run, waits for its verdict, and writes reports your CI system can
+The `qanxt` CLI starts a run, waits for its verdict, and writes reports your CI system can
 display.
 
 ```bash
-export AIRA_API_URL=http://localhost:5080
-export AIRA_TOKEN=…                      # created once with: aira login --show-token
+export QANXT_API_URL=http://localhost:5080
+export QANXT_TOKEN=…                      # created once with: qanxt login --show-token
 
-aira run --project "$PROJECT_ID" --suite "$SUITE_ID" --report-dir ./reports
+qanxt run --project "$PROJECT_ID" --suite "$SUITE_ID" --report-dir ./reports
 ```
 
 `--suite` and `--project` take ids, not names. `--test` runs a single test and can be
 repeated. `--report-dir` writes all three reports; `--junit`, `--json` and `--html` write
 them individually. `--no-wait` queues the run and exits, for pipelines that collect results
-in a later stage with `aira report <run-id>`.
+in a later stage with `qanxt report <run-id>`.
 
 The exit code is the part a pipeline should key off, because it distinguishes things that
 need different responses:
@@ -802,7 +802,7 @@ need different responses:
 | `5` | `INFRASTRUCTURE_ERROR` | The platform, queue, worker or target could not be reached. **Nothing is known about quality** |
 | `6` | `SECURITY_POLICY_VIOLATION` | A security policy refused the request. Read why before retrying; do not widen permissions |
 | `7` | `HUMAN_REVIEW_REQUIRED` | The gate returned REVIEW. Not a pass, not a failure |
-| `8` | `AIRA_INTERNAL_ERROR` | AIRA itself failed — a bug in the tool, not a finding about the application |
+| `8` | `QANXT_INTERNAL_ERROR` | QA NXT itself failed — a bug in the tool, not a finding about the application |
 
 A **healed** or **flaky** result maps to a JUnit pass *with a note*, never a silent one. A
 **blocked** result maps to `<error>` rather than a failure, because the test never ran —
@@ -814,12 +814,12 @@ send someone hunting a defect that is not there.
 The same CLI runs the security side, against an application that has been authorized (§10):
 
 ```bash
-aira security scan --application-id "$APP_ID" --wait     # queue one and wait for the worker
-aira security gate --scan-id "$SCAN_ID"                  # the one a pipeline keys off
-aira security findings --application-id "$APP_ID" --status confirmed
+qanxt security scan --application-id "$APP_ID" --wait     # queue one and wait for the worker
+qanxt security gate --scan-id "$SCAN_ID"                  # the one a pipeline keys off
+qanxt security findings --application-id "$APP_ID" --status confirmed
 ```
 
-`aira security gate` exits `0` on PASS, `2` on FAIL and `7` on REVIEW. **A build that was never
+`qanxt security gate` exits `0` on PASS, `2` on FAIL and `7` on REVIEW. **A build that was never
 scanned exits `7`, never `0`** — "no scan ran" and "a scan ran and found nothing" are different
 facts, and the CLI will not report the first as the second. The summary says so in its first two
 words: `NOT SCANNED`.
@@ -833,7 +833,7 @@ To narrow a pull-request scan to what the change actually touched:
 
 ```bash
 git diff --name-only origin/main... \
-  | aira security impact --application-id "$APP_ID" --project-id "$PROJECT_ID" --changed -
+  | qanxt security impact --application-id "$APP_ID" --project-id "$PROJECT_ID" --changed -
 ```
 
 Two things stop that from becoming a way to pass by scanning less: a check covering a currently
@@ -879,7 +879,7 @@ definitions; `docs/security/running-a-scan.md` has the security workflow.
 
 ---
 
-## 17. What AIRA will not do
+## 17. What QA NXT will not do
 
 Worth knowing before you rely on it:
 

@@ -1,6 +1,6 @@
 # API testing
 
-AIRA tests APIs the same way it tests screens: an API test is an ordinary test case whose
+QA NXT tests APIs the same way it tests screens: an API test is an ordinary test case whose
 steps make HTTP requests instead of driving a browser. That is not a shortcut — it is the
 design. Runs, retries, evidence, failure analysis, quality gates, reports, notifications
 and the CLI already work on test cases, and they all work on API tests with nothing added.
@@ -13,7 +13,7 @@ and the CLI already work on test cases, and they all work on API tests with noth
 - [Chaining requests](#chaining-requests)
 - [What the run records](#what-the-run-records)
 - [Quality gates](#quality-gates)
-- [What AIRA refuses](#what-aira-refuses)
+- [What QA NXT refuses](#what-qanxt-refuses)
 - [From a pipeline](#from-a-pipeline)
 - [Limitations](#limitations)
 
@@ -27,7 +27,7 @@ Two consequences worth knowing about:
 
 **It appears everywhere a test appears.** The same run can contain UI and API tests. The
 same report lists both. The same quality gate covers both, and can treat API failures
-separately if you want it to. `aira run --suite <id>` runs whatever is in the suite.
+separately if you want it to. `qanxt run --suite <id>` runs whatever is in the suite.
 
 **A pure API test opens no browser.** When every step in a test calls an API on its own
 credentials, no page is created — the test runs in about the time the requests take. A test
@@ -38,9 +38,9 @@ that reuses a UI session does open one, because that is where the session comes 
 `POST /api/v1/testcases/api-tests`, or through the CLI from a file:
 
 ```bash
-aira api-test add --file api-tests.json
-aira api-test list
-aira api-test run
+qanxt api-test add --file api-tests.json
+qanxt api-test list
+qanxt api-test run
 ```
 
 The file:
@@ -90,7 +90,7 @@ The file:
 
 Each test in the file is sent separately and reported separately: a file of twelve tests
 with one malformed entry saves eleven and tells you exactly what is wrong with the twelfth.
-`aira api-test add` exits 3 (CONFIGURATION_ERROR) if any test was rejected.
+`qanxt api-test add` exits 3 (CONFIGURATION_ERROR) if any test was rejected.
 
 ## Requests
 
@@ -118,7 +118,7 @@ the two that mean "nothing".
 | Mode | What is sent |
 | --- | --- |
 | `inheritSession` | The cookies the browser holds. This is how "sign in through the UI, then call the API as that user" is expressed. Needs a page, so the test opens one. |
-| `none` | No credentials from AIRA. Cookies the test itself obtained from an earlier request in the same test still apply, as they would for any HTTP client. |
+| `none` | No credentials from QA NXT. Cookies the test itself obtained from an earlier request in the same test still apply, as they would for any HTTP client. |
 | `bearer` | `Authorization: Bearer <token>`. The token must be a `${secret:…}` reference. |
 | `basic` | `Authorization: Basic …`. The password must be a reference. |
 | `apiKeyHeader` | A header you name, with a referenced value. |
@@ -233,7 +233,7 @@ A rule over a metric this release could not measure is **never** reported as sat
 comes back as REVIEW with an explanation saying the metric was not measured — see
 [BUG-0021](../verification/bugs/BUG-0021/bug.md) for why that matters more than it sounds.
 
-## What AIRA refuses
+## What QA NXT refuses
 
 At authoring time, with every problem named rather than the first one:
 
@@ -263,11 +263,11 @@ At run time:
 ## From a pipeline
 
 ```yaml
-- run: aira api-test add --file api-tests.json      # keep the tests in the repo
-- run: aira api-test run --report-dir artifacts     # exit 0 / 1 / 2 / 7
+- run: qanxt api-test add --file api-tests.json      # keep the tests in the repo
+- run: qanxt api-test run --report-dir artifacts     # exit 0 / 1 / 2 / 7
 ```
 
-`aira api-test run` uses the same exit-code contract as `aira run`: 0 PASS,
+`qanxt api-test run` uses the same exit-code contract as `qanxt run`: 0 PASS,
 1 TEST_FAILURE, 2 QUALITY_GATE_FAILURE, 7 HUMAN_REVIEW_REQUIRED, 3 CONFIGURATION_ERROR,
 4 AUTHENTICATION_ERROR, 5 INFRASTRUCTURE_ERROR. A project with no enabled API tests exits
 3, not 0: "there were no tests" and "the tests passed" are different answers.

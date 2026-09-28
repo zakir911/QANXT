@@ -3,7 +3,7 @@
  * camelCase strings, so these unions are what actually travels on the wire.
  *
  * `packages/shared-types/test/contract.test.ts` asserts these stay in step with
- * `apps/api/src/Aira.Domain/Enums/Enums.cs`; if that test fails, the two sides
+ * `apps/api/src/QaNxt.Domain/Enums/Enums.cs`; if that test fails, the two sides
  * of the wire have drifted.
  */
 

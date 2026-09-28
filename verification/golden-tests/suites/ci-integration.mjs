@@ -7,7 +7,7 @@
  *
  * What is *not* executed here is the pipeline files themselves inside GitHub Actions, Azure
  * DevOps, GitLab CI or Jenkins: each needs credentials for that system and a deployment of
- * AIRA it can reach, and neither exists in this environment. CI-005 checks what can be
+ * QA NXT it can reach, and neither exists in this environment. CI-005 checks what can be
  * checked about them without one — that every flag they pass is a flag the CLI accepts, and
  * that each handles every exit code the CLI documents — and says plainly that it is not a
  * substitute for running them.
@@ -30,11 +30,11 @@ const EXAMPLES = resolve(ROOT, 'infrastructure/ci/examples');
 const EXIT_CODES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
 function cli(args, { token, projectId } = {}) {
-  const result = spawnSync(process.execPath, [resolve(ROOT, 'packages/cli/dist/aira.js'), ...args], {
+  const result = spawnSync(process.execPath, [resolve(ROOT, 'packages/cli/dist/qanxt.js'), ...args], {
     cwd: ROOT, encoding: 'utf8', timeout: 300_000,
     env: {
-      ...process.env, AIRA_API_URL: API, AIRA_TOKEN: token ?? '',
-      AIRA_PROJECT_ID: projectId ?? '', NO_COLOR: '1'
+      ...process.env, QANXT_API_URL: API, QANXT_TOKEN: token ?? '',
+      QANXT_PROJECT_ID: projectId ?? '', NO_COLOR: '1'
     }
   });
   return {
@@ -79,7 +79,7 @@ export default async function run() {
 
   /** Runs one test through the CLI into a fresh artifact directory. */
   function runInto(testCaseIds, extraArgs = []) {
-    const directory = mkdtempSync(join(tmpdir(), 'aira-ci-'));
+    const directory = mkdtempSync(join(tmpdir(), 'qanxt-ci-'));
     const args = ['run', '--report-dir', directory, '--timeout', '240'];
     for (const id of testCaseIds) args.push('--test', id);
     const result = cli([...args, ...extraArgs], { token: tenant.token, projectId: project.id });
@@ -93,7 +93,7 @@ export default async function run() {
     id: 'CI-001',
     objective: 'A run writes exactly the four documented artifacts, under fixed names',
     preconditions: ['the CLI is built', 'the lab bank is running'],
-    input: 'aira run --report-dir <dir>',
+    input: 'qanxt run --report-dir <dir>',
     expected: 'junit.xml, report.json, report.html and summary.md, each non-empty and each '
       + 'valid in its own format — so a pipeline can publish the directory without knowing '
       + 'what is in it',
@@ -235,7 +235,7 @@ export default async function run() {
       });
 
       await lab.reset(BANK);
-      const directory = mkdtempSync(join(tmpdir(), 'aira-ci-review-'));
+      const directory = mkdtempSync(join(tmpdir(), 'qanxt-ci-review-'));
       const result = cli(
         ['run', '--test', reviewTest.testCaseId, '--report-dir', directory, '--timeout', '240'],
         { token: tenant.token, projectId: reviewProject.id });
@@ -277,12 +277,12 @@ export default async function run() {
         if (!existsSync(path)) { findings.push({ file, problem: 'missing' }); continue; }
         const text = readFileSync(path, 'utf8');
 
-        // Only the flags passed to `aira`. A file also runs git and curl, and their flags
-        // are not AIRA's to recognise — scanning the whole file would report `--abbrev-ref`
-        // as an unknown AIRA option, which is the kind of false finding that gets a check
+        // Only the flags passed to `qanxt`. A file also runs git and curl, and their flags
+        // are not QA NXT's to recognise — scanning the whole file would report `--abbrev-ref`
+        // as an unknown QA NXT option, which is the kind of false finding that gets a check
         // switched off.
         const flags = new Set();
-        for (const invocation of text.matchAll(/\baira\b[\s\S]*?(?=\n\s*\n|\n\s*[a-zA-Z#-]|$)/g)) {
+        for (const invocation of text.matchAll(/\bqanxt\b[\s\S]*?(?=\n\s*\n|\n\s*[a-zA-Z#-]|$)/g)) {
           for (const match of invocation[0].matchAll(/(?:^|\s)(--[a-z][a-z0-9-]*)/gm)) {
             flags.add(match[1]);
           }
@@ -325,7 +325,7 @@ export default async function run() {
     preconditions: ['a run with one pass and one failure'],
     input: 'A run of both tests',
     expected: 'A testsuites element whose tests and failures counts match the run, so the '
-      + "CI system's own test view agrees with AIRA's",
+      + "CI system's own test view agrees with QA NXT's",
     evidence: ['junit.xml', 'run.json'],
     severity: 'critical',
     run: async () => {

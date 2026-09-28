@@ -5,7 +5,7 @@ import { isIP } from 'node:net';
  * created, but the crawler discovers new links at runtime and follows redirects, so the
  * decision has to be enforced here too, immediately before each navigation.
  *
- * Mirrors `Aira.Application.Security.TargetUrlGuard`; `test/url-guard.test.ts` asserts
+ * Mirrors `QaNxt.Application.Security.TargetUrlGuard`; `test/url-guard.test.ts` asserts
  * the same cases as the C# suite.
  */
 

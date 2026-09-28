@@ -8,7 +8,7 @@ assembly, provider selection, schema validation, caching and cost accounting —
 CPU-light and stateless, and all of it needs the same database context as its callers.
 
 ## Decision
-Implement orchestration as `Aira.Application/Ai` + `Aira.Infrastructure/Ai` inside the
+Implement orchestration as `QaNxt.Application/Ai` + `QaNxt.Infrastructure/Ai` inside the
 control plane, behind `ILlmProvider` and `IAiOrchestrator`. Do not deploy a separate
 service yet.
 

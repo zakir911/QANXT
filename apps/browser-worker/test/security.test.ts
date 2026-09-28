@@ -8,7 +8,7 @@ import { isUrlAllowed, matchesAllowlist, normalizeUrl } from '../src/security/ur
 /**
  * These mirror the control plane's own security tests. Two implementations of the same
  * rule are a liability unless both are held to the same cases, so the assertions here are
- * deliberately the same ones asserted in `Aira.UnitTests.Security`.
+ * deliberately the same ones asserted in `QaNxt.UnitTests.Security`.
  */
 
 describe('SecretMasker', () => {
@@ -177,7 +177,7 @@ describe('the worker runs the checks the platform names', () => {
   const canonical = (() => {
     // Read from the C# that defines them. A copy of the list here would agree with itself.
     const source = readFileSync(
-      resolve(__dirname, '../../api/src/Aira.Application/Security/SecurityChecks.cs'), 'utf8');
+      resolve(__dirname, '../../api/src/QaNxt.Application/Security/SecurityChecks.cs'), 'utf8');
     return new Set([...source.matchAll(/=\s*"([a-z]+\.[a-z0-9-]+)"/g)].map(m => m[1]));
   })();
 

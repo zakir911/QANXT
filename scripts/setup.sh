@@ -47,7 +47,7 @@ echo "Installing Node dependencies…"
 pnpm install
 
 echo "Restoring .NET dependencies…"
-dotnet restore apps/api/Aira.sln
+dotnet restore apps/api/QaNxt.sln
 
 echo "Starting PostgreSQL and Redis…"
 bash scripts/services-ctl.sh --with-database

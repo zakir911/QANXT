@@ -68,16 +68,16 @@ function signInThenRead({ capture = true } = {}) {
  * would see an empty transcript for every command whose output is meant for a person.
  */
 function cli(args, { token, projectId } = {}) {
-  const binary = resolve(ROOT, 'packages/cli/dist/aira.js');
+  const binary = resolve(ROOT, 'packages/cli/dist/qanxt.js');
   const result = spawnSync(process.execPath, [binary, ...args], {
     cwd: ROOT,
     encoding: 'utf8',
     timeout: 300_000,
     env: {
       ...process.env,
-      AIRA_API_URL: API,
-      AIRA_TOKEN: token ?? '',
-      AIRA_PROJECT_ID: projectId ?? '',
+      QANXT_API_URL: API,
+      QANXT_TOKEN: token ?? '',
+      QANXT_PROJECT_ID: projectId ?? '',
       NO_COLOR: '1'
     }
   });
@@ -598,7 +598,7 @@ export default async function run() {
     id: 'API-013',
     objective: 'A pipeline can author and run API tests through the CLI, and branch on its exit status',
     preconditions: ['the CLI is built', 'the lab bank is running'],
-    input: '"aira api-test add --file", then "aira api-test run" against a working API and '
+    input: '"qanxt api-test add --file", then "qanxt api-test run" against a working API and '
       + 'again against a broken one',
     expected: 'add exits 0 and creates the tests; run exits 0 while the API works and 1 '
       + '(TEST_FAILURE) while it is broken',
@@ -643,7 +643,7 @@ export default async function run() {
         }]
       };
 
-      const directory = mkdtempSync(join(tmpdir(), 'aira-api-cli-'));
+      const directory = mkdtempSync(join(tmpdir(), 'qanxt-api-cli-'));
       const file = join(directory, 'api-tests.json');
       writeFileSync(file, JSON.stringify(definition, null, 2));
 
@@ -660,10 +660,10 @@ export default async function run() {
       await lab.reset(BANK);
 
       const transcript = [
-        `$ aira api-test add --file api-tests.json   (exit ${added.code})`, added.output,
-        `$ aira api-test list                        (exit ${listed.code})`, listed.output,
-        `$ aira api-test run     [API healthy]       (exit ${green.code})`, green.output,
-        `$ aira api-test run     [FAULT_API_500]     (exit ${red.code})`, red.output
+        `$ qanxt api-test add --file api-tests.json   (exit ${added.code})`, added.output,
+        `$ qanxt api-test list                        (exit ${listed.code})`, listed.output,
+        `$ qanxt api-test run     [API healthy]       (exit ${green.code})`, green.output,
+        `$ qanxt api-test run     [FAULT_API_500]     (exit ${red.code})`, red.output
       ].join('\n');
 
       return {

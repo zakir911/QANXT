@@ -9,9 +9,9 @@ One test that used to pass *is* a reason, and it is invisible in a summary that 
 "13 failed".
 
 ```bash
-aira release compare --run <id>                       # against the run before it
-aira release compare --run <id> --fail-on-new-failures
-aira release quality --build v2.4.1
+qanxt release compare --run <id>                       # against the run before it
+qanxt release compare --run <id> --fail-on-new-failures
+qanxt release quality --build v2.4.1
 ```
 
 ## What a comparison says
@@ -28,7 +28,7 @@ Every test in either run falls into one of six:
 | **Removed** | Ran before, did not run this time. |
 
 Comparison is **by test case, not by position**. Runs select different tests — that is the
-point of `aira regression` — and a positional diff would report everything as moved the
+point of `qanxt regression` — and a positional diff would report everything as moved the
 moment a selection changed.
 
 **Removed is not collapsed.** A test that quietly stopped being selected is coverage
@@ -37,7 +37,7 @@ nobody decided to drop, and it is invisible unless something says so.
 ## Gating a pipeline on regressions
 
 ```bash
-aira release compare --run "$RUN_ID" --fail-on-new-failures --markdown "$ARTIFACTS/changed.md"
+qanxt release compare --run "$RUN_ID" --fail-on-new-failures --markdown "$ARTIFACTS/changed.md"
 ```
 
 Exit 1 only when a test that used to pass now fails. A failure somebody already knows about
@@ -50,7 +50,7 @@ meet the standard can still hold the line with this one.
 ## A release, not a run
 
 A release is usually tested by several runs across several days — a smoke run on deploy, a
-full regression that night, a re-run after a fix. `aira release quality --build v2.4.1`
+full regression that night, a re-run after a fix. `qanxt release quality --build v2.4.1`
 treats all of them as one thing to decide about, keyed on the build reference a pipeline
 passes with `--app-build`.
 

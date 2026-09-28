@@ -1,7 +1,7 @@
 # The security lab
 
 Seven deliberately vulnerable applications under `test-lab/security/`. They exist so that
-AIRA's security claims can be measured rather than asserted: a detector tested only against
+QA NXT's security claims can be measured rather than asserted: a detector tested only against
 applications that happen to be broken in the ways you expected is not tested at all.
 
 Everything in them is synthetic. Every identity is fictional, every account number is

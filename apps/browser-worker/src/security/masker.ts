@@ -3,7 +3,7 @@
  * to disk, uploaded as evidence or logged — masking only on the server would mean the
  * plaintext had already been through a temp file and a log line.
  *
- * This mirrors `Aira.Application.Security.SecretMasker`. The two implementations are
+ * This mirrors `QaNxt.Application.Security.SecretMasker`. The two implementations are
  * held in step by `test/masker.test.ts`, which asserts the same cases as the C# suite.
  */
 

@@ -8,17 +8,17 @@ import type { QualityGateResult } from '../types.js';
 export const QUALITY_GATE_FLAGS = ['run-id', 'json'] as const;
 
 export const QUALITY_GATE_HELP = `
-${bold('aira quality-gate')} — evaluate a finished run against its project's gate
+${bold('qanxt quality-gate')} — evaluate a finished run against its project's gate
 
-  aira quality-gate --run-id <id>
-  aira quality-gate <id>
+  qanxt quality-gate --run-id <id>
+  qanxt quality-gate <id>
 
   --run-id <id>          The run to evaluate (or the first positional argument)
   --json                 Emit the gate result on stdout
 
 Exit status: 0 PASS · 2 FAIL · 7 REVIEW
-A run whose tests failed is still reported here by its gate outcome; use "aira run" or
-"aira status" if you want the test verdict to decide the status instead.
+A run whose tests failed is still reported here by its gate outcome; use "qanxt run" or
+"qanxt status" if you want the test verdict to decide the status instead.
 `;
 
 /**
@@ -33,7 +33,7 @@ export async function qualityGateCommand(args: ParsedArgs): Promise<number> {
 
   const runId = flag(args, 'run-id') ?? args.positionals[0];
   if (!runId) {
-    throw usage('A run id is required.', 'aira quality-gate --run-id <id>');
+    throw usage('A run id is required.', 'qanxt quality-gate --run-id <id>');
   }
 
   const context = await resolveContext({

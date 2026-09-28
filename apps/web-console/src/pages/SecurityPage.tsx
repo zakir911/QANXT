@@ -144,7 +144,7 @@ export default function SecurityPage() {
   });
 
   /**
-   * Asking AIRA to scan this application.
+   * Asking QA NXT to scan this application.
    *
    * The refusals are the useful part of this control, so they are shown as the API worded them
    * rather than as "something went wrong": "nobody has authorized this", "discovery has not
@@ -297,7 +297,7 @@ export default function SecurityPage() {
           {mayScan && (
             <Card
               title="Run a scan"
-              description="AIRA queues the scan, a worker issues the requests, and the result appears here when it reports."
+              description="QA NXT queues the scan, a worker issues the requests, and the result appears here when it reports."
               actions={
                 <button
                   type="button"
@@ -412,7 +412,7 @@ export default function SecurityPage() {
             {(trend?.points.length ?? 0) === 0 && !trendQuery.isLoading && (
               <EmptyState
                 title="Nothing has been scanned"
-                description="This is not a clean result. No security scan has been recorded for this application, so nothing is known about it from AIRA."
+                description="This is not a clean result. No security scan has been recorded for this application, so nothing is known about it from QA NXT."
               />
             )}
             {(trend?.points.length ?? 0) > 0 && (

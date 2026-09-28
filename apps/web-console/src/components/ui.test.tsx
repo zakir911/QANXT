@@ -23,7 +23,7 @@ describe('StatusBadge', () => {
 
 describe('ProviderNote', () => {
   test('says plainly when output came from the built-in rules', () => {
-    render(<ProviderNote provider="Local" model="aira-rules-v1" isLocal />);
+    render(<ProviderNote provider="Local" model="qanxt-rules-v1" isLocal />);
     expect(screen.getByText(/built-in rules/i)).toBeInTheDocument();
     expect(screen.getByText(/no model provider is configured/i)).toBeInTheDocument();
   });

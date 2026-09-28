@@ -14,7 +14,7 @@ import { createSecurityLab } from '../shared/security-lab.js';
 const PORT = Number(process.env.HEADERS_LAB_PORT ?? 4406);
 
 const app = createSecurityLab({
-  name: 'AIRA Headers and CORS Lab',
+  name: 'QA NXT Headers and CORS Lab',
   vulnerabilities: [
     { id: 'VULN_NO_CSP', description: '/weak omits Content-Security-Policy.' },
     { id: 'VULN_WEAK_COOKIE', description: '/weak sets a session cookie with no Secure, HttpOnly or SameSite.' },

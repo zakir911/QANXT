@@ -34,7 +34,7 @@ const step = async (name, fn) => {
     console.log(`PASS  ${name}`);
   } catch (error) {
     console.log(`FAIL  ${name}: ${String(error).split('\n')[0]}`);
-    await page.screenshot({ path: `/tmp/aira-shots/fail-${name.replace(/\W+/g, '-')}.png`, fullPage: true });
+    await page.screenshot({ path: `/tmp/qanxt-shots/fail-${name.replace(/\W+/g, '-')}.png`, fullPage: true });
     process.exitCode = 1;
   }
 };
@@ -54,7 +54,7 @@ await step('dashboard shows real metrics', async () => {
   if (!/\d/.test(text)) throw new Error(`no numeric pass rate: ${text}`);
   const executions = await page.getByText('Executions', { exact: true }).first().isVisible();
   if (!executions) throw new Error('execution count tile missing');
-  await page.screenshot({ path: '/tmp/aira-shots/dashboard.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/dashboard.png', fullPage: true });
 });
 
 await step('applications page lists the demo bank', async () => {
@@ -62,7 +62,7 @@ await step('applications page lists the demo bank', async () => {
   // Several applications can carry this name once other suites have registered one, and a
   // strict locator turns "the list works" into "the list has exactly one of these".
   await page.getByRole('heading', { name: 'Demo Bank' }).first().waitFor({ timeout: 10000 });
-  await page.screenshot({ path: '/tmp/aira-shots/applications.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/applications.png', fullPage: true });
 });
 
 await step('application map renders the knowledge graph', async () => {
@@ -71,7 +71,7 @@ await step('application map renders the knowledge graph', async () => {
   await page.getByText('/dashboard', { exact: false }).first().waitFor({ timeout: 10000 });
   await page.getByRole('button', { name: /\/payments/ }).first().click();
   await page.getByText('payment-submit', { exact: false }).first().waitFor({ timeout: 10000 });
-  await page.screenshot({ path: '/tmp/aira-shots/graph.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/graph.png', fullPage: true });
 });
 
 await step('test cases list the generated suite', async () => {
@@ -82,13 +82,13 @@ await step('test cases list the generated suite', async () => {
   await page.locator('tbody tr').first().waitFor({ timeout: 15000 });
   const rows = await page.locator('tbody tr').count();
   if (rows < 5) throw new Error(`expected generated tests, found ${rows} rows`);
-  await page.screenshot({ path: '/tmp/aira-shots/testcases.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/testcases.png', fullPage: true });
 });
 
 await step('a test case shows its steps and assertions', async () => {
   await page.locator('tbody tr a').first().click();
   await page.getByRole('heading', { name: 'Steps' }).waitFor({ timeout: 10000 });
-  await page.screenshot({ path: '/tmp/aira-shots/testcase.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/testcase.png', fullPage: true });
 });
 
 await step('runs list shows completed runs', async () => {
@@ -96,13 +96,13 @@ await step('runs list shows completed runs', async () => {
   await page.getByRole('heading', { name: 'Test runs' }).waitFor({ timeout: 10000 });
   const rows = await page.locator('tbody tr').count();
   if (rows < 1) throw new Error('no runs listed');
-  await page.screenshot({ path: '/tmp/aira-shots/runs.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/runs.png', fullPage: true });
 });
 
 await step('run detail shows executions and the quality gate', async () => {
   await page.locator('tbody tr a').first().click();
   await page.getByText('Quality gate').first().waitFor({ timeout: 10000 });
-  await page.screenshot({ path: '/tmp/aira-shots/run.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/run.png', fullPage: true });
 });
 
 await step('execution detail shows evidence', async () => {
@@ -118,26 +118,26 @@ await step('execution detail shows evidence', async () => {
   const width = await image.evaluate(node => node.naturalWidth);
   if (!width || width < 10) throw new Error(`the screenshot did not render (naturalWidth=${width})`);
 
-  await page.screenshot({ path: '/tmp/aira-shots/execution.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/execution.png', fullPage: true });
 });
 
 await step('healing page shows proposals with confidence', async () => {
   await page.getByRole('link', { name: 'Healing' }).click();
   await page.getByRole('heading', { name: 'Self-healing' }).waitFor({ timeout: 10000 });
-  await page.screenshot({ path: '/tmp/aira-shots/healing.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/healing.png', fullPage: true });
 });
 
 await step('AI insights answers a question', async () => {
   await page.getByRole('link', { name: 'AI insights' }).click();
   await page.getByRole('button', { name: 'Which tests are most unstable?' }).click();
   await page.getByRole('heading', { name: 'Answer' }).waitFor({ timeout: 20000 });
-  await page.screenshot({ path: '/tmp/aira-shots/insights.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/insights.png', fullPage: true });
 });
 
 await step('settings shows the role matrix', async () => {
   await page.getByRole('link', { name: 'Settings' }).click();
   await page.getByRole('heading', { name: 'Roles and permissions' }).waitFor({ timeout: 10000 });
-  await page.screenshot({ path: '/tmp/aira-shots/settings.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/settings.png', fullPage: true });
 });
 
 await step('people can be added and their access taken away', async () => {
@@ -168,7 +168,7 @@ await step('people can be added and their access taken away', async () => {
   await row.getByRole('button', { name: 'Disable' }).click();
   await row.getByText('Disabled', { exact: false }).waitFor({ timeout: 10000 });
 
-  await page.screenshot({ path: '/tmp/aira-shots/people.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/people.png', fullPage: true });
 });
 
 await step('quality gates can be configured from the console', async () => {
@@ -197,7 +197,7 @@ await step('quality gates can be configured from the console', async () => {
   await toggle.click();                       // Leave the gate as it was found.
   await toggle.filter({ hasText: before }).waitFor({ timeout: 10000 });
 
-  await page.screenshot({ path: '/tmp/aira-shots/quality-gates.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/quality-gates.png', fullPage: true });
 });
 
 await step('the agent page shows a pass, its steps and its proposals', async () => {
@@ -227,7 +227,7 @@ await step('the agent page shows a pass, its steps and its proposals', async () 
     throw new Error(`the proposals card does not state what the agent cannot do: ${disclaimer}`);
   }
 
-  await page.screenshot({ path: '/tmp/aira-shots/agent.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/agent.png', fullPage: true });
 });
 
 await step('the security page can start a scan, and says what it refuses', async () => {
@@ -253,7 +253,7 @@ await step('the security page can start a scan, and says what it refuses', async
   await outcome.first().waitFor({ timeout: 20000 });
   const text = (await outcome.first().innerText()).trim();
 
-  if (/could not be converted|LineNumber|BytePositionInLine|Aira\.Application/.test(text)) {
+  if (/could not be converted|LineNumber|BytePositionInLine|QaNxt\.Application/.test(text)) {
     throw new Error(`the request did not reach the endpoint in a shape it accepts: ${text}`);
   }
 
@@ -281,7 +281,7 @@ await step('the security page can start a scan, and says what it refuses', async
   }
 
   console.log(`      the page answered: ${text.replace(/\s+/g, ' ').slice(0, 120)}`);
-  await page.screenshot({ path: '/tmp/aira-shots/security.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/security.png', fullPage: true });
 });
 
 if (consoleErrors.length > 0) {

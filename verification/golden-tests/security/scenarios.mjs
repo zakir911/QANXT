@@ -187,7 +187,7 @@ export const SCENARIOS = [
     objective: 'A bearer token the application never issued being accepted is reported',
     expectCategory: 'UnverifiedToken',
     run: async scanner => authz.checkTokenVerification(scanner, {
-      baseUrl: LABS.api, path: '/api/notes', forgedToken: 'u-admin.forged.by-aira'
+      baseUrl: LABS.api, path: '/api/notes', forgedToken: 'u-admin.forged.by-qanxt'
     })
   },
 
@@ -514,7 +514,7 @@ export const SAFE_SCENARIOS = [
       });
       const absent = await scanner.request({
         url: `${LABS.auth}/api/password-reset`, method: 'POST', risk: 2,
-        headers: { 'content-type': 'application/json' }, body: { username: 'aira-absent-user' },
+        headers: { 'content-type': 'application/json' }, body: { username: 'qanxt-absent-user' },
         testId: 'SAFE-RESET:absent', as: 'unauthenticated'
       });
       const shape = r => `${r.status}:${Object.keys(r.responseBody ?? {}).sort().join(',')}`;

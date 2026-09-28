@@ -61,7 +61,7 @@ export default async function run() {
   const tenant = await newTenant('Analysis');
   const project = await createProject(tenant, 'Golden failure analysis');
   const application = await registerApplication(tenant, project.id, {
-    name: 'AIRA Failure Lab', baseUrl: FAIL_LAB, maxPages: 15
+    name: 'QA NXT Failure Lab', baseUrl: FAIL_LAB, maxPages: 15
   });
   const context = { tenant, project, application, applicationVersion: '1.0.0' };
 
@@ -263,7 +263,7 @@ export default async function run() {
       await lab.set(BANK, { FAULT_PAYMENT_SILENT_FAILURE: true });
 
       const bank = await registerApplication(tenant, project.id, {
-        name: 'AIRA Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
+        name: 'QA NXT Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
         username: 'alice', password: 'Password123!'
       });
       const paymentJourney = journey({

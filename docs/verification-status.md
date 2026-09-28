@@ -113,7 +113,7 @@ pass.
 | --- | --- |
 | `Dockerfile.console`, `Dockerfile.demo-bank` | Written but never built. Their base images (`nginx:1.27-alpine`, `node:22-bookworm-slim`) live on Docker Hub, which this environment's egress policy denies; only `mcr.microsoft.com` is reachable, which is why the API and worker images could be built. |
 | `docker compose up` as a whole | The compose file validates, and two of its four built images were built and run. The stack has never been started end to end here, because `postgres:16-alpine` and `redis:7-alpine` cannot be pulled either. |
-| `.github/workflows/aira-tests.yml` | The YAML parses, the pnpm filter it uses was run locally, and its embedded summary script was run against a real failing report — but the workflow itself has never executed on GitHub Actions. |
+| `.github/workflows/qanxt-tests.yml` | The YAML parses, the pnpm filter it uses was run locally, and its embedded summary script was run against a real failing report — but the workflow itself has never executed on GitHub Actions. |
 | `infrastructure/ci/azure-pipelines.yml` | Same: validated as YAML, never executed on Azure Pipelines. |
 | S3-compatible artifact storage | Only the filesystem store has been run. The interface has a second implementation that has not been pointed at a real bucket. |
 | OpenAI, Anthropic and Gemini providers | No API key is configured here, so every AI result so far came from the local deterministic engines. The provider abstraction is exercised; the HTTP clients for the hosted models are not. |

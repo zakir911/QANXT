@@ -8,19 +8,19 @@
 #   product-demo.json        every step, with the ids and numbers it produced
 #   product-demo-script.md   the narration, written from what actually happened
 #
-# The demonstration needs AIRA and the test lab up. It starts neither, because a demo that
+# The demonstration needs QA NXT and the test lab up. It starts neither, because a demo that
 # silently starts its own dependencies hides whether they work; it checks and says so.
 set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-API="${AIRA_API_URL:-http://127.0.0.1:5080}"
+API="${QANXT_API_URL:-http://127.0.0.1:5080}"
 BANK="${LAB_BANKING_URL:-http://127.0.0.1:4300}"
 
 fail() { printf '\033[31m%s\033[0m\n' "$1" >&2; exit 2; }
 
 curl -fsS --max-time 10 "$API/health" >/dev/null 2>&1 \
-  || fail "AIRA is not answering at $API. Start it with ./scripts/services-ctl.sh start"
+  || fail "QA NXT is not answering at $API. Start it with ./scripts/services-ctl.sh start"
 curl -fsS --max-time 10 "$BANK/health" >/dev/null 2>&1 \
   || fail "The banking lab app is not answering at $BANK. Start it with test-lab/scripts/lab-ctl.sh start"
 

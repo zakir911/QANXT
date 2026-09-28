@@ -1,4 +1,4 @@
-# What AIRA has been run against
+# What QA NXT has been run against
 
 Every claim about how the platform behaves comes from running it against something. This is
 the list of those somethings, and — the part that matters more — the list of what it has
@@ -12,19 +12,19 @@ is no third state where something is assumed to work because it resembles someth
 
 | Application | What it is | Who wrote it | Status |
 | --- | --- | --- | --- |
-| **banking-app** (:4300) | React SPA — async data, modals, pagination, validation | Written for AIRA | VERIFIED |
-| **ecommerce-app** (:4310) | Multi-step dependent journey, plus a silent-failure case | Written for AIRA | VERIFIED |
-| **forms-app** (:4320) | Dependent fields, cross-field rules, file-size limits | Written for AIRA | VERIFIED |
-| **dynamic-app** (:4330) | Regenerated ids, changing hierarchy, lazy panels, infinite scroll | Written for AIRA | VERIFIED |
-| **failure-app** (:4340) | Every failure class: 4xx, 5xx, timeout, dropped connection, JS error | Written for AIRA | VERIFIED |
-| **self-healing-app** (:4350) | Healing that should happen, and four cases where it must be refused | Written for AIRA | VERIFIED |
-| **security labs** (:4400–4408) | Planted flaws across the OWASP categories, and corrected twins | Written for AIRA | VERIFIED |
-| **demo-bank** | The product demo application | Written for AIRA | VERIFIED |
+| **banking-app** (:4300) | React SPA — async data, modals, pagination, validation | Written for QA NXT | VERIFIED |
+| **ecommerce-app** (:4310) | Multi-step dependent journey, plus a silent-failure case | Written for QA NXT | VERIFIED |
+| **forms-app** (:4320) | Dependent fields, cross-field rules, file-size limits | Written for QA NXT | VERIFIED |
+| **dynamic-app** (:4330) | Regenerated ids, changing hierarchy, lazy panels, infinite scroll | Written for QA NXT | VERIFIED |
+| **failure-app** (:4340) | Every failure class: 4xx, 5xx, timeout, dropped connection, JS error | Written for QA NXT | VERIFIED |
+| **self-healing-app** (:4350) | Healing that should happen, and four cases where it must be refused | Written for QA NXT | VERIFIED |
+| **security labs** (:4400–4408) | Planted flaws across the OWASP categories, and corrected twins | Written for QA NXT | VERIFIED |
+| **demo-bank** | The product demo application | Written for QA NXT | VERIFIED |
 | **Verdaccio 6.10.4** | Private npm registry — Vue over Express | **Independent** | VERIFIED, once, partly — see below |
 
 Everything above the last row was written alongside the platform that tests it. That is the
 right way to build a test platform and it establishes nothing about unfamiliar code. **One**
-application in this table was written by people who have never heard of AIRA.
+application in this table was written by people who have never heard of QA NXT.
 
 ### What the Verdaccio pass covered, and did not
 
@@ -35,7 +35,7 @@ application in this table was written by people who have never heard of AIRA.
 | The npm registry protocol (`GET`/`PUT /:package`, `/-/user/…`, dist-tags) | **NOT TESTED** |
 | Tests generated, executed, passed | 11 / 11 / 11 |
 | Defects found in Verdaccio | 0 |
-| Defects found in AIRA | 2 — see `pilot/PILOT-REPORT.md` |
+| Defects found in QA NXT | 2 — see `pilot/PILOT-REPORT.md` |
 
 The registry protocol is Verdaccio's actual product surface and the pass never touched it,
 because discovery works by driving a browser and no browser calls it. On any application

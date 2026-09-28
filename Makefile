@@ -1,4 +1,4 @@
-# AIRA developer commands. Cross-platform equivalents live in scripts/.
+# QA NXT developer commands. Cross-platform equivalents live in scripts/.
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
@@ -53,7 +53,7 @@ lab-stop: ## Stop the test-lab applications
 	@bash test-lab/scripts/lab-ctl.sh stop
 
 build: ## Build all applications
-	@dotnet build apps/api/Aira.sln -c Release
+	@dotnet build apps/api/QaNxt.sln -c Release
 	@pnpm -r build
 
 migrate: ## Apply EF Core migrations to the configured database
@@ -63,16 +63,16 @@ db-reset: ## Drop, recreate and re-migrate the local database (destructive)
 	@bash scripts/db-reset.sh
 
 api: ## Run the control plane API only
-	@dotnet run --project apps/api/src/Aira.Api
+	@dotnet run --project apps/api/src/QaNxt.Api
 
 worker: ## Run a browser worker only
-	@pnpm --filter @aira/browser-worker start
+	@pnpm --filter @qa-nxt/browser-worker start
 
 console: ## Run the web console only
-	@pnpm --filter @aira/web-console dev
+	@pnpm --filter @qa-nxt/web-console dev
 
 demo-bank: ## Run the demo banking application only
-	@pnpm --filter @aira/demo-bank start
+	@pnpm --filter @qa-nxt/demo-bank start
 
 lint: ## Lint all Node packages
 	@pnpm -r lint

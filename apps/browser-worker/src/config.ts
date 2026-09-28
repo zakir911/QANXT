@@ -58,7 +58,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
     defaultBrowser: browser,
     actionTimeoutMs: int('WORKER_ACTION_TIMEOUT_MS', env.WORKER_ACTION_TIMEOUT_MS, 15_000, 1_000, 300_000),
     navigationTimeoutMs: int('WORKER_NAVIGATION_TIMEOUT_MS', env.WORKER_NAVIGATION_TIMEOUT_MS, 30_000, 1_000, 300_000),
-    artifactTempDir: env.WORKER_ARTIFACT_DIR ?? '/tmp/aira-artifacts',
+    artifactTempDir: env.WORKER_ARTIFACT_DIR ?? '/tmp/qanxt-artifacts',
     jobVisibilityMs: int('WORKER_JOB_VISIBILITY_MS', env.WORKER_JOB_VISIBILITY_MS, 15 * 60_000, 60_000, 4 * 60 * 60_000),
     pollIntervalMs: int('WORKER_POLL_INTERVAL_MS', env.WORKER_POLL_INTERVAL_MS, 2_000, 250, 60_000),
     logLevel: logLevel as WorkerConfig['logLevel']

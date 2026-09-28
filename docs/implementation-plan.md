@@ -1,6 +1,6 @@
-# AIRA — Implementation Plan
+# QA NXT — Implementation Plan
 
-> **AIRA — "Your AI Quality Engineer."**
+> **QA NXT — "Your AI Quality Engineer."**
 > Product name is configuration (`PRODUCT_NAME`), never hard-coded into logic.
 
 This plan is the contract for the build. Each phase has a definition of done, an
@@ -24,18 +24,18 @@ it is done when the listed commands were executed in this environment and passed
 ```
 apps/
   api/                 .NET 8 control plane (ASP.NET Core, EF Core, PostgreSQL)
-    src/Aira.Domain            entities, value objects, enums, domain rules
-    src/Aira.Application       use cases, DTOs, abstractions (ports)
-    src/Aira.Infrastructure    EF Core, Redis, storage, LLM providers, security
-    src/Aira.Api               HTTP surface, auth, OpenAPI, SignalR hub
-    tests/Aira.UnitTests
-    tests/Aira.IntegrationTests
+    src/QaNxt.Domain            entities, value objects, enums, domain rules
+    src/QaNxt.Application       use cases, DTOs, abstractions (ports)
+    src/QaNxt.Infrastructure    EF Core, Redis, storage, LLM providers, security
+    src/QaNxt.Api               HTTP surface, auth, OpenAPI, SignalR hub
+    tests/QaNxt.UnitTests
+    tests/QaNxt.IntegrationTests
   browser-worker/      Node 22 + TypeScript + Playwright execution plane
   web-console/         React 18 + TypeScript + Vite + Tailwind
   browser-extension/   Chrome MV3 recorder
 packages/
   shared-types/        TS contracts shared by worker, console, extension, CLI
-  cli/                 `aira` CLI for CI/CD
+  cli/                 `qanxt` CLI for CI/CD
 samples/
   demo-bank/           local demo banking application (defect + locator mutation switches)
 infrastructure/
@@ -104,7 +104,7 @@ the generated test to a pass, with the recorded password resolved from encrypted
 run time and masked in the stored evidence.
 
 ### Phase 7 — CLI, CI/CD, gates, reporting
-`aira` CLI (`login`, `run`, `status`, `report`, `discover`); JUnit XML, JSON, HTML reports;
+`qanxt` CLI (`login`, `run`, `status`, `report`, `discover`); JUnit XML, JSON, HTML reports;
 exit codes; quality gate rule engine; GitHub Actions workflow and Azure DevOps pipeline templates.
 
 **Done when:** CLI drives a real run against a local API and emits a JUnit file that a CI system can consume.

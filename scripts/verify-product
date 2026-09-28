@@ -3,7 +3,7 @@
 #
 #   ./scripts/verify-product
 #
-#   infrastructure → test lab → AIRA → golden suite → evidence → reports → certification
+#   infrastructure → test lab → QA NXT → golden suite → evidence → reports → certification
 #
 # Exits 0 only when every critical gate passes.
 set -uo pipefail
@@ -18,13 +18,13 @@ export GOLDEN_RUN_ID="${GOLDEN_RUN_ID:-$(date -u +%Y-%m-%dT%H-%M-%SZ)}"
 section "Infrastructure"
 bash scripts/services-ctl.sh --with-database || fail "PostgreSQL and Redis did not start."
 
-section "AIRA"
+section "QA NXT"
 bash scripts/api-ctl.sh start && bash scripts/api-ctl.sh wait || fail "The API did not start."
 bash scripts/worker-ctl.sh start || fail "The worker did not start."
 
 section "Test lab"
 if [[ ! -f test-lab/banking-app/dist/index.html ]]; then
-  pnpm --filter @aira/test-lab build >/dev/null || fail "The banking application did not build."
+  pnpm --filter @qa-nxt/test-lab build >/dev/null || fail "The banking application did not build."
 fi
 bash test-lab/scripts/lab-ctl.sh start || fail "The test lab did not start."
 bash test-lab/scripts/lab-ctl.sh reset >/dev/null
@@ -66,12 +66,12 @@ fi
 if [[ $golden_status -ne 0 || $report_status -ne 0 ]]; then
   printf '\033[31mVerification FAILED.\033[0m\n'
   printf '  Report:        verification/reports/GOLDEN-TEST-REPORT.md\n'
-  printf '  Certification: verification/reports/AIRA-CERTIFICATION.md\n'
+  printf '  Certification: verification/reports/QA-NXT-CERTIFICATION.md\n'
   exit 1
 fi
 
 printf '\033[32mVerification complete.\033[0m\n'
 printf '  Report:        verification/reports/GOLDEN-TEST-REPORT.md (and .html, .json)\n'
 printf '  Evidence:      verification/evidence/<TEST-ID>/%s/\n' "$GOLDEN_RUN_ID"
-printf '  Certification: verification/reports/AIRA-CERTIFICATION.md\n'
+printf '  Certification: verification/reports/QA-NXT-CERTIFICATION.md\n'
 exit $certify_status

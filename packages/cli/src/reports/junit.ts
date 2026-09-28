@@ -30,7 +30,7 @@ const seconds = (ms: number): string => (Math.max(0, ms) / 1000).toFixed(3);
 function classNameOf(execution: ExecutionSummary, report: RunReport): string {
   const project = report.project?.key ?? report.project?.name;
   const suite = execution.suite?.trim();
-  return [project, suite].filter(Boolean).join('.') || 'aira';
+  return [project, suite].filter(Boolean).join('.') || 'qanxt';
 }
 
 export function renderJUnit(report: RunReport): string {

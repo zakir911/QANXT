@@ -10,31 +10,31 @@ export const TEST_DATA_FLAGS = [
 ] as const;
 
 export const TEST_DATA_HELP = `
-${bold('aira test-data')} — the named data a test case uses
+${bold('qanxt test-data')} — the named data a test case uses
 
-  ${bold('aira test-data list')}
+  ${bold('qanxt test-data list')}
       Every data set in the project, with its fields.
 
-  ${bold('aira test-data show <id>')}
+  ${bold('qanxt test-data show <id>')}
       One data set.
 
-  ${bold('aira test-data preview <id>')}
+  ${bold('qanxt test-data preview <id>')}
       What a run would actually use, without starting one. Sensitive fields
       are masked.
 
-  ${bold('aira test-data import --file data.json')}
+  ${bold('qanxt test-data import --file data.json')}
       Creates a data set from a file. See the shape below.
 
-  ${bold('aira test-data export <id> --out data.json')}
+  ${bold('qanxt test-data export <id> --out data.json')}
       Writes one out, so it can live beside the tests in version control.
 
-  ${bold('aira test-data remove <id>')}
+  ${bold('qanxt test-data remove <id>')}
       Deletes it. Refused while a test case still uses it.
 
-  ${bold('aira test-data types')}
+  ${bold('qanxt test-data types')}
       The generator types a field may ask for.
 
-  --project <id>         Project to work in (or AIRA_PROJECT_ID)
+  --project <id>         Project to work in (or QANXT_PROJECT_ID)
   --environment <id>     Tie this data set to one environment
   --file <path>          For "import": the data set to read
   --out <path>           For "export": where to write it
@@ -49,7 +49,7 @@ ${bold('The file')}
     "fields": [
       { "key": "customerEmail", "kind": "seededRandom",
         "generatorJson": "{\\"type\\":\\"email\\"}", "seed": 42 },
-      { "key": "orderReference", "kind": "static", "value": "AIRA-TEST-001" },
+      { "key": "orderReference", "kind": "static", "value": "QANXT-TEST-001" },
       { "key": "password", "kind": "secretReference", "value": "\${secret:app_password}" }
     ]
   }
@@ -122,13 +122,13 @@ export async function testDataCommand(args: ParsedArgs): Promise<number> {
 }
 
 async function list(api: ApiClient, args: ParsedArgs, projectId?: string): Promise<number> {
-  if (!projectId) throw usage('A project is required.', 'Pass --project <id>, or set AIRA_PROJECT_ID.');
+  if (!projectId) throw usage('A project is required.', 'Pass --project <id>, or set QANXT_PROJECT_ID.');
 
   const sets = await api.get<DataSet[]>(`/api/v1/test-data?projectId=${projectId}`);
   if (boolFlag(args, 'json')) { out(JSON.stringify(sets, null, 2)); return ExitCode.Success; }
 
   if (sets.length === 0) {
-    note(dim('No data sets. Create one with "aira test-data import --file data.json".'));
+    note(dim('No data sets. Create one with "qanxt test-data import --file data.json".'));
     return ExitCode.Success;
   }
 
@@ -165,7 +165,7 @@ async function preview(api: ApiClient, args: ParsedArgs): Promise<number> {
 }
 
 async function importSet(api: ApiClient, args: ParsedArgs, projectId?: string): Promise<number> {
-  if (!projectId) throw usage('A project is required.', 'Pass --project <id>, or set AIRA_PROJECT_ID.');
+  if (!projectId) throw usage('A project is required.', 'Pass --project <id>, or set QANXT_PROJECT_ID.');
 
   const path = flag(args, 'file');
   if (!path) throw usage('A file is required.', 'Pass --file data.json.');
@@ -188,7 +188,7 @@ async function importSet(api: ApiClient, args: ParsedArgs, projectId?: string): 
   if (boolFlag(args, 'json')) { out(JSON.stringify(created, null, 2)); return ExitCode.Success; }
 
   note(`${green('Created')} ${bold(created.name)} ${dim(created.id)}`);
-  note(dim(`${created.fields.length} field(s). Preview them with "aira test-data preview ${created.id}".`));
+  note(dim(`${created.fields.length} field(s). Preview them with "qanxt test-data preview ${created.id}".`));
   return ExitCode.Success;
 }
 
@@ -242,6 +242,6 @@ function describe(field: Field): string {
 
 function requireId(args: ParsedArgs, action: string): string {
   const id = args.positionals[1];
-  if (!id) throw usage(`"${action}" needs a data set id.`, 'List them with "aira test-data list".');
+  if (!id) throw usage(`"${action}" needs a data set id.`, 'List them with "qanxt test-data list".');
   return id;
 }

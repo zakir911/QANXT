@@ -25,10 +25,10 @@ import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 
 /** A marker that is unmistakably ours and does nothing. */
-const MARKER = 'aira7x2';
+const MARKER = 'qanxt7x2';
 const PAYLOADS = [
-  { id: 'element', value: `<aira-${MARKER}>`, needs: ['<', '>'] },
-  { id: 'attribute', value: `" aira-${MARKER}="1`, needs: ['"'] },
+  { id: 'element', value: `<qanxt-${MARKER}>`, needs: ['<', '>'] },
+  { id: 'attribute', value: `" qanxt-${MARKER}="1`, needs: ['"'] },
   { id: 'script-tag', value: `<script>/*${MARKER}*/</script>`, needs: ['<', '>'] }
 ];
 
@@ -125,7 +125,7 @@ export async function checkStoredXss(scanner, { baseUrl, writePath, readPath, fi
   const write = await scanner.request({
     url: `${baseUrl}${writePath}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': 'application/json', ...(actor?.cookie ? { cookie: actor.cookie } : {}) },
-    body: { [field]: `${payload.value} stored by an AIRA security test` },
+    body: { [field]: `${payload.value} stored by an QA NXT security test` },
     as: actor?.label ?? 'unauthenticated', testId: `${testId}:write`,
     note: 'storing an inert marker'
   });

@@ -3,7 +3,7 @@ import { Readable } from 'node:stream';
 import type { ReadableStream as WebReadableStream } from 'node:stream/web';
 import type {
   ActionResultReport, ArtifactReport, DiscoveryCompletionReport, ExecutionCompletionReport
-} from '@aira/shared-types';
+} from '@qa-nxt/shared-types';
 import type { Logger } from '../util/logger.js';
 
 /**

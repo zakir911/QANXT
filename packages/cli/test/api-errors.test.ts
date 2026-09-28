@@ -69,7 +69,7 @@ describe('403 is two different refusals', () => {
 
   test('a 403 with no parseable body is treated as a role refusal', async () => {
     // Failing open to "security policy" would let a proxy's HTML error page halt a
-    // pipeline with a reason that never came from AIRA.
+    // pipeline with a reason that never came from QA NXT.
     answer(403, '<html><body>Forbidden</body></html>');
 
     expect((await failureOf()).code).toBe(ExitCode.AuthenticationError);
@@ -94,17 +94,17 @@ describe('the other statuses keep their meanings', () => {
     expect((await failureOf()).code).toBe(ExitCode.InfrastructureError);
   });
 
-  test('a 500 from AIRA is AIRA failing, not AIRA being unreachable', async () => {
+  test('a 500 from QA NXT is QA NXT failing, not QA NXT being unreachable', async () => {
     // BUG-0027: this was exit 5, which reads as "the platform is down" and goes to
     // whoever runs the deployment. They check it, find it healthy, and hand it back.
     answer(500, { code: 'unexpected', title: 'Object reference not set.', status: 500 });
     const error = await failureOf();
-    expect(error.code).toBe(ExitCode.AiraInternalError);
-    expect(error.hint).toMatch(/defect in AIRA/i);
+    expect(error.code).toBe(ExitCode.QaNxtInternalError);
+    expect(error.hint).toMatch(/defect in QA NXT/i);
   });
 
-  test('a gateway error in front of AIRA stays infrastructure', async () => {
-    // 502 and 504 come from a proxy, not from AIRA. Calling them AIRA defects would file
+  test('a gateway error in front of QA NXT stays infrastructure', async () => {
+    // 502 and 504 come from a proxy, not from QA NXT. Calling them QA NXT defects would file
     // bugs against the wrong component every time a load balancer hiccups.
     for (const status of [502, 504]) {
       answer(status, '<html>Bad Gateway</html>');
@@ -112,10 +112,10 @@ describe('the other statuses keep their meanings', () => {
     }
   });
 
-  test('a response from AIRA that is not JSON is an AIRA defect', async () => {
+  test('a response from QA NXT that is not JSON is an QA NXT defect', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('<html>oops</html>',
       { status: 200, headers: { 'content-type': 'text/html' } })));
-    expect((await failureOf()).code).toBe(ExitCode.AiraInternalError);
+    expect((await failureOf()).code).toBe(ExitCode.QaNxtInternalError);
   });
 
   test('an unreachable platform is an infrastructure error, never a pass', async () => {

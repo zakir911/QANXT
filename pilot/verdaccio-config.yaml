@@ -1,7 +1,7 @@
-# Verdaccio, run locally as the pilot target for AIRA's autonomous agent.
+# Verdaccio, run locally as the pilot target for QA NXT's autonomous agent.
 #
 # Authorized, non-production, and developed by somebody else: the three things the brief
-# asks of a pilot application. Nothing here is tuned to make AIRA look good — this is
+# asks of a pilot application. Nothing here is tuned to make QA NXT look good — this is
 # Verdaccio's own shipped shape, with storage pointed at a scratch directory and the
 # uplink to npmjs removed so the pilot cannot reach the public registry.
 storage: ~/verdaccio-pilot/storage
@@ -24,6 +24,6 @@ packages:
 server:
   keepAliveTimeout: 60
 web:
-  title: Verdaccio (AIRA pilot)
+  title: Verdaccio (QA NXT pilot)
 log: { type: stdout, format: pretty, level: warn }
 listen: 0.0.0.0:4873

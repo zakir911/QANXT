@@ -3,14 +3,14 @@
 Which tests a change reaches, and why.
 
 ```bash
-aira regression impact --since origin/main      # what the change was found to affect
-aira regression select --since origin/main --explain
-aira regression run --since origin/main
+qanxt regression impact --since origin/main      # what the change was found to affect
+qanxt regression select --since origin/main --explain
+qanxt regression run --since origin/main
 ```
 
 ## Two sources, kept apart
 
-A mapping from a changed file to a test comes from one of two places, and AIRA always says
+A mapping from a changed file to a test comes from one of two places, and QA NXT always says
 which:
 
 **Rules a team wrote.** Explicit, and trusted:
@@ -19,7 +19,7 @@ which:
 {"pathPattern": "src/checkout/**", "impacts": "route", "value": "/checkout", "weight": 100}
 ```
 
-**Inference from names.** AIRA splits paths and test names into words and looks for
+**Inference from names.** QA NXT splits paths and test names into words and looks for
 overlap — `src/payments/refund.ts` reaches a test called "Refund a payment". Useful, and
 guesswork.
 
@@ -46,7 +46,7 @@ The default cut is 40. `--min-score` moves it; `--max` caps how many run.
 Three cases fall back loudly rather than quietly selecting nothing:
 
 - **No changed files** — nothing to reason from, so everything is selected.
-- **No mapping matched** — the change reaches nothing AIRA knows about, so everything is
+- **No mapping matched** — the change reaches nothing QA NXT knows about, so everything is
   selected.
 - **A file nothing covers** — reported, because a change with no test is the finding.
 
@@ -68,7 +68,7 @@ touched, which is what [scheduled regression](scheduling.md) is for.
 ## The selection is an artifact
 
 ```bash
-aira regression run --since origin/main --selection-out artifacts/regression-selection.json
+qanxt regression run --since origin/main --selection-out artifacts/regression-selection.json
 ```
 
 "Why did that test not run?" has an answer on the build page, with the score and the

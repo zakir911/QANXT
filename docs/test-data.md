@@ -3,9 +3,9 @@
 The values a test uses, and whether they can be relied on.
 
 ```bash
-aira test-data import --file checkout-customer.json
-aira test-data preview <id>      # what a run will actually use
-aira test-data export <id> --out checkout-customer.json
+qanxt test-data import --file checkout-customer.json
+qanxt test-data preview <id>      # what a run will actually use
+qanxt test-data export <id> --out checkout-customer.json
 ```
 
 ## The file
@@ -17,7 +17,7 @@ aira test-data export <id> --out checkout-customer.json
   "fields": [
     { "key": "customerEmail", "kind": "seededRandom",
       "generatorJson": "{\"type\":\"email\"}", "seed": 42 },
-    { "key": "orderReference", "kind": "static", "value": "AIRA-TEST-001" },
+    { "key": "orderReference", "kind": "static", "value": "QANXT-TEST-001" },
     { "key": "password", "kind": "secretReference", "value": "${secret:app_password}" }
   ]
 }
@@ -40,13 +40,13 @@ without anybody configuring it.
 exists, and it matters more than it sounds.
 
 Without it, a test that fails on a boundary value passes when you re-run it, and the
-investigation ends in "could not reproduce". Worse, AIRA's own retry would exercise
+investigation ends in "could not reproduce". Worse, QA NXT's own retry would exercise
 different data from the attempt that failed — so the retry proves nothing about the
 failure, and a green retry looks like a flake that has gone away.
 
 ```bash
-$ aira test-data preview 7d0c…
-customerEmail            aira.tomas.2268@example.test
+$ qanxt test-data preview 7d0c…
+customerEmail            qanxt.tomas.2268@example.test
 orderId                  f604634b-6295-48e1-bf41-99ea1fb201b0
 password                 ${secret:app_password}
 ```
@@ -71,7 +71,7 @@ a `secretReference`. Submitting a literal is refused:
 ```
 
 A data set is readable by anyone with read permission on the project and is exported in
-plain text by `aira test-data export`. A literal password in one is a password in a
+plain text by `qanxt test-data export`. A literal password in one is a password in a
 repository.
 
 Declaring the kind is not a way round it: a `secretReference` whose value is not
@@ -88,8 +88,8 @@ marked sensitive comes back redacted, from the read and the preview alike.
 ## Attaching a data set to a test
 
 ```bash
-curl -X PATCH "$AIRA_API_URL/api/v1/testcases/<id>" \
-  -H "authorization: Bearer $AIRA_TOKEN" -H 'content-type: application/json' \
+curl -X PATCH "$QANXT_API_URL/api/v1/testcases/<id>" \
+  -H "authorization: Bearer $QANXT_TOKEN" -H 'content-type: application/json' \
   -d '{"testDataSetId":"<data-set-id>"}'
 ```
 

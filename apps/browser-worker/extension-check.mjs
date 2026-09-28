@@ -12,7 +12,7 @@ import { join } from 'node:path';
  */
 const here = dirname(fileURLToPath(import.meta.url));
 const extensionPath = resolve(here, '../browser-extension');
-const userDataDir = await mkdtemp(join(tmpdir(), 'aira-ext-'));
+const userDataDir = await mkdtemp(join(tmpdir(), 'qanxt-ext-'));
 
 // Extensions need Chrome's newer headless mode; the headless shell does not load them.
 const context = await chromium.launchPersistentContext(userDataDir, {
@@ -122,5 +122,5 @@ await context.close();
 
 // Hand the recording to the next stage of the check.
 const { writeFile } = await import('node:fs/promises');
-await writeFile('/tmp/aira-journey.json', JSON.stringify(journey, null, 2));
-console.log('\nRecording written to /tmp/aira-journey.json');
+await writeFile('/tmp/qanxt-journey.json', JSON.stringify(journey, null, 2));
+console.log('\nRecording written to /tmp/qanxt-journey.json');

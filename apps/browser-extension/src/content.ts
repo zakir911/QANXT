@@ -11,7 +11,7 @@ import type { BackgroundToContent, ContentToBackground, RecordedStep } from './m
  * read, not filtered out later.
  */
 
-const RECORDING_ATTRIBUTE = 'data-aira-recorder';
+const RECORDING_ATTRIBUTE = 'data-qanxt-recorder';
 if (!document.documentElement.hasAttribute(RECORDING_ATTRIBUTE)) {
   document.documentElement.setAttribute(RECORDING_ATTRIBUTE, 'active');
   install();

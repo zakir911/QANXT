@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import type { BrowserContext, ConsoleMessage, Page, Response } from 'playwright';
 import type {
   ApiResponseRecord, ArtifactReport, ConsoleEventReport, NetworkEventReport
-} from '@aira/shared-types';
+} from '@qa-nxt/shared-types';
 import type { SecretMasker } from '../security/masker.js';
 import type { Logger } from '../util/logger.js';
 
@@ -141,7 +141,7 @@ export class EvidenceCollector {
     this.networkEvents.push({
       method: record.requestMethod,
       url: record.requestUrl.slice(0, 2000),
-      // Distinguishes a call AIRA made deliberately from one the page happened to make.
+      // Distinguishes a call QA NXT made deliberately from one the page happened to make.
       resourceType: 'apiTest',
       statusCode: record.transportError ? undefined : record.statusCode,
       durationMs: record.durationMs,

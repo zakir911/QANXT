@@ -15,7 +15,7 @@ import { createSecurityLab } from '../shared/security-lab.js';
 const PORT = Number(process.env.INJECTION_LAB_PORT ?? 4408);
 
 const app = createSecurityLab({
-  name: 'AIRA Injection Lab',
+  name: 'QA NXT Injection Lab',
   vulnerabilities: [
     { id: 'VULN_SQL_INJECTION', description: '/api/products?name= builds a query by concatenation: quotes produce SQL errors and tautologies widen the result.' },
     { id: 'VULN_NOSQL_INJECTION', description: '/api/login accepts an operator object where a string is expected.' },
@@ -100,7 +100,7 @@ app.get('/api/render', ctx => {
 });
 
 app.get('/', ctx => ctx.json(200, {
-  application: 'AIRA Injection Lab',
+  application: 'QA NXT Injection Lab',
   notice: 'Deliberately vulnerable. No database, no shell, no template engine — only their observable behaviour.',
   endpoints: ['/api/products?name=', '/api/login', '/api/ping?host=', '/api/render?template=']
 }));

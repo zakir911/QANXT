@@ -206,7 +206,7 @@ export function labScope(overrides = {}) {
     allowActiveTesting: true,
     allowDestructiveTesting: false,
     allowProduction: false,
-    authorizationNote: 'AIRA security lab: local, synthetic, authorized for automated verification.',
+    authorizationNote: 'QA NXT security lab: local, synthetic, authorized for automated verification.',
     ...overrides
   };
 }

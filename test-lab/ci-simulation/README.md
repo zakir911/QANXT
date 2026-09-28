@@ -20,8 +20,8 @@ all of it up, or `scripts/services-ctl.sh --with-database`, `scripts/api-ctl.sh 
 
 ## Why this exists
 
-An integration you cannot run is a claim, not a feature. The four CI systems AIRA supports
-each need credentials and a reachable deployment of AIRA to run a pipeline in, and this
+An integration you cannot run is a claim, not a feature. The four CI systems QA NXT supports
+each need credentials and a reachable deployment of QA NXT to run a pipeline in, and this
 repository has neither. Writing five YAML files and calling the integration done would mean
 shipping something nobody had ever executed.
 
@@ -38,7 +38,7 @@ by somebody who trusted a green build.
 
 ## What each scenario shows
 
-| Scenario | AIRA | Pipeline | What it is for |
+| Scenario | QA NXT | Pipeline | What it is for |
 | --- | --- | --- | --- |
 | `green-build` | 0 | 0 | The ordinary case: every stage, four artifacts, the commit recorded |
 | `regression-failure` | 1 | 1 | A defect in the deployment fails the build, and evidence is still published |
@@ -51,7 +51,7 @@ by somebody who trusted a green build.
 | `production-authorized` | 0 | 0 | The same environment, after a recorded decision. A gate, not a wall |
 | `review-blocks` | 7 | 7 | REVIEW arrives as its own code |
 | `review-does-not-block` | 7 | **0** | The team may continue on REVIEW — and the log still says so |
-| `aira-internal-error` | 8 | 8 | A defect in AIRA, not a finding about the application |
+| `qanxt-internal-error` | 8 | 8 | A defect in QA NXT, not a finding about the application |
 
 Two of those are worth reading twice.
 
@@ -61,8 +61,8 @@ failures that belong to the deployment, and somebody spends a morning reading th
 defects. The health check exists to prevent that, and the only way to know it does is to
 check that nothing ran.
 
-**`review-does-not-block`** is the one where AIRA and the pipeline disagree, on purpose.
-AIRA exits 7 and the pipeline exits 0, because whether a review verdict stops a deployment
+**`review-does-not-block`** is the one where QA NXT and the pipeline disagree, on purpose.
+QA NXT exits 7 and the pipeline exits 0, because whether a review verdict stops a deployment
 is the team's decision and it is made in the pipeline rather than inside the CLI. The
 scenario also requires `HUMAN_REVIEW_REQUIRED` to still be in the build log: the decision
 to continue is allowed, hiding it is not.
@@ -74,12 +74,12 @@ bank. The failures are caused by the deployment — `regression-failure` injects
 the *application*, so the test that fails there is the same test that passes in
 `green-build`, unmodified.
 
-One scenario, **`aira-internal-error`**, injects the fault into AIRA's transport instead: it
-points the CLI at a local responder that answers 500 the way a broken AIRA would. It
+One scenario, **`qanxt-internal-error`**, injects the fault into QA NXT's transport instead: it
+points the CLI at a local responder that answers 500 the way a broken QA NXT would. It
 verifies how the CLI classifies that answer and how the pipeline handles the resulting exit
-code. It does **not** verify that AIRA returns 500 under any particular condition — nothing
+code. It does **not** verify that QA NXT returns 500 under any particular condition — nothing
 in this directory makes the real platform fail. Producing a genuine internal error on demand
-would need a test-only endpoint inside AIRA, which is a worse thing to have than an
+would need a test-only endpoint inside QA NXT, which is a worse thing to have than an
 honestly-labelled stub in a test harness.
 
 ## What this found
@@ -90,9 +90,9 @@ correct, and is never reached.
 - **BUG-0026** — exit 6 was documented, every example pipeline branched on it, and nothing
   could produce it. A security refusal was reported as an authentication failure, whose
   hint tells the reader to ask for a wider role — the exact opposite of the right response.
-- **BUG-0027** — the same for exit 8. A bug in AIRA was reported as the platform being
+- **BUG-0027** — the same for exit 8. A bug in QA NXT was reported as the platform being
   unreachable, and sent to whoever runs the deployment.
-- **BUG-0028** — `aira run` never sent an environment id, so the production guard, the
+- **BUG-0028** — `qanxt run` never sent an environment id, so the production guard, the
   per-environment base URL, the allowed domains and the rate limit were all unreachable
   from CI. The guard was right. It had no caller.
 

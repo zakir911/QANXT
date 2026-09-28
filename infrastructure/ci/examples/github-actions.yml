@@ -1,12 +1,12 @@
-# AIRA validating an application on every pull request.
+# QA NXT validating an application on every pull request.
 #
 # NOT VERIFIED in this repository: running it needs a GitHub Actions runner and a deployment
-# of AIRA it can reach, neither of which exists here. The CLI behaviour it depends on — the
+# of QA NXT it can reach, neither of which exists here. The CLI behaviour it depends on — the
 # exit codes, the artifact layout, the summary, the selection — is executed by the golden
 # suite, and the whole sequence is executed locally by test-lab/ci-simulation.
 #
-# Secrets this needs: AIRA_TOKEN. Variables: AIRA_API_URL, AIRA_PROJECT_ID,
-# AIRA_ENVIRONMENT_ID.
+# Secrets this needs: QANXT_TOKEN. Variables: QANXT_API_URL, QANXT_PROJECT_ID,
+# QANXT_ENVIRONMENT_ID.
 
 name: Quality
 
@@ -24,17 +24,17 @@ jobs:
       checks: write              # only for publishing the JUnit results
 
     env:
-      AIRA_API_URL: ${{ vars.AIRA_API_URL }}
-      AIRA_TOKEN: ${{ secrets.AIRA_TOKEN }}
-      AIRA_PROJECT_ID: ${{ vars.AIRA_PROJECT_ID }}
+      QANXT_API_URL: ${{ vars.QANXT_API_URL }}
+      QANXT_TOKEN: ${{ secrets.QANXT_TOKEN }}
+      QANXT_PROJECT_ID: ${{ vars.QANXT_PROJECT_ID }}
       # The environment carries the base URL, the allowed domains, the rate limit and the
       # production guard. Omitting it does not mean "no environment" — it means none apply.
-      AIRA_ENVIRONMENT_ID: ${{ vars.AIRA_ENVIRONMENT_ID }}
+      QANXT_ENVIRONMENT_ID: ${{ vars.QANXT_ENVIRONMENT_ID }}
 
     steps:
       - uses: actions/checkout@v4
         with:
-          # `aira regression --since` diffs against the base branch. The default shallow
+          # `qanxt regression --since` diffs against the base branch. The default shallow
           # clone has no history to diff against, and the command fails loudly rather than
           # selecting nothing — but fetching here is the fix.
           fetch-depth: 0
@@ -43,8 +43,8 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install the AIRA CLI
-        run: npm install -g @aira/cli
+      - name: Install the QA NXT CLI
+        run: npm install -g @qa-nxt/cli
 
       # 1. Deploy. Replace with however this application is deployed for review.
       - name: Deploy to a review environment
@@ -70,14 +70,14 @@ jobs:
       #        code goes to different people and `continue-on-error` collapses them all
       #        into "something went wrong".
       - name: Run the tests this change needs
-        id: aira
+        id: qanxt
         run: |
           set +e
-          aira regression run \
+          qanxt regression run \
             --since "origin/${{ github.base_ref || 'main' }}" \
             --mode "${{ github.event_name == 'push' && 'full' || 'impacted' }}" \
             --explain \
-            --report-dir aira-artifacts \
+            --report-dir qanxt-artifacts \
             --ci-provider github \
             --ci-build "${{ github.run_id }}" \
             --ci-commit "${{ github.sha }}" \
@@ -89,49 +89,49 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aira-artifacts
-          path: aira-artifacts/
+          name: qanxt-artifacts
+          path: qanxt-artifacts/
 
       - name: Publish the test results
         if: always()
         uses: dorny/test-reporter@v1
         with:
-          name: AIRA
-          path: aira-artifacts/junit.xml
+          name: QA NXT
+          path: qanxt-artifacts/junit.xml
           reporter: java-junit
 
-      # 6. Post the summary. AIRA writes the file; GitHub posts it, because GitHub already
-      #    has the credentials to comment and AIRA should not need a second set.
+      # 6. Post the summary. QA NXT writes the file; GitHub posts it, because GitHub already
+      #    has the credentials to comment and QA NXT should not need a second set.
       - name: Comment on the pull request
         if: always() && github.event_name == 'pull_request'
-        run: gh pr comment "${{ github.event.number }}" --body-file aira-artifacts/summary.md
+        run: gh pr comment "${{ github.event.number }}" --body-file qanxt-artifacts/summary.md
         env:
           GH_TOKEN: ${{ github.token }}
 
-      # Decide, on AIRA's exit code. Each one goes to different people, which is why the
+      # Decide, on QA NXT's exit code. Each one goes to different people, which is why the
       # CLI separates them instead of returning zero or one.
       - name: Decide
         if: always()
         env:
-          AIRA_REVIEW_BLOCKS: ${{ vars.AIRA_REVIEW_BLOCKS || 'false' }}
+          QANXT_REVIEW_BLOCKS: ${{ vars.QANXT_REVIEW_BLOCKS || 'false' }}
         run: |
-          status="${{ steps.aira.outputs.status }}"
+          status="${{ steps.qanxt.outputs.status }}"
           case "$status" in
             0) echo "PASS" ;;
-            1) echo "::error::Tests failed. See aira-artifacts/summary.md." ;;
+            1) echo "::error::Tests failed. See qanxt-artifacts/summary.md." ;;
             2) echo "::error::The quality gate blocked this run. Every test was within tolerance and a rule stopped it anyway." ;;
-            3) echo "::error::AIRA was configured wrongly. Whoever edited this workflow should look." ;;
-            4) echo "::error::AIRA rejected the credentials. Whoever holds AIRA_TOKEN should look." ;;
-            5) echo "::error::AIRA could not be used. The platform operator should look." ;;
+            3) echo "::error::QA NXT was configured wrongly. Whoever edited this workflow should look." ;;
+            4) echo "::error::QA NXT rejected the credentials. Whoever holds QANXT_TOKEN should look." ;;
+            5) echo "::error::QA NXT could not be used. The platform operator should look." ;;
             6) echo "::error::A security policy refused this run. Do not retry without reading why." ;;
             7)
               # REVIEW is not a failure. Whether it stops the pipeline is this team's
-              # decision, which is why AIRA gives it a code of its own rather than folding
+              # decision, which is why QA NXT gives it a code of its own rather than folding
               # it into pass or fail.
               echo "::warning::This run needs a person to look at it. See the summary."
-              [ "$AIRA_REVIEW_BLOCKS" = "true" ] || status=0
+              [ "$QANXT_REVIEW_BLOCKS" = "true" ] || status=0
               ;;
-            8) echo "::error::AIRA failed internally. This is a defect in AIRA, not in the application." ;;
-            *) echo "::error::AIRA exited $status, which is not a code it documents." ;;
+            8) echo "::error::QA NXT failed internally. This is a defect in QA NXT, not in the application." ;;
+            *) echo "::error::QA NXT exited $status, which is not a code it documents." ;;
           esac
           exit "$status"

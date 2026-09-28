@@ -28,7 +28,7 @@ for (const record of lines.filter(entry => entry.runId === runId)) latest.set(re
 
 const QUESTIONS = [
   {
-    question: 'Can AIRA discover a real web application?',
+    question: 'Can QA NXT discover a real web application?',
     tests: ['DISC-001', 'DISC-002', 'DISC-003', 'DISC-004', 'DISC-011', 'DISC-012', 'DISC-015'],
     note: 'Measured against hand-written ground truth for a React single-page application, and repeated against one whose element ids are regenerated on every render.'
   },
@@ -123,7 +123,7 @@ const status = no > 0 ? 'NOT CERTIFIED'
 
 const pct = (value) => (value === null ? 'not measured' : `${(value * 100).toFixed(1)}%`);
 
-const markdown = `# AIRA certification
+const markdown = `# QA NXT certification
 
 **Status: ${status}**
 
@@ -167,7 +167,7 @@ Evidence: ${entry.evidence.length ? `${entry.evidence.length} artifact(s) under 
 ## What this certification does not say
 
 - It says nothing about a hosted model provider. None is configured in this environment, so
-  every generation and analysis figure above describes AIRA's built-in deterministic rules,
+  every generation and analysis figure above describes QA NXT's built-in deterministic rules,
   which the platform labels as such in its own responses.
 - It says nothing about Firefox or WebKit. Neither browser is installed here and the
   Playwright CDN is unreachable, so those runs are recorded NOT VERIFIED rather than failed.
@@ -188,7 +188,7 @@ Runs everything from infrastructure to this document. If a claim here is wrong, 
 will say so.
 `;
 
-writeFileSync(resolve(VERIFICATION, 'reports/AIRA-CERTIFICATION.md'), markdown);
+writeFileSync(resolve(VERIFICATION, 'reports/QA-NXT-CERTIFICATION.md'), markdown);
 writeFileSync(resolve(VERIFICATION, 'reports/certification.json'), `${JSON.stringify({
   runId, status, generatedAt: new Date().toISOString(),
   build: all[0]?.build ?? null,
@@ -206,6 +206,6 @@ for (const entry of answers) {
     + (entry.failed.length ? ` — failed: ${entry.failed.join(', ')}` : '')
     + (entry.missing.length ? ` — not run: ${entry.missing.join(', ')}` : ''));
 }
-console.log('  written: verification/reports/AIRA-CERTIFICATION.md, certification.json');
+console.log('  written: verification/reports/QA-NXT-CERTIFICATION.md, certification.json');
 
 if (no > 0) process.exitCode = 1;

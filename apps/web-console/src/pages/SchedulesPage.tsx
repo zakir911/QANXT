@@ -82,7 +82,7 @@ export default function SchedulesPage() {
       {!isLoading && schedules.length === 0 ? (
         <EmptyState
           title="No schedules"
-          description={'Create one with the CLI: aira schedule add --name "Nightly" --cron "0 2 * * *" --timezone Europe/London'}
+          description={'Create one with the CLI: qanxt schedule add --name "Nightly" --cron "0 2 * * *" --timezone Europe/London'}
         />
       ) : null}
 

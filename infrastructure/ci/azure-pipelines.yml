@@ -1,7 +1,7 @@
-# Runs an AIRA suite from Azure Pipelines and blocks the pipeline on its quality gate.
+# Runs an QA NXT suite from Azure Pipelines and blocks the pipeline on its quality gate.
 #
-# This calls a platform that is already running; it does not start one. Set AIRA_API_URL and
-# AIRA_PROJECT_ID as pipeline variables, and AIRA_TOKEN as a secret variable — mark it
+# This calls a platform that is already running; it does not start one. Set QANXT_API_URL and
+# QANXT_PROJECT_ID as pipeline variables, and QANXT_TOKEN as a secret variable — mark it
 # secret so it is masked in the logs.
 #
 # Use it as a template from another pipeline:
@@ -28,7 +28,7 @@ pool:
   vmImage: ${{ parameters.vmImage }}
 
 variables:
-  - name: AIRA_SUITE_ID
+  - name: QANXT_SUITE_ID
     value: ${{ parameters.suiteId }}
 
 steps:
@@ -45,42 +45,42 @@ steps:
   - script: pnpm install --frozen-lockfile
     displayName: Install
 
-  - script: pnpm --filter @aira/cli... build
+  - script: pnpm --filter @qa-nxt/cli... build
     displayName: Build the CLI
 
   # Fail with a clear message rather than letting the first real command report a confusing
   # authentication error.
   - script: |
       set -e
-      if [ -z "$AIRA_API_URL" ]; then
-        echo "##vso[task.logissue type=error]AIRA_API_URL is not set. Add it as a pipeline variable."
+      if [ -z "$QANXT_API_URL" ]; then
+        echo "##vso[task.logissue type=error]QANXT_API_URL is not set. Add it as a pipeline variable."
         exit 1
       fi
-      if [ -z "$AIRA_TOKEN" ]; then
-        echo "##vso[task.logissue type=error]AIRA_TOKEN is not set. Add it as a secret pipeline variable."
+      if [ -z "$QANXT_TOKEN" ]; then
+        echo "##vso[task.logissue type=error]QANXT_TOKEN is not set. Add it as a secret pipeline variable."
         exit 1
       fi
-      if [ -z "$AIRA_SUITE_ID" ]; then
+      if [ -z "$QANXT_SUITE_ID" ]; then
         echo "##vso[task.logissue type=error]No suite was given. Pass the suiteId parameter."
         exit 1
       fi
     displayName: Check the configuration
     env:
-      AIRA_API_URL: $(AIRA_API_URL)
-      AIRA_TOKEN: $(AIRA_TOKEN)
+      QANXT_API_URL: $(QANXT_API_URL)
+      QANXT_TOKEN: $(QANXT_TOKEN)
 
   - script: |
-      node packages/cli/dist/aira.js run \
-        --suite "$AIRA_SUITE_ID" \
+      node packages/cli/dist/qanxt.js run \
+        --suite "$QANXT_SUITE_ID" \
         --name "$(Build.DefinitionName) · $(Build.SourceBranchName) · $(Build.BuildNumber)" \
         --report-dir "$(Build.ArtifactStagingDirectory)/reports" \
         --timeout ${{ parameters.timeoutSeconds }}
     displayName: Run the suite
     env:
-      AIRA_API_URL: $(AIRA_API_URL)
-      AIRA_TOKEN: $(AIRA_TOKEN)
-      AIRA_PROJECT_ID: $(AIRA_PROJECT_ID)
-      AIRA_CONSOLE_URL: $(AIRA_CONSOLE_URL)
+      QANXT_API_URL: $(QANXT_API_URL)
+      QANXT_TOKEN: $(QANXT_TOKEN)
+      QANXT_PROJECT_ID: $(QANXT_PROJECT_ID)
+      QANXT_CONSOLE_URL: $(QANXT_CONSOLE_URL)
 
   # Published whether or not the gate passed: a failing run is exactly when the evidence
   # is needed.
@@ -90,7 +90,7 @@ steps:
     inputs:
       testResultsFormat: JUnit
       testResultsFiles: '$(Build.ArtifactStagingDirectory)/reports/junit.xml'
-      testRunTitle: 'AIRA · $(Build.BuildNumber)'
+      testRunTitle: 'QA NXT · $(Build.BuildNumber)'
       # The task must not decide the build's fate; the quality gate already did, through the
       # CLI's exit status.
       failTaskOnFailedTests: false
@@ -100,4 +100,4 @@ steps:
     condition: always()
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)/reports'
-      ArtifactName: aira-reports
+      ArtifactName: qanxt-reports

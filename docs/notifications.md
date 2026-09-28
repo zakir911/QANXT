@@ -4,14 +4,14 @@ A run that fails at two in the morning and tells nobody is a run that did not ha
 
 ```bash
 # A webhook of your own
-curl -X POST "$AIRA_API_URL/api/v1/integrations" \
-  -H "authorization: Bearer $AIRA_TOKEN" -H 'content-type: application/json' \
+curl -X POST "$QANXT_API_URL/api/v1/integrations" \
+  -H "authorization: Bearer $QANXT_TOKEN" -H 'content-type: application/json' \
   -d '{"projectId":"…","kind":"webhook","name":"Team channel",
-       "settings":{"url":"https://hooks.example.com/aira"},
+       "settings":{"url":"https://hooks.example.com/qanxt"},
        "credentials":{"signingSecret":"…"}}'
 
 # Find out whether it works, before you need it to
-curl -X POST "$AIRA_API_URL/api/v1/integrations/<id>/test" -H "authorization: Bearer $AIRA_TOKEN"
+curl -X POST "$QANXT_API_URL/api/v1/integrations/<id>/test" -H "authorization: Bearer $QANXT_TOKEN"
 ```
 
 ## What gets sent, and what does not
@@ -56,7 +56,7 @@ A verdict, some counts, and a link. Never evidence, never a credential, never a 
   "body": "The quality gate failed on 1 rule(s): Pass rate.",
   "project": { "id": "…", "name": "Checkout" },
   "run": { "id": "…", "name": "Nightly regression" },
-  "url": "https://aira.example.com/runs/…",
+  "url": "https://qanxt.example.com/runs/…",
   "facts": { "passed": 17, "failed": 3, "blocked": 0, "healed": 1, "flaky": 0,
              "qualityGate": "Fail", "branch": "main", "commit": "a1b2c3d4" },
   "sentAt": "2026-09-22T02:14:07Z"
@@ -73,10 +73,10 @@ particular run has no `run` object at all rather than one full of nulls.
 
 ## Signing
 
-Configure a `signingSecret` and every delivery carries `X-Aira-Signature`:
+Configure a `signingSecret` and every delivery carries `X-QaNxt-Signature`:
 
 ```
-X-Aira-Signature: sha256=<hex hmac of the exact body>
+X-QaNxt-Signature: sha256=<hex hmac of the exact body>
 ```
 
 Same shape GitHub uses, so a receiver can reuse code it already has. Verify it with a
@@ -112,10 +112,10 @@ not intend and should know that.
 ## A webhook is an outbound request, and is treated as one
 
 "POST to a URL the user supplies" is an SSRF primitive. Left unguarded, "configure a
-webhook" becomes "ask AIRA to fetch a URL inside its network and tell me what it said",
+webhook" becomes "ask QA NXT to fetch a URL inside its network and tell me what it said",
 which is far more useful to an attacker than a notification.
 
-So every delivery goes through the same target policy as every URL AIRA opens:
+So every delivery goes through the same target policy as every URL QA NXT opens:
 
 - Cloud metadata addresses are refused, always, whatever the configuration.
 - Link-local and private ranges are refused unless the deployment allows private networks.
@@ -130,7 +130,7 @@ So every delivery goes through the same target policy as every URL AIRA opens:
 It is recorded, and it never fails the run.
 
 ```bash
-curl "$AIRA_API_URL/api/v1/integrations/deliveries?runId=<id>" -H "authorization: Bearer $AIRA_TOKEN"
+curl "$QANXT_API_URL/api/v1/integrations/deliveries?runId=<id>" -H "authorization: Bearer $QANXT_TOKEN"
 ```
 
 ```json
@@ -155,7 +155,7 @@ itself the credential, so it goes in `credentials` rather than `settings`.
 {"kind":"slack","name":"#quality","credentials":{"webhookUrl":"https://hooks.slack.com/services/…"}}
 ```
 
-**What is verified and what is not.** That AIRA builds the payload and delivers it is
+**What is verified and what is not.** That QA NXT builds the payload and delivers it is
 executed against a local receiver in the golden suite. That a real Slack workspace renders
 it as intended is **not verified** — it needs a workspace and a webhook URL, and this
 repository has neither. The Block Kit structure is written against Slack's documented
@@ -173,7 +173,7 @@ node verification/golden-tests/run.mjs --suite notifications
 
 Eight tests (NOT-001…NOT-008) against `test-lab/notification-sink`, a real HTTP server that
 keeps what it receives. It is not a mock of Slack and does not pretend to be any particular
-service: what it licenses is a claim that AIRA sent a request, that the body had a given
+service: what it licenses is a claim that QA NXT sent a request, that the body had a given
 shape, that the signature verified, and that a receiver answering 500 or hanging is handled
 the way the code says.
 

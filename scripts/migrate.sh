@@ -14,7 +14,7 @@ fi
 export PATH="$PATH:$HOME/.dotnet/tools"
 
 dotnet ef database update \
-  --project apps/api/src/Aira.Infrastructure \
-  --startup-project apps/api/src/Aira.Api
+  --project apps/api/src/QaNxt.Infrastructure \
+  --startup-project apps/api/src/QaNxt.Api
 
 echo "Migrations applied."

@@ -14,7 +14,7 @@ import { IDENTITIES, createSecurityLab, findIdentity } from '../shared/security-
 const PORT = Number(process.env.AUTH_LAB_PORT ?? 4400);
 
 const app = createSecurityLab({
-  name: 'AIRA Authentication Lab',
+  name: 'QA NXT Authentication Lab',
   vulnerabilities: [
     { id: 'VULN_USER_ENUMERATION', description: 'Sign-in says whether the username exists, so accounts can be enumerated.' },
     { id: 'VULN_NO_LOCKOUT', description: 'Repeated failed sign-ins are never throttled or locked out.' },

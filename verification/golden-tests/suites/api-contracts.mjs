@@ -2,7 +2,7 @@
  * API inventory, generation and contract testing, against the lab bank's real API.
  *
  * Contract checking is the one part of this phase whose value is entirely in its
- * classification, so most of this suite is about whether AIRA calls each kind of change
+ * classification, so most of this suite is about whether QA NXT calls each kind of change
  * what it is. The lab bank can change its own API shape on demand — four faults that keep
  * the status at 200 and the UI working while the response moves underneath — so every
  * verdict here is measured against a change that really happened.
@@ -59,7 +59,7 @@ export default async function run() {
   const context = { tenant, project, application, applicationVersion: '1.0.0' };
 
   // Discovery populates the inventory these tests are built on. Everything downstream is
-  // about what AIRA observed, so it has to have observed something first.
+  // about what QA NXT observed, so it has to have observed something first.
   const discovery = await runDiscovery(tenant, application.id, { timeoutMs: 300_000 });
 
   const accounts = await requireApiTest(tenant, {
@@ -237,7 +237,7 @@ export default async function run() {
     preconditions: ['baselines captured', 'FAULT_API_FIELD_NULLABLE enabled'],
     input: "A run of the accounts test while one account's sortCode is null",
     expected: 'A potentially-breaking change: callers that null-check are fine, callers that '
-      + 'do not are broken, and which of those a team has is not something AIRA can know',
+      + 'do not are broken, and which of those a team has is not something QA NXT can know',
     evidence: ['changes.json'],
     severity: 'critical',
     run: async () => {

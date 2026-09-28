@@ -20,7 +20,7 @@ import { createSecurityLab } from '../shared/security-lab.js';
 const PORT = Number(process.env.XSS_LAB_PORT ?? 4403);
 
 const app = createSecurityLab({
-  name: 'AIRA XSS Lab',
+  name: 'QA NXT XSS Lab',
   vulnerabilities: [
     { id: 'VULN_REFLECTED_XSS', description: '/search reflects the q parameter into HTML without encoding.' },
     { id: 'VULN_STORED_XSS', description: '/profile stores a bio and renders it without encoding.' },

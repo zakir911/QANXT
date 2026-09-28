@@ -14,7 +14,7 @@ Either way you end up at <http://localhost:5173> with an empty platform, and the
 ## With Docker
 
 ```bash
-git clone <this repository> && cd aira
+git clone <this repository> && cd qanxt
 cp .env.example .env
 ```
 
@@ -43,7 +43,7 @@ You need .NET 8, Node 22, pnpm 10, and PostgreSQL 16 reachable on localhost. Red
 started for you.
 
 ```bash
-git clone <this repository> && cd aira
+git clone <this repository> && cd qanxt
 make setup
 ```
 
@@ -57,7 +57,7 @@ make dev
 ```
 
 This runs the API, a browser worker, the console and the demo bank together, and stops them
-all on Ctrl-C. Logs go to `/tmp/aira-*.log`.
+all on Ctrl-C. Logs go to `/tmp/qanxt-*.log`.
 
 | | |
 | --- | --- |

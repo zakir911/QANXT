@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type {
   ApiRequestDescriptor, ExecutionJob, ExecutionStepPlan, PlannedAssertion
-} from '@aira/shared-types';
+} from '@qa-nxt/shared-types';
 import { BrowserPool } from '../src/browser/browser-pool.js';
 import { TestExecutor, needsPage } from '../src/execution/executor.js';
 import { Logger } from '../src/util/logger.js';
@@ -27,7 +27,7 @@ let artifactRoot: string;
 
 beforeAll(async () => {
   bank = await startDemoBank(4322);
-  artifactRoot = await mkdtemp(join(tmpdir(), 'aira-api-'));
+  artifactRoot = await mkdtemp(join(tmpdir(), 'qanxt-api-'));
   pool = new BrowserPool(true, logger);
   executor = new TestExecutor(pool, logger);
 }, 120_000);

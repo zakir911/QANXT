@@ -1,21 +1,21 @@
 {
-  "name": "@aira/cli",
+  "name": "@qa-nxt/cli",
   "version": "0.1.0",
   "private": true,
-  "description": "AIRA command line: drive runs and discovery from a terminal or a CI pipeline",
+  "description": "QA NXT command line: drive runs and discovery from a terminal or a CI pipeline",
   "type": "module",
   "bin": {
-    "aira": "./dist/aira.js"
+    "qanxt": "./dist/qanxt.js"
   },
-  "main": "dist/aira.js",
+  "main": "dist/qanxt.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json && node -e \"require('fs').chmodSync('dist/aira.js', 0o755)\"",
+    "build": "tsc -p tsconfig.json && node -e \"require('fs').chmodSync('dist/qanxt.js', 0o755)\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "lint": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@aira/shared-types": "workspace:*"
+    "@qa-nxt/shared-types": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

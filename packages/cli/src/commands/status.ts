@@ -11,12 +11,12 @@ import { verdictOf } from '../verdict.js';
 export const STATUS_FLAGS = ['project', 'limit', 'json'] as const;
 
 export const STATUS_HELP = `
-${bold('aira status')} — what a run did, or what the recent runs did
+${bold('qanxt status')} — what a run did, or what the recent runs did
 
-  aira status <run-id>   One run, with its tests and its quality gate
-  aira status            The recent runs in the project
+  qanxt status <run-id>   One run, with its tests and its quality gate
+  qanxt status            The recent runs in the project
 
-  --project <id>         Project to list (or AIRA_PROJECT_ID)
+  --project <id>         Project to list (or QANXT_PROJECT_ID)
   --limit <n>            How many runs to list (default 10)
   --json                 Emit the machine-readable report on stdout
 

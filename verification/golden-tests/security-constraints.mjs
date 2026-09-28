@@ -122,16 +122,16 @@ const ABSENCES = [
     // Diagnosis/ is where the API-side healing lives; the worker holds the locator rewriting.
     // Named explicitly rather than by a guessed folder name, which is how this check was
     // pointed at a directory that does not exist and passed without reading anything.
-    directories: ['apps/api/src/Aira.Application/Diagnosis', 'apps/browser-worker/src/healing'],
+    directories: ['apps/api/src/QaNxt.Application/Diagnosis', 'apps/browser-worker/src/healing'],
     forbidden: /\bSecurityFinding\b|\bSecurityScan\b/
   },
   {
     constraint: 14,
     what: 'no model output becomes a security finding',
     directories: [
-      'apps/api/src/Aira.Application/Ai',
-      'apps/api/src/Aira.Application/Agent',
-      'apps/api/src/Aira.Application/Intelligence'
+      'apps/api/src/QaNxt.Application/Ai',
+      'apps/api/src/QaNxt.Application/Agent',
+      'apps/api/src/QaNxt.Application/Intelligence'
     ],
     forbidden: /\bSecurityFinding\b/
   }

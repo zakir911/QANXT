@@ -68,7 +68,7 @@ const report = [
   '| Scenario | Expected | Exit | Pipeline | Result |',
   '| --- | --- | --- | --- | --- |',
   ...results.map(result => `| \`${result.id}\` | ${result.expectation} | `
-    + `${result.airaExit ?? '—'} | ${result.pipelineExit ?? '—'} | `
+    + `${result.qanxtExit ?? '—'} | ${result.pipelineExit ?? '—'} | `
     + `${result.pass ? 'pass' : '**FAIL**'} |`),
   '',
   '## What each scenario showed',

@@ -14,7 +14,7 @@ pnpm -r typecheck
 
 section "Building"
 pnpm -r build
-dotnet build apps/api/Aira.sln
+dotnet build apps/api/QaNxt.sln
 
 section "Testing"
 bash scripts/test.sh

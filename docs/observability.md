@@ -1,7 +1,7 @@
 # Observability
 
 When a run fails, three questions follow in order: *what happened*, *who asked for it*, and
-*where did it go wrong*. AIRA answers them with three different records, deliberately kept
+*where did it go wrong*. QA NXT answers them with three different records, deliberately kept
 apart — logs say what happened, the audit trail says who asked, and evidence says where.
 Mixing them produces a system where the only way to reconstruct an incident is to read
 everything.
@@ -12,7 +12,7 @@ Every request through the API is given a correlation id, and that id is the thre
 two records hang from.
 
 ```bash
-curl -i "$AIRA_API_URL/api/v1/projects" -H "authorization: Bearer $AIRA_TOKEN" | grep -i correlation
+curl -i "$QANXT_API_URL/api/v1/projects" -H "authorization: Bearer $QANXT_TOKEN" | grep -i correlation
 # x-correlation-id: 5f4d3c2b1a0947e8b6c5d4e3f2a19087
 ```
 
@@ -40,7 +40,7 @@ diagnostic than no id, because it looks authoritative.
 ## Logs
 
 The API logs through Serilog to the console as a structured line per event, enriched with
-`Service=aira-api`, the correlation id and the request id. The verbosity is configuration,
+`Service=qanxt-api`, the correlation id and the request id. The verbosity is configuration,
 not code:
 
 ```jsonc
@@ -109,11 +109,11 @@ was configured without recording the secret.
 ### Reading it
 
 ```bash
-aira audit list --limit 50            # the most recent records
-aira audit list --failed              # only what did not succeed
-aira audit list --action scheduleFired
-aira audit trace <correlation-id>     # everything one request did
-aira audit actions                    # the action names this build records
+qanxt audit list --limit 50            # the most recent records
+qanxt audit list --failed              # only what did not succeed
+qanxt audit list --action scheduleFired
+qanxt audit trace <correlation-id>     # everything one request did
+qanxt audit actions                    # the action names this build records
 ```
 
 or over HTTP:
@@ -211,7 +211,7 @@ header" and "there was one, and you are not seeing it".
 
 What this does not do: masking is a safety net, not a guarantee. A secret in an unusual
 format, in a field named something the list does not know, and not registered as a literal,
-will not be caught. Do not rely on the masker as the reason it is safe to point AIRA at
+will not be caught. Do not rely on the masker as the reason it is safe to point QA NXT at
 production data — see [environments.md](environments.md) for the control that actually
 governs that.
 
@@ -219,7 +219,7 @@ governs that.
 
 ```bash
 # 1. The run report names the execution and its correlation id
-jq '.executions[] | {id, correlationId, status}' aira-report.json
+jq '.executions[] | {id, correlationId, status}' qanxt-report.json
 
 # 2. Every API log line for that request
 grep 5f4d3c2b1a0947e8b6c5d4e3f2a19087 api.log
@@ -249,7 +249,7 @@ ls verification/evidence/<TEST-ID>/<RUN_ID>/
   [deployment.md](deployment.md).
 - **No alerting on logs.** Alerting is event-driven through
   [notifications](notifications.md), on run and gate outcomes, not on log patterns. A refused
-  credential attempt is logged at warning level and attributed to `Aira.Api.RateLimiter`
+  credential attempt is logged at warning level and attributed to `QaNxt.Api.RateLimiter`
   (BUG-0038), which makes a brute-force burst greppable — but nothing watches for it.
 
 These are absences, not oversights deferred to a later section: nothing elsewhere in the

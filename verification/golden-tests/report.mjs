@@ -430,7 +430,7 @@ function buildHtml(report, rows, qualityGates, artifacts) {
 <html lang="en">
 <head>
 <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AIRA golden test report — ${report.runId}</title>
+<title>QA NXT golden test report — ${report.runId}</title>
 <style>
 :root { --ink:#101a2b; --muted:#5b6b82; --line:#e2e8f2; --bg:#f6f8fb; --ok:#12855a; --bad:#c02626; --warn:#b26b00; --accent:#0b5fff; }
 *{box-sizing:border-box}
@@ -465,7 +465,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
 </head>
 <body>
 <header>
-  <h1>AIRA — golden test report</h1>
+  <h1>QA NXT — golden test report</h1>
   <p>Run ${report.runId} · build ${report.build?.commit ?? 'unknown'}${report.build?.dirty ? ' (working tree dirty)' : ''} · generated ${report.generatedAt}</p>
 </header>
 <main>

@@ -1,7 +1,7 @@
 /**
  * Access control, broken on purpose.
  *
- * The brief calls authorization AIRA's highest-priority security capability, and this is
+ * The brief calls authorization QA NXT's highest-priority security capability, and this is
  * the application it is proved against. Five synthetic identities own five synthetic
  * accounts, and the endpoints below get the ownership and role checks wrong in the four
  * ways that matter:
@@ -12,8 +12,8 @@
  *   MISSING_AUTHZ /api/accounts/:id/statement has no check at all
  *
  * Each is independently switchable, because a false-positive test needs the application to
- * be *correct* and AIRA to say nothing. Switch VULN_BOLA off and /api/accounts/:id starts
- * behaving; AIRA reporting BOLA anyway is then a defect in AIRA, not a finding.
+ * be *correct* and QA NXT to say nothing. Switch VULN_BOLA off and /api/accounts/:id starts
+ * behaving; QA NXT reporting BOLA anyway is then a defect in QA NXT, not a finding.
  *
  * Every account here is fictional and every balance is a round number, so a leak shows up
  * unmistakably in evidence rather than having to be argued about.
@@ -23,7 +23,7 @@ import { ACCOUNTS, IDENTITIES, createSecurityLab, findAccount, findIdentity } fr
 const PORT = Number(process.env.ACCESS_CONTROL_LAB_PORT ?? 4401);
 
 const app = createSecurityLab({
-  name: 'AIRA Access Control Lab',
+  name: 'QA NXT Access Control Lab',
   vulnerabilities: [
     { id: 'VULN_BOLA', description: 'GET /api/accounts/:id returns any account to any signed-in caller (broken object level authorization).' },
     { id: 'VULN_VERTICAL_ESCALATION', description: 'GET /api/admin/users is served to non-admin callers (broken function level authorization).' },

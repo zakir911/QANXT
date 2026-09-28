@@ -14,7 +14,7 @@ switches for exactly that.
 ## Running
 
 ```bash
-pnpm --filter @aira/demo-bank start     # http://localhost:4200
+pnpm --filter @qa-nxt/demo-bank start     # http://localhost:4200
 ```
 
 ## Credentials

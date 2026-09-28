@@ -141,7 +141,7 @@ export default async function run() {
     preconditions: ['the same lab with both flaws corrected'],
     input: 'A live scan of the corrected application',
     expected: 'The sentence the brief requires — "Within the configured scope and test coverage, no '
-      + 'security findings were detected by the executed AIRA security tests" — and never "secure" '
+      + 'security findings were detected by the executed QA NXT security tests" — and never "secure" '
       + 'or "zero vulnerabilities"',
     evidence: ['gate.json'],
     severity: 'critical',
@@ -153,7 +153,7 @@ export default async function run() {
       return {
         pass: corrected.findings.length === 0
           && result.summary.includes('Within the configured scope and test coverage, no security '
-                                     + 'findings were detected by the executed AIRA security tests')
+                                     + 'findings were detected by the executed QA NXT security tests')
           && result.summary.includes('This is not a statement that the application is secure')
           && offending.length === 0,
         detail: offending.length > 0 ? `FORBIDDEN CLAIM: ${offending.join(', ')}` : result.summary,

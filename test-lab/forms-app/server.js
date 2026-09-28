@@ -16,7 +16,7 @@ import { createFaultEngine } from '../shared/faults.js';
 import { layout } from '../shared/render.js';
 
 const PORT = Number(process.env.FORMS_PORT ?? 4320);
-const APPLICATION = 'AIRA Forms Lab';
+const APPLICATION = 'QA NXT Forms Lab';
 
 const FAULTS = [
   { id: 'FAULT_INVALID_VALIDATION', description: 'The quantity field states a rule the server does not apply.' },
@@ -39,7 +39,7 @@ const FAULTS = [
   //   "ARIA attribute element ID does not exist on the page: aria-describedby=\"nameHelp\""
   // under `incomplete`, with zero violations.
   //
-  // It is here so that ground truth covers the distinction AIRA has to preserve. A tool
+  // It is here so that ground truth covers the distinction QA NXT has to preserve. A tool
   // that promoted this to a violation would fail builds on something it cannot know, and
   // one that dropped it would report a page as clean when twelve things need a human.
   { id: 'FAULT_A11Y_DANGLING_ARIA', description: 'The full-name input describes itself by an id that does not exist. axe reports this as INCOMPLETE (rule "aria-valid-attr-value"), not as a violation.' },

@@ -1,6 +1,6 @@
 # Test Lab and Golden Verification plan
 
-The purpose of this phase is a single, defensible claim: **AIRA works, and here is the
+The purpose of this phase is a single, defensible claim: **QA NXT works, and here is the
 physical evidence.** Everything below exists to make that claim falsifiable by someone who
 did not write it.
 
@@ -85,7 +85,7 @@ The catalogue required by the brief, all independently settable:
 
 ### 2.2 Applications
 
-**Banking (`AIRA Demo Bank`, React).** Nine routes — `/login`, `/dashboard`, `/accounts`,
+**Banking (`QA NXT Demo Bank`, React).** Nine routes — `/login`, `/dashboard`, `/accounts`,
 `/accounts/:id`, `/transactions`, `/statements`, `/payments`, `/beneficiaries`, `/profile`.
 Real client-side routing, asynchronous data loading with loading states, modals, tables,
 pagination, dropdowns, form validation, session timeout, account lock after repeated bad
@@ -117,7 +117,7 @@ plausible controls, and a control whose meaning changed while its label stayed.
 
 ```json
 {
-  "application": "AIRA Demo Bank",
+  "application": "QA NXT Demo Bank",
   "baseUrl": "http://localhost:4300",
   "pages":    [{ "path": "/login", "title": "...", "requiresAuth": false, "elements": [...] }],
   "elements": [{ "testId": "username", "role": "textbox", "name": "Username", "page": "/login" }],
@@ -196,13 +196,13 @@ incorrect heals, incorrect rejections — so a single percentage can never hide 
 ```
 scripts/run-golden-tests --suite discovery|generation|execution|healing|security|--all
 scripts/run-product-demo        the twelve-step demonstration, recorded
-scripts/verify-product          infrastructure → lab → AIRA → suite → evidence → reports → certification
+scripts/verify-product          infrastructure → lab → QA NXT → suite → evidence → reports → certification
 ```
 
 `verify-product` exits non-zero unless every critical gate passes.
 
 Reports: `verification/reports/golden-test-report.{html,json}` and
-`GOLDEN-TEST-REPORT.md`, plus `verification/reports/AIRA-CERTIFICATION.md` answering the ten
+`GOLDEN-TEST-REPORT.md`, plus `verification/reports/QA-NXT-CERTIFICATION.md` answering the ten
 certification questions with a test id, a result and an evidence path each.
 
 A **Verification Center** page in the console reads the JSON report and shows the gates:

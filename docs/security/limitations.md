@@ -1,6 +1,6 @@
 # Limitations
 
-Stated here rather than discovered later. Everything below is a real boundary of what AIRA's
+Stated here rather than discovered later. Everything below is a real boundary of what QA NXT's
 security testing can establish today.
 
 ## DOM-based cross-site scripting needs a browser, and reports untested without one
@@ -67,7 +67,7 @@ do not exist.
   scope, no scans, an empty findings list after a real scan, an incomparable trend point, a
   triage dialog that will not submit without a justification, a refused scan showing the
   reason the API gave, and a queued scan that is never drawn as a result).
-- **VERIFIED by execution**: a scan AIRA starts and runs itself — queued from
+- **VERIFIED by execution**: a scan QA NXT starts and runs itself — queued from
   `POST /api/v1/security/scans/start`, consumed by the worker, issued against the application,
   and recorded against the scan that was started (`SECW-001` to `SECW-012`).
 - **VERIFIED by execution**: a scan no worker reports is ended with its reason stated and its
@@ -135,7 +135,7 @@ that matter most in GraphQL.
 
 ## Checks are written, not generated
 
-AIRA's AI generates functional tests. It does not generate security checks. A security check
+QA NXT's AI generates functional tests. It does not generate security checks. A security check
 whose logic a model invented would be a check nobody had reviewed, and the brief is explicit
 that an AI-generated hypothesis is not proof. Findings are produced by deterministic code.
 

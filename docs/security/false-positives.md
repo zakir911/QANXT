@@ -4,7 +4,7 @@
 
 A functional test that fails wrongly costs somebody an hour. A security finding that is wrong
 costs trust, and trust is the only thing that makes the next finding get read. A team that has
-dismissed four AIRA findings will dismiss the fifth without opening it, and the fifth is the
+dismissed four QA NXT findings will dismiss the fifth without opening it, and the fifth is the
 one that mattered.
 
 So every check here is built to be quiet unless it is sure, and every check is measured

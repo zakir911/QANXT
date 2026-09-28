@@ -1,27 +1,27 @@
 #!/usr/bin/env bash
 #
-# AIRA in a pipeline, with nothing CI-specific about it.
+# QA NXT in a pipeline, with nothing CI-specific about it.
 #
 # The other example pipelines are this script with their system's syntax around it. If your
-# CI system is not one of the four, start here: it needs a shell, curl and the aira command.
+# CI system is not one of the four, start here: it needs a shell, curl and the qanxt command.
 #
-#   AIRA_API_URL=https://aira.example.com \
-#   AIRA_TOKEN=… AIRA_PROJECT_ID=… AIRA_ENVIRONMENT_ID=… \
+#   QANXT_API_URL=https://qanxt.example.com \
+#   QANXT_TOKEN=… QANXT_PROJECT_ID=… QANXT_ENVIRONMENT_ID=… \
 #   APP_URL=https://app-pr-1234.example.com \
 #   ./generic.sh
 #
 set -uo pipefail
 
-: "${AIRA_API_URL:?set AIRA_API_URL to the control plane}"
-: "${AIRA_TOKEN:?set AIRA_TOKEN to a service account token}"
-: "${AIRA_PROJECT_ID:?set AIRA_PROJECT_ID to the project to run in}"
+: "${QANXT_API_URL:?set QANXT_API_URL to the control plane}"
+: "${QANXT_TOKEN:?set QANXT_TOKEN to a service account token}"
+: "${QANXT_PROJECT_ID:?set QANXT_PROJECT_ID to the project to run in}"
 # Not required, and worth setting: the environment carries the base URL, the allowed
 # domains, the rate limit and the production guard, and a run without one applies none of
-# them. The CLI reads AIRA_ENVIRONMENT_ID on its own, so nothing below has to pass it.
+# them. The CLI reads QANXT_ENVIRONMENT_ID on its own, so nothing below has to pass it.
 : "${APP_URL:?set APP_URL to the deployment under test}"
 
 BASE_REF="${BASE_REF:-origin/main}"
-ARTIFACTS="${ARTIFACTS:-aira-artifacts}"
+ARTIFACTS="${ARTIFACTS:-qanxt-artifacts}"
 MODE="${MODE:-impacted}"
 REVIEW_BLOCKS="${REVIEW_BLOCKS:-false}"
 
@@ -48,7 +48,7 @@ mkdir -p "$ARTIFACTS"
 # One command: it selects, writes the selection as an artifact, runs what it selected and
 # waits for the verdict. --explain puts the reasoning in the build log, where it is read
 # by whoever wonders why a test did not run.
-aira regression run \
+qanxt regression run \
   --since "$BASE_REF" \
   --mode "$MODE" \
   --explain \
@@ -71,9 +71,9 @@ case $status in
   0) echo "PASS" ;;
   1) echo "::error:: Tests failed. See $ARTIFACTS/summary.md." ;;
   2) echo "::error:: The quality gate blocked this run. Every test was within tolerance and a rule stopped it anyway." ;;
-  3) echo "::error:: AIRA was configured wrongly. Whoever edited this pipeline should look." ;;
-  4) echo "::error:: AIRA rejected the credentials. Whoever holds AIRA_TOKEN should look." ;;
-  5) echo "::error:: AIRA could not be used. The platform operator should look." ;;
+  3) echo "::error:: QA NXT was configured wrongly. Whoever edited this pipeline should look." ;;
+  4) echo "::error:: QA NXT rejected the credentials. Whoever holds QANXT_TOKEN should look." ;;
+  5) echo "::error:: QA NXT could not be used. The platform operator should look." ;;
   6) echo "::error:: A security policy refused this run. Do not retry without reading why." ;;
   7)
     echo "::warning:: This run needs a person to look at it. See $ARTIFACTS/summary.md."
@@ -83,11 +83,11 @@ case $status in
       status=0
     fi
     ;;
-  8) echo "::error:: AIRA failed internally. This is a defect in AIRA, not in the application." ;;
+  8) echo "::error:: QA NXT failed internally. This is a defect in QA NXT, not in the application." ;;
 esac
 
 # The summary is written whether the run passed or failed; posting it is your CI system's
-# job, because it already has the credentials to comment and AIRA should not need a second
+# job, because it already has the credentials to comment and QA NXT should not need a second
 # set. For example:
 #
 #   gh pr comment "$PR_NUMBER" --body-file "$ARTIFACTS/summary.md"

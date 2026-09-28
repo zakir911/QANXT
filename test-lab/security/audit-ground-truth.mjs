@@ -6,12 +6,12 @@
  *   1. Is every vulnerability the ground truth names actually present?
  *   2. Is every endpoint it calls safe actually safe?
  *
- * If the lab and its ground truth disagree, every number AIRA produces against it is
+ * If the lab and its ground truth disagree, every number QA NXT produces against it is
  * measured with a broken ruler — a "missed detection" might be a vulnerability that was
  * never there, and a "false positive" might be a real flaw nobody wrote down. This runs
  * before the security suites for the same reason the functional lab's audit does.
  *
- * It exercises each flaw directly over HTTP. It does not ask AIRA anything.
+ * It exercises each flaw directly over HTTP. It does not ask QA NXT anything.
  */
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -174,7 +174,7 @@ console.log('\nSecurity lab — ground truth audit\n');
 {
   const b = base('xss-lab');
   console.log(dim('\nxss-lab'));
-  const marker = '<aira-marker>';
+  const marker = '<qanxt-marker>';
 
   const search = await json(`${b}/search?q=${encodeURIComponent(marker)}`);
   report(search.text.includes(marker), 'VULN_REFLECTED_XSS', 'the marker came back with its angle brackets intact');
@@ -187,7 +187,7 @@ console.log('\nSecurity lab — ground truth audit\n');
   report(dom.text.includes('innerHTML'), 'VULN_DOM_XSS', 'location.hash reaches innerHTML');
 
   const greet = await json(`${b}/greet?name=${encodeURIComponent(marker)}`);
-  reportSafe(!greet.text.includes(marker) && greet.text.includes('&lt;aira-marker&gt;'), 'GET /greet',
+  reportSafe(!greet.text.includes(marker) && greet.text.includes('&lt;qanxt-marker&gt;'), 'GET /greet',
     'reflected HTML-escaped');
 
   const echo = await json(`${b}/echo?value=${encodeURIComponent(marker)}`);

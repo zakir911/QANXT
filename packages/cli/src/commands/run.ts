@@ -1,4 +1,4 @@
-import { BROWSER_TYPES, type BrowserType, type RunTrigger } from '@aira/shared-types';
+import { BROWSER_TYPES, type BrowserType, type RunTrigger } from '@qa-nxt/shared-types';
 import { ApiClient } from '../api.js';
 import { boolFlag, flag, flagAll, intFlag, rejectUnknownFlags, type ParsedArgs } from '../args.js';
 import { resolveContext } from '../config.js';
@@ -15,10 +15,10 @@ export const RUN_FLAGS = [
 ] as const;
 
 export const RUN_HELP = `
-${bold('aira run')} — start a test run and wait for its verdict
+${bold('qanxt run')} — start a test run and wait for its verdict
 
-  --project <id>         Project to run in (or AIRA_PROJECT_ID)
-  --environment <id>     Environment to run against (or AIRA_ENVIRONMENT_ID)
+  --project <id>         Project to run in (or QANXT_PROJECT_ID)
+  --environment <id>     Environment to run against (or QANXT_ENVIRONMENT_ID)
   --suite <id>           Run a whole suite
   --test <id>            Run one test; repeat for several
   --browser <name>       chromium | firefox | webkit
@@ -46,7 +46,7 @@ Exit status
   0 PASS                        5 INFRASTRUCTURE_ERROR
   1 TEST_FAILURE                6 SECURITY_POLICY_VIOLATION
   2 QUALITY_GATE_FAILURE        7 HUMAN_REVIEW_REQUIRED
-  3 CONFIGURATION_ERROR         8 AIRA_INTERNAL_ERROR
+  3 CONFIGURATION_ERROR         8 QANXT_INTERNAL_ERROR
   4 AUTHENTICATION_ERROR
 `;
 
@@ -63,7 +63,7 @@ export async function runCommand(args: ParsedArgs): Promise<number> {
   const api = new ApiClient(context.apiUrl, context.token);
 
   if (!context.projectId) {
-    throw usage('A project is required.', 'Pass --project <id>, or set AIRA_PROJECT_ID.');
+    throw usage('A project is required.', 'Pass --project <id>, or set QANXT_PROJECT_ID.');
   }
 
   const testCaseIds = flagAll(args, 'test');
@@ -162,11 +162,11 @@ function browserFlag(args: ParsedArgs): BrowserType | undefined {
  * fails before a run is started rather than as a 404 halfway through.
  */
 export function environmentFlag(args: ParsedArgs): string | undefined {
-  const value = flag(args, 'environment') ?? process.env.AIRA_ENVIRONMENT_ID;
+  const value = flag(args, 'environment') ?? process.env.QANXT_ENVIRONMENT_ID;
   if (value === undefined || value.trim() === '') return undefined;
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.trim())) {
     throw usage(`--environment expects an environment id, got "${value}".`,
-      'List them with "aira environments".');
+      'List them with "qanxt environments".');
   }
   return value.trim();
 }
@@ -236,7 +236,7 @@ export async function waitForRun(
       throw new CliError(
         `The run did not finish within ${Math.round(options.timeoutMs / 1000)}s (last status: ${run.status}).`,
         ExitCode.InfrastructureError,
-        `It is still running. Follow it with "aira status ${runId}", or stop it with "aira cancel ${runId}".`);
+        `It is still running. Follow it with "qanxt status ${runId}", or stop it with "qanxt cancel ${runId}".`);
     }
 
     await new Promise(resolve => setTimeout(resolve, options.pollMs));

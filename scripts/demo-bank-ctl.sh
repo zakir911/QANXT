@@ -2,8 +2,8 @@
 # Starts or stops the demo banking application.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PIDFILE="${ROOT}/.aira-demo-bank.pid"
-LOGFILE="${LOGFILE:-/tmp/aira-demo-bank.log}"
+PIDFILE="${ROOT}/.qanxt-demo-bank.pid"
+LOGFILE="${LOGFILE:-/tmp/qanxt-demo-bank.log}"
 
 case "${1:-start}" in
   start)

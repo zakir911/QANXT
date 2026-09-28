@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * The real-world pilot: AIRA's autonomous agent against Verdaccio.
+ * The real-world pilot: QA NXT's autonomous agent against Verdaccio.
  *
  * Verdaccio is a private npm registry — a Vue front end over an Express API, written by
- * people who have never heard of AIRA, with its own routes, its own login and its own
+ * people who have never heard of QA NXT, with its own routes, its own login and its own
  * conventions. That is the point. Every application the platform has been tested against so
  * far was written alongside it, which is the right way to build a test platform and tells you
  * nothing about how it behaves on somebody else's code.
@@ -73,7 +73,7 @@ const registered = await request('/api/v1/applications', {
   body: {
     projectId: project.id, name: 'Verdaccio', baseUrl: BASE,
     description: 'Verdaccio 6.10.4 — an independently developed private npm registry, '
-               + 'run locally for this pilot. Not written for AIRA and not part of the test lab.',
+               + 'run locally for this pilot. Not written for QA NXT and not part of the test lab.',
     allowedDomains: new URL(BASE).hostname,
     maxPages: 25, maxCrawlDepth: 3, explorationTimeoutSeconds: 240,
     // No credentials. An application nobody has onboarded before starts as an anonymous
@@ -122,7 +122,7 @@ await setContext(tenant, application.id, {
 log('Business context recorded.');
 
 await authorizeSecurity(tenant, application.id, {
-  authorizationNote: 'Authorized for the AIRA pilot. Local, disposable registry owned by us.',
+  authorizationNote: 'Authorized for the QA NXT pilot. Local, disposable registry owned by us.',
   allowedDomains: '127.0.0.1,localhost',
   allowedApiDomains: '127.0.0.1,localhost',
   allowActiveTesting: true, allowDestructiveTesting: false, allowProduction: false,

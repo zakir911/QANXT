@@ -1,4 +1,4 @@
-# AIRA — Your AI Quality Engineer
+# QA NXT — Your AI Quality Engineer
 
 An AI-powered autonomous web application testing platform: it learns an application, plans
 tests for it, runs them in real browsers, collects evidence, explains failures, heals broken
@@ -22,7 +22,7 @@ Root Cause → Self-Healing → Defect Proposals → Quality Intelligence → Da
 | `apps/web-console` | React + TypeScript + Vite console |
 | `apps/browser-extension` | Chrome MV3 journey recorder |
 | `packages/shared-types` | Cross-language contracts |
-| `packages/cli` | `aira` CLI for pipelines |
+| `packages/cli` | `qanxt` CLI for pipelines |
 | `samples/demo-bank` | Local demo banking application used to exercise the platform |
 | `infrastructure/` | Docker, Kubernetes, CI templates |
 | `docs/` | Architecture, ADRs, plan, operations |
@@ -52,7 +52,7 @@ already have the toolchain, and `docs/implementation-plan.md` has the build plan
 
 ## Documentation
 
-- **[Installing AIRA](docs/installation.md)** — Windows, macOS and Linux, step by step, with screenshots
+- **[Installing QA NXT](docs/installation.md)** — Windows, macOS and Linux, step by step, with screenshots
 - **[User manual](docs/user-manual.md)** — how to use the product, screen by screen, with screenshots
 - [Architecture](docs/architecture.md) · [Assessment](docs/architecture-assessment.md) · [ADRs](docs/adr)
 - [Implementation plan](docs/implementation-plan.md)
@@ -89,7 +89,7 @@ already have the toolchain, and `docs/implementation-plan.md` has the build plan
 ```
 
 `test-lab/` holds six real applications with hand-written ground truth and switchable
-faults, plus a notification sink that records what AIRA sends; `verification/golden-tests/` holds 239 tests across twenty-two suites that drive the
+faults, plus a notification sink that records what QA NXT sends; `verification/golden-tests/` holds 239 tests across twenty-two suites that drive the
 product against them from the outside. The reports land in `verification/reports/`, the evidence — hashed — in
 `verification/evidence/`, and the console renders the last run at **Verification**.
 

@@ -49,7 +49,7 @@ export function LoginPage() {
   return (
     <div className="signin">
       <div className="signin-card">
-        <h1 {...testId('login-title')}>AIRA Demo Bank</h1>
+        <h1 {...testId('login-title')}>QA NXT Demo Bank</h1>
         <p className="sub">Sign in to your online banking.</p>
 
         <form onSubmit={submit} noValidate {...testId('login-form')}>

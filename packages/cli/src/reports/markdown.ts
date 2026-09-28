@@ -9,7 +9,7 @@ import { qualification, verdictOf } from '../verdict.js';
  * everything else collapsed. A comment that opens with a table of twenty passing tests
  * makes the reader scroll past the only thing they needed.
  *
- * Nothing here is posted by AIRA. The CLI writes the file and the pipeline posts it with
+ * Nothing here is posted by QA NXT. The CLI writes the file and the pipeline posts it with
  * whatever it already uses — `gh pr comment`, an Azure DevOps task, a GitLab note. An
  * integration that needed its own credentials to comment on a pull request would be a
  * second thing to grant, rotate and audit, for no capability the pipeline does not have.
@@ -112,7 +112,7 @@ export function renderMarkdown(report: RunReport): string {
   }
 
   if (report.consoleUrl) {
-    lines.push(`[Open this run in ${report.project?.name ?? 'AIRA'}](${report.consoleUrl}/runs/${run.id})`);
+    lines.push(`[Open this run in ${report.project?.name ?? 'QA NXT'}](${report.consoleUrl}/runs/${run.id})`);
     lines.push('');
   }
 

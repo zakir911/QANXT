@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
-import type { DiscoveryJob, ExecutionJob, SecurityScanJob } from '@aira/shared-types';
-import { QUEUE_NAMES } from '@aira/shared-types';
+import type { DiscoveryJob, ExecutionJob, SecurityScanJob } from '@qa-nxt/shared-types';
+import { QUEUE_NAMES } from '@qa-nxt/shared-types';
 import { BrowserPool } from './browser/browser-pool.js';
 import { loadConfig, type WorkerConfig } from './config.js';
 import { handleDiscoveryJob } from './discovery/discovery-handler.js';
@@ -29,7 +29,7 @@ let shuttingDown = false;
 const discoveryConsumer = new RedisStreamConsumer({
   redisUrl: config.redisUrl,
   queue: QUEUE_NAMES.discovery,
-  group: 'aira-workers',
+  group: 'qanxt-workers',
   consumer: config.workerId,
   visibilityMs: config.jobVisibilityMs,
   blockMs: config.pollIntervalMs,
@@ -39,7 +39,7 @@ const discoveryConsumer = new RedisStreamConsumer({
 const executionConsumer = new RedisStreamConsumer({
   redisUrl: config.redisUrl,
   queue: QUEUE_NAMES.execution,
-  group: 'aira-workers',
+  group: 'qanxt-workers',
   consumer: config.workerId,
   visibilityMs: config.jobVisibilityMs,
   blockMs: config.pollIntervalMs,
@@ -56,7 +56,7 @@ const executionConsumer = new RedisStreamConsumer({
 const securityConsumer = new RedisStreamConsumer({
   redisUrl: config.redisUrl,
   queue: QUEUE_NAMES.security,
-  group: 'aira-workers',
+  group: 'qanxt-workers',
   consumer: config.workerId,
   visibilityMs: config.jobVisibilityMs,
   blockMs: config.pollIntervalMs,

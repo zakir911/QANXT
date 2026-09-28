@@ -5,7 +5,7 @@
 #   ./scripts/verify-autonomous-qa
 #   ./scripts/verify-autonomous-qa --quick     # the three fastest suites only
 #
-#   infrastructure → test lab → AIRA → autonomous suites → report
+#   infrastructure → test lab → QA NXT → autonomous suites → report
 #
 # Narrower than ./scripts/verify-product on purpose. That one proves the platform can test an
 # application; this one proves that a pass nobody watched can plan, refuse, ask, execute and
@@ -45,13 +45,13 @@ $QUICK || SUITES+=(agent-execution agent-injection agent-faults)
 section "Infrastructure"
 bash scripts/services-ctl.sh --with-database || fail "PostgreSQL and Redis did not start."
 
-section "AIRA"
+section "QA NXT"
 bash scripts/api-ctl.sh start && bash scripts/api-ctl.sh wait || fail "The API did not start."
 bash scripts/worker-ctl.sh start || fail "The worker did not start."
 
 section "Test lab"
 if [[ ! -f test-lab/banking-app/dist/index.html ]]; then
-  pnpm --filter @aira/test-lab build >/dev/null || fail "The banking application did not build."
+  pnpm --filter @qa-nxt/test-lab build >/dev/null || fail "The banking application did not build."
 fi
 bash test-lab/scripts/lab-ctl.sh start || fail "The test lab did not start."
 bash test-lab/scripts/lab-ctl.sh reset >/dev/null

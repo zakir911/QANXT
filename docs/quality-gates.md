@@ -15,13 +15,13 @@ would be wrong, the journey completed — and passing silently would hide that t
 no longer testing what it was written to test.
 
 REVIEW reaches the pipeline as its own exit code (`7`), so the team decides whether it
-stops a deployment. That decision belongs in the pipeline, not in AIRA.
+stops a deployment. That decision belongs in the pipeline, not in QA NXT.
 
 ## Rules
 
 ```bash
-curl -X POST "$AIRA_API_URL/api/v1/quality-gates?projectId=$AIRA_PROJECT_ID" \
-  -H "authorization: Bearer $AIRA_TOKEN" -H 'content-type: application/json' \
+curl -X POST "$QANXT_API_URL/api/v1/quality-gates?projectId=$QANXT_PROJECT_ID" \
+  -H "authorization: Bearer $QANXT_TOKEN" -H 'content-type: application/json' \
   -d '{"name":"Ninety-five percent must pass","metric":"passRatePercent",
        "operator":"greaterThanOrEqual","threshold":95,"action":"fail",
        "message":"This project does not ship below 95%."}'
@@ -88,7 +88,7 @@ have exercised.
 
 ## Self-healing and the gate
 
-A test that only passed because AIRA repaired a locator is reported, never hidden. The
+A test that only passed because QA NXT repaired a locator is reported, never hidden. The
 project's `SelfHealingGatePolicy` decides what that means:
 
 | | |
@@ -103,7 +103,7 @@ whoever owns the test should know it happened.
 ## Reading a verdict
 
 ```bash
-aira quality-gate --run <id>
+qanxt quality-gate --run <id>
 ```
 
 Every rule comes back with the number it measured, the threshold it was judged against, its

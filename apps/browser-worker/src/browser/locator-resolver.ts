@@ -1,5 +1,5 @@
 import type { Frame, Locator, Page } from 'playwright';
-import type { LocatorDescriptor } from '@aira/shared-types';
+import type { LocatorDescriptor } from '@qa-nxt/shared-types';
 
 /**
  * Turns the platform's locator grammar into a Playwright locator.

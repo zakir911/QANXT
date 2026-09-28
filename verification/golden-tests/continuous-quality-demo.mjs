@@ -59,10 +59,10 @@ act('Check the platform, the application and the notification sink are up',
 const health = await request('/health');
 const bank = await fetch(`${BANK}/health`).then(r => r.json()).catch(() => null);
 const sink = await fetch(`${SINK}/health`).then(r => r.ok).catch(() => false);
-if (health.status !== 200) fail(`AIRA is not answering: ${health.status}`);
+if (health.status !== 200) fail(`QA NXT is not answering: ${health.status}`);
 if (!bank) fail(`The banking lab is not answering at ${BANK}`);
 if (!sink) fail(`The notification sink is not answering at ${SINK}`);
-note(`AIRA healthy · ${bank.application} ${bank.version} healthy · notification sink healthy`);
+note(`QA NXT healthy · ${bank.application} ${bank.version} healthy · notification sink healthy`);
 
 await lab.reset(BANK);
 await fetch(`${SINK}/reset`, { method: 'POST' });
@@ -81,7 +81,7 @@ const staging = await createEnvironment(tenant, project.id, {
   allowedDomains: new URL(BANK).hostname
 });
 note(`project ${project.key} · application ${application.id.slice(0, 8)} · environment ${staging.key}`);
-note('The environment carries the authorization boundary: AIRA will not open a URL outside it.');
+note('The environment carries the authorization boundary: QA NXT will not open a URL outside it.');
 
 // ---------------------------------------------------------------------------
 
@@ -295,8 +295,8 @@ const arrived = received.received ?? [];
 note(`${deliveries.length} delivery record(s) on the platform`);
 note(`${arrived.length} request(s) actually arrived at the receiving end`);
 for (const r of arrived.slice(0, 3)) {
-  note(`  ${r.headers?.['x-aira-event'] ?? 'event'} — signed `
-    + `${String(r.headers?.['x-aira-signature'] ?? '').slice(0, 20)}…`);
+  note(`  ${r.headers?.['x-qanxt-event'] ?? 'event'} — signed `
+    + `${String(r.headers?.['x-qanxt-signature'] ?? '').slice(0, 20)}…`);
 }
 
 // ---------------------------------------------------------------------------

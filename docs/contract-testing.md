@@ -19,12 +19,12 @@ working, and still have broken every client that parses its response.
 
 Three steps, none of which needs an OpenAPI document:
 
-1. **Discovery observes the API.** While crawling the application, AIRA records every
+1. **Discovery observes the API.** While crawling the application, QA NXT records every
    request the UI made: method, URL template, status, content type, and a masked sample of
    the response. That is the inventory.
-2. **You accept a baseline.** AIRA infers the *shape* of each observed response — a flat map
+2. **You accept a baseline.** QA NXT infers the *shape* of each observed response — a flat map
    of JSON path to type — and stores it as the contract for that endpoint.
-3. **Every run is compared against it.** When a run finishes, AIRA reads the responses that
+3. **Every run is compared against it.** When a run finishes, QA NXT reads the responses that
    run observed out of its own evidence and compares each one's shape with the baseline.
    Every difference is classified by what it means for a caller.
 
@@ -41,7 +41,7 @@ check reads that record. That has three consequences worth knowing:
 ## The inventory
 
 ```bash
-aira contract inventory --app <id>
+qanxt contract inventory --app <id>
 ```
 
 ```
@@ -52,7 +52,7 @@ GET     /api/dashboard                          14  auth  v1            0  —
 POST    /api/payments                            3  auth  none          0  —
 
   14 endpoint(s) · 2 called by an API test · 12 with a contract baseline
-  12 endpoint(s) have no API test. Generate some with "aira api-test generate --app <id>".
+  12 endpoint(s) have no API test. Generate some with "qanxt api-test generate --app <id>".
 ```
 
 `TESTS` is read from what the stored API tests actually call, not from a tag. The gap it
@@ -62,7 +62,7 @@ checks is the thing worth knowing.
 ## Baselines
 
 ```bash
-aira contract baseline --app <id>
+qanxt contract baseline --app <id>
 ```
 
 A baseline is a **stored observation**, not a specification. It records what the application
@@ -74,7 +74,7 @@ decision with a date and an author, and a table that keeps only the current shap
 answer when it moved. Replacing one therefore requires a reason:
 
 ```bash
-aira contract baseline --app <id> --replace \
+qanxt contract baseline --app <id> --replace \
   --note "sortCode moved to the payments API in 2.4; the mobile client was updated first"
 ```
 
@@ -119,7 +119,7 @@ having none.
 | A field's type changed (`number` → `string`) | **breaking** | A caller parsing it as the old type fails |
 | An object became an array, or vice versa | **breaking** | A caller reading through it does not find what it expects |
 | A 2xx became a non-2xx | **breaking** | A caller that relied on it succeeding no longer works |
-| A field can now be null | **potentially breaking** | Callers that null-check are fine; callers that do not are broken, and which of those a team has is not something AIRA can know |
+| A field can now be null | **potentially breaking** | Callers that null-check are fine; callers that do not are broken, and which of those a team has is not something QA NXT can know |
 | A field gained a second type | **potentially breaking** | A caller assuming one type fails on the other |
 | A field only ever seen as null now has a type | **potentially breaking** | The baseline never recorded its real type, so this may not be a change at all |
 | A new field appeared | **non-breaking** | Nobody was reading it |
@@ -149,17 +149,17 @@ absence of information.
 To ask again, or to check a run that gained baselines afterwards:
 
 ```bash
-aira contract check --run <id>
-aira contract changes --run <id>        # what it found, without running it again
-aira contract check --discovery <id>    # against what a crawl saw, instead
+qanxt contract check --run <id>
+qanxt contract changes --run <id>        # what it found, without running it again
+qanxt contract check --discovery <id>    # against what a crawl saw, instead
 ```
 
 `--fail-on` decides what a pipeline does about it:
 
 ```bash
-aira contract check --run "$RUN_ID" --fail-on breaking               # default
-aira contract check --run "$RUN_ID" --fail-on potentially-breaking   # published clients
-aira contract check --run "$RUN_ID" --fail-on none                   # report only
+qanxt contract check --run "$RUN_ID" --fail-on breaking               # default
+qanxt contract check --run "$RUN_ID" --fail-on potentially-breaking   # published clients
+qanxt contract check --run "$RUN_ID" --fail-on none                   # report only
 ```
 
 Exit 0 when nothing is above the threshold, 2 (QUALITY_GATE_FAILURE) when something is.
@@ -211,12 +211,12 @@ builds. Every acknowledgement is audited and logged as a warning.
 A pipeline that checks contracts as well as behaviour:
 
 ```yaml
-- run: aira run --suite "$SUITE_ID" --report-dir artifacts     # exit 0/1/2/7
-- run: aira contract changes --run "$RUN_ID" --fail-on breaking
+- run: qanxt run --suite "$SUITE_ID" --report-dir artifacts     # exit 0/1/2/7
+- run: qanxt contract changes --run "$RUN_ID" --fail-on breaking
   if: always()
 ```
 
-The gate rule and `aira contract check` are two routes to the same finding. Use the gate
+The gate rule and `qanxt contract check` are two routes to the same finding. Use the gate
 rule when contract health should be part of the run's own verdict; use the CLI step when you
 want a separate, separately-reportable pipeline stage.
 

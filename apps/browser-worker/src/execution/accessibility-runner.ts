@@ -13,7 +13,7 @@ import {
   type AccessibilityImpact,
   type AccessibilityResult,
   type AccessibilityViolation
-} from '@aira/shared-types';
+} from '@qa-nxt/shared-types';
 
 /**
  * Runs axe-core against the page in front of us.
@@ -23,7 +23,7 @@ import {
  * everything axe sees, it sees from inside the page, the same as a screen reader would.
  *
  * The result is read back as data. Nothing axe returns is executed, and nothing from the
- * page decides what AIRA does next except through the typed shape below — an application
+ * page decides what QA NXT does next except through the typed shape below — an application
  * under test is not trusted input.
  */
 

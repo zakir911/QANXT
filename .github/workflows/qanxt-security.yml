@@ -1,0 +1,181 @@
+# Blocks a pipeline on QA NXT's security gate.
+#
+# Two things this workflow will not do, and both are deliberate:
+#
+#   It does not treat a missing scan as a pass. `qanxt security gate` exits 7 when no scan
+#   ran or when one ran and could not cover enough, and this workflow fails on 7 by default.
+#   A build that goes green because nobody scanned is the failure the whole capability
+#   exists to prevent, and a pipeline that swallows exit 7 reintroduces it.
+#
+#   It does not point at production. The environment is a repository variable and the
+#   security scope on the QA NXT side has to authorize it separately; production security
+#   testing is off by default there and turning it on is an organization-level decision, not
+#   a workflow edit.
+name: QA NXT security
+
+on:
+  workflow_dispatch:
+    inputs:
+      scan-id:
+        description: A recorded security scan to evaluate
+        required: true
+  # Nightly rather than per-push. A security scan is not a unit test: it issues real requests
+  # against a running environment, and running one per commit teaches people to ignore it.
+  schedule:
+    - cron: '0 3 * * *'
+
+concurrency:
+  group: qanxt-security-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  security-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      QANXT_API_URL: ${{ vars.QANXT_API_URL }}
+      QANXT_TOKEN: ${{ secrets.QANXT_SECURITY_TOKEN }}
+      QANXT_APPLICATION_ID: ${{ vars.QANXT_APPLICATION_ID }}
+      # Set to "true" only if your team has decided that a scan needing human review should
+      # not stop the pipeline. Read what that means before you set it: exit 7 covers "no scan
+      # ran", "the scan covered a fifth of what it was configured to", and "the scope refused
+      # most of its requests" as well as "a low-confidence finding needs a look".
+      ALLOW_REVIEW: ${{ vars.QANXT_SECURITY_ALLOW_REVIEW }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the CLI
+        run: pnpm --filter @qa-nxt/cli... build
+
+      # A separate token from the functional one. Security findings are a working description
+      # of how to break the application, and the account that reads them should be the one
+      # somebody chose for that rather than whichever token was already in the repository.
+      - name: Check the configuration
+        run: |
+          if [ -z "$QANXT_API_URL" ]; then
+            echo "::error::QANXT_API_URL is not set. Add it as a repository variable."
+            exit 1
+          fi
+          if [ -z "$QANXT_TOKEN" ]; then
+            echo "::error::QANXT_SECURITY_TOKEN is not set. Add it as a repository secret. It needs \
+            security:read and nothing more for this workflow."
+            exit 1
+          fi
+
+      - name: Show what the application has authorized
+        run: |
+          node packages/cli/dist/qanxt.js security scope \
+            --application-id "$QANXT_APPLICATION_ID" || true
+
+      - name: Find the scan to evaluate
+        id: scan
+        run: |
+          if [ -n "${{ inputs.scan-id }}" ]; then
+            echo "id=${{ inputs.scan-id }}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          node packages/cli/dist/qanxt.js security scans \
+            --application-id "$QANXT_APPLICATION_ID" --take 1 --json > scans.json
+          id=$(node -e 'const s=require("./scans.json"); process.stdout.write(s[0]?.id ?? "")')
+          if [ -z "$id" ]; then
+            # No scan is not a pass, and this is the one place where saying so cheaply
+            # matters most. The job fails rather than skipping.
+            echo "::error::No security scan has ever been recorded for this application. \
+            That is not a clean result — nothing has been tested."
+            exit 1
+          fi
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+      - name: Security gate
+        id: gate
+        run: |
+          set +e
+          node packages/cli/dist/qanxt.js security gate --scan-id "${{ steps.scan.outputs.id }}"
+          status=$?
+          set -e
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+
+          node packages/cli/dist/qanxt.js security gate \
+            --scan-id "${{ steps.scan.outputs.id }}" --json > gate.json
+
+          case "$status" in
+            0) echo "::notice::Security gate passed." ;;
+            2) echo "::error::Security gate blocked the build." ;;
+            7) echo "::warning::The security gate needs a person to look." ;;
+            6) echo "::error::A security policy refused the request." ;;
+            *) echo "::error::The security gate could not be evaluated (exit $status)." ;;
+          esac
+          exit 0
+
+      - name: Findings
+        if: always()
+        run: |
+          node packages/cli/dist/qanxt.js security findings \
+            --application-id "$QANXT_APPLICATION_ID" --json > findings.json || true
+          node packages/cli/dist/qanxt.js security findings \
+            --application-id "$QANXT_APPLICATION_ID" || true
+
+      - name: Publish the result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qanxt-security
+          path: |
+            gate.json
+            findings.json
+          if-no-files-found: warn
+
+      - name: Summarise
+        if: always()
+        run: |
+          node -e '
+            const fs = require("fs");
+            const line = (t) => fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, t + "\n");
+            let gate;
+            try { gate = JSON.parse(fs.readFileSync("gate.json", "utf8")); }
+            catch { line("## QA NXT security"); line(""); line("**The gate could not be evaluated.**"); return; }
+
+            line("## QA NXT security — " + gate.outcome.toUpperCase());
+            line("");
+            line(gate.summary);
+            line("");
+            line("| | Rule | Detail |");
+            line("| --- | --- | --- |");
+            for (const rule of gate.rules) {
+              const mark = !rule.measured ? "?" : rule.passed ? "✓" : "✗";
+              line(`| ${mark} | ${rule.name} | ${rule.explanation} |`);
+            }
+            if (gate.reasons.length) {
+              line("");
+              line("### Why");
+              line("");
+              for (const reason of gate.reasons) line("- " + reason);
+            }
+            line("");
+            line("_This describes what these tests reached. Areas they did not reach are untested, not clean._");
+          '
+
+      - name: Decide
+        if: always()
+        run: |
+          status="${{ steps.gate.outputs.status }}"
+          if [ "$status" = "0" ]; then exit 0; fi
+          if [ "$status" = "7" ] && [ "$ALLOW_REVIEW" = "true" ]; then
+            echo "::warning::Proceeding past a REVIEW outcome because QANXT_SECURITY_ALLOW_REVIEW is true."
+            exit 0
+          fi
+          exit 1

@@ -1,5 +1,5 @@
 /**
- * AIRA Demo Commerce.
+ * QA NXT Demo Commerce.
  *
  * The lab's multi-step business journey: sign in, search, open a product, add it to a
  * basket, change the quantity, apply a coupon, check out with an address and a card, and
@@ -16,7 +16,7 @@ import { SESSION_COOKIE, createSessionStore } from '../shared/sessions.js';
 import { layout } from '../shared/render.js';
 
 const PORT = Number(process.env.COMMERCE_PORT ?? 4310);
-const APPLICATION = 'AIRA Demo Commerce';
+const APPLICATION = 'QA NXT Demo Commerce';
 
 const FAULTS = [
   { id: 'FAULT_LOGIN_BUTTON_RENAMED', description: 'The sign-in control is relabelled and re-identified.' },

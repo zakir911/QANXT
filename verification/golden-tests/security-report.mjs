@@ -51,7 +51,7 @@ for (const record of lines.filter(r => r.runId === runId)) latest.set(record.tes
 
 /** The security suites. Everything else in the run belongs to another report. */
 const SECURITY_SUITES = new Set(['Security scanning', 'Security gate, regression and triage',
-                                 'Security scopes, scans and findings', 'Security scans AIRA runs itself',
+                                 'Security scopes, scans and findings', 'Security scans QA NXT runs itself',
                                  'Security and multi-tenancy']);
 const results = [...latest.values()]
   .filter(r => SECURITY_SUITES.has(r.suite))
@@ -85,8 +85,8 @@ const families = [
   ['SECT-', 'Triage', 'Suppression needs a reason and a name'],
   ['SECX-', 'Coverage honesty', 'What this scan cannot decide'],
   ['SECR-', 'Measured rates', 'Detection and false positives, as measured'],
-  ['SECPL-', 'Stored scans', 'Scopes, scans, findings and triage through AIRA\'s own API'],
-  ['SEC-G', 'AIRA itself', 'Tenancy, credentials, target policy and headers in the platform']
+  ['SECPL-', 'Stored scans', 'Scopes, scans, findings and triage through QA NXT\'s own API'],
+  ['SEC-G', 'QA NXT itself', 'Tenancy, credentials, target policy and headers in the platform']
 ];
 
 // ---------------------------------------------------------------------------
@@ -134,18 +134,18 @@ const evidenceIntact = evidenceFiles.filter(file => {
 // ---------------------------------------------------------------------------
 
 const VERDICT = failed.length === 0
-  ? 'AIRA\'s security testing behaved as specified against its own lab in this run.'
-  : `AIRA's security testing did NOT behave as specified: ${failed.length} test(s) failed.`;
+  ? 'QA NXT\'s security testing behaved as specified against its own lab in this run.'
+  : `QA NXT's security testing did NOT behave as specified: ${failed.length} test(s) failed.`;
 
 const DISCLAIMER = [
   'What this report is, and is not',
   '',
-  'This report describes AIRA\'s security *testing*. It says that the checks detect the flaws',
+  'This report describes QA NXT\'s security *testing*. It says that the checks detect the flaws',
   'planted in the security lab, stay quiet on the endpoints that are correct, refuse everything',
   'the scope does not authorize, and record what they could not reach.',
   '',
-  'It is not a security assessment of any application. It does not say that AIRA is secure, that',
-  'the lab is secure, or that any application AIRA scans is secure. No scan can support those',
+  'It is not a security assessment of any application. It does not say that QA NXT is secure, that',
+  'the lab is secure, or that any application QA NXT scans is secure. No scan can support those',
   'claims, and nothing here should be quoted as though it did.',
   '',
   'The detection rate below is measured against a lab whose flaws were written alongside the',
@@ -154,7 +154,7 @@ const DISCLAIMER = [
 ].join('\n');
 
 const markdown = [
-  '# AIRA — security verification report',
+  '# QA NXT — security verification report',
   '',
   `**${VERDICT}**`,
   '',
@@ -304,7 +304,7 @@ const html = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AIRA security verification</title>
+<title>QA NXT security verification</title>
 <style>
   :root { --ink:#16181d; --muted:#6b7280; --line:#e5e7eb; --ok:#15803d; --bad:#b91c1c; --warn:#a16207; --bg:#fff; --panel:#f9fafb; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
@@ -335,18 +335,18 @@ const html = `<!doctype html>
 </head>
 <body>
 <main>
-  <h1>AIRA — security verification</h1>
+  <h1>QA NXT — security verification</h1>
   <p class="verdict">${escape(VERDICT)}</p>
   <p class="meta">Run <code>${escape(runId)}</code> · ${results.length} security test(s) ·
      ${passed.length} passed, ${failed.length} failed, ${notVerified.length} not verified</p>
 
   <div class="disclaimer">
-    <p><strong>What this report is, and is not.</strong> It describes AIRA's security
+    <p><strong>What this report is, and is not.</strong> It describes QA NXT's security
     <em>testing</em>: that the checks detect the flaws planted in the security lab, stay quiet on
     the endpoints that are correct, refuse everything the scope does not authorize, and record
     what they could not reach.</p>
     <p>It is <strong>not</strong> a security assessment of any application. It does not say that
-    AIRA is secure, that the lab is secure, or that any application AIRA scans is secure. No scan
+    QA NXT is secure, that the lab is secure, or that any application QA NXT scans is secure. No scan
     can support those claims.</p>
     <p>The detection rate below is measured against a lab whose flaws were written alongside the
     checks that find them. That is the right way to test a detector and the wrong way to estimate

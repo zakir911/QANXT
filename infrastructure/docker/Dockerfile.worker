@@ -11,7 +11,7 @@ WORKDIR /src
 # restore fail with an opaque certificate error. Any .crt dropped into
 # infrastructure/docker/certs/ is trusted here; the directory is otherwise empty, so this is
 # a no-op for everyone else.
-COPY infrastructure/docker/certs/ /usr/local/share/ca-certificates/aira-extra/
+COPY infrastructure/docker/certs/ /usr/local/share/ca-certificates/qanxt-extra/
 RUN update-ca-certificates >/dev/null 2>&1 || true
 
 ENV PNPM_HOME=/usr/local/bin
@@ -30,14 +30,14 @@ COPY tests/e2e/package.json ./tests/e2e/
 # The browsers are already in the base image; re-downloading them here would add a gigabyte
 # for nothing.
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-RUN pnpm install --frozen-lockfile --filter @aira/browser-worker...
+RUN pnpm install --frozen-lockfile --filter @qa-nxt/browser-worker...
 
 COPY packages/shared-types/ ./packages/shared-types/
 COPY apps/browser-worker/ ./apps/browser-worker/
-RUN pnpm --filter @aira/browser-worker... build
+RUN pnpm --filter @qa-nxt/browser-worker... build
 
 # Drops dev dependencies from the tree that ships.
-RUN pnpm --filter @aira/browser-worker --prod --legacy deploy /out
+RUN pnpm --filter @qa-nxt/browser-worker --prod --legacy deploy /out
 
 FROM mcr.microsoft.com/playwright:v1.56.0-jammy AS runtime
 WORKDIR /app

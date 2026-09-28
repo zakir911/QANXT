@@ -8,8 +8,8 @@
  */
 import { chromium } from 'playwright';
 
-const consoleUrl = (process.env.AIRA_CONSOLE_URL ?? 'http://127.0.0.1:5173').replace(/\/+$/, '');
-const bankUrl = process.env.AIRA_DEMO_BANK_URL ?? 'http://localhost:4200';
+const consoleUrl = (process.env.QANXT_CONSOLE_URL ?? 'http://127.0.0.1:5173').replace(/\/+$/, '');
+const bankUrl = process.env.QANXT_DEMO_BANK_URL ?? 'http://localhost:4200';
 
 const fail = (message) => { console.log(`FAIL  ${message}`); process.exitCode = 1; };
 const pass = (message) => console.log(`PASS  ${message}`);
@@ -82,10 +82,10 @@ try {
   await page.getByRole('heading', { name: 'Demo Bank' }).first().waitFor({ timeout: 15000 });
   pass('an application can be registered against the demo bank');
 
-  await page.screenshot({ path: '/tmp/aira-shots/first-run.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/qanxt-shots/first-run.png', fullPage: true });
 } catch (error) {
   fail(String(error).split('\n')[0]);
-  await page.screenshot({ path: '/tmp/aira-shots/first-run-failure.png', fullPage: true }).catch(() => {});
+  await page.screenshot({ path: '/tmp/qanxt-shots/first-run-failure.png', fullPage: true }).catch(() => {});
 }
 
 if (consoleErrors.length > 0) {

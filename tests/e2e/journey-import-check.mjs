@@ -14,11 +14,11 @@
  */
 import { readFile } from 'node:fs/promises';
 
-const api = process.env.AIRA_API_URL ?? 'http://127.0.0.1:5080';
-const journeyPath = process.argv[2] ?? '/tmp/aira-journey.json';
-const org = process.env.AIRA_ORG ?? 'northwind-bank';
-const email = process.env.AIRA_EMAIL ?? 'qa.lead@northwind.test';
-const password = process.env.AIRA_PASSWORD ?? 'Str0ngPassphrase!2026';
+const api = process.env.QANXT_API_URL ?? 'http://127.0.0.1:5080';
+const journeyPath = process.argv[2] ?? '/tmp/qanxt-journey.json';
+const org = process.env.QANXT_ORG ?? 'northwind-bank';
+const email = process.env.QANXT_EMAIL ?? 'qa.lead@northwind.test';
+const password = process.env.QANXT_PASSWORD ?? 'Str0ngPassphrase!2026';
 
 const fail = (message) => { console.log(`FAIL  ${message}`); process.exitCode = 1; };
 const pass = (message) => console.log(`PASS  ${message}`);

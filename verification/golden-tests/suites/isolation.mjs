@@ -56,7 +56,7 @@ export default async function run() {
 
   const projectA = await createProject(tenantA, 'Isolation project A');
   const applicationA = await registerApplication(tenantA, projectA.id, {
-    name: 'AIRA Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
+    name: 'QA NXT Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
     username: 'alice', password: 'Password123!'
   });
 
@@ -840,7 +840,7 @@ export default async function run() {
     id: 'AUD-008', severity: 'high',
     objective: 'A burst of credential attempts is refused, and the refusals are recorded as a security event rather than as ordinary traffic',
     preconditions: [
-      'the API writes to /tmp/aira-api.log',
+      'the API writes to /tmp/qanxt-api.log',
       'the sign-in rate limit is configured',
       'this test exhausts the credential rate-limit budget for its address; newTenant retries '
         + 'on 429 so a later suite is not stranded by it'
@@ -850,9 +850,9 @@ export default async function run() {
     evidence: ['rate-limit.json'],
     run: async () => {
       const { readFileSync, existsSync } = await import('node:fs');
-      const logPath = process.env.AIRA_API_LOG ?? '/tmp/aira-api.log';
+      const logPath = process.env.QANXT_API_LOG ?? '/tmp/qanxt-api.log';
       if (!existsSync(logPath)) {
-        return { pass: false, detail: `the API log is not at ${logPath}; set AIRA_API_LOG` };
+        return { pass: false, detail: `the API log is not at ${logPath}; set QANXT_API_LOG` };
       }
       const before = readFileSync(logPath, 'utf8').length;
 
@@ -879,7 +879,7 @@ export default async function run() {
       const namedAsCredential = refusalLines
         .filter(line => line.includes('credential endpoint: True')).length;
       const attributed = refusalLines
-        .filter(line => line.includes('"SourceContext": "Aira.Api.RateLimiter"')).length;
+        .filter(line => line.includes('"SourceContext": "QaNxt.Api.RateLimiter"')).length;
 
       return {
         pass: refused > 0 && atWarning === refusalLines.length

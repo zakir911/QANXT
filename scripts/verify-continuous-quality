@@ -4,7 +4,7 @@
 #   ./scripts/verify-continuous-quality
 #   ./scripts/verify-continuous-quality --quick     # skip the slow suites
 #
-#   infrastructure → test lab → AIRA → CQ suites → CI simulation → reports → traceability
+#   infrastructure → test lab → QA NXT → CQ suites → CI simulation → reports → traceability
 #
 # Narrower than ./scripts/verify-product on purpose. That one proves the platform can test
 # an application; this one proves it can do so continuously — on a pipeline, on a schedule,
@@ -52,13 +52,13 @@ $QUICK || SUITES+=(ci-simulation)
 section "Infrastructure"
 bash scripts/services-ctl.sh --with-database || fail "PostgreSQL and Redis did not start."
 
-section "AIRA"
+section "QA NXT"
 bash scripts/api-ctl.sh start && bash scripts/api-ctl.sh wait || fail "The API did not start."
 bash scripts/worker-ctl.sh start || fail "The worker did not start."
 
 section "Test lab"
 if [[ ! -f test-lab/banking-app/dist/index.html ]]; then
-  pnpm --filter @aira/test-lab build >/dev/null || fail "The banking application did not build."
+  pnpm --filter @qa-nxt/test-lab build >/dev/null || fail "The banking application did not build."
 fi
 bash test-lab/scripts/lab-ctl.sh start || fail "The test lab did not start."
 bash test-lab/scripts/lab-ctl.sh reset >/dev/null

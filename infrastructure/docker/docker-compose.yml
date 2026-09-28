@@ -18,15 +18,15 @@
 # the API against a Postgres that is still initialising produces a migration failure that
 # looks like a code defect, and people spend an afternoon on it.
 
-name: aira
+name: qanxt
 
 services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-aira}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aira}
-      POSTGRES_DB: ${POSTGRES_DB:-aira}
+      POSTGRES_USER: ${POSTGRES_USER:-qanxt}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-qanxt}
+      POSTGRES_DB: ${POSTGRES_DB:-qanxt}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     # Not published by default: nothing outside the compose network needs it, and an
@@ -34,7 +34,7 @@ services:
     # Uncomment to inspect it with psql from the host.
     # ports: ["5432:5432"]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aira} -d ${POSTGRES_DB:-aira}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-qanxt} -d ${POSTGRES_DB:-qanxt}"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -61,14 +61,14 @@ services:
       dockerfile: infrastructure/docker/Dockerfile.api
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
-      DATABASE_URL: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-aira};Username=${POSTGRES_USER:-aira};Password=${POSTGRES_PASSWORD:-aira}"
+      DATABASE_URL: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-qanxt};Username=${POSTGRES_USER:-qanxt};Password=${POSTGRES_PASSWORD:-qanxt}"
       REDIS_URL: redis:6379
       # No defaults for these three. A platform that starts with a known signing key is not
       # secured by anything, so it refuses to start rather than pretending.
       JWT_SECRET: "${JWT_SECRET:?set JWT_SECRET in .env - generate one with openssl rand -base64 48}"
       ENCRYPTION_KEY: "${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env - generate one with openssl rand -base64 32}"
       WORKER_TOKEN: "${WORKER_TOKEN:?set WORKER_TOKEN in .env - generate one with openssl rand -base64 32}"
-      PRODUCT_NAME: ${PRODUCT_NAME:-AIRA}
+      PRODUCT_NAME: "${PRODUCT_NAME:-QA NXT}"
       PRODUCT_TAGLINE: ${PRODUCT_TAGLINE:-Your AI Quality Engineer}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
       AI_DEFAULT_PROVIDER: ${AI_DEFAULT_PROVIDER:-local}
@@ -82,7 +82,7 @@ services:
       # bundled demo to work. Turn this off for any real deployment.
       ALLOW_PRIVATE_NETWORK_TARGETS: ${ALLOW_PRIVATE_NETWORK_TARGETS:-true}
     volumes:
-      - artifact-storage:/var/lib/aira/storage
+      - artifact-storage:/var/lib/qanxt/storage
     ports:
       - "${API_PORT:-5080}:5080"
     depends_on:
@@ -132,7 +132,7 @@ services:
         # Baked in at build time — Vite inlines it. Pointing a built console at a different
         # API means rebuilding this image.
         VITE_API_URL: ${VITE_API_URL:-http://localhost:5080}
-        VITE_PRODUCT_NAME: ${PRODUCT_NAME:-AIRA}
+        VITE_PRODUCT_NAME: "${PRODUCT_NAME:-QA NXT}"
     ports:
       - "${CONSOLE_PORT:-5173}:8080"
     depends_on:

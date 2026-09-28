@@ -9,10 +9,10 @@
  * The rate-limit probe deliberately spends the sign-in budget for the current window, so it
  * runs last and the script waits for the window to clear before it starts.
  */
-const api = (process.env.AIRA_API_URL ?? 'http://127.0.0.1:5080').replace(/\/+$/, '');
-const org = process.env.AIRA_ORG ?? 'northwind-bank';
-const email = process.env.AIRA_EMAIL ?? 'qa.lead@northwind.test';
-const password = process.env.AIRA_PASSWORD ?? 'Str0ngPassphrase!2026';
+const api = (process.env.QANXT_API_URL ?? 'http://127.0.0.1:5080').replace(/\/+$/, '');
+const org = process.env.QANXT_ORG ?? 'northwind-bank';
+const email = process.env.QANXT_EMAIL ?? 'qa.lead@northwind.test';
+const password = process.env.QANXT_PASSWORD ?? 'Str0ngPassphrase!2026';
 
 const fail = (message) => { console.log(`FAIL  ${message}`); process.exitCode = 1; };
 const pass = (message) => console.log(`PASS  ${message}`);

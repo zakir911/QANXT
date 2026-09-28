@@ -1,6 +1,6 @@
 # Visual regression
 
-AIRA captures the page and compares it with a baseline somebody agreed to.
+QA NXT captures the page and compares it with a baseline somebody agreed to.
 
 The hard part is not comparing pixels. It is that **most visual differences are
 intentional** — somebody changed the design — and a check that fails the build on every

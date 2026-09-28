@@ -52,7 +52,7 @@ console.log(ok ? '  clean   non-secrets preserved (acc-1002, u-bob)' : '  LOST  
 if (!ok) failures++;
 
 // The whole writer.
-const root = process.env.TMPDIR ? `${process.env.TMPDIR}/aira-redaction-selfcheck` : '/tmp/aira-redaction-selfcheck';
+const root = process.env.TMPDIR ? `${process.env.TMPDIR}/qanxt-redaction-selfcheck` : '/tmp/qanxt-redaction-selfcheck';
 rmSync(root, { recursive: true, force: true });
 const result = writeFindingEvidence({
   root, findingId: 'PROBE-001',

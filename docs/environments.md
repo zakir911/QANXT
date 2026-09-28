@@ -1,10 +1,10 @@
 # Environments
 
-Where an application is deployed, and whether AIRA may touch it.
+Where an application is deployed, and whether QA NXT may touch it.
 
 ```bash
-aira environments                     # list them
-export AIRA_ENVIRONMENT_ID=…          # which one a run targets
+qanxt environments                     # list them
+export QANXT_ENVIRONMENT_ID=…          # which one a run targets
 ```
 
 An environment carries four things a run needs, and omitting one is not the same as having
@@ -13,25 +13,25 @@ none:
 | | |
 | --- | --- |
 | `baseUrl` / `apiBaseUrl` | Where the deployment is. |
-| `allowedDomains` | What AIRA may open. The authorization boundary. |
+| `allowedDomains` | What QA NXT may open. The authorization boundary. |
 | `rateLimitPerMinute` | How hard it may be driven. |
 | `isProduction` | Whether it is refused by default. |
 
 **A run with no environment falls back to the application's own URL and applies none of
 these.** That is worth stating plainly because it looks like a harmless omission: the run
 works, the report looks normal, and nothing says the allowed domains and the rate limit
-were never in play. Set `AIRA_ENVIRONMENT_ID` even when a project has one environment.
+were never in play. Set `QANXT_ENVIRONMENT_ID` even when a project has one environment.
 
 ## Production is refused by default
 
-Two separate things must be true before AIRA will test a production environment:
+Two separate things must be true before QA NXT will test a production environment:
 
 1. The environment is marked production.
 2. Somebody has authorized testing on it, **with a note saying why**.
 
 ```bash
-curl -X POST "$AIRA_API_URL/api/v1/environments/$ID/authorize-production" \
-  -H "authorization: Bearer $AIRA_TOKEN" -H 'content-type: application/json' \
+curl -X POST "$QANXT_API_URL/api/v1/environments/$ID/authorize-production" \
+  -H "authorization: Bearer $QANXT_TOKEN" -H 'content-type: application/json' \
   -d '{"authorized":true,"note":"Read-only smoke test, agreed with the platform team."}'
 ```
 
@@ -61,7 +61,7 @@ Destructive tests cannot be enabled on a production environment at all.
 
 ## The authorization boundary
 
-`allowedDomains` is the primary SSRF control. Every URL AIRA opens goes through it: the
+`allowedDomains` is the primary SSRF control. Every URL QA NXT opens goes through it: the
 seed URL, every discovered link, every redirect target, every API request, and every
 outbound notification webhook.
 
@@ -72,7 +72,7 @@ Three things are refused regardless of configuration:
 - Credentials embedded in a URL.
 
 Private ranges are refused unless the deployment sets `ALLOW_PRIVATE_NETWORK_TARGETS`,
-which exists for a developer pointing AIRA at an application on their own machine.
+which exists for a developer pointing QA NXT at an application on their own machine.
 
 A deployment can also set a **global allowlist** that confines every project in it. A
 project cannot widen that by editing its own application configuration.
@@ -80,8 +80,8 @@ project cannot widen that by editing its own application configuration.
 ## Disabling one
 
 ```bash
-curl -X PATCH "$AIRA_API_URL/api/v1/environments/$ID" \
-  -H "authorization: Bearer $AIRA_TOKEN" -H 'content-type: application/json' \
+curl -X PATCH "$QANXT_API_URL/api/v1/environments/$ID" \
+  -H "authorization: Bearer $QANXT_TOKEN" -H 'content-type: application/json' \
   -d '{"isEnabled":false}'
 ```
 
@@ -103,4 +103,4 @@ not a read, not a preview, not an export. See [Test data](test-data.md).
 ## See also
 
 [Test data](test-data.md) · [Running from a pipeline](ci-cd.md) ·
-[Scheduled regression](scheduling.md) · [The `aira` command](cli.md)
+[Scheduled regression](scheduling.md) · [The `qanxt` command](cli.md)

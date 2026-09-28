@@ -11,7 +11,7 @@ WORKDIR /src
 # restore fail with an opaque certificate error. Any .crt dropped into
 # infrastructure/docker/certs/ is trusted here; the directory is otherwise empty, so this is
 # a no-op for everyone else.
-COPY infrastructure/docker/certs/ /usr/local/share/ca-certificates/aira-extra/
+COPY infrastructure/docker/certs/ /usr/local/share/ca-certificates/qanxt-extra/
 RUN update-ca-certificates >/dev/null 2>&1 || true
 
 RUN corepack enable && corepack prepare pnpm@10 --activate
@@ -26,15 +26,15 @@ COPY samples/demo-bank/package.json ./samples/demo-bank/
 COPY tests/e2e/package.json ./tests/e2e/
 
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-RUN pnpm install --frozen-lockfile --filter @aira/web-console...
+RUN pnpm install --frozen-lockfile --filter @qa-nxt/web-console...
 
 COPY packages/shared-types/ ./packages/shared-types/
 COPY apps/web-console/ ./apps/web-console/
 
 ARG VITE_API_URL=http://localhost:5080
-ARG VITE_PRODUCT_NAME=AIRA
+ARG VITE_PRODUCT_NAME="QA NXT"
 ENV VITE_API_URL=$VITE_API_URL VITE_PRODUCT_NAME=$VITE_PRODUCT_NAME
-RUN pnpm --filter @aira/web-console... build
+RUN pnpm --filter @qa-nxt/web-console... build
 
 FROM nginx:1.27-alpine AS runtime
 COPY --from=build /src/apps/web-console/dist /usr/share/nginx/html

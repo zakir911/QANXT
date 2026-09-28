@@ -12,7 +12,7 @@ not breakages.
 
 ## 1. There is already an agent, and it is narrower than its name
 
-`Aira.Application/Agent/` is 46KB across three files, plus `AgentRun`, `AgentStep` and
+`QaNxt.Application/Agent/` is 46KB across three files, plus `AgentRun`, `AgentStep` and
 `AgentFinding` in the domain, an `/agent` console page, and 10 integration tests.
 
 What it does, from `AgentLoop.cs`:
@@ -27,7 +27,7 @@ authority: it cannot approve healing, change a gate, close a failure or edit a t
 integration test asserts each of those.
 
 **What it does not do.** The loop injects exactly four services: discovery, test generation,
-test runs, and the database. It has a `using Aira.Application.Security;` at the top of the
+test runs, and the database. It has a `using QaNxt.Application.Security;` at the top of the
 file and **uses nothing from that namespace** — a stale import, and the clearest single piece
 of evidence for the gap. So:
 
@@ -97,10 +97,10 @@ exists, the task is to make the agent call it and record why.
 
 ## 4. Technical debt and duplication found
 
-- **`using Aira.Application.Security;` in `AgentLoop.cs` is unused.** It reads as though the
+- **`using QaNxt.Application.Security;` in `AgentLoop.cs` is unused.** It reads as though the
   agent does security work. It does not.
-- **`Aira.Application/Analysis/` and `Aira.Application/Regression/` and
-  `Aira.Application/Healing/` are empty directories.** Healing lives in `Diagnosis/`. An
+- **`QaNxt.Application/Analysis/` and `QaNxt.Application/Regression/` and
+  `QaNxt.Application/Healing/` are empty directories.** Healing lives in `Diagnosis/`. An
   earlier absence check of mine pointed at `Application/Healing` and passed having read
   nothing, for exactly this reason.
 - ~~**Flakiness is computed in four places** with no shared definition.~~ **Wrong, corrected

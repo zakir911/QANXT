@@ -1,4 +1,4 @@
-import type { PageKind } from '@aira/shared-types';
+import type { PageKind } from '@qa-nxt/shared-types';
 import type { RawPageCapture } from './page-extractor.js';
 
 /**

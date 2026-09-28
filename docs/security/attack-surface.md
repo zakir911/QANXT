@@ -1,6 +1,6 @@
 # The attack surface, change impact and release posture
 
-Three things that connect security testing to the rest of AIRA, rather than leaving it as a
+Three things that connect security testing to the rest of QA NXT, rather than leaving it as a
 separate product that happens to live in the same repository.
 
 ## The attack surface
@@ -87,7 +87,7 @@ section is missing, so nothing is wrong — and that is the most consequential s
 report can contain. So a build nobody scanned comes back:
 
 > **NOT SECURITY TESTED.** No security scan covers this build, so nothing is known about its
-> security posture from AIRA. This is not the same as having been tested and found clean, and a
+> security posture from QA NXT. This is not the same as having been tested and found clean, and a
 > release decision should not read it as such.
 
 | Verdict | When |
@@ -170,7 +170,7 @@ steps or any response value. A notification goes to a chat channel with a member
 audits, and *"this endpoint leaks account data, here is the request"* is not a thing to put
 there. The message says so itself:
 
-> The evidence is in AIRA; it is deliberately not in this message.
+> The evidence is in QA NXT; it is deliberately not in this message.
 
 `SECPL-028` asserts the absence by searching the delivered bodies for the payload and the
 error signature that produced the finding.

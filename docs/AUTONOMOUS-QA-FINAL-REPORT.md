@@ -1,4 +1,4 @@
-# AIRA — autonomous QA: what was built, and what that establishes
+# QA NXT — autonomous QA: what was built, and what that establishes
 
 This report exists to be disagreed with. Every claim in it names the thing that would show it
 false, and where nothing would, it says so rather than claiming anything.
@@ -191,7 +191,7 @@ Each of §53's rules, and what holds it.
 
 | | Rule | Held by |
 | --- | --- | --- |
-| 1 | Do not rebuild AIRA | Every phase delegates to the engine that already did the work |
+| 1 | Do not rebuild QA NXT | Every phase delegates to the engine that already did the work |
 | 2 | Do not duplicate existing services | `AQP-034` reads the registry from the running platform |
 | 3 | AI cannot bypass deterministic policy | The ladder is a pure function; no model output reaches it |
 | 4 | No testing outside authorization | `AQX-022`, `AQX-023`; the scope guard re-checks at the engine |

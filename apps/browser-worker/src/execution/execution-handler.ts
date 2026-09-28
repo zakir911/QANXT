@@ -1,7 +1,7 @@
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { ExecutionJob } from '@aira/shared-types';
+import type { ExecutionJob } from '@qa-nxt/shared-types';
 import { ControlPlaneClient } from '../api/control-plane-client.js';
 import { createBaselineStore } from './baseline-store.js';
 import type { BrowserPool } from '../browser/browser-pool.js';
@@ -37,7 +37,7 @@ export async function handleExecutionJob(
     logger
   });
 
-  const artifactRoot = await mkdtemp(join(tmpdir(), `aira-exec-${job.executionId}-`));
+  const artifactRoot = await mkdtemp(join(tmpdir(), `qanxt-exec-${job.executionId}-`));
 
   try {
     await client.executionStarted(job.executionId, config.workerId);

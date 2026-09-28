@@ -10,15 +10,15 @@ export const SECURITY_FLAGS = [
 ] as const;
 
 export const SECURITY_HELP = `
-${bold('aira security')} — security scopes, scans and findings
+${bold('qanxt security')} — security scopes, scans and findings
 
-  aira security scope --application-id <id>
-  aira security scan --application-id <id> [--checks a,b] [--wait]
-  aira security impact --application-id <id> --project-id <id> --changed <paths>
-  aira security scans --application-id <id> [--take 10]
-  aira security findings --application-id <id> [--status confirmed]
-  aira security gate --scan-id <id>
-  aira security triage --finding-id <id> --status <status> --reason "<why>"
+  qanxt security scope --application-id <id>
+  qanxt security scan --application-id <id> [--checks a,b] [--wait]
+  qanxt security impact --application-id <id> --project-id <id> --changed <paths>
+  qanxt security scans --application-id <id> [--take 10]
+  qanxt security findings --application-id <id> [--status confirmed]
+  qanxt security gate --scan-id <id>
+  qanxt security triage --finding-id <id> --status <status> --reason "<why>"
 
   --application-id <id>  The application
   --scan-id <id>         A recorded scan
@@ -42,7 +42,7 @@ ${bold('aira security')} — security scopes, scans and findings
 
 Exit status: 0 PASS · 2 FAIL · 6 SECURITY_POLICY_VIOLATION · 7 REVIEW
 
-${dim('"aira security gate" is the one a pipeline runs. It exits 2 when the gate blocks and 7')}
+${dim('"qanxt security gate" is the one a pipeline runs. It exits 2 when the gate blocks and 7')}
 ${dim('when a person has to look — and a build that was never scanned is 7, never 0. "No scan')}
 ${dim('ran" is not the same as "a scan ran and found nothing", and this will not report it as')}
 ${dim('though it were.')}
@@ -90,7 +90,7 @@ export async function securityCommand(args: ParsedArgs): Promise<number> {
   const action = args.positionals[0];
   if (!action) {
     throw usage('A security subcommand is required.',
-      'aira security scope | scan | impact | scans | findings | gate | triage');
+      'qanxt security scope | scan | impact | scans | findings | gate | triage');
   }
 
   const context = await resolveContext({
@@ -110,13 +110,13 @@ export async function securityCommand(args: ParsedArgs): Promise<number> {
     case 'triage': return triage(api, args, json);
     default:
       throw usage(`Unknown security subcommand "${action}".`,
-        'aira security scope | scan | impact | scans | findings | gate | triage');
+        'qanxt security scope | scan | impact | scans | findings | gate | triage');
   }
 }
 
 function requireApplicationId(args: ParsedArgs): string {
   const id = flag(args, 'application-id') ?? args.positionals[1];
-  if (!id) throw usage('An application id is required.', 'aira security scope --application-id <id>');
+  if (!id) throw usage('An application id is required.', 'qanxt security scope --application-id <id>');
   return id;
 }
 
@@ -192,7 +192,7 @@ async function findings(api: ApiClient, args: ParsedArgs, json: boolean): Promis
 }
 
 /**
- * Asks AIRA to run a scan.
+ * Asks QA NXT to run a scan.
  *
  * Without `--wait` this returns as soon as the job is queued, and the scan it names has not run
  * yet — which is why it exits REVIEW rather than success. A pipeline step that exited 0 on
@@ -204,7 +204,7 @@ async function findings(api: ApiClient, args: ParsedArgs, json: boolean): Promis
 async function startScan(api: ApiClient, args: ParsedArgs, json: boolean): Promise<number> {
   const applicationId = flag(args, 'application-id') ?? args.positionals[1];
   if (!applicationId) {
-    throw usage('An application id is required.', 'aira security scan --application-id <id>');
+    throw usage('An application id is required.', 'qanxt security scan --application-id <id>');
   }
 
   const checks = (flag(args, 'checks') ?? '')
@@ -222,7 +222,7 @@ async function startScan(api: ApiClient, args: ParsedArgs, json: boolean): Promi
     note('');
     note(dim('This scan has not run yet. Nothing about this application\'s security has been'));
     note(dim('established by queueing it, which is why this exits REVIEW rather than success.'));
-    note(dim(`Run "aira security gate --scan-id ${started.securityScanId}" once it reports.`));
+    note(dim(`Run "qanxt security gate --scan-id ${started.securityScanId}" once it reports.`));
     return ExitCode.HumanReviewRequired;
   }
 
@@ -284,11 +284,11 @@ async function impact(api: ApiClient, args: ParsedArgs, json: boolean): Promise<
   const projectId = flag(args, 'project-id');
   if (!applicationId || !projectId) {
     throw usage('An application id and a project id are required.',
-      'aira security impact --application-id <id> --project-id <id> --changed <paths>');
+      'qanxt security impact --application-id <id> --project-id <id> --changed <paths>');
   }
 
   const raw = flag(args, 'changed') ?? '';
-  // "-" reads the diff from stdin, which is how a pipeline has it: git diff --name-only | aira …
+  // "-" reads the diff from stdin, which is how a pipeline has it: git diff --name-only | qanxt …
   const text = raw === '-' ? await readStdin() : raw;
   const changedPaths = text.split(/[,\n]/).map(p => p.trim()).filter(Boolean);
 
@@ -348,7 +348,7 @@ async function readStdin(): Promise<string> {
  */
 async function gate(api: ApiClient, args: ParsedArgs, json: boolean): Promise<number> {
   const scanId = flag(args, 'scan-id') ?? args.positionals[1];
-  if (!scanId) throw usage('A scan id is required.', 'aira security gate --scan-id <id>');
+  if (!scanId) throw usage('A scan id is required.', 'qanxt security gate --scan-id <id>');
 
   const scan = await api.get<SecurityScan>(`/api/v1/security/scans/${scanId}`);
   const result = scan.gate;
@@ -375,7 +375,7 @@ async function triage(api: ApiClient, args: ParsedArgs, json: boolean): Promise<
   const status = flag(args, 'status');
   const reason = flag(args, 'reason');
 
-  if (!findingId) throw usage('A finding id is required.', 'aira security triage --finding-id <id> --status <status>');
+  if (!findingId) throw usage('A finding id is required.', 'qanxt security triage --finding-id <id> --status <status>');
   if (!status) throw usage('A status is required.', '--status falsePositive|accepted|resolved|needsReview|confirmed');
 
   // Refused here as well as by the API. A pipeline operator should find out that a

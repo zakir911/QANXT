@@ -27,7 +27,7 @@ export default async function run() {
 
   const projectA = await createProject(tenantA, 'Tenant A project');
   const applicationA = await registerApplication(tenantA, projectA.id, {
-    name: 'AIRA Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
+    name: 'QA NXT Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
     username: 'alice', password: 'Password123!'
   });
   const importedA = await importJourney(tenantA, {

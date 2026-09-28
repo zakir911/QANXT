@@ -11,7 +11,7 @@ import {
   type VisualCheckDescriptor,
   type VisualComparison,
   type VisualVerdict
-} from '@aira/shared-types';
+} from '@qa-nxt/shared-types';
 
 /**
  * Captures the page and compares it with a stored baseline.

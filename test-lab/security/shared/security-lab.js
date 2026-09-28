@@ -1,9 +1,9 @@
 /**
  * The scaffolding every security lab application shares.
  *
- * These applications are **deliberately vulnerable**. Each one exists so that AIRA's
+ * These applications are **deliberately vulnerable**. Each one exists so that QA NXT's
  * security engine has something with a known answer to find, and every vulnerability in
- * them is written down in that application's ground-truth file before AIRA ever runs.
+ * them is written down in that application's ground-truth file before QA NXT ever runs.
  * A scanner verified against an application whose flaws nobody enumerated first is a
  * scanner verified against its own output.
  *
@@ -15,12 +15,12 @@
  * Two kinds of switch live here.
  *
  * A **vulnerability** is on by default. That is the point of the application: the access
- * control lab really does let user A read user B's account, and AIRA is expected to find
+ * control lab really does let user A read user B's account, and QA NXT is expected to find
  * it. Turning one off is how a false-positive test is built — the lab becomes correct, and
- * AIRA reporting the finding anyway is a defect in AIRA.
+ * QA NXT reporting the finding anyway is a defect in QA NXT.
  *
  * A **security fault** is off by default and breaks a control that is otherwise sound, so a
- * run can prove AIRA noticed a change rather than merely agreed with a fixture.
+ * run can prove QA NXT noticed a change rather than merely agreed with a fixture.
  */
 import { createFaultEngine } from '../../shared/faults.js';
 import { createLabApp } from '../../shared/http.js';

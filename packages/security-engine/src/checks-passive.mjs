@@ -166,7 +166,7 @@ export async function checkCookies(scanner, url, testId = 'SECP-COOKIES') {
  * *while allowing credentials* is how another site reads a signed-in user's data.
  */
 export async function checkCors(scanner, url, testId = 'SECP-CORS') {
-  const probeOrigin = 'https://aira-security-probe.invalid';
+  const probeOrigin = 'https://qanxt-security-probe.invalid';
   const result = await scanner.request({
     url, risk: SECURITY_RISK.PASSIVE, testId, headers: { origin: probeOrigin }
   });

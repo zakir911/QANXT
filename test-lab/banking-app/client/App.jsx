@@ -81,7 +81,7 @@ function Shell() {
   return (
     <div className="app">
       <header className="masthead">
-        <Link to="/dashboard" className="brand" {...testId('brand')}>AIRA Demo Bank</Link>
+        <Link to="/dashboard" className="brand" {...testId('brand')}>QA NXT Demo Bank</Link>
         <nav aria-label="Main" className="nav">
           {NAVIGATION.map(([path, label, id]) => (
             <NavLink key={path} to={path} {...testId(id)}
@@ -96,7 +96,7 @@ function Shell() {
       <main className="content">
         <Outlet />
       </main>
-      <footer className="footer">Synthetic data. AIRA Demo Bank v{lab.version}.</footer>
+      <footer className="footer">Synthetic data. QA NXT Demo Bank v{lab.version}.</footer>
     </div>
   );
 }

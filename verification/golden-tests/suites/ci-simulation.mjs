@@ -10,7 +10,7 @@
  *
  * Between them the twelve produce every exit code the CLI documents. Nine of them come from
  * the real platform answering a real request. One (`deployment-never-came-up`) comes from
- * the pipeline itself, before AIRA is involved. One (`aira-internal-error`) is injected, and
+ * the pipeline itself, before QA NXT is involved. One (`qanxt-internal-error`) is injected, and
  * that test says so in its own expectation rather than in a footnote.
  *
  * The scenarios live in `test-lab/ci-simulation/definitions.mjs` and are imported rather
@@ -89,16 +89,16 @@ const DECLARATIONS = {
   'review-does-not-block': {
     id: 'CIS-011', severity: 'critical',
     objective: 'A team may choose to continue on REVIEW, and the log still says a person must look',
-    expected: 'AIRA exits 7, the pipeline exits 0, and the build log still carries '
+    expected: 'QA NXT exits 7, the pipeline exits 0, and the build log still carries '
       + 'HUMAN_REVIEW_REQUIRED — the decision is visible rather than silently swallowed',
     evidence: ['pipeline.log']
   },
-  'aira-internal-error': {
+  'qanxt-internal-error': {
     id: 'CIS-012', severity: 'high',
-    objective: 'A failure inside AIRA is reported as a defect in AIRA, not as a finding about the application',
+    objective: 'A failure inside QA NXT is reported as a defect in QA NXT, not as a finding about the application',
     expected: 'Exit 8 and a message that says so. INJECTED: the CLI is pointed at a local '
       + 'responder answering 500. This verifies the classification and the pipeline branch; '
-      + 'it does NOT verify that AIRA returns 500 under any condition',
+      + 'it does NOT verify that QA NXT returns 500 under any condition',
     evidence: ['pipeline.log']
   }
 };
@@ -130,7 +130,7 @@ export default async function run() {
           pass: outcome.pass,
           detail: outcome.detail,
           metrics: {
-            airaExit: outcome.airaExit ?? -1,
+            qanxtExit: outcome.qanxtExit ?? -1,
             pipelineExit: outcome.pipelineExit ?? -1
           },
           evidence: outcome.evidence ?? { 'pipeline.log': outcome.log ?? '' }

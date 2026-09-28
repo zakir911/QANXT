@@ -32,7 +32,7 @@ const VERDICT_LABEL: Record<string, string> = {
 
 export function renderHtml(report: RunReport): string {
   const { run, executions, qualityGate } = report;
-  const productName = process.env.PRODUCT_NAME ?? 'AIRA';
+  const productName = process.env.PRODUCT_NAME ?? 'QA NXT';
   const gateState = qualityGate.passed ? 'pass' : 'fail';
 
   const rows = executions.map(execution => {

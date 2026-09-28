@@ -24,13 +24,13 @@ ensure_redis() {
 }
 
 ensure_database() {
-  if ! su postgres -c "psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='aira'\"" 2>/dev/null | grep -q 1; then
-    su postgres -c "psql -c \"CREATE ROLE aira LOGIN PASSWORD 'aira' CREATEDB;\"" >/dev/null
-    echo "database: created role 'aira'"
+  if ! su postgres -c "psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='qanxt'\"" 2>/dev/null | grep -q 1; then
+    su postgres -c "psql -c \"CREATE ROLE qanxt LOGIN PASSWORD 'qanxt' CREATEDB;\"" >/dev/null
+    echo "database: created role 'qanxt'"
   fi
-  if ! su postgres -c "psql -tAc \"SELECT 1 FROM pg_database WHERE datname='aira'\"" 2>/dev/null | grep -q 1; then
-    su postgres -c "createdb -O aira aira" >/dev/null
-    echo "database: created database 'aira'"
+  if ! su postgres -c "psql -tAc \"SELECT 1 FROM pg_database WHERE datname='qanxt'\"" 2>/dev/null | grep -q 1; then
+    su postgres -c "createdb -O qanxt qanxt" >/dev/null
+    echo "database: created database 'qanxt'"
   fi
 }
 

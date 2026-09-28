@@ -1,4 +1,4 @@
-# Installing AIRA
+# Installing QA NXT
 
 A complete, follow-along installation guide for **Windows**, **macOS** and **Linux**.
 
@@ -32,7 +32,7 @@ instead](#windows), below.
 
 ### What you are installing
 
-AIRA is not a single program. Installing it starts five things that talk to each other:
+QA NXT is not a single program. Installing it starts five things that talk to each other:
 
 | Part | What it does | Where it listens |
 | --- | --- | --- |
@@ -42,7 +42,7 @@ AIRA is not a single program. Installing it starts five things that talk to each
 | **PostgreSQL 16** | Everything the platform remembers | `localhost:5432` |
 | **Redis 7** | The queue the API hands work to workers through | `localhost:6379` |
 
-A sixth, the **demo bank** on `http://localhost:4200`, is a small application to point AIRA
+A sixth, the **demo bank** on `http://localhost:4200`, is a small application to point QA NXT
 at so you have something to test on the first day.
 
 ### Hardware requirements
@@ -53,7 +53,7 @@ at so you have something to test on the first day.
 | Free disk | 10 GB | 20 GB | Browsers and container images are most of it; after that it is the video, traces and screenshots every run leaves behind. |
 | CPU | 2 cores | 4 cores | One core is enough to run the platform. Browsers are what use the rest. |
 | Architecture | 64-bit | — | x86-64 and ARM64 both. Apple Silicon and Intel Macs both work. |
-| Network | During installation | — | To download the toolchain and a browser. AIRA does not need the internet to run afterwards unless you configure a hosted model provider. |
+| Network | During installation | — | To download the toolchain and a browser. QA NXT does not need the internet to run afterwards unless you configure a hosted model provider. |
 
 **If you intend to run the verification suites**, budget more: they start the platform, six
 test-lab applications and nine deliberately vulnerable ones, and drive real browsers against
@@ -74,7 +74,7 @@ Node, pnpm, PostgreSQL and Redis — the versions are in [§3](#3-prerequisites)
 
 ### Nothing here needs administrator rights afterwards
 
-Installing the toolchain does. Running AIRA does not, and it binds only to `localhost` — no
+Installing the toolchain does. Running QA NXT does not, and it binds only to `localhost` — no
 part of it is reachable from your network unless you deliberately change that.
 
 ---
@@ -100,7 +100,7 @@ the golden suite, or change anything.
 
 **Read this part before installing anything.**
 
-AIRA's helper commands (`make setup`, `make dev`, `scripts/*.sh`) are bash scripts. There is
+QA NXT's helper commands (`make setup`, `make dev`, `scripts/*.sh`) are bash scripts. There is
 no PowerShell or `cmd` equivalent in the repository, and pretending otherwise would waste
 your afternoon. You have two supported routes:
 
@@ -136,7 +136,7 @@ wsl --set-version Ubuntu-24.04 2
 From here on, **open the Ubuntu terminal** and follow the [Linux](#linux) instructions
 inside it. Two things to know:
 
-- Keep the repository in the Linux filesystem (`~/aira`), not under `/mnt/c/`. Building
+- Keep the repository in the Linux filesystem (`~/qanxt`), not under `/mnt/c/`. Building
   across the Windows/Linux boundary is several times slower.
 - Reach the console from Windows at `http://localhost:5173` as normal — WSL2 forwards it.
 
@@ -245,8 +245,8 @@ newgrp docker
 ### Get the code
 
 ```bash
-git clone <this repository> aira
-cd aira
+git clone <this repository> qanxt
+cd qanxt
 ```
 
 PowerShell is the same, without `sudo` anywhere.
@@ -320,8 +320,8 @@ only command here that destroys anything.
 On Windows, run all of this **inside the Ubuntu (WSL2) terminal**.
 
 ```bash
-git clone <this repository> aira
-cd aira
+git clone <this repository> qanxt
+cd qanxt
 make setup
 ```
 
@@ -346,7 +346,7 @@ make dev
 ```
 
 This starts the API, a browser worker, the console and the demo bank together, and stops
-them all on Ctrl-C. Logs go to `/tmp/aira-*.log`.
+them all on Ctrl-C. Logs go to `/tmp/qanxt-*.log`.
 
 | | |
 | --- | --- |
@@ -361,13 +361,13 @@ The worker drives a real Chromium. The first `pnpm install` fetches it. If you s
 `Executable doesn't exist at …`, fetch it explicitly:
 
 ```bash
-pnpm --filter @aira/browser-worker exec playwright install chromium
+pnpm --filter @qa-nxt/browser-worker exec playwright install chromium
 ```
 
 On Linux you may also need its system libraries:
 
 ```bash
-pnpm --filter @aira/browser-worker exec playwright install-deps chromium
+pnpm --filter @qa-nxt/browser-worker exec playwright install-deps chromium
 ```
 
 ---
@@ -379,7 +379,7 @@ create one.
 
 ### Create your organization
 
-![The AIRA console on a fresh install, offering Sign in or Create an organization](images/01-sign-in.png)
+![The QA NXT console on a fresh install, offering Sign in or Create an organization](images/01-sign-in.png)
 
 Choose **Create an organization**. The password must be at least 12 characters and contain
 letters and digits. The account you create administers the organization — somebody has to.
@@ -433,7 +433,7 @@ Three checks, in increasing order of thoroughness.
 
 Open **<http://localhost:5080/swagger>**. You should see the API's own reference:
 
-![The AIRA Control Plane API reference, listing the versioned endpoints](images/08-api-reference.png)
+![The QA NXT Control Plane API reference, listing the versioned endpoints](images/08-api-reference.png)
 
 Or from a terminal:
 
@@ -533,7 +533,7 @@ change behaviour most:
 
 ### Using a hosted model
 
-Not required. With `AI_DEFAULT_PROVIDER=local`, AIRA generates tests and analyses failures
+Not required. With `AI_DEFAULT_PROVIDER=local`, QA NXT generates tests and analyses failures
 with built-in deterministic rules, and labels every result as such. To use a model instead,
 set the provider and its key in `.env` and restart:
 
@@ -661,7 +661,7 @@ something nobody checked, it links to each vendor's own instructions.
 
 | | Why |
 | --- | --- |
-| **The minimum hardware column** in §1 | Nobody has run AIRA on 8 GB and 2 cores. Those figures are derived from what the parts actually consume, not measured on such a machine. The comfortable column is what this was developed and verified on. |
+| **The minimum hardware column** in §1 | Nobody has run QA NXT on 8 GB and 2 cores. Those figures are derived from what the parts actually consume, not measured on such a machine. The comfortable column is what this was developed and verified on. |
 | Any step on **Windows** or **macOS** | Neither operating system was available here. The prerequisites are the ones the code actually requires, and the commands are the vendors' documented ones, but nobody has walked them end to end. Treat §3 for those two platforms as carefully-derived rather than tested. |
 | **Path A end to end** | Two of the four images build and run here; the console and demo-bank images could not be built in this environment because the image registry they need is unreachable, so the full compose stack has never been started in one piece. `docs/verification-status.md` has the detail. |
 | **WSL2** | The Linux instructions are what WSL2 runs, and nothing in them depends on the kernel, but the WSL2 route itself has not been walked. |

@@ -5,8 +5,8 @@ import type {
   AccessibilityResult, VisualComparison,
   ActionResultReport, ExecutionCompletionReport, ExecutionJob, ExecutionStatus,
   ExecutionStepPlan, HealingEventReport, LocatorDescriptor
-} from '@aira/shared-types';
-import { describeLocator } from '@aira/shared-types';
+} from '@qa-nxt/shared-types';
+import { describeLocator } from '@qa-nxt/shared-types';
 import { performLogin } from '../browser/authenticator.js';
 import type { BrowserPool } from '../browser/browser-pool.js';
 import { LocatorHealer } from '../healing/healer.js';

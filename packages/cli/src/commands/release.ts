@@ -12,20 +12,20 @@ export const RELEASE_FLAGS = [
 ] as const;
 
 export const RELEASE_HELP = `
-${bold('aira release')} — what changed, rather than what is broken
+${bold('qanxt release')} — what changed, rather than what is broken
 
-  ${bold('aira release compare --run <id>')}
+  ${bold('qanxt release compare --run <id>')}
       This run against the one before it: what newly fails, what was fixed,
       what was already failing, what ran that did not run before.
 
-  ${bold('aira release compare --run <id> --previous <id>')}
+  ${bold('qanxt release compare --run <id> --previous <id>')}
       Against a run you choose.
 
-  ${bold('aira release quality --build v2.4.1')}
+  ${bold('qanxt release quality --build v2.4.1')}
       Every run that tested one application build, and what it says about
       shipping it — including tests that both passed and failed within it.
 
-  --project <id>            Project to work in (or AIRA_PROJECT_ID)
+  --project <id>            Project to work in (or QANXT_PROJECT_ID)
   --run <id>                The run to compare
   --previous <id>           Compare against this one instead of the last
   --build <ref>             For "quality": the build, as passed to --app-build
@@ -90,12 +90,12 @@ async function compare(api: ApiClient, args: ParsedArgs): Promise<number> {
 }
 
 async function quality(api: ApiClient, args: ParsedArgs, projectId?: string): Promise<number> {
-  if (!projectId) throw usage('A project is required.', 'Pass --project <id>, or set AIRA_PROJECT_ID.');
+  if (!projectId) throw usage('A project is required.', 'Pass --project <id>, or set QANXT_PROJECT_ID.');
 
   const build = flag(args, 'build');
   if (!build) {
     throw usage('A build is required.',
-      'Pass --build <ref> — the value a pipeline passed to "aira run --app-build".');
+      'Pass --build <ref> — the value a pipeline passed to "qanxt run --app-build".');
   }
 
   const report = await api.get<ReleaseQualityReport>(

@@ -1,13 +1,13 @@
 # The real-world pilot
 
-Everything AIRA had been tested against before this was written alongside it. That is the
+Everything QA NXT had been tested against before this was written alongside it. That is the
 right way to build a test platform and it tells you nothing about how it behaves on somebody
 else's application, so this is the part of the work that can actually surprise us.
 
 ## The target
 
 [Verdaccio](https://verdaccio.org) 6.10.4 — a private npm registry. A Vue front end over an
-Express API, written by people who have never heard of AIRA, with its own routes, its own
+Express API, written by people who have never heard of QA NXT, with its own routes, its own
 login, its own conventions and no knowledge that anything would ever crawl it.
 
 It is installed from npm rather than vendored, so the version is pinned and verifiable:
@@ -26,7 +26,7 @@ npm init -y && npm install verdaccio@6.10.4
   follows a package page cannot turn into traffic against somebody else's registry. This
   matters more than it looks: a crawler pointed at a proxying registry is a crawler pointed
   at the public npm registry.
-- **It listens on loopback only**, and the security scope AIRA is given names `127.0.0.1` and
+- **It listens on loopback only**, and the security scope QA NXT is given names `127.0.0.1` and
   `localhost` and nothing else.
 
 Three packages are published into it (`pilot-utils`, `pilot-core`, `pilot-cli`) so the

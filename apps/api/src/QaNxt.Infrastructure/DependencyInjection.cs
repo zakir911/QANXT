@@ -1,0 +1,126 @@
+using QaNxt.Application.Abstractions;
+using QaNxt.Application.Notifications;
+using QaNxt.Application.Ai;
+using QaNxt.Infrastructure.Ai;
+using QaNxt.Infrastructure.Ai.Providers;
+using QaNxt.Infrastructure.Persistence;
+using QaNxt.Infrastructure.Queue;
+using QaNxt.Infrastructure.Security;
+using QaNxt.Infrastructure.Services;
+using QaNxt.Infrastructure.Storage;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using StackExchange.Redis;
+
+namespace QaNxt.Infrastructure;
+
+public static class DependencyInjection
+{
+    /// <summary>Registers every adapter the application ports need. Composition happens
+    /// once, here, so swapping an implementation (S3 for filesystem, Kafka for Redis) is
+    /// a one-line change rather than a hunt through the codebase.</summary>
+    public static IServiceCollection AddQaNxtInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+        services.Configure<EncryptionOptions>(configuration.GetSection("Encryption"));
+        services.Configure<StorageOptions>(configuration.GetSection("Storage"));
+        services.Configure<AiOptions>(configuration.GetSection("Ai"));
+
+        var connectionString = configuration.GetConnectionString("Database")
+            ?? throw new InvalidOperationException("ConnectionStrings:Database (DATABASE_URL) is not configured.");
+
+        services.AddDbContext<QaNxtDbContext>((provider, options) =>
+        {
+            options.UseNpgsql(connectionString, npgsql =>
+            {
+                npgsql.MigrationsAssembly(typeof(QaNxtDbContext).Assembly.FullName);
+                // Transient network faults are normal in containerized deployments.
+                npgsql.EnableRetryOnFailure(maxRetryCount: 3, maxRetryDelay: TimeSpan.FromSeconds(5), errorCodesToAdd: null);
+            });
+            if (configuration.GetValue("Database:EnableSensitiveDataLogging", false))
+                options.EnableSensitiveDataLogging();
+
+            // Tenant-filtered principals on required navigations are the point of the design:
+            // if a User row is filtered out, its role links must disappear with it. EF warns
+            // about this pattern generically, so the warning is acknowledged rather than left
+            // to obscure genuine model problems.
+            options.ConfigureWarnings(w => w.Ignore(
+                Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId
+                    .PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
+        });
+
+        services.AddScoped<IQaNxtDbContext>(sp => sp.GetRequiredService<QaNxtDbContext>());
+        services.AddScoped<DatabaseSeeder>();
+
+        services.AddSingleton<IClock, SystemClock>();
+        services.AddScoped<ITenantContext, TenantContext>();
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<ISecretProtector, AesSecretProtector>();
+        services.AddSingleton<ITokenService, JwtTokenService>();
+        services.AddScoped<IAuditLogger, AuditLogger>();
+        services.AddSingleton<IArtifactStore, FileSystemArtifactStore>();
+
+        var redisUrl = configuration.GetConnectionString("Redis") ?? "localhost:6379";
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
+        {
+            var logger = sp.GetRequiredService<ILogger<RedisJobQueue>>();
+            var config = ConfigurationOptions.Parse(redisUrl);
+            config.AbortOnConnectFail = false;   // let the app start and recover if Redis is slow to come up
+            config.ConnectRetry = 5;
+            config.ClientName = "qanxt-api";
+            logger.LogInformation("Connecting to Redis at {Endpoint}", redisUrl);
+            return ConnectionMultiplexer.Connect(config);
+        });
+        services.AddSingleton<IJobQueue, RedisJobQueue>();
+
+        // Every provider is registered; the factory decides which one answers a request,
+        // and falls back to the local rule engine when a key is missing.
+        services.AddHttpClient<OpenAiProvider>();
+        services.AddHttpClient<AnthropicProvider>();
+        services.AddHttpClient<GeminiProvider>();
+        services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<OpenAiProvider>());
+        services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<AnthropicProvider>());
+        services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<GeminiProvider>());
+        services.AddScoped<ILlmProvider, LocalProvider>();
+
+        // Fault injection wraps whichever provider the factory picks, so a simulated failure
+        // lands where a real one would: inside CompleteAsync, after provider selection and
+        // budget checks and before validation. Off unless a deployment opts in, and the
+        // switch itself refuses to arm when it is off, so the guard does not depend on every
+        // future caller remembering to check.
+        var faultInjectionEnabled = configuration.GetValue("Ai:FaultInjection:Enabled", false);
+        services.AddSingleton<IAiFaultSwitch>(sp => new AiFaultSwitch(
+            faultInjectionEnabled, sp.GetRequiredService<ILogger<AiFaultSwitch>>()));
+
+        if (faultInjectionEnabled)
+        {
+            services.AddScoped<ILlmProviderFactory>(sp => new FaultInjectingProviderFactory(
+                new LlmProviderFactory(sp.GetServices<ILlmProvider>(),
+                    sp.GetRequiredService<IOptions<AiOptions>>(),
+                    sp.GetRequiredService<ILogger<LlmProviderFactory>>()),
+                sp.GetRequiredService<IAiFaultSwitch>(),
+                sp.GetRequiredService<ILogger<FaultInjectingLlmProvider>>()));
+        }
+        else
+        {
+            services.AddScoped<ILlmProviderFactory, LlmProviderFactory>();
+        }
+        services.AddScoped<IAiBudget, AiBudget>();
+
+        // One named client for every outbound notification, so a deployment can set its
+        // proxy, its certificate handling and its connection limits once rather than per
+        // provider. Redirects are off: a receiver that 302s is pointing the request
+        // somewhere the target policy never checked, which is how an allowlisted webhook
+        // URL becomes a request to anywhere.
+        services.AddHttpClient("notifications")
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
+
+        services.AddScoped<INotificationProvider, Notifications.WebhookNotificationProvider>();
+        services.AddScoped<INotificationProvider, Notifications.SlackNotificationProvider>();
+
+        return services;
+    }
+}

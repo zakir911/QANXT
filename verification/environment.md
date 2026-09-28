@@ -49,7 +49,7 @@ and `test-lab/scripts/lab-ctl.sh`.
 | Console | Vite dev server on `http://127.0.0.1:5173` |
 | Database | PostgreSQL 16.13, schema migrated to head |
 | Queue | Redis 7.0.15 |
-| AI provider | `local` — no hosted model key is present, so every generation and analysis figure describes AIRA's built-in rules engine |
+| AI provider | `local` — no hosted model key is present, so every generation and analysis figure describes QA NXT's built-in rules engine |
 | `ALLOW_PRIVATE_NETWORK_TARGETS` | `true` — required for the lab, which runs on localhost. Two security tests are scoped to that fact and say so in their own text. |
 
 ### Browsers

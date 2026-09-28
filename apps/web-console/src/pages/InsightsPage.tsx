@@ -73,7 +73,7 @@ export default function InsightsPage() {
       {configured.length === 0 && (
         <div className="mb-4 rounded-lg border border-line bg-surface-sunken px-4 py-3">
           <p className="text-sm text-ink">
-            No model provider is configured, so answers come from AIRA's built-in rules.
+            No model provider is configured, so answers come from QA NXT's built-in rules.
             They are computed from the same records and are always labelled as such.
           </p>
           <p className="mt-1 text-xs text-ink-muted">

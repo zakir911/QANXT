@@ -36,14 +36,14 @@ cannot make. `security-constraints.mjs` checks the absence against the source ra
 leaving it asserted here — and fails if a guarded directory holds no source at all, because an
 absence proved by reading nothing is not proved.
 
-**Constraint 12 — self-healing.** AIRA's self-healing rewrites locators when a functional test
+**Constraint 12 — self-healing.** QA NXT's self-healing rewrites locators when a functional test
 breaks. It has no path to a security finding's status at all: no reference to `SecurityFinding`
-or `SecurityScan` appears in `Aira.Application/Diagnosis` or the worker's `src/healing`. The
+or `SecurityScan` appears in `QaNxt.Application/Diagnosis` or the worker's `src/healing`. The
 triage refusal (`SECT-008`) and the never-resolve-on-absence rule (`SECB-002`, `SECB-003`,
 `SECPL-020`) are the second and third lines, not the first.
 
-**Constraint 14 — AI.** AIRA's AI generates functional tests. It does not generate security
-checks, and no reference to `SecurityFinding` appears in `Aira.Application/Ai`, `Agent` or
+**Constraint 14 — AI.** QA NXT's AI generates functional tests. It does not generate security
+checks, and no reference to `SecurityFinding` appears in `QaNxt.Application/Ai`, `Agent` or
 `Intelligence` — so there is no path by which a model's output becomes a finding. Findings are
 produced by deterministic code, severity is computed from stored factors, and confidence is
 computed from whether something was reproduced. `SECM-*` asserts that every severity recomputes
@@ -70,6 +70,6 @@ The sentence a clean result is allowed to produce, asserted verbatim by `SECQ-00
 `SecurityGateTests` and `SecurityReleaseServiceTests`:
 
 > Within the configured scope and test coverage, no security findings were detected by the
-> executed AIRA security tests.
+> executed QA NXT security tests.
 
 Followed, always, by what was not tested.

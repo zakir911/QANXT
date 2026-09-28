@@ -3,7 +3,7 @@
 **Status:** Accepted · **Date:** 2026-09-19
 
 ## Decision
-Every tenant-scoped entity implements `ITenantOwned`. `AiraDbContext` applies an EF Core
+Every tenant-scoped entity implements `ITenantOwned`. `QaNxtDbContext` applies an EF Core
 global query filter binding `OrganizationId` to `ITenantContext.OrganizationId`, and
 `SaveChanges` stamps the tenant on new entities and rejects writes that cross tenants.
 Authorization handlers additionally verify project membership.

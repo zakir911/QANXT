@@ -42,7 +42,7 @@ own."*
 
 ## Self-healing cannot touch a security finding
 
-AIRA's self-healing rewrites locators when a functional test breaks. It has no path to a
+QA NXT's self-healing rewrites locators when a functional test breaks. It has no path to a
 security finding's status, and the triage workflow refuses a suppression with no named human
 decision-maker — which is what any automated attempt would produce.
 

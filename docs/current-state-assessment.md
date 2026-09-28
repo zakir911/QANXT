@@ -66,13 +66,13 @@ Run on 2026-09-21 against a live stack (PostgreSQL 16, Redis 7, API, worker, dem
 
 | Suite | Result |
 | --- | --- |
-| `Aira.UnitTests` | 163 passed, 0 failed |
-| `Aira.IntegrationTests` | 52 passed, 0 failed |
-| `@aira/shared-types` | 12 passed |
-| `@aira/web-console` | 19 passed |
-| `@aira/cli` | 30 passed |
-| `@aira/browser-extension` | 20 passed |
-| `@aira/browser-worker` | 81 passed |
+| `QaNxt.UnitTests` | 163 passed, 0 failed |
+| `QaNxt.IntegrationTests` | 52 passed, 0 failed |
+| `@qa-nxt/shared-types` | 12 passed |
+| `@qa-nxt/web-console` | 19 passed |
+| `@qa-nxt/cli` | 30 passed |
+| `@qa-nxt/browser-extension` | 20 passed |
+| `@qa-nxt/browser-worker` | 81 passed |
 | Independent verification (`verification/tests`) | 47 checks, 47 passed |
 
 Total: **377 product tests (215 .NET, 162 Node) + 47 independent checks, all green** at the

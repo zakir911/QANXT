@@ -1,10 +1,10 @@
 import { request as playwrightRequest, type APIRequestContext, type Page } from 'playwright';
 import type {
   ApiAuthDescriptor, ApiRequestDescriptor, ApiResponseRecord, HttpMethod, PlannedAssertion
-} from '@aira/shared-types';
+} from '@qa-nxt/shared-types';
 import {
   MUTATING_METHODS, RESPONSE_ASSERTION_TYPES, describeJsonValue, readJsonPath, statusMatches
-} from '@aira/shared-types';
+} from '@qa-nxt/shared-types';
 import { isUrlAllowed } from '../security/url-guard.js';
 import type { SecretMasker } from '../security/masker.js';
 import { ActionError, type ActionContext, type AssertionOutcome } from './action-runner.js';
@@ -52,7 +52,7 @@ export interface ApiRequestContextOptions {
  * API test that signs in through the API — `POST /api/session`, then read what that session
  * can see — is an ordinary thing to want, and a client that forgot its cookie between two
  * calls could not express it. Within one test, then, the isolated jar behaves like one
- * HTTP client: AIRA adds no credentials of its own to a `none` request, but a cookie the
+ * HTTP client: QA NXT adds no credentials of its own to a `none` request, but a cookie the
  * test itself obtained still applies, exactly as it would for any client.
  */
 export class ApiRequestSession {

@@ -26,7 +26,7 @@ export interface StoredSession {
 export const DEFAULT_API_URL = 'http://127.0.0.1:5080';
 
 export function configPath(): string {
-  return process.env.AIRA_CONFIG ?? join(homedir(), '.aira', 'config.json');
+  return process.env.QANXT_CONFIG ?? join(homedir(), '.qanxt', 'config.json');
 }
 
 export async function readSession(): Promise<StoredSession | undefined> {
@@ -65,16 +65,16 @@ export async function resolveContext(overrides: {
 } = {}): Promise<ResolvedContext> {
   const stored = await readSession();
 
-  const apiUrl = overrides.apiUrl ?? process.env.AIRA_API_URL ?? stored?.apiUrl ?? DEFAULT_API_URL;
-  const token = overrides.token ?? process.env.AIRA_TOKEN ?? stored?.accessToken;
-  const projectId = overrides.projectId ?? process.env.AIRA_PROJECT_ID ?? stored?.projectId;
-  const consoleUrl = process.env.AIRA_CONSOLE_URL ?? stored?.consoleUrl;
+  const apiUrl = overrides.apiUrl ?? process.env.QANXT_API_URL ?? stored?.apiUrl ?? DEFAULT_API_URL;
+  const token = overrides.token ?? process.env.QANXT_TOKEN ?? stored?.accessToken;
+  const projectId = overrides.projectId ?? process.env.QANXT_PROJECT_ID ?? stored?.projectId;
+  const consoleUrl = process.env.QANXT_CONSOLE_URL ?? stored?.consoleUrl;
 
   if (!token) {
     throw new CliError(
       'No session. Sign in first, or supply a token.',
       ExitCode.AuthenticationError,
-      'Run "aira login", or set AIRA_TOKEN (and AIRA_API_URL) in your pipeline.');
+      'Run "qanxt login", or set QANXT_TOKEN (and QANXT_API_URL) in your pipeline.');
   }
 
   return { apiUrl: apiUrl.replace(/\/+$/, ''), consoleUrl, token, projectId };

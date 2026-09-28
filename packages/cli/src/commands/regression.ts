@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process';
 import { writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { promisify } from 'node:util';
-import type { RunTrigger } from '@aira/shared-types';
+import type { RunTrigger } from '@qa-nxt/shared-types';
 import { ApiClient } from '../api.js';
 import { boolFlag, flag, flagAll, intFlag, rejectUnknownFlags, type ParsedArgs } from '../args.js';
 import { resolveContext } from '../config.js';
@@ -22,22 +22,22 @@ export const REGRESSION_FLAGS = [
 ] as const;
 
 export const REGRESSION_HELP = `
-${bold('aira regression')} — run the tests a change needs, and say why
+${bold('qanxt regression')} — run the tests a change needs, and say why
 
-  ${bold('aira regression run --since origin/main')}
+  ${bold('qanxt regression run --since origin/main')}
       Works out what changed, selects the tests that change reaches, runs them
       and waits for the verdict.
 
-  ${bold('aira regression select --since HEAD~1 --explain')}
+  ${bold('qanxt regression select --since HEAD~1 --explain')}
       The selection only: what would run, what would not, and the reasoning for
       each. Nothing is executed.
 
-  ${bold('aira regression impact --since origin/main')}
+  ${bold('qanxt regression impact --since origin/main')}
       What the changed files were found to affect, and which of those mappings a
-      rule declared rather than AIRA inferring.
+      rule declared rather than QA NXT inferring.
 
-  --project <id>         Project to work in (or AIRA_PROJECT_ID)
-  --environment <id>     Environment to run against (or AIRA_ENVIRONMENT_ID)
+  --project <id>         Project to work in (or QANXT_PROJECT_ID)
+  --environment <id>     Environment to run against (or QANXT_ENVIRONMENT_ID)
   --app <id>             Restrict to one application
   --since <ref>          Compare against this git ref to find changed files
   --changed <path>       A changed path; repeat for several (instead of --since)
@@ -53,7 +53,7 @@ ${bold('aira regression')} — run the tests a change needs, and say why
 
   --name <text>          Name the run
   --timeout <seconds>    Give up waiting (default 1800)
-  --junit/--json/--html/--report-dir   As "aira run"
+  --junit/--json/--html/--report-dir   As "qanxt run"
 
 ${bold('What the score means')}
 
@@ -70,11 +70,11 @@ ${bold('What the score means')}
 
 ${bold('When it cannot tell')}
 
-  A change AIRA cannot map to anything runs the whole suite, loudly. Returning
+  A change QA NXT cannot map to anything runs the whole suite, loudly. Returning
   no tests would read as a pass, and a narrowed run that skipped the test which
   would have caught the defect is the failure this command exists to avoid.
 
-Exit status is the same contract as "aira run": 0 PASS, 1 TEST_FAILURE,
+Exit status is the same contract as "qanxt run": 0 PASS, 1 TEST_FAILURE,
 2 QUALITY_GATE_FAILURE, 7 HUMAN_REVIEW_REQUIRED, 3 CONFIGURATION_ERROR.
 `;
 
@@ -132,7 +132,7 @@ export async function regressionCommand(args: ParsedArgs): Promise<number> {
 
   const sub = args.positionals[0] ?? 'run';
   if (sub !== 'run' && sub !== 'select' && sub !== 'impact') {
-    throw usage(`"aira regression ${sub}" is not a subcommand.`, 'Use "run", "select" or "impact".');
+    throw usage(`"qanxt regression ${sub}" is not a subcommand.`, 'Use "run", "select" or "impact".');
   }
 
   const context = await resolveContext({
@@ -143,7 +143,7 @@ export async function regressionCommand(args: ParsedArgs): Promise<number> {
   const api = new ApiClient(context.apiUrl, context.token);
 
   if (!context.projectId) {
-    throw usage('A project is required.', 'Pass --project <id>, or set AIRA_PROJECT_ID.');
+    throw usage('A project is required.', 'Pass --project <id>, or set QANXT_PROJECT_ID.');
   }
 
   const changedPaths = await resolveChangedPaths(args);
@@ -176,7 +176,7 @@ export async function regressionCommand(args: ParsedArgs): Promise<number> {
  *
  * `--since` runs git, because a pipeline already has the repository and asking it is more
  * reliable than asking a person to paste a list. The explicit forms exist for the pipelines
- * that compute the list some other way, and for the ones where AIRA runs somewhere the
+ * that compute the list some other way, and for the ones where QA NXT runs somewhere the
  * repository is not.
  */
 async function resolveChangedPaths(args: ParsedArgs): Promise<string[]> {

@@ -36,7 +36,7 @@ export default async function run() {
   const tenant = await newTenant('Generation');
   const project = await createProject(tenant, 'Golden generation');
   const application = await registerApplication(tenant, project.id, {
-    name: 'AIRA Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
+    name: 'QA NXT Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
     username: 'alice', password: 'Password123!'
   });
 
@@ -364,7 +364,7 @@ export default async function run() {
       // than the generator.
       const coverageProject = await createProject(tenant, 'Generation coverage');
       const coverageApp = await registerApplication(tenant, coverageProject.id, {
-        name: 'AIRA Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
+        name: 'QA NXT Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
         username: 'alice', password: 'Password123!'
       });
       await runDiscovery(tenant, coverageApp.id, { timeoutMs: 300_000 });

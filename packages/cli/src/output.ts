@@ -1,7 +1,7 @@
 /**
  * Terminal output.
  *
- * Progress and diagnostics go to stderr, results to stdout, so `aira status --json | jq`
+ * Progress and diagnostics go to stderr, results to stdout, so `qanxt status --json | jq`
  * works without the progress lines corrupting the stream. Colour is used only when the
  * output is a terminal and NO_COLOR is unset, and never as the only carrier of meaning.
  */

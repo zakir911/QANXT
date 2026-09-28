@@ -2,12 +2,12 @@
 # Security testing, from nothing to a traceability matrix.
 #
 #   ./scripts/verify-security
-#   ./scripts/verify-security --no-platform   # skip AIRA's own API; scan the lab only
+#   ./scripts/verify-security --no-platform   # skip QA NXT's own API; scan the lab only
 #
 #   infrastructure → security lab → ground-truth audit → unit tests → security suites
 #   → report → traceability
 #
-# What this script asserts, precisely: that AIRA's security testing finds each flaw planted
+# What this script asserts, precisely: that QA NXT's security testing finds each flaw planted
 # in its lab, says nothing about the endpoints that are correct, refuses everything the scope
 # does not authorize, and reports what it did not test. It does not assert that any
 # application is secure, and neither does anything it produces.
@@ -27,8 +27,8 @@ for arg in "$@"; do [[ "$arg" == "--no-platform" ]] && WITH_PLATFORM=false; done
 export GOLDEN_RUN_ID="${GOLDEN_RUN_ID:-SEC-$(date -u +%Y-%m-%dT%H-%M-%SZ)}"
 
 # The scanning and gate suites need only the lab. `security-platform` exercises scopes, scans,
-# findings and triage through AIRA's own API, `security-worker` drives a scan AIRA starts and
-# runs itself end to end, and `security` exercises AIRA's own tenancy, credential handling and
+# findings and triage through QA NXT's own API, `security-worker` drives a scan QA NXT starts and
+# runs itself end to end, and `security` exercises QA NXT's own tenancy, credential handling and
 # target policy — all three need the platform, and `security-worker` needs the worker too.
 SUITES=(security-scan security-gate)
 $WITH_PLATFORM && SUITES+=(security-platform security-worker security)
@@ -37,7 +37,7 @@ if $WITH_PLATFORM; then
   section "Infrastructure"
   bash scripts/services-ctl.sh --with-database || fail "PostgreSQL and Redis did not start."
 
-  section "AIRA"
+  section "QA NXT"
   bash scripts/api-ctl.sh start && bash scripts/api-ctl.sh wait || fail "The API did not start."
   bash scripts/worker-ctl.sh start || fail "The worker did not start."
 fi
@@ -55,7 +55,7 @@ node test-lab/security/audit-ground-truth.mjs \
 section "Unit tests"
 # The scope guard, the severity model and the gate are pure functions with no application
 # involved, and they are where the controls actually live.
-dotnet test apps/api/tests/Aira.UnitTests/Aira.UnitTests.csproj -v q --nologo \
+dotnet test apps/api/tests/QaNxt.UnitTests/QaNxt.UnitTests.csproj -v q --nologo \
   --filter "FullyQualifiedName~Security" \
   || fail "The security unit tests did not pass."
 
@@ -106,7 +106,7 @@ if [[ $report_status -ne 0 ]]; then
   exit $report_status
 fi
 
-printf '\033[32mAIRA'"'"'s security testing is verified against its own lab.\033[0m\n'
+printf '\033[32mQA NXT'"'"'s security testing is verified against its own lab.\033[0m\n'
 printf '\033[2mThis says that the security tests do what they claim. It is not a statement that any\n'
 printf 'application is secure, and nothing produced here should be read as one.\033[0m\n'
 printf '  Report:       verification/reports/SECURITY-VERIFICATION-REPORT.md\n'

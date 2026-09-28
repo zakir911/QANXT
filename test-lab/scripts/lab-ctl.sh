@@ -7,7 +7,7 @@
 set -uo pipefail
 LAB="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(cd "$LAB/.." && pwd)"
-RUN="${TMPDIR:-/tmp}/aira-test-lab"
+RUN="${TMPDIR:-/tmp}/qanxt-test-lab"
 mkdir -p "$RUN"
 
 # name | directory | port
@@ -18,7 +18,7 @@ APPS=(
   "dynamic-app|dynamic-app|4330"
   "failure-app|failure-app|4340"
   "self-healing-app|self-healing-app|4350"
-  # Not an application under test: a receiver, so that "AIRA sent the notification" is
+  # Not an application under test: a receiver, so that "QA NXT sent the notification" is
   # something a test can observe rather than infer from the sending code.
   "notification-sink|notification-sink|4360"
 
@@ -119,7 +119,7 @@ case "${1:-status}" in
     # clearer than serving a blank page and failing every test that follows.
     if [[ ! -f "$LAB/banking-app/dist/index.html" ]]; then
       echo "Building the banking application…"
-      (cd "$ROOT" && pnpm --filter @aira/test-lab build >/dev/null) || exit 1
+      (cd "$ROOT" && pnpm --filter @qa-nxt/test-lab build >/dev/null) || exit 1
     fi
     failed=0
     for entry in "${APPS[@]}"; do

@@ -1,10 +1,10 @@
 # Accessibility checks
 
-AIRA runs [axe-core](https://github.com/dequelabs/axe-core) against a page as a test step.
+QA NXT runs [axe-core](https://github.com/dequelabs/axe-core) against a page as a test step.
 
 **Read this part first.** Automated checks find roughly a third of WCAG issues — that is
 axe's own figure, not a hedge. A page with no violations has not been shown to be
-accessible; it has been shown to have no violations a machine can find. AIRA never reports
+accessible; it has been shown to have no violations a machine can find. QA NXT never reports
 a clean result as "accessible", and neither should anything built on top of it:
 
 ```
@@ -95,7 +95,7 @@ its step and still moves the gate metric — measuring and enforcing are differe
 
 ## Violations and incompletes
 
-axe returns three kinds of answer, and AIRA keeps them distinct:
+axe returns three kinds of answer, and QA NXT keeps them distinct:
 
 - **Violations** — definitely wrong. These are what the threshold acts on.
 - **Incomplete** — a check a machine cannot decide, which a person must. Reported as a
@@ -105,7 +105,7 @@ axe returns three kinds of answer, and AIRA keeps them distinct:
 
 A dangling `aria-describedby` is a good example of the middle one: axe reports it as
 *incomplete* rather than a violation, because the target element might be added by script
-after the scan. AIRA does not promote it, because failing a build on something the tool
+after the scan. QA NXT does not promote it, because failing a build on something the tool
 cannot know would be wrong, and it does not drop it, because a page with twelve things
 needing a human is not clean. The lab has a fault for exactly this case.
 

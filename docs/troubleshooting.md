@@ -11,19 +11,19 @@ Read the exit code before anything else — it is chosen to answer exactly this.
 | `1` | `TEST_FAILURE` | The application or the tests. Start with `summary.md`. |
 | `2` | `QUALITY_GATE_FAILURE` | Whoever set the rule. Every test was within tolerance. |
 | `3` | `CONFIGURATION_ERROR` | Whoever edited the pipeline. A missing project, a bad flag. |
-| `4` | `AUTHENTICATION_ERROR` | Whoever holds `AIRA_TOKEN`. Rotate or re-issue it. |
+| `4` | `AUTHENTICATION_ERROR` | Whoever holds `QANXT_TOKEN`. Rotate or re-issue it. |
 | `5` | `INFRASTRUCTURE_ERROR` | The platform operator. **Nothing was measured.** |
 | `6` | `SECURITY_POLICY_VIOLATION` | Read the reason. **Do not widen permissions.** |
 | `7` | `HUMAN_REVIEW_REQUIRED` | A person. Not a failure. |
-| `8` | `AIRA_INTERNAL_ERROR` | Whoever maintains AIRA. Not your application. |
+| `8` | `QANXT_INTERNAL_ERROR` | Whoever maintains QA NXT. Not your application. |
 
 ## "One or more validation errors occurred"
 
-The request could not be bound at all, so none of AIRA's own validation ran and the message
+The request could not be bound at all, so none of QA NXT's own validation ran and the message
 says nothing useful. Almost always an empty string where an id was expected:
 
 ```bash
-AIRA_ENVIRONMENT_ID= aira schedule add …    # exported and empty
+QANXT_ENVIRONMENT_ID= qanxt schedule add …    # exported and empty
 ```
 
 Unset the variable rather than setting it empty. The CLI treats blank as absent for its own
@@ -51,7 +51,7 @@ happens repeatedly, check worker memory and the browser pool.
 ## A schedule stopped running
 
 ```bash
-aira schedule list
+qanxt schedule list
 ```
 
 A schedule that failed three times in a row disables itself and stores why:
@@ -65,7 +65,7 @@ Re-enabling clears the count. Common causes: the tag no longer matches any test,
 environment was deleted, or the environment is production and its authorization was
 withdrawn.
 
-`aira schedule preview <id>` shows the next few fire times — worth checking before assuming
+`qanxt schedule preview <id>` shows the next few fire times — worth checking before assuming
 the runner is broken. A cron expression that means something other than what was typed is
 more common than a broken scheduler.
 
@@ -100,7 +100,7 @@ failing until the team chooses.
 ## A notification never arrived
 
 ```bash
-curl "$AIRA_API_URL/api/v1/integrations/deliveries?runId=<id>" -H "authorization: Bearer $AIRA_TOKEN"
+curl "$QANXT_API_URL/api/v1/integrations/deliveries?runId=<id>" -H "authorization: Bearer $QANXT_TOKEN"
 ```
 
 Every attempt is recorded with the receiver's own answer. Common causes:
@@ -119,7 +119,7 @@ Check whether its data is seeded. An unseeded generated field produces a differe
 every run, and a test that fails on a boundary value will pass when re-run:
 
 ```bash
-aira test-data preview <id>
+qanxt test-data preview <id>
 ```
 
 A seeded field shows the same value every time. If it does not, that is a defect — report
@@ -133,11 +133,11 @@ different statement from zero.
 
 ## The platform is up and every run fails at exit 5
 
-`5` means AIRA could not be reached or used. Check, in order: the API's health endpoint,
+`5` means QA NXT could not be reached or used. Check, in order: the API's health endpoint,
 Redis (the job queue), PostgreSQL, and whether any worker is connected. A worker that
 cannot reach the control plane logs it on startup.
 
 ## See also
 
-[The `aira` command](cli.md) · [Environments](environments.md) ·
+[The `qanxt` command](cli.md) · [Environments](environments.md) ·
 [Quality gates](quality-gates.md) · [Setup](setup.md)

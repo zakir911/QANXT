@@ -29,7 +29,7 @@ export default async function run() {
   const tenant = await newTenant('Execution');
   const project = await createProject(tenant, 'Golden execution');
   const application = await registerApplication(tenant, project.id, {
-    name: 'AIRA Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
+    name: 'QA NXT Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
     username: 'alice', password: 'Password123!'
   });
 
@@ -331,7 +331,7 @@ export default async function run() {
     severity: 'high',
     run: async () => {
       const dynamicApp = await registerApplication(tenant, project.id, {
-        name: 'AIRA Dynamic Lab', baseUrl: LAB.dynamic, maxPages: 8
+        name: 'QA NXT Dynamic Lab', baseUrl: LAB.dynamic, maxPages: 8
       });
       const lateJourney = journey({
         name: 'Late content is waited for',
@@ -456,7 +456,7 @@ export default async function run() {
     run: async () => {
       await lab.reset(LAB.commerce);
       const shop = await registerApplication(tenant, project.id, {
-        name: 'AIRA Demo Commerce', baseUrl: LAB.commerce, loginUrl: `${LAB.commerce}/login`,
+        name: 'QA NXT Demo Commerce', baseUrl: LAB.commerce, loginUrl: `${LAB.commerce}/login`,
         username: 'alice', password: 'Password123!', maxPages: 15
       });
       const purchase = journey({

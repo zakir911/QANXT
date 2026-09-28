@@ -7,15 +7,15 @@ import { bold, dim, note, out } from '../output.js';
 export const LIST_FLAGS = ['project', 'json'] as const;
 
 export const LIST_HELP = `
-${bold('aira projects')} — the projects this account can see
-${bold('aira apps')} — the applications in a project
-${bold('aira environments')} — a project's environments
+${bold('qanxt projects')} — the projects this account can see
+${bold('qanxt apps')} — the applications in a project
+${bold('qanxt environments')} — a project's environments
 
-  --project <id>         Project to list within (or AIRA_PROJECT_ID)
+  --project <id>         Project to list within (or QANXT_PROJECT_ID)
   --json                 Emit the list on stdout as JSON
 
 These exist so a pipeline can resolve a name to an id without a browser: the ids that
-"aira run --project" and "--suite" take are not guessable, and a pipeline should not have
+"qanxt run --project" and "--suite" take are not guessable, and a pipeline should not have
 them pasted in by hand.
 `;
 

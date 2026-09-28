@@ -2,7 +2,7 @@
 
 ## Why a scope exists
 
-Security testing is the one thing AIRA does that could be indistinguishable, from the far end
+Security testing is the one thing QA NXT does that could be indistinguishable, from the far end
 of the connection, from an attack. The difference is permission, and permission has to be a
 thing the system can check rather than a thing somebody remembers.
 
@@ -34,7 +34,7 @@ somebody agreed to.
 
 ## The guard
 
-`SecurityScopeGuard.Evaluate` is a pure function, and every security request in AIRA goes
+`SecurityScopeGuard.Evaluate` is a pure function, and every security request in QA NXT goes
 through it. Not "should go through" — there is no other way to issue one. The engine's
 `request` method is the only door, and the guard is the first thing behind it.
 

@@ -1,5 +1,5 @@
-import type { ElementFingerprint, LocatorDescriptor, RankedLocator } from '@aira/shared-types';
-import { locatorStability } from '@aira/shared-types';
+import type { ElementFingerprint, LocatorDescriptor, RankedLocator } from '@qa-nxt/shared-types';
+import { locatorStability } from '@qa-nxt/shared-types';
 import { buildLocatorFor } from '../browser/locator-builder.js';
 import type { RawElement } from '../discovery/page-extractor.js';
 

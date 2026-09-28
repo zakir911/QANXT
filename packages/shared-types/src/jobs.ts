@@ -8,10 +8,10 @@ import type { ElementFingerprint, LocatorDescriptor } from './locator.js';
 
 /** Queue names, mirrored from the control plane so producers and consumers agree. */
 export const QUEUE_NAMES = {
-  discovery: 'aira:discovery',
-  execution: 'aira:execution',
-  agent: 'aira:agent',
-  security: 'aira:security'
+  discovery: 'qanxt:discovery',
+  execution: 'qanxt:execution',
+  agent: 'qanxt:agent',
+  security: 'qanxt:security'
 } as const;
 
 /** How the worker authenticates into the application under test. */

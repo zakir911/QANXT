@@ -3,7 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { BrowserContext } from 'playwright';
-import type { DiscoveryCompletionReport } from '@aira/shared-types';
+import type { DiscoveryCompletionReport } from '@qa-nxt/shared-types';
 import { BrowserPool } from '../src/browser/browser-pool.js';
 import { Crawler } from '../src/discovery/crawler.js';
 import { Logger } from '../src/util/logger.js';
@@ -24,7 +24,7 @@ describe('discovery against the demo banking application', () => {
 
   beforeAll(async () => {
     bank = await startDemoBank(4311);
-    artifactDir = await mkdtemp(join(tmpdir(), 'aira-discovery-'));
+    artifactDir = await mkdtemp(join(tmpdir(), 'qanxt-discovery-'));
     pool = new BrowserPool(true, logger);
     context = await pool.createContext('chromium', {
       defaultTimeoutMs: 10_000,

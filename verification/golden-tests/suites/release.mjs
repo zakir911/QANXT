@@ -26,11 +26,11 @@ const BANK = LAB.banking;
 const CREDENTIALS = { username: 'alice', password: 'Password123!' };
 
 function cli(args, { token, projectId } = {}) {
-  const result = spawnSync(process.execPath, [resolve(ROOT, 'packages/cli/dist/aira.js'), ...args], {
+  const result = spawnSync(process.execPath, [resolve(ROOT, 'packages/cli/dist/qanxt.js'), ...args], {
     cwd: ROOT, encoding: 'utf8', timeout: 180_000,
     env: {
-      ...process.env, AIRA_API_URL: API, AIRA_TOKEN: token ?? '',
-      AIRA_PROJECT_ID: projectId ?? '', AIRA_ENVIRONMENT_ID: '', NO_COLOR: '1'
+      ...process.env, QANXT_API_URL: API, QANXT_TOKEN: token ?? '',
+      QANXT_PROJECT_ID: projectId ?? '', QANXT_ENVIRONMENT_ID: '', NO_COLOR: '1'
     }
   });
   return { code: result.status ?? -1, output: `${result.stdout ?? ''}${result.stderr ?? ''}` };
@@ -313,7 +313,7 @@ export default async function run() {
   // ---- RLS-007: the CLI gates on regressions, not on failures -------------
   await golden({
     id: 'RLS-007',
-    objective: 'aira release compare --fail-on-new-failures exits 1 on a regression and 0 on a known failure',
+    objective: 'qanxt release compare --fail-on-new-failures exits 1 on a regression and 0 on a known failure',
     preconditions: ['the CLI is built', 'a regression pair and a both-broken pair'],
     input: 'The CLI against each pair',
     expected: 'Exit 1 for the regression, exit 0 for the pair that was already failing — '
@@ -323,7 +323,7 @@ export default async function run() {
     severity: 'critical',
     run: async () => {
       const options = { token: tenant.token, projectId: project.id };
-      const directory = mkdtempSync(join(tmpdir(), 'aira-release-'));
+      const directory = mkdtempSync(join(tmpdir(), 'qanxt-release-'));
       const markdown = join(directory, 'comparison.md');
 
       const regression = cli([
@@ -355,8 +355,8 @@ export default async function run() {
           + `markdown headline "${rendered.split('\n')[0]}"`,
         metrics: { regressionExit: regression.code, knownExit: known.code },
         evidence: {
-          'cli.txt': `$ aira release compare (regression)\n[exit ${regression.code}]\n${regression.output}\n\n`
-            + `$ aira release compare (already failing)\n[exit ${known.code}]\n${known.output}`,
+          'cli.txt': `$ qanxt release compare (regression)\n[exit ${regression.code}]\n${regression.output}\n\n`
+            + `$ qanxt release compare (already failing)\n[exit ${known.code}]\n${known.output}`,
           'comparison.md': rendered
         }
       };

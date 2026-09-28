@@ -3,8 +3,8 @@
 # Keeps a pid file so stopping never relies on pattern-matching process names.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PIDFILE="${ROOT}/.aira-api.pid"
-LOGFILE="${LOGFILE:-/tmp/aira-api.log}"
+PIDFILE="${ROOT}/.qanxt-api.pid"
+LOGFILE="${LOGFILE:-/tmp/qanxt-api.log}"
 
 start() {
   if [[ -f "$PIDFILE" ]] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
@@ -20,7 +20,7 @@ start() {
   # configuration, and the switch refuses to arm when it is off. Override by exporting
   # Ai__FaultInjection__Enabled=false before calling this.
   export Ai__FaultInjection__Enabled="${Ai__FaultInjection__Enabled:-true}"
-  nohup dotnet run --project "${ROOT}/apps/api/src/Aira.Api" --no-launch-profile > "$LOGFILE" 2>&1 &
+  nohup dotnet run --project "${ROOT}/apps/api/src/QaNxt.Api" --no-launch-profile > "$LOGFILE" 2>&1 &
   echo $! > "$PIDFILE"
   echo "API starting (pid $(cat "$PIDFILE")), logs: $LOGFILE"
 }

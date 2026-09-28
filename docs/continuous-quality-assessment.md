@@ -1,7 +1,7 @@
 # Continuous quality: what exists before this phase
 
 Written by inspecting the repository, not from memory. The point is to establish what can be
-reused so this phase extends AIRA rather than growing a second platform beside it.
+reused so this phase extends QA NXT rather than growing a second platform beside it.
 
 Build inspected: `2d03a43`.
 
@@ -27,7 +27,7 @@ Build inspected: `2d03a43`.
 ## 2. What this phase can reuse directly
 
 These are the load-bearing reuse points. Building past them rather than beside them is the
-difference between extending AIRA and forking it.
+difference between extending QA NXT and forking it.
 
 | To build | Reuse |
 | --- | --- |
@@ -61,8 +61,8 @@ Stated plainly, because these are the gaps this phase is judged against.
 | **PR reporting** | The CLI writes files; nothing posts a summary. |
 | **Release-level reporting and comparison** | Reports are per run. |
 | **Flaky detection** | A `Flaky` status exists in the enum and a flakiness score is computed per test, but there is no repeat-execution policy that decides it. |
-| **CI integrations for *using* AIRA** | `.github/workflows/aira-tests.yml` tests AIRA itself. `infrastructure/ci/azure-pipelines.yml` likewise. There is no GitLab or Jenkins definition, and no example of a pipeline that deploys an application and asks AIRA to validate it. |
-| **Nine exit codes** | Six exist. `ConfigurationError`, `SecurityPolicyViolation`, `HumanReviewRequired` and a distinct `AiraInternalError` do not, and `QualityGateFailed` currently doubles as "tests failed". |
+| **CI integrations for *using* QA NXT** | `.github/workflows/qanxt-tests.yml` tests QA NXT itself. `infrastructure/ci/azure-pipelines.yml` likewise. There is no GitLab or Jenkins definition, and no example of a pipeline that deploys an application and asks QA NXT to validate it. |
+| **Nine exit codes** | Six exist. `ConfigurationError`, `SecurityPolicyViolation`, `HumanReviewRequired` and a distinct `QaNxtInternalError` do not, and `QualityGateFailed` currently doubles as "tests failed". |
 
 ## 4. Technical debt this phase must not make worse
 

@@ -408,7 +408,7 @@ export default async function run() {
       let threw = null;
       try {
         writeFindingEvidence({
-          root: '/tmp/aira-evidence-selfcheck', findingId: 'no-evidence',
+          root: '/tmp/qanxt-evidence-selfcheck', findingId: 'no-evidence',
           finding: { category: 'Invented', title: 'A finding with nothing behind it' }, exchanges: []
         });
       } catch (error) { threw = String(error.message); }
@@ -633,7 +633,7 @@ export default async function run() {
       metrics: { scenarios: measurements.length, detected: detectionRate, falsePositives: falsePositiveCount },
       evidence: {
         'rates.json': {
-          note: 'Measured against the AIRA security lab on this run. Detection rate against a lab whose '
+          note: 'Measured against the QA NXT security lab on this run. Detection rate against a lab whose '
             + 'flaws were written alongside the checks is not a detection rate against an unknown '
             + 'application, and must not be quoted as one.',
           scenarios: measurements.length,
@@ -672,7 +672,7 @@ export default async function run() {
 
   notVerified({
     id: 'SECN-003',
-    objective: 'Detection rate against an application AIRA has not seen',
+    objective: 'Detection rate against an application QA NXT has not seen',
     expected: 'A measured rate that generalises',
     severity: 'critical'
   }, 'Not measured, and not measurable here. Every flaw in the lab was written alongside the check that '

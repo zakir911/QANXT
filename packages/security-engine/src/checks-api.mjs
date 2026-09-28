@@ -166,7 +166,7 @@ export async function checkUnsafeMethods(scanner, { baseUrl, createPath, deleteP
   const created = await scanner.request({
     url: `${baseUrl}${createPath}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': 'application/json', ...(actor?.cookie ? { cookie: actor.cookie } : {}) },
-    body: { [field]: 'AIRA security probe: this object exists only to be deleted by this check' },
+    body: { [field]: 'QA NXT security probe: this object exists only to be deleted by this check' },
     as: actor?.label ?? 'unauthenticated', testId: `${testId}:create`,
     note: 'creating the object that the DELETE probe will target, so nothing pre-existing is at risk'
   });

@@ -1,6 +1,6 @@
 # Failure diagnosis
 
-When a test fails, AIRA says what kind of failure it is, how confident it is, what the
+When a test fails, QA NXT says what kind of failure it is, how confident it is, what the
 evidence was, and what to do next. This describes how that verdict is reached — and, since
 this phase, what the API was doing when the step failed.
 
@@ -28,7 +28,7 @@ that says neither who wrote it nor which rules produced it cannot be audited
 
 ## What the API was doing
 
-AIRA has always recorded both the steps a test took and the requests the page made. What it
+QA NXT has always recorded both the steps a test took and the requests the page made. What it
 could not do until this phase was say *which step made which request* — the column holding
 that link existed and nothing wrote it
 ([BUG-0020](../verification/bugs/BUG-0020/bug.md)), and the failing step itself was never
@@ -117,7 +117,7 @@ POST /api/v1/failures/{id}/reanalyse
 ```
 
 An analysis is a statement made from the evidence available when it was made, and the
-evidence outlives it. A failure diagnosed before AIRA could attribute a request to the step
+evidence outlives it. A failure diagnosed before QA NXT could attribute a request to the step
 that made it deserves the better answer without anyone re-running the test.
 
 Nothing is re-run. The verdict is rebuilt from the same stored artifacts, so what changes is

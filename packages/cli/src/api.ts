@@ -43,14 +43,14 @@ export class ApiClient {
       throw new CliError(
         `Could not reach the platform at ${this.baseUrl}.`,
         ExitCode.InfrastructureError,
-        `${String(error)}. Check AIRA_API_URL and that the API is running.`);
+        `${String(error)}. Check QANXT_API_URL and that the API is running.`);
     }
 
     const text = await response.text();
 
     if (response.status === 401) {
       throw new CliError('The platform rejected the session.', ExitCode.AuthenticationError,
-        'The token has expired or was revoked. Run "aira login" again, or refresh AIRA_TOKEN.');
+        'The token has expired or was revoked. Run "qanxt login" again, or refresh QANXT_TOKEN.');
     }
     if (response.status === 403) {
       // Two different refusals arrive as 403, and they go to different people. "Your role
@@ -78,15 +78,15 @@ export class ApiClient {
         problemDetails(text));
     }
     if (!response.ok) {
-      // A 500 is AIRA failing, not AIRA being unreachable, and the two go to different
+      // A 500 is QA NXT failing, not QA NXT being unreachable, and the two go to different
       // people: one is a defect to file, the other is a deployment to check. A gateway
-      // error in front of AIRA stays infrastructure, because that is exactly what it is.
+      // error in front of QA NXT stays infrastructure, because that is exactly what it is.
       const internal = response.status === 500;
       throw new CliError(
         `${method} ${path} failed (${response.status}).`,
-        internal ? ExitCode.AiraInternalError : ExitCode.InfrastructureError,
+        internal ? ExitCode.QaNxtInternalError : ExitCode.InfrastructureError,
         internal
-          ? `${describeProblem(text)} This is a defect in AIRA. Report it with the `
+          ? `${describeProblem(text)} This is a defect in QA NXT. Report it with the `
             + 'correlation id above; the application under test is not implicated.'
           : describeProblem(text));
     }
@@ -95,9 +95,9 @@ export class ApiClient {
     try {
       return JSON.parse(text) as T;
     } catch {
-      // AIRA's own API produced this. Nothing about the application under test is known.
+      // QA NXT's own API produced this. Nothing about the application under test is known.
       throw new CliError(`The platform returned a response that is not JSON.`,
-        ExitCode.AiraInternalError, text.slice(0, 200));
+        ExitCode.QaNxtInternalError, text.slice(0, 200));
     }
   }
 }

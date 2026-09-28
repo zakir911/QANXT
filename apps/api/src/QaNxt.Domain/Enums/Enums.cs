@@ -1,0 +1,432 @@
+namespace QaNxt.Domain.Enums;
+
+/// <summary>Built-in roles. Roles are stored as rows so customers can add their own,
+/// but these seven are seeded and referenced by the permission matrix.</summary>
+public enum SystemRole
+{
+    SuperAdmin = 0,
+    OrganizationAdmin = 1,
+    ProjectAdmin = 2,
+    QaLead = 3,
+    QaEngineer = 4,
+    Developer = 5,
+    Viewer = 6
+}
+
+public enum UserStatus { Invited = 0, Active = 1, Suspended = 2, Disabled = 3 }
+
+public enum AuthenticationStrategy
+{
+    /// <summary>The application needs no login.</summary>
+    None = 0,
+    /// <summary>Username/password typed into a form, described declaratively.</summary>
+    FormLogin = 1,
+    /// <summary>Playwright storage state (cookies + localStorage) supplied up front.</summary>
+    StorageState = 2,
+    /// <summary>A bearer token injected as an Authorization header.</summary>
+    BearerToken = 3,
+    /// <summary>HTTP basic authentication.</summary>
+    BasicAuth = 4
+}
+
+public enum DiscoveryStatus { Queued = 0, Running = 1, Completed = 2, Failed = 3, Cancelled = 4, PartiallyCompleted = 5 }
+
+public enum ElementKind
+{
+    Unknown = 0, Link = 1, Button = 2, TextInput = 3, PasswordInput = 4, NumberInput = 5,
+    DateInput = 6, FileInput = 7, Checkbox = 8, Radio = 9, Select = 10, TextArea = 11,
+    Form = 12, Table = 13, Dialog = 14, Menu = 15, Tab = 16, Navigation = 17,
+    Heading = 18, Image = 19, Alert = 20, Text = 21
+}
+
+public enum PageKind { Unknown = 0, Login = 1, Dashboard = 2, List = 3, Detail = 4, Form = 5, Report = 6, Settings = 7, Error = 8 }
+
+public enum TestCaseSource { Manual = 0, AiGenerated = 1, RecordedJourney = 2, Imported = 3 }
+
+public enum TestPriority { Critical = 0, High = 1, Medium = 2, Low = 3 }
+
+public enum RiskLevel { Critical = 0, High = 1, Medium = 2, Low = 3 }
+
+/// <summary>Verbs the execution engine understands. AI-authored plans are validated
+/// against exactly this closed set before anything touches a browser.</summary>
+public enum BrowserActionType
+{
+    Navigate = 0, Click = 1, DoubleClick = 2, Fill = 3, Select = 4, Check = 5, Uncheck = 6,
+    Hover = 7, Press = 8, Upload = 9, Download = 10, Wait = 11, Screenshot = 12, Scroll = 13,
+    AssertText = 20, AssertVisible = 21, AssertHidden = 22, AssertUrl = 23, AssertValue = 24,
+    AssertCount = 25, AssertAttribute = 26, AssertEnabled = 27, AssertDisabled = 28,
+    /// <summary>Performs an HTTP request against the application's API rather than driving
+    /// the browser. It is a step verb rather than a separate execution model so that runs,
+    /// evidence, failure analysis, healing policy and quality gates all apply unchanged.
+    /// Its request is described by <c>TestStep.ApiRequestJson</c>.</summary>
+    ApiRequest = 30,
+    /// <summary>Runs axe-core against the page and reports what it finds.
+    ///
+    /// A step verb rather than a separate mode, for the same reason as ApiRequest: runs,
+    /// evidence, failure analysis and quality gates all apply unchanged. Its configuration
+    /// is described by <c>TestStep.AccessibilityJson</c>.
+    ///
+    /// Automated checks find roughly a third of WCAG issues, so a clean result is reported
+    /// as "no violations found by these rules" and never as "accessible".</summary>
+    CheckAccessibility = 31,
+    /// <summary>Captures the page and compares it with a stored baseline.
+    ///
+    /// The verdict defaults to REVIEW rather than FAIL, because most visual differences
+    /// are intentional — somebody changed the design. A check that fails the build on every
+    /// deliberate change is one a team switches off within a fortnight, and a switched-off
+    /// check finds nothing.</summary>
+    CheckVisual = 32,
+    /// <summary>Only permitted when the project explicitly allows scripting AND the caller
+    /// holds the execution:script permission. Rejected by default.</summary>
+    ExecuteScript = 90
+}
+
+public enum AssertionType
+{
+    TextEquals = 0, TextContains = 1, Visible = 2, Hidden = 3, UrlEquals = 4, UrlContains = 5,
+    ValueEquals = 6, CountEquals = 7, AttributeEquals = 8, Enabled = 9, Disabled = 10,
+    HttpStatusEquals = 11, NoConsoleErrors = 12,
+
+    // ---- Assertions over an HTTP response (the ApiRequest verb) ----
+    // Each of these is evaluated by the worker's API runner. Nothing is added here that the
+    // runner cannot evaluate: an assertion type that silently maps to "visible" is worse
+    // than one that does not exist, which is what BUG-0017 was.
+
+    /// <summary>The status is one of a comma-separated list, or within an <c>NNN-NNN</c>
+    /// range. Written separately from <see cref="HttpStatusEquals"/> because "any 2xx" is a
+    /// legitimate expectation and encoding it as six equality rules is not.</summary>
+    ResponseStatusIn = 13,
+    /// <summary>The response arrived within N milliseconds. This is a functional
+    /// expectation on one call, not a performance measurement.</summary>
+    ResponseTimeUnderMs = 14,
+    ResponseBodyContains = 15,
+    /// <summary>A JSON value at a path equals the expected value. The path grammar is a
+    /// deliberately small subset: <c>a.b[0].c</c>.</summary>
+    ResponseJsonPathEquals = 16,
+    /// <summary>A JSON value at a path is present and not null.</summary>
+    ResponseJsonPathExists = 17,
+    /// <summary>A JSON value at a path matches a regular expression.</summary>
+    ResponseJsonPathMatches = 18,
+    ResponseHeaderEquals = 19,
+    /// <summary>The response body's shape matches a stored baseline. What "matches" means
+    /// is the contract comparison: a field that vanished is a breaking change, a field that
+    /// appeared is not.</summary>
+    ResponseSchemaMatches = 20
+}
+
+/// <summary>What a test drives. An API test is still a <c>TestCase</c> — same suites, runs,
+/// evidence and gates — but a run needs to be able to count API failures separately, and a
+/// regression selector needs to know which tests do not need a browser.</summary>
+public enum TestCaseKind { Ui = 0, Api = 1, Mixed = 2 }
+
+/// <summary>How an API request authenticates. Separate from
+/// <see cref="AuthenticationStrategy"/>, which describes signing into a UI.</summary>
+public enum ApiAuthMode
+{
+    /// <summary>Send nothing. Used deliberately for negative tests that assert a 401.</summary>
+    None = 0,
+    /// <summary>Reuse the browser context's cookies — the session a UI login established.
+    /// This is what makes an API test able to follow a UI journey.</summary>
+    InheritSession = 1,
+    Bearer = 2,
+    Basic = 3,
+    /// <summary>A header whose name the application chooses (X-API-Key and friends).</summary>
+    ApiKeyHeader = 4,
+    ApiKeyQuery = 5,
+    /// <summary>OAuth2 client credentials, exchanged at execution time. The token is never
+    /// stored and never appears in evidence.</summary>
+    OAuth2ClientCredentials = 6
+}
+
+public enum ExecutionStatus
+{
+    Pending = 0, Queued = 1, Running = 2,
+    Passed = 10, Failed = 11, Skipped = 12, Blocked = 13, Healed = 14, Flaky = 15,
+    TimedOut = 16, Cancelled = 17, Error = 18
+}
+
+public enum RunTrigger { Manual = 0, Scheduled = 1, Cicd = 2, Api = 3, Agent = 4 }
+
+public enum BrowserType { Chromium = 0, Firefox = 1, Webkit = 2 }
+
+public enum ArtifactKind
+{
+    Screenshot = 0, Video = 1, Trace = 2, Har = 3, DomSnapshot = 4, AccessibilityTree = 5,
+    ConsoleLog = 6, NetworkLog = 7, Download = 8, Report = 9, Other = 10
+}
+
+/// <summary>Deterministic classification produced by the failure analyser. The AI may
+/// refine the explanation but may not invent a category outside this set.</summary>
+public enum FailureCategory
+{
+    Unknown = 0,
+    ApplicationDefect = 1,
+    TestDefect = 2,
+    EnvironmentDefect = 3,
+    LocatorChange = 4,
+    TimingIssue = 5,
+    NetworkIssue = 6,
+    AuthenticationIssue = 7,
+    DataIssue = 8,
+    ThirdPartyDependency = 9
+}
+
+public enum HealingPolicy { Never = 0, Suggest = 1, Auto = 2 }
+
+public enum HealingOutcome { Proposed = 0, Applied = 1, Rejected = 2, Approved = 3, Reverted = 4, Failed = 5 }
+
+public enum DefectStatus { Proposed = 0, Open = 1, Triaged = 2, InProgress = 3, Resolved = 4, Rejected = 5, Duplicate = 6 }
+
+public enum DefectSeverity { Blocker = 0, Critical = 1, Major = 2, Minor = 3, Trivial = 4 }
+
+public enum LlmProviderKind { Local = 0, OpenAi = 1, Anthropic = 2, Gemini = 3 }
+
+public enum AiRequestKind
+{
+    TestPlanGeneration = 0, TestCaseGeneration = 1, FailureAnalysis = 2, RootCauseAnalysis = 3,
+    LocatorHealing = 4, JourneyNaming = 5, RiskAssessment = 6, DefectProposal = 7,
+    QualityInsight = 8, ElementSemantics = 9
+}
+
+public enum AiRequestStatus { Pending = 0, Succeeded = 1, Failed = 2, SchemaRejected = 3, CacheHit = 4, BudgetExceeded = 5 }
+
+public enum IntegrationKind { GitHubActions = 0, AzureDevOps = 1, Jira = 2, Slack = 3, Webhook = 4 }
+
+/// <summary>What happened that somebody might want to be told about.</summary>
+/// <remarks>
+/// Kept short on purpose. Every value here is a message somebody receives, and a channel
+/// carrying an event nobody acts on trains its readers to ignore the ones they should.
+/// </remarks>
+public enum NotificationEventKind
+{
+    RunFailed = 0,
+    QualityGateBlocked = 1,
+    BreakingContractChange = 2,
+    ScheduleDisabled = 3,
+    /// <summary>Off by default: for most teams a green build is not news.</summary>
+    RunPassed = 4,
+
+    // Security. A finding nobody is told about is a finding nobody acts on, and the two
+    // below are the ones worth interrupting somebody for.
+    /// <summary>A scan found something Critical that nobody has seen before.</summary>
+    SecurityCriticalFinding = 5,
+    /// <summary>Something that was fixed has been detected again. Worth its own event rather
+    /// than folding into the above: a regression says a repair came undone, which is a
+    /// different fact from a new flaw and usually goes to a different person.</summary>
+    SecurityRegression = 6
+}
+
+public enum QualityGateOperator { LessThan = 0, LessThanOrEqual = 1, GreaterThan = 2, GreaterThanOrEqual = 3, Equal = 4, NotEqual = 5 }
+
+public enum QualityGateMetric
+{
+    PassRatePercent = 0, FailedCount = 1, CriticalFailedCount = 2, FlakyCount = 3,
+    NewFailureCount = 4, HighConfidenceDefectCount = 5, CriticalJourneyFailedCount = 6,
+    HealedCount = 7, AverageDurationMs = 8,
+    // Added for continuous quality. Each is measured from stored results; a metric nothing
+    // can measure yet is not added, because a rule over an always-zero value reads like a
+    // guarantee and is not one.
+    HighFailedCount = 9, MediumFailedCount = 10, FlakyRatePercent = 11,
+    ApiFailedCount = 12, ContractBreakingChangeCount = 13, SecurityFailedCount = 14,
+    RegressionFailedCount = 15, BlockedCount = 16,
+    /// <summary>Accessibility violations found across this run, at critical or serious impact.</summary>
+    /// <remarks>
+    /// Critical and serious rather than every impact, because that is the band a team acts
+    /// on. A metric that moved on advisory findings nobody agreed to fix would make the
+    /// rule noise, and a noisy rule gets switched off.
+    ///
+    /// Measured only from steps that actually ran a check. A run with no accessibility
+    /// step measures zero and says so — the gate reports the metric as unmeasured rather
+    /// than passing a rule nothing tested.
+    /// </remarks>
+    AccessibilitySeriousCount = 17,
+    /// <summary>Visual checks whose verdict was not a match.</summary>
+    /// <remarks>
+    /// Counts differences and size changes together — both mean the page no longer looks
+    /// the way somebody agreed it should, and both need a person. A new baseline is not
+    /// counted: nothing was compared, so nothing changed.
+    ///
+    /// Measured only from steps that actually compared something. A run with no visual
+    /// step reports the metric as unmeasured rather than zero.
+    /// </remarks>
+    VisualDifferenceCount = 18
+}
+
+/// <summary>What a failing rule should do to the pipeline.
+///
+/// REVIEW exists because "a person must look at this" is a real third answer, and folding it
+/// into either PASS or FAIL loses information a release decision needs. A rule that heals
+/// tests is the obvious case: the journey completed, so failing the build would be wrong,
+/// and passing silently would hide that a locator was rewritten.</summary>
+public enum QualityGateAction { Fail = 0, Review = 1, Warn = 2 }
+
+/// <summary>Where an application is deployed. Production is refused by default and needs a
+/// deliberate, recorded authorization on the environment itself.</summary>
+public enum EnvironmentKind { Development = 0, Qa = 1, Staging = 2, Uat = 3, Production = 4 }
+
+/// <summary>The gate's verdict for a whole run.</summary>
+public enum QualityGateOutcome { Pass = 0, Review = 1, Fail = 2 }
+
+/// <summary>What a project wants to happen when a test only passed because a locator was
+/// repaired. Configurable because the right answer differs between a team that wants speed
+/// and a team that wants every rewrite seen.</summary>
+public enum SelfHealingGatePolicy
+{
+    /// <summary>A healed test counts as a pass and nothing is said about it in the gate.</summary>
+    Pass = 0,
+    /// <summary>Counts as a pass, and the gate records a warning naming the healed tests.</summary>
+    PassWithWarning = 1,
+    /// <summary>The gate returns REVIEW: the build need not stop, but a person must look.</summary>
+    RequireReview = 2,
+    /// <summary>The gate fails. For teams that treat any silent locator change as a defect.</summary>
+    Fail = 3
+}
+
+/// <summary>What a difference between a stored API contract and an observed response means
+/// for the people calling that API.
+///
+/// Three values rather than two, because "this might break a caller" is a real answer and
+/// folding it into either of the others loses the information a release decision needs. A
+/// field that can now be null is the clear case: every caller that null-checks is fine and
+/// every caller that does not is broken, and which of those a team has is not something the
+/// platform can know.</summary>
+public enum ContractChangeKind
+{
+    /// <summary>Safe for every existing caller. A new field, most often.</summary>
+    NonBreaking = 0,
+    /// <summary>Safe for some callers and not others.</summary>
+    PotentiallyBreaking = 1,
+    /// <summary>No reading of this is safe for someone who was using the old shape.</summary>
+    Breaking = 2
+}
+
+/// <summary>What a changed file is taken to affect.</summary>
+public enum ImpactKind
+{
+    /// <summary>A page route in the application under test: <c>/accounts</c>.</summary>
+    Route = 0,
+    /// <summary>An API path template: <c>/api/accounts/{id}</c>.</summary>
+    ApiEndpoint = 1,
+    /// <summary>A tag on the tests that cover this area.</summary>
+    Tag = 2,
+    /// <summary>One named test, by reference. The blunt instrument, for the cases a
+    /// pattern cannot express.</summary>
+    TestCase = 3,
+    /// <summary>Everything. For a change to shared infrastructure, where narrowing the
+    /// regression set would be a guess dressed up as an optimisation.</summary>
+    Everything = 4
+}
+
+/// <summary>How a regression set was chosen.</summary>
+public enum RegressionMode
+{
+    /// <summary>Tests the change reaches, plus the ones a project always runs.</summary>
+    Impacted = 0,
+    /// <summary>The smoke set only.</summary>
+    Smoke = 1,
+    /// <summary>Every enabled test. What a nightly run does, and what an impacted
+    /// selection falls back to when it cannot establish what a change reaches.</summary>
+    Full = 2
+}
+
+/// <summary>Where a stored contract came from.</summary>
+public enum ApiContractSource
+{
+    /// <summary>Inferred from a response observed while crawling the application.</summary>
+    Discovery = 0,
+    /// <summary>Inferred from a response an API test received.</summary>
+    TestRun = 1,
+    /// <summary>Supplied by a person or a pipeline.</summary>
+    Declared = 2
+}
+
+/// <summary>Where a bounded agent pass has got to.</summary>
+public enum AgentPhase
+{
+    Pending = 0, Exploring = 1, Modelling = 2, Prioritizing = 3, Generating = 4,
+    Executing = 5, Investigating = 6, Proposing = 7, Done = 8,
+    /// <summary>Drawing up what it intends to test, before testing any of it.</summary>
+    Planning = 9,
+    /// <summary>Comparing what the application can do against what is tested.</summary>
+    AnalysingGaps = 10,
+    /// <summary>Asking the security engine to scan what it selected.</summary>
+    SecurityTesting = 11,
+    /// <summary>Walking areas the existing tests do not reach.</summary>
+    ExploratoryTesting = 12,
+    /// <summary>Grouping failures that share a cause.</summary>
+    Correlating = 13,
+    /// <summary>Waiting for a person to answer a question it cannot answer itself.</summary>
+    AwaitingApproval = 14
+}
+
+public enum AgentRunStatus
+{
+    Queued = 0, Running = 1, Completed = 2, Failed = 3, Cancelled = 4, Stopped = 5,
+    /// <summary>
+    /// The pass has a plan and is waiting for somebody to approve it.
+    /// </summary>
+    /// <remarks>
+    /// A state of its own rather than a flag on Running, because the two need different
+    /// answers to "is anything happening". A run waiting on a person is not stuck and is not
+    /// working, and a dashboard that cannot tell them apart will show one as the other.
+    /// </remarks>
+    AwaitingApproval = 6
+}
+
+/// <summary>What an agent concluded. Every one of these is a proposal for a person.</summary>
+public enum AgentFindingKind
+{
+    CoverageGap = 0, RiskArea = 1, SuspectedDefect = 2, Regression = 3,
+    UnstableTest = 4, BrokenLocator = 5, Observation = 6
+}
+
+public enum JourneySource { Discovered = 0, Recorded = 1, Manual = 2, AiProposed = 3 }
+
+/// <summary>
+/// How well established a journey is, as distinct from who produced it.
+/// </summary>
+/// <remarks>
+/// The distinction the platform relies on when it describes an application. <c>Observed</c>
+/// means the steps were seen to work end to end. <c>UserProvided</c> means a person said so.
+/// <c>Inferred</c> means the platform guessed from structure — a form with these fields is
+/// probably a registration — and a guess is never reported as confirmed functionality.
+/// </remarks>
+public enum JourneyEvidence { Observed = 0, UserProvided = 1, Inferred = 2 }
+
+public enum TestDataKind { Static = 0, Generated = 1, Random = 2, SeededRandom = 3, SecretReference = 4, EnvironmentSpecific = 5 }
+
+public enum AuditAction
+{
+    Login = 0, LoginFailed = 1, Logout = 2, UserCreated = 3, UserUpdated = 4, RoleChanged = 5,
+    OrganizationCreated = 6, ProjectCreated = 7, ProjectUpdated = 8, ProjectDeleted = 9,
+    ApplicationCreated = 10, ApplicationUpdated = 11, DiscoveryStarted = 12,
+    TestCaseCreated = 13, TestCaseUpdated = 14, TestCaseDeleted = 15,
+    TestRunStarted = 16, TestRunCompleted = 17, HealingProposed = 18, HealingApproved = 19,
+    HealingRejected = 20, HealingApplied = 21, AiGeneration = 22, IntegrationConfigured = 23,
+    SecretConfigured = 24, ConfigurationChanged = 25, QualityGateChanged = 26, DefectCreated = 27,
+    AgentRunStarted = 28, AgentRunCompleted = 29,
+    // Schedules run without anybody present, so who changed one and when it fired are the
+    // only record of why a run exists at all.
+    ScheduleCreated = 30, ScheduleUpdated = 31, ScheduleDeleted = 32,
+    ScheduleFired = 33, ScheduleDisabledAutomatically = 34,
+    // Security testing. Every one of these is a thing somebody has to be accountable for:
+    // authorizing an application to be tested, running a scan against it, and setting a
+    // finding aside. An audit trail is the whole reason a suppression needs a name.
+    SecurityScopeAuthorized = 35, SecurityScopeDisabled = 36,
+    SecurityScanRecorded = 37, SecurityFindingTriaged = 38,
+    // Distinct from Recorded: started is somebody asking for traffic to be sent at an
+    // application, which is the moment authorization is spent. A scan that starts and never
+    // reports leaves only this line behind, and that is exactly when it is wanted.
+    SecurityScanStarted = 39,
+    // A scan that was authorized and then never ran is a gap in what somebody believes was
+    // tested. Nothing else records it: the row's own status says what happened, but only the
+    // trail says it happened while someone was expecting a result.
+    SecurityScanAbandoned = 40,
+    /// <summary>A person approved what an autonomous pass proposed to test.</summary>
+    AgentPlanApproved = 41,
+    /// <summary>A person refused it. Recorded as prominently as an approval: a plan nobody
+    /// ran is a coverage decision too.</summary>
+    AgentPlanRejected = 42,
+    /// <summary>A person answered a question the agent stopped to ask mid-run.</summary>
+    AgentApprovalDecided = 43
+}

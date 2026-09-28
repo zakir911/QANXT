@@ -14,7 +14,7 @@ import { createFaultEngine } from '../shared/faults.js';
 import { BASE_CSS } from '../shared/render.js';
 
 const PORT = Number(process.env.DYNAMIC_PORT ?? 4330);
-const APPLICATION = 'AIRA Dynamic Lab';
+const APPLICATION = 'QA NXT Dynamic Lab';
 
 const FAULTS = [
   { id: 'FAULT_DYNAMIC_LOCATOR', description: 'Test ids are regenerated on every render as well as ids and classes.' },

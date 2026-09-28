@@ -52,7 +52,7 @@ The compose file is a local and demonstration stack. Four things must change:
    `api` service. That flag exists only so the platform can reach the demo bank on the
    compose network; leaving it on lets a target URL point at anything inside your network,
    which is exactly the SSRF the URL guard exists to prevent.
-2. **Set a real database password.** `POSTGRES_PASSWORD` defaults to `aira` for local use.
+2. **Set a real database password.** `POSTGRES_PASSWORD` defaults to `qanxt` for local use.
 3. **Put the API behind TLS.** Nothing here terminates TLS; tokens would travel in clear.
 4. **Publish nothing you do not need.** Postgres and Redis are already unpublished; keep it
    that way.
@@ -75,7 +75,7 @@ address. Pointing a built console at a different API means rebuilding it:
 
 ```bash
 docker compose -f infrastructure/docker/docker-compose.yml --project-directory . \
-  build --build-arg VITE_API_URL=https://aira.example.com console
+  build --build-arg VITE_API_URL=https://qanxt.example.com console
 ```
 
 The alternative, and the better one for a real deployment, is to serve the console and the
@@ -101,7 +101,7 @@ docker compose -f infrastructure/docker/docker-compose.yml --project-directory .
 
 | Image | Base | Runs as |
 | --- | --- | --- |
-| `Dockerfile.api` | `mcr.microsoft.com/dotnet/aspnet:8.0` | `aira` (uid 10001) |
+| `Dockerfile.api` | `mcr.microsoft.com/dotnet/aspnet:8.0` | `qanxt` (uid 10001) |
 | `Dockerfile.worker` | `mcr.microsoft.com/playwright:v1.56.0-jammy` | `pwuser` (uid 1000) |
 | `Dockerfile.console` | `nginx:1.27-alpine` | nginx default |
 | `Dockerfile.demo-bank` | `node:22-bookworm-slim` | `bank` (uid 10002) |

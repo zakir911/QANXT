@@ -10,21 +10,21 @@ export const CONTRACT_FLAGS = [
 ] as const;
 
 export const CONTRACT_HELP = `
-${bold('aira contract')} — API contract baselines and what has moved since
+${bold('qanxt contract')} — API contract baselines and what has moved since
 
-  ${bold('aira contract inventory --app <id>')}
-      Every endpoint AIRA has observed, with whether it has a baseline, how many
+  ${bold('qanxt contract inventory --app <id>')}
+      Every endpoint QA NXT has observed, with whether it has a baseline, how many
       API tests call it, and how many breaking changes are open against it.
 
-  ${bold('aira contract baseline --app <id>')}
+  ${bold('qanxt contract baseline --app <id>')}
       Accepts the currently observed shapes as the contract to compare against.
       Use --replace --note "why" to accept a change to an existing baseline.
 
-  ${bold('aira contract check --run <id>')}
+  ${bold('qanxt contract check --run <id>')}
       Compares the responses a finished run observed against the baselines and
       classifies each difference. Also runs automatically when a run completes.
 
-  ${bold('aira contract changes --run <id>')}
+  ${bold('qanxt contract changes --run <id>')}
       What a run's contract check found, without running it again.
 
   --app <id>             Application to work on
@@ -110,7 +110,7 @@ export async function contractCommand(args: ParsedArgs): Promise<number> {
   const sub = args.positionals[0];
   if (sub !== 'inventory' && sub !== 'baseline' && sub !== 'check' && sub !== 'changes') {
     throw usage(
-      sub === undefined ? 'A subcommand is required.' : `"aira contract ${sub}" is not a subcommand.`,
+      sub === undefined ? 'A subcommand is required.' : `"qanxt contract ${sub}" is not a subcommand.`,
       'Use "inventory", "baseline", "check" or "changes".');
   }
 
@@ -135,7 +135,7 @@ async function inventory(api: ApiClient, args: ParsedArgs, asJson: boolean): Pro
   if (asJson) { out(JSON.stringify(result, null, 2)); return ExitCode.Success; }
 
   if (result.endpoints.length === 0) {
-    note(dim('No API endpoints have been observed for this application yet. Run "aira discover" first.'));
+    note(dim('No API endpoints have been observed for this application yet. Run "qanxt discover" first.'));
     return ExitCode.Success;
   }
 
@@ -166,7 +166,7 @@ async function inventory(api: ApiClient, args: ParsedArgs, asJson: boolean): Pro
   if (uncovered > 0) {
     // The gap is the point of the report. Naming it is more useful than a green tick.
     note(yellow(`  ${uncovered} endpoint(s) have no API test. `)
-      + dim('Generate some with "aira api-test generate --app <id>".'));
+      + dim('Generate some with "qanxt api-test generate --app <id>".'));
   }
   return ExitCode.Success;
 }
@@ -293,7 +293,7 @@ function verdict(result: ContractCheckResult, args: ParsedArgs): number {
 function requireApp(args: ParsedArgs): string {
   const applicationId = flag(args, 'app');
   if (!applicationId) {
-    throw usage('An application is required.', 'Pass --app <id>. "aira apps" lists them.');
+    throw usage('An application is required.', 'Pass --app <id>. "qanxt apps" lists them.');
   }
   return applicationId;
 }

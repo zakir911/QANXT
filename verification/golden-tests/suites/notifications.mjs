@@ -8,7 +8,7 @@
  *
  * So these run against `test-lab/notification-sink`, a real HTTP server that keeps what it
  * receives. It is not a mock of Slack and nothing here claims Slack accepts the payload;
- * what is claimed is that AIRA sent one, that its body had a given shape, that the
+ * what is claimed is that QA NXT sent one, that its body had a given shape, that the
  * signature verified, and that a receiver returning 500 or hanging is handled the way the
  * code says it is.
  *
@@ -133,8 +133,8 @@ export default async function run() {
           && delivery !== undefined
           && delivery.signatureValid === true
           && delivery.body?.schemaVersion === 1
-          && delivery.body?.title === 'AIRA test notification'
-          && delivery.headers['x-aira-event'] === 'RunPassed',
+          && delivery.body?.title === 'QA NXT test notification'
+          && delivery.headers['x-qanxt-event'] === 'RunPassed',
         detail: `delivered=${result.json?.delivered} status=${result.json?.statusCode}; `
           + `sink got ${delivery ? 1 : 0} delivery, signature valid: ${delivery?.signatureValid}`,
         evidence: { 'delivery.json': delivery ?? { nothing: 'arrived' } }
@@ -311,7 +311,7 @@ export default async function run() {
         }
       }
 
-      const signed = all.filter(delivery => delivery.headers['x-aira-signature']);
+      const signed = all.filter(delivery => delivery.headers['x-qanxt-signature']);
 
       return {
         // Deliveries must have happened, or this proves nothing about what they contain.
@@ -434,7 +434,7 @@ export default async function run() {
     preconditions: ['none'],
     input: 'A delivery to http://169.254.169.254/latest/meta-data/',
     expected: 'Refused by the target policy before any request is made. "Configure a '
-      + 'webhook" must not mean "ask AIRA to fetch a URL for you and tell you what it said"',
+      + 'webhook" must not mean "ask QA NXT to fetch a URL for you and tell you what it said"',
     evidence: ['result.json'],
     severity: 'critical',
     run: async () => {

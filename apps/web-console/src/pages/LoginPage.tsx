@@ -59,7 +59,7 @@ export default function LoginPage() {
     <div className="min-h-full flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-ink">{meta?.product ?? 'AIRA'}</h1>
+          <h1 className="text-2xl font-bold text-ink">{meta?.product ?? 'QA NXT'}</h1>
           <p className="text-sm text-ink-muted mt-1">{meta?.tagline ?? 'Your AI Quality Engineer'}</p>
         </div>
 

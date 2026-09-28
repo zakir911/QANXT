@@ -46,7 +46,7 @@ export default function Layout() {
       <header className="bg-[#0b2545] text-white">
         <div className="flex flex-wrap items-center gap-4 px-5 py-2.5">
           <div className="flex items-baseline gap-2">
-            <span className="font-bold tracking-tight">{meta?.product ?? 'AIRA'}</span>
+            <span className="font-bold tracking-tight">{meta?.product ?? 'QA NXT'}</span>
             <span className="text-xs text-white/60">{meta?.tagline}</span>
           </div>
 
@@ -101,7 +101,7 @@ export default function Layout() {
       </main>
 
       <footer className="border-t border-line bg-surface px-5 py-3 text-xs text-ink-subtle">
-        {meta?.product ?? 'AIRA'} {meta?.version} · Synthetic and customer data is masked before it is stored.
+        {meta?.product ?? 'QA NXT'} {meta?.version} · Synthetic and customer data is masked before it is stored.
       </footer>
     </div>
   );

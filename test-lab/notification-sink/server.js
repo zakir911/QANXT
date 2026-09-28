@@ -1,14 +1,14 @@
 /**
  * A receiver for notifications, so delivery is something that can be observed.
  *
- * AIRA's notification providers POST to a URL somebody configured. Verifying that by
+ * QA NXT's notification providers POST to a URL somebody configured. Verifying that by
  * reading the provider proves nothing; verifying it by pointing it at Slack needs a Slack
  * workspace. This is the third option: a real HTTP server that accepts the real request,
  * keeps it, and lets a test read back exactly what arrived — headers, body and all.
  *
  * It is deliberately not a mock of Slack. It does not pretend to be any particular
  * service, and nothing here licenses a claim that Slack accepts the payload; what it
- * licenses is a claim that AIRA sent one, that the body had a given shape, and that the
+ * licenses is a claim that QA NXT sent one, that the body had a given shape, and that the
  * signature verified.
  *
  *   GET  /health              is it up
@@ -56,7 +56,7 @@ const readBody = request => new Promise((resolve, reject) => {
 });
 
 /**
- * Verifies an X-Aira-Signature the way a receiver would.
+ * Verifies an X-QaNxt-Signature the way a receiver would.
  *
  * Constant-time, and not because this sink matters — because the check a real receiver
  * copies from an example should be the right one, and a test that passes against a `===`
@@ -100,15 +100,15 @@ const server = createServer(async (request, response) => {
     try { parsed = JSON.parse(body); } catch { /* recorded as unparsed */ }
 
     const secret = url.searchParams.get('secret');
-    const signature = request.headers['x-aira-signature'] ?? null;
+    const signature = request.headers['x-qanxt-signature'] ?? null;
 
     received.push({
       at: new Date().toISOString(),
       path,
       headers: {
         'content-type': request.headers['content-type'] ?? null,
-        'x-aira-event': request.headers['x-aira-event'] ?? null,
-        'x-aira-signature': signature
+        'x-qanxt-event': request.headers['x-qanxt-event'] ?? null,
+        'x-qanxt-signature': signature
       },
       signatureValid: verify(body, signature, secret),
       bodyText: body,

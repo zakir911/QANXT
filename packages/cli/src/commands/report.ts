@@ -8,9 +8,9 @@ import { gatherReport, writeReports } from '../report-gather.js';
 export const REPORT_FLAGS = ['junit', 'json', 'html', 'report-dir'] as const;
 
 export const REPORT_HELP = `
-${bold('aira report')} — write the reports for a run that already finished
+${bold('qanxt report')} — write the reports for a run that already finished
 
-  aira report <run-id> --report-dir ./reports
+  qanxt report <run-id> --report-dir ./reports
 
   --junit <path>         Write JUnit XML
   --json <path>          Write the machine-readable report
@@ -27,7 +27,7 @@ export async function reportCommand(args: ParsedArgs): Promise<number> {
   rejectUnknownFlags(args, REPORT_FLAGS);
 
   const runId = args.positionals[0];
-  if (!runId) throw usage('A run id is required.', 'Usage: aira report <run-id> --report-dir ./reports');
+  if (!runId) throw usage('A run id is required.', 'Usage: qanxt report <run-id> --report-dir ./reports');
 
   const context = await resolveContext({ apiUrl: flag(args, 'api-url'), token: flag(args, 'token') });
   const api = new ApiClient(context.apiUrl, context.token);

@@ -2,7 +2,7 @@ import type { Locator, Page } from 'playwright';
 import type {
   AccessibilityCheckDescriptor, AccessibilityResult, BrowserAction, LocatorDescriptor,
   PlannedAssertion, VisualCheckDescriptor, VisualComparison
-} from '@aira/shared-types';
+} from '@qa-nxt/shared-types';
 import { AccessibilityError, runAccessibilityCheck } from './accessibility-runner.js';
 import { VisualError, runVisualStep, type BaselineStore } from './visual-runner.js';
 import { buildLocator, resolveLocator } from '../browser/locator-resolver.js';

@@ -1,7 +1,7 @@
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { DiscoveryCompletionReport, DiscoveryJob } from '@aira/shared-types';
+import type { DiscoveryCompletionReport, DiscoveryJob } from '@qa-nxt/shared-types';
 import { ControlPlaneClient } from '../api/control-plane-client.js';
 import type { BrowserPool } from '../browser/browser-pool.js';
 import type { WorkerConfig } from '../config.js';
@@ -35,7 +35,7 @@ export async function handleDiscoveryJob(
     logger
   });
 
-  const artifactDir = await mkdtemp(join(tmpdir(), `aira-discovery-${job.discoveryRunId}-`));
+  const artifactDir = await mkdtemp(join(tmpdir(), `qanxt-discovery-${job.discoveryRunId}-`));
 
   try {
     await client.discoveryStarted(job.discoveryRunId, config.workerId);

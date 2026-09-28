@@ -52,7 +52,7 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
       const short = token.slice(1);
       if (short === 'h') { add('help', 'true'); continue; }
       if (short === 'v') { add('version', 'true'); continue; }
-      throw usage(`Unknown option "${token}".`, 'Run "aira --help" to see the options.');
+      throw usage(`Unknown option "${token}".`, 'Run "qanxt --help" to see the options.');
     }
 
     positionals.push(token);

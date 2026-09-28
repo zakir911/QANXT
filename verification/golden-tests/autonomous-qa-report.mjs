@@ -165,8 +165,8 @@ const LIMITATIONS = [
 // ---------------------------------------------------------------------------
 
 const VERDICT = failed.length === 0
-  ? 'AIRA\'s autonomous QA agent behaved as specified against its own lab in this run.'
-  : `AIRA's autonomous QA agent did NOT behave as specified: ${failed.length} test(s) failed.`;
+  ? 'QA NXT\'s autonomous QA agent behaved as specified against its own lab in this run.'
+  : `QA NXT's autonomous QA agent did NOT behave as specified: ${failed.length} test(s) failed.`;
 
 const payload = {
   runId,
@@ -205,14 +205,14 @@ writeFileSync(JSON_OUT, `${JSON.stringify(payload, null, 2)}\n`);
 const countBy = status => requirementStatus.filter(r => r.status === status).length;
 
 const markdown = [
-  '# AIRA — autonomous QA report',
+  '# QA NXT — autonomous QA report',
   '',
   `**${VERDICT}**`,
   '',
   `Run \`${runId}\` · ${results.length} autonomous test(s) · `
   + `${passed.length} passed, ${failed.length} failed, ${notVerified.length} not verified`,
   '',
-  '> **What this report is, and is not.** It describes what AIRA\'s autonomous agent did against',
+  '> **What this report is, and is not.** It describes what QA NXT\'s autonomous agent did against',
   '> the golden lab in this run. It does not say that any application is defect-free, secure or',
   '> fully covered, and no figure in it should be quoted as though it did. Every number comes from',
   '> a recorded execution; nothing is asserted.',
@@ -322,7 +322,7 @@ const html = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AIRA autonomous QA</title>
+<title>QA NXT autonomous QA</title>
 <style>
   :root { --ink:#16181d; --muted:#6b7280; --line:#e5e7eb; --ok:#15803d; --bad:#b91c1c; --warn:#a16207; --bg:#fff; --panel:#f9fafb; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
@@ -352,13 +352,13 @@ const html = `<!doctype html>
 </head>
 <body>
 <main>
-  <h1>AIRA — autonomous QA</h1>
+  <h1>QA NXT — autonomous QA</h1>
   <p class="verdict">${escape(VERDICT)}</p>
   <p class="meta">Run <code>${escape(runId)}</code> · ${results.length} autonomous test(s) ·
      ${passed.length} passed, ${failed.length} failed, ${notVerified.length} not verified</p>
 
   <div class="disclaimer">
-    <p><strong>What this report is, and is not.</strong> It describes what AIRA's autonomous agent
+    <p><strong>What this report is, and is not.</strong> It describes what QA NXT's autonomous agent
     did against the golden lab in this run. It does not say that any application is defect-free,
     secure or fully covered. Every number comes from a recorded execution; nothing is asserted.</p>
   </div>

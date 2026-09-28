@@ -9,7 +9,7 @@ import type { PopupToBackground, RecordedJourney, RecordingState } from './messa
  * and a recording that lived here would not survive someone clicking away.
  */
 
-const SETTINGS_KEY = 'aira.settings';
+const SETTINGS_KEY = 'qanxt.settings';
 
 const $ = <T extends HTMLElement>(id: string): T => {
   const element = document.getElementById(id);

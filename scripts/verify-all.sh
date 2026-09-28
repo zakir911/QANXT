@@ -18,10 +18,10 @@ bash scripts/demo-bank-ctl.sh start
 bash scripts/worker-ctl.sh start
 
 section "Building the CLI (CLI-001 and CLI-002 execute it)"
-pnpm --filter @aira/cli... build >/dev/null
+pnpm --filter @qa-nxt/cli... build >/dev/null
 
 section "Building the browser extension (the EXT checks load it into Chromium)"
-pnpm --filter @aira/browser-extension build >/dev/null
+pnpm --filter @qa-nxt/browser-extension build >/dev/null
 
 section "Product test suites (regression baseline)"
 bash scripts/test.sh

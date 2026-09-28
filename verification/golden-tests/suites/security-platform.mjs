@@ -1,5 +1,5 @@
 /**
- * Security scopes, scans and findings, through AIRA's own API.
+ * Security scopes, scans and findings, through QA NXT's own API.
  *
  * The scanning and gate suites drive the engine directly. This one goes through the
  * platform: the authorization somebody wrote, the scan recorded against it, the findings
@@ -17,7 +17,7 @@ import {
 import { evaluateSecurityGate } from '../../../packages/security-engine/src/gate.mjs';
 import { CHECKS, CHECKS_REQUIRING_BROWSER } from '../security/scenarios.mjs';
 
-const AUTHORIZATION = 'Authorized for automated security testing by the AIRA verification suite, '
+const AUTHORIZATION = 'Authorized for automated security testing by the QA NXT verification suite, '
   + 'against a synthetic lab application containing no real data, for the duration of this run.';
 
 const scopeBody = (overrides = {}) => ({

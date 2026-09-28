@@ -13,7 +13,7 @@ import { RECORDER_VERSION } from './messages.js';
  * lose someone twenty minutes of careful clicking.
  */
 
-const STORAGE_KEY = 'aira.recording';
+const STORAGE_KEY = 'qanxt.recording';
 
 const EMPTY_STATE: RecordingState = {
   recording: false,
@@ -118,7 +118,7 @@ chrome.runtime.onMessage.addListener((
     }
 
     if ('kind' in message && message.kind === 'inspected') {
-      await chrome.storage.session.set({ 'aira.lastInspected': message });
+      await chrome.storage.session.set({ 'qanxt.lastInspected': message });
       return sendResponse({ ok: true });
     }
 

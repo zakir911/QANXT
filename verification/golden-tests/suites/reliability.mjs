@@ -27,7 +27,7 @@ export default async function run() {
   const tenant = await newTenant('Reliability');
   const project = await createProject(tenant, 'Golden reliability');
   const bank = await registerApplication(tenant, project.id, {
-    name: 'AIRA Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
+    name: 'QA NXT Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
     username: 'alice', password: 'Password123!'
   });
   // The flaky work lives in its own project with a two-second action timeout. The lab's
@@ -38,7 +38,7 @@ export default async function run() {
     defaultActionTimeoutMs: 2000, defaultRetries: 0
   });
   const failureApp = await registerApplication(tenant, flakyProject.id, {
-    name: 'AIRA Failure Lab', baseUrl: FAIL_LAB, maxPages: 15
+    name: 'QA NXT Failure Lab', baseUrl: FAIL_LAB, maxPages: 15
   });
   const context = { tenant, project, applicationVersion: '1.0.0' };
 
@@ -266,7 +266,7 @@ export default async function run() {
         aiProvider: 'openAi', aiModel: 'gpt-4o-mini', aiEnabled: true
       });
       const aiApp = await registerApplication(tenant, aiProject.id, {
-        name: 'AIRA Failure Lab', baseUrl: FAIL_LAB, maxPages: 5
+        name: 'QA NXT Failure Lab', baseUrl: FAIL_LAB, maxPages: 5
       });
       const imported = await importJourney(tenant, {
         projectId: aiProject.id, applicationId: aiApp.id,
@@ -295,7 +295,7 @@ export default async function run() {
   }, context);
 
   // ---- REL-007: a run whose worker disappears still reaches a verdict ----
-  const strandedMinutes = Number(process.env.AIRA_STRANDED_AFTER_MINUTES ?? '10');
+  const strandedMinutes = Number(process.env.QANXT_STRANDED_AFTER_MINUTES ?? '10');
   if (strandedMinutes > 3) {
     notVerified({
       id: 'REL-007',
@@ -304,7 +304,7 @@ export default async function run() {
       severity: 'high'
     }, `this deployment reconciles stranded executions after ${strandedMinutes} minutes, which is `
       + 'longer than this suite is willing to wait. Set Execution:StrandedAfterMinutes to 1 and '
-      + 'AIRA_STRANDED_AFTER_MINUTES=1 to include it. The mechanism itself is covered by the '
+      + 'QANXT_STRANDED_AFTER_MINUTES=1 to include it. The mechanism itself is covered by the '
       + 'product\'s own tests (BUG-0005).');
   } else {
     await golden({

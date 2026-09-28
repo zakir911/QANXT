@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { ExecutionJob, ExecutionStepPlan } from '@aira/shared-types';
+import type { ExecutionJob, ExecutionStepPlan } from '@qa-nxt/shared-types';
 import { BrowserPool } from '../src/browser/browser-pool.js';
 import { TestExecutor } from '../src/execution/executor.js';
 import { Logger } from '../src/util/logger.js';
@@ -17,7 +17,7 @@ let executor: TestExecutor;
 
 beforeAll(async () => {
   bank = await startDemoBank(4312);
-  artifactRoot = await mkdtemp(join(tmpdir(), 'aira-exec-'));
+  artifactRoot = await mkdtemp(join(tmpdir(), 'qanxt-exec-'));
   pool = new BrowserPool(true, logger);
   executor = new TestExecutor(pool, logger);
 }, 120_000);

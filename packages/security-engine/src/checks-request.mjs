@@ -26,7 +26,7 @@ import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 
 /** A host that exists to be recognised in a Location header and is never visited. */
-const EXTERNAL_MARKER_HOST = 'aira-redirect-probe.invalid';
+const EXTERNAL_MARKER_HOST = 'qanxt-redirect-probe.invalid';
 
 /**
  * Missing anti-CSRF token: a state-changing request succeeds without one.
@@ -171,7 +171,7 @@ export async function checkUploadRestrictions(scanner, { baseUrl, path, actor, d
 
   // ---- executable extension with a mismatched declared type ----------------
   const executable = await send(
-    { filename: 'aira-probe.php', contentType: 'image/png', size: 64,
+    { filename: 'qanxt-probe.php', contentType: 'image/png', size: 64,
       content: 'inert marker; this is not a script and nothing is intended to run' },
     'extension', 'an executable extension declared as an image — metadata only, no payload');
   if (!executable.allowed) return { skipped: true, decision: executable.decision, findings: [] };
@@ -182,7 +182,7 @@ export async function checkUploadRestrictions(scanner, { baseUrl, path, actor, d
       title: 'An executable extension with a mismatched content type is accepted',
       endpoint: path, httpMethod: 'POST', parameter: 'filename',
       observedAsRole: actor?.label ?? 'unauthenticated',
-      description: `A file named aira-probe.php declaring itself image/png was accepted `
+      description: `A file named qanxt-probe.php declaring itself image/png was accepted `
         + `(${executable.status}). Neither the extension nor the disagreement between the two was `
         + 'checked. No executable content was sent: the request carried a name, a declared type and a '
         + 'size, which is what the validation reads.',
@@ -199,7 +199,7 @@ export async function checkUploadRestrictions(scanner, { baseUrl, path, actor, d
 
   // ---- a declared size far above any plausible limit -----------------------
   const oversize = await send(
-    { filename: 'aira-probe.txt', contentType: 'text/plain', size: declaredOversizeBytes, content: 'marker' },
+    { filename: 'qanxt-probe.txt', contentType: 'text/plain', size: declaredOversizeBytes, content: 'marker' },
     'size', `a declared size of ${declaredOversizeBytes} bytes — declared, not transferred`);
   if (!oversize.allowed) return { skipped: true, decision: oversize.decision, findings: [] };
 
@@ -230,7 +230,7 @@ export async function checkUploadRestrictions(scanner, { baseUrl, path, actor, d
 
   // ---- path traversal in the supplied filename -----------------------------
   const traversal = await send(
-    { filename: '../../aira-probe.txt', contentType: 'text/plain', size: 32, content: 'marker' },
+    { filename: '../../qanxt-probe.txt', contentType: 'text/plain', size: 32, content: 'marker' },
     'traversal', 'a relative path in the filename');
   if (!traversal.allowed) return { skipped: true, decision: traversal.decision, findings: [] };
 
@@ -241,7 +241,7 @@ export async function checkUploadRestrictions(scanner, { baseUrl, path, actor, d
       title: 'The supplied filename is stored without sanitisation',
       endpoint: path, httpMethod: 'POST', parameter: 'filename',
       observedAsRole: actor?.label ?? 'unauthenticated',
-      description: `A filename of '../../aira-probe.txt' was stored as '${storedAs}', keeping the relative `
+      description: `A filename of '../../qanxt-probe.txt' was stored as '${storedAs}', keeping the relative `
         + 'path. The finding is what the application reported it stored; no file was written outside any '
         + 'directory during this test and none was attempted.',
       impact: 'A caller can influence where a file is written, which in the general case means overwriting '
@@ -270,7 +270,7 @@ export async function checkUploadRestrictions(scanner, { baseUrl, path, actor, d
  * request the engine makes, so this is enforced rather than promised.
  */
 export async function checkOpenRedirect(scanner, { baseUrl, path, parameter = 'next', testId = 'SECA-REDIRECT' }) {
-  const target = `https://${EXTERNAL_MARKER_HOST}/aira-probe`;
+  const target = `https://${EXTERNAL_MARKER_HOST}/qanxt-probe`;
 
   const relative = await scanner.request({
     url: `${baseUrl}${path}?${parameter}=${encodeURIComponent('/dashboard')}`,
@@ -337,9 +337,9 @@ export async function checkOpenRedirect(scanner, { baseUrl, path, parameter = 'n
  */
 export async function checkSsrf(scanner, { baseUrl, path, parameter = 'url', allowMetadataPayloads = false, testId = 'SECA-SSRF' }) {
   const probes = [
-    { id: 'loopback', value: 'http://127.0.0.1:9/aira-probe',
+    { id: 'loopback', value: 'http://127.0.0.1:9/qanxt-probe',
       describes: 'a loopback address on the discard port, where nothing is listening' },
-    { id: 'private-range', value: 'http://10.255.255.1/aira-probe',
+    { id: 'private-range', value: 'http://10.255.255.1/qanxt-probe',
       describes: 'an address in a private range that does not route from here' }
   ];
   if (allowMetadataPayloads) {

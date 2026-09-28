@@ -301,8 +301,8 @@ for people to look at.
 From the API:
 
 ```bash
-curl -X POST "$AIRA_API_URL/api/v1/agent/runs" \
-  -H "authorization: Bearer $AIRA_TOKEN" \
+curl -X POST "$QANXT_API_URL/api/v1/agent/runs" \
+  -H "authorization: Bearer $QANXT_TOKEN" \
   -H 'content-type: application/json' \
   -d '{
         "applicationId": "…",

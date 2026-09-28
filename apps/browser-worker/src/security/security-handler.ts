@@ -1,9 +1,9 @@
-import type { SecurityIdentity, SecurityScanJob, SecurityTarget } from '@aira/shared-types';
+import type { SecurityIdentity, SecurityScanJob, SecurityTarget } from '@qa-nxt/shared-types';
 import {
   SEVERITY_ORDER, CONFIDENCE_ORDER, SecurityScanner,
   api, auth, authz, injection, passive, request, xss
-} from '@aira/security-engine';
-import type { CheckResult, SecurityFinding, SecurityScanner as Scanner } from '@aira/security-engine';
+} from '@qa-nxt/security-engine';
+import type { CheckResult, SecurityFinding, SecurityScanner as Scanner } from '@qa-nxt/security-engine';
 import { ControlPlaneClient } from '../api/control-plane-client.js';
 import type { WorkerConfig } from '../config.js';
 import type { BrowserContext } from 'playwright';
@@ -467,7 +467,7 @@ const RUNNERS: Record<string, CheckRunner> = {
   },
   'authz.token': async (scanner, target, context) => authz.checkTokenVerification(scanner, {
     baseUrl: context.baseUrl, path: target.identifier,
-    forgedToken: 'aira-forged-value-this-application-never-issued'
+    forgedToken: 'qanxt-forged-value-this-application-never-issued'
   }),
 
   'auth.enumeration': async (scanner, target, context) => {

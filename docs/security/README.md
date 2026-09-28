@@ -1,15 +1,15 @@
-# Security testing in AIRA
+# Security testing in QA NXT
 
-AIRA can test an application for security flaws in the same way it tests it for functional
+QA NXT can test an application for security flaws in the same way it tests it for functional
 ones: deterministic checks, evidence for every claim, and a verdict a pipeline can act on.
 
 Before anything else, the two sentences that shape everything in this directory:
 
-> **AIRA never tests an application nobody has authorized it to test.** Authorization is a
+> **QA NXT never tests an application nobody has authorized it to test.** Authorization is a
 > written statement by a named person against a named application and environment. The
 > absence of a restriction is not permission, and every default in the system refuses.
 
-> **AIRA never reports that an application is secure.** It reports what was tested, what was
+> **QA NXT never reports that an application is secure.** It reports what was tested, what was
 > found, and what was not reached. No scan can support the stronger claim, and a tool that
 > makes it teaches its readers to stop looking.
 
@@ -18,7 +18,7 @@ Before anything else, the two sentences that shape everything in this directory:
 | | |
 | --- | --- |
 | [scope-and-authorization.md](scope-and-authorization.md) | What a security scope is, how authorization is recorded, and every rung of the guard that enforces it |
-| [what-aira-will-not-do.md](what-aira-will-not-do.md) | The things security testing refuses, and why each refusal exists |
+| [what-qanxt-will-not-do.md](what-qanxt-will-not-do.md) | The things security testing refuses, and why each refusal exists |
 | [checks.md](checks.md) | Every check, what it probes, and what it needs to see before it reports |
 | [findings.md](findings.md) | The finding model: severity, confidence, CWE and OWASP mapping |
 | [evidence.md](evidence.md) | What is recorded for each finding, and how secrets stay out of it |
@@ -30,7 +30,7 @@ Before anything else, the two sentences that shape everything in this directory:
 | [the-security-lab.md](the-security-lab.md) | The seven deliberately vulnerable applications and their ground truth |
 | [constraints.md](constraints.md) | The eighteen rules this was built against, each mapped to the tests that hold it |
 | [verification.md](verification.md) | How the security capability is verified, and what is not verified |
-| [limitations.md](limitations.md) | What AIRA's security testing cannot do, stated plainly |
+| [limitations.md](limitations.md) | What QA NXT's security testing cannot do, stated plainly |
 
 ## The shortest possible tour
 
@@ -57,5 +57,5 @@ Starts the security lab, audits it against its ground truth, runs the unit tests
 security golden suites, and produces `verification/reports/SECURITY-VERIFICATION-REPORT.md`
 and `SECURITY-TRACEABILITY.md`.
 
-What that script proves is that AIRA's security *testing* works. It is not a statement about
+What that script proves is that QA NXT's security *testing* works. It is not a statement about
 the security of anything.

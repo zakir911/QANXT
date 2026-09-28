@@ -11,31 +11,31 @@ export const SCHEDULE_FLAGS = [
 ] as const;
 
 export const SCHEDULE_HELP = `
-${bold('aira schedule')} — regression that happens without anybody asking
+${bold('qanxt schedule')} — regression that happens without anybody asking
 
-  ${bold('aira schedule list')}
+  ${bold('qanxt schedule list')}
       Every schedule in the project, when each last ran and when each runs next.
 
-  ${bold('aira schedule add --name "Nightly" --cron "0 2 * * *" --timezone Europe/London')}
+  ${bold('qanxt schedule add --name "Nightly" --cron "0 2 * * *" --timezone Europe/London')}
       Creates one. Add --tags smoke or --suite <id> to narrow what it runs.
 
-  ${bold('aira schedule preview <id>')}
+  ${bold('qanxt schedule preview <id>')}
       The next few times it will fire. Worth doing before waiting a night to
       find out the expression meant something else.
 
-  ${bold('aira schedule enable <id>')} / ${bold('aira schedule disable <id>')}
+  ${bold('qanxt schedule enable <id>')} / ${bold('qanxt schedule disable <id>')}
       Turns one on or off. Enabling clears a failure count.
 
-  ${bold('aira schedule remove <id>')}
+  ${bold('qanxt schedule remove <id>')}
       Deletes it.
 
-  --project <id>         Project to work in (or AIRA_PROJECT_ID)
+  --project <id>         Project to work in (or QANXT_PROJECT_ID)
   --name <text>          What this schedule is for
   --cron <expression>    Five fields: minute hour day-of-month month day-of-week
   --timezone <name>      IANA name, e.g. Europe/London. Defaults to UTC
   --suite <id>           Restrict to one suite
   --tags <a,b>           Restrict to tests carrying any of these tags
-  --environment <id>     Environment to run against (or AIRA_ENVIRONMENT_ID)
+  --environment <id>     Environment to run against (or QANXT_ENVIRONMENT_ID)
   --browser <name>       chromium | firefox | webkit
   --count <n>            For "preview": how many occurrences (default 5)
   --json                 Machine-readable output
@@ -99,14 +99,14 @@ export async function scheduleCommand(args: ParsedArgs): Promise<number> {
 }
 
 async function list(api: ApiClient, args: ParsedArgs, projectId?: string): Promise<number> {
-  if (!projectId) throw usage('A project is required.', 'Pass --project <id>, or set AIRA_PROJECT_ID.');
+  if (!projectId) throw usage('A project is required.', 'Pass --project <id>, or set QANXT_PROJECT_ID.');
 
   const schedules = await api.get<ScheduleSummary[]>(`/api/v1/schedules?projectId=${projectId}`);
 
   if (boolFlag(args, 'json')) { out(JSON.stringify(schedules, null, 2)); return ExitCode.Success; }
 
   if (schedules.length === 0) {
-    note(dim('No schedules. Add one with "aira schedule add --name … --cron …".'));
+    note(dim('No schedules. Add one with "qanxt schedule add --name … --cron …".'));
     return ExitCode.Success;
   }
 
@@ -136,7 +136,7 @@ async function list(api: ApiClient, args: ParsedArgs, projectId?: string): Promi
 }
 
 async function add(api: ApiClient, args: ParsedArgs, projectId?: string): Promise<number> {
-  if (!projectId) throw usage('A project is required.', 'Pass --project <id>, or set AIRA_PROJECT_ID.');
+  if (!projectId) throw usage('A project is required.', 'Pass --project <id>, or set QANXT_PROJECT_ID.');
 
   const name = flag(args, 'name');
   const cron = flag(args, 'cron');
@@ -201,6 +201,6 @@ async function remove(api: ApiClient, args: ParsedArgs): Promise<number> {
 
 function requireId(args: ParsedArgs, action: string): string {
   const id = args.positionals[1];
-  if (!id) throw usage(`"${action}" needs a schedule id.`, 'List them with "aira schedule list".');
+  if (!id) throw usage(`"${action}" needs a schedule id.`, 'List them with "qanxt schedule list".');
   return id;
 }

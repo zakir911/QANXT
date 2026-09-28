@@ -1,17 +1,17 @@
-# Running AIRA from a pipeline
+# Running QA NXT from a pipeline
 
-AIRA is driven from CI by the `aira` command line. The CLI talks to a control plane that is
+QA NXT is driven from CI by the `qanxt` command line. The CLI talks to a control plane that is
 already running; it does not start one. A pipeline therefore needs three things: the URL of
 that deployment, a token, and the id of what to run.
 
 ## The short version
 
 ```bash
-pnpm --filter @aira/cli... build
+pnpm --filter @qa-nxt/cli... build
 
-AIRA_API_URL=https://aira.example.com \
-AIRA_TOKEN="$AIRA_TOKEN" \
-node packages/cli/dist/aira.js run --suite "$SUITE_ID" --report-dir reports
+QANXT_API_URL=https://qanxt.example.com \
+QANXT_TOKEN="$QANXT_TOKEN" \
+node packages/cli/dist/qanxt.js run --suite "$SUITE_ID" --report-dir reports
 ```
 
 The command's exit code is the verdict, so a pipeline needs no extra logic to decide
@@ -33,14 +33,14 @@ so the CLI separates them.
 | `5` | INFRASTRUCTURE_ERROR | The platform could not be reached, or the run never reached a verdict | Whoever operates the deployment |
 | `6` | SECURITY_POLICY_VIOLATION | A policy refused the run — an unauthorized production environment, a target outside the boundary | Read why before retrying |
 | `7` | HUMAN_REVIEW_REQUIRED | The gate's third answer: not a pass, not a failure | A person, before the release |
-| `8` | AIRA_INTERNAL_ERROR | AIRA itself failed | Report it; this is a defect in AIRA |
+| `8` | QANXT_INTERNAL_ERROR | QA NXT itself failed | Report it; this is a defect in QA NXT |
 
 `1` and `2` are separate because the conversation is different. "Six tests failed" is a
 defect; "every test passed and the pass rate rule was set to 100%" is a policy argument.
 
 `7` exists because REVIEW is a real third answer, and folding it into either of the others
 loses what a release decision needs. Whether it stops a pipeline is the team's choice:
-every example pipeline treats it as a warning unless `AIRA_REVIEW_BLOCKS` is set.
+every example pipeline treats it as a warning unless `QANXT_REVIEW_BLOCKS` is set.
 
 A mistyped option is an error rather than something silently ignored: a `--juint` that is
 quietly dropped produces a green build with no report, which looks exactly like success.
@@ -56,9 +56,9 @@ the directory without knowing what is in it:
 | `report.json` | The whole run: every test, every gate rule with the number it measured, the CI context and the contract check |
 | `report.html` | The run as a person reads it |
 | `summary.md` | A pull request comment: the verdict first, the failures with their diagnosis next, the rest collapsed |
-| `regression-selection.json` | What `aira regression` chose and what it left out, with the reasoning — written when that command produced the run |
+| `regression-selection.json` | What `qanxt regression` chose and what it left out, with the reasoning — written when that command produced the run |
 
-AIRA writes `summary.md`; your CI system posts it. It already has the credentials to comment
+QA NXT writes `summary.md`; your CI system posts it. It already has the credentials to comment
 on a pull request, and an integration needing a second set would be another thing to grant,
 rotate and audit for no capability the pipeline does not have.
 
@@ -69,7 +69,7 @@ CI, Jenkins, and a plain shell script the others are variations of. Each does th
 things: deploy, wait for health, select, run, publish, comment.
 
 They are **not verified**: running them needs credentials for that CI system and a
-deployment of AIRA it can reach, and neither exists in this repository. What is verified is
+deployment of QA NXT it can reach, and neither exists in this repository. What is verified is
 everything they depend on — the exit codes, the artifact layout, the summary, the selection
 — and the whole sequence end to end, locally, in `test-lab/ci-simulation/`.
 
@@ -89,19 +89,19 @@ If you are adapting a pipeline for a CI system that is not one of the four, read
 `pipeline.sh` rather than the YAML: it is the part that has actually been run.
 
 Building it found three defects, each a control that existed, was correct and was never
-reached — a security refusal reported as an authentication failure, a defect in AIRA
+reached — a security refusal reported as an authentication failure, a defect in QA NXT
 reported as the platform being down, and a production guard with no caller. See BUG-0026 to
 BUG-0028 in `verification/bugs/`.
 
 ## Authentication
 
-Never run `aira login` in a pipeline. Create a token once and store it as a secret:
+Never run `qanxt login` in a pipeline. Create a token once and store it as a secret:
 
 ```bash
-aira login --email ci@example.com --org acme --show-token
+qanxt login --email ci@example.com --org acme --show-token
 ```
 
-Then set `AIRA_TOKEN` from that secret. The CLI sends the token in an `Authorization`
+Then set `QANXT_TOKEN` from that secret. The CLI sends the token in an `Authorization`
 header and never places it in a URL, so it does not appear in access logs or in CI console
 output. Nothing the CLI prints contains it.
 
@@ -122,10 +122,10 @@ individually.
 
 ### How verdicts map onto JUnit
 
-JUnit only has *pass*, *failure*, *error* and *skipped*. AIRA distinguishes more than that,
+JUnit only has *pass*, *failure*, *error* and *skipped*. QA NXT distinguishes more than that,
 and the mapping is deliberate:
 
-| AIRA status | JUnit | Why |
+| QA NXT status | JUnit | Why |
 | --- | --- | --- |
 | `passed` | pass | |
 | `healed` | pass, with a note | The journey completed, so failing the build would be wrong. The note says a locator was rewritten, so the pass is never silent. |
@@ -173,7 +173,7 @@ its own.
 
 | File | Platform |
 | --- | --- |
-| `.github/workflows/aira-tests.yml` | GitHub Actions |
+| `.github/workflows/qanxt-tests.yml` | GitHub Actions |
 | `infrastructure/ci/azure-pipelines.yml` | Azure Pipelines |
 
 Both publish the reports whether or not the gate passed — a failing run is exactly when the
@@ -203,14 +203,14 @@ record which build of the application was under test with `--app-build`.
 ## Other commands
 
 ```bash
-aira discover --application "$APP_ID"     # refresh the knowledge graph before generating tests
-aira status                               # recent runs in the project
-aira status "$RUN_ID" --json              # one run, machine-readable
-aira report "$RUN_ID" --report-dir ./out  # reports for a run that already finished
-aira run --no-wait                        # queue a run, print its id, exit
+qanxt discover --application "$APP_ID"     # refresh the knowledge graph before generating tests
+qanxt status                               # recent runs in the project
+qanxt status "$RUN_ID" --json              # one run, machine-readable
+qanxt report "$RUN_ID" --report-dir ./out  # reports for a run that already finished
+qanxt run --no-wait                        # queue a run, print its id, exit
 ```
 
-`--no-wait` with a later `aira report` is the pattern for pipelines that separate the stage
+`--no-wait` with a later `qanxt report` is the pattern for pipelines that separate the stage
 that runs tests from the stage that publishes artifacts.
 
 ## Verifying a pipeline change

@@ -24,7 +24,7 @@ import { SESSION_COOKIE, createSessionStore } from '../shared/sessions.js';
 import { layout } from '../shared/render.js';
 
 const PORT = Number(process.env.HEALING_PORT ?? 4350);
-const APPLICATION = 'AIRA Locator Lab';
+const APPLICATION = 'QA NXT Locator Lab';
 
 const FAULTS = [
   { id: 'FAULT_LOGIN_BUTTON_RENAMED', description: 'The submit control is relabelled "Sign In" and its test id becomes signin-submit.' },

@@ -1,5 +1,5 @@
 /**
- * A security scan AIRA runs itself.
+ * A security scan QA NXT runs itself.
  *
  * The other security suites drive the engine directly, or record a scan somebody else ran.
  * This one starts at a button and ends at a stored finding: the control plane decides what is
@@ -25,7 +25,7 @@ import { LABS, isolateFaults, restoreFaults } from '../security/scenarios.mjs';
 
 const HEADERS_LAB = 'http://127.0.0.1:4406';
 
-const AUTHORIZATION = 'Authorized for automated security testing by the AIRA verification suite, '
+const AUTHORIZATION = 'Authorized for automated security testing by the QA NXT verification suite, '
   + 'against a synthetic lab application containing no real data, for the duration of this run.';
 
 const scopeBody = (overrides = {}) => ({
@@ -67,7 +67,7 @@ async function waitForScan(api, scanId, timeoutMs = 180_000) {
 }
 
 export default async function run() {
-  suite('Security scans AIRA runs itself');
+  suite('Security scans QA NXT runs itself');
 
   const tenant = await newTenant('SecWorker');
   const project = await createProject(tenant, 'Security worker');
@@ -174,7 +174,7 @@ export default async function run() {
 
       return {
         pass: started.status === 202
-          && started.json.queue === 'aira:security'
+          && started.json.queue === 'qanxt:security'
           && typeof started.json.jobId === 'string'
           && started.json.targets > 0
           && honest,
@@ -204,7 +204,7 @@ export default async function run() {
     id: 'SECW-004',
     objective: 'A worker runs the scan against the application and reports back',
     preconditions: ['a queued scan and a running worker'],
-    input: 'The queued job, consumed from aira:security',
+    input: 'The queued job, consumed from qanxt:security',
     expected: 'The scan completes, having issued real requests, and its findings are stored against '
       + 'the application. This is the claim the whole capability rests on and nothing else in the '
       + 'suite establishes it',
@@ -434,7 +434,7 @@ export default async function run() {
     run: async () => {
       const { readFileSync } = await import('node:fs');
       const { resolve } = await import('node:path');
-      const source = readFileSync(resolve(ROOT, 'apps/api/src/Aira.Domain/Security/SecurityEnums.cs'), 'utf8');
+      const source = readFileSync(resolve(ROOT, 'apps/api/src/QaNxt.Domain/Security/SecurityEnums.cs'), 'utf8');
 
       const ordinalsOf = (enumName) => {
         const body = new RegExp(`enum ${enumName}\\s*\\{([\\s\\S]*?)\\n\\}`).exec(source)?.[1] ?? '';

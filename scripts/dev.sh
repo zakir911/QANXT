@@ -35,7 +35,7 @@ cat <<'READY'
   API docs   http://localhost:5080/swagger
   Demo bank  http://localhost:4200
 
-  Logs: /tmp/aira-api.log, /tmp/aira-worker.log, /tmp/aira-console.log, /tmp/aira-demo-bank.log
+  Logs: /tmp/qanxt-api.log, /tmp/qanxt-worker.log, /tmp/qanxt-console.log, /tmp/qanxt-demo-bank.log
 
   Ctrl-C to stop.
 READY

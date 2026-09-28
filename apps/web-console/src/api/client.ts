@@ -39,7 +39,7 @@ export class ApiError extends Error {
   }
 }
 
-const STORAGE_KEY = 'aira.session';
+const STORAGE_KEY = 'qanxt.session';
 
 export interface StoredSession {
   accessToken: string;

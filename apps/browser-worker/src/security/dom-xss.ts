@@ -1,6 +1,6 @@
 import type { BrowserContext } from 'playwright';
-import { SECURITY_RISK, SeverityFactors, confidenceFrom } from '@aira/security-engine';
-import type { CheckResult, SecurityScanner as Scanner } from '@aira/security-engine';
+import { SECURITY_RISK, SeverityFactors, confidenceFrom } from '@qa-nxt/security-engine';
+import type { CheckResult, SecurityScanner as Scanner } from '@qa-nxt/security-engine';
 import type { Logger } from '../util/logger.js';
 
 /**
@@ -33,7 +33,7 @@ import type { Logger } from '../util/logger.js';
  */
 
 /** A marker that is unmistakably ours, and inert by construction. */
-const MARKER = 'aira7x2';
+const MARKER = 'qanxt7x2';
 
 /**
  * Payloads, weakest first.

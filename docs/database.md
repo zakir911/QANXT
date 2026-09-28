@@ -114,11 +114,11 @@ To add a migration:
 
 ```bash
 dotnet ef migrations add <Name> \
-  --project apps/api/src/Aira.Infrastructure \
-  --startup-project apps/api/src/Aira.Api
+  --project apps/api/src/QaNxt.Infrastructure \
+  --startup-project apps/api/src/QaNxt.Api
 ```
 
-Migrations live in `apps/api/src/Aira.Infrastructure/Persistence/Migrations`.
+Migrations live in `apps/api/src/QaNxt.Infrastructure/Persistence/Migrations`.
 
 ## Transactions
 

@@ -48,7 +48,7 @@ export default async function run() {
   });
 
   const applicationFor = (projectId) => registerApplication(tenant, projectId, {
-    name: 'AIRA Locator Lab', baseUrl: HEAL, loginUrl: `${HEAL}/login`,
+    name: 'QA NXT Locator Lab', baseUrl: HEAL, loginUrl: `${HEAL}/login`,
     username: 'alice', password: 'Password123!', maxPages: 6
   });
 

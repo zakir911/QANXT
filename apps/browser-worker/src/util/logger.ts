@@ -46,7 +46,7 @@ export class Logger {
     this.sink(JSON.stringify({
       timestamp: new Date().toISOString(),
       level,
-      service: 'aira-browser-worker',
+      service: 'qanxt-browser-worker',
       message,
       ...this.base,
       ...context

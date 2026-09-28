@@ -74,7 +74,7 @@ beforeEach(async () => {
   vi.resetModules();
   await import('../src/background');
   await send({ kind: 'clear' });
-  store['aira.recording'] = {
+  store['qanxt.recording'] = {
     recording: true, paused: false, name: 'Journey', startUrl: 'http://localhost:4200/login',
     steps: [{ order: 1, action: 'navigate', description: 'Go to /login', url: 'http://localhost:4200/login', timestampMs: 0 }]
   };
@@ -89,7 +89,7 @@ describe('the recording survives concurrent steps', () => {
       send(fillStep('password', '${secret:app_password}'))
     ]);
 
-    const state = store['aira.recording'] as { steps: Array<{ order: number; value?: string }> };
+    const state = store['qanxt.recording'] as { steps: Array<{ order: number; value?: string }> };
     expect(state.steps).toHaveLength(3);
     expect(state.steps.map(s => s.order)).toEqual([1, 2, 3]);
     expect(state.steps.some(s => s.value === '${secret:app_password}')).toBe(true);
@@ -99,7 +99,7 @@ describe('the recording survives concurrent steps', () => {
     await send(fillStep('username', 'ali'));
     await send(fillStep('username', 'alice'));
 
-    const state = store['aira.recording'] as { steps: Array<{ value?: string }> };
+    const state = store['qanxt.recording'] as { steps: Array<{ value?: string }> };
     expect(state.steps).toHaveLength(2);
     expect(state.steps[1]?.value).toBe('alice');
   });

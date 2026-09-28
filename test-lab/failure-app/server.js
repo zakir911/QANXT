@@ -16,7 +16,7 @@ import { createFaultEngine } from '../shared/faults.js';
 import { layout } from '../shared/render.js';
 
 const PORT = Number(process.env.FAILURE_PORT ?? 4340);
-const APPLICATION = 'AIRA Failure Lab';
+const APPLICATION = 'QA NXT Failure Lab';
 const CORRECT_ANSWER = 42;
 
 const CASES = [

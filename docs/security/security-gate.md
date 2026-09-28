@@ -25,7 +25,7 @@ against a value nobody measured reads as a guarantee and is not one.
 
 **A build that was not scanned is not a build that passed.** It is REVIEW, and the summary
 says `NOT SCANNED. No security tests were executed for this build, so nothing is known about
-its security posture from AIRA.` This is the single most important line in the file: a gate
+its security posture from QA NXT.` This is the single most important line in the file: a gate
 that reports green when nothing ran is worse than no gate, because it produces a record saying
 the build was checked.
 
@@ -64,7 +64,7 @@ being worked, but a Critical stops the build whether it arrived today or last qu
 
 ```
 Within the configured scope and test coverage, no security findings were detected by the
-executed AIRA security tests (5 of 5 configured check(s), 200 request(s) issued). This is not
+executed QA NXT security tests (5 of 5 configured check(s), 200 request(s) issued). This is not
 a statement that the application is secure or that no vulnerabilities exist.
 Untested: DOM-based XSS (no browser was available for this scan); cloud metadata (off by default).
 ```

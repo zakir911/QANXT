@@ -2,7 +2,7 @@
  * The security engine's public surface.
  *
  * A barrel exists so consumers name the engine rather than its files: the worker imports
- * `@aira/security-engine`, the golden suites import the same modules by path, and neither
+ * `@qa-nxt/security-engine`, the golden suites import the same modules by path, and neither
  * depends on where a particular check happens to live today.
  */
 export { SecurityScanner } from './engine.mjs';

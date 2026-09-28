@@ -1,4 +1,4 @@
-# @aira/security-engine
+# @qa-nxt/security-engine
 
 The security scanning engine: the scope guard, the checks, the severity model, the evidence
 writer, the gate and the regression comparison.

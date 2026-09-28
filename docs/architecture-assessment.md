@@ -1,7 +1,7 @@
 # Architecture Assessment (Pre-Implementation)
 
 **Date:** 2026-09-19
-**Author:** Platform engineering (AIRA)
+**Author:** Platform engineering (QA NXT)
 **Status:** Accepted — basis for the implementation plan
 
 ## 1. Repository inspection
@@ -12,7 +12,7 @@ The repository `zakir911/AIRA` was inspected before any code was written.
 |---|---|
 | Branches | `main`, `claude/blissful-pasteur-qtbzbs` |
 | Commits | 1 (`Initial commit`) |
-| Tracked files | `README.md` (6 bytes, contains `# AIRA`) |
+| Tracked files | `README.md` (6 bytes, contains `# QA NXT`) |
 | Existing application code | **None** |
 | Existing build system, CI, infra | **None** |
 

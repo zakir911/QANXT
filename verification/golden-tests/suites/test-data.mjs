@@ -7,7 +7,7 @@
  *
  * Two properties carry the weight. A seeded field must produce the same value on every run,
  * because that is the only reason a seed exists — without it a failure cannot be reproduced
- * and AIRA's own retry silently exercises different data from the attempt that failed. And
+ * and QA NXT's own retry silently exercises different data from the attempt that failed. And
  * a credential must never be a literal, because a data set is readable by anyone who can
  * read the project and the CLI exports it in plain text.
  *
@@ -30,11 +30,11 @@ const BANK = LAB.banking;
 const CREDENTIALS = { username: 'alice', password: 'Password123!' };
 
 function cli(args, { token, projectId } = {}) {
-  const result = spawnSync(process.execPath, [resolve(ROOT, 'packages/cli/dist/aira.js'), ...args], {
+  const result = spawnSync(process.execPath, [resolve(ROOT, 'packages/cli/dist/qanxt.js'), ...args], {
     cwd: ROOT, encoding: 'utf8', timeout: 120_000,
     env: {
-      ...process.env, AIRA_API_URL: API, AIRA_TOKEN: token ?? '',
-      AIRA_PROJECT_ID: projectId ?? '', AIRA_ENVIRONMENT_ID: '', NO_COLOR: '1'
+      ...process.env, QANXT_API_URL: API, QANXT_TOKEN: token ?? '',
+      QANXT_PROJECT_ID: projectId ?? '', QANXT_ENVIRONMENT_ID: '', NO_COLOR: '1'
     }
   });
   return { code: result.status ?? -1, output: `${result.stdout ?? ''}${result.stderr ?? ''}` };
@@ -76,7 +76,7 @@ export default async function run() {
         name: 'Every kind (DAT-001)',
         description: 'One of each',
         fields: [
-          { key: 'orderReference', kind: 'static', value: 'AIRA-TEST-001' },
+          { key: 'orderReference', kind: 'static', value: 'QANXT-TEST-001' },
           { key: 'customerEmail', kind: 'generated', generatorJson: '{"type":"email"}' },
           { key: 'bookingDate', kind: 'seededRandom', generatorJson: '{"type":"date"}', seed: 42 },
           { key: 'password', kind: 'secretReference', value: '${secret:app_password}' }
@@ -296,7 +296,7 @@ export default async function run() {
       const created = await createSet(tenant, {
         projectId: project.id,
         name: 'DAT-006 in use',
-        fields: [{ key: 'orderReference', kind: 'static', value: 'AIRA-TEST-006' }]
+        fields: [{ key: 'orderReference', kind: 'static', value: 'QANXT-TEST-006' }]
       });
 
       // An API test, because that is a real test case this platform can create directly.
@@ -351,14 +351,14 @@ export default async function run() {
     id: 'DAT-007',
     objective: 'A data set exports to a file, imports back, and the export carries no secret',
     preconditions: ['the CLI is built'],
-    input: 'aira test-data import / export / preview',
+    input: 'qanxt test-data import / export / preview',
     expected: 'The round trip preserves every field, and the exported file contains the '
       + 'secret reference by name and no secret value',
     evidence: ['exported.json', 'cli.txt'],
     severity: 'high',
     run: async () => {
       const options = { token: tenant.token, projectId: project.id };
-      const directory = mkdtempSync(join(tmpdir(), 'aira-data-'));
+      const directory = mkdtempSync(join(tmpdir(), 'qanxt-data-'));
       const source = join(directory, 'data.json');
       const exported = join(directory, 'exported.json');
       const transcript = [];
@@ -368,13 +368,13 @@ export default async function run() {
         description: 'Written by a person, read by the CLI',
         fields: [
           { key: 'customerEmail', kind: 'seededRandom', generatorJson: '{"type":"email"}', seed: 99 },
-          { key: 'orderReference', kind: 'static', value: 'AIRA-TEST-007' },
+          { key: 'orderReference', kind: 'static', value: 'QANXT-TEST-007' },
           { key: 'password', kind: 'secretReference', value: '${secret:app_password}' }
         ]
       }, null, 2));
 
       const record = (label, result) => {
-        transcript.push(`$ aira test-data ${label}\n[exit ${result.code}]\n${result.output}`);
+        transcript.push(`$ qanxt test-data ${label}\n[exit ${result.code}]\n${result.output}`);
         return result;
       };
 
@@ -404,7 +404,7 @@ export default async function run() {
       return {
         pass: imported.code === 0
           && previewed.code === 0
-          && previewed.output.includes('AIRA-TEST-007')
+          && previewed.output.includes('QANXT-TEST-007')
           && reimported.code === 0
           && document.fields?.length === 3
           && secretField?.value === '${secret:app_password}'

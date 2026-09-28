@@ -33,16 +33,16 @@ const CREDENTIALS = { username: 'alice', password: 'Password123!' };
  * would see an empty transcript for every command whose output is meant for a person.
  */
 function cli(args, { token, projectId } = {}) {
-  const binary = resolve(ROOT, 'packages/cli/dist/aira.js');
+  const binary = resolve(ROOT, 'packages/cli/dist/qanxt.js');
   const result = spawnSync(process.execPath, [binary, ...args], {
     cwd: ROOT,
     encoding: 'utf8',
     timeout: 300_000,
     env: {
       ...process.env,
-      AIRA_API_URL: API,
-      AIRA_TOKEN: token ?? '',
-      AIRA_PROJECT_ID: projectId ?? '',
+      QANXT_API_URL: API,
+      QANXT_TOKEN: token ?? '',
+      QANXT_PROJECT_ID: projectId ?? '',
       NO_COLOR: '1'
     }
   });
@@ -276,7 +276,7 @@ export default async function run() {
   // ---- REG-004: a change it cannot map runs everything -------------------
   await golden({
     id: 'REG-004',
-    objective: 'A change AIRA cannot map to anything runs the whole suite, and says so',
+    objective: 'A change QA NXT cannot map to anything runs the whole suite, and says so',
     preconditions: ['no rule covers the changed path'],
     input: 'A change to infrastructure/terraform/main.tf',
     expected: 'Every test selected, the fallback reported, and the unmapped path named — '
@@ -398,7 +398,7 @@ export default async function run() {
   // ---- REG-008: an inferred mapping is labelled as inferred --------------
   await golden({
     id: 'REG-008',
-    objective: 'A mapping AIRA inferred from a file name is reported as inferred, not declared',
+    objective: 'A mapping QA NXT inferred from a file name is reported as inferred, not declared',
     preconditions: ['no rule covers the changed path, but its name resembles a route'],
     input: 'A change to app/screens/payments/PaymentsScreen.tsx',
     expected: 'The payments route affected, marked as inferred, with a reason saying so',
@@ -435,7 +435,7 @@ export default async function run() {
     id: 'REG-009',
     objective: 'A pipeline can select, inspect and run a regression set through the CLI',
     preconditions: ['the CLI is built', 'the lab bank is running'],
-    input: '"aira regression select --explain", then "aira regression run", on a change '
+    input: '"qanxt regression select --explain", then "qanxt regression run", on a change '
       + 'to the accounts area',
     expected: 'select exits 0 and prints each test\'s components; run exits 0 and executes '
       + 'only the selected tests; the selection is written as an artifact',
@@ -443,7 +443,7 @@ export default async function run() {
     severity: 'critical',
     run: async ({ save }) => {
       await lab.reset(BANK);
-      const directory = mkdtempSync(join(tmpdir(), 'aira-regression-'));
+      const directory = mkdtempSync(join(tmpdir(), 'qanxt-regression-'));
       const changedFile = join(directory, 'changed.txt');
       writeFileSync(changedFile, 'src/pages/accounts/List.tsx\nsrc/api/accounts/service.ts\n');
       const selectionOut = join(directory, 'regression-selection.json');
@@ -460,9 +460,9 @@ export default async function run() {
       ], options);
 
       const transcript = [
-        `$ aira regression select --changed-file changed.txt --explain   (exit ${explained.code})`,
+        `$ qanxt regression select --changed-file changed.txt --explain   (exit ${explained.code})`,
         explained.output,
-        `$ aira regression run --changed-file changed.txt                (exit ${ran.code})`,
+        `$ qanxt regression run --changed-file changed.txt                (exit ${ran.code})`,
         ran.output
       ].join('\n');
 

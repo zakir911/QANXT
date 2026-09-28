@@ -53,9 +53,9 @@ export const ExitCode = {
    */
   HumanReviewRequired: 7,
 
-  /** AIRA itself misbehaved: an unhandled error, a malformed response from its own API. A
+  /** QA NXT itself misbehaved: an unhandled error, a malformed response from its own API. A
    * bug in the tool, not a finding about the application. */
-  AiraInternalError: 8
+  QaNxtInternalError: 8
 } as const;
 
 export type ExitCodeValue = (typeof ExitCode)[keyof typeof ExitCode];
@@ -70,7 +70,7 @@ export const EXIT_CODE_TABLE: ReadonlyArray<{ code: ExitCodeValue; name: string;
   { code: ExitCode.InfrastructureError, name: 'INFRASTRUCTURE_ERROR', meaning: 'The platform, queue, worker or target could not be reached' },
   { code: ExitCode.SecurityPolicyViolation, name: 'SECURITY_POLICY_VIOLATION', meaning: 'A security policy refused the request' },
   { code: ExitCode.HumanReviewRequired, name: 'HUMAN_REVIEW_REQUIRED', meaning: 'The quality gate returned REVIEW' },
-  { code: ExitCode.AiraInternalError, name: 'AIRA_INTERNAL_ERROR', meaning: 'AIRA itself failed' }
+  { code: ExitCode.QaNxtInternalError, name: 'QANXT_INTERNAL_ERROR', meaning: 'QA NXT itself failed' }
 ];
 
 /** An error that carries the exit status it should produce. */

@@ -30,7 +30,7 @@ selection from a broken one.
 
 ## Impact rules
 
-AIRA does not know how anybody's source tree is laid out, and guessing is how change impact
+QA NXT does not know how anybody's source tree is laid out, and guessing is how change impact
 analysis becomes a plausible-sounding way to skip the test that would have caught the bug.
 So a team says what its files affect:
 
@@ -62,7 +62,7 @@ it would match nothing and be a no-op nobody ever noticed.
 
 ### Without rules
 
-AIRA still matches changed paths against what it has discovered, by name:
+QA NXT still matches changed paths against what it has discovered, by name:
 `app/screens/payments/PaymentsScreen.tsx` is taken to affect `/payments`. Those mappings are
 returned with `isDeclared: false` and a reason ending "Inferred, not declared", and the
 result carries a note saying how many there were.
@@ -113,15 +113,15 @@ Three fallbacks, each loud:
 | The change maps to something but nothing scores above the bar | The smoke set runs. If there is no smoke set, the whole suite runs and the note says to tag one. |
 | A tag filter matches no tests | **Refused**, 400: "a regression run with nothing in it would report success without testing anything." |
 
-The last is the important one. An empty selection is not "no tests needed" — it is "AIRA
+The last is the important one. An empty selection is not "no tests needed" — it is "QA NXT
 does not know", and a pipeline reads an empty run as a pass.
 
 ## From the CLI
 
 ```bash
-aira regression impact --since origin/main            # what the change affects
-aira regression select --since origin/main --explain  # what would run, and why
-aira regression run    --since origin/main            # select, then run, then the verdict
+qanxt regression impact --since origin/main            # what the change affects
+qanxt regression select --since origin/main --explain  # what would run, and why
+qanxt regression run    --since origin/main            # select, then run, then the verdict
 ```
 
 ```
@@ -140,14 +140,14 @@ aira regression run    --since origin/main            # select, then run, then t
 `--since` shells out to git, because a pipeline already has the repository. If the checkout
 is shallow the diff will fail, and the error says so rather than silently selecting nothing.
 
-`aira regression run` uses the same exit-code contract as `aira run`: 0 PASS,
+`qanxt regression run` uses the same exit-code contract as `qanxt run`: 0 PASS,
 1 TEST_FAILURE, 2 QUALITY_GATE_FAILURE, 7 HUMAN_REVIEW_REQUIRED, 3 CONFIGURATION_ERROR.
 
 ## In a pipeline
 
 ```yaml
 - run: git fetch --no-tags --depth=50 origin main     # a shallow clone has no diff
-- run: aira regression run --since origin/main --report-dir artifacts
+- run: qanxt regression run --since origin/main --report-dir artifacts
 ```
 
 `--report-dir` writes `regression-selection.json` beside the JUnit, JSON and HTML reports,
@@ -157,7 +157,7 @@ than a line in a log that scrolls away.
 On the default branch, or nightly, run everything:
 
 ```yaml
-- run: aira regression run --mode full --report-dir artifacts
+- run: qanxt regression run --mode full --report-dir artifacts
 ```
 
 ## Limitations

@@ -9,9 +9,9 @@ export const DISCOVER_FLAGS = [
 ] as const;
 
 export const DISCOVER_HELP = `
-${bold('aira discover')} — crawl an application and refresh its knowledge graph
+${bold('qanxt discover')} — crawl an application and refresh its knowledge graph
 
-  aira discover --application <id>
+  qanxt discover --application <id>
 
   --application <id>     The registered application to explore
   --browser <name>       chromium | firefox | webkit
@@ -43,9 +43,9 @@ const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'partial', 'timedO
 export async function discoverCommand(args: ParsedArgs): Promise<number> {
   rejectUnknownFlags(args, DISCOVER_FLAGS);
 
-  const applicationId = flag(args, 'application') ?? process.env.AIRA_APPLICATION_ID;
+  const applicationId = flag(args, 'application') ?? process.env.QANXT_APPLICATION_ID;
   if (!applicationId) {
-    throw usage('An application is required.', 'Pass --application <id>, or set AIRA_APPLICATION_ID.');
+    throw usage('An application is required.', 'Pass --application <id>, or set QANXT_APPLICATION_ID.');
   }
 
   const context = await resolveContext({ apiUrl: flag(args, 'api-url'), token: flag(args, 'token') });
@@ -77,7 +77,7 @@ export async function discoverCommand(args: ParsedArgs): Promise<number> {
       throw new CliError(
         `Discovery did not finish within ${Math.round(timeoutMs / 1000)}s (last status: ${run.status}).`,
         ExitCode.InfrastructureError,
-        `It may still be running. Check with "aira discover" again once it settles.`);
+        `It may still be running. Check with "qanxt discover" again once it settles.`);
     }
     await new Promise(resolve => setTimeout(resolve, pollMs));
     const detail = await api.get<{ summary: DiscoveryRun }>(`/api/v1/discovery/runs/${run.id}`);

@@ -1,11 +1,11 @@
-# AIRA Architecture
+# QA NXT Architecture
 
 ## 1. System context
 
 ```mermaid
 flowchart TB
     U[QA engineer / QA lead / Developer] --> WC[Web Console<br/>React + TS + Vite]
-    CI[CI/CD pipeline] --> CLI[aira CLI]
+    CI[CI/CD pipeline] --> CLI[qanxt CLI]
     EXT[Browser Extension<br/>Chrome MV3] --> API
     WC --> API[Control Plane API<br/>.NET 8 / ASP.NET Core]
     CLI --> API
@@ -27,16 +27,16 @@ a narrow authenticated callback API.
 
 ```mermaid
 flowchart LR
-    A[Aira.Api<br/>controllers, auth, OpenAPI, SignalR] --> B[Aira.Application<br/>use cases, ports, DTOs]
-    C[Aira.Infrastructure<br/>EF Core, Redis, storage, LLM, crypto] --> B
-    B --> D[Aira.Domain<br/>entities, enums, invariants]
+    A[QaNxt.Api<br/>controllers, auth, OpenAPI, SignalR] --> B[QaNxt.Application<br/>use cases, ports, DTOs]
+    C[QaNxt.Infrastructure<br/>EF Core, Redis, storage, LLM, crypto] --> B
+    B --> D[QaNxt.Domain<br/>entities, enums, invariants]
     C --> D
     A --> C
 ```
 
-Dependencies point inward. `Aira.Application` declares ports (`ILlmProvider`,
+Dependencies point inward. `QaNxt.Application` declares ports (`ILlmProvider`,
 `IJobQueue`, `IArtifactStore`, `ISecretProtector`, `ITenantContext`, `IClock`);
-`Aira.Infrastructure` supplies adapters; `Aira.Api` composes them.
+`QaNxt.Infrastructure` supplies adapters; `QaNxt.Api` composes them.
 
 ## 3. The end-to-end quality pipeline
 
@@ -151,10 +151,10 @@ Full table list and indexes: `docs/database.md`.
 
 | Component | Owns | Does not own |
 |---|---|---|
-| `Aira.Api` | HTTP, auth, RBAC checks, OpenAPI, SignalR | Business rules |
-| `Aira.Application` | Use cases, orchestration, port definitions | Transport, persistence details |
-| `Aira.Domain` | Entities, invariants, enums | Anything I/O |
-| `Aira.Infrastructure` | EF Core, Redis, artifacts, LLM adapters, crypto | Use-case policy |
+| `QaNxt.Api` | HTTP, auth, RBAC checks, OpenAPI, SignalR | Business rules |
+| `QaNxt.Application` | Use cases, orchestration, port definitions | Transport, persistence details |
+| `QaNxt.Domain` | Entities, invariants, enums | Anything I/O |
+| `QaNxt.Infrastructure` | EF Core, Redis, artifacts, LLM adapters, crypto | Use-case policy |
 | `browser-worker` | Browsers, discovery, execution, evidence capture, healing candidates | Authorization, persistence, quality gates |
 | `web-console` | Presentation, live view | Any business decision |
 | `cli` | CI/CD ergonomics, report emission, gate exit codes | Execution |
@@ -171,6 +171,6 @@ Full table list and indexes: `docs/database.md`.
 
 ## 9. Configuration and branding
 
-`PRODUCT_NAME` (default `AIRA`) is read from configuration by the API and surfaced to the
+`PRODUCT_NAME` (default `QA NXT`) is read from configuration by the API and surfaced to the
 console via `/api/v1/meta`. No component hard-codes the product name in logic, routes,
 database identifiers or tokens.

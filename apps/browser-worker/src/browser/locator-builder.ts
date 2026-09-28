@@ -1,5 +1,5 @@
-import type { LocatorDescriptor } from '@aira/shared-types';
-import { locatorStability } from '@aira/shared-types';
+import type { LocatorDescriptor } from '@qa-nxt/shared-types';
+import { locatorStability } from '@qa-nxt/shared-types';
 import type { RawElement } from '../discovery/page-extractor.js';
 
 /**

@@ -46,7 +46,7 @@ function note(detail) {
 say('Check the platform and the application under test are up');
 const health = await request('/health');
 const bankHealth = await fetch(`${BANK}/health`).then(response => response.json());
-note(`AIRA: ${health.status === 200 ? 'healthy' : `not answering (${health.status})`}`);
+note(`QA NXT: ${health.status === 200 ? 'healthy' : `not answering (${health.status})`}`);
 note(`${bankHealth.application} ${bankHealth.version}: healthy, faults: ${
   Object.entries(bankHealth.faults).filter(([, on]) => on).map(([id]) => id).join(', ') || 'none'}`);
 await lab.reset(BANK);
@@ -57,7 +57,7 @@ const project = await createProject(tenant, 'Product demonstration', {
   healingPolicy: 'auto', healingConfidenceThreshold: 75, captureVideo: true, captureTrace: true
 });
 const application = await registerApplication(tenant, project.id, {
-  name: 'AIRA Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
+  name: 'QA NXT Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
   username: 'alice', password: 'Password123!'
 });
 note(`project ${project.key}, application ${application.id}`);

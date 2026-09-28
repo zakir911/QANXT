@@ -7,7 +7,7 @@
  * a table. Neither owns the scenario.
  *
  * Every scenario runs the real `pipeline.sh` against the real platform and the real lab
- * bank. Nothing here stubs AIRA, with one labelled exception (`aira-internal-error`), which
+ * bank. Nothing here stubs QA NXT, with one labelled exception (`qanxt-internal-error`), which
  * says in its own description what it does and does not prove.
  */
 import { spawn, spawnSync } from 'node:child_process';
@@ -152,18 +152,18 @@ export async function authorizeProduction(tenant, environmentId, note) {
  * assertions read is exactly what a person reading the build output would see.
  */
 export function runPipeline(environment, { timeoutMs = 420_000 } = {}) {
-  const artifacts = mkdtempSync(join(tmpdir(), 'aira-cisim-'));
+  const artifacts = mkdtempSync(join(tmpdir(), 'qanxt-cisim-'));
 
   const result = spawnSync('bash', [PIPELINE], {
     cwd: ROOT, encoding: 'utf8', timeout: timeoutMs,
     env: {
       ...process.env,
-      AIRA_API_URL: API,
+      QANXT_API_URL: API,
       ARTIFACTS: artifacts,
       NO_COLOR: '1',
       // Cleared so a scenario's omission is an omission, not an inherited value from
       // whatever the operator happened to have exported.
-      AIRA_TOKEN: '', AIRA_PROJECT_ID: '', AIRA_ENVIRONMENT_ID: '',
+      QANXT_TOKEN: '', QANXT_PROJECT_ID: '', QANXT_ENVIRONMENT_ID: '',
       TEST_IDS: '', FAULTS: '', APP_URL: '',
       ...environment
     }
@@ -193,7 +193,7 @@ export function runPipeline(environment, { timeoutMs = 420_000 } = {}) {
 }
 
 /**
- * Starts the broken-AIRA responder and waits for it to be listening.
+ * Starts the broken-QA NXT responder and waits for it to be listening.
  *
  * In its own process on purpose: `runPipeline` uses `spawnSync`, which blocks this
  * process's event loop for the whole pipeline, so a responder here would accept the

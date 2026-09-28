@@ -20,7 +20,7 @@ import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 
 /** A username that cannot exist, used to draw the comparison for enumeration. */
-const ABSENT_USER = 'aira-nonexistent-user-6f2a9c';
+const ABSENT_USER = 'qanxt-nonexistent-user-6f2a9c';
 
 /**
  * Reduces a response to the parts that could carry an enumeration signal.
@@ -91,7 +91,7 @@ export async function checkUserEnumeration(scanner, { baseUrl, path = '/api/sess
   const attempt = async (username, label) => scanner.request({
     url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${label}`,
     headers: { 'content-type': 'application/json' },
-    body: { username, password: 'aira-deliberately-wrong-password' },
+    body: { username, password: 'qanxt-deliberately-wrong-password' },
     as: label, note: 'a deliberately failing sign-in, used only to compare the two answers'
   });
 
@@ -161,7 +161,7 @@ export async function checkAccountLockout(scanner, { baseUrl, path = '/api/sessi
     const result = await scanner.request({
       url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${i}`,
       headers: { 'content-type': 'application/json' },
-      body: { username: knownUser, password: `aira-wrong-${i}` },
+      body: { username: knownUser, password: `qanxt-wrong-${i}` },
       as: 'unauthenticated', note: `bounded failed sign-in ${i} of ${attempts}`
     });
     if (!result.allowed) return { skipped: true, decision: result.decision, findings: [] };

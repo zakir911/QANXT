@@ -1,18 +1,18 @@
-# AIRA validating an application on every merge request.
+# QA NXT validating an application on every merge request.
 #
-# NOT VERIFIED in this repository: running it needs a GitLab runner and a deployment of AIRA
+# NOT VERIFIED in this repository: running it needs a GitLab runner and a deployment of QA NXT
 # it can reach. The CLI behaviour it depends on is executed by the golden suite, and the
 # whole sequence is executed locally by test-lab/ci-simulation.
 #
-# CI/CD variables this needs: AIRA_TOKEN (masked), AIRA_API_URL, AIRA_PROJECT_ID,
-# AIRA_ENVIRONMENT_ID.
+# CI/CD variables this needs: QANXT_TOKEN (masked), QANXT_API_URL, QANXT_PROJECT_ID,
+# QANXT_ENVIRONMENT_ID.
 
 stages: [deploy, quality]
 
 variables:
-  # `aira regression --since` needs the base branch to diff against.
+  # `qanxt regression --since` needs the base branch to diff against.
   GIT_DEPTH: "0"
-  ARTIFACTS_DIR: aira-artifacts
+  ARTIFACTS_DIR: qanxt-artifacts
 
 deploy:review:
   stage: deploy
@@ -22,12 +22,12 @@ deploy:review:
     reports:
       dotenv: deploy.env
 
-quality:aira:
+quality:qanxt:
   stage: quality
   image: node:22
   needs: [deploy:review]
   before_script:
-    - npm install -g @aira/cli
+    - npm install -g @qa-nxt/cli
     - |
       # Health check before any test runs. A run against an application that has not
       # finished starting reports failures that belong to the deployment.
@@ -38,9 +38,9 @@ quality:aira:
   script:
     - |
       set +e
-      aira regression run \
+      qanxt regression run \
         --since "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" \
-        --mode "${AIRA_MODE:-impacted}" \
+        --mode "${QANXT_MODE:-impacted}" \
         --explain \
         --report-dir "$ARTIFACTS_DIR" \
         --ci-provider gitlab \
@@ -54,16 +54,16 @@ quality:aira:
         0) echo "PASS" ;;
         1) echo "Tests failed. See $ARTIFACTS_DIR/summary.md." ;;
         2) echo "The quality gate blocked this run." ;;
-        3) echo "AIRA was configured wrongly — whoever edited this pipeline should look." ;;
-        4) echo "AIRA rejected the credentials." ;;
-        5) echo "AIRA could not be used. The platform operator should look." ;;
+        3) echo "QA NXT was configured wrongly — whoever edited this pipeline should look." ;;
+        4) echo "QA NXT rejected the credentials." ;;
+        5) echo "QA NXT could not be used. The platform operator should look." ;;
         6) echo "A security policy refused this run. Do not retry without reading why." ;;
         7)
           # REVIEW is not a failure. Whether it stops the pipeline is this team's decision.
           echo "This run needs a person to look at it."
-          [ "${AIRA_REVIEW_BLOCKS:-false}" = "true" ] || status=0
+          [ "${QANXT_REVIEW_BLOCKS:-false}" = "true" ] || status=0
           ;;
-        8) echo "AIRA failed internally. This is a defect in AIRA." ;;
+        8) echo "QA NXT failed internally. This is a defect in QA NXT." ;;
       esac
 
       # Posted by GitLab, because GitLab already has the credentials to comment.

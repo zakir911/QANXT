@@ -2,8 +2,8 @@
 # Starts or stops a browser worker for local development and verification.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PIDFILE="${ROOT}/.aira-worker.pid"
-LOGFILE="${LOGFILE:-/tmp/aira-worker.log}"
+PIDFILE="${ROOT}/.qanxt-worker.pid"
+LOGFILE="${LOGFILE:-/tmp/qanxt-worker.log}"
 
 start() {
   if [[ -f "$PIDFILE" ]] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then

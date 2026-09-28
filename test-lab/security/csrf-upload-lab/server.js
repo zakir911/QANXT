@@ -14,7 +14,7 @@ import { createSecurityLab, findIdentity } from '../shared/security-lab.js';
 const PORT = Number(process.env.CSRF_UPLOAD_LAB_PORT ?? 4404);
 
 const app = createSecurityLab({
-  name: 'AIRA CSRF, Upload and Redirect Lab',
+  name: 'QA NXT CSRF, Upload and Redirect Lab',
   vulnerabilities: [
     { id: 'VULN_NO_CSRF_TOKEN', description: 'POST /api/transfer accepts a state-changing request with no anti-CSRF token.' },
     { id: 'VULN_NO_ORIGIN_CHECK', description: 'POST /api/transfer does not check Origin or Referer.' },

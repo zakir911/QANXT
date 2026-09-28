@@ -49,7 +49,7 @@ export default async function run() {
   const tenant = await newTenant('Detection');
   const project = await createProject(tenant, 'Golden failure detection');
   const application = await registerApplication(tenant, project.id, {
-    name: 'AIRA Failure Lab', baseUrl: FAIL_LAB, maxPages: 15
+    name: 'QA NXT Failure Lab', baseUrl: FAIL_LAB, maxPages: 15
   });
 
   const context = { tenant, project, application, applicationVersion: '1.0.0' };

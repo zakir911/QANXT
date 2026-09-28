@@ -7,7 +7,7 @@
  * only then photographs each page. Every image is a real browser looking at a real platform
  * holding real results.
  *
- * Needs AIRA and the demo bank running.
+ * Needs QA NXT and the demo bank running.
  *
  *   node test-lab/scripts/capture-user-manual.mjs
  */

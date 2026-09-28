@@ -23,7 +23,7 @@ interface ProjectContextValue {
 }
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
-const STORAGE_KEY = 'aira.project';
+const STORAGE_KEY = 'qanxt.project';
 
 /**
  * The selected project scopes almost every screen. It is remembered across reloads so a

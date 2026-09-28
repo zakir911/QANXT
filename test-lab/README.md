@@ -1,7 +1,7 @@
-# The AIRA test lab
+# The QA NXT test lab
 
 Six real web applications with known behaviour, controlled faults and hand-written ground
-truth. They exist so that claims about AIRA can be *measured* rather than asserted: if the
+truth. They exist so that claims about QA NXT can be *measured* rather than asserted: if the
 platform says it discovered nine pages, there is a file here that says how many there are.
 
 Nothing in this directory is part of the product. Nothing in the product depends on it.
@@ -22,19 +22,19 @@ test-lab/
 ```
 
 `notification-sink/` is not an application under test either. It is an HTTP server that
-accepts AIRA's notification deliveries and keeps them, so that "AIRA sent the message" is
+accepts QA NXT's notification deliveries and keeps them, so that "QA NXT sent the message" is
 something a test observes rather than infers from the sending code. It is deliberately not
 a mock of Slack: it does not pretend to be any particular service, and nothing it records
 licenses a claim about how a real service would respond.
 
-`ci-simulation/` is not an application under test. It is a pipeline that drives AIRA
+`ci-simulation/` is not an application under test. It is a pipeline that drives QA NXT
 against the applications above, so that the CI integration is something that has been run
 rather than something that has been written. See its own README.
 
 ## Running it
 
 ```bash
-pnpm --filter @aira/test-lab build      # builds the React bank (once)
+pnpm --filter @qa-nxt/test-lab build      # builds the React bank (once)
 bash test-lab/scripts/lab-ctl.sh start  # starts all six
 bash test-lab/scripts/lab-ctl.sh status
 bash test-lab/scripts/lab-ctl.sh reset  # every fault off, every application's state cleared

@@ -1,6 +1,6 @@
 # The golden test suite
 
-A hundred-odd tests that try to prove AIRA works, and are built so that they can fail.
+A hundred-odd tests that try to prove QA NXT works, and are built so that they can fail.
 
 Every one of them drives the product from the outside — its HTTP API, its worker, a real
 browser, a real application — and compares what happened against something written down in
@@ -98,7 +98,7 @@ makes the threshold meaningful rather than lucky.
 | `verification/reports/golden-test-report.html` | The same, self-contained, no external resources. |
 | `verification/reports/GOLDEN-TEST-REPORT.md` | The same, readable in a terminal or a diff. |
 | `verification/reports/EVIDENCE-INDEX.md` | Every artifact, its size and its hash. |
-| `verification/reports/AIRA-CERTIFICATION.md` | Ten questions, each answered only by tests that ran. |
+| `verification/reports/QA-NXT-CERTIFICATION.md` | Ten questions, each answered only by tests that ran. |
 | `verification/evidence/<TEST-ID>/<RUN-ID>/` | The artifacts themselves, plus `metadata.json`. |
 
 The console reads `golden-test-report.json` and renders it at **Verification** — and

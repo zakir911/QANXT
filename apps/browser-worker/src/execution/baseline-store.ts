@@ -2,7 +2,7 @@ import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import type { ExecutionJob } from '@aira/shared-types';
+import type { ExecutionJob } from '@qa-nxt/shared-types';
 import type { ControlPlaneClient } from '../api/control-plane-client.js';
 import type { BaselineStore } from './visual-runner.js';
 
@@ -35,7 +35,7 @@ export function createBaselineStore(client: ControlPlaneClient, job: ExecutionJo
     async attach(name, kind, png) {
       // Written to disk and uploaded through the ordinary artifact path, so a diff image
       // is browsable and downloadable exactly like a screenshot.
-      const directory = await mkdtemp(join(tmpdir(), 'aira-visual-'));
+      const directory = await mkdtemp(join(tmpdir(), 'qanxt-visual-'));
       const file = join(directory, `${sanitise(name)}-${kind}.png`);
       await writeFile(file, png);
       return client.uploadArtifact(file, `visual-${sanitise(name)}-${kind}.png`, 'image/png');

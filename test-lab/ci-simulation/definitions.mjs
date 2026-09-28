@@ -6,7 +6,7 @@
  * one runs the real `pipeline.sh`; what varies is the environment it runs in and the state
  * of the deployment it runs against.
  *
- * Each scenario returns `{ pass, detail, airaExit, pipelineExit, log }`. The golden suite
+ * Each scenario returns `{ pass, detail, qanxtExit, pipelineExit, log }`. The golden suite
  * and the standalone runner both consume that shape.
  */
 import {
@@ -53,9 +53,9 @@ export async function buildContext() {
 
 /** The environment every scenario starts from: real platform, real deployment, real tests. */
 const baseEnvironment = context => ({
-  AIRA_TOKEN: context.tenant.token,
-  AIRA_PROJECT_ID: context.project.id,
-  AIRA_ENVIRONMENT_ID: context.qa.id,
+  QANXT_TOKEN: context.tenant.token,
+  QANXT_PROJECT_ID: context.project.id,
+  QANXT_ENVIRONMENT_ID: context.qa.id,
   APP_URL: BANK,
   RUN_TIMEOUT: '240',
   HEALTH_TIMEOUT: '30',
@@ -95,7 +95,7 @@ export const scenarios = [
         && result.report?.totals?.failed === 0;
 
       return {
-        pass, log: result.log, airaExit: 0, pipelineExit: result.code,
+        pass, log: result.log, qanxtExit: 0, pipelineExit: result.code,
         detail: `exit ${result.code}; stages ${result.stageNames.join(' → ')}; `
           + `artifacts ${result.files.join(', ')}; `
           + `${result.report?.totals?.passed ?? '?'} passed, ${result.report?.totals?.failed ?? '?'} failed`,
@@ -132,7 +132,7 @@ export const scenarios = [
         && result.report?.totals?.failed === 1;
 
       return {
-        pass, log: result.log, airaExit: 1, pipelineExit: result.code,
+        pass, log: result.log, qanxtExit: 1, pipelineExit: result.code,
         detail: `exit ${result.code}; ${result.report?.totals?.passed ?? '?'} passed, `
           + `${result.report?.totals?.failed ?? '?'} failed; artifacts published: `
           + `${result.stageOutcome('publish')}`,
@@ -153,8 +153,8 @@ export const scenarios = [
       await lab.reset(BANK);
       const result = runPipeline({
         ...baseEnvironment(context),
-        AIRA_PROJECT_ID: context.blocking.project.id,
-        AIRA_ENVIRONMENT_ID: context.blocking.environment.id,
+        QANXT_PROJECT_ID: context.blocking.project.id,
+        QANXT_ENVIRONMENT_ID: context.blocking.environment.id,
         TEST_IDS: context.blocking.health.testCaseId
       });
 
@@ -167,7 +167,7 @@ export const scenarios = [
         && result.summary.includes('finish instantly');
 
       return {
-        pass, log: result.log, airaExit: 2, pipelineExit: result.code,
+        pass, log: result.log, qanxtExit: 2, pipelineExit: result.code,
         detail: `exit ${result.code}; ${result.report?.totals?.failed ?? '?'} test(s) failed `
           + `and the gate blocked anyway; ${result.verdict?.reason}`,
         evidence: { 'pipeline.log': result.log, 'summary.md': result.summary }
@@ -185,8 +185,8 @@ export const scenarios = [
     async run(context) {
       const result = runPipeline({
         ...baseEnvironment(context),
-        AIRA_PROJECT_ID: '00000000-0000-4000-8000-000000000000',
-        AIRA_ENVIRONMENT_ID: '',
+        QANXT_PROJECT_ID: '00000000-0000-4000-8000-000000000000',
+        QANXT_ENVIRONMENT_ID: '',
         TEST_IDS: context.health.testCaseId
       });
 
@@ -195,7 +195,7 @@ export const scenarios = [
         && /CONFIGURATION_ERROR/.test(result.log);
 
       return {
-        pass, log: result.log, airaExit: 3, pipelineExit: result.code,
+        pass, log: result.log, qanxtExit: 3, pipelineExit: result.code,
         detail: `exit ${result.code}; ${result.verdict?.reason}`,
         evidence: { 'pipeline.log': result.log }
       };
@@ -207,12 +207,12 @@ export const scenarios = [
     id: 'bad-credentials',
     expectation: 'exit 4',
     description:
-      'The token is not accepted. Whoever holds AIRA_TOKEN should look — not the person who '
+      'The token is not accepted. Whoever holds QANXT_TOKEN should look — not the person who '
       + 'wrote the tests, and not the platform operator.',
     async run(context) {
       const result = runPipeline({
         ...baseEnvironment(context),
-        AIRA_TOKEN: 'not.a.real.token',
+        QANXT_TOKEN: 'not.a.real.token',
         TEST_IDS: context.health.testCaseId
       });
 
@@ -224,7 +224,7 @@ export const scenarios = [
         && !/SECURITY_POLICY_VIOLATION/.test(result.log);
 
       return {
-        pass, log: result.log, airaExit: 4, pipelineExit: result.code,
+        pass, log: result.log, qanxtExit: 4, pipelineExit: result.code,
         detail: `exit ${result.code}; ${result.verdict?.reason}`,
         evidence: { 'pipeline.log': result.log }
       };
@@ -236,12 +236,12 @@ export const scenarios = [
     id: 'platform-unreachable',
     expectation: 'exit 5',
     description:
-      'AIRA is not answering. Nothing is known about quality, and the pipeline says so in '
+      'QA NXT is not answering. Nothing is known about quality, and the pipeline says so in '
       + 'those words — the one outcome that must never be read as a pass.',
     async run(context) {
       const result = runPipeline({
         ...baseEnvironment(context),
-        AIRA_API_URL: UNREACHABLE,
+        QANXT_API_URL: UNREACHABLE,
         TEST_IDS: context.health.testCaseId
       });
 
@@ -251,7 +251,7 @@ export const scenarios = [
         && /Nothing is known about quality/.test(result.log);
 
       return {
-        pass, log: result.log, airaExit: 5, pipelineExit: result.code,
+        pass, log: result.log, qanxtExit: 5, pipelineExit: result.code,
         detail: `exit ${result.code}; ${result.verdict?.reason}`,
         evidence: { 'pipeline.log': result.log }
       };
@@ -282,7 +282,7 @@ export const scenarios = [
         && result.files.length === 0;
 
       return {
-        pass, log: result.log, airaExit: null, pipelineExit: result.code,
+        pass, log: result.log, qanxtExit: null, pipelineExit: result.code,
         detail: `exit ${result.code}; stages ${result.stageNames.join(' → ')}; `
           + `${result.files.length} artifact(s) — the run never started`,
         evidence: { 'pipeline.log': result.log }
@@ -302,7 +302,7 @@ export const scenarios = [
     async run(context) {
       const result = runPipeline({
         ...baseEnvironment(context),
-        AIRA_ENVIRONMENT_ID: context.production.id,
+        QANXT_ENVIRONMENT_ID: context.production.id,
         TEST_IDS: context.health.testCaseId
       });
 
@@ -313,7 +313,7 @@ export const scenarios = [
         && !/required role/i.test(result.log);
 
       return {
-        pass, log: result.log, airaExit: 6, pipelineExit: result.code,
+        pass, log: result.log, qanxtExit: 6, pipelineExit: result.code,
         detail: `exit ${result.code}; ${result.verdict?.reason}`,
         evidence: { 'pipeline.log': result.log }
       };
@@ -336,7 +336,7 @@ export const scenarios = [
 
       const result = runPipeline({
         ...baseEnvironment(context),
-        AIRA_ENVIRONMENT_ID: context.production.id,
+        QANXT_ENVIRONMENT_ID: context.production.id,
         TEST_IDS: context.health.testCaseId
       });
 
@@ -346,7 +346,7 @@ export const scenarios = [
         && result.report?.run?.environment?.key === 'prod';
 
       return {
-        pass, log: result.log, airaExit: 0, pipelineExit: result.code,
+        pass, log: result.log, qanxtExit: 0, pipelineExit: result.code,
         detail: `exit ${result.code}; the run recorded environment `
           + `${result.report?.run?.environment?.key ?? 'none'}`,
         evidence: { 'pipeline.log': result.log, 'report.json': result.report }
@@ -366,8 +366,8 @@ export const scenarios = [
       await lab.reset(BANK);
       const result = runPipeline({
         ...baseEnvironment(context),
-        AIRA_PROJECT_ID: context.review.project.id,
-        AIRA_ENVIRONMENT_ID: context.review.environment.id,
+        QANXT_PROJECT_ID: context.review.project.id,
+        QANXT_ENVIRONMENT_ID: context.review.environment.id,
         TEST_IDS: context.review.health.testCaseId,
         REVIEW_BLOCKS: 'true'
       });
@@ -378,8 +378,8 @@ export const scenarios = [
         && result.summary.startsWith('### ⚠️ This run needs a person to look at it');
 
       return {
-        pass, log: result.log, airaExit: 7, pipelineExit: result.code,
-        detail: `AIRA exited 7, the pipeline exited ${result.code}; ${result.verdict?.reason}`,
+        pass, log: result.log, qanxtExit: 7, pipelineExit: result.code,
+        detail: `QA NXT exited 7, the pipeline exited ${result.code}; ${result.verdict?.reason}`,
         evidence: { 'pipeline.log': result.log, 'summary.md': result.summary }
       };
     }
@@ -388,10 +388,10 @@ export const scenarios = [
   // -------------------------------------------------------------------------
   {
     id: 'review-does-not-block',
-    expectation: 'AIRA 7, pipeline 0',
+    expectation: 'QA NXT 7, pipeline 0',
     description:
       'The same run, with the team having decided that review does not stop a deployment. '
-      + 'AIRA still says 7; the pipeline chooses to continue. That decision belongs to the '
+      + 'QA NXT still says 7; the pipeline chooses to continue. That decision belongs to the '
       + "team and is made in the pipeline, not inside the CLI — which is the whole reason "
       + 'REVIEW has a code of its own. The verdict line records both, so nothing is hidden: '
       + 'the build is green and the log still says a person must look.',
@@ -399,8 +399,8 @@ export const scenarios = [
       await lab.reset(BANK);
       const result = runPipeline({
         ...baseEnvironment(context),
-        AIRA_PROJECT_ID: context.review.project.id,
-        AIRA_ENVIRONMENT_ID: context.review.environment.id,
+        QANXT_PROJECT_ID: context.review.project.id,
+        QANXT_ENVIRONMENT_ID: context.review.environment.id,
         TEST_IDS: context.review.health.testCaseId,
         REVIEW_BLOCKS: 'false'
       });
@@ -411,8 +411,8 @@ export const scenarios = [
         && /does not block on review/.test(result.verdict?.reason ?? '');
 
       return {
-        pass, log: result.log, airaExit: 7, pipelineExit: result.code,
-        detail: `AIRA exited 7, the pipeline exited ${result.code}; ${result.verdict?.reason}`,
+        pass, log: result.log, qanxtExit: 7, pipelineExit: result.code,
+        detail: `QA NXT exited 7, the pipeline exited ${result.code}; ${result.verdict?.reason}`,
         evidence: { 'pipeline.log': result.log }
       };
     }
@@ -420,32 +420,32 @@ export const scenarios = [
 
   // -------------------------------------------------------------------------
   {
-    id: 'aira-internal-error',
+    id: 'qanxt-internal-error',
     expectation: 'exit 8',
     description:
-      'AIRA fails, rather than being unreachable. The pipeline must say this is a defect in '
-      + 'AIRA and not a finding about the application, so that nobody goes looking for a bug '
+      'QA NXT fails, rather than being unreachable. The pipeline must say this is a defect in '
+      + 'QA NXT and not a finding about the application, so that nobody goes looking for a bug '
       + 'in code that is working. '
       + 'THIS SCENARIO INJECTS THE FAULT: the CLI is pointed at a local responder that '
-      + 'answers 500 the way a broken AIRA would. It verifies how the CLI classifies that '
-      + 'answer and how the pipeline handles the code. It does NOT verify that AIRA returns '
+      + 'answers 500 the way a broken QA NXT would. It verifies how the CLI classifies that '
+      + 'answer and how the pipeline handles the code. It does NOT verify that QA NXT returns '
       + '500 under any particular condition — nothing here makes the real platform fail.',
     async run(context) {
       const broken = await brokenPlatform();
       try {
         const result = runPipeline({
           ...baseEnvironment(context),
-          AIRA_API_URL: broken.url,
+          QANXT_API_URL: broken.url,
           TEST_IDS: context.health.testCaseId
         });
 
         const pass = result.code === 8
           && result.verdict?.code === 8
-          && /AIRA_INTERNAL_ERROR/.test(result.log)
-          && /defect in AIRA, not a finding about the application/.test(result.log);
+          && /QANXT_INTERNAL_ERROR/.test(result.log)
+          && /defect in QA NXT, not a finding about the application/.test(result.log);
 
         return {
-          pass, log: result.log, airaExit: 8, pipelineExit: result.code,
+          pass, log: result.log, qanxtExit: 8, pipelineExit: result.code,
           detail: `exit ${result.code}; ${result.verdict?.reason}`,
           evidence: { 'pipeline.log': result.log }
         };

@@ -8,10 +8,10 @@ find out is a customer. A schedule is the answer to that: the same tests, on a c
 against a real deployment.
 
 ```bash
-aira schedule add --name "Nightly regression" --cron "0 2 * * *" --timezone Europe/London
-aira schedule add --name "Smoke, hourly" --cron "0 * * * *" --tags smoke
-aira schedule list
-aira schedule preview <id>
+qanxt schedule add --name "Nightly regression" --cron "0 2 * * *" --timezone Europe/London
+qanxt schedule add --name "Smoke, hourly" --cron "0 * * * *" --tags smoke
+qanxt schedule list
+qanxt schedule preview <id>
 ```
 
 ## Writing the expression
@@ -38,7 +38,7 @@ Two things catch people out, so both are pinned by tests:
 - **Restricting both day fields matches either, not both.** `0 0 13 * fri` is the 13th of
   every month *and* every Friday — not Friday the 13th. That is crontab's rule.
 - **An expression can be valid and never occur.** `0 0 30 2 *` parses and no date matches
-  it. AIRA refuses it at creation rather than leaving a schedule that looks armed.
+  it. QA NXT refuses it at creation rather than leaving a schedule that looks armed.
 
 ## Time zones
 
@@ -54,7 +54,7 @@ Across a daylight-saving change:
   Firing twice would run the same regression twice and report every difference as
   instability.
 
-`aira schedule preview <id>` prints the next few occurrences. It is worth a look before
+`qanxt schedule preview <id>` prints the next few occurrences. It is worth a look before
 waiting a night to discover the expression meant something else.
 
 ## What a schedule runs
@@ -74,7 +74,7 @@ reads and a message nobody does.
 ## When something goes wrong
 
 A schedule that cannot start a run counts a failure. After three in a row it disables
-itself and records why, and the reason is shown by `aira schedule list`:
+itself and records why, and the reason is shown by `qanxt schedule list`:
 
 ```
 off  Nightly regression  7d0c…
@@ -86,13 +86,13 @@ Three rather than one, because a platform restart should not turn off the nightl
 regression; three in a row is not bad luck. Re-enabling clears the count and the reason:
 
 ```bash
-aira schedule enable <id>
+qanxt schedule enable <id>
 ```
 
 The alternative — retrying for ever — produces a log line every hour that nobody reads, for
 a schedule that has not run in a month.
 
-## Two things that are easy to get wrong, and how AIRA handles them
+## Two things that are easy to get wrong, and how QA NXT handles them
 
 **Two API instances must not both fire the same schedule.** Claiming one is a
 compare-and-swap on its next-run time: each instance tries to move it forward with a
@@ -137,7 +137,7 @@ Building this found two defects, both of which only an execution could find:
   PostgreSQL's `timestamptz` refuses, so creating any schedule outside UTC returned a 500.
   The recommended path was the broken one, and it would have worked all winter in London
   and broken on the last Sunday in March.
-- **BUG-0030** — `aira schedule` read `AIRA_ENVIRONMENT_ID` directly instead of using the
+- **BUG-0030** — `qanxt schedule` read `QANXT_ENVIRONMENT_ID` directly instead of using the
   helper that already handled it, so an exported-but-empty variable — the normal state of
   one a pipeline declares and does not set — made every command fail with an opaque
   model-binding error.

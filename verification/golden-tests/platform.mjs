@@ -1,5 +1,5 @@
 /**
- * A client for AIRA's public API, and for the test lab's control endpoints.
+ * A client for QA NXT's public API, and for the test lab's control endpoints.
  *
  * The golden suite talks to the product the way a customer's pipeline would: over HTTP,
  * with a token, through documented endpoints. It never imports the product's code and
@@ -8,7 +8,7 @@
  */
 import { sleep } from './harness.mjs';
 
-export const API = (process.env.AIRA_API_URL ?? 'http://127.0.0.1:5080').replace(/\/+$/, '');
+export const API = (process.env.QANXT_API_URL ?? 'http://127.0.0.1:5080').replace(/\/+$/, '');
 
 export const LAB = {
   banking: process.env.LAB_BANKING_URL ?? 'http://localhost:4300',
@@ -494,7 +494,7 @@ export const lab = {
  * Fails loudly if the stack the suites depend on is not actually up.
  *
  * `options.api` says whether the platform API is needed. It usually is — most suites drive
- * AIRA through it — but the security scanning suites drive the scanner directly against the
+ * QA NXT through it — but the security scanning suites drive the scanner directly against the
  * lab and never touch the platform. Requiring the API for those meant a security scan could
  * not run because a database it does not use was down, which is an obstacle rather than a
  * check.
@@ -504,7 +504,7 @@ export async function requireEnvironment(labs = Object.values(LAB), options = {}
   const problems = [];
   if (api) {
     const health = await request('/health');
-    if (!health.ok) problems.push(`the AIRA API at ${API} is not answering`);
+    if (!health.ok) problems.push(`the QA NXT API at ${API} is not answering`);
   }
 
   for (const url of labs) {

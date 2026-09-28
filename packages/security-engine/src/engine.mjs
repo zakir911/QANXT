@@ -1,7 +1,7 @@
 /**
  * The security engine's request path.
  *
- * Every security request in AIRA goes through `SecurityScanner.request`. There is no other
+ * Every security request in QA NXT goes through `SecurityScanner.request`. There is no other
  * way to issue one, and that is the entire design: the scope guard is not a thing a check
  * remembers to call, it is a thing a check cannot avoid.
  *

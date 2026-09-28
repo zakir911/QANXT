@@ -15,7 +15,7 @@ import { ACCOUNTS, IDENTITIES, createSecurityLab, findAccount, findIdentity, fin
 const PORT = Number(process.env.API_LAB_PORT ?? 4402);
 
 const app = createSecurityLab({
-  name: 'AIRA API Security Lab',
+  name: 'QA NXT API Security Lab',
   vulnerabilities: [
     { id: 'VULN_UNVERIFIED_TOKEN', description: 'Any string shaped like a token is accepted; the signature is never checked.' },
     { id: 'VULN_MASS_ASSIGNMENT', description: 'PATCH /api/users/:id lets a caller set their own role (broken object property level authorization).' },
@@ -149,7 +149,7 @@ app.get('/api/accounts/:id', ctx => {
 });
 
 app.get('/', ctx => ctx.json(200, {
-  application: 'AIRA API Security Lab',
+  application: 'QA NXT API Security Lab',
   notice: 'Deliberately vulnerable. Synthetic data only.',
   endpoints: ['/api/session', '/api/users', '/api/users/:id', '/api/notes', '/api/search', '/api/accounts/:id']
 }));

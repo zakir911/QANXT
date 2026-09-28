@@ -1,10 +1,10 @@
-# AIRA validating an application on every pull request.
+# QA NXT validating an application on every pull request.
 #
 # NOT VERIFIED in this repository: running it needs an Azure DevOps agent and a deployment
-# of AIRA it can reach. The CLI behaviour it depends on is executed by the golden suite, and
+# of QA NXT it can reach. The CLI behaviour it depends on is executed by the golden suite, and
 # the whole sequence is executed locally by test-lab/ci-simulation.
 #
-# Variables this needs: AIRA_API_URL, AIRA_PROJECT_ID, AIRA_ENVIRONMENT_ID, and AIRA_TOKEN
+# Variables this needs: QANXT_API_URL, QANXT_PROJECT_ID, QANXT_ENVIRONMENT_ID, and QANXT_TOKEN
 # as a secret.
 
 trigger:
@@ -16,20 +16,20 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  artifactsDir: $(Build.ArtifactStagingDirectory)/aira
+  artifactsDir: $(Build.ArtifactStagingDirectory)/qanxt
   # A pull request build diffs against the target branch; a branch build runs everything.
-  airaMode: $[ coalesce(variables['System.PullRequest.PullRequestId'], '') != '' && 'impacted' || 'full' ]
+  qanxtMode: $[ coalesce(variables['System.PullRequest.PullRequestId'], '') != '' && 'impacted' || 'full' ]
 
 steps:
   - checkout: self
-    # `aira regression --since` needs history to diff against.
+    # `qanxt regression --since` needs history to diff against.
     fetchDepth: 0
 
   - task: NodeTool@0
     inputs: { versionSpec: '22.x' }
 
-  - script: npm install -g @aira/cli
-    displayName: Install the AIRA CLI
+  - script: npm install -g @qa-nxt/cli
+    displayName: Install the QA NXT CLI
 
   - script: |
       echo "##vso[task.setvariable variable=appUrl]https://app-$(Build.BuildId).example.com"
@@ -49,9 +49,9 @@ steps:
   - script: |
       set +e
       mkdir -p "$(artifactsDir)"
-      aira regression run \
+      qanxt regression run \
         --since "origin/$(System.PullRequest.TargetBranchName)" \
-        --mode "$(airaMode)" \
+        --mode "$(qanxtMode)" \
         --explain \
         --report-dir "$(artifactsDir)" \
         --ci-provider azure-devops \
@@ -65,24 +65,24 @@ steps:
         0) echo "PASS" ;;
         1) echo "##vso[task.logissue type=error]Tests failed. See summary.md in the artifacts." ;;
         2) echo "##vso[task.logissue type=error]The quality gate blocked this run." ;;
-        3) echo "##vso[task.logissue type=error]AIRA was configured wrongly." ;;
-        4) echo "##vso[task.logissue type=error]AIRA rejected the credentials." ;;
-        5) echo "##vso[task.logissue type=error]AIRA could not be used." ;;
+        3) echo "##vso[task.logissue type=error]QA NXT was configured wrongly." ;;
+        4) echo "##vso[task.logissue type=error]QA NXT rejected the credentials." ;;
+        5) echo "##vso[task.logissue type=error]QA NXT could not be used." ;;
         6) echo "##vso[task.logissue type=error]A security policy refused this run." ;;
         7)
           # REVIEW is not a failure. Whether it stops the pipeline is this team's decision.
           echo "##vso[task.logissue type=warning]This run needs a person to look at it."
-          [ "$(AIRA_REVIEW_BLOCKS)" = "true" ] || status=0
+          [ "$(QANXT_REVIEW_BLOCKS)" = "true" ] || status=0
           ;;
-        8) echo "##vso[task.logissue type=error]AIRA failed internally." ;;
+        8) echo "##vso[task.logissue type=error]QA NXT failed internally." ;;
       esac
       exit $status
     displayName: Run the tests this change needs
     env:
-      AIRA_API_URL: $(AIRA_API_URL)
-      AIRA_TOKEN: $(AIRA_TOKEN)
-      AIRA_PROJECT_ID: $(AIRA_PROJECT_ID)
-      AIRA_ENVIRONMENT_ID: $(AIRA_ENVIRONMENT_ID)
+      QANXT_API_URL: $(QANXT_API_URL)
+      QANXT_TOKEN: $(QANXT_TOKEN)
+      QANXT_PROJECT_ID: $(QANXT_PROJECT_ID)
+      QANXT_ENVIRONMENT_ID: $(QANXT_ENVIRONMENT_ID)
 
   # Always: a failed run is the one whose evidence somebody needs.
   - task: PublishTestResults@2
@@ -90,13 +90,13 @@ steps:
     inputs:
       testResultsFormat: JUnit
       testResultsFiles: $(artifactsDir)/junit.xml
-      testRunTitle: AIRA
+      testRunTitle: QA NXT
 
   - task: PublishBuildArtifacts@1
     condition: always()
     inputs:
       pathToPublish: $(artifactsDir)
-      artifactName: aira-artifacts
+      artifactName: qanxt-artifacts
 
   # Posted by Azure DevOps, because it already has the credentials to comment.
   - script: |

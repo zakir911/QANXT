@@ -28,11 +28,11 @@ const CREDENTIALS = { username: 'alice', password: 'Password123!' };
 const FIRE_TIMEOUT_MS = 90_000;
 
 function cli(args, { token, projectId } = {}) {
-  const result = spawnSync(process.execPath, [resolve(ROOT, 'packages/cli/dist/aira.js'), ...args], {
+  const result = spawnSync(process.execPath, [resolve(ROOT, 'packages/cli/dist/qanxt.js'), ...args], {
     cwd: ROOT, encoding: 'utf8', timeout: 120_000,
     env: {
-      ...process.env, AIRA_API_URL: API, AIRA_TOKEN: token ?? '',
-      AIRA_PROJECT_ID: projectId ?? '', AIRA_ENVIRONMENT_ID: '', NO_COLOR: '1'
+      ...process.env, QANXT_API_URL: API, QANXT_TOKEN: token ?? '',
+      QANXT_PROJECT_ID: projectId ?? '', QANXT_ENVIRONMENT_ID: '', NO_COLOR: '1'
     }
   });
   return { code: result.status ?? -1, output: `${result.stdout ?? ''}${result.stderr ?? ''}` };
@@ -386,7 +386,7 @@ export default async function run() {
     id: 'SCH-007',
     objective: 'A schedule can be created, listed, previewed, disabled and removed from the CLI',
     preconditions: ['the CLI is built'],
-    input: 'aira schedule add / list / preview / disable / remove',
+    input: 'qanxt schedule add / list / preview / disable / remove',
     expected: 'Each command does what it says, and list shows the expression and the next '
       + 'run rather than only an id',
     evidence: ['cli.txt'],
@@ -395,7 +395,7 @@ export default async function run() {
       const options = { token: tenant.token, projectId: project.id };
       const transcript = [];
       const record = (label, result) => {
-        transcript.push(`$ aira schedule ${label}\n[exit ${result.code}]\n${result.output}`);
+        transcript.push(`$ qanxt schedule ${label}\n[exit ${result.code}]\n${result.output}`);
         return result;
       };
 

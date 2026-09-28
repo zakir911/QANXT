@@ -28,7 +28,7 @@ export function buildJsonReport(report: RunReport): unknown {
       startedAt: run.startedAt ?? null,
       completedAt: run.completedAt ?? null,
       durationMs: run.durationMs,
-      // Everything a pipeline told AIRA about where this run came from, returned so a
+      // Everything a pipeline told QA NXT about where this run came from, returned so a
       // failure months later can be traced to the commit that produced it.
       ci: run.ciBuildId || run.ciBranch || run.ciProvider || run.ciCommitSha
         ? {

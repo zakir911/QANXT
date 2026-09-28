@@ -114,7 +114,7 @@ export async function checkNoSqlInjection(scanner, { baseUrl, path, field = 'pas
     as: 'unauthenticated', testId: `${testId}:${id}`, note
   });
 
-  const baseline = await post('aira-deliberately-wrong-value', 'baseline', 'an ordinary string value');
+  const baseline = await post('qanxt-deliberately-wrong-value', 'baseline', 'an ordinary string value');
   if (!baseline.allowed) return { skipped: true, decision: baseline.decision, findings: [] };
 
   const operator = await post({ $ne: null }, 'operator', 'a query operator where a string belongs');
@@ -217,7 +217,7 @@ export async function checkTemplateInjection(scanner, { baseUrl, path, parameter
     risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${id}`, as: 'unauthenticated', note
   });
 
-  const baseline = await probe('aira-template-baseline', 'baseline',
+  const baseline = await probe('qanxt-template-baseline', 'baseline',
     'a plain value, to establish that 49 is not already in the response');
   if (!baseline.allowed) return { skipped: true, decision: baseline.decision, findings: [] };
 

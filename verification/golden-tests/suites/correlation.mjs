@@ -1,7 +1,7 @@
 /**
  * UI/API correlation: what the API was doing when a UI step failed.
  *
- * The claim is narrow and worth testing precisely. AIRA has always recorded both the steps
+ * The claim is narrow and worth testing precisely. QA NXT has always recorded both the steps
  * a test took and the requests the page made; what it could not do was say which step made
  * which request, because the column holding that link was never written (BUG-0020). The
  * difference between "server errors happened somewhere in these twenty steps" and "the step

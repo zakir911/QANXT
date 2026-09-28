@@ -10,25 +10,25 @@ export const AUDIT_FLAGS = [
 ] as const;
 
 export const AUDIT_HELP = `
-${bold('aira audit')} — who did what, and whether it worked
+${bold('qanxt audit')} — who did what, and whether it worked
 
-  ${bold('aira audit list')}
+  ${bold('qanxt audit list')}
       The most recent records for your organization, newest first.
 
-  ${bold('aira audit list --failed')}
+  ${bold('qanxt audit list --failed')}
       Only the actions that did not succeed. This is the query a security
       review actually runs: a run of failed sign-ins is the thing you want
       to find, and it is invisible in a list that shows successes too.
 
-  ${bold('aira audit list --action scheduleFired --limit 100')}
-      One kind of action. "aira audit actions" lists the names.
+  ${bold('qanxt audit list --action scheduleFired --limit 100')}
+      One kind of action. "qanxt audit actions" lists the names.
 
-  ${bold('aira audit trace <correlation-id>')}
+  ${bold('qanxt audit trace <correlation-id>')}
       Everything one request did. The correlation id is on the response
       header of every API call, in the problem body of every failure the
       CLI prints, and on every log line the API and the worker write.
 
-  ${bold('aira audit actions')}
+  ${bold('qanxt audit actions')}
       The action names this build can record.
 
   --project <id>          Restrict to one project
@@ -122,7 +122,7 @@ async function trace(api: ApiClient, args: ParsedArgs): Promise<number> {
   const correlationId = args.positionals[1] ?? flag(args, 'correlation');
   if (!correlationId) {
     throw usage('A correlation id is required.',
-      'aira audit trace <correlation-id>. It is on the x-correlation-id response header, '
+      'qanxt audit trace <correlation-id>. It is on the x-correlation-id response header, '
       + 'and in the "(correlation …)" the CLI prints with a platform error.');
   }
   const page = await api.get<AuditPage>(

@@ -53,7 +53,7 @@ export function evaluateSecurityGate(coverage, findings = [], policy = {}) {
     return {
       outcome, outcomeName: OUTCOME_NAME[outcome], blocked: false, rules, reasons,
       summary: 'NOT SCANNED. No security tests were executed for this build, so nothing is known about '
-        + 'its security posture from AIRA.'
+        + 'its security posture from QA NXT.'
     };
   }
   rules.push({ name: 'A security scan ran', passed: true, measured: true,
@@ -215,7 +215,7 @@ function summarise(outcome, coverage, open, all) {
 
   if (open.length === 0) {
     return 'Within the configured scope and test coverage, no security findings were detected by the '
-      + `executed AIRA security tests (${executed}). This is not a statement that the application is `
+      + `executed QA NXT security tests (${executed}). This is not a statement that the application is `
       + `secure or that no vulnerabilities exist.${setAsideNote}${untested}`;
   }
 

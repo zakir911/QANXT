@@ -1,5 +1,5 @@
 /**
- * Drives the `aira` CLI the way a pipeline does, against the running stack.
+ * Drives the `qanxt` CLI the way a pipeline does, against the running stack.
  *
  * Phase 7's definition of done is "the CLI drives a real run against a local API and emits
  * a JUnit file that a CI system can consume", and each half is checked literally: the run
@@ -18,13 +18,13 @@ import { dirname, resolve } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, '../..');
-const cli = resolve(repo, 'packages/cli/dist/aira.js');
+const cli = resolve(repo, 'packages/cli/dist/qanxt.js');
 
-const api = process.env.AIRA_API_URL ?? 'http://127.0.0.1:5080';
-const bank = process.env.AIRA_DEMO_BANK_URL ?? 'http://localhost:4200';
-const org = process.env.AIRA_ORG ?? 'northwind-bank';
-const email = process.env.AIRA_EMAIL ?? 'qa.lead@northwind.test';
-const password = process.env.AIRA_PASSWORD ?? 'Str0ngPassphrase!2026';
+const api = process.env.QANXT_API_URL ?? 'http://127.0.0.1:5080';
+const bank = process.env.QANXT_DEMO_BANK_URL ?? 'http://localhost:4200';
+const org = process.env.QANXT_ORG ?? 'northwind-bank';
+const email = process.env.QANXT_EMAIL ?? 'qa.lead@northwind.test';
+const password = process.env.QANXT_PASSWORD ?? 'Str0ngPassphrase!2026';
 
 const fail = (message) => { console.log(`FAIL  ${message}`); process.exitCode = 1; };
 const pass = (message) => console.log(`PASS  ${message}`);
@@ -35,7 +35,7 @@ function runCli(args, env = {}) {
   return new Promise(resolvePromise => {
     const child = spawn(process.execPath, [cli, ...args], {
       cwd: repo,
-      env: { ...process.env, AIRA_API_URL: api, ...env }
+      env: { ...process.env, QANXT_API_URL: api, ...env }
     });
     let stdout = '';
     let stderr = '';
@@ -59,7 +59,7 @@ const auth = await fetch(`${api}/api/v1/auth/login`, {
 });
 if (!auth.ok) die(`could not sign in to ${api} (${auth.status})`);
 const token = (await auth.json()).accessToken;
-const env = { AIRA_TOKEN: token };
+const env = { QANXT_TOKEN: token };
 
 const projects = await (await fetch(`${api}/api/v1/projects`, {
   headers: { authorization: `Bearer ${token}` }
@@ -81,22 +81,22 @@ if (badFlag.code !== 2) fail(`a mistyped flag should exit 2, got ${badFlag.code}
 else pass('a mistyped option exits 2 rather than being ignored');
 
 const badToken = await runCli(
-  ['status', '--project', project.id], { AIRA_TOKEN: 'not-a-real-token', AIRA_CONFIG: '/nonexistent' });
+  ['status', '--project', project.id], { QANXT_TOKEN: 'not-a-real-token', QANXT_CONFIG: '/nonexistent' });
 if (badToken.code !== 3) fail(`a rejected token should exit 3, got ${badToken.code}`);
 else pass('a rejected token exits 3, distinct from a test failure');
 
 const badApi = await runCli(
-  ['status', '--project', project.id], { AIRA_API_URL: 'http://127.0.0.1:1', ...env });
+  ['status', '--project', project.id], { QANXT_API_URL: 'http://127.0.0.1:1', ...env });
 if (badApi.code !== 4) fail(`an unreachable platform should exit 4, got ${badApi.code}`);
 else pass('an unreachable platform exits 4, distinct from a test failure');
 
 // ---- A healthy application: the gate passes --------------------------------
 await setScenario({ breakTransactionsApi: false });
-await rm('/tmp/aira-cli-check', { recursive: true, force: true });
+await rm('/tmp/qanxt-cli-check', { recursive: true, force: true });
 
 const healthy = await runCli([
   'run', '--project', project.id, '--suite', suite.id,
-  '--name', 'CLI check (healthy)', '--report-dir', '/tmp/aira-cli-check',
+  '--name', 'CLI check (healthy)', '--report-dir', '/tmp/qanxt-cli-check',
   '--timeout', '600', '--quiet'
 ], env);
 
@@ -105,7 +105,7 @@ if (healthy.code !== 0) {
 } else pass('a passing run with a satisfied quality gate exits 0');
 
 // ---- The JUnit file is parseable by a real XML parser ----------------------
-const xml = await readFile('/tmp/aira-cli-check/junit.xml', 'utf8');
+const xml = await readFile('/tmp/qanxt-cli-check/junit.xml', 'utf8');
 const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
 const page = await browser.newPage();
 
@@ -152,11 +152,11 @@ else pass('every test case carries a name and a time');
 
 // ---- A broken application: the gate blocks ---------------------------------
 await setScenario({ breakTransactionsApi: true });
-await rm('/tmp/aira-cli-check-broken', { recursive: true, force: true });
+await rm('/tmp/qanxt-cli-check-broken', { recursive: true, force: true });
 
 const broken = await runCli([
   'run', '--project', project.id, '--suite', suite.id,
-  '--name', 'CLI check (broken)', '--report-dir', '/tmp/aira-cli-check-broken',
+  '--name', 'CLI check (broken)', '--report-dir', '/tmp/qanxt-cli-check-broken',
   '--timeout', '600', '--quiet'
 ], env);
 
@@ -166,7 +166,7 @@ if (broken.code !== 1) {
   fail(`a blocked quality gate should exit 1, got ${broken.code}\n${broken.stderr.slice(0, 600)}`);
 } else pass('a failing quality gate exits 1 and would block a pipeline');
 
-const brokenReport = JSON.parse(await readFile('/tmp/aira-cli-check-broken/report.json', 'utf8'));
+const brokenReport = JSON.parse(await readFile('/tmp/qanxt-cli-check-broken/report.json', 'utf8'));
 if (brokenReport.qualityGate.passed) fail('the report claims the gate passed on a failing run');
 else pass(`the report explains why: ${brokenReport.qualityGate.summary}`);
 
@@ -174,7 +174,7 @@ const failed = brokenReport.tests.filter(t => t.verdict === 'failed');
 if (failed.length === 0) fail('no test is recorded as failed, though the run failed');
 else pass(`${failed.length} test(s) are recorded as failed, with messages`);
 
-const brokenXml = await readFile('/tmp/aira-cli-check-broken/junit.xml', 'utf8');
+const brokenXml = await readFile('/tmp/qanxt-cli-check-broken/junit.xml', 'utf8');
 const brokenParsed = await page.evaluate(source => {
   const document_ = new DOMParser().parseFromString(source, 'application/xml');
   if (document_.querySelector('parsererror')) return { ok: false };
@@ -190,10 +190,10 @@ else if (brokenParsed.failures.length === 0) fail('the JUnit file records no <fa
 else pass(`the JUnit file carries the failure: "${brokenParsed.failures[0].message}"`);
 
 // ---- Reports can be regenerated for a run that already finished -------------
-await rm('/tmp/aira-cli-check-again', { recursive: true, force: true });
+await rm('/tmp/qanxt-cli-check-again', { recursive: true, force: true });
 const runId = brokenReport.run.id;
 const again = await runCli(
-  ['report', runId, '--report-dir', '/tmp/aira-cli-check-again', '--quiet'], env);
+  ['report', runId, '--report-dir', '/tmp/qanxt-cli-check-again', '--quiet'], env);
 if (again.code !== 1) fail(`report should mirror the run's gate and exit 1, got ${again.code}`);
 else pass('reports can be regenerated later and still mirror the gate');
 

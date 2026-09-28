@@ -1,5 +1,5 @@
 import type { Page } from 'playwright';
-import type { AuthConfig, LocatorDescriptor } from '@aira/shared-types';
+import type { AuthConfig, LocatorDescriptor } from '@qa-nxt/shared-types';
 import { buildLocator, resolveLocator } from './locator-resolver.js';
 
 /**

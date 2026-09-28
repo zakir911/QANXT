@@ -1,12 +1,12 @@
 /**
- * AIRA Demo Bank — the test lab's flagship target application.
+ * QA NXT Demo Bank — the test lab's flagship target application.
  *
  * A real single-page application (React, client-side routing) over a real JSON API with
  * real sessions, real validation and real asynchronous behaviour. It is synthetic in its
  * data and nothing else: no real customer, account or payment system is involved.
  *
  * Its job in the lab is to be *convincingly ordinary* — the kind of application a bank
- * would actually ship — so that what AIRA discovers, generates, executes and heals here
+ * would actually ship — so that what QA NXT discovers, generates, executes and heals here
  * means something. The faults it can be asked to exhibit are listed in `FAULTS` below and
  * are controlled entirely from outside, through the environment or `POST /__faults`.
  */
@@ -50,7 +50,7 @@ const faults = createFaultEngine(FAULTS);
 const sessions = createSessionStore({ idleTimeoutMs: 15 * 60 * 1000, maxFailedAttempts: 3 });
 
 const app = createLabApp({
-  name: 'AIRA Demo Bank',
+  name: 'QA NXT Demo Bank',
   version: VERSION,
   faults,
   staticDir: join(here, 'dist'),
@@ -120,7 +120,7 @@ async function shell(ctx) {
   const html = await readFile(join(here, 'dist/index.html'), 'utf8').catch(() => null);
   if (html === null) {
     return ctx.html(503, '<!doctype html><title>Not built</title>'
-      + '<h1>AIRA Demo Bank is not built</h1><p>Run <code>pnpm --filter @aira/test-lab build</code>.</p>');
+      + '<h1>QA NXT Demo Bank is not built</h1><p>Run <code>pnpm --filter @qa-nxt/test-lab build</code>.</p>');
   }
 
   const token = ctx.cookies[SESSION_COOKIE];
@@ -426,7 +426,7 @@ app.get('/api/statements/:id/download', authenticated((ctx) => {
 
   // A genuinely valid, minimal PDF: a download test should receive something a PDF reader
   // would open, not a text file wearing a .pdf extension.
-  const body = `AIRA Demo Bank statement ${ctx.params.id}`;
+  const body = `QA NXT Demo Bank statement ${ctx.params.id}`;
   const pdf = minimalPdf(body);
   ctx.buffer(200, {
     'content-type': 'application/pdf',

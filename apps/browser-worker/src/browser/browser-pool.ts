@@ -1,5 +1,5 @@
 import { chromium, firefox, webkit, type Browser, type BrowserContext, type BrowserType } from 'playwright';
-import type { BrowserName } from '@aira/shared-types';
+import type { BrowserName } from '@qa-nxt/shared-types';
 import type { Logger } from '../util/logger.js';
 
 /**

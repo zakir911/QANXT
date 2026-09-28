@@ -1,5 +1,5 @@
 /**
- * A server that answers every request the way a broken AIRA would.
+ * A server that answers every request the way a broken QA NXT would.
  *
  * Runs as its own process, and that is not incidental. The scenario that uses it drives the
  * pipeline with `spawnSync`, which blocks the event loop of whoever called it — a responder

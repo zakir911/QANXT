@@ -80,7 +80,7 @@ const SCAN = {
 };
 
 const STARTED = {
-  securityScanId: 's3', reference: 'SCAN-3', queue: 'aira:security', jobId: '1-0',
+  securityScanId: 's3', reference: 'SCAN-3', queue: 'qanxt:security', jobId: '1-0',
   targets: 5, checksToRun: 3, checksConfigured: 3,
   summary: 'Queued SCAN-3: 3 of 3 implied check(s) across 5 discovered target(s).'
 };
@@ -92,7 +92,7 @@ const QUEUED = {
   gate: {
     outcome: 'review', blocked: false,
     summary: 'NOT SCANNED. No security tests were executed for this build, so nothing is known '
-      + 'about its security posture from AIRA.',
+      + 'about its security posture from QA NXT.',
     rules: [], reasons: []
   }
 };

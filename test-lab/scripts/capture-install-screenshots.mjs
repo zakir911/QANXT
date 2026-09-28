@@ -12,7 +12,7 @@ import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
 
 const CONSOLE = process.env.CONSOLE_URL ?? 'http://127.0.0.1:5173';
-const API = process.env.AIRA_API_URL ?? 'http://127.0.0.1:5080';
+const API = process.env.QANXT_API_URL ?? 'http://127.0.0.1:5080';
 const OUT = new URL('../../docs/images/', import.meta.url).pathname;
 mkdirSync(OUT, { recursive: true });
 

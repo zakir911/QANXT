@@ -4,7 +4,7 @@ import type { BrowserContext, ConsoleMessage, Page, Request, Response } from 'pl
 import type {
   AuthConfig, CrawlBudget, DiscoveredApiEndpoint, DiscoveredElement, DiscoveredPage,
   DiscoveredTransition, DiscoveryCompletionReport
-} from '@aira/shared-types';
+} from '@qa-nxt/shared-types';
 import { buildLocatorFor } from '../browser/locator-builder.js';
 import { SecretMasker } from '../security/masker.js';
 import { isUrlAllowed, normalizeUrl } from '../security/url-guard.js';

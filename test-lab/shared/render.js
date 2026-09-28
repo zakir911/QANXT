@@ -26,7 +26,7 @@ ${head}
 <main class="content">
 ${body}
 </main>
-<footer class="footer">Synthetic application. Part of the AIRA test lab.</footer>
+<footer class="footer">Synthetic application. Part of the QA NXT test lab.</footer>
 ${script ? `<script type="module">${script}</script>` : ''}
 </body>
 </html>`;

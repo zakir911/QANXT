@@ -2,8 +2,8 @@
 # Starts or stops the web console's dev server.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PIDFILE="${ROOT}/.aira-console.pid"
-LOGFILE="${LOGFILE:-/tmp/aira-console.log}"
+PIDFILE="${ROOT}/.qanxt-console.pid"
+LOGFILE="${LOGFILE:-/tmp/qanxt-console.log}"
 
 case "${1:-start}" in
   start)

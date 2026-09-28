@@ -19,7 +19,7 @@ the report is generated from the execution ledger rather than written by hand.
 | `SECT-*` | 8 | The triage workflow's refusals |
 | `SECX-*` | 1 | DOM XSS reported as untestable by a response-only scan, never as absent |
 | `SECR-*` | 1 | The measured detection and false-positive rates |
-| `SEC-G*` | 11 | AIRA's own tenancy, credentials, target policy and headers |
+| `SEC-G*` | 11 | QA NXT's own tenancy, credentials, target policy and headers |
 
 Plus 82 C# unit tests over the pure functions where the controls actually live: 38 on the
 scope guard, 13 on the severity model, 19 on the security gate and 12 on the RBAC matrix.
@@ -34,7 +34,7 @@ Recorded in the ledger rather than omitted, so they survive into every report:
 - **`SECN-002`** — browser-driven DOM XSS, from the scanning suite. Implemented, but in the
   worker rather than the engine, so this suite cannot exercise it: `SECW-013` and `SECW-014`
   measure its detection and precision against the same lab.
-- **`SECN-003`** — detection against an application AIRA has not seen. Not measurable in a lab
+- **`SECN-003`** — detection against an application QA NXT has not seen. Not measurable in a lab
   whose flaws were written alongside the checks.
 
 A test that leaves no trace when it does not run is indistinguishable from one that never
@@ -93,9 +93,9 @@ because a verification document that reports only successes is describing intent
 
 `SECURITY-VERIFICATION-REPORT.md` opens with a disclaimer that is not decoration:
 
-> This report describes AIRA's security *testing*. It is not a security assessment of any
-> application. It does not say that AIRA is secure, that the lab is secure, or that any
-> application AIRA scans is secure.
+> This report describes QA NXT's security *testing*. It is not a security assessment of any
+> application. It does not say that QA NXT is secure, that the lab is secure, or that any
+> application QA NXT scans is secure.
 
 The detection rate in it — 34 of 34, 0 false positives — describes a lab whose flaws were
 written alongside the checks that find them. That is the right way to test a detector and the

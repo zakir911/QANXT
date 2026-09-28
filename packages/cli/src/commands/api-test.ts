@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import type { RunTrigger } from '@aira/shared-types';
+import type { RunTrigger } from '@qa-nxt/shared-types';
 import { ApiClient } from '../api.js';
 import { boolFlag, flag, flagAll, intFlag, rejectUnknownFlags, type ParsedArgs } from '../args.js';
 import { resolveContext } from '../config.js';
@@ -19,23 +19,23 @@ export const API_TEST_FLAGS = [
 ] as const;
 
 export const API_TEST_HELP = `
-${bold('aira api-test')} — author and run API tests
+${bold('qanxt api-test')} — author and run API tests
 
-  ${bold('aira api-test add --file <path>')}
+  ${bold('qanxt api-test add --file <path>')}
       Creates API tests from a definition file (JSON). One or more tests, each a
       sequence of HTTP requests with assertions over their responses.
 
-  ${bold('aira api-test generate --app <id>')}
+  ${bold('qanxt api-test generate --app <id>')}
       Writes API tests from the endpoints discovery observed: that each still
       answers as it did, that each that required credentials still refuses
       without them, and that a templated endpoint answers 404 for an identifier
       nothing owns. Deterministic — no model is involved, and everything a
-      generated test asserts is something AIRA watched the application do.
+      generated test asserts is something QA NXT watched the application do.
 
-  ${bold('aira api-test run')}
+  ${bold('qanxt api-test run')}
       Runs every enabled API test in the project and waits for the verdict.
 
-  --project <id>         Project to work in (or AIRA_PROJECT_ID)
+  --project <id>         Project to work in (or QANXT_PROJECT_ID)
   --file <path>          The definition file, for "add"
   --dry-run              Validate the file against the platform without saving
   --app <id>             Application to generate for
@@ -83,7 +83,7 @@ Credentials are written as \${secret:name} references, never as literals; the pl
 refuses a test that inlines one. A captured value is available to later requests in the
 same test as \${data:name}.
 
-Exit status is the same contract as "aira run": 0 PASS, 1 TEST_FAILURE,
+Exit status is the same contract as "qanxt run": 0 PASS, 1 TEST_FAILURE,
 2 QUALITY_GATE_FAILURE, 7 HUMAN_REVIEW_REQUIRED.
 `;
 
@@ -131,7 +131,7 @@ export async function apiTestCommand(args: ParsedArgs): Promise<number> {
 
   const sub = args.positionals[0] ?? 'run';
   if (sub !== 'add' && sub !== 'run' && sub !== 'list' && sub !== 'generate') {
-    throw usage(`"aira api-test ${sub}" is not a subcommand.`,
+    throw usage(`"qanxt api-test ${sub}" is not a subcommand.`,
       'Use "add", "generate", "run" or "list".');
   }
 
@@ -143,7 +143,7 @@ export async function apiTestCommand(args: ParsedArgs): Promise<number> {
   const api = new ApiClient(context.apiUrl, context.token);
 
   if (!context.projectId) {
-    throw usage('A project is required.', 'Pass --project <id>, or set AIRA_PROJECT_ID.');
+    throw usage('A project is required.', 'Pass --project <id>, or set QANXT_PROJECT_ID.');
   }
 
   if (sub === 'add') return addTests(api, context.projectId, args);
@@ -236,7 +236,7 @@ interface GeneratedApiTests {
 async function generateTests(api: ApiClient, args: ParsedArgs): Promise<number> {
   const applicationId = flag(args, 'app');
   if (!applicationId) {
-    throw usage('An application is required.', 'Pass --app <id>. "aira apps" lists them.');
+    throw usage('An application is required.', 'Pass --app <id>. "qanxt apps" lists them.');
   }
 
   const negative = !boolFlag(args, 'no-negative');
@@ -273,7 +273,7 @@ async function listTests(api: ApiClient, projectId: string, args: ParsedArgs): P
   if (boolFlag(args, 'json')) { out(JSON.stringify(rows, null, 2)); return ExitCode.Success; }
 
   if (rows.length === 0) {
-    note(dim('No API tests yet. Create some with "aira api-test add --file <path>".'));
+    note(dim('No API tests yet. Create some with "qanxt api-test add --file <path>".'));
     return ExitCode.Success;
   }
 
@@ -300,7 +300,7 @@ async function runTests(
     // Not a pass. "There were no tests" and "the tests passed" are different answers, and
     // a pipeline that treats the first as the second is green for the wrong reason.
     note(red('There are no enabled API tests in this project.'));
-    note(dim('Create some with "aira api-test add --file <path>".'));
+    note(dim('Create some with "qanxt api-test add --file <path>".'));
     return ExitCode.ConfigurationError;
   }
 

@@ -53,7 +53,7 @@ export default async function run() {
   const tenant = await newTenant('AiFault');
   const project = await createProject(tenant, 'AI failure project');
   const application = await registerApplication(tenant, project.id, {
-    name: 'AIRA Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
+    name: 'QA NXT Demo Bank', baseUrl: BANK, loginUrl: `${BANK}/login`,
     username: 'alice', password: 'Password123!'
   });
 

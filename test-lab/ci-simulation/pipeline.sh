@@ -5,14 +5,14 @@
 # This is the local equivalent of the files in infrastructure/ci/examples: the same stages
 # in the same order, running the same commands, against the lab bank instead of a
 # deployment. What a GitHub Actions workflow or a Jenkinsfile adds on top is syntax, a
-# runner and credentials — none of which change what AIRA is asked to do or what it
+# runner and credentials — none of which change what QA NXT is asked to do or what it
 # answers. That is the part worth executing, and it is what this script executes.
 #
 # It is deliberately a shell script rather than a Node program. The examples are shell in
 # YAML; if the sequence only worked when driven from JavaScript, it would not be evidence
 # about them.
 #
-#   AIRA_API_URL=http://127.0.0.1:5080 AIRA_TOKEN=… AIRA_PROJECT_ID=… \
+#   QANXT_API_URL=http://127.0.0.1:5080 QANXT_TOKEN=… QANXT_PROJECT_ID=… \
 #   APP_URL=http://localhost:4300 TEST_IDS="<uuid> <uuid>" \
 #   ./pipeline.sh
 #
@@ -27,7 +27,7 @@ ARTIFACTS="${ARTIFACTS:-ci-artifacts}"
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-60}"
 REVIEW_BLOCKS="${REVIEW_BLOCKS:-false}"
 MODE="${MODE:-impacted}"
-AIRA="${AIRA_CLI:-node $(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/packages/cli/dist/aira.js}"
+QA NXT="${QANXT_CLI:-node $(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/packages/cli/dist/qanxt.js}"
 
 stage() { printf '::stage::%s::%s\n' "$1" "$2"; }
 say()   { printf '\n\033[1m▸ %s\033[0m\n' "$1"; }
@@ -77,7 +77,7 @@ stage deploy ok
 #
 # Before the tests, not after. A run against an application that has not finished starting
 # reports failures that belong to the deployment, and someone spends the morning reading
-# them as defects. This is the one stage that can stop the pipeline before AIRA is involved
+# them as defects. This is the one stage that can stop the pipeline before QA NXT is involved
 # at all, and it exits 5 because nothing is yet known about quality.
 say "Health check"
 if [[ -z "${APP_URL:-}" ]]; then
@@ -114,7 +114,7 @@ if [[ -n "${TEST_IDS:-}" ]]; then
   stage select skipped
 else
   # shellcheck disable=SC2086
-  $AIRA regression select \
+  $QA NXT regression select \
     --since "${BASE_REF:-HEAD~1}" \
     --mode "$MODE" \
     --explain \
@@ -129,7 +129,7 @@ fi
 
 # --- 5. Test ---------------------------------------------------------------
 #
-# The whole of AIRA's part: execution, failure analysis, self-healing where it is safe,
+# The whole of QA NXT's part: execution, failure analysis, self-healing where it is safe,
 # evidence, and the quality gate. One command, one exit code.
 say "Test"
 args=(--report-dir "$ARTIFACTS" --timeout "${RUN_TIMEOUT:-300}"
@@ -140,10 +140,10 @@ args=(--report-dir "$ARTIFACTS" --timeout "${RUN_TIMEOUT:-300}"
 if [[ -n "${TEST_IDS:-}" ]]; then
   for id in $TEST_IDS; do args+=(--test "$id"); done
   # shellcheck disable=SC2086
-  $AIRA run "${args[@]}"
+  $QA NXT run "${args[@]}"
 else
   # shellcheck disable=SC2086
-  $AIRA regression run --since "${BASE_REF:-HEAD~1}" --mode "$MODE" "${args[@]}"
+  $QA NXT regression run --since "${BASE_REF:-HEAD~1}" --mode "$MODE" "${args[@]}"
 fi
 status=$?
 stage test "exit-$status"
@@ -164,7 +164,7 @@ fi
 
 # --- 7. Decide -------------------------------------------------------------
 #
-# The exit code is AIRA's answer. What the pipeline does with it is the team's decision,
+# The exit code is QA NXT's answer. What the pipeline does with it is the team's decision,
 # and making it here rather than inside the CLI is the whole reason REVIEW has a code of
 # its own.
 say "Decide"
@@ -175,11 +175,11 @@ case $status in
      finish 1 "tests failed" ;;
   2) echo "::error:: QUALITY_GATE_FAILURE — every test was within tolerance and a rule stopped it anyway."
      finish 2 "the quality gate blocked this run" ;;
-  3) echo "::error:: CONFIGURATION_ERROR — AIRA was configured wrongly. Whoever edited this pipeline should look."
+  3) echo "::error:: CONFIGURATION_ERROR — QA NXT was configured wrongly. Whoever edited this pipeline should look."
      finish 3 "bad configuration" ;;
-  4) echo "::error:: AUTHENTICATION_ERROR — AIRA rejected the credentials. Whoever holds AIRA_TOKEN should look."
+  4) echo "::error:: AUTHENTICATION_ERROR — QA NXT rejected the credentials. Whoever holds QANXT_TOKEN should look."
      finish 4 "bad credentials" ;;
-  5) echo "::error:: INFRASTRUCTURE_ERROR — AIRA could not be used. The platform operator should look."
+  5) echo "::error:: INFRASTRUCTURE_ERROR — QA NXT could not be used. The platform operator should look."
      echo "Nothing is known about quality. Do not read this as a pass."
      finish 5 "the platform could not be reached" ;;
   6) echo "::error:: SECURITY_POLICY_VIOLATION — a security policy refused this run."
@@ -191,8 +191,8 @@ case $status in
      fi
      echo "This pipeline does not block on review. Continuing."
      finish 0 "review required, and this pipeline does not block on review" ;;
-  8) echo "::error:: AIRA_INTERNAL_ERROR — AIRA itself failed. This is a defect in AIRA, not a finding about the application."
-     finish 8 "AIRA failed internally" ;;
-  *) echo "::error:: Unrecognised exit code $status from AIRA. Treating it as a failure."
+  8) echo "::error:: QANXT_INTERNAL_ERROR — QA NXT itself failed. This is a defect in QA NXT, not a finding about the application."
+     finish 8 "QA NXT failed internally" ;;
+  *) echo "::error:: Unrecognised exit code $status from QA NXT. Treating it as a failure."
      finish "$status" "unrecognised exit code" ;;
 esac

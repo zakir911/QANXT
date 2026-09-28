@@ -12,8 +12,8 @@ import {
 } from '../src/index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const enumsFile = resolve(here, '../../../apps/api/src/Aira.Domain/Enums/Enums.cs');
-const locatorFile = resolve(here, '../../../apps/api/src/Aira.Application/Contracts/Locator.cs');
+const enumsFile = resolve(here, '../../../apps/api/src/QaNxt.Domain/Enums/Enums.cs');
+const locatorFile = resolve(here, '../../../apps/api/src/QaNxt.Application/Contracts/Locator.cs');
 
 /**
  * The control plane and the execution plane are written in different languages and
