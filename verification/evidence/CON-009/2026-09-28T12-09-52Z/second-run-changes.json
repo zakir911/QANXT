@@ -1,0 +1,22 @@
+{
+  "testRunId": "339a0913-63c4-4eb1-bd65-47415fcd24bd",
+  "endpointsObserved": 1,
+  "endpointsWithBaseline": 1,
+  "endpointsWithoutBaseline": 0,
+  "breakingCount": 1,
+  "potentiallyBreakingCount": 0,
+  "nonBreakingCount": 0,
+  "changes": [
+    {
+      "id": "51103387-d249-4ab4-ad63-5ce7c8b66424",
+      "method": "GET",
+      "urlTemplate": "http://localhost:4300/api/accounts",
+      "kind": "breaking",
+      "path": "$.accounts[].sortCode",
+      "baselineType": "string",
+      "description": "\"accounts[].sortCode\" was present as string and is now absent. Any caller reading it will find nothing.",
+      "isAcknowledged": true
+    }
+  ],
+  "notes": []
+}

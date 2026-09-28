@@ -1,0 +1,408 @@
+{
+  "run": {
+    "id": "04391148-bb37-4ec7-9f9c-85a59222b0b1",
+    "projectId": "2ae85208-196c-44df-b47e-6b5082d58721",
+    "name": "EXEC purchase journey",
+    "status": "passed",
+    "trigger": "manual",
+    "browser": "chromium",
+    "createdAt": "2026-09-28T12:14:53.100085+00:00",
+    "startedAt": "2026-09-28T12:14:53.115094+00:00",
+    "completedAt": "2026-09-28T12:14:54.692101+00:00",
+    "durationMs": 1577,
+    "totalCount": 1,
+    "passedCount": 1,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 0,
+    "flakyCount": 0,
+    "qualityGatePassed": true,
+    "contractBreakingChangeCount": 0,
+    "contractPotentiallyBreakingChangeCount": 0
+  },
+  "actions": [
+    {
+      "id": "71fcb2a0-b68e-4963-8c85-c196a4330cb0",
+      "order": 1,
+      "action": "navigate",
+      "description": "Go to http://localhost:4310/login",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.159+00:00",
+      "durationMs": 36,
+      "url": "about:blank",
+      "wasHealed": false
+    },
+    {
+      "id": "dd51187d-8cb7-4ad6-ab27-de883d5de7e9",
+      "order": 2,
+      "action": "fill",
+      "description": "Enter a value in username",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.205+00:00",
+      "durationMs": 62,
+      "url": "http://localhost:4310/login",
+      "maskedValue": "***REDACTED***",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"username\""
+    },
+    {
+      "id": "40c54836-c154-415c-a545-2c42431b8970",
+      "order": 3,
+      "action": "fill",
+      "description": "Enter a value in password",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.275+00:00",
+      "durationMs": 38,
+      "url": "http://localhost:4310/login",
+      "maskedValue": "***REDACTED***",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "password",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"password\""
+    },
+    {
+      "id": "7ef9396e-9175-4eb0-bbcf-d712e63b1478",
+      "order": 4,
+      "action": "click",
+      "description": "Press login-submit",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.325+00:00",
+      "durationMs": 81,
+      "url": "http://localhost:4310/login",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "login-submit",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"login-submit\""
+    },
+    {
+      "id": "5e15abc8-e2fb-44fc-8167-d98075fefa6e",
+      "order": 5,
+      "action": "fill",
+      "description": "Enter a value in product-search",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.416+00:00",
+      "durationMs": 43,
+      "url": "http://localhost:4310/products",
+      "maskedValue": "pen",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "product-search",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"product-search\""
+    },
+    {
+      "id": "e41fde6f-e62a-4113-a32f-c22f97689e29",
+      "order": 6,
+      "action": "click",
+      "description": "Press product-search-submit",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.475+00:00",
+      "durationMs": 60,
+      "url": "http://localhost:4310/products",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "product-search-submit",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"product-search-submit\""
+    },
+    {
+      "id": "bce56bae-bcd0-4e4c-a9d9-357e04ede6ee",
+      "order": 7,
+      "action": "click",
+      "description": "Press open-product-p-102",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.544+00:00",
+      "durationMs": 76,
+      "url": "http://localhost:4310/products?q=pen&category=all",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "open-product-p-102",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"open-product-p-102\""
+    },
+    {
+      "id": "a50fb5f6-98e0-40c4-ad01-4e27415d50de",
+      "order": 8,
+      "action": "fill",
+      "description": "Enter a value in product-quantity",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.629+00:00",
+      "durationMs": 54,
+      "url": "http://localhost:4310/products/p-102",
+      "maskedValue": "2",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "product-quantity",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"product-quantity\""
+    },
+    {
+      "id": "474c392e-1567-485f-aafb-28c1a9a696d1",
+      "order": 9,
+      "action": "click",
+      "description": "Press add-to-cart",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.691+00:00",
+      "durationMs": 98,
+      "url": "http://localhost:4310/products/p-102",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "add-to-cart",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"add-to-cart\""
+    },
+    {
+      "id": "5e3cae39-9238-48a9-9b60-d69d18e7a17b",
+      "order": 10,
+      "action": "fill",
+      "description": "Enter a value in coupon-code",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.801+00:00",
+      "durationMs": 49,
+      "url": "http://localhost:4310/cart",
+      "maskedValue": "SAVE10",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "coupon-code",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"coupon-code\""
+    },
+    {
+      "id": "3b2dc64c-e33d-41a8-a3e2-8f4d4eba5e6e",
+      "order": 11,
+      "action": "click",
+      "description": "Press apply-coupon",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.859+00:00",
+      "durationMs": 65,
+      "url": "http://localhost:4310/cart",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "apply-coupon",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"apply-coupon\""
+    },
+    {
+      "id": "52a02003-6058-4d42-bf6a-d97e8ad797a5",
+      "order": 12,
+      "action": "assertVisible",
+      "description": "coupon-applied is visible",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.935+00:00",
+      "durationMs": 55,
+      "url": "http://localhost:4310/cart?coupon=applied",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "coupon-applied",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"coupon-applied\""
+    },
+    {
+      "id": "c2c263f4-119f-4a32-bf17-58a645467533",
+      "order": 13,
+      "action": "click",
+      "description": "Press go-to-checkout",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:53.999+00:00",
+      "durationMs": 57,
+      "url": "http://localhost:4310/cart?coupon=applied",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "go-to-checkout",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"go-to-checkout\""
+    },
+    {
+      "id": "560ff6cc-754f-41af-9ef5-e2a7301ce603",
+      "order": 14,
+      "action": "fill",
+      "description": "Enter a value in checkout-name",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:54.063+00:00",
+      "durationMs": 53,
+      "url": "http://localhost:4310/checkout",
+      "maskedValue": "Alice Fernsby",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "checkout-name",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"checkout-name\""
+    },
+    {
+      "id": "bef36981-ad60-454a-849c-37beeca9ef5f",
+      "order": 15,
+      "action": "fill",
+      "description": "Enter a value in checkout-line1",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:54.124+00:00",
+      "durationMs": 20,
+      "url": "http://localhost:4310/checkout",
+      "maskedValue": "12 Bridge Street",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "checkout-line1",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"checkout-line1\""
+    },
+    {
+      "id": "ef7f0af8-bea9-48dd-9d10-b9236ab2a4b5",
+      "order": 16,
+      "action": "fill",
+      "description": "Enter a value in checkout-postcode",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:54.153+00:00",
+      "durationMs": 31,
+      "url": "http://localhost:4310/checkout",
+      "maskedValue": "EC1A 1BB",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "checkout-postcode",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"checkout-postcode\""
+    },
+    {
+      "id": "71644fc8-7f19-4bd5-8d13-e7286c33d236",
+      "order": 17,
+      "action": "fill",
+      "description": "Enter a value in checkout-card",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:54.192+00:00",
+      "durationMs": 28,
+      "url": "http://localhost:4310/checkout",
+      "maskedValue": "************0002",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "checkout-card",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"checkout-card\""
+    },
+    {
+      "id": "0de64ded-d5d5-408a-8238-f29b3def569f",
+      "order": 18,
+      "action": "fill",
+      "description": "Enter a value in checkout-expiry",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:54.229+00:00",
+      "durationMs": 32,
+      "url": "http://localhost:4310/checkout",
+      "maskedValue": "04/29",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "checkout-expiry",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"checkout-expiry\""
+    },
+    {
+      "id": "a491af64-23e2-4737-8f89-0fef700ff352",
+      "order": 19,
+      "action": "fill",
+      "description": "Enter a value in checkout-cvc",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:54.268+00:00",
+      "durationMs": 32,
+      "url": "http://localhost:4310/checkout",
+      "maskedValue": "123",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "checkout-cvc",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"checkout-cvc\""
+    },
+    {
+      "id": "2e40abe1-0326-475c-a8a5-612cb476f7de",
+      "order": 20,
+      "action": "click",
+      "description": "Press place-order",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:54.307+00:00",
+      "durationMs": 66,
+      "url": "http://localhost:4310/checkout",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "place-order",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"place-order\""
+    },
+    {
+      "id": "cdf2742b-0f61-4502-a78e-31f814097903",
+      "order": 21,
+      "action": "assertVisible",
+      "description": "order-confirmation is visible",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:54.386+00:00",
+      "durationMs": 59,
+      "url": "http://localhost:4310/orders/ord-0001",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "order-confirmation",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"order-confirmation\""
+    }
+  ]
+}

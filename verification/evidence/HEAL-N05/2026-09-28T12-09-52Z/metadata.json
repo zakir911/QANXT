@@ -1,0 +1,37 @@
+{
+  "testId": "HEAL-N05",
+  "suite": "Self-healing",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "Healing is refused: the control exists but only behind an extra interaction",
+  "preconditions": [
+    "FAULT_CONTROL_MOVED_TO_DIALOG is enabled",
+    "the project is on healingPolicy=auto — the permissive setting"
+  ],
+  "input": "The same unedited sign-in test",
+  "expected": "The run FAILS, no heal is applied, and the browser never reaches /welcome",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "failed; heals applied: 0; reached /welcome: false; classified as locatorChange; 1 candidate(s) considered, best 84%",
+  "metrics": {
+    "applied": 0,
+    "candidates": 1,
+    "reachedWelcome": false
+  },
+  "startedAt": "2026-09-28T12:27:28.887Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "HEAL-N05.json",
+      "path": "evidence/HEAL-N05/2026-09-28T12-09-52Z/HEAL-N05.json",
+      "bytes": 4796,
+      "sha256": "8dac31a6d8be0484f42d0dba3f6b7d74136ef2b9284b7ab97dab06a8b0b8ce27"
+    }
+  ]
+}

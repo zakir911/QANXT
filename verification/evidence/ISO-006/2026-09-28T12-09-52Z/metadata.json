@@ -1,0 +1,35 @@
+{
+  "testId": "ISO-006",
+  "suite": "Isolation, audit and observability",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "Quality gate rules are scoped to their project and tenant",
+  "preconditions": [
+    "tenant A owns a gate rule"
+  ],
+  "input": "GET and DELETE tenant A's gate rule as tenant B",
+  "expected": "Tenant B is refused and the rule survives",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "tenant B list 404 (saw the rule: false), delete 404; rule still present for its owner: true",
+  "metrics": {
+    "list": 404,
+    "delete": 404
+  },
+  "startedAt": "2026-09-28T12:38:03.272Z",
+  "durationMs": 15,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "gate-isolation.json",
+      "path": "evidence/ISO-006/2026-09-28T12-09-52Z/gate-isolation.json",
+      "bytes": 140,
+      "sha256": "710587052a4da871a33f708cda4d97e9b3d035da8c42d09cf0fb69a050d89945"
+    }
+  ]
+}

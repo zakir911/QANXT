@@ -1,0 +1,32 @@
+{
+  "testId": "COR-007",
+  "suite": "UI/API correlation",
+  "runId": "COR-REPEAT2-130713",
+  "objective": "Re-analysing a stored failure rebuilds the correlation from the evidence",
+  "preconditions": [
+    "a failure recorded by an earlier scenario"
+  ],
+  "input": "Re-analyse the failure from COR-003 and compare the two verdicts",
+  "expected": "The same correlated verdict, produced again from what was stored rather than carried forward",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "first: authenticationIssue at 90%; re-analysed: authenticationIssue at 90%",
+  "metrics": null,
+  "startedAt": "2026-09-28T13:08:20.735Z",
+  "durationMs": 2100,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "reanalysis.json",
+      "path": "evidence/COR-007/COR-REPEAT2-130713/reanalysis.json",
+      "bytes": 1828,
+      "sha256": "5e2b11ef083433acd39a0ed9cf497056e3659e30cb3e6cc375ae3d5a28468b49"
+    }
+  ]
+}

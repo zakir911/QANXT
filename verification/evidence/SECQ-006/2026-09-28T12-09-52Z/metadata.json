@@ -1,0 +1,32 @@
+{
+  "testId": "SECQ-006",
+  "suite": "Security gate, regression and triage",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A suppression with no written justification is counted as open and fails the build",
+  "preconditions": [
+    "a real critical finding marked false positive with no reason"
+  ],
+  "input": "The scan's BOLA finding, status FalsePositive, justification empty",
+  "expected": "FAIL. An unexplained suppression is indistinguishable from switching the check off, and honouring it would make the gate decoration",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "FAIL: 1 finding(s) are suppressed with no written justification or no named decision-maker. They are counted as open, because an unexplained suppression is indistinguishable from switching the check off.",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:38:42.793Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-006/2026-09-28T12-09-52Z/gate.json",
+      "bytes": 2501,
+      "sha256": "578d2a25f92bc3112a599afaca586e18d78c1248f52eec9afe335c7b72d5ca17"
+    }
+  ]
+}

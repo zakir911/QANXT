@@ -1,0 +1,78 @@
+{
+  "fault": "FAULT_TESTID_ONLY_CHANGED",
+  "policy": "auto",
+  "threshold": 75,
+  "bestConfidence": 93,
+  "status": "passed",
+  "stepsPassed": 5,
+  "stepsTotal": 5,
+  "healingEvents": [
+    {
+      "id": "8f469aa1-d0f5-406d-ae2a-cf645d8ef970",
+      "testStepId": "b2a729a4-767a-4685-ad7c-34c46b5b4a4f",
+      "confidence": 93,
+      "outcome": "applied",
+      "outcomeVerified": true,
+      "reason": "testId=\"login-submit\" no longer matched any element. The closest candidate is testId=\"auth-submit-v2\" (93% confidence). Unchanged: role, accessibleName, text, tagName, ancestry, neighbours, geometry. No other element came close.",
+      "original": "{\"exact\": false, \"value\": \"login-submit\", \"strategy\": \"testId\", \"fallbacks\": []}",
+      "healed": "{\"exact\": false, \"value\": \"auth-submit-v2\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form > button\", \"strategy\": \"css\", \"fallbacks\": []}]}",
+      "scoreBreakdownJson": "{\"role\": 16, \"text\": 7, \"testId\": 8, \"tagName\": 4, \"ancestry\": 6, \"geometry\": 2, \"neighbours\": 4, \"uniqueness\": 12, \"accessibleName\": 20}"
+    }
+  ],
+  "healed": [
+    {
+      "id": "8f469aa1-d0f5-406d-ae2a-cf645d8ef970",
+      "testStepId": "b2a729a4-767a-4685-ad7c-34c46b5b4a4f",
+      "confidence": 93,
+      "outcome": "applied",
+      "outcomeVerified": true,
+      "reason": "testId=\"login-submit\" no longer matched any element. The closest candidate is testId=\"auth-submit-v2\" (93% confidence). Unchanged: role, accessibleName, text, tagName, ancestry, neighbours, geometry. No other element came close.",
+      "original": "{\"exact\": false, \"value\": \"login-submit\", \"strategy\": \"testId\", \"fallbacks\": []}",
+      "healed": "{\"exact\": false, \"value\": \"auth-submit-v2\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form > button\", \"strategy\": \"css\", \"fallbacks\": []}]}",
+      "scoreBreakdownJson": "{\"role\": 16, \"text\": 7, \"testId\": 8, \"tagName\": 4, \"ancestry\": 6, \"geometry\": 2, \"neighbours\": 4, \"uniqueness\": 12, \"accessibleName\": 20}"
+    }
+  ],
+  "clickAction": {
+    "id": "77ee37fb-5606-469a-8b2d-aafe5da91060",
+    "order": 4,
+    "action": "click",
+    "description": "Press login-submit",
+    "status": "healed",
+    "startedAt": "2026-09-28T12:25:52.307+00:00",
+    "durationMs": 15110,
+    "url": "http://localhost:4350/login",
+    "wasHealed": true,
+    "healingConfidence": 93,
+    "locatorUsed": {
+      "strategy": "testId",
+      "value": "auth-submit-v2",
+      "exact": false,
+      "fallbacks": [
+        {
+          "strategy": "role",
+          "value": "button",
+          "name": "Log in",
+          "exact": false,
+          "fallbacks": []
+        },
+        {
+          "strategy": "text",
+          "value": "Log in",
+          "exact": true,
+          "fallbacks": []
+        },
+        {
+          "strategy": "css",
+          "value": "html > body > main > form > button",
+          "exact": false,
+          "fallbacks": []
+        }
+      ]
+    },
+    "locatorDescription": "testId=\"auth-submit-v2\"",
+    "locatorAlternativesJson": "[{\"rank\": 1, \"score\": 93, \"breakdown\": {\"role\": 16, \"text\": 7, \"testId\": 8, \"tagName\": 4, \"ancestry\": 6, \"geometry\": 2, \"neighbours\": 4, \"uniqueness\": 12, \"accessibleName\": 20}, \"stability\": 95, \"descriptor\": {\"exact\": false, \"value\": \"auth-submit-v2\", \"strategy\": \"testId\", \"fallbacks\": [{\"name\": \"Log in\", \"exact\": false, \"value\": \"button\", \"strategy\": \"role\", \"fallbacks\": []}, {\"exact\": true, \"value\": \"Log in\", \"strategy\": \"text\", \"fallbacks\": []}, {\"exact\": false, \"value\": \"html > body > main > form > button\", \"strategy\": \"css\", \"fallbacks\": []}]}}]"
+  },
+  "reachedWelcome": true,
+  "executionId": "23797167-611c-43ef-a2c5-8e52fda555e4",
+  "failure": null
+}

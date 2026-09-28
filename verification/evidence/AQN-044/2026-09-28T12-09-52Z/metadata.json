@@ -1,0 +1,32 @@
+{
+  "testId": "AQN-044",
+  "suite": "Autonomous planning",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A plan is decided once",
+  "preconditions": [
+    "the plan has already been approved"
+  ],
+  "input": "a second decision on the same plan",
+  "expected": "The API refuses it and names who decided it first",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "409 {\"code\":\"plan_already_decided\",\"title\":\"This plan was already approved by agentplan-g660gfmn2v@example.test. A plan is decided once; start another pass to test something else.\",\"status\":409,\"correlati",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:43:00.761Z",
+  "durationMs": 5,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "second-decision.json",
+      "path": "evidence/AQN-044/2026-09-28T12-09-52Z/second-decision.json",
+      "bytes": 241,
+      "sha256": "cfb2fd06e3cb8f056270c0b54c5811e49eebf5e66da1bfeee74db7eca11d34a6"
+    }
+  ]
+}

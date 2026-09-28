@@ -1,0 +1,36 @@
+{
+  "testId": "SECR-001",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "The measured detection and false-positive rates are recorded, not claimed",
+  "preconditions": [
+    "every detection and precision scenario has run"
+  ],
+  "input": "34 scenarios, each run against the flaw and against its correction",
+  "expected": "Every scenario detects its flaw and none reports it when corrected. The numbers are the ones this run measured against this lab, and say nothing about any other application",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "34/34 detected, 0 false positive(s) on the corrected application",
+  "metrics": {
+    "scenarios": 34,
+    "detected": 34,
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-28T12:38:42.744Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "rates.json",
+      "path": "evidence/SECR-001/2026-09-28T12-09-52Z/rates.json",
+      "bytes": 6944,
+      "sha256": "1afd91c5878ab5b8715f7e73923e38ec523d72b5e14a83b12bd584764a4dd23b"
+    }
+  ]
+}

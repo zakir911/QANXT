@@ -1,0 +1,240 @@
+{
+  "run": {
+    "id": "4922d1a5-b90a-4cc6-9487-65e998d9501a",
+    "projectId": "2ae85208-196c-44df-b47e-6b5082d58721",
+    "name": "EXEC modal dialog",
+    "status": "passed",
+    "trigger": "manual",
+    "browser": "chromium",
+    "createdAt": "2026-09-28T12:14:48.929847+00:00",
+    "startedAt": "2026-09-28T12:14:48.945191+00:00",
+    "completedAt": "2026-09-28T12:14:50.110425+00:00",
+    "durationMs": 1165,
+    "totalCount": 1,
+    "passedCount": 1,
+    "failedCount": 0,
+    "skippedCount": 0,
+    "blockedCount": 0,
+    "healedCount": 0,
+    "flakyCount": 0,
+    "qualityGatePassed": true,
+    "contractBreakingChangeCount": 0,
+    "contractPotentiallyBreakingChangeCount": 0
+  },
+  "actions": [
+    {
+      "id": "76d10c9e-91bc-4229-acdd-1030fab7a206",
+      "order": 1,
+      "action": "navigate",
+      "description": "Go to http://localhost:4300/login",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:48.985+00:00",
+      "durationMs": 71,
+      "url": "about:blank",
+      "wasHealed": false
+    },
+    {
+      "id": "d0d9aba1-48c8-422f-80b7-b941196f8d25",
+      "order": 2,
+      "action": "fill",
+      "description": "Enter a value in username",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:49.071+00:00",
+      "durationMs": 65,
+      "url": "http://localhost:4300/login",
+      "maskedValue": "***REDACTED***",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"username\""
+    },
+    {
+      "id": "0afcff7e-0832-457e-9059-7d3eadcbc15b",
+      "order": 3,
+      "action": "fill",
+      "description": "Enter a value in password",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:49.144+00:00",
+      "durationMs": 52,
+      "url": "http://localhost:4300/login",
+      "maskedValue": "***REDACTED***",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "password",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"password\""
+    },
+    {
+      "id": "68050c9d-1f41-48a9-8a60-8e58f88a8e4b",
+      "order": 4,
+      "action": "click",
+      "description": "Press login-submit",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:49.206+00:00",
+      "durationMs": 91,
+      "url": "http://localhost:4300/login",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "login-submit",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"login-submit\""
+    },
+    {
+      "id": "5f4f12c2-850b-4f30-b54e-087de37e951a",
+      "order": 5,
+      "action": "click",
+      "description": "Press nav-beneficiaries",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:49.313+00:00",
+      "durationMs": 88,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "nav-beneficiaries",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"nav-beneficiaries\""
+    },
+    {
+      "id": "1ea7baa1-ef02-48a1-81eb-2dc1770a33c0",
+      "order": 6,
+      "action": "click",
+      "description": "Press add-beneficiary",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:49.411+00:00",
+      "durationMs": 89,
+      "url": "http://localhost:4300/beneficiaries",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "add-beneficiary",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"add-beneficiary\""
+    },
+    {
+      "id": "af8d9a26-309d-4cb4-b888-e912f701c9db",
+      "order": 7,
+      "action": "assertVisible",
+      "description": "beneficiary-modal is visible",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:49.511+00:00",
+      "durationMs": 53,
+      "url": "http://localhost:4300/beneficiaries",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "beneficiary-modal",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"beneficiary-modal\""
+    },
+    {
+      "id": "d3a05698-d2a2-4220-a142-88bad71af17b",
+      "order": 8,
+      "action": "fill",
+      "description": "Enter a value in beneficiary-name",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:49.574+00:00",
+      "durationMs": 33,
+      "url": "http://localhost:4300/beneficiaries",
+      "maskedValue": "Golden Payee",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "beneficiary-name",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"beneficiary-name\""
+    },
+    {
+      "id": "4ccbc96d-7917-4146-a5a5-9ca43a25fe99",
+      "order": 9,
+      "action": "fill",
+      "description": "Enter a value in beneficiary-account",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:49.616+00:00",
+      "durationMs": 30,
+      "url": "http://localhost:4300/beneficiaries",
+      "maskedValue": "12345678",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "beneficiary-account",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"beneficiary-account\""
+    },
+    {
+      "id": "a4cc2a76-27e7-4e0b-8a8e-9349217abef0",
+      "order": 10,
+      "action": "fill",
+      "description": "Enter a value in beneficiary-sort",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:49.658+00:00",
+      "durationMs": 49,
+      "url": "http://localhost:4300/beneficiaries",
+      "maskedValue": "11-22-33",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "beneficiary-sort",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"beneficiary-sort\""
+    },
+    {
+      "id": "c303023e-e127-49a7-9a9f-a883726f5ebb",
+      "order": 11,
+      "action": "click",
+      "description": "Press beneficiary-save",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:49.717+00:00",
+      "durationMs": 82,
+      "url": "http://localhost:4300/beneficiaries",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "beneficiary-save",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"beneficiary-save\""
+    },
+    {
+      "id": "2b8b875e-7b78-4dcb-9506-0ee7a6f9bbe9",
+      "order": 12,
+      "action": "assertVisible",
+      "description": "beneficiary-added is visible",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:49.809+00:00",
+      "durationMs": 63,
+      "url": "http://localhost:4300/beneficiaries",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "beneficiary-added",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"beneficiary-added\""
+    }
+  ]
+}

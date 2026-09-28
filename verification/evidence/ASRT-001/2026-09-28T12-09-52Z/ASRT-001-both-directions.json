@@ -1,0 +1,72 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "8400f9a2-5143-42a8-850d-689f97350c36",
+      "order": 5,
+      "action": "assertVisible",
+      "description": "total-balance is visible",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:14:55.729+00:00",
+      "durationMs": 56,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "total-balance",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"total-balance\""
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "8c422ebe-bf03-469a-bcad-5907cb7befb3",
+      "order": 5,
+      "action": "assertVisible",
+      "description": "no-such-element-anywhere is visible",
+      "status": "failed",
+      "startedAt": "2026-09-28T12:14:57.764+00:00",
+      "durationMs": 15052,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false,
+      "errorMessage": "testId=\"no-such-element-anywhere\" could not be used: No element matched testId=\"no-such-element-anywhere\".",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "no-such-element-anywhere",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"no-such-element-anywhere\"",
+      "locatorAlternativesJson": "[]"
+    },
+    "failure": {
+      "id": "28986b6c-b27e-462e-aa01-7a4fd8ff71c6",
+      "category": "applicationDefect",
+      "categoryConfidence": 80,
+      "rawMessage": "testId=\"no-such-element-anywhere\" could not be used: No element matched testId=\"no-such-element-anywhere\".",
+      "signature": "553b995e900b15a19cf074c82b447b04cf2d4ddbd534af8a74897c35f10e5198",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-28T12:15:15.654708+00:00",
+      "lastSeenAt": "2026-09-28T12:15:15.654708+00:00",
+      "analysis": {
+        "summary": "The API answered correctly and the page showed something else.",
+        "likelyCause": "Every API call the failing step made succeeded (GET /api/dashboard → 200 in 0ms), so the data was right and what was rendered from it was not. The defect is in the front end rather than the service.",
+        "evidence": "1 API call(s) during the failing step, all successful. Engine message: testId=\"no-such-element-anywhere\" could not be used: No element matched testId=\"no-such-element-anywhere\".",
+        "suggestedAction": "Compare the response body in the network evidence with what the failure screenshot shows. Start with the rendering, not the endpoint.",
+        "category": "applicationDefect",
+        "confidence": 80,
+        "isLikelyApplicationDefect": true,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "qanxt-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"01d1bd11-10de-4b04-beb8-92df56a5628c\", \"kind\": \"AccessibilityTree\", \"name\": \"step-5-failure.a11y.json\"}, {\"id\": \"3550cf9a-7514-4200-a287-222dcb4f1ac6\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"6c03f52c-2d07-48a8-b236-ce35541b2710\", \"kind\": \"Screenshot\", \"name\": \"step-5-failure.png\"}, {\"id\": \"6e998cea-25d7-4c92-bd8c-9e801fd00ae0\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"a4b5c199-951d-4863-8079-99626fe7dc5a\", \"kind\": \"DomSnapshot\", \"name\": \"step-5-failure.html\"}, {\"id\": \"d240b6c5-1c0d-4ff6-9f71-29f56456ef1a\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"e7c8de6d-24ce-426b-84ee-d73d6fe24f26\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"ed031da4-0b46-465f-83be-e675cb33f9d0\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}], \"executionId\": \"3d86a5c0-0a24-4e0c-8e10-dbf13b14c1aa\"}"
+      }
+    }
+  }
+}

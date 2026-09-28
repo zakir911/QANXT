@@ -1,0 +1,32 @@
+{
+  "testId": "SEC-G02",
+  "suite": "Security and multi-tenancy",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A forged or tampered token is refused",
+  "preconditions": [
+    "tenant A holds a valid token"
+  ],
+  "input": "A random token, a structurally valid token with a flipped signature, and an empty bearer",
+  "expected": "All three answer 401",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "random: 401, flipped signature: 401, tampered payload with wildcard permissions: 401, empty: 401",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:38:41.496Z",
+  "durationMs": 9,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "bad-tokens.json",
+      "path": "evidence/SEC-G02/2026-09-28T12-09-52Z/bad-tokens.json",
+      "bytes": 248,
+      "sha256": "77ca008b5fcd6f7dc1140302da2e61722d1d0ef268f661820c75ed6e4fe7a5f4"
+    }
+  ]
+}

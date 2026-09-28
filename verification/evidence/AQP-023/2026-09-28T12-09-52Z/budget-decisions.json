@@ -1,0 +1,250 @@
+[
+  {
+    "id": "21c0220e-c0dd-4330-84a9-8e16cddade53",
+    "sequence": 1,
+    "phase": "analysingGaps",
+    "tool": "coverage.analyse",
+    "summary": "Assessed 24 capability(ies): 21 uncovered, 47 unknown.",
+    "reason": "24 capability(ies) assessed across 68 applicable dimension(s): 0 covered, 0 partial, 21 not covered, 47 unknown. 2 of the capabilities with gaps were called business-critical by a person. Coverage is measured against what discovery reached; anything it did not reach is absent from this report rather than covered by it.",
+    "evidence": [
+      {
+        "name": "capabilities",
+        "value": "24"
+      },
+      {
+        "name": "covered",
+        "value": "0"
+      },
+      {
+        "name": "partiallyCovered",
+        "value": "0"
+      },
+      {
+        "name": "notCovered",
+        "value": "21"
+      },
+      {
+        "name": "unknown",
+        "value": "47"
+      },
+      {
+        "name": "businessCriticalWithGaps",
+        "value": "2"
+      },
+      {
+        "name": "namedAreasMatchingNothingDiscoveryReached",
+        "value": "none"
+      },
+      {
+        "name": "measuredAgainst",
+        "value": "10 page(s) and 14 endpoint(s) discovery reached"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "none"
+      }
+    ],
+    "result": "21 gap(s)",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T12:43:40.705897+00:00"
+  },
+  {
+    "id": "3375632c-e752-4722-9ccc-bb6b5264f62b",
+    "sequence": 2,
+    "phase": "planning",
+    "summary": "Proposed 110 test(s) across 6 category(ies).",
+    "reason": "110 test(s) across 6 category(ies) for \"Release validation\", 29 of which do not exist yet. Roughly 34 minute(s) — an estimate from defaults, because this application has no execution history yet. 3 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+    "evidence": [
+      {
+        "name": "pagesPlannable",
+        "value": "10"
+      },
+      {
+        "name": "endpointsDiscovered",
+        "value": "14"
+      },
+      {
+        "name": "journeysKnown",
+        "value": "0"
+      },
+      {
+        "name": "securityAuthorized",
+        "value": "True"
+      },
+      {
+        "name": "openSecurityFindings",
+        "value": "0"
+      },
+      {
+        "name": "criticalAreasNamedByAPerson",
+        "value": "payment"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "none"
+      }
+    ],
+    "result": "110 test(s) proposed.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T12:43:40.734569+00:00"
+  },
+  {
+    "id": "b10af3fb-2feb-4d1a-ab3b-5d4a56f00e00",
+    "sequence": 3,
+    "phase": "planning",
+    "summary": "The plan was approved by ag***@example.test.",
+    "reason": "Approved to spend the budget.",
+    "evidence": [
+      {
+        "name": "decidedBy",
+        "value": "ag***@example.test"
+      },
+      {
+        "name": "categoriesIncluded",
+        "value": "Accessibility, Security, Api, Smoke, Visual, CriticalJourney"
+      },
+      {
+        "name": "categoriesExcluded",
+        "value": "none"
+      },
+      {
+        "name": "testsPlanned",
+        "value": "110"
+      }
+    ],
+    "result": "Approved",
+    "allowed": true,
+    "actorUserId": "602eeb7c-2a53-4490-bc03-51ac79e15db1",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T12:43:43.321947+00:00"
+  },
+  {
+    "id": "6b657353-642f-458b-92fb-4fbd83874c3a",
+    "sequence": 4,
+    "phase": "generating",
+    "tool": "test.generate",
+    "summary": "No duplication check was needed: this pass generated no tests.",
+    "reason": "There is nothing to compare against what already exists. That is an absence of new tests, not a finding that the suite contains no duplicates.",
+    "evidence": [
+      {
+        "name": "newTests",
+        "value": "0"
+      },
+      {
+        "name": "existingCompared",
+        "value": "6"
+      },
+      {
+        "name": "testsDeletedOrChanged",
+        "value": "none — the agent has no authority to delete or change a test"
+      }
+    ],
+    "result": "nothing generated to check",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T12:43:45.873657+00:00"
+  },
+  {
+    "id": "0b5a86d6-a121-4743-a278-51b0e4985eb2",
+    "sequence": 5,
+    "phase": "generating",
+    "tool": "test.generate",
+    "summary": "Generated 1 API test(s) for 1 endpoint(s).",
+    "reason": "Endpoints discovered by the crawl, minus anything a person excluded. Mutating requests were left out.",
+    "evidence": [
+      {
+        "name": "endpointsConsidered",
+        "value": "14"
+      },
+      {
+        "name": "endpointsSelected",
+        "value": "1"
+      },
+      {
+        "name": "endpointsExcludedByAPerson",
+        "value": "none"
+      },
+      {
+        "name": "mutatingIncluded",
+        "value": "False"
+      },
+      {
+        "name": "trimmedToBudget",
+        "value": "yes — 14 endpoint(s) discovered, 1 within the run's remaining budget of 1"
+      }
+    ],
+    "result": "1 API test(s)",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T12:43:45.909727+00:00"
+  },
+  {
+    "id": "ad949f66-6071-4d30-a443-16506305bd90",
+    "sequence": 6,
+    "phase": "prioritizing",
+    "summary": "Selected 0 of 0 existing test(s) to re-run.",
+    "reason": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's.",
+    "evidence": [
+      {
+        "name": "considered",
+        "value": "0"
+      },
+      {
+        "name": "selected",
+        "value": "0"
+      },
+      {
+        "name": "why",
+        "value": "The plan does not include regression, either because it was not proposed or because a person switched it off. Nothing that already existed was selected for re-running, and that was somebody's decision rather than the agent's."
+      },
+      {
+        "name": "reasonsUsed",
+        "value": "none — no test's history contributed a point"
+      },
+      {
+        "name": "notSelected",
+        "value": "none — there were no existing tests to consider"
+      }
+    ],
+    "result": "0 test(s) selected.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T12:43:45.920325+00:00"
+  },
+  {
+    "id": "31c154df-63b2-4f73-8f80-0dda7d823748",
+    "sequence": 7,
+    "phase": "securityTesting",
+    "tool": "security.scan",
+    "summary": "Wanted to use security.scan.",
+    "reason": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission → environment → risk → security → creation-budget"
+      },
+      {
+        "name": "deniedAt",
+        "value": "ApprovalRequired"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "ApprovalRequired",
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T12:43:45.932924+00:00"
+  }
+]

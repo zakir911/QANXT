@@ -1,0 +1,172 @@
+[
+  {
+    "case": "http-400",
+    "analysis": {
+      "summary": "The step before this one made an API call that was rejected with 400.",
+      "likelyCause": "GET /api/answer → 400 in 0ms — either the request the application sent was wrong, or the data the test used is not acceptable to this endpoint.",
+      "evidence": "GET /api/answer → 400 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15084ms).",
+      "suggestedAction": "Read the request in the network evidence before looking at the failing step.",
+      "category": "applicationDefect",
+      "confidence": 80,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"21aeb4c9-6dd9-49c9-b559-060debb51c48\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"2608256e-f3c3-4478-9fba-40ef00ba4220\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"298676c3-75d2-4dbc-8e96-9c985647a215\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"30d487de-58b0-4e8b-babd-84dffb5aff3b\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"33711676-ad29-4ab0-b93d-406e3fb92960\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"974446b2-6636-4b84-9ee5-033f2ab87c82\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"c6addf90-a5dc-40df-9191-3093fddfd07f\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"ee381295-f8a7-41c1-9edb-f41a9e356c1b\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"d70c42f5-392a-474b-a15a-a0c4a43b742d\"}"
+    }
+  },
+  {
+    "case": "http-401",
+    "analysis": {
+      "summary": "The step before this one made an API call that was refused with 401.",
+      "likelyCause": "GET /api/answer → 401 in 0ms — the session was not accepted, so the page had nothing to render.",
+      "evidence": "GET /api/answer → 401 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15022ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"20e0f7d7-c87d-413f-bb7b-f53d991e3cb8\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"35b2c8e0-1777-4bcd-aac1-fee3a02cc433\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"45c47f42-6ed5-459e-80ae-1a143c974e4e\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"53fa93cb-ad12-4b15-bfb3-33a70e649815\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"570ca799-8e98-4da9-9849-edd46606e826\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"b584d673-7940-41e1-a52b-c041862bd2d7\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"b9c5bdeb-6f78-446f-ad5f-5aa436c340e7\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"cbd7ff52-ba25-44f8-91e6-99e8653414a1\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"af8c8338-8f35-4f4b-b59d-191f2b7c965a\"}"
+    }
+  },
+  {
+    "case": "http-403",
+    "analysis": {
+      "summary": "The step before this one made an API call that was refused with 403.",
+      "likelyCause": "GET /api/answer → 403 in 0ms — the session was not accepted, so the page had nothing to render.",
+      "evidence": "GET /api/answer → 403 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15007ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1bf6e598-4d29-4c60-9234-8e00720e2cb1\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"62d9b74d-dc05-4d24-b176-582da953cefb\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"97cd3f3e-c8bf-43b5-8154-d50a249591e2\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"a9616373-826d-486a-9719-82300e4ab0a0\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"aa1c6f81-fb8b-4c27-8cd2-5ae830a9c3ff\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"b250fdf7-199b-4b42-b87d-f35d82a0001e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"b47120e5-14d3-429f-a558-768d1d9ca69d\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"d49b6a29-70e8-46dd-ae8d-dadbf4fefcf4\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"86ff37a1-b045-4510-bd5b-0ccfb29c418a\"}"
+    }
+  },
+  {
+    "case": "http-404",
+    "analysis": {
+      "summary": "The step before this one made an API call that was rejected with 404.",
+      "likelyCause": "GET /api/answer → 404 in 0ms — either the request the application sent was wrong, or the data the test used is not acceptable to this endpoint.",
+      "evidence": "GET /api/answer → 404 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15014ms).",
+      "suggestedAction": "Read the request in the network evidence before looking at the failing step.",
+      "category": "applicationDefect",
+      "confidence": 80,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0000a41a-d8cd-49db-a775-05d2f9a01c1f\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"386baa8c-d21a-49df-91e0-5ea9be9ab7c7\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"3a7bee67-ff82-4a1c-acaa-161cebed1ea0\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"7885458b-5447-4066-ac5e-2a4af92cb9ea\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"794243cf-4e3a-49f7-8611-927f768f9c8e\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"873187a1-d47a-4a83-b753-41e54046180f\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"ed44bc40-fae3-4bb6-aecb-3300a6355ebc\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"f0a02a02-ecd9-473f-b5e7-9bdd2104adb1\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"d893273d-afac-48da-beaf-2fb3d89c45e0\"}"
+    }
+  },
+  {
+    "case": "http-500",
+    "analysis": {
+      "summary": "The step before this one made an API call that returned 500.",
+      "likelyCause": "GET /api/answer → 500 in 0ms — the page had nothing to render, so the step that followed found nothing. The fault is in the application or a service it depends on, not in the test.",
+      "evidence": "GET /api/answer → 500 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15067ms).",
+      "suggestedAction": "Take this request to the team that owns the endpoint. The failing assertion is the symptom; this call is the cause.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"01cf3f11-39be-47ae-b1bd-f52c32703369\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"3552b869-43e5-492a-b3b7-cb11b8260713\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"49946c6a-2755-48a6-bf7a-0cf57ace5259\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"5cb96a54-1e9b-4456-b6c5-9c3b9919b1fb\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"69e85eb0-2c31-41ab-b945-b0e555562207\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"a45935cb-63ce-44b2-b274-8d8cf6b4f69e\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"cb9ecc9f-3a42-4b90-b9fd-5a431ed4e8cb\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"fd7c3289-ea62-4de2-b8cc-326785166555\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"49e46a87-22a7-4c19-a8ff-804f492e1477\"}"
+    }
+  },
+  {
+    "case": "timeout",
+    "analysis": {
+      "summary": "An assertion failed on outcome reads \"OK 42\".",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15072ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0d0dd3a6-cc63-4b43-9fa2-648d889158a2\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"1f6a3fd1-ac06-49ce-ac7b-d87137f3403d\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"1fe28989-3a5b-4e9a-a577-d903860ddd46\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"3a4146e9-6626-47b3-bdc1-9c08e000f63a\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"65bd1d65-6494-4339-b53e-be19081584d5\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"946f6dcd-d081-4aa0-8ee0-99d67d42a535\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"a346a98d-98bf-48f3-8e92-6f9676189337\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"7fe2bc49-44ec-4ddb-b1a5-8885107ec02e\"}"
+    }
+  },
+  {
+    "case": "connection-reset",
+    "analysis": {
+      "summary": "The step before this one made an API call that never completed.",
+      "likelyCause": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE) — the request did not reach the service, so the page had nothing to render.",
+      "evidence": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE), made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15046ms).",
+      "suggestedAction": "Confirm the service is running and reachable from the worker, then re-run.",
+      "category": "networkIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"20e51dfa-3907-4077-bd45-0577f5a7a2dc\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"24a8b7b4-1d02-418a-b064-0c58e9e13144\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"26b799b4-61c8-451d-9dc1-98fa8b9052b9\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"4a2359a2-3b37-42ef-b9cb-3b332a5d919b\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"4b8f7bc8-ff35-4726-bb10-37bfcb255ff1\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"59b07702-986a-4c8c-bf71-49a95389fd58\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"7d76ba57-6f28-47fb-aff6-a9629eee5a28\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"8afc7fb4-c972-4b6e-8a17-a5b9a2275151\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"def48b8b-ee92-43e5-9e93-2a52e4d68380\"}"
+    }
+  },
+  {
+    "case": "js-error",
+    "analysis": {
+      "summary": "An assertion failed on outcome reads \"OK 42\".",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15057ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"07daa8f8-82ad-4bf1-84d7-2727f6635dc7\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"86c81a46-5eee-4288-8b74-474d7dc65cb5\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"a17f87b2-779f-4413-b82a-e16d2389e21b\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"ada22b54-c1dd-4f5e-aaef-25975d89cc95\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"b4d60556-c81f-4d5d-923a-3bdbddf96cb7\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"d06721ba-aea5-48c0-8e32-18e84bc63a17\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"d542ac1c-7504-4bbe-a847-4f143e6c2119\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"f58d7d70-97d2-4349-9f6e-10ac1ba7a4ae\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"670d19c5-9068-4289-9530-4e556805c5eb\"}"
+    }
+  },
+  {
+    "case": "wrong-value",
+    "analysis": {
+      "summary": "An assertion failed on outcome reads \"OK 42\".",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15041ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"433f5331-a0d0-4086-984c-f84771b3fd11\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"6cdf7a9c-27b5-4df2-aa5e-5cb413a14466\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"70de275f-986e-43a7-bc08-2d1f0a86532a\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"94fa3707-5e18-4857-b879-f0f40f8b7a67\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"cf4fe79b-d261-47e9-97f9-90d20929b7e0\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"e41d76c2-faaf-45ec-a346-16a88fc3cb13\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"eb96ee70-ab84-4171-9f8c-56f810a1e98f\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"c09b928b-bb27-49cd-88d4-9fa93e9e9382\"}"
+    }
+  },
+  {
+    "case": "missing-element",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"19bf5bd3-c7a7-4f50-a7ac-25dffe0759e3\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"2ef2b579-a44b-4aba-9fb5-4a5b7761f8ce\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"60e7194a-cad5-4886-b110-c82dc70dbf77\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"620dbe38-3f4f-40e2-8efc-696f91b43d17\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"6534c5c3-09d3-4c03-8360-ffdd274e92b8\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"73a1efea-9e1d-4d6c-88e6-cabee3b73610\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"8b0652c5-99aa-4c57-a899-fa09c9824eca\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"6a93ae26-e211-4bd9-9276-c1bb0a38f294\"}"
+    }
+  }
+]

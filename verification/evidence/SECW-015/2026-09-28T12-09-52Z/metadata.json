@@ -1,0 +1,32 @@
+{
+  "testId": "SECW-015",
+  "suite": "Security scans QA NXT runs itself",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "The browser-driven check counts as executed coverage, not as an untested area",
+  "preconditions": [
+    "the completed DOM scans"
+  ],
+  "input": "The scan record for the corrected run",
+  "expected": "xss.dom appears as executed and is absent from the untested areas. Before a browser existed it could only ever be reported untested, and the gap between those two is the whole of what this check adds",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 check(s) executed; not reported as untested",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:39:17.145Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "coverage.json",
+      "path": "evidence/SECW-015/2026-09-28T12-09-52Z/coverage.json",
+      "bytes": 756,
+      "sha256": "4c4b7fe9791b3020d35418a2f75ac32461478c811d2b60adca129d1ccb452c40"
+    }
+  ]
+}

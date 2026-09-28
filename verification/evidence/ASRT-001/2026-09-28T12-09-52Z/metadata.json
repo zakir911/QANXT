@@ -1,0 +1,32 @@
+{
+  "testId": "ASRT-001",
+  "suite": "Assertions",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "assertVisible holds when it should and fails when it should not",
+  "preconditions": [
+    "the lab bank is running with no faults"
+  ],
+  "input": "Two journeys: one where the assertVisible is satisfied, one where it is deliberately wrong",
+  "expected": "The first run passes; the second FAILS with a message naming expected and actual",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "holds → passed; breaks → failed; message: testId=\"no-such-element-anywhere\" could not be used: No element matched testId=\"no-such-element-anywhere\".",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:15:17.557Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "ASRT-001-both-directions.json",
+      "path": "evidence/ASRT-001/2026-09-28T12-09-52Z/ASRT-001-both-directions.json",
+      "bytes": 3905,
+      "sha256": "645f3091b9dbf229cdfc61022bf633e891d061c6056043765aa5a0a18f7db4d9"
+    }
+  ]
+}

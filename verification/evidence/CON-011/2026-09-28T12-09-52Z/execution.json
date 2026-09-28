@@ -1,0 +1,79 @@
+{
+  "id": "d3a3aaab-5f95-40e6-a9ef-7e3cc31ee943",
+  "testRunId": "2bcb360b-367a-4ba0-84a4-33fea1068378",
+  "testCaseId": "6634f795-120b-478f-b1ee-55d0c7c3863c",
+  "reference": "TC-0004",
+  "name": "GET http://localhost:4300/api/accounts refuses an unauthenticated caller",
+  "objective": "The endpoint was observed to require authentication. This asserts it still does. Authorization being removed is the failure nobody notices, because every signed-in test carries on passing.",
+  "expectedResults": "",
+  "status": "passed",
+  "startedAt": "2026-09-28T12:30:38.865192+00:00",
+  "completedAt": "2026-09-28T12:30:38.893+00:00",
+  "durationMs": 24,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-20360",
+  "correlationId": "200417827de041c89fe7627818aefb45",
+  "stepsTotal": 1,
+  "stepsPassed": 1,
+  "stepsFailed": 0,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 1,
+  "actions": [
+    {
+      "id": "863272e3-2601-48e9-90de-d91ad56ca308",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "GET http://localhost:4300/api/accounts with no credentials — 401 in 2ms",
+      "status": "passed",
+      "startedAt": "2026-09-28T12:30:38.875+00:00",
+      "durationMs": 4,
+      "url": "http://localhost:4300/api/accounts",
+      "wasHealed": false
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "5a0c33a9-681f-4152-a31d-e0f2392afce1",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 573,
+      "isMasked": true,
+      "testActionId": "863272e3-2601-48e9-90de-d91ad56ca308"
+    },
+    {
+      "id": "99c30b48-f17c-4392-a91c-28cac3804a63",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 1001,
+      "isMasked": false
+    },
+    {
+      "id": "acf00d97-7301-4d7d-933f-a31d63d0b255",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 715,
+      "isMasked": true
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "3d16409b-3cea-4e93-beb3-9ae305a20516",
+      "method": "GET",
+      "url": "http://localhost:4300/api/accounts",
+      "statusCode": 401,
+      "durationMs": 2,
+      "isFailed": true,
+      "resourceType": "apiTest",
+      "testActionId": "863272e3-2601-48e9-90de-d91ad56ca308",
+      "actionOrder": 1
+    }
+  ],
+  "healingEvents": []
+}

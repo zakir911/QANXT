@@ -1,0 +1,35 @@
+{
+  "case": "missing-element",
+  "lab": "elementNotFound",
+  "accept": [
+    "locatorChange",
+    "applicationDefect"
+  ],
+  "actual": "locatorChange",
+  "failure": {
+    "id": "2267f26f-6b15-4b46-a81f-d8bda7129055",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "f5b1dedf3181792570148e5ab12d12cad3f4dbb00a1bd828e6cd464adb137ecd",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T12:24:10.753879+00:00",
+    "lastSeenAt": "2026-09-28T12:24:10.753879+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"19bf5bd3-c7a7-4f50-a7ac-25dffe0759e3\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"2ef2b579-a44b-4aba-9fb5-4a5b7761f8ce\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"60e7194a-cad5-4886-b110-c82dc70dbf77\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"620dbe38-3f4f-40e2-8efc-696f91b43d17\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"6534c5c3-09d3-4c03-8360-ffdd274e92b8\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"73a1efea-9e1d-4d6c-88e6-cabee3b73610\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"8b0652c5-99aa-4c57-a899-fa09c9824eca\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"6a93ae26-e211-4bd9-9276-c1bb0a38f294\"}"
+    }
+  }
+}

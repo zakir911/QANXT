@@ -1,0 +1,39 @@
+{
+  "testId": "AUD-008",
+  "suite": "Isolation, audit and observability",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A burst of credential attempts is refused, and the refusals are recorded as a security event rather than as ordinary traffic",
+  "preconditions": [
+    "the API writes to /tmp/qanxt-api.log",
+    "the sign-in rate limit is configured",
+    "this test exhausts the credential rate-limit budget for its address; newTenant retries on 429 so a later suite is not stranded by it"
+  ],
+  "input": "Twenty sign-in attempts in a row, then the API log",
+  "expected": "The budget is exhausted and the refusals appear at warning level, named as the rate limiter and as a credential endpoint",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "15 of 20 attempt(s) refused with 429; 15 limiter line(s) written — 15 at warning level, 15 named as a credential endpoint, 15 attributed to the limiter",
+  "metrics": {
+    "refused": 15,
+    "refusalLines": 15,
+    "atWarning": 15,
+    "attributed": 15
+  },
+  "startedAt": "2026-09-28T12:38:05.860Z",
+  "durationMs": 501,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "rate-limit.json",
+      "path": "evidence/AUD-008/2026-09-28T12-09-52Z/rate-limit.json",
+      "bytes": 2144,
+      "sha256": "d28bb8f1332783b65a47ecb4ff543ec90b37aa905ac43436b36d99ad650cb885"
+    }
+  ]
+}

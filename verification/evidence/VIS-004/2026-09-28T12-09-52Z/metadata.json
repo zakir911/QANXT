@@ -1,0 +1,38 @@
+{
+  "testId": "VIS-004",
+  "suite": "Visual regression",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A difference stores the baseline, the capture and a diff; a match stores none",
+  "preconditions": [
+    "a baseline, and a page that has visibly changed"
+  ],
+  "input": "A matching run and a differing run",
+  "expected": "Three image keys on the difference and none on the match — the images are the whole point of a visual failure, and three per passing step is a storage bill for pictures nobody opens",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "match: no images stored; differs: baseline=true actual=true diff=true",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:37:41.964Z",
+  "durationMs": 6287,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "differs.json",
+      "path": "evidence/VIS-004/2026-09-28T12-09-52Z/differs.json",
+      "bytes": 722,
+      "sha256": "18412d5d75b4f56018508af88d854a1dd5561ba4da5101b05147a9ac02f85807"
+    },
+    {
+      "file": "matches.json",
+      "path": "evidence/VIS-004/2026-09-28T12-09-52Z/matches.json",
+      "bytes": 353,
+      "sha256": "62150da9028e0b93d3e65b077a87860d5321216eb864b2cd369107f182ef7d98"
+    }
+  ]
+}

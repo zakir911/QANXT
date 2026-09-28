@@ -1,0 +1,66 @@
+[
+  {
+    "fault": "FAULT_A11Y_MISSING_LABEL",
+    "expects": {
+      "expectedRule": "label",
+      "expectedImpact": "critical",
+      "outcome": "violation"
+    },
+    "violations": [
+      "label"
+    ],
+    "incomplete": 1,
+    "correct": true
+  },
+  {
+    "fault": "FAULT_A11Y_MISSING_ALT",
+    "expects": {
+      "expectedRule": "image-alt",
+      "expectedImpact": "critical",
+      "outcome": "violation"
+    },
+    "violations": [
+      "image-alt"
+    ],
+    "incomplete": 1,
+    "correct": true
+  },
+  {
+    "fault": "FAULT_A11Y_LOW_CONTRAST",
+    "expects": {
+      "expectedRule": "color-contrast",
+      "expectedImpact": "serious",
+      "outcome": "violation"
+    },
+    "violations": [
+      "color-contrast"
+    ],
+    "incomplete": 1,
+    "correct": true
+  },
+  {
+    "fault": "FAULT_A11Y_EMPTY_BUTTON",
+    "expects": {
+      "expectedRule": "button-name",
+      "expectedImpact": "critical",
+      "outcome": "violation"
+    },
+    "violations": [
+      "button-name"
+    ],
+    "incomplete": 1,
+    "correct": true
+  },
+  {
+    "fault": "FAULT_A11Y_DANGLING_ARIA",
+    "expects": {
+      "expectedRule": "aria-valid-attr-value",
+      "expectedImpact": null,
+      "outcome": "incomplete",
+      "note": "axe reports this as a check a person must make, not a violation, because the target element could be added by script after the scan. Measured against axe-core 4.13.0."
+    },
+    "violations": [],
+    "incomplete": 2,
+    "correct": true
+  }
+]

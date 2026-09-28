@@ -1,0 +1,34 @@
+{
+  "testId": "FA-008",
+  "suite": "Failure analysis",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A connection reset failure is classified as networkIssue",
+  "preconditions": [
+    "the connection-reset case failed"
+  ],
+  "input": "The failure category the platform assigned to /case/connection-reset",
+  "expected": "One of: networkIssue — the lab calls this networkError",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "classified \"networkIssue\" at 85% confidence; the lab expects networkError (accepting networkIssue)",
+  "metrics": {
+    "correct": 1
+  },
+  "startedAt": "2026-09-28T12:24:11.022Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "FA-008-classification.json",
+      "path": "evidence/FA-008/2026-09-28T12-09-52Z/FA-008-classification.json",
+      "bytes": 2408,
+      "sha256": "484d6e61f4c1cd2567e57dcf4aaaa7cd5dbf08855f6c35c2ef9c27c8d67000e7"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
-# AIRA certification
+# QA NXT certification
 
 **Status: CERTIFIED**
 
-Run `2026-09-28T09-30-18Z` · build `5f3f4e3` · generated 2026-09-28T10:10:25.384Z
+Run `2026-09-28T12-09-52Z` · build `bfcb611` · generated 2026-09-28T12:50:22.810Z
 
 10 of 10 questions answered YES, 0 NO, 0 NOT VERIFIED.
 Every answer below is derived from golden tests that executed in this run; none is asserted.
@@ -10,8 +10,8 @@ Every answer below is derived from golden tests that executed in this run; none 
 | | |
 | --- | --- |
 | Golden tests executed | 761 of 771 |
-| Passed | 761 |
-| Failed | 0 |
+| Passed | 760 |
+| Failed | 1 |
 | Not verified | 10 |
 | **False-healing rate** | **0.0%** (0 incorrect heals) |
 | Healing confidence margin | 16 points |
@@ -20,7 +20,7 @@ Every answer below is derived from golden tests that executed in this run; none 
 
 ---
 
-## 1. Can AIRA discover a real web application?
+## 1. Can QA NXT discover a real web application?
 
 **YES**
 
@@ -48,11 +48,11 @@ Meaningful is judged by structure, locator quality and how much of the applicati
 
 | Test | Result | Detail |
 | --- | --- | --- |
-| GEN-001 | **PASS** | 5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: balance, dashboard |
-| GEN-002 | **PASS** | 5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: statement, download |
-| GEN-003 | **PASS** | 5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: payment, pay |
-| GEN-004 | **PASS** | 5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: payment, amount, invalid, valid |
-| GEN-005 | **PASS** | 5 case(s), 5 with an assertion, 13 step(s) total; provider local/aira-rules-v1; requirement keywords present: login, credential |
+| GEN-001 | **PASS** | 5 case(s), 5 with an assertion, 13 step(s) total; provider local/qanxt-rules-v1; requirement keywords present: balance, dashboard |
+| GEN-002 | **PASS** | 5 case(s), 5 with an assertion, 13 step(s) total; provider local/qanxt-rules-v1; requirement keywords present: statement, download |
+| GEN-003 | **PASS** | 5 case(s), 5 with an assertion, 13 step(s) total; provider local/qanxt-rules-v1; requirement keywords present: payment, pay |
+| GEN-004 | **PASS** | 5 case(s), 5 with an assertion, 13 step(s) total; provider local/qanxt-rules-v1; requirement keywords present: payment, amount, invalid, valid |
+| GEN-005 | **PASS** | 5 case(s), 5 with an assertion, 13 step(s) total; provider local/qanxt-rules-v1; requirement keywords present: login, credential |
 | GEN-007 | **PASS** | 100.0% stable of 40 targeted step(s): testId=40 |
 | GEN-008 | **PASS** | 25/25 case(s) carry an objective, preconditions and expected results |
 | GEN-012 | **PASS** | 6/9 distinct page(s) appear in a generated step (67%), across 9 generated case(s); 8/11 before collapsing repeated routes; 9 case(s) from one unbudgeted generation |
@@ -85,15 +85,15 @@ Eleven failure classes, each on its own page of an application otherwise identic
 | Test | Result | Detail |
 | --- | --- | --- |
 | DET-001 | **PASS** | passed, 4/4 steps; 1 screenshot(s) |
-| DET-002 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15035ms).; 2 screenshot(s); classified applicationD |
-| DET-003 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15087ms).; 2 screenshot(s); classified authenticati |
-| DET-004 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15100ms).; 2 screenshot(s); classified authenticati |
-| DET-005 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15059ms).; 2 screenshot(s); classified applicationD |
-| DET-006 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15075ms).; 2 screenshot(s); classified applicationD |
-| DET-007 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15037ms).; 2 screenshot(s); classified applic |
-| DET-008 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15042ms).; 2 screenshot(s); classified networkIssue |
-| DET-009 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15078ms).; 2 screenshot(s); classified applic |
-| DET-010 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "OK 99" (waited 15075ms).; 2 screenshot(s); classified applicationDe |
+| DET-002 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15080ms).; 2 screenshot(s); classified applicationD |
+| DET-003 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15059ms).; 2 screenshot(s); classified authenticati |
+| DET-004 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15036ms).; 2 screenshot(s); classified authenticati |
+| DET-005 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15080ms).; 2 screenshot(s); classified applicationD |
+| DET-006 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15071ms).; 2 screenshot(s); classified applicationD |
+| DET-007 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15020ms).; 2 screenshot(s); classified applic |
+| DET-008 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15106ms).; 2 screenshot(s); classified networkIssue |
+| DET-009 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15025ms).; 2 screenshot(s); classified applic |
+| DET-010 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "OK 99" (waited 15057ms).; 2 screenshot(s); classified applicationDe |
 | DET-011 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): testId="outcome" could not be used: No element matched testId="outcome".; 2 screenshot(s); classified locatorChange |
 | DET-012 | **PASS** | http-500: passed, timeout: passed, connection-reset: passed |
 
@@ -172,13 +172,13 @@ Includes a payment that is confirmed on screen and never recorded, a value that 
 
 | Test | Result | Detail |
 | --- | --- | --- |
-| DET-010 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "OK 99" (waited 15075ms).; 2 screenshot(s); classified applicationDe |
+| DET-010 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "OK 99" (waited 15057ms).; 2 screenshot(s); classified applicationDe |
 | DET-011 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): testId="outcome" could not be used: No element matched testId="outcome".; 2 screenshot(s); classified locatorChange |
 | FA-016 | **PASS** | failed; the confirmation banner passed, the payment list assertion failed |
 | ASRT-001 | **PASS** | holds → passed; breaks → failed; message: testId="no-such-element-anywhere" could not be used: No element matched testId="no-such-element-anywhere". |
-| ASRT-002 | **PASS** | holds → passed; breaks → failed; message: Expected the element to contain "Something Else Entirely" but it read "Dashboard" (waited 15075ms). |
+| ASRT-002 | **PASS** | holds → passed; breaks → failed; message: Expected the element to contain "Something Else Entirely" but it read "Dashboard" (waited 15055ms). |
 | ASRT-003 | **PASS** | holds → passed; breaks → failed; message: Expected the URL to contain "/nowhere-at-all" but it was "http://localhost:4300/dashboard". |
-| ASRT-004 | **PASS** | holds → passed; breaks → failed; message: Expected the value "999" but found "250" (waited 15043ms). |
+| ASRT-004 | **PASS** | holds → passed; breaks → failed; message: Expected the value "999" but found "250" (waited 15087ms). |
 | ASRT-005 | **PASS** | holds → passed; breaks → failed; message: The element was expected to be hidden but was visible. |
 | GEN-011 | **PASS** | FAULT_EMPTY_TRANSACTIONS on /transactions (the transactions list renders nothing): 1/2 test(s) that visit that page failed (all 5 passed when it was healthy): TC-0001 pas |
 
@@ -194,9 +194,9 @@ Ten identical runs, twenty runs against a genuinely unstable application, and te
 
 | Test | Result | Detail |
 | --- | --- | --- |
-| REL-001 | **PASS** | 10/10 passed; verdicts: passed; duration 501–707ms (median 573ms) |
-| REL-002 | **PASS** | 9 passed, 11 failed across 20 runs; delays the application served: 100ms, 800ms, 2500ms, 6000ms |
-| REL-003 | **PASS** | the platform records 20 execution(s): 9 passed, 11 failed, flakiness score 56; this suite observed 9/20 passing |
+| REL-001 | **PASS** | 10/10 passed; verdicts: passed; duration 494–621ms (median 562ms) |
+| REL-002 | **PASS** | 11 passed, 9 failed across 20 runs; delays the application served: 100ms, 800ms, 2500ms, 6000ms |
+| REL-003 | **PASS** | the platform records 20 execution(s): 11 passed, 9 failed, flakiness score 56; this suite observed 11/20 passing |
 | REL-005 | **PASS** | 10/10 reached a verdict, 10 passed; statuses: passed |
 
 Evidence: 4 artifact(s) under `verification/evidence/`
@@ -212,9 +212,9 @@ Screenshots, a Playwright trace, console and network logs, and a screenshot per 
 | Test | Result | Detail |
 | --- | --- | --- |
 | EXEC-012 | **PASS** | 1 screenshot(s), 5 artifact(s) in total |
-| EXEC-013 | **PASS** | 1 trace(s), 955710 bytes |
+| EXEC-013 | **PASS** | 1 trace(s), 957738 bytes |
 | EXEC-014 | **PASS** | 8 network event(s) of which 7 are API calls; 1 console event(s) |
-| DET-002 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15035ms).; 2 screenshot(s); classified applicationD |
+| DET-002 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15080ms).; 2 screenshot(s); classified applicationD |
 | DISC-014 | **PASS** | 11/11 page(s) have a screenshot |
 
 Evidence: 6 artifact(s) under `verification/evidence/`
@@ -225,7 +225,7 @@ Evidence: 6 artifact(s) under `verification/evidence/`
 ## What this certification does not say
 
 - It says nothing about a hosted model provider. None is configured in this environment, so
-  every generation and analysis figure above describes AIRA's built-in deterministic rules,
+  every generation and analysis figure above describes QA NXT's built-in deterministic rules,
   which the platform labels as such in its own responses.
 - It says nothing about Firefox or WebKit. Neither browser is installed here and the
   Playwright CDN is unreachable, so those runs are recorded NOT VERIFIED rather than failed.

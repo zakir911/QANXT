@@ -1,0 +1,54 @@
+{
+  "first": {
+    "id": "f694fefd-6652-4797-9a51-9fa4ddaed9f9",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15001ms).",
+    "signature": "dc4dae0d4f126b0350b514ec2f28cbd3d2fce1d0bb1949c26cf39bdfdcca506b",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T12:24:29.03891+00:00",
+    "lastSeenAt": "2026-09-28T12:24:29.03891+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that returned 500.",
+      "likelyCause": "GET /api/answer → 500 in 0ms — the page had nothing to render, so the step that followed found nothing. The fault is in the application or a service it depends on, not in the test.",
+      "evidence": "GET /api/answer → 500 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15001ms).",
+      "suggestedAction": "Take this request to the team that owns the endpoint. The failing assertion is the symptom; this call is the cause.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"027c3aca-1aed-406b-b0b9-d594132dd831\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"10324548-e32c-461b-ad5a-b45ea4a90b33\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"279be53c-5ac3-40df-bca1-dad9f7f22158\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"36881e41-c57c-4a95-b024-d468b1bbf9c3\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"3800c000-97df-4e55-a780-f2d0698c1d73\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"8a5b12cb-ad06-4c8c-a517-5c36ee9475a9\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"acebffcd-341e-41e5-bf0b-18d3601c1f41\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"fc87fb35-c2a6-4302-9b18-c466d4764333\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}], \"executionId\": \"0a6a7a89-cab2-477f-98c7-40f1ddcb968a\"}"
+    }
+  },
+  "second": {
+    "id": "f3becda0-1484-4dd8-a3ee-e02f475d965a",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15087ms).",
+    "signature": "dc4dae0d4f126b0350b514ec2f28cbd3d2fce1d0bb1949c26cf39bdfdcca506b",
+    "isNewFailure": false,
+    "isRegression": false,
+    "occurrenceCount": 2,
+    "firstSeenAt": "2026-09-28T12:24:29.03891+00:00",
+    "lastSeenAt": "2026-09-28T12:24:47.097086+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that returned 500.",
+      "likelyCause": "GET /api/answer → 500 in 0ms — the page had nothing to render, so the step that followed found nothing. The fault is in the application or a service it depends on, not in the test.",
+      "evidence": "GET /api/answer → 500 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15087ms).",
+      "suggestedAction": "Take this request to the team that owns the endpoint. The failing assertion is the symptom; this call is the cause.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"3ad6c38c-5f9a-421c-81d3-ed092c44b210\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"3e941770-d0a8-4ab6-b349-4d44257d696a\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"44e7c9f5-378f-4460-b64c-3a13ccbbe29b\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"46e7ff18-118c-4499-9e1e-5be14eb7b89d\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"b198839e-0313-4041-98e6-8ed200524483\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"cd6581c0-e8e9-4753-854f-63068af90e73\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"e0c178ae-1c24-4164-8027-95ca8565ca0f\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"fb8fe4ca-177c-46dc-a0c3-954355bd089b\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"1ae9f6bc-7ecc-40e1-878c-3ccc8a79f0c0\"}"
+    }
+  }
+}

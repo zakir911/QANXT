@@ -1,0 +1,42 @@
+{
+  "id": "DET-011",
+  "case": "missing-element",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "d41d0e6d-1e25-4f82-86bb-12894c0a446b",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "db41aa2d893065d196219617f0162caebcc69c876cc2526554d92d4193ded737",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T12:20:56.550223+00:00",
+    "lastSeenAt": "2026-09-28T12:20:56.550223+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"15343f92-a49a-4cb8-9032-46b2a444c711\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"196c0a76-281e-47d1-9c64-b80c3a8ca262\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"30b752eb-30d3-4101-a429-ceae529b3b91\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"5cf0700b-ed93-4da6-9f1a-fe435240ea79\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"82d96128-c4af-4d43-bb12-e32a3fe5c59f\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"9ed04976-b9c3-49a9-beaa-45957a6c8251\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"a6d2f3ae-17a8-48a8-bcc8-be57833e1c8f\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"e89c7eed-b595-46d4-ba3e-8f7c9641e741\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\"."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

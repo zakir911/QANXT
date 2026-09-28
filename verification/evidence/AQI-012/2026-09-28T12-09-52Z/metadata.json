@@ -1,0 +1,50 @@
+{
+  "testId": "AQI-012",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "An application nobody has described returns empty context, not an error",
+  "preconditions": [
+    "two autonomous passes have run over the same application"
+  ],
+  "input": "agent runs 353a18ee-9c53-47d0-af9f-c59042c08270 and 89ed57e6-a50b-43cf-922d-67add18d61f0",
+  "expected": "Absence is an answer rather than a failure",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "200, 0 entries",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:49:36.337Z",
+  "durationMs": 15192,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "first.json",
+      "path": "evidence/AQI-012/2026-09-28T12-09-52Z/first.json",
+      "bytes": 1435,
+      "sha256": "61cdd9ed6edca3d1bcea36db11c4e2513ce5a62ffffa93c2afd2c582b5baea5a"
+    },
+    {
+      "file": "second.json",
+      "path": "evidence/AQI-012/2026-09-28T12-09-52Z/second.json",
+      "bytes": 756,
+      "sha256": "70356923a5ff7047f7e5c184301ee1e0363b465c4e4fb3f85debd15f913227f1"
+    },
+    {
+      "file": "first-plan.json",
+      "path": "evidence/AQI-012/2026-09-28T12-09-52Z/first-plan.json",
+      "bytes": 4850,
+      "sha256": "c892bc8cf6480e33f35a2c445424f2df1b777ea8fd0ba339f7749fc37cd3bc8b"
+    },
+    {
+      "file": "second-plan.json",
+      "path": "evidence/AQI-012/2026-09-28T12-09-52Z/second-plan.json",
+      "bytes": 5181,
+      "sha256": "4c3b8f8861fdf455dd7666e9f4805cb2477ffff1184ada767627cdfe521fa3aa"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "NOT-006",
+  "suite": "Notifications",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A failed delivery is recorded with the reason, and never fails the run",
+  "preconditions": [
+    "a webhook pointed at an endpoint that answers 500"
+  ],
+  "input": "A run that would notify",
+  "expected": "The run completes normally, and a delivery record says it was not delivered and why — a notification that silently fails is worse than none, because the team has stopped watching the thing it was supposed to watch for them",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run ended \"failed\"; 1 delivery record(s); failed record: status 500, \"The receiver answered 500 Internal Server Error.\"",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:36:26.205Z",
+  "durationMs": 5062,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "deliveries.json",
+      "path": "evidence/NOT-006/2026-09-28T12-09-52Z/deliveries.json",
+      "bytes": 530,
+      "sha256": "ed978e98776120658fff1bb4e033ea54b3a5450bde3e2ea3faacac10e70bcc25"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "id": "f3b15e9a-ea9f-4707-b867-1c81931839d2",
+  "reference": "TC-0002",
+  "name": "GET http://localhost:4300/api/session answers as observed",
+  "objective": "The endpoint answers 200 with the fields it carried when discovery saw it 13 time(s).",
+  "preconditions": "",
+  "expectedResults": "",
+  "kind": "api",
+  "priority": "medium",
+  "risk": "medium",
+  "tags": "api,generated,smoke",
+  "source": "manual",
+  "isEnabled": true,
+  "version": 1,
+  "requirementReference": "",
+  "testSuiteId": "5e531752-4356-4152-ad3a-83d512f20d6b",
+  "applicationId": "a9cd964d-4ed7-44ba-a5a8-5ec6ec6fb96a",
+  "statistics": {
+    "executionCount": 0,
+    "passCount": 0,
+    "failCount": 0,
+    "healCount": 0,
+    "flakinessScore": 0,
+    "averageDurationMs": 0
+  },
+  "steps": [
+    {
+      "id": "ad9f003d-c65c-4174-ab99-f2332a99ab2d",
+      "order": 1,
+      "description": "GET http://localhost:4300/api/session",
+      "action": "apiRequest",
+      "isCritical": true,
+      "continueOnFailure": false,
+      "healCount": 0,
+      "apiRequest": {
+        "method": "GET",
+        "path": "/api/session",
+        "auth": {
+          "mode": "none"
+        }
+      },
+      "assertions": [
+        {
+          "id": "ea2e501a-64fb-43c9-9e56-4dfe26c5c681",
+          "type": "responseTimeUnderMs",
+          "expectedValue": "2000",
+          "attributeName": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The response arrives within 2000ms (ten times the 0ms observed, floored at 2000ms)"
+        },
+        {
+          "id": "85ce606f-523f-4df7-9365-673415f270e9",
+          "type": "responseJsonPathExists",
+          "expectedValue": "",
+          "attributeName": "user.username",
+          "negate": false,
+          "isSoft": false,
+          "description": "\"user.username\" is still present in the response"
+        },
+        {
+          "id": "a6e49937-ed28-4029-9b3c-209a810718c3",
+          "type": "responseJsonPathExists",
+          "expectedValue": "",
+          "attributeName": "user.id",
+          "negate": false,
+          "isSoft": false,
+          "description": "\"user.id\" is still present in the response"
+        },
+        {
+          "id": "ce49cc66-a0a0-413e-9a27-6833baab0814",
+          "type": "httpStatusEquals",
+          "expectedValue": "200",
+          "attributeName": "",
+          "negate": false,
+          "isSoft": false,
+          "description": "The endpoint still answers 200, as it did when it was observed"
+        },
+        {
+          "id": "eedc03d1-b661-4294-b49c-d8ad14c03362",
+          "type": "responseJsonPathExists",
+          "expectedValue": "",
+          "attributeName": "user.displayName",
+          "negate": false,
+          "isSoft": false,
+          "description": "\"user.displayName\" is still present in the response"
+        }
+      ]
+    }
+  ]
+}

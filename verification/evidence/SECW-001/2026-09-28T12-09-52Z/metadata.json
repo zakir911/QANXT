@@ -1,0 +1,32 @@
+{
+  "testId": "SECW-001",
+  "suite": "Security scans QA NXT runs itself",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A scan cannot be started against an application nobody has authorized",
+  "preconditions": [
+    "an application with no security scope"
+  ],
+  "input": "POST /api/v1/security/scans/start",
+  "expected": "Refused as a security policy violation, naming the written authorization that is missing. The refusal has to happen here rather than in the worker: once a job carrying a target is on a queue, the decision has already been made",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "403: This application has no enabled security scope carrying a written authorization, so no scan can be started against it. Somebody with security:authorize has to say, in writing, that it may be tested.",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:38:46.754Z",
+  "durationMs": 8,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/SECW-001/2026-09-28T12-09-52Z/response.json",
+      "bytes": 357,
+      "sha256": "389e5086089104ab8af7f988e550927d19e9eaaa15557e4637500927515cc38f"
+    }
+  ]
+}

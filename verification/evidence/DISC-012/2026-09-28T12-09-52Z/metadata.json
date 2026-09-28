@@ -1,0 +1,34 @@
+{
+  "testId": "DISC-012",
+  "suite": "Discovery",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "Navigation between pages is recorded as transitions",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "The knowledge graph's transition list",
+  "expected": "At least six transitions, each between two discovered pages",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "9 transition(s), 0 dangling",
+  "metrics": {
+    "transitions": 9
+  },
+  "startedAt": "2026-09-28T12:12:44.274Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "transitions.json",
+      "path": "evidence/DISC-012/2026-09-28T12-09-52Z/transitions.json",
+      "bytes": 1415,
+      "sha256": "1dfdb7af30d30c655663c5c440b6555766f02ce464575f14ce910ae73b8cdc2c"
+    }
+  ]
+}

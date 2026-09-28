@@ -1,0 +1,44 @@
+{
+  "testId": "AQF-003",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "Every step of a broken pass is still recorded",
+  "preconditions": [
+    "a pass has run against a lab whose sign-in API answers 500"
+  ],
+  "input": "agent run e8bcc03d-ebe5-4c17-bdb1-c5662b4ad9b0",
+  "expected": "The trail exists whatever the application did",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "37 steps",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:47:14.561Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQF-003/2026-09-28T12-09-52Z/run.json",
+      "bytes": 1335,
+      "sha256": "baa1d4503b964c2210afad634318bc3f690c0635f9f038e6589f480cf2fafd77"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-003/2026-09-28T12-09-52Z/decisions.json",
+      "bytes": 16525,
+      "sha256": "61b49e2e80e81078f7575c4229fd9706175f7ce394e8a62e4f46749db008c55b"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQF-003/2026-09-28T12-09-52Z/steps.json",
+      "bytes": 14423,
+      "sha256": "3b032780ff217851ce9b6cf0f244f83bad6dfe00842bbb6714d7f3cfbd735652"
+    }
+  ]
+}

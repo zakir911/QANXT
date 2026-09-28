@@ -1,0 +1,32 @@
+{
+  "testId": "ASRT-003",
+  "suite": "Assertions",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "assertUrl holds when it should and fails when it should not",
+  "preconditions": [
+    "the lab bank is running with no faults"
+  ],
+  "input": "Two journeys: one where the assertUrl is satisfied, one where it is deliberately wrong",
+  "expected": "The first run passes; the second FAILS with a message naming expected and actual",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "holds → passed; breaks → failed; message: Expected the URL to contain \"/nowhere-at-all\" but it was \"http://localhost:4300/dashboard\".",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:16:00.359Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "ASRT-003-both-directions.json",
+      "path": "evidence/ASRT-003/2026-09-28T12-09-52Z/ASRT-003-both-directions.json",
+      "bytes": 3440,
+      "sha256": "4595291770a688e03f6884cdfac741e417e5983450a2d0126750207eab63d658"
+    }
+  ]
+}

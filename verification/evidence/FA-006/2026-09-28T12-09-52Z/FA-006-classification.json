@@ -1,0 +1,34 @@
+{
+  "case": "http-500",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "f720d365-2578-463e-b785-cb7707e9857c",
+    "category": "applicationDefect",
+    "categoryConfidence": 90,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15067ms).",
+    "signature": "b3bed483544bf10784104c64a33f49f75fd04abb1f83b6ec924eed9f3a222a1a",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T12:22:36.196713+00:00",
+    "lastSeenAt": "2026-09-28T12:22:36.196713+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that returned 500.",
+      "likelyCause": "GET /api/answer → 500 in 0ms — the page had nothing to render, so the step that followed found nothing. The fault is in the application or a service it depends on, not in the test.",
+      "evidence": "GET /api/answer → 500 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15067ms).",
+      "suggestedAction": "Take this request to the team that owns the endpoint. The failing assertion is the symptom; this call is the cause.",
+      "category": "applicationDefect",
+      "confidence": 90,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"01cf3f11-39be-47ae-b1bd-f52c32703369\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"3552b869-43e5-492a-b3b7-cb11b8260713\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"49946c6a-2755-48a6-bf7a-0cf57ace5259\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"5cb96a54-1e9b-4456-b6c5-9c3b9919b1fb\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"69e85eb0-2c31-41ab-b945-b0e555562207\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"a45935cb-63ce-44b2-b274-8d8cf6b4f69e\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"cb9ecc9f-3a42-4b90-b9fd-5a431ed4e8cb\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"fd7c3289-ea62-4de2-b8cc-326785166555\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"49e46a87-22a7-4c19-a8ff-804f492e1477\"}"
+    }
+  }
+}

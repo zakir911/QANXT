@@ -1,0 +1,34 @@
+{
+  "testId": "AUD-007",
+  "suite": "Isolation, audit and observability",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "Configuring a secret is audited without the secret being recorded",
+  "preconditions": [
+    "a project exists"
+  ],
+  "input": "Create an integration carrying a signing secret, then read every audit record it produced",
+  "expected": "The configuration is recorded and the secret value appears nowhere in the trail",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "integration 201; the configuration is on the trail: true; the secret value appears in the trail: false",
+  "metrics": {
+    "secretLeaked": 0
+  },
+  "startedAt": "2026-09-28T12:38:03.681Z",
+  "durationMs": 15,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "secret-audit.json",
+      "path": "evidence/AUD-007/2026-09-28T12-09-52Z/secret-audit.json",
+      "bytes": 437,
+      "sha256": "748546ba13c2a1accd1657cf4a6731543adb414550e4989e5acdb2ef8ba7926c"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-022",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A granted answer is stored with who gave it and why",
+  "preconditions": [
+    "the question has been answered"
+  ],
+  "input": "agent run 6b319146-ad9e-415c-9939-71f7986912d7",
+  "expected": "The approval records the person, their reason and when",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "granted by agentpolicy-ma6b5f04b7@example.test: Authorized for the golden lab, which exists to be tested.",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:43:37.257Z",
+  "durationMs": 6,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "granted.json",
+      "path": "evidence/AQP-022/2026-09-28T12-09-52Z/granted.json",
+      "bytes": 879,
+      "sha256": "20f4293da1e77446310deffb7751b0def6e5a42c3df7d6246484e249c4a0ae3f"
+    }
+  ]
+}

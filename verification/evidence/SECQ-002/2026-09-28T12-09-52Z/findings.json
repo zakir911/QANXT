@@ -1,0 +1,32 @@
+[
+  {
+    "id": "BOLA-0",
+    "application": "access-control-lab",
+    "category": "BOLA",
+    "endpoint": "/api/accounts/{id}",
+    "parameter": "id",
+    "observedAsRole": "alice",
+    "severity": "High",
+    "confidence": "Medium",
+    "status": "Confirmed",
+    "isNew": true,
+    "isRegression": false,
+    "hasEvidence": true,
+    "check": "authz.bola"
+  },
+  {
+    "id": "BrokenFunctionLevelAuthorization-1",
+    "application": "access-control-lab",
+    "category": "BrokenFunctionLevelAuthorization",
+    "endpoint": "/api/admin/users",
+    "parameter": null,
+    "observedAsRole": "alice",
+    "severity": "High",
+    "confidence": "Medium",
+    "status": "Confirmed",
+    "isNew": true,
+    "isRegression": false,
+    "hasEvidence": true,
+    "check": "authz.vertical"
+  }
+]

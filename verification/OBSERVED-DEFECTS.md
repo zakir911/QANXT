@@ -61,3 +61,39 @@ until the worker was restarted.
 
 **Not fixed.** Reconnecting a stream consumer after its Redis connection drops, and saying so
 in the log when it happens, is worker work rather than agent work.
+
+## COR-005 reports an authorization problem instead of a front-end one, once in eight runs
+
+**Observed.** The full golden run immediately after the QA NXT rename
+(`2026-09-28T12-09-52Z`) reported one failure:
+
+```
+critical COR-005  2 API call(s), 0 failed;
+                  authenticationIssue at 85%: "The session was not authorised."
+```
+
+COR-005 drives a journey that opens the dashboard with `FAULT_WRONG_BALANCE` enabled, where
+every request succeeds and the total on the page is wrong. It expects the diagnosis to be
+`applicationDefect` — "The API answered correctly and the page showed something else." On
+this run it got `authenticationIssue` instead.
+
+**What is established.** The test has now run eight times on record: seven passes and this one
+failure, the failure being the only run after the rename. Re-running the correlation suite
+against the same renamed build three times produced three passes, with the expected
+`applicationDefect at 80%` each time. The rename's diff against the banking lab
+(`test-lab/banking-app/server.js`) changes prose only — the product name in a title, a body
+string and an error page — and touches no cookie, session or authentication path. The
+classification differs while the assertion about failed calls does not: `failedCalls.length
+=== 0` held on the failing run too, so the 401 the classifier reasoned from was not among the
+API calls the run recorded.
+
+**What is not established.** Why it happened on that run. The suite passes in isolation, so
+the trigger involves state left by something earlier in a full run rather than anything in
+the correlation suite itself. Nothing here identifies what that state is.
+
+**Not fixed, and not called a flake.** One failure in eight is a real observation about a
+critical test, and a test that occasionally attributes a front-end defect to authorization is
+worth understanding rather than re-running until it is green. What can be said today is that
+it is not the rename: the rename changed no authentication code the lab uses, and the test
+passes repeatedly on the renamed build. Investigating the ordering dependency is its own
+piece of work.

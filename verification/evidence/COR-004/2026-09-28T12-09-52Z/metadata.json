@@ -1,0 +1,32 @@
+{
+  "testId": "COR-004",
+  "suite": "UI/API correlation",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A request that never completed is diagnosed as a network issue and named",
+  "preconditions": [
+    "FAULT_NETWORK_ERROR is enabled"
+  ],
+  "input": "An API test whose request is destroyed at the network layer",
+  "expected": "A networkIssue diagnosis naming the endpoint, not an application defect",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "networkIssue at 90%: \"The step failed because the API call it made never completed.\"",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:31:20.525Z",
+  "durationMs": 2082,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "analysis.json",
+      "path": "evidence/COR-004/2026-09-28T12-09-52Z/analysis.json",
+      "bytes": 1175,
+      "sha256": "6d802c2b6c9c640847797811e5f48a4c84fe0ea14edf0bbd3dbdeb3c589f4bb2"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-008",
+  "suite": "Autonomous planning",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "Every category says why it is in the plan",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run 43695521-d202-4af0-95d7-48b1a0a83aa3",
+  "expected": "Each item carries a \"why\" of real length rather than a label",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "all explained",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:43:00.710Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-008/2026-09-28T12-09-52Z/plan.json",
+      "bytes": 4708,
+      "sha256": "2f7c86eca14c535d505125b12189ccdb36cfe6bf3d9bdd4e09b1bac0efcf59e8"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-008/2026-09-28T12-09-52Z/run.json",
+      "bytes": 758,
+      "sha256": "b5b79a4ef836d26f42ef64d895bf768208abe5b8b8103ecd347659061928f47d"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-008/2026-09-28T12-09-52Z/decisions.json",
+      "bytes": 3580,
+      "sha256": "31800d78d183f25a191c57c7ad7b22eaa97e25dba087d6590a392b4815a9bb3a"
+    }
+  ]
+}

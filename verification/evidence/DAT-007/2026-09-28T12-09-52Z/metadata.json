@@ -1,0 +1,38 @@
+{
+  "testId": "DAT-007",
+  "suite": "Test data",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A data set exports to a file, imports back, and the export carries no secret",
+  "preconditions": [
+    "the CLI is built"
+  ],
+  "input": "qanxt test-data import / export / preview",
+  "expected": "The round trip preserves every field, and the exported file contains the secret reference by name and no secret value",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "import 0, preview 0, re-import 0; exported 3 field(s), secret carried as \"${secret:app_password}\"",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:36:31.628Z",
+  "durationMs": 1062,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "exported.json",
+      "path": "evidence/DAT-007/2026-09-28T12-09-52Z/exported.json",
+      "bytes": 460,
+      "sha256": "ca32b2cb4e55b6aa63a2602edf5ddd827353843def156d935b5019d2633cbec0"
+    },
+    {
+      "file": "cli.txt",
+      "path": "evidence/DAT-007/2026-09-28T12-09-52Z/cli.txt",
+      "bytes": 2203,
+      "sha256": "38d65332ab252bc0f1fd85ff9de768a828b918b71c3e43ba933ac5ddf6549575"
+    }
+  ]
+}

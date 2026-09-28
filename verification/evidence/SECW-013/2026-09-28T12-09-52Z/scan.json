@@ -1,0 +1,26 @@
+{
+  "started": {
+    "securityScanId": "0e4329f0-4a47-4535-b7e4-bf868d899826",
+    "reference": "SCAN-20260928-E2C95F",
+    "queue": "qanxt:security",
+    "jobId": "1790599145041-0",
+    "targets": 5,
+    "checksToRun": 1,
+    "checksConfigured": 6,
+    "summary": "Queued SCAN-20260928-E2C95F: 1 of 6 implied check(s) across 5 discovered target(s). This is a narrowed run, so it will report as partial coverage and cannot pass the gate on that basis. 5 caveat(s) apply to that surface, the first being that it describes what discovery walked rather than the application."
+  },
+  "status": "completed",
+  "requestsIssued": 13,
+  "testsExecuted": 1,
+  "findings": [
+    {
+      "category": "DomXSS",
+      "severity": "high",
+      "confidence": "high",
+      "endpoint": "/dom",
+      "parameter": "location.hash",
+      "cwe": "CWE-79"
+    }
+  ],
+  "gate": "BLOCKED. 1 open finding(s) (1 High) from 1 of 6 configured check(s), 13 request(s) issued. Findings describe what these tests reached; areas they did not reach are untested, not clean. Untested: passive.cookies: nothing in the discovered surface implied it, so it was not attempted.; passive.headers: nothing in the discovered surface implied it, so it was not attempted.; passive.sensitive-data: nothing in the discovered surface implied it, so it was not attempted.; xss.reflected: nothing in the discovered surface implied it, so it was not attempted.; xss.stored: nothing in the discovered surface implied it, so it was not attempted.."
+}

@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-007",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A scan is recorded with its findings, and the first sighting is Potential, not Confirmed",
+  "preconditions": [
+    "an authorized scope"
+  ],
+  "input": "One scan carrying one BOLA finding with two exchanges",
+  "expected": "Stored, the finding status Potential. One scan is a detection; Confirmed is reserved for something reproduced",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "SCAN-20260928-75E537: BOLA high potential",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:38:42.948Z",
+  "durationMs": 19,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "scan.json",
+      "path": "evidence/SECPL-007/2026-09-28T12-09-52Z/scan.json",
+      "bytes": 3397,
+      "sha256": "6054ac5cc80e95b16b6bfd1d871879256b558f17c749812550f500a80927c0b6"
+    }
+  ]
+}

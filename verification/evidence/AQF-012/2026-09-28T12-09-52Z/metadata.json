@@ -1,0 +1,44 @@
+{
+  "testId": "AQF-012",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A pass with little to work with still records its reasoning",
+  "preconditions": [
+    "a pass has run against a lab with no sign-in control"
+  ],
+  "input": "agent run ef254e7d-b38f-4fd7-962d-edc5d979a907",
+  "expected": "Steps carry rationales",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "37/37",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:48:08.572Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQF-012/2026-09-28T12-09-52Z/run.json",
+      "bytes": 1337,
+      "sha256": "4c13c77b86a81c1148e22cdfc471a4ecaff7c36235c1d6e2cd567856a2035647"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-012/2026-09-28T12-09-52Z/decisions.json",
+      "bytes": 16525,
+      "sha256": "4a6d8b849164d80c4acb308b55f4b34f97e0071a6440389b85032b38a222feb1"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQF-012/2026-09-28T12-09-52Z/steps.json",
+      "bytes": 14423,
+      "sha256": "dd5d4538b4f84262f72db8d27e3183d0c8e03c4d3a43c8492c24f170094b0101"
+    }
+  ]
+}

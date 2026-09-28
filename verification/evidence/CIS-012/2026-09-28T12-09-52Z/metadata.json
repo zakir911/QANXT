@@ -1,0 +1,37 @@
+{
+  "testId": "CIS-012",
+  "suite": "CI simulation",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A failure inside QA NXT is reported as a defect in QA NXT, not as a finding about the application",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"qanxt-internal-error\"",
+  "expected": "Exit 8 and a message that says so. INJECTED: the CLI is pointed at a local responder answering 500. This verifies the classification and the pipeline branch; it does NOT verify that QA NXT returns 500 under any condition",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "exit 8; QA NXT failed internally",
+  "metrics": {
+    "qanxtExit": 8,
+    "pipelineExit": 8
+  },
+  "startedAt": "2026-09-28T12:33:13.390Z",
+  "durationMs": 328,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-012/2026-09-28T12-09-52Z/pipeline.log",
+      "bytes": 818,
+      "sha256": "6f740f3aa13cadc9aaea245c13c13c890c73da3d8e900ad8e8ffa2c6846aa149"
+    }
+  ]
+}

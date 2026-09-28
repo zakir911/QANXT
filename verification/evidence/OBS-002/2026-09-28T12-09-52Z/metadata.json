@@ -1,0 +1,34 @@
+{
+  "testId": "OBS-002",
+  "suite": "Isolation, audit and observability",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "The correlation id on a response is the one on the audit record that request produced",
+  "preconditions": [
+    "the audit trail is readable"
+  ],
+  "input": "Create a project with a known correlation id, then look that id up in the trail",
+  "expected": "The audit record for the creation carries exactly the id the caller sent",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 record(s) carry correlation golden-trace-v4q5fq332t; the created project is among them: true (projectCreated)",
+  "metrics": {
+    "entries": 1
+  },
+  "startedAt": "2026-09-28T12:38:03.706Z",
+  "durationMs": 13,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "correlation-to-audit.json",
+      "path": "evidence/OBS-002/2026-09-28T12-09-52Z/correlation-to-audit.json",
+      "bytes": 307,
+      "sha256": "1ac03b982b7e84b694511d634aea8c5579187de830e2cbfce27efb7c367c31b6"
+    }
+  ]
+}

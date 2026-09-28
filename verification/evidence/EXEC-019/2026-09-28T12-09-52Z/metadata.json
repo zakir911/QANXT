@@ -1,0 +1,33 @@
+{
+  "testId": "EXEC-019",
+  "suite": "Browser execution",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "Paging through a table changes what the page shows",
+  "preconditions": [
+    "the lab bank is running",
+    "the account has 120 transactions"
+  ],
+  "input": "Open an account, press Next, assert the page indicator",
+  "expected": "The run passes with the indicator reading page 2",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "passed, 8/8 steps",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:14:50.973Z",
+  "durationMs": 2080,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "EXEC-019-run.json",
+      "path": "evidence/EXEC-019/2026-09-28T12-09-52Z/EXEC-019-run.json",
+      "bytes": 4663,
+      "sha256": "93b72ea05645ed729a3846ebbaca433a9c2a000ce5d215c078c04e08c7aade7e"
+    }
+  ]
+}

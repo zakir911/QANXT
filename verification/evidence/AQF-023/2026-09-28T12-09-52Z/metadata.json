@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-023",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "An unauthenticated caller cannot read a pass",
+  "preconditions": [
+    "the platform is running"
+  ],
+  "input": "a deliberately wrong request",
+  "expected": "The API refuses without a token",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "401",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:48:14.284Z",
+  "durationMs": 2,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AQF-023/2026-09-28T12-09-52Z/response.json",
+      "bytes": 37,
+      "sha256": "73d35bf2742d6ccc4b224f38072995f92def29856115cd604fb2cfa4ff3d1d33"
+    }
+  ]
+}

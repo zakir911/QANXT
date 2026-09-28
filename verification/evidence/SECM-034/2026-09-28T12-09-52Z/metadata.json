@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-034",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "The verbose-error finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-209, OWASP A05:2021, severity Medium, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-209, A05:2021, Medium (11/19) — Medium (11/19): straightforward to exploit, limited impact, no account needed, reaches non-sensitive data, publicly reachable.",
+  "metrics": {
+    "score": 11,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-28T12:38:42.638Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-034/2026-09-28T12-09-52Z/mapping.json",
+      "bytes": 889,
+      "sha256": "085162bcb4d0b7cd598b41bad1fdbdff476046fe885bfc38cfad4ccb3ce05f47"
+    }
+  ]
+}

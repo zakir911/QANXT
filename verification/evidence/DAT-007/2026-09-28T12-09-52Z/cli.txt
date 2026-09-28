@@ -1,0 +1,83 @@
+$ qanxt test-data import
+[exit 0]
+{
+  "id": "9e692579-6f22-4aa7-bdd7-e16538c8ae41",
+  "projectId": "b4711fb9-08dc-4710-8383-d225193351fd",
+  "name": "Round trip (DAT-007)",
+  "description": "Written by a person, read by the CLI",
+  "fields": [
+    {
+      "id": "542579e4-9c97-4455-bb02-ef4aa6d78fc8",
+      "key": "customerEmail",
+      "kind": "seededRandom",
+      "generatorJson": "{\"type\":\"email\"}",
+      "seed": 99,
+      "isSensitive": false
+    },
+    {
+      "id": "50847eac-a1c9-4d3d-9a91-c46bce952398",
+      "key": "orderReference",
+      "kind": "static",
+      "value": "QANXT-TEST-007",
+      "isSensitive": false
+    },
+    {
+      "id": "d2946dcb-ee18-4271-84e6-b5806d822b26",
+      "key": "password",
+      "kind": "secretReference",
+      "value": "${secret:app_password}",
+      "isSensitive": true
+    }
+  ],
+  "createdAt": "2026-09-28T12:36:31.7921365+00:00"
+}
+
+
+$ qanxt test-data preview
+[exit 0]
+customerEmail            qanxt.samuel.8791@example.test
+orderReference           QANXT-TEST-007
+password                 ${secret:app_password}
+
+A seeded field shows the value every run will use. Sensitive fields are masked.
+
+
+$ qanxt test-data export
+[exit 0]
+Wrote /tmp/qanxt-data-1p2oCd/exported.json
+1 field(s) reference a secret by name. No secret values are in this file.
+
+
+$ qanxt test-data import (round trip)
+[exit 0]
+{
+  "id": "49a139ba-3a3d-4480-a764-c8f8b1f6be73",
+  "projectId": "b4711fb9-08dc-4710-8383-d225193351fd",
+  "name": "Round trip again",
+  "description": "Written by a person, read by the CLI",
+  "fields": [
+    {
+      "id": "a6d0308f-acdb-461d-81be-db235d042bc4",
+      "key": "customerEmail",
+      "kind": "seededRandom",
+      "generatorJson": "{\"type\": \"email\"}",
+      "seed": 99,
+      "isSensitive": false
+    },
+    {
+      "id": "c3b101b0-dc3f-4a9d-aa42-a76144c029ba",
+      "key": "orderReference",
+      "kind": "static",
+      "value": "QANXT-TEST-007",
+      "isSensitive": false
+    },
+    {
+      "id": "6bfc757e-9728-4a23-8991-973b1bf7eb65",
+      "key": "password",
+      "kind": "secretReference",
+      "value": "${secret:app_password}",
+      "isSensitive": true
+    }
+  ],
+  "createdAt": "2026-09-28T12:36:32.3413358+00:00"
+}

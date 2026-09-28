@@ -1,0 +1,32 @@
+{
+  "testId": "DET-012",
+  "suite": "Failure detection",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "With every case made healthy, none of the tests fails",
+  "preconditions": [
+    "FAULT_ALL_CASES_HEALTHY makes every case behave correctly"
+  ],
+  "input": "The three failure tests that produced the clearest failures, re-run against a healthy application",
+  "expected": "All three pass — a suite that fails whatever the application does is measuring nothing",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "http-500: passed, timeout: passed, connection-reset: passed",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:20:57.208Z",
+  "durationMs": 6221,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "false-positive-control.json",
+      "path": "evidence/DET-012/2026-09-28T12-09-52Z/false-positive-control.json",
+      "bytes": 385,
+      "sha256": "f13522c4f2b6d5a7ba69605ce121b7e85e496d01cdcf728f0d3e06996516dd60"
+    }
+  ]
+}

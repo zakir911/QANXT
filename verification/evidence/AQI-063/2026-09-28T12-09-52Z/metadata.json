@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-063",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A pass groups failures that share a cause",
+  "preconditions": [
+    "a pass has run end to end over an application"
+  ],
+  "input": "agent run 353a18ee-9c53-47d0-af9f-c59042c08270",
+  "expected": "A decision records the grouping, or says why there was nothing to group",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "Nothing to correlate: 1 failure(s).",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:50:22.037Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQI-063/2026-09-28T12-09-52Z/decisions.json",
+      "bytes": 18463,
+      "sha256": "4ee8d6dc8892e3a826f9b13198ed7358c4eb23ae9f3ea2f5c4f19beb20df6b08"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/AQI-063/2026-09-28T12-09-52Z/findings.json",
+      "bytes": 24019,
+      "sha256": "11b6cd20070e80f9730e7befd44b4e06e509085fd3f7c8abd888b233bf792533"
+    }
+  ]
+}

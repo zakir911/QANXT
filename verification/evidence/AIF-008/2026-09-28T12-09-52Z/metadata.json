@@ -1,0 +1,35 @@
+{
+  "testId": "AIF-008",
+  "suite": "AI provider failure",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "Every failed model request is recorded with the reason it failed, rather than vanishing",
+  "preconditions": [
+    "AI fault injection is enabled"
+  ],
+  "input": "One generation request per fault kind, then the AI request history",
+  "expected": "Each failure is stored with a status distinguishing a provider failure from a rejected response",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "9 recorded request(s) after 3 injected fault(s); statuses: failed, schemaRejected",
+  "metrics": {
+    "recorded": 9,
+    "distinctStatuses": 2
+  },
+  "startedAt": "2026-09-28T12:38:38.960Z",
+  "durationMs": 94,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "ai-requests.json",
+      "path": "evidence/AIF-008/2026-09-28T12-09-52Z/ai-requests.json",
+      "bytes": 2237,
+      "sha256": "9f07e16754bd8167013731f9631dc24fdcfa1a074e0660a44b7740b082f57686"
+    }
+  ]
+}

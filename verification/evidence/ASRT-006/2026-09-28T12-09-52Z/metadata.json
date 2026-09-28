@@ -1,0 +1,32 @@
+{
+  "testId": "ASRT-006",
+  "suite": "Assertions",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "A failed assertion on an element that exists does not trigger healing",
+  "preconditions": [
+    "ASRT-002 ran an assertText against the right element with the wrong text"
+  ],
+  "input": "The healing events recorded for that run",
+  "expected": "No healing was attempted: the locator was fine, the value was not",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "0 healing event(s) on a failed text assertion",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:17:25.321Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "no-healing-on-assertion.json",
+      "path": "evidence/ASRT-006/2026-09-28T12-09-52Z/no-healing-on-assertion.json",
+      "bytes": 683,
+      "sha256": "acf63897ab55fbc484f38cd80eb23dbc14dc2a8e38a4aa0a1ddbf4b9d0cda81e"
+    }
+  ]
+}

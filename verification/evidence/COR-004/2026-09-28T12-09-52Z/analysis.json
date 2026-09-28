@@ -1,0 +1,14 @@
+{
+  "summary": "The step failed because the API call it made never completed.",
+  "likelyCause": "POST /api/session did not complete (apiRequestContext.fetch: socket hang up) — the request did not reach the service, or the service did not answer.",
+  "evidence": "POST /api/session did not complete (apiRequestContext.fetch: socket hang up). Engine message: POST http://localhost:4300/api/session did not complete: apiRequestContext.fetch: socket hang up",
+  "suggestedAction": "Confirm the service is running and reachable from the worker, then re-run.",
+  "category": "networkIssue",
+  "confidence": 90,
+  "isLikelyApplicationDefect": false,
+  "isHealable": false,
+  "producedByAi": false,
+  "provider": "local",
+  "model": "qanxt-rules-v1",
+  "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"e3436cfa-f16e-4449-8695-fa6baf31f16f\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"e91ba44a-1eed-490e-ab32-25f13b7f491b\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"f1bcce7a-2a74-41cb-b39d-288c1f7d2501\", \"kind\": \"Other\", \"name\": \"step-1-request.http.json\"}], \"executionId\": \"123d327b-3cb6-4c74-a16e-39144c50a689\"}"
+}

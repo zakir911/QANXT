@@ -1,0 +1,32 @@
+{
+  "testId": "CI-007",
+  "suite": "CI integration",
+  "runId": "2026-09-28T12-09-52Z",
+  "objective": "The build, commit and branch a pipeline passes are recorded on the run",
+  "preconditions": [
+    "none"
+  ],
+  "input": "A run started with --ci-provider, --ci-build, --ci-commit and --ci-branch",
+  "expected": "The run records all four, so a failure months later can be traced to the commit that produced it",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "provider github, build 99123, commit a1b2c3d4, branch feature/accounts-filter",
+  "metrics": null,
+  "startedAt": "2026-09-28T12:32:44.481Z",
+  "durationMs": 3550,
+  "build": {
+    "commit": "bfcb611",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/CI-007/2026-09-28T12-09-52Z/run.json",
+      "bytes": 793,
+      "sha256": "29952af274ab8b88aff45c57fcc561a91482b7de38998eed25a521b3e03db016"
+    }
+  ]
+}
