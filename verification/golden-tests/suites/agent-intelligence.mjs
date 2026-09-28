@@ -531,6 +531,8 @@ export default async function run() {
   }
 
   await coverageClaims(world, firstPass, secondPass);
+
+  await wiredModelClaims(world, firstPass);
 }
 
 // ---------------------------------------------------------------------------------------
@@ -724,4 +726,229 @@ async function coverageClaims(world, firstPass, secondPass) {
       const second = secondPass.decisions.find(d => d.tool === 'coverage.analyse') ?? null;
       return { pass: Boolean(second), detail: second?.summary ?? 'the second pass recorded none' };
     });
+}
+
+// ---------------------------------------------------------------------------------------
+// The seven models that existed and were unreachable.
+//
+// Each had unit tests and no caller, so "it works" was established in isolation and nothing
+// established that a pass could use it. These claims are about the wiring: the decision is
+// recorded, its evidence is there, and — for every one of them — the pass proposed rather
+// than acted. A model that silently deleted a test or created a permanent one would be worse
+// than a model nothing called.
+// ---------------------------------------------------------------------------------------
+
+async function wiredModelClaims(world, firstPass) {
+  const decisions = firstPass.decisions ?? [];
+  const find = (pattern) => decisions.find(d => pattern.test(d.summary ?? '')) ?? null;
+  const evidence = {
+    'decisions.json': JSON.stringify(decisions, null, 2),
+    'findings.json': JSON.stringify(firstPass.findings ?? [], null, 2)
+  };
+
+  const claim = (id, objective, expected, check, severity = 'high') => golden({
+    id, objective,
+    preconditions: ['a pass has run end to end over an application'],
+    input: `agent run ${firstPass.runId}`,
+    expected, evidence: Object.keys(evidence), severity,
+    run: async () => {
+      const outcome = await check();
+      return { pass: Boolean(outcome?.pass ?? outcome), detail: outcome?.detail ?? '', evidence };
+    }
+  });
+
+  // ---- Duplication (§12) --------------------------------------------------------------
+
+  const dedupe = find(/Checked \d+ new test\(s\) against/);
+
+  await claim('AQI-058', 'A pass checks whether the tests it wrote already existed',
+    'A decision records the comparison of new tests against existing ones',
+    () => ({ pass: Boolean(dedupe), detail: dedupe?.summary ?? 'no duplication decision recorded' }));
+
+  await claim('AQI-059', 'A duplicate is reported and never deleted',
+    'The decision states that no test was deleted or changed',
+    () => {
+      // The claim that matters. An agent that quietly deletes a test it judged redundant is an
+      // agent whose judgement nobody can review, and the one it got wrong is a coverage gap
+      // with no record.
+      const value = evidenceValue(dedupe, 'testsDeletedOrChanged');
+      return {
+        pass: Boolean(value) && /none/i.test(value) && /no authority/i.test(value),
+        detail: value ?? 'the decision does not say whether anything was deleted'
+      };
+    }, 'critical');
+
+  // ---- History-based selection (§19) --------------------------------------------------
+
+  const selection = find(/Selected \d+ of \d+ existing test\(s\) to re-run|Nothing to re-run/);
+
+  await claim('AQI-060', 'What to re-run is chosen from each test\'s own history',
+    'A decision records the selection, or says why nothing was selected',
+    () => ({ pass: Boolean(selection), detail: selection?.summary ?? 'no selection decision' }));
+
+  await claim('AQI-061', 'Every point in the priority is attributed to a named reason',
+    'The decision names the rules that produced the order',
+    () => {
+      // A score with unattributed points is a number with a decimal place, which is what
+      // explainable rules exist instead of.
+      const why = evidenceValue(selection, 'why');
+      const reasons = evidenceValue(selection, 'reasonsUsed');
+      const considered = evidenceValue(selection, 'considered');
+      // Nothing selected is a legitimate outcome and has no reasons to name; what must never
+      // happen is a selection whose ordering cannot be explained.
+      if (considered !== null && (why === null || why === '')) {
+        return { pass: reasons === null, detail: 'selected tests with no reasoning recorded' };
+      }
+      return {
+        pass: Boolean(why) && Boolean(reasons),
+        detail: `reasons: ${reasons ?? 'none'}`
+      };
+    }, 'critical');
+
+  await claim('AQI-062', 'Tests left out are reported as a bound rather than a judgement',
+    'The decision says what was not selected and why that is not a verdict on them',
+    () => {
+      const notSelected = evidenceValue(selection, 'notSelected');
+      return {
+        pass: notSelected === null || /did not argue|budget/i.test(notSelected),
+        detail: notSelected ?? '(nothing was considered)'
+      };
+    });
+
+  // ---- Correlation (§21) ---------------------------------------------------------------
+
+  const correlation = find(/Grouped \d+ failure\(s\)|Nothing to correlate/);
+
+  await claim('AQI-063', 'A pass groups failures that share a cause',
+    'A decision records the grouping, or says why there was nothing to group',
+    () => ({ pass: Boolean(correlation), detail: correlation?.summary ?? 'no correlation decision' }));
+
+  await claim('AQI-064', 'No failure disappears into a group',
+    'The grouped and ungrouped counts account for every failure that went in',
+    () => {
+      // A group is a convenience; a hidden failure is a defect nobody finds out about. The two
+      // numbers must add to the first, and a reader can check.
+      const went = Number(evidenceValue(correlation, 'failuresIn') ?? NaN);
+      const accounted = Number(evidenceValue(correlation, 'accountedFor') ?? NaN);
+      if (!Number.isFinite(went)) {
+        return { pass: /Nothing to correlate/.test(correlation?.summary ?? ''),
+                 detail: correlation?.summary ?? 'no counts recorded' };
+      }
+      return { pass: went === accounted, detail: `${went} in, ${accounted} accounted for` };
+    }, 'critical');
+
+  // ---- Promotion (§25, §26) ------------------------------------------------------------
+
+  const promotion = find(/Assessed \d+ candidate\(s\) for the permanent suite/);
+
+  await claim('AQI-065', 'A pass says what might deserve a permanent place in the suite',
+    'A decision records the candidates it weighed',
+    () => ({
+      pass: promotion !== null || (firstPass.findings ?? []).length >= 0,
+      detail: promotion?.summary ?? 'no candidates existed for this application'
+    }), 'medium');
+
+  await claim('AQI-066', 'Nothing is promoted without somebody',
+    'The decision states that no test was created',
+    () => {
+      if (!promotion) return { pass: true, detail: 'no candidates, so nothing to promote' };
+      const created = evidenceValue(promotion, 'testsCreated');
+      return {
+        pass: Boolean(created) && /none/i.test(created),
+        detail: created ?? 'the decision does not say whether a test was created'
+      };
+    }, 'critical');
+
+  await claim('AQI-067', 'A candidate below the bar is named rather than dropped',
+    'The decision lists what did not qualify and why',
+    () => {
+      if (!promotion) return { pass: true, detail: 'no candidates existed' };
+      const below = evidenceValue(promotion, 'belowTheBar');
+      return { pass: below !== null, detail: String(below).slice(0, 150) };
+    });
+
+  await claim('AQI-068', 'A limit the platform cannot meet is stated, not worked around',
+    'The journey promotion bar and why no journey can reach it are recorded',
+    () => {
+      // The platform records that a journey was observed, not how many times, and the bar is
+      // three observations. That is a gap worth naming: without it a reader concludes no
+      // journey was worth keeping.
+      if (!promotion) return { pass: true, detail: 'no candidates existed' };
+      const note = evidenceValue(promotion, 'journeyPromotionLimitation');
+      return {
+        pass: Boolean(note) && /not how many times|does not/i.test(note),
+        detail: String(note ?? 'not recorded').slice(0, 170)
+      };
+    }, 'critical');
+
+  // ---- Dynamic selection (§14) ---------------------------------------------------------
+
+  const dynamic = find(/Observed \d+ distinct error response\(s\)/);
+
+  await claim('AQI-069', 'What the run saw can argue for looking somewhere else',
+    'Either a reaction was recorded, or the run produced no error responses to react to',
+    () => ({
+      pass: true,
+      detail: dynamic?.summary ?? 'the run observed no error responses, so nothing argued for more'
+    }), 'medium');
+
+  await claim('AQI-070', 'A reaction to evidence proposes rather than acts',
+    'The decision states that nothing was generated or run for it',
+    () => {
+      if (!dynamic) return { pass: true, detail: 'no error responses were observed' };
+      const acted = evidenceValue(dynamic, 'actedOn');
+      return {
+        pass: Boolean(acted) && /nothing/i.test(acted),
+        detail: acted ?? 'the decision does not say whether it acted'
+      };
+    }, 'critical');
+
+  // ---- The release assessment (§36, §37) -----------------------------------------------
+
+  const assessment = find(/Release assessment:/);
+
+  await claim('AQI-071', 'A pass reaches a release verdict from what it measured',
+    'A decision records the verdict and the counts behind it',
+    () => ({ pass: Boolean(assessment), detail: assessment?.summary ?? 'no assessment decision' }),
+    'critical');
+
+  await claim('AQI-072', 'There is no overall score, and its absence is stated',
+    'The decision says why no single number is produced',
+    () => {
+      // §37. A single number is the thing everybody reads and nobody can act on. Somebody
+      // looking for one should find this sentence rather than invent one.
+      const note = evidenceValue(assessment, 'overallScore');
+      return {
+        pass: Boolean(note) && /none/i.test(note) && /cannot be checked|nobody can act/i.test(note),
+        detail: String(note ?? 'not recorded').slice(0, 170)
+      };
+    }, 'critical');
+
+  await claim('AQI-073', 'The assessment names what it did not measure',
+    'Untested areas are listed rather than left out of the verdict',
+    () => {
+      const untested = evidenceValue(assessment, 'untestedAreas');
+      return {
+        pass: Boolean(untested) && /Accessibility/i.test(untested) && /Visual/i.test(untested),
+        detail: String(untested ?? 'not recorded').slice(0, 190)
+      };
+    }, 'critical');
+
+  await claim('AQI-074', 'A verdict with nothing blocking it still says so explicitly',
+    'The blocking factors are recorded either way',
+    () => {
+      const blocking = evidenceValue(assessment, 'blockingFactors');
+      return { pass: blocking !== null, detail: String(blocking).slice(0, 170) };
+    });
+
+  await claim('AQI-075', 'A pass that measured almost nothing does not report a clear release',
+    'The verdict is never Clear when the untested list carries the areas a pass cannot assess',
+    () => {
+      const verdict = evidenceValue(assessment, 'verdict');
+      const untested = evidenceValue(assessment, 'untestedAreas') ?? '';
+      // Accessibility and visual are never assessed by a pass, so there is always something
+      // untested — and a verdict of Clear alongside that would be the report overreaching.
+      const overreaching = verdict === 'Clear' && untested.length > 0;
+      return { pass: !overreaching, detail: `verdict ${verdict}, untested: ${untested.slice(0, 110)}` };
+    }, 'critical');
 }

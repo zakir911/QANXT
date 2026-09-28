@@ -116,6 +116,9 @@ public sealed class AgentLoop : IAgentLoop
                 (AgentPhase.SecurityTesting, 7, () => SecurityTestingAsync(run, state, ct)),
                 (AgentPhase.Executing, 8, () => ExecuteAsync(run, state, deadline, ct)),
                 (AgentPhase.Investigating, 9, () => InvestigateAsync(run, state, ct)),
+                // After investigating, because it groups what that phase wrote up, and before
+                // proposing, so the summary counts a cause once rather than its symptoms.
+                (AgentPhase.Correlating, 10, () => CorrelateAsync(run, state, ct)),
                 (AgentPhase.Proposing, 11, () => ProposeAsync(run, state, ct))
             };
 
@@ -597,46 +600,95 @@ public sealed class AgentLoop : IAgentLoop
             return PhaseOutcome.Ok("No regression selection in this plan.",
                 "Nothing that already existed was selected for re-running.");
 
-        var reruns = await _db.TestCases.AsNoTracking()
-            .Where(t => t.ApplicationId == run.ApplicationId
-                        && t.DeletedAt == null
-                        && t.IsEnabled
-                        && (t.LastStatus == ExecutionStatus.Failed || t.FlakinessScore > 0))
-            .OrderByDescending(t => t.FailCount)
-            .Take(run.MaxTargets * 10)
-            .Select(t => new { t.Id, t.Reference, t.FailCount, t.FlakinessScore })
+        // Every enabled test for the application, not only the ones that have failed. Which of
+        // them is worth re-running is TestHistoryModel's judgement, and it can only make it if
+        // it sees the ones with clean histories too — a selector fed only failures cannot
+        // distinguish "nothing is worth re-running" from "nothing has failed".
+        var candidates = await _db.TestCases.AsNoTracking()
+            .Where(t => t.ApplicationId == run.ApplicationId && t.DeletedAt == null && t.IsEnabled)
+            .Select(t => new
+            {
+                t.Id, t.Reference, t.ExecutionCount, t.FailCount, t.FlakinessScore,
+                t.LastStatus, t.LastExecutedAt,
+                Route = t.Steps!.OrderBy(step => step.Order)
+                    .Select(step => step.Url).FirstOrDefault(url => url != null)
+            })
+            .Take(500)
             .ToListAsync(ct);
 
-        if (reruns.Count == 0)
+        if (candidates.Count == 0)
             return PhaseOutcome.Ok("Nothing to re-run.",
-                "No existing test for this application has failed or been unstable recently.");
+                "This application has no existing enabled tests, so there is nothing that could "
+                + "be re-run. That is not a statement that nothing needs re-running.");
 
-        state.RegressionTestCaseIds.AddRange(reruns.Select(r => r.Id));
+        // Explainable rules with fixed weights, and every point attributed to a named reason.
+        // The order two runs over the same data produce is the same order, which is most of
+        // what makes a selection worth comparing.
+        var ordered = TestHistoryModel.Order(
+            candidates.Select(t => new TestHistory(
+                TestCaseId: t.Id,
+                Reference: t.Reference,
+                ExecutionCount: t.ExecutionCount,
+                FailCount: t.FailCount,
+                FlakinessScore: t.FlakinessScore,
+                LastExecutedAt: t.LastExecutedAt,
+                LastFailed: t.LastStatus == ExecutionStatus.Failed,
+                // Nothing in this pass computes a per-test change impact, so this is false
+                // rather than guessed. A signal the platform cannot establish must not be
+                // asserted: it would add points nobody could trace to a change.
+                TouchedByChange: false,
+                BusinessCritical: state.Business.IsCritical(RouteOf(t.Route)))).ToList(),
+            _clock.UtcNow);
+
+        // Only tests whose history actually argues for them. A score of zero means nothing
+        // about this test's past raises it, and re-running the whole suite on every pass is
+        // not selection.
+        var selected = ordered.Where(p => p.Score > 0).Take(run.MaxTargets * 10).ToList();
+
+        if (selected.Count == 0)
+            return PhaseOutcome.Ok(
+                $"Nothing to re-run: none of {candidates.Count} existing test(s) has a history "
+                + "that argues for it.",
+                "No test has failed recently, been unstable, or gone stale. Re-running all of "
+                + "them anyway would not be selection.");
+
+        state.RegressionTestCaseIds.AddRange(selected.Select(p => p.TestCaseId));
         Assemble(run, state.RegressionTestCaseIds);
         await _db.SaveChangesAsync(ct);
 
         await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
             AgentPhase.Prioritizing,
-            $"Selected {reruns.Count} existing test(s) to re-run.",
-            "A test that failed recently is the cheapest way to tell a fix from a flake, and a "
-            + "test that has been unstable is the cheapest way to find out whether it still is.",
+            $"Selected {selected.Count} of {candidates.Count} existing test(s) to re-run.",
+            "Ordered by explainable rules with fixed weights rather than a learned model: a "
+            + "priority nobody can argue with is a priority nobody trusts. Every point below is "
+            + "attributed to a named reason.",
             new[]
             {
-                new AgentEvidence("previouslyFailing",
-                    string.Join(", ", reruns.Where(r => r.FailCount > 0)
-                        .Select(r => r.Reference).Take(10))),
-                new AgentEvidence("unstable",
-                    string.Join(", ", reruns.Where(r => r.FlakinessScore > 0)
-                        .Select(r => r.Reference).Take(10))),
-                new AgentEvidence("selected", reruns.Count.ToString())
+                new AgentEvidence("considered", candidates.Count.ToString()),
+                new AgentEvidence("selected", selected.Count.ToString()),
+                // The top of the order with its reasoning, so somebody who disagrees can see
+                // which rule produced it rather than be told the score was high.
+                new AgentEvidence("why",
+                    string.Join(" | ", selected.Take(8).Select(p => p.Summary))),
+                new AgentEvidence("reasonsUsed",
+                    string.Join(", ", selected.SelectMany(p => p.Reasons)
+                        .Select(r => r.Name).Distinct().OrderBy(name => name))),
+                // Named because it is a bound, not a conclusion: tests below it were not
+                // judged unimportant, they were judged less urgent than the ones above.
+                new AgentEvidence("notSelected",
+                    (ordered.Count - selected.Count).ToString()
+                    + " test(s) whose history did not argue for a re-run, or that fell outside "
+                    + "this pass's selection budget")
             },
             Tool: null,
-            Result: $"{reruns.Count} test(s) selected."), ct);
+            Result: $"{selected.Count} test(s) selected."), ct);
 
         return PhaseOutcome.Ok(
-            $"Selected {reruns.Count} existing test(s) to re-run.",
-            "Tests that failed or were unstable recently, which a pass that ran only its own "
-            + "output would never have touched.");
+            $"Selected {selected.Count} of {candidates.Count} existing test(s) to re-run.",
+            "Prioritised from what has happened to each test before, by rules with fixed weights "
+            + "and every point attributed. A pass that ran only its own output would have touched "
+            + "none of these.",
+            selected.Count == 0 ? null : selected[0].Summary);
     }
 
     // ---- The policy gate ----------------------------------------------------------
@@ -1048,6 +1100,8 @@ public sealed class AgentLoop : IAgentLoop
             ? $" {final.PagesBlockedByPolicy} page(s) were outside the allowed domains and were not visited."
             : string.Empty;
 
+        await RecordExplorationAsync(run, final, ct);
+
         return PhaseOutcome.Ok(
             $"Explored {final.PagesDiscovered} page(s) and {final.ElementsDiscovered} element(s).",
             $"Bounded to {run.MaxPages} page(s) at depth {run.MaxDepth}.{blocked}");
@@ -1122,6 +1176,82 @@ public sealed class AgentLoop : IAgentLoop
             "The graph is the agent's whole picture of the application; it does not browse to form one.");
     }
 
+
+    /// <summary>
+    /// What the exploration reached, and — the part that matters — what it did not.
+    /// </summary>
+    /// <remarks>
+    /// The difference between "explored 25 pages" and "explored 25 of 60" is the difference
+    /// between a reader believing the application has been walked and knowing it has not.
+    /// ExploratoryModel produces the second, along with the standing limits of any walk: no
+    /// form was submitted, nothing irreversible was attempted, and anything behind a control
+    /// nobody happened to click is unexplored.
+    /// </remarks>
+    private async Task RecordExplorationAsync(
+        AgentRun run, DiscoveryProgress final, CancellationToken ct)
+    {
+        // Everything the graph knows, including pages earlier crawls found. The denominator is
+        // what makes the fraction mean anything.
+        var pagesKnown = await _db.ApplicationPages.AsNoTracking()
+            .CountAsync(p => p.ApplicationId == run.ApplicationId, ct);
+
+        var forms = await _db.ApplicationPages.AsNoTracking()
+            .CountAsync(p => p.ApplicationId == run.ApplicationId && p.Kind == PageKind.Form, ct);
+
+        var apis = await _db.ApiEndpoints.AsNoTracking()
+            .CountAsync(e => e.ApplicationId == run.ApplicationId, ct);
+
+        // The bounds this pass actually ran under, not the model's defaults. A pass reports what
+        // it was allowed, and this pass never submits a form or does anything irreversible
+        // during exploration: a crawl looks, and both of those are state changes that go
+        // through the policy ladder in a later phase if they happen at all.
+        var bounds = new ExploratoryBounds(
+            MaxPages: run.MaxPages,
+            MaxActions: run.MaxActions,
+            MaxMinutes: Math.Max(1, run.TimeBudgetSeconds / 60),
+            MaxCandidateJourneys: run.MaxNewJourneys,
+            MaxCandidateTests: run.MaxGeneratedTests,
+            MaySubmitForms: false,
+            MayBeDestructive: false);
+
+        var report = ExploratoryModel.Report(
+            bounds,
+            pagesExplored: final.PagesDiscovered,
+            pagesKnown: Math.Max(pagesKnown, final.PagesDiscovered),
+            formsExplored: forms,
+            apisObserved: apis,
+            // No observations, candidate journeys or candidate tests: this pass explores by
+            // running the crawler, which records pages and elements rather than narrated
+            // findings. Empty lists rather than invented entries — a candidate journey nobody
+            // observed is exactly the kind of thing this platform must not manufacture.
+            observations: [],
+            candidateJourneys: [],
+            candidateTests: [],
+            potentialDefects: [],
+            potentialSecurityIssues: [],
+            stoppedBy: final.PagesDiscovered >= run.MaxPages
+                ? $"it reached its bound of {run.MaxPages} page(s)"
+                : null);
+
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.Exploring,
+            $"Explored {report.PagesExplored} page(s) of {Math.Max(pagesKnown, report.PagesExplored)} known.",
+            report.Summary,
+            new[]
+            {
+                new AgentEvidence("pagesExplored", report.PagesExplored.ToString()),
+                new AgentEvidence("pagesKnownToTheGraph", pagesKnown.ToString()),
+                new AgentEvidence("formsKnown", report.FormsExplored.ToString()),
+                new AgentEvidence("apiEndpointsObserved", report.ApisObserved.ToString()),
+                new AgentEvidence("pagesBlockedByPolicy", final.PagesBlockedByPolicy.ToString()),
+                // The list that stops a crawl count from reading as coverage.
+                new AgentEvidence("notExplored", string.Join(" | ", report.NotExplored)),
+                new AgentEvidence("stoppedBy", report.StoppedBy ?? "nothing — it finished")
+            },
+            Tool: "application.discover",
+            Result: $"{report.PagesExplored} page(s)",
+            Risk: AgentActionRisk.Interaction), ct);
+    }
 
     /// <summary>
     /// The permissions the pass acts with: the ones its initiator held when it started.
@@ -1618,6 +1748,9 @@ public sealed class AgentLoop : IAgentLoop
         Assemble(run, state.GeneratedTestCaseIds);
         await _db.SaveChangesAsync(ct);
 
+        // Whether any of them repeat a test that already existed. Reported, never deleted.
+        await DetectDuplicatesAsync(run, state, before, state.GeneratedTestCaseIds, ct);
+
         var warnings = summary.Warnings.Count > 0
             ? $" {summary.Warnings.Count} scenario(s) were dropped: {string.Join("; ", summary.Warnings.Take(3))}"
             : string.Empty;
@@ -1823,6 +1956,9 @@ public sealed class AgentLoop : IAgentLoop
         run.FailuresInvestigated = failures.Count;
         await _db.SaveChangesAsync(ct);
 
+        // What the run saw that argues for looking somewhere else. Proposals, not work.
+        await ReactToObservationsAsync(run, state, ct);
+
         return failures.Count == 0
             ? PhaseOutcome.Ok("No failures to investigate.",
                 "Every generated test passed, so there was nothing to diagnose.")
@@ -1831,11 +1967,784 @@ public sealed class AgentLoop : IAgentLoop
                 + "and changes no tests.");
     }
 
+
+    /// <summary>
+    /// What this pass is allowed to say about the release, and what it must refuse to say.
+    /// </summary>
+    /// <remarks>
+    /// Every input is a count of stored rows or an explicit "not measured". Nothing is
+    /// estimated and nothing is filled in: an area this pass did not test arrives as
+    /// <c>Measured: false</c> rather than as zero failures, because zero failures in an area
+    /// nobody tested reads as an all-clear.
+    /// </remarks>
+    private async Task<AutonomousAssessment> AssessAsync(
+        AgentRun run, PassState state, IReadOnlyList<AgentFinding> findings, CancellationToken ct)
+    {
+        var rows = run.TestRunId is null
+            ? []
+            : await _db.TestExecutions.AsNoTracking()
+                .Where(e => e.TestRunId == run.TestRunId)
+                .Join(_db.TestCases.AsNoTracking(), e => e.TestCaseId, t => t.Id,
+                    (e, t) => new { e.Status, t.Kind })
+                .ToListAsync(ct);
+
+        // Healed counts as passed: a test that needed a new locator still established that the
+        // application works. Named helpers rather than inline predicates because "did this
+        // pass" is the judgement the whole assessment rests on.
+        static bool DidPass(ExecutionStatus status)
+            => status is ExecutionStatus.Passed or ExecutionStatus.Healed;
+        static bool DidFail(ExecutionStatus status)
+            => status is ExecutionStatus.Failed or ExecutionStatus.Error or ExecutionStatus.TimedOut;
+
+        var ui = rows.Where(r => r.Kind != TestCaseKind.Api).ToList();
+        var api = rows.Where(r => r.Kind == TestCaseKind.Api).ToList();
+
+        // Security: only what a scan this pass can point at actually reported. A pass that
+        // queued a scan which has not come back has not established anything about security,
+        // and that is Measured: false rather than zero findings.
+        var scanned = state.SecurityScanId is not null && await _db.SecurityScans.AsNoTracking()
+            .AnyAsync(s => s.Id == state.SecurityScanId && s.CompletedAt != null, ct);
+
+        var openBySeverity = scanned
+            ? await _db.SecurityFindings.AsNoTracking()
+                .Where(f => f.ApplicationId == run.ApplicationId
+                         && f.Status != SecurityFindingStatus.FalsePositive
+                         && f.Status != SecurityFindingStatus.Accepted)
+                .GroupBy(f => f.Severity)
+                .Select(g => new { Severity = g.Key, Count = g.Count() })
+                .ToListAsync(ct)
+            : [];
+
+        int OpenAt(SecuritySeverity severity)
+            => openBySeverity.FirstOrDefault(row => row.Severity == severity)?.Count ?? 0;
+
+        var regressions = scanned
+            ? await _db.SecurityFindings.AsNoTracking()
+                .CountAsync(f => f.ApplicationId == run.ApplicationId && f.RegressedAt != null, ct)
+            : 0;
+
+        // A failing test on a route a person called business-critical. Read from the findings
+        // this pass already wrote rather than re-derived, so the assessment and the proposals
+        // cannot disagree.
+        var criticalFailed = findings.Count(f =>
+            f.Kind == AgentFindingKind.SuspectedDefect
+            && f.Route is not null
+            && state.Business.IsCritical(f.Route));
+
+        var gate = run.TestRunId is null ? null : await _db.TestRuns.AsNoTracking()
+            .Where(r => r.Id == run.TestRunId)
+            .Select(r => r.QualityGatePassed)
+            .FirstOrDefaultAsync(ct);
+
+        // What this pass did not assess, named. Accessibility and visual are not things a pass
+        // does at all, and the coverage phase's unknowns belong here too: a dimension nobody
+        // could decide is untested, not clean.
+        var untested = new List<string>
+        {
+            "Accessibility — a pass does not assess it; the platform tests it elsewhere.",
+            "Visual appearance — a pass does not assess it; the platform tests it elsewhere."
+        };
+        if (!scanned)
+            untested.Add(state.SecurityScanId is null
+                ? "Security — no scan was run by this pass."
+                : "Security — the scan this pass queued has not reported yet.");
+        if (state.Coverage is { Unknown: > 0 } coverage)
+            untested.Add($"{coverage.Unknown} capability/dimension pair(s) the coverage analysis "
+                       + "could not decide either way.");
+        if (state.Business.ExcludedAreas.Count > 0)
+            untested.Add($"{state.Business.ExcludedAreas.Count} area(s) a person excluded: "
+                       + string.Join(", ", state.Business.ExcludedAreas));
+
+        var assessment = AutonomousAssessmentModel.Assess(new AssessmentInputs(
+            FunctionalExecuted: ui.Count,
+            FunctionalPassed: ui.Count(r => DidPass(r.Status)),
+            FunctionalFailed: ui.Count(r => DidFail(r.Status)),
+            ApiExecuted: api.Count,
+            ApiPassed: api.Count(r => DidPass(r.Status)),
+            ApiFailed: api.Count(r => DidFail(r.Status)),
+            SecurityScanned: scanned,
+            SecurityCritical: OpenAt(SecuritySeverity.Critical),
+            SecurityHigh: OpenAt(SecuritySeverity.High),
+            SecurityMedium: OpenAt(SecuritySeverity.Medium),
+            SecurityRegressions: regressions,
+            // Neither is something an autonomous pass does. Declared false rather than
+            // omitted, so they land in the untested list instead of vanishing.
+            AccessibilityRun: false, AccessibilityViolations: 0,
+            VisualRun: false, VisualDifferences: 0,
+            CriticalJourneysFailed: criticalFailed,
+            GateConfigured: gate is not null,
+            GatePassed: gate == true,
+            UntestedAreas: untested));
+
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.Proposing,
+            $"Release assessment: {assessment.Verdict}.",
+            assessment.Summary,
+            new[]
+            {
+                new AgentEvidence("verdict", assessment.Verdict.ToString()),
+                new AgentEvidence("functional", $"{ui.Count(r => DidPass(r.Status))}/{ui.Count} passed"),
+                new AgentEvidence("api", $"{api.Count(r => DidPass(r.Status))}/{api.Count} passed"),
+                new AgentEvidence("securityScanned", scanned.ToString()),
+                new AgentEvidence("criticalJourneysFailed", criticalFailed.ToString()),
+                new AgentEvidence("gate", gate is null ? "none configured" : gate.ToString()!),
+                // Both lists, by name. A verdict with no blocking factors and no untested
+                // areas would be the only kind worth reading as reassurance, and it is
+                // almost never what a pass produces.
+                new AgentEvidence("blockingFactors",
+                    assessment.BlockingFactors.Count == 0
+                        ? "none" : string.Join("; ", assessment.BlockingFactors)),
+                new AgentEvidence("untestedAreas", string.Join("; ", assessment.UntestedAreas)),
+                // Said explicitly because its absence is the design. Somebody looking for a
+                // number should find this sentence instead of inventing one.
+                new AgentEvidence("overallScore",
+                    "none — deliberately. A single number is the thing everybody reads and "
+                    + "nobody can act on, and it cannot be checked.")
+            },
+            Tool: "report.generate",
+            Result: assessment.Verdict.ToString(),
+            Risk: AgentActionRisk.Observation), ct);
+
+        return assessment;
+    }
+
+    /// <summary>
+    /// Whether the tests this pass just wrote duplicate ones that already existed.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Checked after generation rather than before, because the agent does not author the
+    /// candidates — the generation engine does, and the agent sees them only once they exist.
+    /// </para>
+    /// <para>
+    /// And <strong>nothing is deleted.</strong> A duplicate is reported as a proposal with the
+    /// test it duplicates named, and the decision says plainly that the agent did not remove
+    /// it. An agent that quietly deletes a test it judged redundant is an agent whose judgement
+    /// nobody can review, and the one it got wrong is a coverage gap with no record.
+    /// </para>
+    /// </remarks>
+    private async Task DetectDuplicatesAsync(
+        AgentRun run, PassState state, IReadOnlyList<Guid> before, IReadOnlyList<Guid> created,
+        CancellationToken ct)
+    {
+        if (created.Count == 0) return;
+
+        if (before.Count == 0)
+        {
+            // The first pass over an application has nothing to duplicate. Said rather than
+            // skipped: otherwise a reader cannot tell this from the check not happening.
+            await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+                AgentPhase.Generating,
+                $"No duplication check was possible for {created.Count} new test(s).",
+                "This application had no tests before this pass, so there is nothing the new "
+                + "ones could duplicate. That is an absence of anything to compare against, "
+                + "not a finding that they are all distinct.",
+                new[]
+                {
+                    new AgentEvidence("newTests", created.Count.ToString()),
+                    new AgentEvidence("existingCompared", "0"),
+                    new AgentEvidence("testsDeletedOrChanged",
+                        "none — the agent has no authority to delete or change a test")
+                },
+                Tool: "test.generate", Result: "nothing to compare against",
+                Risk: AgentActionRisk.Observation), ct);
+            return;
+        }
+
+        var relevant = before.Concat(created).ToList();
+        var rows = await _db.TestCases.AsNoTracking()
+            .Where(t => relevant.Contains(t.Id) && t.DeletedAt == null)
+            .Select(t => new
+            {
+                t.Id, t.Reference, t.Name, t.Objective, t.Kind,
+                // The route the test actually visits, and what it checks. Both read from the
+                // stored steps: a test named after a page is not a test of it.
+                Target = t.Steps!.OrderBy(s => s.Order)
+                    .Select(s => s.Url).FirstOrDefault(u => u != null),
+                Assertions = t.Steps!.SelectMany(s => s.Assertions!)
+                    .Select(a => $"{a.Type}:{a.ExpectedValue ?? a.AttributeName ?? string.Empty}")
+                    .ToList()
+            })
+            .ToListAsync(ct);
+
+        var existing = rows.Where(r => before.Contains(r.Id))
+            .Select(r => new ExistingTest(
+                r.Id, r.Reference, r.Name, r.Objective,
+                RouteOf(r.Target) ?? string.Empty,
+                r.Kind == TestCaseKind.Api ? TestDimension.Api : TestDimension.Ui,
+                r.Assertions))
+            .ToList();
+
+        var decisions = new List<(string Reference, DuplicationDecision Decision)>();
+        foreach (var row in rows.Where(r => created.Contains(r.Id)))
+        {
+            var candidate = new CandidateTest(
+                row.Name, row.Objective, RouteOf(row.Target) ?? string.Empty,
+                row.Kind == TestCaseKind.Api ? TestDimension.Api : TestDimension.Ui,
+                row.Assertions);
+            decisions.Add((row.Reference, TestDuplicationModel.Evaluate(candidate, existing)));
+        }
+
+        var reuse = decisions.Where(d => d.Decision.Verdict == DuplicationVerdict.Reuse).ToList();
+        var extend = decisions.Where(d => d.Decision.Verdict == DuplicationVerdict.Extend).ToList();
+
+        foreach (var (reference, decision) in reuse.Concat(extend))
+        {
+            _db.AgentFindings.Add(new AgentFinding
+            {
+                OrganizationId = run.OrganizationId,
+                AgentRunId = run.Id,
+                Kind = AgentFindingKind.Observation,
+                // Low, because it costs maintenance rather than breaking anything, and an
+                // inflated severity here would compete with findings about the application.
+                Severity = RiskLevel.Low,
+                Title = decision.Verdict == DuplicationVerdict.Reuse
+                    ? $"Duplicate: {reference} repeats {decision.ExistingReference}"
+                    : $"Nearly a duplicate: {reference} overlaps {decision.ExistingReference}",
+                Detail = _masker.MaskText(decision.Reason),
+                Recommendation = decision.Verdict == DuplicationVerdict.Reuse
+                    ? $"Consider deleting {reference} and keeping {decision.ExistingReference}. "
+                    + "The agent has not deleted anything and cannot."
+                    : $"Consider adding the missing check(s) to {decision.ExistingReference} and "
+                    + $"deleting {reference}: {string.Join(", ", decision.MissingAssertions.Take(5))}. "
+                    + "The agent has not changed either test and cannot.",
+                Confidence = decision.Similarity,
+                IsAiGenerated = false,
+                CreatedAt = _clock.UtcNow
+            });
+        }
+
+        if (reuse.Count > 0 || extend.Count > 0) await _db.SaveChangesAsync(ct);
+
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.Generating,
+            $"Checked {decisions.Count} new test(s) against {existing.Count} existing one(s): "
+            + $"{reuse.Count} duplicate, {extend.Count} overlapping.",
+            "Running the same check twice is not more coverage; it is the same coverage and "
+            + "twice the maintenance. Comparison is structural and deterministic rather than a "
+            + "model's judgement, because a test silently not written because something thought "
+            + "it a duplicate is a coverage gap with no record.",
+            new[]
+            {
+                new AgentEvidence("newTests", decisions.Count.ToString()),
+                new AgentEvidence("existingCompared", existing.Count.ToString()),
+                new AgentEvidence("duplicates",
+                    reuse.Count == 0 ? "none"
+                        : string.Join(", ", reuse.Select(d => $"{d.Reference}≡{d.Decision.ExistingReference}"))),
+                new AgentEvidence("overlapping",
+                    extend.Count == 0 ? "none"
+                        : string.Join(", ", extend.Select(d => $"{d.Reference}~{d.Decision.ExistingReference}"))),
+                // The line that matters. Whatever this phase concluded, the suite is unchanged.
+                new AgentEvidence("testsDeletedOrChanged",
+                    "none — the agent has no authority to delete or change a test, so every "
+                    + "duplicate above is still in the suite and is a proposal")
+            },
+            Tool: "test.generate",
+            Result: $"{reuse.Count + extend.Count} proposal(s)",
+            Risk: AgentActionRisk.Observation), ct);
+    }
+
+    /// <summary>
+    /// What this pass observed that might deserve a permanent place in the regression suite.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A regression suite is a promise: everything in it runs on every release, for ever, and
+    /// somebody maintains it. The failure mode is not a missing test — it is a suite that grew
+    /// by a hundred things nobody vouched for, went amber, and got switched off.
+    /// </para>
+    /// <para>
+    /// So this proposes and does not promote. Even the one case the model promotes
+    /// automatically — a confirmed security finding, where the engine established the
+    /// vulnerability with a reproducible exchange — is recorded here as a proposal carrying
+    /// that recommendation, because creating a permanent test is a state change and the agent
+    /// asks before those. What the model decides is *whether it would need a person*; the
+    /// answer travels with the proposal so nobody has to re-derive it.
+    /// </para>
+    /// </remarks>
+    private async Task ProposePromotionsAsync(
+        AgentRun run, PassState state, CancellationToken ct)
+    {
+        var already = await _db.AgentFindings
+            .AnyAsync(f => f.AgentRunId == run.Id && f.Title.StartsWith("Worth keeping:"), ct);
+        if (already) return;
+
+        var candidates = new List<(RegressionCandidate Candidate, string Detail)>();
+
+        // Confirmed security findings for this application. Only confirmed: a finding somebody
+        // has marked a false positive or accepted is not a thing to guard against for ever.
+        var confirmed = await _db.SecurityFindings.AsNoTracking()
+            .Where(f => f.ApplicationId == run.ApplicationId
+                     && f.Status == SecurityFindingStatus.Confirmed)
+            .OrderByDescending(f => f.Severity)
+            .Take(20)
+            .Select(f => new
+            {
+                f.Id, f.Reference, f.Title, f.Category, f.Severity, f.Endpoint,
+                // How many scans have reported it. The real record of "times observed", read
+                // through the sightings rather than invented: a finding's own scan id names
+                // its latest sighting only.
+                Sightings = _db.SecurityScanFindings.Count(link => link.SecurityFindingId == f.Id)
+            })
+            .ToListAsync(ct);
+
+        foreach (var finding in confirmed)
+        {
+            candidates.Add((
+                new RegressionCandidate(
+                    RegressionOrigin.ConfirmedSecurityFinding,
+                    $"{finding.Reference} — {finding.Title}",
+                    TimesObserved: Math.Max(1, finding.Sightings),
+                    // Confirmed is a person's word, by definition of that status.
+                    HumanConfirmed: true,
+                    Confidence: 95,
+                    BusinessCritical: state.Business.IsCritical(finding.Endpoint)),
+                $"{finding.Category} at {finding.Endpoint ?? "an unrecorded endpoint"}, "
+                + $"severity {finding.Severity}."));
+        }
+
+        // Journeys the platform has actually seen work, as distinct from ones it inferred from
+        // structure. Only Observed: an inferred journey is a guess about what the application
+        // is for, and a guess does not belong in a promise.
+        var journeys = await _db.Journeys.AsNoTracking()
+            .Where(j => j.ApplicationId == run.ApplicationId
+                     && j.Evidence == JourneyEvidence.Observed)
+            .Take(20)
+            .Select(j => new { j.Name, j.IsCritical })
+            .ToListAsync(ct);
+
+        foreach (var journey in journeys)
+        {
+            candidates.Add((
+                new RegressionCandidate(
+                    RegressionOrigin.ObservedJourney,
+                    journey.Name,
+                    // One. The platform records THAT a journey was observed and not how many
+                    // times, so this is the only number it can honestly supply — and the
+                    // promotion bar for a journey is three observations, which means no
+                    // journey is ever proposed on this path today. That is recorded as a
+                    // platform gap in the evidence below rather than papered over with a
+                    // number chosen to make the feature look active.
+                    TimesObserved: 1,
+                    HumanConfirmed: false,
+                    Confidence: 75,
+                    BusinessCritical: journey.IsCritical || state.Business.IsCritical(journey.Name)),
+                "Observed end to end at least once; the platform does not count how many."));
+        }
+
+        if (candidates.Count == 0)
+        {
+            await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+                AgentPhase.Proposing,
+                "No candidate for the permanent suite.",
+                "Nothing this pass could see qualifies as a candidate: there is no confirmed "
+                + "security finding for this application and no journey the platform has "
+                + "observed end to end. An empty candidate list is not a finding that the "
+                + "suite is complete.",
+                new[]
+                {
+                    new AgentEvidence("securityFindingsConsidered", "0"),
+                    new AgentEvidence("observedJourneysConsidered", "0"),
+                    new AgentEvidence("journeyPromotionLimitation",
+                        $"A journey needs {RegressionPromotionModel.JourneyObservationsRequired} "
+                        + "observations to be proposed, and the platform records only that a "
+                        + "journey was observed, not how many times. No journey can reach the bar "
+                        + "on this path until it does."),
+                    new AgentEvidence("proposed", "0"),
+                    new AgentEvidence("belowTheBar", "none — there were no candidates at all"),
+                    new AgentEvidence("testsCreated",
+                        "none — creating a permanent test changes state, and the agent asks "
+                        + "before it changes state")
+                },
+                Tool: null, Result: "no candidates"), ct);
+            return;
+        }
+
+        var decisions = candidates
+            .Select(entry => (entry.Candidate, entry.Detail, Decision: RegressionPromotionModel.Evaluate(entry.Candidate)))
+            .ToList();
+
+        var worthKeeping = decisions.Where(d => d.Decision.Promote).ToList();
+
+        foreach (var (candidate, detail, decision) in worthKeeping)
+        {
+            _db.AgentFindings.Add(new AgentFinding
+            {
+                OrganizationId = run.OrganizationId,
+                AgentRunId = run.Id,
+                Kind = AgentFindingKind.Regression,
+                Severity = decision.Priority,
+                Title = $"Worth keeping: {Truncate(candidate.Subject, 120)}",
+                Detail = _masker.MaskText($"{detail} {decision.Reason}"),
+                Recommendation = decision.NeedsApproval
+                    ? "Somebody should decide whether this belongs in the permanent suite. "
+                    + "The agent has not created a test and cannot."
+                    : "This is the one case with no judgement in it: the engine established it "
+                    + "with a reproducible exchange, and a test that re-checks it is how anybody "
+                    + "finds out if it comes back. The agent has still not created one — that is "
+                    + "a state change, and it asks before those.",
+                Confidence = candidate.Confidence,
+                IsAiGenerated = false,
+                CreatedAt = _clock.UtcNow
+            });
+        }
+
+        if (worthKeeping.Count > 0) await _db.SaveChangesAsync(ct);
+
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.Proposing,
+            $"Assessed {decisions.Count} candidate(s) for the permanent suite: "
+            + $"{worthKeeping.Count} worth proposing.",
+            "A regression suite is a promise that everything in it runs on every release for "
+            + "ever. The bar is high and differs by where a candidate came from: a confirmed "
+            + "security finding needs no judgement, an observed journey needs somebody.",
+            new[]
+            {
+                new AgentEvidence("securityFindingsConsidered", confirmed.Count.ToString()),
+                new AgentEvidence("observedJourneysConsidered", journeys.Count.ToString()),
+                // Stated because the consequence is invisible otherwise: journeys cannot reach
+                // the bar, and a reader would otherwise conclude none was worth keeping.
+                new AgentEvidence("journeyPromotionLimitation",
+                    $"A journey needs {RegressionPromotionModel.JourneyObservationsRequired} "
+                    + "observations to be proposed, and the platform records only that a journey "
+                    + "was observed, not how many times. No journey can reach the bar on this "
+                    + "path until it does."),
+                new AgentEvidence("proposed", worthKeeping.Count.ToString()),
+                new AgentEvidence("belowTheBar",
+                    (decisions.Count - worthKeeping.Count) == 0
+                        ? "none"
+                        : string.Join("; ", decisions.Where(d => !d.Decision.Promote)
+                            .Select(d => $"{Truncate(d.Candidate.Subject, 60)}: {d.Decision.Reason}")
+                            .Take(6))),
+                new AgentEvidence("needingAPerson",
+                    worthKeeping.Count(d => d.Decision.NeedsApproval).ToString()),
+                // The line that keeps this honest. Whatever it concluded, the suite is unchanged.
+                new AgentEvidence("testsCreated",
+                    "none — every one above is a proposal. Creating a permanent test changes "
+                    + "state, and the agent asks before it changes state")
+            },
+            Tool: null,
+            Result: $"{worthKeeping.Count} proposal(s)"), ct);
+    }
+
+    /// <summary>
+    /// What else is worth looking at, from what this run actually saw.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The fixed phase order makes a pass reproducible and also makes it blind: a payment
+    /// endpoint returning 403 halfway through is the most interesting thing that will happen in
+    /// the run, and a loop that cannot react to it finishes its plan and reports the 403 as one
+    /// failure among many.
+    /// </para>
+    /// <para>
+    /// These are <strong>proposals for the next pass</strong>, not work this one does. Adding
+    /// tests after execution would mean generating what nothing ran, and the pass has already
+    /// spent its budget. So the observation and what it argues for are recorded, and a person
+    /// or the next pass acts. Reacting to evidence is a reason to do more; it is never a reason
+    /// to be allowed more, and nothing here widens what the policy permits.
+    /// </para>
+    /// </remarks>
+    private async Task ReactToObservationsAsync(
+        AgentRun run, PassState state, CancellationToken ct)
+    {
+        if (run.TestRunId is null) return;
+
+        var already = await _db.AgentFindings
+            .AnyAsync(f => f.AgentRunId == run.Id && f.Title.StartsWith("Worth a look:"), ct);
+        if (already) return;
+
+        // Error responses the run actually observed, with where they happened. Read from the
+        // network events the worker recorded rather than from the failures, because the most
+        // interesting status codes are often on requests that did not fail a test.
+        var executionIds = await _db.TestExecutions.AsNoTracking()
+            .Where(e => e.TestRunId == run.TestRunId)
+            .Select(e => e.Id)
+            .ToListAsync(ct);
+
+        if (executionIds.Count == 0) return;
+
+        var errors = await _db.NetworkEvents.AsNoTracking()
+            .Where(n => n.TestExecutionId != null && executionIds.Contains(n.TestExecutionId!.Value)
+                     && n.StatusCode >= 400)
+            .Select(n => new { n.Method, n.Url, n.StatusCode })
+            .Take(200)
+            .ToListAsync(ct);
+
+        if (errors.Count == 0) return;
+
+        var securityAuthorized = await _db.SecurityScopes.AsNoTracking()
+            .AnyAsync(scope => scope.ApplicationId == run.ApplicationId && scope.Enabled, ct);
+
+        // One observation per distinct status-and-route, so ten 403s on one endpoint argue once.
+        var observations = errors
+            .Select(e => new MidRunObservation(
+                What: $"{e.Method} returned {e.StatusCode}",
+                Where: RouteOf(e.Url) ?? e.Url,
+                HttpStatus: e.StatusCode,
+                Detail: $"Observed during the verification run this pass started."))
+            .GroupBy(o => (o.HttpStatus, o.Where))
+            .Select(g => g.First())
+            .ToList();
+
+        var selections = DynamicSelectionModel.Bound(
+            observations.SelectMany(o => DynamicSelectionModel.React(o, securityAuthorized)).ToList(),
+            // Bounded by the pass's own target budget. An unbounded reaction to evidence is how
+            // a pass that saw one broken endpoint proposes forty things.
+            run.MaxTargets * 2);
+
+        if (selections.Count == 0) return;
+
+        foreach (var selection in selections)
+        {
+            _db.AgentFindings.Add(new AgentFinding
+            {
+                OrganizationId = run.OrganizationId,
+                AgentRunId = run.Id,
+                Kind = AgentFindingKind.RiskArea,
+                Severity = selection.Risk,
+                Title = $"Worth a look: {Truncate(selection.Target, 100)} "
+                      + $"({selection.Dimension.ToString().ToLowerInvariant()})",
+                // The observation verbatim. "Why is this here" is the question somebody asks
+                // about exactly these, because they are the ones nobody asked for.
+                Detail = _masker.MaskText(
+                    $"{selection.Reason} Observed: {selection.Trigger.What} at "
+                    + $"{selection.Trigger.Where}. Expected to establish: {selection.Expectation}"),
+                Recommendation = "This pass had already spent its budget when it saw this, so it "
+                               + "proposes rather than acts. Nothing was generated or run for it.",
+                Confidence = 80,
+                Route = selection.Target,
+                IsAiGenerated = false,
+                CreatedAt = _clock.UtcNow
+            });
+        }
+        await _db.SaveChangesAsync(ct);
+
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.Investigating,
+            $"Observed {observations.Count} distinct error response(s); {selections.Count} "
+            + "argue for something else to be looked at.",
+            "A fixed phase order makes a pass reproducible and also makes it blind. Evidence the "
+            + "run produced can argue for more work — and only for more. Nothing here widens what "
+            + "the policy permits or reaches outside the authorized scope.",
+            new[]
+            {
+                new AgentEvidence("errorResponsesObserved", errors.Count.ToString()),
+                new AgentEvidence("distinctObservations", observations.Count.ToString()),
+                new AgentEvidence("statuses",
+                    string.Join(", ", observations.Select(o => o.HttpStatus).Distinct().OrderBy(s => s))),
+                new AgentEvidence("proposed", selections.Count.ToString()),
+                new AgentEvidence("securityAuthorized", securityAuthorized.ToString()),
+                // The distinction that keeps this from reading as work done.
+                new AgentEvidence("actedOn",
+                    "nothing — this pass had spent its budget by the time it saw these, so each "
+                    + "is a proposal for a person or for the next pass")
+            },
+            Tool: null,
+            Result: $"{selections.Count} proposal(s)"), ct);
+    }
+
+    // ---- Correlate -------------------------------------------------------------
+    //
+    // Seventeen red tests caused by one endpoint returning 500 is one problem, and a list of
+    // seventeen is a worse description of it than a list of one with sixteen underneath.
+    //
+    // The grouping itself is FailureCorrelationModel — a pure function, deterministic, with
+    // rules ordered from strongest evidence to weakest. This method's job is to gather honest
+    // signals for it and to record what came back, including the failures that matched
+    // nothing: a group is a convenience, and a hidden failure is a defect nobody finds out
+    // about.
+
+    private async Task<PhaseOutcome> CorrelateAsync(AgentRun run, PassState state, CancellationToken ct)
+    {
+        if (run.TestRunId is null)
+            return PhaseOutcome.Ok("Nothing to correlate: no verification run was made.");
+
+        var executionIds = await _db.TestExecutions.AsNoTracking()
+            .Where(e => e.TestRunId == run.TestRunId)
+            .Select(e => e.Id)
+            .ToListAsync(ct);
+
+        if (executionIds.Count == 0)
+            return PhaseOutcome.Ok("Nothing to correlate: the run recorded no executions.");
+
+        var failures = await _db.Failures.AsNoTracking()
+            .Where(f => executionIds.Contains(f.TestExecutionId))
+            .Select(f => new
+            {
+                f.Id, f.TestExecutionId, f.TestActionId, f.TestCaseId,
+                f.Category, f.Signature, f.RawMessage
+            })
+            .Take(100)
+            .ToListAsync(ct);
+
+        if (failures.Count < 2)
+        {
+            // Recorded rather than returned silently. A phase that ran and left nothing behind
+            // is indistinguishable from a phase that never ran, and "the pass looked and found
+            // nothing to group" is a different statement from "the pass did not look".
+            await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+                AgentPhase.Correlating,
+                $"Nothing to correlate: {failures.Count} failure(s).",
+                "Correlation groups failures that share a cause. With fewer than two there is "
+                + "nothing to group, which is not the same as having found no common cause.",
+                new[]
+                {
+                    new AgentEvidence("failuresIn", failures.Count.ToString()),
+                    new AgentEvidence("accountedFor", failures.Count.ToString()),
+                    new AgentEvidence("groups", "0"),
+                    new AgentEvidence("ungrouped", failures.Count.ToString()),
+                    new AgentEvidence("executionsExamined", executionIds.Count.ToString())
+                },
+                Tool: "failure.correlate", Result: "nothing to group",
+                Risk: AgentActionRisk.Observation), ct);
+
+            return PhaseOutcome.Ok(
+                failures.Count == 0
+                    ? "Nothing to correlate: every test passed."
+                    : "Nothing to correlate: one failure cannot share a cause with anything.",
+                "Correlation groups failures that share a cause. With fewer than two there is "
+                + "nothing to group, which is not the same as having found no common cause.");
+        }
+
+        var testNames = await _db.TestCases.AsNoTracking()
+            .Where(t => failures.Select(f => f.TestCaseId).Contains(t.Id))
+            .Select(t => new { t.Id, t.Reference, t.Name })
+            .ToDictionaryAsync(t => t.Id, ct);
+
+        // Where the test was when it failed, and what failed underneath it. Both read from
+        // what the execution actually recorded rather than inferred from the test's intent:
+        // a test named after a page proves nothing about where it got to.
+        var actionIds = failures.Where(f => f.TestActionId is not null)
+            .Select(f => f.TestActionId!.Value).Distinct().ToList();
+
+        var actionRoutes = actionIds.Count == 0
+            ? new Dictionary<Guid, string?>()
+            : await _db.TestActions.AsNoTracking()
+                .Where(a => actionIds.Contains(a.Id))
+                .Select(a => new { a.Id, a.Url })
+                .ToDictionaryAsync(a => a.Id, a => a.Url, ct);
+
+        // The failing request observed during the failing action, if the worker saw one. Only
+        // errors: a 200 during a failing step is not the cause of anything.
+        var failingCalls = actionIds.Count == 0
+            ? new List<dynamic>()
+            : (await _db.NetworkEvents.AsNoTracking()
+                .Where(n => n.TestActionId != null && actionIds.Contains(n.TestActionId!.Value)
+                         && n.StatusCode >= 400)
+                .Select(n => new { n.TestActionId, n.Method, n.Url, n.StatusCode })
+                .ToListAsync(ct)).Cast<dynamic>().ToList();
+
+        var signals = failures.Select(failure =>
+        {
+            var call = failure.TestActionId is { } actionId
+                ? failingCalls.FirstOrDefault(c => c.TestActionId == actionId)
+                : null;
+            var route = failure.TestActionId is { } id && actionRoutes.TryGetValue(id, out var url)
+                ? RouteOf(url)
+                : null;
+
+            return new FailureSignal(
+                ExecutionId: failure.TestExecutionId,
+                TestReference: testNames.TryGetValue(failure.TestCaseId, out var test) ? test.Reference : "unknown",
+                TestName: test?.Name ?? "unknown",
+                Route: route,
+                FailingApiCall: call is null ? null : $"{call.Method} {RouteOf((string)call.Url)}",
+                ApiStatusCode: call is null ? null : (int?)call.StatusCode,
+                Classification: failure.Category.ToString(),
+                Signature: failure.Signature,
+                FailedAt: _clock.UtcNow);
+        }).ToList();
+
+        var result = FailureCorrelationModel.Correlate(signals);
+
+        var permitted = await CheckAsync(run, state, "failure.correlate", AgentPhase.Correlating, ct: ct);
+        if (!permitted.Allowed)
+            return PhaseOutcome.Ok("Failures were not correlated.", permitted.Reason);
+
+        // Written once. Correlating is read-only and cheap, so a resumed pass re-runs it, and
+        // a finding recorded twice is counted twice everywhere after.
+        var alreadyRecorded = await _db.AgentFindings
+            .AnyAsync(f => f.AgentRunId == run.Id && f.Title.StartsWith("One cause:"), ct);
+
+        if (!alreadyRecorded)
+        {
+            foreach (var group in result.Groups.Where(g => g.Count > 1))
+            {
+                _db.AgentFindings.Add(new AgentFinding
+                {
+                    OrganizationId = run.OrganizationId,
+                    AgentRunId = run.Id,
+                    Kind = AgentFindingKind.Observation,
+                    // The size of the group is the severity signal. One endpoint breaking
+                    // seventeen tests is worth reading before seventeen separate failures.
+                    Severity = group.Count >= 5 ? RiskLevel.High : RiskLevel.Medium,
+                    Title = $"One cause: {Truncate(group.PrimaryFailure, 120)}",
+                    Detail = _masker.MaskText(
+                        $"{group.Why} Affects {group.Count} failure(s) across "
+                        + $"{group.AffectedTests.Count} test(s)"
+                        + (group.AffectedRoutes.Count > 0
+                            ? $", {string.Join(", ", group.AffectedRoutes.Take(5))}" : string.Empty)
+                        + (group.AffectedApiCalls.Count > 0
+                            ? $". Failing call(s): {string.Join(", ", group.AffectedApiCalls.Take(5))}"
+                            : string.Empty)),
+                    Recommendation = "Look at this one thing before the failures underneath it. "
+                                   + "The agent has grouped them; it has not decided they are the same bug.",
+                    Confidence = group.Confidence,
+                    Route = group.AffectedRoutes.FirstOrDefault(),
+                    IsAiGenerated = false,
+                    CreatedAt = _clock.UtcNow
+                });
+            }
+            await _db.SaveChangesAsync(ct);
+        }
+
+        await _journal.RecordAsync(run.Id, new AgentDecisionRecord(
+            AgentPhase.Correlating,
+            $"Grouped {failures.Count} failure(s) into {result.Groups.Count} cause(s), "
+            + $"{result.Ungrouped.Count} ungrouped.",
+            result.Summary,
+            new[]
+            {
+                new AgentEvidence("failuresIn", failures.Count.ToString()),
+                new AgentEvidence("groups", result.Groups.Count.ToString()),
+                // Named because a hidden failure is the one defect this phase could introduce.
+                // The two numbers must add up to the first, and a reader can check.
+                new AgentEvidence("ungrouped", result.Ungrouped.Count.ToString()),
+                new AgentEvidence("accountedFor", result.TotalFailures.ToString()),
+                new AgentEvidence("largestGroup",
+                    result.Groups.Count == 0 ? "0" : result.Groups.Max(g => g.Count).ToString()),
+                new AgentEvidence("confidences",
+                    result.Groups.Count == 0
+                        ? "none" : string.Join(", ", result.Groups.Select(g => $"{g.Confidence}%")))
+            },
+            Tool: "failure.correlate",
+            Result: $"{result.Groups.Count} group(s)",
+            Risk: AgentActionRisk.Observation), ct);
+
+        return PhaseOutcome.Ok(
+            $"Grouped {failures.Count} failure(s) into {result.Groups.Count} likely cause(s); "
+            + $"{result.Ungrouped.Count} matched nothing.",
+            "Every failure appears somewhere — inside a group or in the ungrouped list. A group "
+            + "is the agent's reading of what they share, not a decision that they are one bug.",
+            result.Summary);
+    }
+
+    /// <summary>The path of a URL, or the string unchanged when it is not one.</summary>
+    private static string? RouteOf(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return null;
+        return Uri.TryCreate(url, UriKind.Absolute, out var absolute) ? absolute.AbsolutePath : url;
+    }
+
     // ---- Propose ----------------------------------------------------------------------
 
     private async Task<PhaseOutcome> ProposeAsync(AgentRun run, PassState state, CancellationToken ct)
     {
         await AddRegressionFindingsAsync(run, ct);
+
+        // What this pass saw that might deserve a permanent place. Proposed, never created.
+        await ProposePromotionsAsync(run, state, ct);
 
         var findings = await _db.AgentFindings.AsNoTracking()
             .Where(f => f.AgentRunId == run.Id)
@@ -1867,6 +2776,20 @@ public sealed class AgentLoop : IAgentLoop
         lines.Add(findings.Count == 0
             ? "Nothing needs attention."
             : $"{findings.Count} proposal(s) for review: {string.Join(", ", bySeverity)}.");
+
+        // ---- What this pass is allowed to say about the release -------------------
+        //
+        // AutonomousAssessmentModel produces facts, a configured gate's verdict and blocking
+        // factors by name. Deliberately no overall score: a single number is the thing
+        // everybody reads and nobody can act on, and an AI-generated one launders measured
+        // facts and unmeasured ones together into a figure that cannot be checked.
+        //
+        // The verdict that earns its place is NotAssessed. A pass where almost nothing ran has
+        // not found a clean release; it has found nothing, and every other verdict would read
+        // as a statement about the application rather than about the pass.
+        var assessment = await AssessAsync(run, state, findings, ct);
+
+        lines.Add($"Release assessment: {assessment.Verdict}. {assessment.Summary}");
 
         lines.Add("Everything above is a proposal. The agent did not raise a defect, change a test, "
             + "approve a healing proposal or alter a quality gate — it has no authority to do any of those.");

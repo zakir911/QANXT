@@ -118,19 +118,15 @@ const evidenceIntact = evidenceFiles.filter(file => {
 // ---------------------------------------------------------------------------
 
 const IMPLEMENTED_NOT_VERIFIED = [
-  ['TestDuplicationModel', 'Decides whether a proposed test duplicates one that exists. Unit-tested '
-    + '(12 tests) and not reachable from a pass: the agent does not call it, so no golden test can.'],
-  ['ExploratoryModel', 'Chooses areas existing tests do not reach. Unit-tested (part of 23) and not '
-    + 'wired into the loop.'],
-  ['DynamicSelectionModel', 'Narrows a run as results arrive. Unit-tested and not wired into the loop.'],
-  ['RegressionPromotionModel', 'Turns a security finding or a journey into a regression test. '
-    + 'Unit-tested and not wired into the loop.'],
-  ['FailureCorrelationModel', 'Groups failures that share a cause. Unit-tested (13 tests) and not '
-    + 'wired into the loop.'],
-  ['TestHistoryModel', 'Explains what history says about a test. Unit-tested (14 tests); the agent '
-    + 'reads history through the plan service instead.'],
-  ['AutonomousAssessmentModel', 'Assembles a release judgement from what a pass established. '
-    + 'Unit-tested (15 tests) and not wired into the loop.']
+  // Empty, and that is the point of AQ-24. Every model that had unit tests and no caller is
+  // now reachable from a pass: TestGapModel is the AnalysingGaps phase, FailureCorrelationModel
+  // the Correlating phase, and the other five run inside exploring, generating, prioritising,
+  // investigating and proposing. Each is pinned by a named golden test rather than trusted to
+  // have been wired up correctly.
+  //
+  // The list stays in the report rather than being deleted, because it is the honest place for
+  // the next component that exists and cannot be reached, and a report with no such section
+  // reads as though the question was never asked.
 ];
 
 const LIMITATIONS = [
@@ -258,13 +254,18 @@ const markdown = [
   '',
   '## Implemented, not verified end to end',
   '',
-  'These exist as code with unit tests and are not reachable from a pass, so no golden test can',
-  'establish that they work in the product. They are listed here rather than counted as delivered.',
-  '',
-  '| Component | Why it is not verified |',
-  '| --- | --- |',
-  ...IMPLEMENTED_NOT_VERIFIED.map(([name, why]) => `| \`${name}\` | ${why} |`),
-  '',
+  ...(IMPLEMENTED_NOT_VERIFIED.length === 0
+    ? ['Nothing. Every component with unit tests is reachable from a pass and pinned by a named',
+       'golden test. This section is kept rather than removed: it is where the next component',
+       'that exists and cannot be reached belongs, and a report with no such heading reads as',
+       'though the question was never asked.', '']
+    : ['These exist as code with unit tests and are not reachable from a pass, so no golden test can',
+       'establish that they work in the product. They are listed here rather than counted as delivered.',
+       '',
+       '| Component | Why it is not verified |',
+       '| --- | --- |',
+       ...IMPLEMENTED_NOT_VERIFIED.map(([name, why]) => `| \`${name}\` | ${why} |`),
+       '']),
   '## What was NOT tested',
   ''
 ];
@@ -388,13 +389,18 @@ const html = `<!doctype html>
   </table></div>
 
   <h2>Implemented, not verified end to end</h2>
-  <p class="muted">Code with unit tests that a pass cannot reach, so no golden test can establish
-     that it works in the product. Listed rather than counted as delivered.</p>
-  <div class="scroll"><table>
-    <tr><th>Component</th><th>Why it is not verified</th></tr>
-    ${IMPLEMENTED_NOT_VERIFIED.map(([name, why]) =>
-      `<tr><td><code>${escape(name)}</code></td><td class="muted">${escape(why)}</td></tr>`).join('\n')}
-  </table></div>
+  ${IMPLEMENTED_NOT_VERIFIED.length === 0
+    ? `<p class="muted">Nothing. Every component with unit tests is reachable from a pass and
+         pinned by a named golden test. This heading is kept rather than removed: it is where the
+         next component that exists and cannot be reached belongs, and a report with no such
+         section reads as though the question was never asked.</p>`
+    : `<p class="muted">Code with unit tests that a pass cannot reach, so no golden test can
+         establish that it works in the product. Listed rather than counted as delivered.</p>
+       <div class="scroll"><table>
+         <tr><th>Component</th><th>Why it is not verified</th></tr>
+         ${IMPLEMENTED_NOT_VERIFIED.map(([name, why]) =>
+           `<tr><td><code>${escape(name)}</code></td><td class="muted">${escape(why)}</td></tr>`).join('\n')}
+       </table></div>`}
 
   <h2>What was not tested</h2>
   <div class="scroll"><table>

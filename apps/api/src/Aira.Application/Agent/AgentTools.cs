@@ -181,6 +181,14 @@ public static class AgentToolRegistry
                    ("unknown", "Pairs the platform could not decide either way.")),
             AgentActionRisk.Observation, Permissions.TestRead, Anywhere, AuditRequired: true),
 
+        // Reading only. It groups failures the platform already recorded; it decides nothing
+        // about them and raises no defect.
+        new("failure.correlate", "Group failures that appear to share one cause.",
+            Fields(("testRunId", "The run whose failures to group.")),
+            Fields(("groups", "Causes, each with the failures underneath it and a confidence."),
+                   ("ungrouped", "Failures that matched nothing. Listed, never hidden.")),
+            AgentActionRisk.Observation, Permissions.TestRead, Anywhere, AuditRequired: true),
+
         new("test.generate", "Create test cases for an area that lacks coverage.",
             Fields(("target", "The page, endpoint or journey."), ("kind", "ui | api | security")),
             Fields(("testCaseIds", "What was created."), ("skippedAsDuplicate", "What was not, and why.")),
