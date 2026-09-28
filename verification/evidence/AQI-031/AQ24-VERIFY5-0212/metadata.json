@@ -1,0 +1,32 @@
+{
+  "testId": "AQI-031",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY5-0212",
+  "objective": "Every plan in both passes named what it does not cover",
+  "preconditions": [
+    "two passes have run over the same application"
+  ],
+  "input": "the recorded passes",
+  "expected": "Neither plan is silent about its gaps",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 silent plans",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:14:45.628Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "7bd8b6c",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "passes.json",
+      "path": "evidence/AQI-031/AQ24-VERIFY5-0212/passes.json",
+      "bytes": 2309,
+      "sha256": "b51fe61376f2c7b6054ac11baa6e53d4718d3aa0d399c7a37c9409a029c2d39c"
+    }
+  ]
+}

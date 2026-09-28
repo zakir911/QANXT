@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-064",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY3-0208",
+  "objective": "No failure disappears into a group",
+  "preconditions": [
+    "a pass has run end to end over an application"
+  ],
+  "input": "agent run 6cca03af-033f-4e7f-a0ca-926fd669db4f",
+  "expected": "The grouped and ungrouped counts account for every failure that went in",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 in, 1 accounted for",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:10:07.761Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "05f9bde",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQI-064/AQ24-VERIFY3-0208/decisions.json",
+      "bytes": 18465,
+      "sha256": "abd714285a705dbd0d6eb7f03c9d1cfc9fec33d02ca64397bc5a81e58e2f56c9"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/AQI-064/AQ24-VERIFY3-0208/findings.json",
+      "bytes": 23595,
+      "sha256": "62f37e8a0e7511867a6bb378ed4f73501c003a0133aafad10dd7c56c55c7f2e9"
+    }
+  ]
+}

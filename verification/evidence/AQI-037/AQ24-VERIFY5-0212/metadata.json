@@ -1,0 +1,32 @@
+{
+  "testId": "AQI-037",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY5-0212",
+  "objective": "A release assessment for a build nobody tested is refused",
+  "preconditions": [
+    "a pass has run and its tests have executed"
+  ],
+  "input": "agent run 23ced00f-be28-42fe-8ffe-f5c867a762ec",
+  "expected": "An unknown build reference is a 404 rather than a report of zeros",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "404",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:14:45.602Z",
+  "durationMs": 6,
+  "build": {
+    "commit": "7bd8b6c",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "release.json",
+      "path": "evidence/AQI-037/AQ24-VERIFY5-0212/release.json",
+      "bytes": 197,
+      "sha256": "017d6f05de14b82062403bef726ea1340fe207cdf8ed908404905a0f06566e1d"
+    }
+  ]
+}

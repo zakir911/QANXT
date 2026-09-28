@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-075",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY5-0212",
+  "objective": "A pass that measured almost nothing does not report a clear release",
+  "preconditions": [
+    "a pass has run end to end over an application"
+  ],
+  "input": "agent run 23ced00f-be28-42fe-8ffe-f5c867a762ec",
+  "expected": "The verdict is never Clear when the untested list carries the areas a pass cannot assess",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "verdict NeedsReview, untested: Accessibility — a pass does not assess it; the platform tests it elsewhere.; Visual appearance — a pass does n",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:14:45.649Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "7bd8b6c",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQI-075/AQ24-VERIFY5-0212/decisions.json",
+      "bytes": 18463,
+      "sha256": "56ac705cdd2b398190cd91fc76ed68d8947e694324944003d1e60b37daba5218"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/AQI-075/AQ24-VERIFY5-0212/findings.json",
+      "bytes": 23595,
+      "sha256": "7ec78cb84e5391cb06e8f7a6b414aececfea613d4eb758c40476ad4f7a9a684c"
+    }
+  ]
+}

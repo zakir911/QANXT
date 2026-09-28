@@ -1,0 +1,389 @@
+[
+  {
+    "id": "75dcb3a1-fb71-46c0-97e8-305ab2b62cbe",
+    "sequence": 1,
+    "phase": "prioritizing",
+    "summary": "Left 1 page(s) alone because a person excluded them.",
+    "reason": "An exclusion is honoured absolutely rather than weighed against a risk score. Somebody who writes 'never touch this' is not expressing a preference that a high enough number can outvote.",
+    "evidence": [
+      {
+        "name": "excludedRoutes",
+        "value": "/statements"
+      },
+      {
+        "name": "exclusionsAsWritten",
+        "value": "/statements"
+      },
+      {
+        "name": "pagesRemaining",
+        "value": "10"
+      }
+    ],
+    "result": "10 page(s) remain in scope for this pass.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T02:01:18.99678+00:00"
+  },
+  {
+    "id": "a6d2e33c-16c9-4c4e-bd78-e18b87a3453e",
+    "sequence": 2,
+    "phase": "analysingGaps",
+    "tool": "coverage.analyse",
+    "summary": "Assessed 24 capability(ies): 24 uncovered, 44 unknown.",
+    "reason": "24 capability(ies) assessed across 68 applicable dimension(s): 0 covered, 0 partial, 24 not covered, 44 unknown. 3 of the capabilities with gaps were called business-critical by a person. Coverage is measured against what discovery reached; anything it did not reach is absent from this report rather than covered by it.",
+    "evidence": [
+      {
+        "name": "capabilities",
+        "value": "24"
+      },
+      {
+        "name": "covered",
+        "value": "0"
+      },
+      {
+        "name": "partiallyCovered",
+        "value": "0"
+      },
+      {
+        "name": "notCovered",
+        "value": "24"
+      },
+      {
+        "name": "unknown",
+        "value": "44"
+      },
+      {
+        "name": "businessCriticalWithGaps",
+        "value": "3"
+      },
+      {
+        "name": "namedAreasMatchingNothingDiscoveryReached",
+        "value": "authentication"
+      },
+      {
+        "name": "measuredAgainst",
+        "value": "10 page(s) and 14 endpoint(s) discovery reached"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "/statements"
+      }
+    ],
+    "result": "24 gap(s)",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T02:01:19.147585+00:00"
+  },
+  {
+    "id": "df920485-3f24-47af-9bbd-eb4bf3b26347",
+    "sequence": 3,
+    "phase": "planning",
+    "summary": "Proposed 114 test(s) across 6 category(ies).",
+    "reason": "114 test(s) across 6 category(ies) for \"Release validation\", 37 of which do not exist yet. Roughly 36 minute(s) — an estimate from defaults, because this application has no execution history yet. 4 area(s) are explicitly not covered; they are listed rather than left to be inferred from absence.",
+    "evidence": [
+      {
+        "name": "pagesPlannable",
+        "value": "10"
+      },
+      {
+        "name": "endpointsDiscovered",
+        "value": "14"
+      },
+      {
+        "name": "journeysKnown",
+        "value": "0"
+      },
+      {
+        "name": "securityAuthorized",
+        "value": "True"
+      },
+      {
+        "name": "openSecurityFindings",
+        "value": "0"
+      },
+      {
+        "name": "criticalAreasNamedByAPerson",
+        "value": "payment, login, authentication"
+      },
+      {
+        "name": "excludedByAPerson",
+        "value": "/statements"
+      }
+    ],
+    "result": "114 test(s) proposed.",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T02:01:19.18092+00:00"
+  },
+  {
+    "id": "836f8223-90f2-4f3a-a6bd-c42382a3f100",
+    "sequence": 4,
+    "phase": "planning",
+    "summary": "The plan was approved by ag***@example.test.",
+    "reason": "First pass.",
+    "evidence": [
+      {
+        "name": "decidedBy",
+        "value": "ag***@example.test"
+      },
+      {
+        "name": "categoriesIncluded",
+        "value": "CriticalJourney, Smoke, Visual, Api, Security, Accessibility"
+      },
+      {
+        "name": "categoriesExcluded",
+        "value": "none"
+      },
+      {
+        "name": "testsPlanned",
+        "value": "114"
+      }
+    ],
+    "result": "Approved",
+    "allowed": true,
+    "actorUserId": "1eb6708b-6310-49d2-8a65-059151dc0f68",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T02:01:21.567538+00:00"
+  },
+  {
+    "id": "e2691af2-5183-4867-992d-76fd327c112c",
+    "sequence": 5,
+    "phase": "generating",
+    "tool": "test.generate",
+    "summary": "Generated 8 API test(s) for 8 endpoint(s).",
+    "reason": "Endpoints discovered by the crawl, minus anything a person excluded. Mutating requests were left out.",
+    "evidence": [
+      {
+        "name": "endpointsConsidered",
+        "value": "14"
+      },
+      {
+        "name": "endpointsSelected",
+        "value": "8"
+      },
+      {
+        "name": "endpointsExcludedByAPerson",
+        "value": "none"
+      },
+      {
+        "name": "mutatingIncluded",
+        "value": "False"
+      },
+      {
+        "name": "trimmedToBudget",
+        "value": "yes — 14 endpoint(s) discovered, 8 within the run's remaining budget of 8"
+      }
+    ],
+    "result": "8 API test(s)",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T02:01:24.637631+00:00"
+  },
+  {
+    "id": "bc409957-b586-4dac-a713-52ca0f2482c0",
+    "sequence": 6,
+    "phase": "securityTesting",
+    "tool": "security.scan",
+    "summary": "Wanted to use security.scan.",
+    "reason": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission → environment → risk → security → creation-budget"
+      },
+      {
+        "name": "deniedAt",
+        "value": "ApprovalRequired"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "ApprovalRequired",
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T02:01:24.659128+00:00"
+  },
+  {
+    "id": "6578b96d-1e54-459b-bdc2-22adfbf822e5",
+    "sequence": 7,
+    "phase": "securityTesting",
+    "tool": "security.scan",
+    "summary": "Queued security scan SCAN-20260928-15066C.",
+    "reason": "The application carries an enabled scope and the plan included security testing. The engine decides what may be sent; this pass only asked.",
+    "evidence": [
+      {
+        "name": "securityScanId",
+        "value": "89eb728e-c98f-4aa2-a499-f5e113f3de23"
+      },
+      {
+        "name": "profile",
+        "value": "standard"
+      },
+      {
+        "name": "checksConfigured",
+        "value": "27"
+      },
+      {
+        "name": "targets",
+        "value": "25"
+      }
+    ],
+    "result": "Queued as SCAN-20260928-15066C.",
+    "allowed": true,
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T02:01:29.797816+00:00"
+  },
+  {
+    "id": "67912656-ebdb-4c22-8026-c768c6e82053",
+    "sequence": 8,
+    "phase": "executing",
+    "tool": "test.execute",
+    "summary": "Wanted to use test.execute.",
+    "reason": "'test.execute' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "evidence": [
+      {
+        "name": "policyRungsPassed",
+        "value": "tool → cancellation → budget → permission → environment → risk → security → creation-budget"
+      },
+      {
+        "name": "deniedAt",
+        "value": "ApprovalRequired"
+      }
+    ],
+    "result": "Not performed.",
+    "allowed": false,
+    "denial": "ApprovalRequired",
+    "risk": "StateChanging",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T02:01:29.813323+00:00"
+  },
+  {
+    "id": "4ac67592-0518-4ab8-836d-79b26caa4bb4",
+    "sequence": 9,
+    "phase": "executing",
+    "tool": "test.execute",
+    "summary": "Started a verification run against build golden-muklpptl.",
+    "reason": "The build reference travels with the run, so the release assessment for this build includes what this pass executed.",
+    "evidence": [
+      {
+        "name": "testRunId",
+        "value": "1474e6b0-58c0-4198-9fcd-e4ff3c97720d"
+      },
+      {
+        "name": "buildRef",
+        "value": "golden-muklpptl"
+      },
+      {
+        "name": "testsQueued",
+        "value": "10"
+      }
+    ],
+    "result": "started",
+    "allowed": true,
+    "risk": "Interaction",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T02:01:35.120428+00:00"
+  },
+  {
+    "id": "8f6dabb8-ca85-4b1f-86d2-ec17c73b47c4",
+    "sequence": 10,
+    "phase": "investigating",
+    "summary": "Observed 4 distinct error response(s); 4 argue for something else to be looked at.",
+    "reason": "A fixed phase order makes a pass reproducible and also makes it blind. Evidence the run produced can argue for more work — and only for more. Nothing here widens what the policy permits or reaches outside the authorized scope.",
+    "evidence": [
+      {
+        "name": "errorResponsesObserved",
+        "value": "10"
+      },
+      {
+        "name": "distinctObservations",
+        "value": "4"
+      },
+      {
+        "name": "statuses",
+        "value": "401"
+      },
+      {
+        "name": "proposed",
+        "value": "4"
+      },
+      {
+        "name": "securityAuthorized",
+        "value": "True"
+      },
+      {
+        "name": "actedOn",
+        "value": "nothing — this pass had spent its budget by the time it saw these, so each is a proposal for a person or for the next pass"
+      }
+    ],
+    "result": "4 proposal(s)",
+    "allowed": true,
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T02:01:56.179872+00:00"
+  },
+  {
+    "id": "d37290dd-1695-4534-b076-1a01cb989504",
+    "sequence": 11,
+    "phase": "proposing",
+    "tool": "report.generate",
+    "summary": "Release assessment: NeedsReview.",
+    "reason": "NEEDS REVIEW. 10 test(s) executed. 1 test(s) failed. No security scan covers this pass. Nothing here blocks on its own; a person decides.",
+    "evidence": [
+      {
+        "name": "verdict",
+        "value": "NeedsReview"
+      },
+      {
+        "name": "functional",
+        "value": "2/2 passed"
+      },
+      {
+        "name": "api",
+        "value": "7/8 passed"
+      },
+      {
+        "name": "securityScanned",
+        "value": "False"
+      },
+      {
+        "name": "criticalJourneysFailed",
+        "value": "0"
+      },
+      {
+        "name": "gate",
+        "value": "True"
+      },
+      {
+        "name": "blockingFactors",
+        "value": "none"
+      },
+      {
+        "name": "untestedAreas",
+        "value": "Accessibility — a pass does not assess it; the platform tests it elsewhere.; Visual appearance — a pass does not assess it; the platform tests it elsewhere.; Security — no scan was run by this pass.; 1 area(s) a person excluded: /statements"
+      },
+      {
+        "name": "overallScore",
+        "value": "none — deliberately. A single number is the thing everybody reads and nobody can act on, and it cannot be checked."
+      }
+    ],
+    "result": "NeedsReview",
+    "allowed": true,
+    "risk": "Observation",
+    "modelContributed": false,
+    "aiCostUsd": 0,
+    "occurredAt": "2026-09-28T02:01:56.215885+00:00"
+  }
+]

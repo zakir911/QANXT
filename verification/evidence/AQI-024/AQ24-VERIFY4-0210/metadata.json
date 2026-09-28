@@ -1,0 +1,50 @@
+{
+  "testId": "AQI-024",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY4-0210",
+  "objective": "Every finding points somewhere a person can go and look",
+  "preconditions": [
+    "two autonomous passes have run over the same application"
+  ],
+  "input": "agent runs 61a17ce9-65e6-4006-b220-2b6cc6351a9b and 8b4dba95-3637-4bf6-9c0a-783b9be49b4e",
+  "expected": "Each finding carries a route, or the test case and execution it came from",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "39 finding(s): 39 by route, 0 by execution, 0 pointing nowhere",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:12:22.467Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "05f9bde",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "first.json",
+      "path": "evidence/AQI-024/AQ24-VERIFY4-0210/first.json",
+      "bytes": 1391,
+      "sha256": "7152f6f63aa2d40439592752ee137ab32c1c6273f4695a0a9ea7449e67e21b03"
+    },
+    {
+      "file": "second.json",
+      "path": "evidence/AQI-024/AQ24-VERIFY4-0210/second.json",
+      "bytes": 757,
+      "sha256": "6f931031f4f1f8676bbfa5bf35ecd552b4aef9ac6821db430d5c49378c9a119c"
+    },
+    {
+      "file": "first-plan.json",
+      "path": "evidence/AQI-024/AQ24-VERIFY4-0210/first-plan.json",
+      "bytes": 4850,
+      "sha256": "1608c688e97b3f1ddc83d61941bff349be263207b70af37487cae9a271797a3b"
+    },
+    {
+      "file": "second-plan.json",
+      "path": "evidence/AQI-024/AQ24-VERIFY4-0210/second-plan.json",
+      "bytes": 4695,
+      "sha256": "929dc99f373f15ed675f90b05436fd7059d4d46e3621c0c6d32ffb25d1af0694"
+    }
+  ]
+}

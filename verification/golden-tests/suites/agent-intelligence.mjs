@@ -852,32 +852,39 @@ async function wiredModelClaims(world, firstPass) {
 
   // ---- Promotion (§25, §26) ------------------------------------------------------------
 
-  const promotion = find(/Assessed \d+ candidate\(s\) for the permanent suite/);
+  // Both summaries. The regex previously matched only the non-empty one, so on an application
+  // with no candidates these four claims fell through to their own "nothing to assess" branch
+  // and passed without ever reading a decision — which is the failure mode this whole suite
+  // exists to catch, committed by the tests themselves.
+  const promotion = find(/Assessed \d+ candidate\(s\) for the permanent suite|No candidate for the permanent suite/);
 
   await claim('AQI-065', 'A pass says what might deserve a permanent place in the suite',
-    'A decision records the candidates it weighed',
+    'A decision records the candidates it weighed, or that there were none',
     () => ({
-      pass: promotion !== null || (firstPass.findings ?? []).length >= 0,
-      detail: promotion?.summary ?? 'no candidates existed for this application'
-    }), 'medium');
+      // No escape hatch. "No candidate" is itself a recorded decision, so the absence of any
+      // decision here means the phase did not run — which is the thing worth failing on.
+      pass: promotion !== null,
+      detail: promotion?.summary ?? 'no promotion decision was recorded at all'
+    }), 'critical');
 
   await claim('AQI-066', 'Nothing is promoted without somebody',
     'The decision states that no test was created',
     () => {
-      if (!promotion) return { pass: true, detail: 'no candidates, so nothing to promote' };
       const created = evidenceValue(promotion, 'testsCreated');
       return {
         pass: Boolean(created) && /none/i.test(created),
-        detail: created ?? 'the decision does not say whether a test was created'
+        detail: created ?? 'no decision, or it does not say whether a test was created'
       };
     }, 'critical');
 
   await claim('AQI-067', 'A candidate below the bar is named rather than dropped',
     'The decision lists what did not qualify and why',
     () => {
-      if (!promotion) return { pass: true, detail: 'no candidates existed' };
       const below = evidenceValue(promotion, 'belowTheBar');
-      return { pass: below !== null, detail: String(below).slice(0, 150) };
+      return {
+        pass: below !== null,
+        detail: below === null ? 'not recorded' : String(below).slice(0, 150)
+      };
     });
 
   await claim('AQI-068', 'A limit the platform cannot meet is stated, not worked around',
@@ -885,8 +892,8 @@ async function wiredModelClaims(world, firstPass) {
     () => {
       // The platform records that a journey was observed, not how many times, and the bar is
       // three observations. That is a gap worth naming: without it a reader concludes no
-      // journey was worth keeping.
-      if (!promotion) return { pass: true, detail: 'no candidates existed' };
+      // journey was worth keeping. Asserted whether or not there were candidates, because the
+      // limitation is a property of the platform rather than of this pass.
       const note = evidenceValue(promotion, 'journeyPromotionLimitation');
       return {
         pass: Boolean(note) && /not how many times|does not/i.test(note),
@@ -899,20 +906,22 @@ async function wiredModelClaims(world, firstPass) {
   const dynamic = find(/Observed \d+ distinct error response\(s\)/);
 
   await claim('AQI-069', 'What the run saw can argue for looking somewhere else',
-    'Either a reaction was recorded, or the run produced no error responses to react to',
+    'A reaction is recorded when the run produced error responses',
     () => ({
-      pass: true,
-      detail: dynamic?.summary ?? 'the run observed no error responses, so nothing argued for more'
-    }), 'medium');
+      // This one legitimately depends on the application under test producing an error
+      // response, which the golden lab does. Asserting the decision exists is therefore a real
+      // claim here, not a pass-on-absence.
+      pass: dynamic !== null,
+      detail: dynamic?.summary ?? 'the run observed no error responses at all'
+    }), 'high');
 
   await claim('AQI-070', 'A reaction to evidence proposes rather than acts',
     'The decision states that nothing was generated or run for it',
     () => {
-      if (!dynamic) return { pass: true, detail: 'no error responses were observed' };
       const acted = evidenceValue(dynamic, 'actedOn');
       return {
         pass: Boolean(acted) && /nothing/i.test(acted),
-        detail: acted ?? 'the decision does not say whether it acted'
+        detail: acted ?? 'no decision, or it does not say whether it acted'
       };
     }, 'critical');
 

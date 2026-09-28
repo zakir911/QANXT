@@ -1,0 +1,24 @@
+[
+  {
+    "id": "4cff39f9-1355-4e2e-90b0-1171b0836737",
+    "tool": "security.scan",
+    "reason": "'security.scan' is StateChanging and this run requires a person to approve actions at that level. The agent proposes it; it does not perform it.",
+    "proposal": "Scan 6 page(s) of this application within its authorized scope.",
+    "evidence": [
+      {
+        "name": "pagesDiscovered",
+        "value": "6"
+      },
+      {
+        "name": "scopeAuthorized",
+        "value": "yes — checked before planning"
+      }
+    ],
+    "risk": "StateChanging",
+    "expectedImpact": "Requests within the scope's rate limits. No destructive checks; production is not permitted for an unattended pass.",
+    "status": "refused",
+    "decidedByEmail": "agentrefused-76a7byed02@example.test",
+    "justification": "Refused by the golden suite to exercise the refusal path.",
+    "decidedAt": "2026-09-28T02:01:00.239897+00:00"
+  }
+]

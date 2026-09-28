@@ -1,0 +1,32 @@
+{
+  "testId": "AQI-026",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY-0159",
+  "objective": "A release assessment covers the run the pass started",
+  "preconditions": [
+    "a pass has run and its tests have executed"
+  ],
+  "input": "agent run a9310bf8-a79a-4a4e-91d5-32272465bc8c",
+  "expected": "The release report for the build the pass named includes the pass's own run",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "build golden-muklpptl, 1 run(s), 10 test(s)",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:02:49.469Z",
+  "durationMs": 125,
+  "build": {
+    "commit": "a2d1b05",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "release.json",
+      "path": "evidence/AQI-026/AQ24-VERIFY-0159/release.json",
+      "bytes": 41255,
+      "sha256": "763690af562a14bbdd0379f43f5e252fca6fbfdb432546e25a98cfa2b5df061b"
+    }
+  ]
+}

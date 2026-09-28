@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-045",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY5-0212",
+  "objective": "An area a person excluded is absent from the coverage assessment",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run 23ced00f-be28-42fe-8ffe-f5c867a762ec",
+  "expected": "No capability names the excluded route",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 excluded capability(ies) assessed",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:14:45.633Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "7bd8b6c",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-045/AQ24-VERIFY5-0212/coverage-decision.json",
+      "bytes": 1391,
+      "sha256": "d9051f3b3868b54e7234e9808d4e854731d99d0fcad96760b44e2fdee4bb7009"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-045/AQ24-VERIFY5-0212/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "4e629867953a357a72bc318e7361e68006a55a5ada4926c0f2eb77bd031a3368"
+    }
+  ]
+}

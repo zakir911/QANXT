@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-062",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY5-0212",
+  "objective": "Tests left out are reported as a bound rather than a judgement",
+  "preconditions": [
+    "a pass has run end to end over an application"
+  ],
+  "input": "agent run 23ced00f-be28-42fe-8ffe-f5c867a762ec",
+  "expected": "The decision explains why each was left out, rather than giving a bare count",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "none — there were no existing tests to consider",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:14:45.642Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "7bd8b6c",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQI-062/AQ24-VERIFY5-0212/decisions.json",
+      "bytes": 18463,
+      "sha256": "56ac705cdd2b398190cd91fc76ed68d8947e694324944003d1e60b37daba5218"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/AQI-062/AQ24-VERIFY5-0212/findings.json",
+      "bytes": 23595,
+      "sha256": "7ec78cb84e5391cb06e8f7a6b414aececfea613d4eb758c40476ad4f7a9a684c"
+    }
+  ]
+}

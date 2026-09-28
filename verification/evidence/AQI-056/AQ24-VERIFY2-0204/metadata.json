@@ -1,0 +1,32 @@
+{
+  "testId": "AQI-056",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY2-0204",
+  "objective": "A scan the pass queued counts towards its own release assessment",
+  "preconditions": [
+    "a pass has run and its tests have executed"
+  ],
+  "input": "agent run b8098d24-6d4e-4d46-b03d-1ac68e6b6341",
+  "expected": "The security section of the build the pass tested is not NOT SCANNED",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "scanned true, 1 scan(s) cover build golden-mukltzvc; verdict needsReview",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:06:09.998Z",
+  "durationMs": 16,
+  "build": {
+    "commit": "c71331c",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "release.json",
+      "path": "evidence/AQI-056/AQ24-VERIFY2-0204/release.json",
+      "bytes": 40657,
+      "sha256": "dc16138df2cd2ff56c19be2e7777e0d59ddbd5ea2710561ac9a521c6317ffaf9"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-060",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY-0159",
+  "objective": "What to re-run is chosen from each test's own history",
+  "preconditions": [
+    "a pass has run end to end over an application"
+  ],
+  "input": "agent run a9310bf8-a79a-4a4e-91d5-32272465bc8c",
+  "expected": "A decision records the selection, or says why nothing was selected",
+  "severity": "high",
+  "result": "FAIL",
+  "detail": "no selection decision",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:02:49.679Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "a2d1b05",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQI-060/AQ24-VERIFY-0159/decisions.json",
+      "bytes": 11523,
+      "sha256": "8ee9e5c84a3d191eac4d9f3cdfddcf8d5f303ead7f86d11b06fc01c11d68591c"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/AQI-060/AQ24-VERIFY-0159/findings.json",
+      "bytes": 23595,
+      "sha256": "6cca10ff333593e5b8f83c22d1ba458ff8c81eee3a9dbbbbd0adf13b2d8a450a"
+    }
+  ]
+}

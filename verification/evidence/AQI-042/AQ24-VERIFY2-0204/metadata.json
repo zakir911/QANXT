@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-042",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY2-0204",
+  "objective": "Unknown coverage is counted separately from uncovered",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run b8098d24-6d4e-4d46-b03d-1ac68e6b6341",
+  "expected": "The unknown count is its own number, not folded into the gaps",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "24 uncovered, 44 unknown",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:06:10.025Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c71331c",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-042/AQ24-VERIFY2-0204/coverage-decision.json",
+      "bytes": 1391,
+      "sha256": "e630046bbeb952f4d628938218af0333ab1d3f8fd6d13d68c3654359a13c27d1"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-042/AQ24-VERIFY2-0204/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "04a67878e198b5b5408f8e3a8c98d8b89903f3499feb4a83c972031044a56ad0"
+    }
+  ]
+}

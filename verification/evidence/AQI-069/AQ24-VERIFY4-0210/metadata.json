@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-069",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ24-VERIFY4-0210",
+  "objective": "What the run saw can argue for looking somewhere else",
+  "preconditions": [
+    "a pass has run end to end over an application"
+  ],
+  "input": "agent run 61a17ce9-65e6-4006-b220-2b6cc6351a9b",
+  "expected": "Either a reaction was recorded, or the run produced no error responses to react to",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "Observed 5 distinct error response(s); 5 argue for something else to be looked at.",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:12:22.557Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "05f9bde",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": true
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQI-069/AQ24-VERIFY4-0210/decisions.json",
+      "bytes": 18445,
+      "sha256": "a0a5260e5b77ee58e398f8b7d39bf0f43624a6eb65803678b612837bf6153d34"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/AQI-069/AQ24-VERIFY4-0210/findings.json",
+      "bytes": 23590,
+      "sha256": "b1a8c8382c25f25564c32d81b7a6dbb35ef178dd3fcd32ebda8a2d0b144c6282"
+    }
+  ]
+}
