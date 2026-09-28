@@ -1,14 +1,14 @@
 {
-  "runId": "AQ21-FULL-1521",
-  "generatedAt": "2026-09-25T15:29:08.483Z",
+  "runId": "AQ-FINAL2-0242",
+  "generatedAt": "2026-09-28T02:50:15.816Z",
   "verdict": "AIRA's autonomous QA agent behaved as specified against its own lab in this run.",
   "totals": {
-    "tests": 253,
-    "passed": 253,
+    "tests": 271,
+    "passed": 271,
     "failed": 0,
     "notVerified": 0,
-    "evidenceFiles": 714,
-    "evidenceIntact": 714
+    "evidenceFiles": 750,
+    "evidenceIntact": 750
   },
   "families": [
     {
@@ -50,8 +50,8 @@
       "prefix": "AQI-",
       "name": "Intelligence and coverage",
       "what": "Memory between passes, coverage, and the release assessment",
-      "total": 57,
-      "passed": 57
+      "total": 75,
+      "passed": 75
     }
   ],
   "requirements": [
@@ -496,36 +496,7 @@
       "failing": []
     }
   ],
-  "implementedNotVerified": [
-    {
-      "name": "TestDuplicationModel",
-      "why": "Decides whether a proposed test duplicates one that exists. Unit-tested (12 tests) and not reachable from a pass: the agent does not call it, so no golden test can."
-    },
-    {
-      "name": "ExploratoryModel",
-      "why": "Chooses areas existing tests do not reach. Unit-tested (part of 23) and not wired into the loop."
-    },
-    {
-      "name": "DynamicSelectionModel",
-      "why": "Narrows a run as results arrive. Unit-tested and not wired into the loop."
-    },
-    {
-      "name": "RegressionPromotionModel",
-      "why": "Turns a security finding or a journey into a regression test. Unit-tested and not wired into the loop."
-    },
-    {
-      "name": "FailureCorrelationModel",
-      "why": "Groups failures that share a cause. Unit-tested (13 tests) and not wired into the loop."
-    },
-    {
-      "name": "TestHistoryModel",
-      "why": "Explains what history says about a test. Unit-tested (14 tests); the agent reads history through the plan service instead."
-    },
-    {
-      "name": "AutonomousAssessmentModel",
-      "why": "Assembles a release judgement from what a pass established. Unit-tested (15 tests) and not wired into the loop."
-    }
-  ],
+  "implementedNotVerified": [],
   "limitations": [
     {
       "headline": "Every figure describes the golden lab.",
@@ -636,7 +607,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The pass started a real test run",
-      "detail": "60d60183-a03b-4471-bf2e-e9758217f131",
+      "detail": "8a59f005-2832-467b-94ba-137405b7f04b",
       "evidence": 5
     },
     {
@@ -690,7 +661,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The pass asked the security engine to scan",
-      "detail": "Queued security scan SCAN-20260925-E2697F.",
+      "detail": "Queued security scan SCAN-20260928-B57BF5.",
       "evidence": 5
     },
     {
@@ -699,7 +670,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The scan is identified so it can be read back",
-      "detail": "acc93ae7-4705-45be-82ce-51efa5ca16ad",
+      "detail": "e426ae34-c80d-4c49-bc16-1429d1814deb",
       "evidence": 5
     },
     {
@@ -726,7 +697,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The scan the pass queued is a real scan",
-      "detail": "200 SCAN-20260925-E2697F completed",
+      "detail": "200 SCAN-20260928-B57BF5 completed",
       "evidence": 5
     },
     {
@@ -789,7 +760,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "Findings are not duplicated by a resume",
-      "detail": "none, of 34 distinct finding(s)",
+      "detail": "none, of 40 distinct finding(s)",
       "evidence": 5
     },
     {
@@ -798,7 +769,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "Every phase the pass went through is recorded",
-      "detail": "36 steps",
+      "detail": "37 steps",
       "evidence": 5
     },
     {
@@ -816,7 +787,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "A step that did nothing says why",
-      "detail": "36/36",
+      "detail": "37/37",
       "evidence": 5
     },
     {
@@ -825,7 +796,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The timeline covers the whole pass",
-      "detail": "51 entries",
+      "detail": "60 entries",
       "evidence": 5
     },
     {
@@ -852,7 +823,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The timeline records that a person answered",
-      "detail": "security.scan was granted by agentexec-4szv7esjec@example.test | test.execute was granted by agentexec-4szv7esjec@example.test",
+      "detail": "security.scan was granted by agentexec-bm1gbb2pmm@example.test | test.execute was granted by agentexec-bm1gbb2pmm@example.test",
       "evidence": 5
     },
     {
@@ -861,7 +832,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "Timeline entries link to the evidence behind them",
-      "detail": "11/11",
+      "detail": "19/19",
       "evidence": 5
     },
     {
@@ -924,7 +895,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The pass reports how many areas it assessed",
-      "detail": "10 assessed, 34 findings",
+      "detail": "10 assessed, 40 findings",
       "evidence": 5
     },
     {
@@ -942,7 +913,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The pass reports its proposals",
-      "detail": "34",
+      "detail": "40",
       "evidence": 5
     },
     {
@@ -960,7 +931,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "Every allowed decision says what came back",
-      "detail": "0 of 4 without a result",
+      "detail": "0 of 7 without a result",
       "evidence": 5
     },
     {
@@ -969,7 +940,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The pass is readable end to end by its own id",
-      "detail": "run true, plan true, 9 decisions, 2 approvals, 51 timeline",
+      "detail": "run true, plan true, 17 decisions, 2 approvals, 60 timeline",
       "evidence": 5
     },
     {
@@ -996,7 +967,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A refused pass says what it therefore does not know",
-      "detail": "security.scan was refused by agentrefused-sxhoh34lq9@example.test: Refused by the golden suite to exercise the refusal path.. The pass stopped without performing it, and nothing it would have establis",
+      "detail": "security.scan was refused by agentrefused-sim65k027v@example.test: Refused by the golden suite to exercise the refusal path.. The pass stopped without performing it, and nothing it would have establis",
       "evidence": 2
     },
     {
@@ -1014,7 +985,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A refusal records who refused and why",
-      "detail": "agentrefused-sxhoh34lq9@example.test: Refused by the golden suite to exercise the refusal path.",
+      "detail": "agentrefused-sim65k027v@example.test: Refused by the golden suite to exercise the refusal path.",
       "evidence": 2
     },
     {
@@ -1041,7 +1012,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A pass against a broken application does not report a clean result",
-      "detail": "executed 1, investigated 1, proposals 5",
+      "detail": "executed 1, investigated 1, proposals 6",
       "evidence": 3
     },
     {
@@ -1050,7 +1021,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "Every step of a broken pass is still recorded",
-      "detail": "36 steps",
+      "detail": "37 steps",
       "evidence": 3
     },
     {
@@ -1059,7 +1030,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "A pass records decisions even when the application misbehaves",
-      "detail": "8",
+      "detail": "15",
       "evidence": 3
     },
     {
@@ -1068,7 +1039,7 @@
       "result": "PASS",
       "severity": "medium",
       "objective": "A failed phase is recorded as failed rather than omitted",
-      "detail": "0 failed steps of 36",
+      "detail": "0 failed steps of 37",
       "evidence": 3
     },
     {
@@ -1131,7 +1102,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "A pass with little to work with still records its reasoning",
-      "detail": "36/36",
+      "detail": "37/37",
       "evidence": 3
     },
     {
@@ -1158,7 +1129,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "A pass for an application that does not exist is refused",
-      "detail": "404 {\"code\":\"not_found\",\"title\":\"The application was not found.\",\"status\":404,\"correlationId\":\"dfbc0c4405ae41e9a18e3bdbde364",
+      "detail": "404 {\"code\":\"not_found\",\"title\":\"The application was not found.\",\"status\":404,\"correlationId\":\"01cad4976d5d4b5a9a554b36c5e98",
       "evidence": 1
     },
     {
@@ -1293,7 +1264,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "No pass under fault conditions recorded a decision without evidence",
-      "detail": "0 of 16 without evidence",
+      "detail": "0 of 30 without evidence",
       "evidence": 1
     },
     {
@@ -1365,7 +1336,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The two passes are separate records",
-      "detail": "9 and 3 decisions",
+      "detail": "17 and 3 decisions",
       "evidence": 4
     },
     {
@@ -1374,7 +1345,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "Business context reads back as it was written",
-      "detail": "{\"applicationId\":\"be8cca14-3a5b-4519-8fef-805891455052\",\"criticalJourneys\":[\"payment\",\"login\"],\"highRiskAreas\":[\"authentication\"],\"excludedAreas\":[\"/statements\"],\"notes\":\"The golden lab.\",\"updatedAt\":",
+      "detail": "{\"applicationId\":\"6d1ad472-a2bb-4c23-aa6b-d010ee63fe58\",\"criticalJourneys\":[\"payment\",\"login\"],\"highRiskAreas\":[\"authentication\"],\"excludedAreas\":[\"/statements\"],\"notes\":\"The golden lab.\",\"updatedAt\":",
       "evidence": 4
     },
     {
@@ -1392,7 +1363,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "Context records who last changed it",
-      "detail": "d80eb8da-f6a2-4495-8115-6791e0da4128",
+      "detail": "dc69c8be-2609-4992-9887-4906c28cd910",
       "evidence": 4
     },
     {
@@ -1482,7 +1453,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "Every finding a pass makes is a proposal",
-      "detail": "34 of 34 carry a recommendation",
+      "detail": "39 of 39 carry a recommendation",
       "evidence": 4
     },
     {
@@ -1491,7 +1462,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A finding says how sure the pass is",
-      "detail": "0 of 34",
+      "detail": "0 of 39",
       "evidence": 4
     },
     {
@@ -1509,7 +1480,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "Every finding points somewhere a person can go and look",
-      "detail": "34 finding(s): 34 by route, 0 by execution, 0 pointing nowhere",
+      "detail": "39 finding(s): 39 by route, 0 by execution, 0 pointing nowhere",
       "evidence": 4
     },
     {
@@ -1527,7 +1498,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A release assessment covers the run the pass started",
-      "detail": "build golden-muh420cb, 1 run(s), 10 test(s)",
+      "detail": "build golden-mukneckv, 1 run(s), 10 test(s)",
       "evidence": 1
     },
     {
@@ -1581,7 +1552,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "Every decision in both passes carries evidence",
-      "detail": "0 of 12",
+      "detail": "0 of 20",
       "evidence": 1
     },
     {
@@ -1617,7 +1588,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The pass records which build its verification run counts against",
-      "detail": "Started a verification run against build golden-muh420cb. (buildRef golden-muh420cb)",
+      "detail": "Started a verification run against build golden-mukneckv. (buildRef golden-mukneckv)",
       "evidence": 1
     },
     {
@@ -1635,7 +1606,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "The verification run carries the build reference it was given",
-      "detail": "applicationBuildRef golden-muh420cb",
+      "detail": "applicationBuildRef golden-mukneckv",
       "evidence": 1
     },
     {
@@ -1779,7 +1750,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The second pass reaches the coverage question too",
-      "detail": "Assessed 24 capability(ies): 19 uncovered, 34 unknown.",
+      "detail": "Assessed 24 capability(ies): 18 uncovered, 34 unknown.",
       "evidence": 2
     },
     {
@@ -1797,7 +1768,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A scan the pass queued counts towards its own release assessment",
-      "detail": "scanned true, 1 scan(s) cover build golden-muh420cb; verdict needsReview",
+      "detail": "scanned true, 1 scan(s) cover build golden-mukneckv; verdict needsReview",
       "evidence": 1
     },
     {
@@ -1807,6 +1778,168 @@
       "severity": "critical",
       "objective": "A named priority that matches nothing is reported, not silently ignored",
       "detail": "named areas matching nothing: authentication",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-058",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "high",
+      "objective": "A pass checks whether the tests it wrote already existed",
+      "detail": "No duplication check was possible for 2 new test(s).",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-059",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "A duplicate is reported and never deleted",
+      "detail": "none — the agent has no authority to delete or change a test",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-060",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "high",
+      "objective": "What to re-run is chosen from each test's own history",
+      "detail": "Selected 0 of 0 existing test(s) to re-run.",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-061",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "Every point in the priority is attributed to a named reason",
+      "detail": "reasons: none — no test's history contributed a point",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-062",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "high",
+      "objective": "Tests left out are reported as a bound rather than a judgement",
+      "detail": "none — there were no existing tests to consider",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-063",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "high",
+      "objective": "A pass groups failures that share a cause",
+      "detail": "Nothing to correlate: 0 failure(s).",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-064",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "No failure disappears into a group",
+      "detail": "0 in, 0 accounted for",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-065",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "A pass says what might deserve a permanent place in the suite",
+      "detail": "No candidate for the permanent suite.",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-066",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "Nothing is promoted without somebody",
+      "detail": "none — creating a permanent test changes state, and the agent asks before it changes state",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-067",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "high",
+      "objective": "A candidate below the bar is named rather than dropped",
+      "detail": "none — there were no candidates at all",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-068",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "A limit the platform cannot meet is stated, not worked around",
+      "detail": "A journey needs 3 observations to be proposed, and the platform records only that a journey was observed, not how many times. No journey can reach the bar on this path un",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-069",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "high",
+      "objective": "What the run saw can argue for looking somewhere else",
+      "detail": "Observed 5 distinct error response(s); 5 argue for something else to be looked at.",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-070",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "A reaction to evidence proposes rather than acts",
+      "detail": "nothing — this pass had spent its budget by the time it saw these, so each is a proposal for a person or for the next pass",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-071",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "A pass reaches a release verdict from what it measured",
+      "detail": "Release assessment: NeedsReview.",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-072",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "There is no overall score, and its absence is stated",
+      "detail": "none — deliberately. A single number is the thing everybody reads and nobody can act on, and it cannot be checked.",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-073",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "The assessment names what it did not measure",
+      "detail": "Accessibility — a pass does not assess it; the platform tests it elsewhere.; Visual appearance — a pass does not assess it; the platform tests it elsewhere.; Security — no scan was run by th",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-074",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "high",
+      "objective": "A verdict with nothing blocking it still says so explicitly",
+      "detail": "none",
+      "evidence": 2
+    },
+    {
+      "testId": "AQI-075",
+      "suite": "Autonomous intelligence",
+      "result": "PASS",
+      "severity": "critical",
+      "objective": "A pass that measured almost nothing does not report a clear release",
+      "detail": "verdict NeedsReview, untested: Accessibility — a pass does not assess it; the platform tests it elsewhere.; Visual appearance — a pass does n",
       "evidence": 2
     },
     {
@@ -1851,7 +1984,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "The plan is attached to the run that produced it",
-      "detail": "015b1386-b334-4fbb-80ef-ab361e113964",
+      "detail": "6c813bf8-0718-4008-9112-a109945c9daa",
       "evidence": 3
     },
     {
@@ -2193,7 +2326,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "Approving a plan records who approved it and what they left out",
-      "detail": "status approved, decidedBy agentplan-0nic8mgv9g@example.test, excluded criticalJourney,accessibility,visual, items 6 of 6",
+      "detail": "status approved, decidedBy agentplan-oim4dwe0rc@example.test, excluded criticalJourney,accessibility,visual, items 6 of 6",
       "evidence": 2
     },
     {
@@ -2202,7 +2335,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "A plan is decided once",
-      "detail": "409 {\"code\":\"plan_already_decided\",\"title\":\"This plan was already approved by agentplan-0nic8mgv9g@example.test. A plan is decided once; start another pass to test something else.\",\"status\":409,\"correlati",
+      "detail": "409 {\"code\":\"plan_already_decided\",\"title\":\"This plan was already approved by agentplan-oim4dwe0rc@example.test. A plan is decided once; start another pass to test something else.\",\"status\":409,\"correlati",
       "evidence": 1
     },
     {
@@ -2220,7 +2353,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "Every action the pass takes is recorded as a decision",
-      "detail": "5 decisions",
+      "detail": "7 decisions",
       "evidence": 3
     },
     {
@@ -2283,7 +2416,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "A permitted action records the risk it was judged at",
-      "detail": "0 of 2 missing",
+      "detail": "0 of 3 missing",
       "evidence": 3
     },
     {
@@ -2400,7 +2533,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "A question is answered once",
-      "detail": "409 {\"code\":\"approval_already_decided\",\"title\":\"This was already granted by agentpolicy-b5ecnx5mcm@example.test.\",\"status\":409,\"correlationId\":\"54596ae89b9b48458fe91f5f6669aa89\"}",
+      "detail": "409 {\"code\":\"approval_already_decided\",\"title\":\"This was already granted by agentpolicy-fw26lj70db@example.test.\",\"status\":409,\"correlationId\":\"132af13ba4484f4a8d63366358dd61e2\"}",
       "evidence": 1
     },
     {
@@ -2409,7 +2542,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A granted answer is stored with who gave it and why",
-      "detail": "granted by agentpolicy-b5ecnx5mcm@example.test: Authorized for the golden lab, which exists to be tested.",
+      "detail": "granted by agentpolicy-fw26lj70db@example.test: Authorized for the golden lab, which exists to be tested.",
       "evidence": 1
     },
     {
@@ -2571,7 +2704,7 @@
       "result": "PASS",
       "severity": "critical",
       "objective": "A decision a person took is attributed to them",
-      "detail": "73b22441-c613-41a3-85e6-0def9378b263",
+      "detail": "2a9db7bd-365a-44f9-8a2e-8b398f134fb7",
       "evidence": 1
     },
     {
@@ -2589,7 +2722,7 @@
       "result": "PASS",
       "severity": "high",
       "objective": "An identifier survives in the record rather than being masked away",
-      "detail": "actor 73b22441-c613-41a3-85e6-0def9378b263, summary \"The plan was approved by ag***@example.test.\"",
+      "detail": "actor 2a9db7bd-365a-44f9-8a2e-8b398f134fb7, summary \"The plan was approved by ag***@example.test.\"",
       "evidence": 1
     },
     {

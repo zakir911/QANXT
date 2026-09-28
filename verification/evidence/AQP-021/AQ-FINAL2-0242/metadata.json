@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-021",
+  "suite": "Autonomous policy",
+  "runId": "AQ-FINAL2-0242",
+  "objective": "A question is answered once",
+  "preconditions": [
+    "the question has already been answered"
+  ],
+  "input": "a second answer to the same question",
+  "expected": "The API refuses it and says who answered first",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "409 {\"code\":\"approval_already_decided\",\"title\":\"This was already granted by agentpolicy-fw26lj70db@example.test.\",\"status\":409,\"correlationId\":\"132af13ba4484f4a8d63366358dd61e2\"}",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:43:13.852Z",
+  "durationMs": 6,
+  "build": {
+    "commit": "c6d44d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "second-answer.json",
+      "path": "evidence/AQP-021/AQ-FINAL2-0242/second-answer.json",
+      "bytes": 174,
+      "sha256": "d6d7e7e9e20f2f6a8bd329337ff1d8d643c0c8aeec8150004b23bd55ecf94556"
+    }
+  ]
+}

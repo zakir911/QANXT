@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-071",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ-FINAL2-0242",
+  "objective": "A pass reaches a release verdict from what it measured",
+  "preconditions": [
+    "a pass has run end to end over an application"
+  ],
+  "input": "agent run 59cc24df-6d98-4705-bf89-2a00ef13dc21",
+  "expected": "A decision records the verdict and the counts behind it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Release assessment: NeedsReview.",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:49:55.594Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c6d44d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQI-071/AQ-FINAL2-0242/decisions.json",
+      "bytes": 18444,
+      "sha256": "76f26874ad336c22b4e01b45cd400a73e21d343504257a5148cbf1ba1d98129b"
+    },
+    {
+      "file": "findings.json",
+      "path": "evidence/AQI-071/AQ-FINAL2-0242/findings.json",
+      "bytes": 24098,
+      "sha256": "42a30ad4e000a906c6442da35a850091a60f79978a7d23c9a93fd2cf313601d9"
+    }
+  ]
+}

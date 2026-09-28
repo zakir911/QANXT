@@ -1,0 +1,32 @@
+{
+  "testId": "AQN-041",
+  "suite": "Autonomous planning",
+  "runId": "AQ-FINAL2-0242",
+  "objective": "Rejecting a plan without a reason is refused",
+  "preconditions": [
+    "a pass is awaiting a decision on its plan"
+  ],
+  "input": "a rejection with an empty note",
+  "expected": "The API refuses it, because a refusal with no reason leaves the next person to propose the same plan again",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "400 {\"code\":\"validation_failed\",\"title\":\"Rejecting a plan needs a reason. A refusal with no reason leaves the next person to propose the same plan again.\",\"status\":",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:42:37.336Z",
+  "durationMs": 9,
+  "build": {
+    "commit": "c6d44d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "rejection.json",
+      "path": "evidence/AQN-041/AQ-FINAL2-0242/rejection.json",
+      "bytes": 215,
+      "sha256": "1dd055f22b5dd8c07175570b735e4a084eb108a06e0af618facd708ab0198ff3"
+    }
+  ]
+}

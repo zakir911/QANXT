@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-014",
+  "suite": "Autonomous fault handling",
+  "runId": "AQ-FINAL2-0242",
+  "objective": "An application that cannot be reached is reported rather than assumed empty",
+  "preconditions": [
+    "an application is registered against a port nothing is listening on"
+  ],
+  "input": "http://127.0.0.1:4399",
+  "expected": "Discovery reports a problem, or the pass reports having nothing to work from — never a clean pass over an application that was never reachable",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status stopped, 0 pages: The pass stopped during the modelling phase: The application has no discovered pages to work from. Run discovery for this application first, or start the pass w",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:47:47.786Z",
+  "durationMs": 3043,
+  "build": {
+    "commit": "c6d44d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "absent.json",
+      "path": "evidence/AQF-014/AQ-FINAL2-0242/absent.json",
+      "bytes": 927,
+      "sha256": "07e88a08f89aa79ffe99e31e80956480b7dda7a8b222a93829ac3a2390f2b9a1"
+    }
+  ]
+}

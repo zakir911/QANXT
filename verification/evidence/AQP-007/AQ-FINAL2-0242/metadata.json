@@ -1,0 +1,44 @@
+{
+  "testId": "AQP-007",
+  "suite": "Autonomous policy",
+  "runId": "AQ-FINAL2-0242",
+  "objective": "Every decision carries the evidence it rests on",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank"
+  ],
+  "input": "agent run f2ae9607-6073-42a3-b903-ea711a7f8e10",
+  "expected": "No decision has an empty evidence list",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 without evidence",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:43:07.781Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c6d44d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-007/AQ-FINAL2-0242/decisions.json",
+      "bytes": 7483,
+      "sha256": "27eb5f764111d404b66b7dabc1c905354a3e49e4510967b8c25c6cc6830904b1"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQP-007/AQ-FINAL2-0242/approvals.json",
+      "bytes": 731,
+      "sha256": "81b88207bb0fa22d9dba2e496b64a97760f8e3b9aa1a22159563f9dc17e8297c"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQP-007/AQ-FINAL2-0242/run.json",
+      "bytes": 806,
+      "sha256": "2a10cd6daba3d2a8cf58b9cce7b644cde79b61b09c017a1aea78136968d453e9"
+    }
+  ]
+}

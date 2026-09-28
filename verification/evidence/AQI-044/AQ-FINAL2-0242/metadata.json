@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-044",
+  "suite": "Autonomous intelligence",
+  "runId": "AQ-FINAL2-0242",
+  "objective": "Coverage never claims the application is fully covered",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run 59cc24df-6d98-4705-bf89-2a00ef13dc21",
+  "expected": "The summary carries the qualifier about what discovery reached",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "24 capability(ies) assessed across 68 applicable dimension(s): 0 covered, 0 partial, 24 not covered, 44 unknown. 3 of the capabilities with gaps were called business-critical by a ",
+  "metrics": null,
+  "startedAt": "2026-09-28T02:49:55.582Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "c6d44d4",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-044/AQ-FINAL2-0242/coverage-decision.json",
+      "bytes": 1390,
+      "sha256": "4b0c98fc87b02877a00ee30a5ab431705ce02537bf2f400217c830f28d53563a"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-044/AQ-FINAL2-0242/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "337a7335145a12f978f8f854303362b640272be3474bd5dccf51d5844badef40"
+    }
+  ]
+}

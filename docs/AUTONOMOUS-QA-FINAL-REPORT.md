@@ -23,13 +23,13 @@ whole report is for.
 
 | | |
 | --- | --- |
-| Autonomous golden tests | **253**, all passing, 0 not verified |
+| Autonomous golden tests | **271**, all passing, 0 not verified |
 | Requirements traced to tests that ran | **30 of 30** |
-| Evidence files recorded, hashes still matching | 711 / 711 |
+| Evidence files recorded, hashes still matching | 750 / 750 |
 | Unit tests | 885 |
 | Integration tests | 57 |
 | Independent applications the agent has run against | **1** |
-| Defects found by the golden tests | 7 in the product |
+| Defects found by the golden tests | 8 in the product |
 | Defects found by one afternoon of the pilot | **2 more, that the 251 before them had missed** |
 
 The last line is the most useful number in this document.
@@ -136,9 +136,9 @@ Three things, none of which unit tests could have found:
 
 ## FAILED — and fixed
 
-Nine defects, each found by running the thing rather than reading it.
+Eleven defects, each found by running the thing or looking at it, never by reading the code.
 
-**Found by the golden tests (7):**
+**Found by the golden tests (8):**
 
 1. An unknown environment was read as production, so every write was refused with a reason
    that was both wrong and unactionable.
@@ -151,16 +151,35 @@ Nine defects, each found by running the thing rather than reading it.
 7. A pass's verification run carried no build reference, so it was invisible to every release
    assessment.
 
+8. **One endpoint had two names in the same pass.** A pass reacting to evidence recorded a
+   finding about `/api/session` while every endpoint record in that same pass said
+   `http://localhost:4300/api/session`. The place was real — the run had just been refused by
+   it — but a route nothing else uses joins to nothing, and the release assessment matches a
+   finding's route against the areas a person called business-critical. A critical endpoint
+   reached that way could have been left out of the verdict. `AQF-013` found it and pins it.
+
 **Found by the pilot, in one afternoon, after all 251 tests passed (2):**
 
-8. **A release report said NOT SECURITY TESTED about a build that had just been scanned.**
+9. **A release report said NOT SECURITY TESTED about a build that had just been scanned.**
    The window for "scans covering this build" was drawn from the build's test runs and tested
    containment, so a single-run build had a window of one instant. The root cause was deeper:
    a scan recorded no build reference at all, so the relationship was always being deduced
    from timestamps. A scan now records the build it covered. `AQI-056` pins it.
-9. **The operator's stated priorities fell on the floor without a word.** Three areas named
+10. **The operator's stated priorities fell on the floor without a word.** Three areas named
    critical, none matched, every gap ranked medium, and the plan quoted the three back so the
    record looked as though they had counted. `AQI-057` pins the disclosure.
+
+**Found by looking at the product rather than at a test (1):**
+
+11. **A stopped pass wore its state twice.** Photographing the agent page for the manual showed
+    a pass awaiting approval with two badges side by side, both reading "Awaiting approval" —
+    one the run's status, one its phase, the same word for a stopped pass. No test objected,
+    because every test asserted the state was shown and it was, twice. The same capture
+    exposed two caption proofs that could not fail: one proved "after a completed pass" by the
+    run's name being on screen, true of a pass in any state; the other proved the decision log
+    was in a photograph using Playwright's notion of visible, which means present in the
+    document rather than on the screen — it was a thousand pixels below the fold. Both are now
+    proved against what the frame actually contains.
 
 **Recorded and not fixed (2), in `verification/OBSERVED-DEFECTS.md`:** a worker job whose
 completion is refused is re-queued with no attempt count; a worker whose Redis connection
@@ -190,12 +209,12 @@ Each of §53's rules, and what holds it.
 | 16 | No "100% secure" | `AQI-028`: an unscanned build says so in words |
 | 17 | No unexplained AI score | Risk is deterministic, every point attributed to a named factor |
 | 18 | Every decision auditable | `AQP-001`–`AQP-007`, and the timeline |
-| 19 | Every result reproducible | 711 evidence files, hashed, hashes still matching |
+| 19 | Every result reproducible | 750 evidence files, hashed, hashes still matching |
 | 20 | Every limitation documented | This section, and the three above it |
 
 ## The honest summary
 
-An autonomous pass plans, refuses, asks, executes and writes up what it found, and 253 tests
+An autonomous pass plans, refuses, asks, executes and writes up what it found, and 271 tests
 say so with evidence. Thirty requirements are traced to tests that actually ran.
 
 One thing should temper it. Pointing the platform at one unfamiliar application for an
@@ -210,3 +229,11 @@ both were found by asking what a person could actually do with this, rather than
 what passed.
 
 The second is the more useful finding. It is an argument for more pilots, not for more tests.
+
+A smaller version of the same lesson closed this phase. Photographing the new console page for
+the manual found a defect nothing had objected to — a stopped pass showing its state twice —
+and two of the manual's own caption proofs that could not fail, one of them asserting a
+screenshot contained something a thousand pixels below the fold. Six golden tests had the same
+shape and were found the same way, by reading what they printed rather than that they passed.
+The count in the headline is worth exactly as much as the willingness to keep checking that
+each of those tests can still fail.
