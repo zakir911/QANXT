@@ -1,0 +1,32 @@
+{
+  "testId": "ASRT-010",
+  "suite": "Assertions",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "assertAttribute holds when it should and fails when it should not",
+  "preconditions": [
+    "the lab bank is running with no faults"
+  ],
+  "input": "Two journeys: one where the assertAttribute is satisfied, one where it is deliberately wrong",
+  "expected": "The first run passes; the second FAILS with a message naming expected and actual",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "holds → passed; breaks → failed; message: Expected attribute \"name\" to be \"account-number\" but it was \"username\" (waited 15060ms).",
+  "metrics": null,
+  "startedAt": "2026-09-28T13:45:27.037Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "ASRT-010-both-directions.json",
+      "path": "evidence/ASRT-010/2026-09-28T13-38-14Z/ASRT-010-both-directions.json",
+      "bytes": 3635,
+      "sha256": "0cc7293da1e79e4fc1ec924f01cad3ba05b12eb72efc821c44068f494ec73a8c"
+    }
+  ]
+}

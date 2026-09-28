@@ -1,0 +1,34 @@
+{
+  "case": "http-401",
+  "lab": "authenticationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "5302d335-66a7-4f91-a8dc-ce054e09be39",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15043ms).",
+    "signature": "a26bfcba770dbc6b72eec869a697c202150127b5c656136cc2af5bbb02541625",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T13:50:03.242573+00:00",
+    "lastSeenAt": "2026-09-28T13:50:03.242573+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was refused with 401.",
+      "likelyCause": "GET /api/answer → 401 in 0ms — the session was not accepted, so the page had nothing to render.",
+      "evidence": "GET /api/answer → 401 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15043ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2faf62e7-1d98-494c-afcf-c1dfbd1f5204\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"30c2d288-d1aa-40cf-a30c-0724657fdd26\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"3307ad5a-bb69-4ec9-9cdd-06de4785f557\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"493f6c7d-d3b9-4c1e-9b29-ee9521c9503e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"67df3fe3-37bb-48e6-8b19-c51137f6d151\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"9b6ea03a-1b84-418e-8b49-962cf3f81038\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"cbb56640-e367-40bc-be1d-8978047b0da6\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"d8a35f1b-b613-4c7d-a768-34392481d1fc\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"62013e71-40b1-4de5-9392-30270bcf409e\"}"
+    }
+  }
+}

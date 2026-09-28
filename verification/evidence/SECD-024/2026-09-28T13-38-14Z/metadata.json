@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-024",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "An executable extension with a mismatched content type being accepted is reported",
+  "preconditions": [
+    "VULN_UPLOAD_ANY_TYPE switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Request handling: the upload-type check against the lab",
+  "expected": "Exactly one UnrestrictedFileUpload finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "UnrestrictedFileUpload: An executable extension with a mismatched content type is accepted (1 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 1
+  },
+  "startedAt": "2026-09-28T14:06:45.327Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-024/2026-09-28T13-38-14Z/vulnerable.json",
+      "bytes": 444,
+      "sha256": "ff1c2d68806919586c8ebf0dea107728cd9baa19e882fd2670a7ffea2aea1494"
+    }
+  ]
+}

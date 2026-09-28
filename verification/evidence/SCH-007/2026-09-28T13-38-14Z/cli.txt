@@ -1,0 +1,63 @@
+$ qanxt schedule add
+[exit 0]
+{
+  "id": "665908d8-3828-4a6d-8113-eca0cb8c71c7",
+  "projectId": "22c06f0d-2963-425e-923e-9710e04056f0",
+  "kind": "testRun",
+  "name": "From the CLI (SCH-007)",
+  "cronExpression": "0 3 * * mon-fri",
+  "timeZone": "UTC",
+  "browser": "chromium",
+  "isEnabled": true,
+  "nextRunAt": "2026-09-29T03:00:00+00:00",
+  "consecutiveFailureCount": 0,
+  "createdAt": "2026-09-28T14:04:14.3660624+00:00"
+}
+
+
+$ qanxt schedule list
+[exit 0]
+off Accounts only (SCH-002) e1257321-dd09-49f8-9563-35e1484ec89c
+    * * * * * (UTC) · tags accounts
+off Advances (SCH-003) e5a5493c-a3f1-4e21-905d-80711a6c300e
+    * * * * * (UTC) · tags smoke
+off Every minute (SCH-001) 871313a2-42bc-4328-9ae6-30538d263aad
+    * * * * * (UTC) · tags smoke
+on From the CLI (SCH-007) 665908d8-3828-4a6d-8113-eca0cb8c71c7
+    0 3 * * mon-fri (UTC)
+    next 2026-09-29T03:00:00+00:00 · has not run yet
+off London nights (SCH-006) c7273f27-1b4c-473e-b977-c735a3b94cb9
+    30 2 * * * (Europe/London)
+off SCH-004 valid — must be accepted a8d49f6d-cfe4-4227-91b1-dbc246462b85
+    0 0 * * * (UTC)
+
+
+$ qanxt schedule preview
+[exit 0]
+2026-09-29T03:00:00+00:00
+2026-09-30T03:00:00+00:00
+2026-10-01T03:00:00+00:00
+
+
+$ qanxt schedule disable
+[exit 0]
+Disabled From the CLI (SCH-007)
+
+
+$ qanxt schedule remove
+[exit 0]
+Removed 665908d8-3828-4a6d-8113-eca0cb8c71c7
+
+
+$ qanxt schedule list (after removal)
+[exit 0]
+off Accounts only (SCH-002) e1257321-dd09-49f8-9563-35e1484ec89c
+    * * * * * (UTC) · tags accounts
+off Advances (SCH-003) e5a5493c-a3f1-4e21-905d-80711a6c300e
+    * * * * * (UTC) · tags smoke
+off Every minute (SCH-001) 871313a2-42bc-4328-9ae6-30538d263aad
+    * * * * * (UTC) · tags smoke
+off London nights (SCH-006) c7273f27-1b4c-473e-b977-c735a3b94cb9
+    30 2 * * * (Europe/London)
+off SCH-004 valid — must be accepted a8d49f6d-cfe4-4227-91b1-dbc246462b85
+    0 0 * * * (UTC)

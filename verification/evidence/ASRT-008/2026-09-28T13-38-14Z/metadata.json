@@ -1,0 +1,33 @@
+{
+  "testId": "ASRT-008",
+  "suite": "Assertions",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "Assertions run after a healed step, so a heal that reaches the wrong element is caught",
+  "preconditions": [
+    "the locator lab renames its submit control",
+    "healing is set to auto"
+  ],
+  "input": "A journey whose click heals and whose next step asserts on the outcome",
+  "expected": "The assertion is evaluated after the heal and decides the verdict",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "the click healed at 93%; the assertion that followed passed",
+  "metrics": null,
+  "startedAt": "2026-09-28T13:45:49.273Z",
+  "durationMs": 26243,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "assertion-after-heal.json",
+      "path": "evidence/ASRT-008/2026-09-28T13-38-14Z/assertion-after-heal.json",
+      "bytes": 2215,
+      "sha256": "dc28da43fe17ed9fda4756d01358c4bd61baeb07468864c23b8f6afc0d9529c8"
+    }
+  ]
+}

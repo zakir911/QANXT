@@ -1,0 +1,32 @@
+{
+  "testId": "SECQ-009",
+  "suite": "Security gate, regression and triage",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A finding with no evidence is neither failed nor dismissed",
+  "preconditions": [
+    "a Critical finding carrying no exchange"
+  ],
+  "input": "One Critical finding with hasEvidence false",
+  "expected": "REVIEW. A claim nobody can check is not a finding yet, and dropping it silently is worse than saying so",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "REVIEW: Only 2 of 5 configured check(s) executed. A result from a partial scan describes the part that ran and nothing else. 1 finding(s) carry no evidence. They are neither failed nor dismissed: a claim nobody can check is not yet a finding, and dropping it silently is worse than saying so.",
+  "metrics": null,
+  "startedAt": "2026-09-28T14:06:45.660Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-009/2026-09-28T13-38-14Z/gate.json",
+      "bytes": 2494,
+      "sha256": "995e38d6ad70ca37529fc41b283b7c289dc737a282aca8b2417e84ca7b710a2c"
+    }
+  ]
+}

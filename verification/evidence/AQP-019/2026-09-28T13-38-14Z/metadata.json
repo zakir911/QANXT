@@ -1,0 +1,32 @@
+{
+  "testId": "AQP-019",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "An answer with no reason is refused",
+  "preconditions": [
+    "the pass has asked a question"
+  ],
+  "input": "a grant with a two-word justification",
+  "expected": "The API refuses it: an approval with nobody's reasoning behind it is indistinguishable from the control being switched off",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "400 {\"code\":\"validation_failed\",\"title\":\"An answer needs a reason of at least ten characters. An approval with nobody's reasoning behind it is indistinguishable from the control being switched off.\",\"stat",
+  "metrics": null,
+  "startedAt": "2026-09-28T14:11:36.350Z",
+  "durationMs": 5,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "thin-answer.json",
+      "path": "evidence/AQP-019/2026-09-28T13-38-14Z/thin-answer.json",
+      "bytes": 259,
+      "sha256": "9ae587e6f1e204ae05d4a346af24ca7ef03f3935d01769c817bf173e2a97aeb9"
+    }
+  ]
+}

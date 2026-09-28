@@ -1,0 +1,115 @@
+{
+  "projectId": "03391516-cc67-4ede-842b-51e4319b3fbd",
+  "projectName": "Golden release",
+  "buildRef": "v2.4.1",
+  "runCount": 1,
+  "firstRunAt": "2026-09-28T14:04:37.757659+00:00",
+  "lastRunAt": "2026-09-28T14:04:37.757659+00:00",
+  "testsCovered": 2,
+  "passed": 1,
+  "failed": 1,
+  "blocked": 0,
+  "healed": 0,
+  "flaky": 0,
+  "passRatePercent": 50,
+  "outstandingFailures": [
+    {
+      "testCaseId": "24a8a56a-dec5-439b-ae04-0e12146663b0",
+      "reference": "TC-0002",
+      "name": "An account carries its sort code",
+      "suite": "Release",
+      "movement": "stillFailing",
+      "currentStatus": "Failed",
+      "currentDurationMs": 45,
+      "previousDurationMs": 0,
+      "errorMessage": "accounts[0].sortCode is present: Expected a value at \"accounts[0].sortCode\" but it was absent."
+    }
+  ],
+  "unstable": [],
+  "breakingContractChanges": 0,
+  "potentiallyBreakingContractChanges": 0,
+  "comparedWith": "v2.4.0",
+  "comparison": {
+    "current": {
+      "id": "cdb14f64-f24c-4535-81de-cab1619aa689",
+      "name": "Release broken",
+      "status": "Failed",
+      "completedAt": "2026-09-28T14:04:37.757659+00:00",
+      "total": 2,
+      "passed": 1,
+      "failed": 1,
+      "blocked": 0,
+      "healed": 0,
+      "flaky": 0,
+      "durationMs": 107,
+      "qualityGatePassed": true
+    },
+    "previous": {
+      "id": "f6fe66c9-d4f4-4c77-8e5a-60337b6cb3cc",
+      "name": "Release green",
+      "status": "Passed",
+      "completedAt": "2026-09-28T14:04:35.698588+00:00",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "blocked": 0,
+      "healed": 0,
+      "flaky": 0,
+      "durationMs": 94,
+      "qualityGatePassed": true
+    },
+    "tests": [
+      {
+        "testCaseId": "24a8a56a-dec5-439b-ae04-0e12146663b0",
+        "reference": "TC-0002",
+        "name": "An account carries its sort code",
+        "suite": "Release",
+        "movement": "newlyFailing",
+        "currentStatus": "Failed",
+        "previousStatus": "Passed",
+        "currentDurationMs": 45,
+        "previousDurationMs": 43,
+        "errorMessage": "accounts[0].sortCode is present: Expected a value at \"accounts[0].sortCode\" but it was absent.",
+        "failureCategory": "Unknown"
+      },
+      {
+        "testCaseId": "23f43d04-0136-4539-b4e5-074a14c2e145",
+        "reference": "TC-0001",
+        "name": "The application answers",
+        "suite": "Release",
+        "movement": "stillPassing",
+        "currentStatus": "Passed",
+        "previousStatus": "Passed",
+        "currentDurationMs": 35,
+        "previousDurationMs": 30
+      }
+    ],
+    "counts": {
+      "newlyFailing": 1,
+      "fixed": 0,
+      "stillFailing": 0,
+      "stillPassing": 1,
+      "added": 0,
+      "removed": 0
+    },
+    "unchanged": false,
+    "summary": "1 test(s) that used to pass now fail."
+  },
+  "security": {
+    "verdict": "notScanned",
+    "scanned": false,
+    "scansCoveringThisBuild": 0,
+    "openCritical": 0,
+    "openHigh": 0,
+    "openMedium": 0,
+    "openLow": 0,
+    "regressions": 0,
+    "newSincePreviousBuild": 0,
+    "unjustifiedSuppressions": 0,
+    "checksConfigured": 0,
+    "checksExecuted": 0,
+    "untestedAreas": [],
+    "summary": "NOT SECURITY TESTED. No security scan covers this build, so nothing is known about its security posture from QA NXT. This is not the same as having been tested and found clean, and a release decision should not read it as such."
+  },
+  "summary": "Build v2.4.1 was tested by 1 run(s). 1 test(s) are failing in the most recent one. Against Release green: 1 test(s) that used to pass now fail. Security: NOT SECURITY TESTED. No security scan covers this build, so nothing is known about its security posture from QA NXT. This is not the same as having been tested and found clean, and a release decision should not read it as such."
+}

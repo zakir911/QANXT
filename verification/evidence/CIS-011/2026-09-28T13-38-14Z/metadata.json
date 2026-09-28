@@ -1,0 +1,37 @@
+{
+  "testId": "CIS-011",
+  "suite": "CI simulation",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A team may choose to continue on REVIEW, and the log still says a person must look",
+  "preconditions": [
+    "the platform is running",
+    "the lab bank is running",
+    "the CLI is built"
+  ],
+  "input": "test-lab/ci-simulation/pipeline.sh — scenario \"review-does-not-block\"",
+  "expected": "QA NXT exits 7, the pipeline exits 0, and the build log still carries HUMAN_REVIEW_REQUIRED — the decision is visible rather than silently swallowed",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "QA NXT exited 7, the pipeline exited 0; review required, and this pipeline does not block on review",
+  "metrics": {
+    "qanxtExit": 7,
+    "pipelineExit": 0
+  },
+  "startedAt": "2026-09-28T14:01:18.269Z",
+  "durationMs": 3615,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "pipeline.log",
+      "path": "evidence/CIS-011/2026-09-28T13-38-14Z/pipeline.log",
+      "bytes": 1493,
+      "sha256": "7681ea3262c069581a35bc4bb318b1393bc4674215dbcd56ab851154819eb6d9"
+    }
+  ]
+}

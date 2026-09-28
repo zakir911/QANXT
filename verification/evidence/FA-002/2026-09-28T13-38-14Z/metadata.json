@@ -1,0 +1,34 @@
+{
+  "testId": "FA-002",
+  "suite": "Failure analysis",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A http 400 failure is classified as applicationDefect",
+  "preconditions": [
+    "the http-400 case failed"
+  ],
+  "input": "The failure category the platform assigned to /case/http-400",
+  "expected": "One of: applicationDefect — the lab calls this applicationError",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "classified \"applicationDefect\" at 80% confidence; the lab expects applicationError (accepting applicationDefect)",
+  "metrics": {
+    "correct": 1
+  },
+  "startedAt": "2026-09-28T13:52:30.845Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "FA-002-classification.json",
+      "path": "evidence/FA-002/2026-09-28T13-38-14Z/FA-002-classification.json",
+      "bytes": 2414,
+      "sha256": "4a5eb4eaf14b6451b718e044fe1fa6633ecaac775a2f2cf0c652d7231455bb44"
+    }
+  ]
+}

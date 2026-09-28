@@ -1,0 +1,44 @@
+{
+  "testId": "AQP-010",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "The question names the tool it is about",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank"
+  ],
+  "input": "agent run 14325c4b-f83c-477c-afb2-7cd1ff5b6dc2",
+  "expected": "The approval carries the tool name",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "security.scan",
+  "metrics": null,
+  "startedAt": "2026-09-28T14:11:36.344Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQP-010/2026-09-28T13-38-14Z/decisions.json",
+      "bytes": 7481,
+      "sha256": "23c17df89d88c89e3310de5a7b092f0b8e5e0ec12264de2cb9fe4b94d900709c"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQP-010/2026-09-28T13-38-14Z/approvals.json",
+      "bytes": 731,
+      "sha256": "8a9d0cb3c08cc9f92a1302303c1cda8585072f0d78509d20d92ca65e853d02f7"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQP-010/2026-09-28T13-38-14Z/run.json",
+      "bytes": 804,
+      "sha256": "a4f0905cb17625a3c38847adb6b94536cbd193987f823a3377361fb65fa3d338"
+    }
+  ]
+}

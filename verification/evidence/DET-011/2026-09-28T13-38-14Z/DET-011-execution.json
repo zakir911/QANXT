@@ -1,0 +1,42 @@
+{
+  "id": "DET-011",
+  "case": "missing-element",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "b21ebb16-b280-48ae-9533-4602405f5835",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "46718a57df581dc88d9d59b1799e5316f7fc496d9aa28de8dd6c2365b1302fec",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T13:49:20.56241+00:00",
+    "lastSeenAt": "2026-09-28T13:49:20.56241+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"42ce0bfd-672b-49c7-b6c4-b9f46c8f1d0d\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"63a48317-8e13-419d-8899-f2fd0e426d29\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"754bd333-cdcb-422e-8178-00a7df619478\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"bddd86c2-6b20-4709-9116-beaa48d7d6e6\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"d4fbee39-6997-46f1-99e3-d17e551e890c\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"e467ccf4-87bb-4dac-a451-98c6db86d2ae\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"fd25b3da-5e1a-4a21-bda2-cd37956d3e3d\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"176ec2e2-6938-40bb-b11d-7ff6850f7bc2\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\"."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

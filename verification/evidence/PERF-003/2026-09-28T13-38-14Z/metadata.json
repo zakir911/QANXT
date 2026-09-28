@@ -1,0 +1,35 @@
+{
+  "testId": "PERF-003",
+  "suite": "Performance baseline",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "How long generating a suite from one requirement takes",
+  "preconditions": [
+    "the application has been discovered"
+  ],
+  "input": "Three generations from the same requirement, each into its own suite",
+  "expected": "Three generations that produce cases, with their durations recorded",
+  "severity": "low",
+  "result": "PASS",
+  "detail": "generation: median 32ms (min 31ms, p95 54ms, max 54ms, n=3); 5/5/5 case(s) per attempt; provider local/qanxt-rules-v1 — the built-in rules, not a hosted model",
+  "metrics": {
+    "generationMs": 32,
+    "generationP95Ms": 54
+  },
+  "startedAt": "2026-09-28T14:10:29.281Z",
+  "durationMs": 15188,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "generation-timings.json",
+      "path": "evidence/PERF-003/2026-09-28T13-38-14Z/generation-timings.json",
+      "bytes": 677,
+      "sha256": "6b1c0f46b6e769a9fea6001718dd58d5c74157ee1f65a4eaf92b72f934fbfe3f"
+    }
+  ]
+}

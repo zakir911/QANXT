@@ -1,0 +1,40 @@
+{
+  "testId": "SCH-003",
+  "suite": "Scheduling",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "Firing moves the schedule forward, so one occurrence starts exactly one run",
+  "preconditions": [
+    "a schedule that has fired"
+  ],
+  "input": "The schedule from SCH-001, read after it fired",
+  "expected": "nextRunAt is strictly later than the occurrence that fired, and the schedule did not start a second run for the same occurrence",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "fired at 2026-09-28T14:04:11.115185+00:00, next 2026-09-28T14:05:00+00:00 (advanced: true); 1 run(s) started for this schedule",
+  "metrics": {
+    "runs": 1
+  },
+  "startedAt": "2026-09-28T14:03:13.842Z",
+  "durationMs": 60258,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "schedule.json",
+      "path": "evidence/SCH-003/2026-09-28T13-38-14Z/schedule.json",
+      "bytes": 576,
+      "sha256": "15db2295a3fdfdfcb1985a33844d4fb1f631b608d39aa186ee350f97a9766bb8"
+    },
+    {
+      "file": "runs.json",
+      "path": "evidence/SCH-003/2026-09-28T13-38-14Z/runs.json",
+      "bytes": 832,
+      "sha256": "7c564c233cc990f166e1855ac00a1d1dd113033ac0c60d9c1d1620450c0d3ea5"
+    }
+  ]
+}

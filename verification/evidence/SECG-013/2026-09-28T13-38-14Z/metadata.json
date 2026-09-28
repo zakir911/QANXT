@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-013",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "The scope guard refuses a POST declared passive",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "a POST declared passive",
+  "expected": "Refused with activeTestingNotAllowed. The declared risk can be raised by the verb and never lowered. A check cannot talk its way past the guard by understating what it is about to do.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "activeTestingNotAllowed: The scope does not permit active testing.",
+  "metrics": {
+    "rungsPassed": 5
+  },
+  "startedAt": "2026-09-28T14:06:45.557Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-013/2026-09-28T13-38-14Z/decision.json",
+      "bytes": 464,
+      "sha256": "e2b61d087621b069ace73dfcfa1bc2ce8710e65f094d3957f4fca15e7a3522e5"
+    }
+  ]
+}

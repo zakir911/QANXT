@@ -1,0 +1,71 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "b575e7be-d5dc-48a5-813b-c314b9093403",
+      "order": 5,
+      "action": "assertText",
+      "description": "page-title reads \"Dashboard\"",
+      "status": "passed",
+      "startedAt": "2026-09-28T13:43:40.29+00:00",
+      "durationMs": 63,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "page-title",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"page-title\""
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "bc47b923-2ed5-4192-bbbb-173c25ce9a1d",
+      "order": 5,
+      "action": "assertText",
+      "description": "page-title reads \"Something Else Entirely\"",
+      "status": "failed",
+      "startedAt": "2026-09-28T13:43:42.338+00:00",
+      "durationMs": 15115,
+      "url": "http://localhost:4300/dashboard",
+      "wasHealed": false,
+      "errorMessage": "Expected the element to contain \"Something Else Entirely\" but it read \"Dashboard\" (waited 15071ms).",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "page-title",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"page-title\""
+    },
+    "failure": {
+      "id": "bdbca4cc-c160-4852-bd4d-d1eb243c2368",
+      "category": "applicationDefect",
+      "categoryConfidence": 80,
+      "rawMessage": "Expected the element to contain \"Something Else Entirely\" but it read \"Dashboard\" (waited 15071ms).",
+      "signature": "da92760a596d75740484de298178bedfa5d464cdeb843b8c420d7ebde7e79590",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-28T13:44:00.798966+00:00",
+      "lastSeenAt": "2026-09-28T13:44:00.798966+00:00",
+      "analysis": {
+        "summary": "The API answered correctly and the page showed something else.",
+        "likelyCause": "Every API call the failing step made succeeded (GET /api/dashboard → 200 in 0ms), so the data was right and what was rendered from it was not. The defect is in the front end rather than the service.",
+        "evidence": "1 API call(s) during the failing step, all successful. Engine message: Expected the element to contain \"Something Else Entirely\" but it read \"Dashboard\" (waited 15071ms).",
+        "suggestedAction": "Compare the response body in the network evidence with what the failure screenshot shows. Start with the rendering, not the endpoint.",
+        "category": "applicationDefect",
+        "confidence": 80,
+        "isLikelyApplicationDefect": true,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "qanxt-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"217c249a-d8cd-4d3b-8aa6-08406b2e9114\", \"kind\": \"AccessibilityTree\", \"name\": \"step-5-failure.a11y.json\"}, {\"id\": \"557cdf09-5ab2-410e-a2f4-f1353b18ad45\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"5ddb5334-4645-4450-a075-0a9edff218fd\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"69cc348c-b44c-4ac9-8e11-1014a3515ecd\", \"kind\": \"Screenshot\", \"name\": \"step-5-failure.png\"}, {\"id\": \"c0163e2e-8152-4579-b685-0449236ffaa4\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"c666d2d6-67a1-4fae-b3db-b35501209d32\", \"kind\": \"DomSnapshot\", \"name\": \"step-5-failure.html\"}, {\"id\": \"f59cde01-dd18-4865-a644-1cc8b36a6e5d\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"f627cc56-0868-422f-b5fc-42779bc05f33\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}], \"executionId\": \"e6c11ca2-ea3f-47d1-8666-3c67c3d9af9d\"}"
+      }
+    }
+  }
+}

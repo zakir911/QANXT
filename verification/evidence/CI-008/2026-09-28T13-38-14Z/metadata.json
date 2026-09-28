@@ -1,0 +1,36 @@
+{
+  "testId": "CI-008",
+  "suite": "CI integration",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A quality gate rule that no run could ever satisfy is refused, rather than blocking every build",
+  "preconditions": [
+    "a project exists"
+  ],
+  "input": "A rule of \"failedCount less than 0\", and the same rule with the operator omitted",
+  "expected": "Both are refused with a message naming the rule that was probably meant; \"failedCount at most 0\" is accepted",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "explicit lessThan 0: 400; operator omitted: 400; lessThanOrEqual 0: 200 stored as lessThanOrEqual; the refusal names the likely intention: true",
+  "metrics": {
+    "explicit": 400,
+    "omitted": 400,
+    "correct": 200
+  },
+  "startedAt": "2026-09-28T14:00:56.505Z",
+  "durationMs": 34,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "rules.json",
+      "path": "evidence/CI-008/2026-09-28T13-38-14Z/rules.json",
+      "bytes": 652,
+      "sha256": "060636d908204053f5bde25af5e7f158fbae48e1dbe74586e846f7ec44ab5fe5"
+    }
+  ]
+}

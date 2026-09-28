@@ -1,0 +1,44 @@
+{
+  "testId": "AQF-008",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A pass never claims the application is fine",
+  "preconditions": [
+    "a pass has run against a lab whose sign-in API answers 500"
+  ],
+  "input": "agent run 86a7063c-c878-4eff-ade3-575426d92e2e",
+  "expected": "No decision or step asserts correctness",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "none",
+  "metrics": null,
+  "startedAt": "2026-09-28T14:15:22.890Z",
+  "durationMs": 3,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQF-008/2026-09-28T13-38-14Z/run.json",
+      "bytes": 1336,
+      "sha256": "b4526cb4423e3a9137c765e52f158cfe71c847e587c5e4519d622ecff550b527"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-008/2026-09-28T13-38-14Z/decisions.json",
+      "bytes": 16521,
+      "sha256": "d956e0f7fa6c008661bf2057464a6ec6025c7b6bd6f6543acb7d70cfdbd8c836"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQF-008/2026-09-28T13-38-14Z/steps.json",
+      "bytes": 14425,
+      "sha256": "ae8cd14f732f7aedce90fb9aeda8b246ae74fa63a1a1608311fce0da8ba15188"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "testId": "SECPL-030",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "The main dashboard carries security, and names what has never been scanned",
+  "preconditions": [
+    "a project with scanned and unscanned applications"
+  ],
+  "input": "GET the dashboard for this project",
+  "expected": "A security section is always present, counting open findings and — the number usually missing — applications nobody has scanned. A project with findings and full coverage and one with the same findings and two unscanned applications are in very different states, and they render identically without it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "1 open, 0 critical, 1 never scanned, 0 not authorized",
+  "metrics": {
+    "neverScanned": 1,
+    "open": 1
+  },
+  "startedAt": "2026-09-28T14:06:46.009Z",
+  "durationMs": 57,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "dashboard.json",
+      "path": "evidence/SECPL-030/2026-09-28T13-38-14Z/dashboard.json",
+      "bytes": 379,
+      "sha256": "fb481e0f707671636efd2dd88f9580854c1d105483bff84cd23c3a500900b46c"
+    }
+  ]
+}

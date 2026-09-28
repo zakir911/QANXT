@@ -1,0 +1,35 @@
+{
+  "testId": "SECPL-029",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A Critical resting on one unreproduced indicator does not interrupt anybody",
+  "preconditions": [
+    "a webhook integration on this project",
+    "the notification sink running"
+  ],
+  "input": "A scan reporting a new Critical at Low confidence",
+  "expected": "No delivery. The gate sends a new finding at Low confidence to review rather than failing the build; a notification path that ignored what the gate weighed would be the two disagreeing about the same finding",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "no delivery, as the gate's own reasoning requires",
+  "metrics": {
+    "deliveries": 0
+  },
+  "startedAt": "2026-09-28T14:06:46.273Z",
+  "durationMs": 3042,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "deliveries.json",
+      "path": "evidence/SECPL-029/2026-09-28T13-38-14Z/deliveries.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ]
+}

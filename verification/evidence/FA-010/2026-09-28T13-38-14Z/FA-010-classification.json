@@ -1,0 +1,35 @@
+{
+  "case": "wrong-value",
+  "lab": "assertionFailed",
+  "accept": [
+    "applicationDefect",
+    "dataIssue"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "d5b69c14-0ea9-4282-adc7-685f5fbf98d3",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15050ms).",
+    "signature": "6e0999d27c88970bda9ad6cb14ecc40e4a0520c61886fa22e3d6b29d7dfde92f",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T13:52:12.57205+00:00",
+    "lastSeenAt": "2026-09-28T13:52:12.57205+00:00",
+    "analysis": {
+      "summary": "An assertion failed on outcome reads \"OK 42\".",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15050ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"211e6496-a5d4-4dc6-9d59-c52fcc57beb5\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"894175a0-d4d3-41fe-916c-8c5013e6b41a\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"8a07742e-6e51-4cb7-b2c9-52ecf293a13e\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"bd0cfbe6-2d1b-4bf8-af18-53c5a215d70c\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"c826a7b9-f020-4c0f-b689-2f30904568ca\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"cea335da-7d8b-4a74-8bfc-f0c39f04c897\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"e569819f-2e15-48d9-974b-5f3d165ba633\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"c49ac46d-2275-4882-9051-23cc3692989a\"}"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "browsable": [
+    "POST /api/session",
+    "GET /api/session",
+    "DELETE /api/session",
+    "GET /api/dashboard",
+    "GET /api/accounts",
+    "GET /api/accounts/:id",
+    "GET /api/accounts/:id/transactions",
+    "GET /api/transactions",
+    "GET /api/beneficiaries",
+    "GET /api/payments",
+    "GET /api/statements/:id/download",
+    "GET /api/profile"
+  ],
+  "observed": [
+    "GET /api/session",
+    "GET /api/dashboard",
+    "GET /api/accounts",
+    "GET /api/beneficiaries",
+    "GET /api/profile",
+    "GET /api/accounts/:id/transactions",
+    "POST /api/session",
+    "GET /api/accounts/:id/transactions",
+    "GET /api/accounts/:id",
+    "GET /api/accounts/:id",
+    "GET /api/accounts/:id/transactions",
+    "GET /api/payments",
+    "GET /api/accounts/:id",
+    "GET /api/transactions"
+  ],
+  "expected": 12,
+  "actual": 10,
+  "found": 10,
+  "missing": [
+    "DELETE /api/session",
+    "GET /api/statements/:id/download"
+  ],
+  "extra": [],
+  "recall": 0.8333,
+  "precision": 1
+}

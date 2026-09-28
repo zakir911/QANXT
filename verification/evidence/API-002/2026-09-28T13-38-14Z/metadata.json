@@ -1,0 +1,40 @@
+{
+  "testId": "API-002",
+  "suite": "API testing",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "An API test executes in the ordinary run pipeline and passes when the API works",
+  "preconditions": [
+    "the lab bank has no faults enabled"
+  ],
+  "input": "Run of TC-0002",
+  "expected": "A passed execution whose steps are the two HTTP requests",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run passed, execution passed, 2 action(s), 44ms",
+  "metrics": {
+    "durationMs": 44
+  },
+  "startedAt": "2026-09-28T13:58:01.908Z",
+  "durationMs": 2078,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/API-002/2026-09-28T13-38-14Z/run.json",
+      "bytes": 623,
+      "sha256": "8907580a10a1a547f9d83ec1679c1ba659a3dff9c79f71223b91c8d10ccda326"
+    },
+    {
+      "file": "execution.json",
+      "path": "evidence/API-002/2026-09-28T13-38-14Z/execution.json",
+      "bytes": 3204,
+      "sha256": "2d355a659c35b52e4a7fbcfa59889ee24d55c7c804db3687b269bba131405c0f"
+    }
+  ]
+}

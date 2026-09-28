@@ -1,0 +1,107 @@
+{
+  "id": "d92065f3-306b-4d9e-bf4c-94c16956a67a",
+  "testRunId": "ada41da6-9142-4a69-b0ab-2923b24083f0",
+  "testCaseId": "8b79acd4-aa2b-4e9e-ab4c-38cd80ad2349",
+  "reference": "TC-0031",
+  "name": "A public endpoint is required to refuse, and does not",
+  "objective": "",
+  "expectedResults": "",
+  "status": "failed",
+  "startedAt": "2026-09-28T13:59:00.458118+00:00",
+  "completedAt": "2026-09-28T13:59:00.492+00:00",
+  "durationMs": 30,
+  "attempt": 1,
+  "testCaseVersion": 1,
+  "browser": "chromium",
+  "browserVersion": "141.0.7390.37",
+  "workerId": "worker-20360",
+  "correlationId": "da50f61a34474fe8ade158b4afb83759",
+  "stepsTotal": 1,
+  "stepsPassed": 0,
+  "stepsFailed": 1,
+  "stepsHealed": 0,
+  "consoleErrorCount": 0,
+  "networkErrorCount": 0,
+  "errorMessage": "The endpoint refuses a caller with no credentials: Expected a status in \"401,403\" but the response was 200 OK.",
+  "actions": [
+    {
+      "id": "de2d9d89-1e54-4d6a-96d5-6ee995a9ac35",
+      "order": 1,
+      "action": "apiRequest",
+      "description": "Call an endpoint that needs no credentials, requiring a refusal",
+      "status": "failed",
+      "startedAt": "2026-09-28T13:59:00.468+00:00",
+      "durationMs": 5,
+      "url": "http://localhost:4300/health",
+      "wasHealed": false,
+      "errorMessage": "The endpoint refuses a caller with no credentials: Expected a status in \"401,403\" but the response was 200 OK."
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "1f284c80-ef25-474e-8792-0ff178c6be52",
+      "kind": "networkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 1415,
+      "isMasked": true
+    },
+    {
+      "id": "50c42d3e-f4de-4d86-8908-f2cfd8b80119",
+      "kind": "other",
+      "name": "step-1-request.http.json",
+      "contentType": "application/json",
+      "sizeBytes": 1262,
+      "isMasked": true,
+      "testActionId": "de2d9d89-1e54-4d6a-96d5-6ee995a9ac35"
+    },
+    {
+      "id": "5ee812b6-7906-4027-9d8f-d2dfea812e12",
+      "kind": "trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 1001,
+      "isMasked": false
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "f0e932e2-4c4c-493d-bfc2-2fec1509f8a6",
+      "method": "GET",
+      "url": "http://localhost:4300/health",
+      "statusCode": 200,
+      "durationMs": 1,
+      "isFailed": false,
+      "resourceType": "apiTest",
+      "testActionId": "de2d9d89-1e54-4d6a-96d5-6ee995a9ac35",
+      "actionOrder": 1
+    }
+  ],
+  "failure": {
+    "id": "c8e29fa0-ca2a-4d71-b166-d59a29557b54",
+    "category": "unknown",
+    "categoryConfidence": 30,
+    "rawMessage": "The endpoint refuses a caller with no credentials: Expected a status in \"401,403\" but the response was 200 OK.",
+    "signature": "7479fdb744d48a1ef6943ff15bb53d1dd91dbb8e800f485103c3812365aab199",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T13:59:00.529966+00:00",
+    "lastSeenAt": "2026-09-28T13:59:00.529966+00:00",
+    "analysis": {
+      "summary": "Call an endpoint that needs no credentials, requiring a refusal failed.",
+      "likelyCause": "The available evidence does not identify a cause. The engine error is reproduced verbatim below.",
+      "evidence": "The endpoint refuses a caller with no credentials: Expected a status in \"401,403\" but the response was 200 OK.",
+      "suggestedAction": "Review the failure screenshot, DOM snapshot and trace for this execution. Configure a model provider for a deeper analysis of failures like this one.",
+      "category": "unknown",
+      "confidence": 30,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1f284c80-ef25-474e-8792-0ff178c6be52\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"50c42d3e-f4de-4d86-8908-f2cfd8b80119\", \"kind\": \"Other\", \"name\": \"step-1-request.http.json\"}, {\"id\": \"5ee812b6-7906-4027-9d8f-d2dfea812e12\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"d92065f3-306b-4d9e-bf4c-94c16956a67a\"}"
+    }
+  },
+  "healingEvents": []
+}

@@ -1,0 +1,13 @@
+{
+  "reason": "DOM-based XSS cannot be decided from a response body. The source (location.hash) never reaches the server and the sink runs in the browser, so the vulnerable and the corrected application return identical responses. This is recorded as not tested by this scan rather than as no finding.",
+  "observed": {
+    "sinks": [
+      "innerHTML"
+    ],
+    "sources": [
+      "location.hash"
+    ],
+    "status": 200
+  },
+  "detail": "The page contains client-side sink(s) innerHTML and source(s) location.hash, which is grounds for a browser-driven scan of this page, not a finding."
+}

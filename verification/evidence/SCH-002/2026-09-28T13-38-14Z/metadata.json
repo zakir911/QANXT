@@ -1,0 +1,32 @@
+{
+  "testId": "SCH-002",
+  "suite": "Scheduling",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A schedule restricted by tag runs only the tests carrying that tag",
+  "preconditions": [
+    "two tests exist, one tagged smoke and one tagged accounts"
+  ],
+  "input": "A schedule with includeTags \"accounts\"",
+  "expected": "The run it starts contains the accounts test and not the smoke test — a nightly that quietly ran everything would cost hours and hide what it was for",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "ran 1 test(s): TC-0002 (expected only TC-0002)",
+  "metrics": null,
+  "startedAt": "2026-09-28T14:02:13.580Z",
+  "durationMs": 60262,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "executions.json",
+      "path": "evidence/SCH-002/2026-09-28T13-38-14Z/executions.json",
+      "bytes": 745,
+      "sha256": "a2ab3a2aaf0f928dd7b63c9c25476b051102148b1ebe9e6084a226fdf7027a92"
+    }
+  ]
+}

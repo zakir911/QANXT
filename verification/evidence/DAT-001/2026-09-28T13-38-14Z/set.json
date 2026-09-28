@@ -1,0 +1,38 @@
+{
+  "id": "d8f0a7ea-e8b7-49e1-86fb-30f638b02b9e",
+  "projectId": "9b235356-9db1-4b46-8cb0-8769c1bcc8d5",
+  "name": "Every kind (DAT-001)",
+  "description": "One of each",
+  "fields": [
+    {
+      "id": "e32917f2-ab05-4ade-a0ed-eb0a10495a14",
+      "key": "bookingDate",
+      "kind": "seededRandom",
+      "generatorJson": "{\"type\":\"date\"}",
+      "seed": 42,
+      "isSensitive": false
+    },
+    {
+      "id": "a84c6c3c-cf56-42ae-a032-54b78c109b8d",
+      "key": "customerEmail",
+      "kind": "generated",
+      "generatorJson": "{\"type\":\"email\"}",
+      "isSensitive": false
+    },
+    {
+      "id": "d75d8975-9f7c-444d-bd17-035df8efd44a",
+      "key": "orderReference",
+      "kind": "static",
+      "value": "QANXT-TEST-001",
+      "isSensitive": false
+    },
+    {
+      "id": "985f59e3-598c-4018-a0d2-a66a345adaa6",
+      "key": "password",
+      "kind": "secretReference",
+      "value": "${secret:app_password}",
+      "isSensitive": true
+    }
+  ],
+  "createdAt": "2026-09-28T14:04:34.1490845+00:00"
+}

@@ -1,0 +1,43 @@
+{
+  "testId": "API-013",
+  "suite": "API testing",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A pipeline can author and run API tests through the CLI, and branch on its exit status",
+  "preconditions": [
+    "the CLI is built",
+    "the lab bank is running"
+  ],
+  "input": "\"qanxt api-test add --file\", then \"qanxt api-test run\" against a working API and again against a broken one",
+  "expected": "add exits 0 and creates the tests; run exits 0 while the API works and 1 (TEST_FAILURE) while it is broken",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "add exit 0, list exit 0, healthy run exit 0 (expected 0), broken run exit 1 (expected 1)",
+  "metrics": {
+    "addExit": 0,
+    "passExit": 0,
+    "failExit": 1
+  },
+  "startedAt": "2026-09-28T13:58:16.600Z",
+  "durationMs": 7276,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "definition.json",
+      "path": "evidence/API-013/2026-09-28T13-38-14Z/definition.json",
+      "bytes": 1438,
+      "sha256": "9cf9c587cc17d034bd9fbbe2e1fc4baea48c26cbbce6c467f81dce1f80c270df"
+    },
+    {
+      "file": "cli-output.txt",
+      "path": "evidence/API-013/2026-09-28T13-38-14Z/cli-output.txt",
+      "bytes": 1383,
+      "sha256": "c556a129f4382e5e1fdb87939e784619177de8cad986f766b2de60e1871766fa"
+    }
+  ]
+}

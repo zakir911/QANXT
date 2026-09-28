@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-010",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "The reset-reuse check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_RESET_TOKEN_REUSE"
+  ],
+  "input": "The same reset-reuse check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "first 200, second 400",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-28T14:06:44.988Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-010/2026-09-28T13-38-14Z/corrected.json",
+      "bytes": 138,
+      "sha256": "16b088b4b991f98d8821b8b84a60ed004c7c66c171f42b672809150f36e4e7ff"
+    }
+  ]
+}

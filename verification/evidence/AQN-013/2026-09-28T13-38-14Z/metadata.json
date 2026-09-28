@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-013",
+  "suite": "Autonomous planning",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A smoke category covers the discovered pages",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run 2d4d92e5-7e2b-4c56-888c-82a0700410da",
+  "expected": "Smoke is present and its count relates to what discovery found",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "smoke 10",
+  "metrics": null,
+  "startedAt": "2026-09-28T14:11:02.811Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-013/2026-09-28T13-38-14Z/plan.json",
+      "bytes": 4708,
+      "sha256": "8e2ea4cc49ff28cd9cb0579ece630e3f748182a2a1346827acc9a3b23591fe41"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-013/2026-09-28T13-38-14Z/run.json",
+      "bytes": 760,
+      "sha256": "b46f257b5581d2a1b3caadfe064ebe9d2352769f2b49aea19d466b6c73d7c355"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-013/2026-09-28T13-38-14Z/decisions.json",
+      "bytes": 3580,
+      "sha256": "34a1809f41c801948f64bd35a908312945439743bbc2b643a73d6de9e7f6e5a9"
+    }
+  ]
+}

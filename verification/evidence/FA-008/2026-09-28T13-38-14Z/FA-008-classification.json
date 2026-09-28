@@ -1,0 +1,34 @@
+{
+  "case": "connection-reset",
+  "lab": "networkError",
+  "accept": [
+    "networkIssue"
+  ],
+  "actual": "networkIssue",
+  "failure": {
+    "id": "6bab2bc5-894a-49d5-a79d-3e6564931bf2",
+    "category": "networkIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15061ms).",
+    "signature": "84aaf10b4eb8aa6d3cd2ade1352d50c7345e7265469e5bb99a76483a49ebd18a",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T13:51:36.254197+00:00",
+    "lastSeenAt": "2026-09-28T13:51:36.254197+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that never completed.",
+      "likelyCause": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE) — the request did not reach the service, so the page had nothing to render.",
+      "evidence": "GET /api/answer did not complete (net::ERR_EMPTY_RESPONSE), made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15061ms).",
+      "suggestedAction": "Confirm the service is running and reachable from the worker, then re-run.",
+      "category": "networkIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"202efac6-600a-41da-bac4-11f688c3142d\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"2389296d-c1ad-4062-847f-3b62c57090eb\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"2a7948fb-69d1-4c99-bf1a-8031b5580395\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"75de8728-8885-49e4-97a0-767f3b3ce872\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"b15738ab-7db4-42fa-8dc1-dddfd84ef788\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"d1783c46-31e0-40a1-a02c-1f57090414b6\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"e1d0a6eb-5f2f-43c3-920b-0c9529d58785\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"e8dd6037-ccf0-4f14-91c0-1bddd941701f\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"47f5ab3b-a819-4a3c-a42e-fe4848945596\"}"
+    }
+  }
+}

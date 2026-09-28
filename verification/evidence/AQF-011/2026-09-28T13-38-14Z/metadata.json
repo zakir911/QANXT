@@ -1,0 +1,44 @@
+{
+  "testId": "AQF-011",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A shallow crawl is not reported as full coverage",
+  "preconditions": [
+    "a pass has run against a lab with no sign-in control"
+  ],
+  "input": "agent run 13e92132-b696-4906-8f68-d914676e2d3c",
+  "expected": "The plan still says an application is larger than its crawl",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "2 uncovered entries",
+  "metrics": null,
+  "startedAt": "2026-09-28T14:16:16.894Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQF-011/2026-09-28T13-38-14Z/run.json",
+      "bytes": 1338,
+      "sha256": "33b5208e64a654bfd16a5b59e4fcc3d17f8d064b0ff16aed55c00c73da7b1cdc"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-011/2026-09-28T13-38-14Z/decisions.json",
+      "bytes": 16523,
+      "sha256": "13f21bd88906ee3612b8fc289b374dcca781b75351d529bc1caedc05027cd5d8"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQF-011/2026-09-28T13-38-14Z/steps.json",
+      "bytes": 14420,
+      "sha256": "cece79f79d8edd7f311476268c4ab2f8563e6207216939d8479116b97a61eca9"
+    }
+  ]
+}

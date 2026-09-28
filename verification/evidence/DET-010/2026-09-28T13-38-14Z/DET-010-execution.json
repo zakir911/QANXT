@@ -1,0 +1,42 @@
+{
+  "id": "DET-010",
+  "case": "wrong-value",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "d3a68324-cf79-4d26-ba9f-94e8aed8ce83",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15078ms).",
+    "signature": "affc1d4e1a67e99a5dad54ef3476179f15bf6a182d10eacea8861afe941c5327",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T13:49:02.706174+00:00",
+    "lastSeenAt": "2026-09-28T13:49:02.706175+00:00",
+    "analysis": {
+      "summary": "An assertion failed on outcome reads \"OK 42\".",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15078ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"4e0c4c9d-a23d-4108-a1b1-bb21d9abb0b5\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"5365b7dd-cd95-4456-bfc3-14ac72537d08\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"8b42559e-2b2d-4e33-a1e1-b4891c88415c\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"95993e49-8997-48d6-b81f-9e63d30fcac3\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"ad7a0fb3-8187-4a20-8e8c-086d504782eb\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"c9159019-f054-418a-8104-5930b9c6cb25\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"d3866fdc-3366-449c-b074-e72bc75de988\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}], \"executionId\": \"8aceede0-534d-424c-bd31-80317a73b28e\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15078ms)."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

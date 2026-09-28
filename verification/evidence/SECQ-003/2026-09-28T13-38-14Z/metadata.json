@@ -1,0 +1,32 @@
+{
+  "testId": "SECQ-003",
+  "suite": "Security gate, regression and triage",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A clean scan never claims the application is secure",
+  "preconditions": [
+    "the same lab with both flaws corrected"
+  ],
+  "input": "A live scan of the corrected application",
+  "expected": "The sentence the brief requires — \"Within the configured scope and test coverage, no security findings were detected by the executed QA NXT security tests\" — and never \"secure\" or \"zero vulnerabilities\"",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Within the configured scope and test coverage, no security findings were detected by the executed QA NXT security tests (2 of 5 configured check(s), 7 request(s) issued). This is not a statement that the application is secure or that no vulnerabilities exist. Untested: DOM-based XSS (needs a browser-driven scan); cloud metadata (off by default).",
+  "metrics": null,
+  "startedAt": "2026-09-28T14:06:45.656Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-003/2026-09-28T13-38-14Z/gate.json",
+      "bytes": 2229,
+      "sha256": "5ba1aecec5dc62aee885ef8c0fb3b142217b055f05a9e62fc7b82c03c4c73856"
+    }
+  ]
+}

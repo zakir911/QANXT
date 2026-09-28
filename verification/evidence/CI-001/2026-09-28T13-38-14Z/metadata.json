@@ -1,0 +1,47 @@
+{
+  "testId": "CI-001",
+  "suite": "CI integration",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A run writes exactly the four documented artifacts, under fixed names",
+  "preconditions": [
+    "the CLI is built",
+    "the lab bank is running"
+  ],
+  "input": "qanxt run --report-dir <dir>",
+  "expected": "junit.xml, report.json, report.html and summary.md, each non-empty and each valid in its own format — so a pipeline can publish the directory without knowing what is in it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "exit 0; files junit.xml, report.html, report.json, summary.md; junit 485B, json 1722B, html 4322B, summary 404B",
+  "metrics": {
+    "files": 4
+  },
+  "startedAt": "2026-09-28T14:00:35.580Z",
+  "durationMs": 3805,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "files.json",
+      "path": "evidence/CI-001/2026-09-28T13-38-14Z/files.json",
+      "bytes": 67,
+      "sha256": "690876989443301f21c0ce3c7c62e0f7a689814f3675d613f899421dc17b8afb"
+    },
+    {
+      "file": "junit.xml",
+      "path": "evidence/CI-001/2026-09-28T13-38-14Z/junit.xml",
+      "bytes": 489,
+      "sha256": "70808c203e621377f3dc27dc16ee8a8b033f3fc228cd7ccfabcf561d7c35f929"
+    },
+    {
+      "file": "summary.md",
+      "path": "evidence/CI-001/2026-09-28T13-38-14Z/summary.md",
+      "bytes": 413,
+      "sha256": "c31ae6a29b9e16687f339005fcc4e5e7a83a446a5d434f2cede423b1290d537c"
+    }
+  ]
+}

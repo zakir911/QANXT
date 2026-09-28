@@ -1,0 +1,32 @@
+{
+  "testId": "SECQ-001",
+  "suite": "Security gate, regression and triage",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A scan that did not run is REVIEW, never a pass",
+  "preconditions": [
+    "no scan"
+  ],
+  "input": "Coverage with scanRan false",
+  "expected": "REVIEW, and a summary that says NOT SCANNED. A build that goes green because nobody scanned is the failure this gate exists to prevent",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "REVIEW: NOT SCANNED. No security tests were executed for this build, so nothing is known about its security posture from QA NXT.",
+  "metrics": null,
+  "startedAt": "2026-09-28T14:06:45.652Z",
+  "durationMs": 2,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECQ-001/2026-09-28T13-38-14Z/gate.json",
+      "bytes": 572,
+      "sha256": "ed9375d9477b9b237c92d17064d6aa3d77b4b83c49ce05c701fbc3d76a699774"
+    }
+  ]
+}

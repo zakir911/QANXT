@@ -1,0 +1,38 @@
+{
+  "testId": "AQE-050",
+  "suite": "Autonomous execution",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A refused pass is not reported as a clean one",
+  "preconditions": [
+    "a pass has been refused permission for the action it asked about"
+  ],
+  "input": "agent run b80b8eca-0a81-48cd-bdb7-807268d3e9dc",
+  "expected": "It did not complete, and it executed nothing",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "stopped, 0 executed",
+  "metrics": null,
+  "startedAt": "2026-09-28T14:14:05.145Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "refused-run.json",
+      "path": "evidence/AQE-050/2026-09-28T13-38-14Z/refused-run.json",
+      "bytes": 933,
+      "sha256": "ad0a1a7c2eeb63f4dbc3c6fe5d4706c538678bf7f9cc38199aef1374214b4015"
+    },
+    {
+      "file": "refused-approvals.json",
+      "path": "evidence/AQE-050/2026-09-28T13-38-14Z/refused-approvals.json",
+      "bytes": 925,
+      "sha256": "41ee84fd248222e4510fee69c8afefde2bab89057b1aecb6f07a52e95f496f5c"
+    }
+  ]
+}

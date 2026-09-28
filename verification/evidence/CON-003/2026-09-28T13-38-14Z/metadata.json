@@ -1,0 +1,33 @@
+{
+  "testId": "CON-003",
+  "suite": "API contracts",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "An unchanged API produces no contract differences at all",
+  "preconditions": [
+    "baselines captured",
+    "no faults enabled"
+  ],
+  "input": "A run of the accounts test against the unchanged application",
+  "expected": "Zero differences of any kind — the check is quiet when nothing has moved",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "run passed; 0 breaking, 0 potentially breaking, 0 non-breaking",
+  "metrics": null,
+  "startedAt": "2026-09-28T13:58:41.308Z",
+  "durationMs": 2066,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "changes.json",
+      "path": "evidence/CON-003/2026-09-28T13-38-14Z/changes.json",
+      "bytes": 258,
+      "sha256": "e7fe61d891df96204d5665ea3a847dc726a71e410917ce2e377f6633710b312b"
+    }
+  ]
+}

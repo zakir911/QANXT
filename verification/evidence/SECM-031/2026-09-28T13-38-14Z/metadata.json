@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-031",
+  "suite": "Security scanning",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "The reflected-cors finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-942, OWASP A05:2021, severity High, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-942, A05:2021, High (14/19) — High (14/19): straightforward to exploit, serious impact, no account needed, reaches personal data, publicly reachable.",
+  "metrics": {
+    "score": 14,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-28T14:06:45.445Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-031/2026-09-28T13-38-14Z/mapping.json",
+      "bytes": 888,
+      "sha256": "9bc201edacef63c82da2e2937e845c1300f22f788991231daca06eae7a7247f0"
+    }
+  ]
+}

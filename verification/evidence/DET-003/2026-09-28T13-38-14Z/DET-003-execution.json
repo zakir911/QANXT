@@ -1,0 +1,42 @@
+{
+  "id": "DET-003",
+  "case": "http-401",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "7c4d8284-428b-4dcc-97f9-d41f0adbe723",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15034ms).",
+    "signature": "4058a402cb444fe88878b3568c4e431a5290799c30a9a8228d7eaf793d6836b9",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-28T13:46:53.683127+00:00",
+    "lastSeenAt": "2026-09-28T13:46:53.683127+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was refused with 401.",
+      "likelyCause": "GET /api/answer → 401 in 0ms — the session was not accepted, so the page had nothing to render.",
+      "evidence": "GET /api/answer → 401 in 0ms, made by step 3. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15034ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0c01a25d-a9fe-47bb-ba18-509609ff9c75\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"1b62e0db-ceb8-4faa-a7e2-88cd34504122\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"38781a19-0105-4668-bd19-cad2f7b1e455\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"3a1ee25d-a37b-462e-9779-922e932e212c\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"51cacacb-9ec1-48fd-9165-d29ac8b3007c\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"638c3918-d016-4618-90ad-ddddcc5b266d\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"81a4e1eb-59b6-475e-b95f-250455e16e8e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"b3ce3e20-1d24-46df-80b1-414cd32e85ae\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}], \"executionId\": \"bb1575fe-f810-4a31-97b2-68015cabf715\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15034ms)."
+  },
+  "consoleErrors": 1,
+  "networkErrors": 1,
+  "screenshots": 2
+}

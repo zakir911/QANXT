@@ -1,0 +1,36 @@
+{
+  "testId": "DET-008",
+  "suite": "Failure detection",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A connection reset failure is detected and reported as a failure",
+  "preconditions": [
+    "the failure lab is running",
+    "the test targets /case/connection-reset"
+  ],
+  "input": "The same four-step test: open /case/connection-reset, press the button, expect \"OK 42\"",
+  "expected": "The run FAILS, with the failing step, an error message and a screenshot",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15040ms).; 2 screenshot(s); classified networkIssue",
+  "metrics": {
+    "screenshots": 2,
+    "consoleErrors": 1
+  },
+  "startedAt": "2026-09-28T13:48:08.584Z",
+  "durationMs": 18130,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DET-008-execution.json",
+      "path": "evidence/DET-008/2026-09-28T13-38-14Z/DET-008-execution.json",
+      "bytes": 2653,
+      "sha256": "4a51c43d565181293902c75d66a4a5b86c1220bd2535fab65b93e0d4f182bf11"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "testId": "AQE-038",
+  "suite": "Autonomous execution",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "The pass never deleted a test",
+  "preconditions": [
+    "a full autonomous pass has run with every question answered"
+  ],
+  "input": "agent run ebd9ae0d-6aa6-489e-b600-c9fba6e8cfae",
+  "expected": "Every test it generated still exists",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "12 tests exist, 12 generated",
+  "metrics": null,
+  "startedAt": "2026-09-28T14:13:37.759Z",
+  "durationMs": 7,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQE-038/2026-09-28T13-38-14Z/run.json",
+      "bytes": 1357,
+      "sha256": "dcdb6dea4eb6fceaae4fb8a931010b81de2963568a5fcfe4431701f5421ce54c"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQE-038/2026-09-28T13-38-14Z/decisions.json",
+      "bytes": 18519,
+      "sha256": "a706458468cf0b0610449aec2ae1a928c67cc46980720c922da8f3407b528a14"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQE-038/2026-09-28T13-38-14Z/approvals.json",
+      "bytes": 1831,
+      "sha256": "6f7f617f6cf231fb9ce2ae7120e8792adb96264ba610e3cc695d83a07415235b"
+    },
+    {
+      "file": "timeline.json",
+      "path": "evidence/AQE-038/2026-09-28T13-38-14Z/timeline.json",
+      "bytes": 20881,
+      "sha256": "33e7a543101b325159badd422244aa486f4dd672f81fec8499b4c473a18cc36e"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQE-038/2026-09-28T13-38-14Z/steps.json",
+      "bytes": 14877,
+      "sha256": "49361ec28c34d6e053f10cd1b3e0a25a4e41b5cbca179c1c36aa3d57f4c8ec72"
+    }
+  ]
+}

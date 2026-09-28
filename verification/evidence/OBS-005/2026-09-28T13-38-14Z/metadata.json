@@ -1,0 +1,35 @@
+{
+  "testId": "OBS-005",
+  "suite": "Isolation, audit and observability",
+  "runId": "2026-09-28T13-38-14Z",
+  "objective": "A correlation id a caller invents is bounded, so it cannot be used to write arbitrary text into every log line",
+  "preconditions": [
+    "the API is running"
+  ],
+  "input": "A request carrying a 500-character correlation header",
+  "expected": "The oversized value is rejected and replaced with one the platform generated",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "sent 500 characters; the platform used a 32-character id of its own: true",
+  "metrics": {
+    "sentLength": 500,
+    "returnedLength": 32
+  },
+  "startedAt": "2026-09-28T14:06:08.730Z",
+  "durationMs": 7,
+  "build": {
+    "commit": "9c359e6",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "oversized-correlation.json",
+      "path": "evidence/OBS-005/2026-09-28T13-38-14Z/oversized-correlation.json",
+      "bytes": 77,
+      "sha256": "5e21d3dd59540ff64239ad1adc9ccee55f53d9e06cdb5f55db19d462ae235ab7"
+    }
+  ]
+}
