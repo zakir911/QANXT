@@ -77,6 +77,18 @@ export default function Layout() {
 
   return (
     <div className="min-h-full flex flex-col">
+      {/* The first thing a keyboard reaches, and hidden until then. Without it, getting to
+          the content meant tabbing past the project selector, sign-out and all fifteen
+          navigation links — seventeen stops, on every page, every time. WCAG 2.4.1. */}
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-2 focus:rounded-lg
+                   focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:font-semibold
+                   focus:text-brand focus:shadow-lg"
+      >
+        Skip to the main content
+      </a>
+
       <header className="bg-[#0b2545] text-white">
         <div className="flex flex-wrap items-center gap-4 px-5 py-2.5">
           <div className="flex items-baseline gap-2">
@@ -140,7 +152,9 @@ export default function Layout() {
         </nav>
       </div>
 
-      <main className="flex-1 w-full max-w-[1400px] mx-auto px-5 py-6">
+      {/* tabIndex={-1} so the skip link can move focus here; without it the browser scrolls
+          but focus stays behind, and the next Tab returns to the navigation. */}
+      <main id="main" tabIndex={-1} className="flex-1 w-full max-w-[1400px] mx-auto px-5 py-6 focus:outline-none">
         <Outlet />
       </main>
 

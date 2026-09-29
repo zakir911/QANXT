@@ -99,7 +99,11 @@ function install(): void {
 
       // A password is never read. The step records a reference the platform resolves from
       // encrypted storage at run time.
-      const isSecret = input.type === 'password' || /password|secret|token|cvv|pin/i.test(input.name || input.id || '');
+      // Kept in step with the importer's vocabulary (JourneyImportService.CredentialFieldWords).
+      // "credential" and "passphrase" were missing, so a field named either — and not typed
+      // password — had its value recorded in the clear.
+      const SECRET_WORDS = /password|passphrase|passwd|secret|token|credential|apikey|api_key|cvv|pin|otp|mfa|auth/i;
+      const isSecret = input.type === 'password' || SECRET_WORDS.test(input.name || input.id || '');
       emit({
         action: 'fill',
         description: `Enter ${isSecret ? 'the password' : `"${truncate(input.value, 40)}"`} in ${describeForHuman(target)}`,

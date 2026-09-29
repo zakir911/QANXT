@@ -91,7 +91,16 @@ public sealed class AiOrchestrator : IAiOrchestrator
         var systemPrompt = $"{options.SystemPrompt}\n\n{PromptBuilder.UntrustedContentDirective}";
         var promptHash = Hash(provider.Kind, model, options.SchemaName, systemPrompt, userPrompt);
 
-        if (options.AllowCache)
+        // The cache exists to avoid paying twice for the same model call. The local provider
+        // is not a model call: it is a deterministic rule engine, it costs nothing, and it
+        // answers in milliseconds. Serving it from cache buys nothing and costs correctness.
+        //
+        // The key carries the provider's model string, and the local provider's is a
+        // constant — qanxt-rules-v1 — so changing the rules does not change the key. An
+        // upgraded rule engine therefore went on serving the old rules' output to every
+        // organization that had already asked, for the whole 168-hour window: a generator
+        // fix shipped, and the console kept producing the pre-fix test cases.
+        if (options.AllowCache && provider.Kind != LlmProviderKind.Local)
         {
             var cached = await TryReadCacheAsync<T>(organizationId.Value, promptHash, provider.Kind, model, ct);
             if (cached is not null) return cached;

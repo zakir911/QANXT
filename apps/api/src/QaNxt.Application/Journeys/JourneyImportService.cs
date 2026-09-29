@@ -167,7 +167,7 @@ public sealed class JourneyImportService : IJourneyImportService
                 TargetJson = step.Target?.ToJson(),
                 // Masked on arrival: a recorder can only promise so much, and a value that
                 // looks like a credential must not become a stored literal.
-                Value = Truncate(MaskRecordedValue(step.Value, credentials), 2000),
+                Value = Truncate(MaskRecordedValue(step.Value, credentials, step), 2000),
                 Url = Truncate(step.Url, 2048),
                 Annotation = Truncate(step.Annotation, 2000),
                 ExpectedResult = Truncate(step.Expected, 2000),
@@ -258,7 +258,7 @@ public sealed class JourneyImportService : IJourneyImportService
                 Action = step.Action,
                 Description = step.Description,
                 Target = step.Target is null ? null : WithFallbacks(step.Target, step.Candidates),
-                Value = MaskRecordedValue(step.Value, credentials),
+                Value = MaskRecordedValue(step.Value, credentials, step),
                 Url = step.Url,
                 Expected = step.Expected,
                 Attribute = step.Attribute,
@@ -389,11 +389,24 @@ public sealed class JourneyImportService : IJourneyImportService
 
     /// <summary>A recorder marks passwords as secret references, but a value that merely
     /// looks like a credential is masked here as a second line of defence.</summary>
-    private string MaskRecordedValue(string? value, ApplicationCredentials? credentials = null)
+    private string MaskRecordedValue(string? value, ApplicationCredentials? credentials = null,
+        RecordedStepPayload? step = null)
     {
         if (string.IsNullOrEmpty(value)) return string.Empty;
         if (value.StartsWith("${secret:", StringComparison.Ordinal)) return value;
         if (value.StartsWith("${data:", StringComparison.Ordinal)) return value;
+
+        // What the step says it is typing into. The recorder decides this from the live
+        // element — a password input, or a name matching its vocabulary — and replaces the
+        // value before it ever leaves the page. A journey that did not come from the
+        // recorder has no such protection, and the checks below cannot help: an arbitrary
+        // passphrase has no recognisable shape and will not equal the credentials on file.
+        //
+        // But the payload says what the field is. A step targeting "credential" and
+        // described as "Type the passphrase" stored hunter2SuperSecretValue in plain text,
+        // and from there it reached the generated test step too. Reading the names the
+        // payload already carries costs nothing and closes that.
+        if (step is not null && NamesACredentialField(step)) return "${secret:app_password}";
 
         // The platform already holds this application's credentials, so a value equal to one
         // of them is a credential however innocuous the string looks. The shape-based check
@@ -409,6 +422,31 @@ public sealed class JourneyImportService : IJourneyImportService
         return masked.Contains(SecretMasker.Redacted, StringComparison.Ordinal)
             ? "${secret:app_password}"
             : value;
+    }
+
+
+    /// <summary>Whether a recorded step is typing into something that names itself a secret.
+    ///
+    /// The vocabulary is deliberately the same as the recorder's
+    /// (apps/browser-extension/src/content.ts); the two must agree, or a field the recorder
+    /// would have protected becomes unprotected the moment the journey is imported from
+    /// anywhere else. Over-masking is the safe direction: the cost is a test step that has
+    /// to be given its value back, and the cost of under-masking is a credential in the
+    /// database.</summary>
+    private static readonly string[] CredentialFieldWords =
+    {
+        "password", "passphrase", "passwd", "secret", "token", "credential",
+        "apikey", "api_key", "cvv", "pin", "otp", "mfa", "auth"
+    };
+
+    private static bool NamesACredentialField(RecordedStepPayload step)
+    {
+        var haystack = string.Join(' ', new[]
+        {
+            step.Target?.Value, step.Description
+        }.Where(v => !string.IsNullOrWhiteSpace(v))).ToLowerInvariant();
+
+        return CredentialFieldWords.Any(word => haystack.Contains(word, StringComparison.Ordinal));
     }
 
     /// <summary>Ordinal comparison: a credential differing only in case is a different
