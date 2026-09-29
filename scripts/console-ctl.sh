@@ -25,7 +25,16 @@ case "${1:-start}" in
     # pipes our output waits for a pipe we never close. With --fork the intermediate exits
     # immediately and the server is reparented away from us, so $! is no longer ours to
     # read — the pid comes from the process itself.
-    pid="$(pgrep -n -f 'vite/bin/vite\.js --host 127\.0\.0\.1 --port 5173' || true)"
+    # --fork means the server appears a moment after setsid returns, so poll briefly
+    # rather than reading once. Reading once wrote an empty pid file, which start reports
+    # as "(pid )" and which leaves stop with nothing to kill.
+    pid=""
+    for _ in $(seq 1 50); do
+      pid="$(pgrep -n -f 'vite/bin/vite\.js --host 127\.0\.0\.1 --port 5173' || true)"
+      [ -n "$pid" ] && break
+      sleep 0.1
+    done
+    [ -n "$pid" ] || { echo "Console did not start; see $LOGFILE" >&2; exit 1; }
     printf '%s\n' "$pid" > "$PIDFILE"
     echo "Console starting (pid $(cat "$PIDFILE")) on http://127.0.0.1:5173"
     ;;
