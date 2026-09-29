@@ -2,7 +2,7 @@ import { ApiClient } from '../api.js';
 import { boolFlag, flag, intFlag, rejectUnknownFlags, type ParsedArgs } from '../args.js';
 import { resolveContext } from '../config.js';
 import { ExitCode, usage } from '../exit-codes.js';
-import { bold, dim, note, out, red } from '../output.js';
+import { bold, dim, humanize, note, out, red } from '../output.js';
 
 export const AUDIT_FLAGS = [
   'project', 'action', 'entity-type', 'entity-id', 'correlation', 'user',
@@ -157,7 +157,7 @@ function render(page: AuditPage, args: ParsedArgs): number {
     // A failed action is the one worth finding, so it is marked rather than left to be
     // spotted in a column.
     const mark = entry.succeeded ? ' ' : red('!');
-    out(`${mark} ${dim(entry.occurredAt)} ${bold(entry.action)} ${dim(entry.entityType)}`);
+    out(`${mark} ${dim(entry.occurredAt)} ${bold(humanize(entry.action))} ${dim(entry.entityType)}`);
     out(`    ${entry.summary}`);
     const trail = [
       entry.userEmail ?? 'no user in context',

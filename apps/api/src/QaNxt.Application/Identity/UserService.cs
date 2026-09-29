@@ -8,7 +8,15 @@ using Microsoft.Extensions.Logging;
 
 namespace QaNxt.Application.Identity;
 
-public sealed record InviteUserRequest(string Email, string DisplayName, SystemRole Role);
+/// <summary>An invitation. <see cref="Role"/> is nullable on purpose.
+///
+/// It used to be a plain <see cref="SystemRole"/>, and SystemRole.SuperAdmin is 0, so a
+/// request that omitted the field — or spelled it wrong — deserialized into a request for the
+/// most powerful role in the product. Nothing was ever granted, because the validator refuses
+/// SuperAdmin outright, but the safety came from one line rather than from the shape of the
+/// type, and the error told the caller they had asked for SuperAdmin when they had asked for
+/// nothing. Nullable makes "absent" a state of its own, so it can be refused as absent.</summary>
+public sealed record InviteUserRequest(string Email, string DisplayName, SystemRole? Role);
 
 public sealed record UpdateUserRequest(string? DisplayName, SystemRole? Role, UserStatus? Status);
 
@@ -98,7 +106,7 @@ public sealed class UserService : IUserService
             return Error.Conflict("email_taken", "Someone with that email is already in this organization.");
         }
 
-        var role = await FindRoleAsync(request.Role, ct);
+        var role = await FindRoleAsync(request.Role!.Value, ct);
         if (role is null)
         {
             return Error.Validation($"The role '{request.Role}' does not exist in this deployment.");
@@ -318,9 +326,11 @@ public sealed class UserService : IUserService
         else if (request.DisplayName.Trim().Length > 200)
             errors["displayName"] = new[] { "The name must be 200 characters or fewer." };
 
-        if (!Enum.IsDefined(request.Role))
+        if (request.Role is not { } requestedRole)
+            errors["role"] = new[] { "A role is required. Name one of the built-in roles, such as 'viewer'." };
+        else if (!Enum.IsDefined(requestedRole))
             errors["role"] = new[] { "That is not a role this platform has." };
-        else if (request.Role == SystemRole.SuperAdmin)
+        else if (requestedRole == SystemRole.SuperAdmin)
             errors["role"] = new[] { "SuperAdmin cannot be granted through an invitation." };
 
         return errors.Count == 0 ? null : Error.Validation("The invitation is not valid.", errors);

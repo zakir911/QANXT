@@ -78,6 +78,8 @@ public sealed class IntegrationsController : ApiControllerBase
         if (name.Length == 0) return Problem(Domain.Common.Error.Validation("An integration needs a name."));
 
         if (Misplaced(request.Settings) is { } misplaced) return Problem(misplaced);
+        if (Unconfigurable(request.Kind, request.Settings, request.Credentials) is { } unusable)
+            return Problem(unusable);
 
         var integration = new Integration
         {
@@ -188,6 +190,35 @@ public sealed class IntegrationsController : ApiControllerBase
     /// quietly moving it, because the caller has already sent the secret somewhere it did
     /// not intend and should know.
     /// </remarks>
+
+    /// <summary>Whether a kind is missing the one setting without which it can never deliver.
+    ///
+    /// A webhook with no URL was accepted, stored, and reported as enabled. It could not
+    /// deliver anything, and nothing said so until somebody pressed Test — which on a product
+    /// whose notifications exist to say when quality breaks is the wrong way round: the
+    /// channel looks configured, so nobody presses it.
+    ///
+    /// Only the field that makes delivery possible at all is required here. Everything else a
+    /// kind might want is optional by design, and a check that guessed at more would reject
+    /// configurations that work.</summary>
+    private static Domain.Common.Error? Unconfigurable(
+        IntegrationKind kind, Dictionary<string, string>? settings, Dictionary<string, string>? credentials)
+    {
+        static bool Has(Dictionary<string, string>? bag, string key)
+            => bag is not null && bag.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value);
+
+        return kind switch
+        {
+            IntegrationKind.Webhook when !Has(settings, "url") => Domain.Common.Error.Validation(
+                "A webhook needs the URL to post to, as settings.url."),
+            // Slack's incoming-webhook URL is the credential: anyone holding it can post to
+            // the channel, so it lives in encrypted storage rather than in settings.
+            IntegrationKind.Slack when !Has(credentials, "webhookUrl") => Domain.Common.Error.Validation(
+                "A Slack integration needs its incoming-webhook URL, as credentials.webhookUrl."),
+            _ => null
+        };
+    }
+
     private static Domain.Common.Error? Misplaced(Dictionary<string, string>? settings)
     {
         if (settings is null) return null;

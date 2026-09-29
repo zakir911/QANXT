@@ -1,5 +1,5 @@
 import type { ApiClient } from './api.js';
-import type { ExecutionSummary, QualityGateResult, RunReport, RunSummary } from './types.js';
+import type { ExecutionSummary, PendingHeal, QualityGateResult, RunReport, RunSummary } from './types.js';
 import { renderHtml } from './reports/html.js';
 import { renderJson } from './reports/json.js';
 import { renderJUnit } from './reports/junit.js';
@@ -26,7 +26,36 @@ export async function gatherReport(
     // A report without the project's name is still a useful report.
   }
 
-  return { run, executions, qualityGate, project, consoleUrl, generatedAt: new Date().toISOString() };
+  // Repairs the platform has already worked out and is holding for approval. Narrowed to the
+  // tests that ran here: a proposal against some other suite is not this run's news, and a
+  // report that listed the whole project's backlog would be ignored.
+  let pendingHeals: PendingHeal[] = [];
+  try {
+    const ran = new Set(executions.map(e => e.testCaseId));
+    const proposals = await api.get<Array<{
+      testCaseId: string; testCaseName: string; stepDescription: string;
+      originalLocator: string; healedLocator: string; confidence: number;
+    }>>(`/api/v1/healing?projectId=${run.projectId}&outcome=proposed&limit=100`);
+
+    pendingHeals = proposals
+      .filter(p => ran.has(p.testCaseId))
+      .map(p => ({
+        testCaseReference: executions.find(e => e.testCaseId === p.testCaseId)?.reference ?? '',
+        testCaseName: p.testCaseName,
+        stepDescription: p.stepDescription,
+        originalLocator: p.originalLocator,
+        healedLocator: p.healedLocator,
+        confidence: p.confidence
+      }));
+  } catch {
+    // Reporting the run matters more than reporting the proposals; an older platform that
+    // does not serve this endpoint still produces a complete report of what ran.
+  }
+
+  return {
+    run, executions, qualityGate, pendingHeals, project, consoleUrl,
+    generatedAt: new Date().toISOString()
+  };
 }
 
 export interface ReportTargets {

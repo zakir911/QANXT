@@ -259,6 +259,18 @@ export function printSummary(run: RunSummary, report: Awaited<ReturnType<typeof 
   note(`  ${run.passedCount} passed · ${run.failedCount} failed · ${run.blockedCount} blocked `
     + `· ${run.healedCount} healed · ${run.flakyCount} flaky · ${duration(run.durationMs)}`);
 
+  // Said here as well as in the reports, because somebody watching the run scroll past is
+  // the person best placed to go and approve it, and they may never open a report at all.
+  if (report.pendingHeals.length > 0) {
+    note('');
+    note(yellow(`  ${report.pendingHeals.length} repair(s) waiting for approval.`)
+      + ' QA NXT worked out a new locator but was not confident enough to apply it.');
+    for (const heal of report.pendingHeals.slice(0, 5)) {
+      note(`    ${heal.testCaseReference} ${heal.originalLocator} → ${heal.healedLocator}`
+        + dim(` (${heal.confidence}%)`));
+    }
+  }
+
   const gate = report.qualityGate;
   note('');
   note(gate.passed ? green(`  Quality gate passed. ${gate.summary}`) : red(`  Quality gate failed. ${gate.summary}`));

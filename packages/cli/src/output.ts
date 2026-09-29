@@ -34,3 +34,19 @@ export function duration(ms: number): string {
   const minutes = Math.floor(ms / 60_000);
   return `${minutes}m${Math.round((ms % 60_000) / 1000)}s`;
 }
+
+/**
+ * Turns a wire enum into the words the console uses for it.
+ *
+ * The audit trail printed `testRunStarted` and `aiGeneration` where the console says "Test
+ * run started" and "Ai generation". The same record should not read differently depending on
+ * which surface you opened it in, least of all the one people quote in a review.
+ */
+export function humanize(value: string): string {
+  const spaced = value
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .trim()
+    .toLowerCase();
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}

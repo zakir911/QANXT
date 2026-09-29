@@ -97,10 +97,29 @@ export interface QualityGateResult {
 }
 
 /** Everything a report needs, gathered once so the three renderers agree with each other. */
+/**
+ * A repair the platform has worked out and is waiting for somebody to approve.
+ *
+ * Healing proposes rather than applies when its confidence is below the project's threshold,
+ * which is correct — nothing becomes permanent without approval. But the run report only
+ * carried `healed: 0`, with no field for a proposal, so a pipeline reported failures while
+ * the platform already knew the answer and nobody was told to go and look.
+ */
+export interface PendingHeal {
+  testCaseReference: string;
+  testCaseName: string;
+  stepDescription: string;
+  originalLocator: string;
+  healedLocator: string;
+  confidence: number;
+}
+
 export interface RunReport {
   run: RunSummary;
   executions: ExecutionSummary[];
   qualityGate: QualityGateResult;
+  /** Proposals awaiting review for tests that ran in this run. Empty when there are none. */
+  pendingHeals: PendingHeal[];
   project?: { id: string; name: string; key: string } | undefined;
   consoleUrl?: string | undefined;
   generatedAt: string;

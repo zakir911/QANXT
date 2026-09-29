@@ -102,12 +102,37 @@ export class ApiClient {
   }
 }
 
-/** Unwraps the API's problem document into one readable line. */
+/**
+ * Unwraps the API's problem document into one readable line.
+ *
+ * A validation failure puts what is actually wrong in `errors`, keyed by field, and leaves
+ * `detail` empty — so reading only `detail ?? title` printed "One or more validation errors
+ * occurred." and threw away "The value 'CLIQA' is not valid." The person who has to fix it
+ * is the person reading this line.
+ */
 function describeProblem(text: string): string {
   if (!text) return 'The platform returned no detail.';
   try {
-    const problem = JSON.parse(text) as { title?: string; detail?: string; correlationId?: string };
-    const message = problem.detail ?? problem.title;
+    const problem = JSON.parse(text) as {
+      title?: string; detail?: string; correlationId?: string;
+      errors?: Record<string, string[] | string>;
+    };
+
+    const fields = Object.entries(problem.errors ?? {})
+      .map(([field, messages]) => {
+        const text = Array.isArray(messages) ? messages.join(' ') : String(messages);
+        // A field name is worth printing only when it adds something the message does not.
+        return text.toLowerCase().includes(field.toLowerCase()) ? text : `${field}: ${text}`;
+      })
+      .filter(Boolean);
+
+    const headline = problem.detail ?? problem.title;
+    const message = fields.length > 0
+      // The title is the envelope ("One or more validation errors occurred"); the fields are
+      // the content. Keep the title only when it says something of its own.
+      ? (headline && !/validation error/i.test(headline) ? `${headline} ${fields.join(' ')}` : fields.join(' '))
+      : headline;
+
     if (!message) return text.slice(0, 300);
     return problem.correlationId ? `${message} (correlation ${problem.correlationId})` : message;
   } catch {

@@ -32,6 +32,23 @@ export function renderMarkdown(report: RunReport): string {
     + ` · ${run.healedCount} healed · ${run.flakyCount} flaky · ${duration(run.durationMs)}`);
   lines.push('');
 
+  // Before the failures, because it changes what the reader should do about them: three
+  // red tests the platform already has a repair for is a different morning from three it
+  // does not.
+  if (report.pendingHeals.length > 0) {
+    lines.push(`#### ${report.pendingHeals.length} repair(s) waiting for approval`);
+    lines.push('');
+    lines.push('A locator stopped matching and QA NXT worked out what it should be, but its '
+      + 'confidence was below this project\'s threshold, so it proposed rather than applied. '
+      + 'Nothing changes until somebody approves it.');
+    lines.push('');
+    for (const heal of report.pendingHeals.slice(0, 10)) {
+      lines.push(`- **${heal.testCaseReference}** ${heal.stepDescription} — `
+        + `\`${heal.originalLocator}\` → \`${heal.healedLocator}\` (${heal.confidence}% confidence)`);
+    }
+    lines.push('');
+  }
+
   if (failed.length > 0) {
     lines.push(`#### What failed`);
     lines.push('');

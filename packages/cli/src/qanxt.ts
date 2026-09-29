@@ -16,7 +16,7 @@ import { TEST_DATA_HELP, testDataCommand } from './commands/test-data.js';
 import { RELEASE_HELP, releaseCommand } from './commands/release.js';
 import { AUDIT_HELP, auditCommand } from './commands/audit.js';
 import { SECURITY_HELP, securityCommand } from './commands/security.js';
-import { appsCommand, environmentsCommand, LIST_HELP, projectsCommand } from './commands/list.js';
+import { appsCommand, environmentsCommand, LIST_HELP, projectsCommand, suitesCommand, testsCommand } from './commands/list.js';
 
 /**
  * The entry point.
@@ -36,6 +36,8 @@ ${bold(`${PRODUCT} command line`)} ${dim(`v${VERSION}`)}
   qanxt login                Store a session
   qanxt projects             List the projects this account can see
   qanxt apps                 List the applications in a project
+  qanxt suites               List the test suites in a project
+  qanxt tests                List the test cases in a project
   qanxt environments         List a project's environments
   qanxt discover             Crawl an application and refresh its knowledge graph
   qanxt api-test             Author, generate and run API tests
@@ -103,6 +105,8 @@ const COMMANDS: Record<string, (args: ReturnType<typeof parseArgs>) => Promise<n
   'quality-gate': qualityGateCommand,
   projects: projectsCommand,
   apps: appsCommand,
+  suites: suitesCommand,
+  tests: testsCommand,
   environments: environmentsCommand,
   report: reportCommand
 };

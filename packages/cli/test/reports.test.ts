@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { renderJUnit, escapeXml } from '../src/reports/junit';
 import { buildJsonReport } from '../src/reports/json';
 import { renderHtml } from '../src/reports/html';
+import { renderMarkdown } from '../src/reports/markdown';
 import { explain, qualification, verdictOf } from '../src/verdict';
 import type { ExecutionSummary, RunReport } from '../src/types';
 
@@ -56,6 +57,9 @@ const report = (executions: ExecutionSummary[], gatePassed = true): RunReport =>
   },
   project: { id: 'p-1', name: 'Retail Banking', key: 'BANK' },
   consoleUrl: 'http://localhost:5173',
+  // No repair is waiting in the base fixture. The case where one is has its own test below,
+  // because "nothing to approve" and "something to approve" must read differently.
+  pendingHeals: [],
   generatedAt: '2026-09-20T00:02:00Z'
 });
 
@@ -214,3 +218,60 @@ describe('HTML report', () => {
 function count(haystack: string, needle: string): number {
   return haystack.split(needle).length - 1;
 }
+
+
+/**
+ * A repair the platform has already worked out, held back for approval.
+ *
+ * Healing proposes instead of applying when its confidence is under the project's threshold,
+ * which is right. But the reports only carried `healed: 0`, so a pipeline said "3 failed" and
+ * stopped there while the platform knew what the new locator should be. The engineer who
+ * reads that summary is the one who can approve it, and nothing told them there was anything
+ * to approve.
+ */
+describe('a repair waiting for approval', () => {
+  const waiting = {
+    ...report([execution({ status: 'failed', reference: 'TC-0003' })]),
+    pendingHeals: [{
+      testCaseReference: 'TC-0003',
+      testCaseName: 'An impossible filter range lists no records',
+      stepDescription: 'Enter a start date after the end date',
+      originalLocator: 'testId="filter-from"',
+      healedLocator: 'testId="date-range-start"',
+      confidence: 81
+    }]
+  };
+
+  test('is counted separately from repairs that were applied', () => {
+    const json = buildJsonReport(waiting) as {
+      totals: { healed: number; healsAwaitingApproval: number };
+      healsAwaitingApproval: Array<{ testCase: string; from: string; to: string; confidence: number }>;
+    };
+
+    // The distinction is the point: nothing was healed, and something is waiting to be.
+    expect(json.totals.healed).toBe(0);
+    expect(json.totals.healsAwaitingApproval).toBe(1);
+    expect(json.healsAwaitingApproval[0]).toMatchObject({
+      testCase: 'TC-0003',
+      from: 'testId="filter-from"',
+      to: 'testId="date-range-start"',
+      confidence: 81
+    });
+  });
+
+  test('tells the pull request what it is waiting for, and what would change', () => {
+    const markdown = renderMarkdown(waiting);
+
+    expect(markdown).toContain('waiting for approval');
+    expect(markdown).toContain('testId="filter-from"');
+    expect(markdown).toContain('testId="date-range-start"');
+    expect(markdown).toContain('81%');
+  });
+
+  test('says nothing at all when no repair is waiting', () => {
+    // Otherwise every green run carries a paragraph about healing that does not apply, and
+    // the section stops being read on the run where it matters.
+    const markdown = renderMarkdown(report([execution({})]));
+    expect(markdown).not.toContain('waiting for approval');
+  });
+});

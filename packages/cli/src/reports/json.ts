@@ -63,8 +63,19 @@ export function buildJsonReport(report: RunReport): unknown {
       skipped: run.skippedCount,
       blocked: run.blockedCount,
       healed: run.healedCount,
-      flaky: run.flakyCount
+      flaky: run.flakyCount,
+      // Repairs worked out and waiting for a person. Distinct from `healed`, which counts
+      // repairs that were applied: a pipeline reading only `healed` learned nothing about
+      // failures the platform already had an answer for.
+      healsAwaitingApproval: report.pendingHeals.length
     },
+    healsAwaitingApproval: report.pendingHeals.map(heal => ({
+      testCase: heal.testCaseReference,
+      step: heal.stepDescription,
+      from: heal.originalLocator,
+      to: heal.healedLocator,
+      confidence: heal.confidence
+    })),
     qualityGate: {
       passed: qualityGate.passed,
       summary: qualityGate.summary,
