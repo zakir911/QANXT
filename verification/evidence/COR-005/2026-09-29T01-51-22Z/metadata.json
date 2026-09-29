@@ -1,0 +1,41 @@
+{
+  "testId": "COR-005",
+  "suite": "UI/API correlation",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A failure where the API answered correctly is attributed to the front end",
+  "preconditions": [
+    "FAULT_WRONG_BALANCE is enabled: the accounts are right and the total is not"
+  ],
+  "input": "A UI assertion on the dashboard total while every API call succeeds",
+  "expected": "A diagnosis saying the API answered correctly and the page showed something else, rather than a generic assertion failure",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "3 API call(s), 0 failed; applicationDefect at 80%: \"The API answered correctly and the page showed something else.\"",
+  "metrics": {
+    "calls": 3,
+    "failedCalls": 0
+  },
+  "startedAt": "2026-09-29T02:13:25.802Z",
+  "durationMs": 22123,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "analysis.json",
+      "path": "evidence/COR-005/2026-09-29T01-51-22Z/analysis.json",
+      "bytes": 1823,
+      "sha256": "c455bc139722df886b394eff906652dfc2b92cb2400b970d19cef395dce82e89"
+    },
+    {
+      "file": "api-calls.json",
+      "path": "evidence/COR-005/2026-09-29T01-51-22Z/api-calls.json",
+      "bytes": 921,
+      "sha256": "b8ac3330b0569d1c804c8124d980b044f5550bbfce6f85192bac0f344fde812b"
+    }
+  ]
+}

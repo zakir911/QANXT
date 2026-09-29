@@ -1,0 +1,32 @@
+{
+  "testId": "SCH-007",
+  "suite": "Scheduling",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A schedule can be created, listed, previewed, disabled and removed from the CLI",
+  "preconditions": [
+    "the CLI is built"
+  ],
+  "input": "qanxt schedule add / list / preview / disable / remove",
+  "expected": "Each command does what it says, and list shows the expression and the next run rather than only an id",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "add 0, list 0, preview 0, disable 0, remove 0; gone from the list afterwards: true",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:18:12.435Z",
+  "durationMs": 1282,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "cli.txt",
+      "path": "evidence/SCH-007/2026-09-29T01-51-22Z/cli.txt",
+      "bytes": 1886,
+      "sha256": "7ce889fb85bbc3c0584ebb4b02c16c6d81935cd3e0dbb192c1bf930cf28acee3"
+    }
+  ]
+}

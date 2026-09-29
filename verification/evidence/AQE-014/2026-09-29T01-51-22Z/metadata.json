@@ -1,0 +1,56 @@
+{
+  "testId": "AQE-014",
+  "suite": "Autonomous execution",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "The scan is identified so it can be read back",
+  "preconditions": [
+    "a full autonomous pass has run with every question answered"
+  ],
+  "input": "agent run 77fa81a0-04eb-444d-9154-91b1d1a7d17c",
+  "expected": "The decision carries a security scan id",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "744938fd-84a8-4531-a93c-74605824d5ac",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:27:51.471Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "run.json",
+      "path": "evidence/AQE-014/2026-09-29T01-51-22Z/run.json",
+      "bytes": 1357,
+      "sha256": "68d8ac852167cc004dffba5725cd203216412e089643eda500a74fe23ab24ff2"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQE-014/2026-09-29T01-51-22Z/decisions.json",
+      "bytes": 18523,
+      "sha256": "27803f96d877925ba8956a2b66ecb12f3a80763d1697f31127be4b402eaeb382"
+    },
+    {
+      "file": "approvals.json",
+      "path": "evidence/AQE-014/2026-09-29T01-51-22Z/approvals.json",
+      "bytes": 1831,
+      "sha256": "41f6ca0adc0b19d9fe644aa2be6f0490c467be119fd5daa7233e7292b99b153f"
+    },
+    {
+      "file": "timeline.json",
+      "path": "evidence/AQE-014/2026-09-29T01-51-22Z/timeline.json",
+      "bytes": 20882,
+      "sha256": "4edb8300ffb95e7d39475458404fba2737df31e72804946398062f88131e0fc0"
+    },
+    {
+      "file": "steps.json",
+      "path": "evidence/AQE-014/2026-09-29T01-51-22Z/steps.json",
+      "bytes": 14873,
+      "sha256": "35db9576eae2053cfb6469587c3e8f0b6b1c388a89e9afd13c5e14ae8adc3012"
+    }
+  ]
+}

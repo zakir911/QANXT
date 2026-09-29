@@ -1,0 +1,36 @@
+{
+  "testId": "DET-002",
+  "suite": "Failure detection",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A http 400 failure is detected and reported as a failure",
+  "preconditions": [
+    "the failure lab is running",
+    "the test targets /case/http-400"
+  ],
+  "input": "The same four-step test: open /case/http-400, press the button, expect \"OK 42\"",
+  "expected": "The run FAILS, with the failing step, an error message and a screenshot",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15048ms).; 2 screenshot(s); classified applicationDefect",
+  "metrics": {
+    "screenshots": 2,
+    "consoleErrors": 1
+  },
+  "startedAt": "2026-09-29T01:59:31.245Z",
+  "durationMs": 20122,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DET-002-execution.json",
+      "path": "evidence/DET-002/2026-09-29T01-51-22Z/DET-002-execution.json",
+      "bytes": 2645,
+      "sha256": "771a404a42bfb9d92d063b8004eb7d9d84095cf73e598739de2d6b73d09b7196"
+    }
+  ]
+}

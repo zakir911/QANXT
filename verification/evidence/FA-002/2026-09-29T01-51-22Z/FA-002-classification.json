@@ -1,0 +1,34 @@
+{
+  "case": "http-400",
+  "lab": "applicationError",
+  "accept": [
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "1420f142-df07-4735-a83d-807964fc579e",
+    "category": "applicationDefect",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15100ms).",
+    "signature": "75a524b19c188cb31258f48ba97fab301f74f20343524b94d30853afd58fd80b",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-29T02:03:31.140056+00:00",
+    "lastSeenAt": "2026-09-29T02:03:31.140056+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made was rejected with 400.",
+      "likelyCause": "GET /api/answer → 400 in 0ms — either the request the application sent was wrong, or the data the test used is not acceptable to this endpoint.",
+      "evidence": "GET /api/answer → 400 in 0ms. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15100ms).",
+      "suggestedAction": "Read the request in the network evidence. A 4xx here is usually the application sending something the service will not accept.",
+      "category": "applicationDefect",
+      "confidence": 85,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2ac44891-6571-4e62-b09b-63ad2830a29e\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"45ea709a-45ba-442b-a32b-e822a7a7df0f\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"52692093-5114-400e-b8ed-018282df28c2\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"5f5acb35-0be8-4b8c-98cd-8f800871fcb1\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"83ee4cc4-6a2a-4094-b33d-1028ae096ba7\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"b841f06b-4721-4f28-bf4f-47833991142a\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"bbf035f1-999f-48e1-9b0c-8eddef1cda36\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"e657939d-d006-42ed-b8de-1a2187d17f51\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}], \"executionId\": \"1a6c135b-63d9-4046-9c1d-b0fcc730bf77\"}"
+    }
+  }
+}

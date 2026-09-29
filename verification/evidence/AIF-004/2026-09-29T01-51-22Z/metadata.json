@@ -1,0 +1,37 @@
+{
+  "testId": "AIF-004",
+  "suite": "AI provider failure",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "Valid JSON of the wrong shape is refused, not leniently deserialized",
+  "preconditions": [
+    "an application is registered",
+    "AI fault injection is enabled"
+  ],
+  "input": "A generation request while the provider is faulted with SchemaViolation",
+  "expected": "The request fails with an error naming the problem, and no test case is stored",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "status 503; 0 test case(s) created; model request recorded: true (status schemaRejected); message \"The model's response did not satisfy the test_plan schema: : Required properties [\"summary\"] are not\"",
+  "metrics": {
+    "status": 503,
+    "fabricated": 0,
+    "reachedTheModel": 1
+  },
+  "startedAt": "2026-09-29T02:20:39.353Z",
+  "durationMs": 68,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AIF-004/2026-09-29T01-51-22Z/response.json",
+      "bytes": 895,
+      "sha256": "e37fb5176e45920985bbdc7d8cbb116602d40c85e517bb31cb530e25525f8d18"
+    }
+  ]
+}

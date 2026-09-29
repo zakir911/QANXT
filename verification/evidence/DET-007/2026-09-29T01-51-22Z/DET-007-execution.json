@@ -1,0 +1,42 @@
+{
+  "id": "DET-007",
+  "case": "timeout",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "f048c888-dc60-4fde-ba6c-c6c3001ccb47",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15058ms).",
+    "signature": "a692d6cf3fce0964237f1821bc87e579d04f152d91eaf07ec8dd804e84b79955",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-29T02:01:45.85854+00:00",
+    "lastSeenAt": "2026-09-29T02:01:45.85854+00:00",
+    "analysis": {
+      "summary": "An assertion failed on outcome reads \"OK 42\".",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15058ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"0d98e2b2-a21e-47fe-a51b-a4d7dc83d63e\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"51fc81e6-d533-4f4b-acc6-af58d3e9c026\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"534fd5a5-3d65-4f83-88fb-04d7df69704d\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"921dca62-fe63-440e-973d-c320f8978d04\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"a6f9e29a-6224-45b0-9af5-cf6d7f20edc2\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"c6863e4c-e5ef-486b-be1a-56dec450e7a5\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"d4163636-60d7-4af0-8d21-f5fee81925a1\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}], \"executionId\": \"30f8b223-3801-41e8-af97-58d1a6173f3a\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15058ms)."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

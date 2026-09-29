@@ -1,0 +1,109 @@
+{
+  "healthy": [
+    {
+      "reference": "TC-0001",
+      "name": "QA NXT Demo Bank /dashboard loads",
+      "status": "passed",
+      "stepsPassed": 2,
+      "stepsTotal": 2,
+      "error": null
+    },
+    {
+      "reference": "TC-0002",
+      "name": "View QA NXT Demo Bank /transactions",
+      "status": "passed",
+      "stepsPassed": 2,
+      "stepsTotal": 2,
+      "error": null
+    },
+    {
+      "reference": "TC-0003",
+      "name": "Reject an invalid filter range on QA NXT Demo Bank /transactions",
+      "status": "passed",
+      "stepsPassed": 5,
+      "stepsTotal": 5,
+      "error": null
+    },
+    {
+      "reference": "TC-0004",
+      "name": "View QA NXT Demo Bank /accounts/acc-1002",
+      "status": "passed",
+      "stepsPassed": 2,
+      "stepsTotal": 2,
+      "error": null
+    },
+    {
+      "reference": "TC-0005",
+      "name": "View QA NXT Demo Bank /accounts/acc-1001",
+      "status": "passed",
+      "stepsPassed": 2,
+      "stepsTotal": 2,
+      "error": null
+    }
+  ],
+  "touched": [
+    "/dashboard",
+    "/transactions",
+    "/accounts/acc-1002",
+    "/accounts/acc-1001"
+  ],
+  "chosen": {
+    "fault": "FAULT_EMPTY_TRANSACTIONS",
+    "route": "/transactions",
+    "breaks": "the transactions list renders nothing"
+  },
+  "applicable": [
+    {
+      "fault": "FAULT_EMPTY_TRANSACTIONS",
+      "route": "/transactions",
+      "breaks": "the transactions list renders nothing"
+    },
+    {
+      "fault": "FAULT_JS_ERROR",
+      "route": "/dashboard",
+      "breaks": "the dashboard throws while rendering"
+    }
+  ],
+  "underFault": [
+    {
+      "reference": "TC-0001",
+      "status": "passed",
+      "reachesBrokenPage": false,
+      "stepsFailed": 0,
+      "failure": null,
+      "error": null
+    },
+    {
+      "reference": "TC-0002",
+      "status": "failed",
+      "reachesBrokenPage": true,
+      "stepsFailed": 1,
+      "failure": "applicationDefect",
+      "error": "testId=\"transactions-table\" could not be used: No element matched testId=\"transactions-table\"."
+    },
+    {
+      "reference": "TC-0003",
+      "status": "passed",
+      "reachesBrokenPage": true,
+      "stepsFailed": 0,
+      "failure": null,
+      "error": null
+    },
+    {
+      "reference": "TC-0004",
+      "status": "passed",
+      "reachesBrokenPage": false,
+      "stepsFailed": 0,
+      "failure": null,
+      "error": null
+    },
+    {
+      "reference": "TC-0005",
+      "status": "passed",
+      "reachesBrokenPage": false,
+      "stepsFailed": 0,
+      "failure": null,
+      "error": null
+    }
+  ]
+}

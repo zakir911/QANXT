@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-031",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A project nobody has scanned gets a security section saying so, not no section",
+  "preconditions": [
+    "a fresh project with one unscanned application"
+  ],
+  "input": "GET the dashboard for it",
+  "expected": "anyScanRecorded false and a summary saying nothing is known — which is not the same as their being clean. A dashboard that shows security only when a scan exists reads as though security is fine whenever the section is missing",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "No security scan has been recorded for any of the 1 application(s) here. Nothing is known about their security posture from QA NXT, which is not the same as their being clean.",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:20:48.458Z",
+  "durationMs": 44,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "dashboard.json",
+      "path": "evidence/SECPL-031/2026-09-29T01-51-22Z/dashboard.json",
+      "bytes": 418,
+      "sha256": "33bc20d0d07004eed8d02f4bcfae60387a6ea02297ab038747a7cabe887d2751"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "testId": "DISC-006",
+  "suite": "Discovery",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "Discovery finds the application's form fields",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "Ground-truth form fields on the discovered pages",
+  "expected": "Every declared form field appears in the model",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "5/5 found; classified as textInput/passwordInput; 8 element(s) of that kind",
+  "metrics": {
+    "expected": 5,
+    "found": 5,
+    "kinds": [
+      "textInput",
+      "passwordInput"
+    ],
+    "ofKind": 8
+  },
+  "startedAt": "2026-09-29T01:54:06.473Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "DISC-006-elements.json",
+      "path": "evidence/DISC-006/2026-09-29T01-51-22Z/DISC-006-elements.json",
+      "bytes": 9229,
+      "sha256": "ebf6e294662da50aedd9f583f2774e99733335bf0a986a298995066fc598753f"
+    }
+  ]
+}

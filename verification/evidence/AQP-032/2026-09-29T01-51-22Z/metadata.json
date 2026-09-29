@@ -1,0 +1,38 @@
+{
+  "testId": "AQP-032",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "The absence of security testing is stated rather than implied",
+  "preconditions": [
+    "a pass has run against an application whose environment nothing identifies"
+  ],
+  "input": "agent run 59180fc4-7e88-403a-a26f-52016f16e139",
+  "expected": "notCovered says the application has no enabled scope",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "Business journeys. None are recorded and nobody has named any, so this plan covers pages and endpoints rather than the things people use the application to do. | Security testing. This application has",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:26:29.560Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "unknown-decisions.json",
+      "path": "evidence/AQP-032/2026-09-29T01-51-22Z/unknown-decisions.json",
+      "bytes": 10482,
+      "sha256": "d53ee00ce5e3b5bd18497c180c31bee851c90c37ef1b94071ca82465c8083cb0"
+    },
+    {
+      "file": "unknown-run.json",
+      "path": "evidence/AQP-032/2026-09-29T01-51-22Z/unknown-run.json",
+      "bytes": 1306,
+      "sha256": "9698d6040b272139d4385b61005a35f1b5ae73ead619923bed0abc7640fcb5c8"
+    }
+  ]
+}

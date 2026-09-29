@@ -1,0 +1,32 @@
+{
+  "testId": "REG-011",
+  "suite": "Regression selection",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A rule that would silently match nothing, or affect nothing, is refused",
+  "preconditions": [
+    "none"
+  ],
+  "input": "A rule with a blank pattern, and one with a kind but no value",
+  "expected": "Both refused with a message naming what is missing",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "blank pattern: 400; missing value: 400",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:14:28.402Z",
+  "durationMs": 9,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "refusals.json",
+      "path": "evidence/REG-011/2026-09-29T01-51-22Z/refusals.json",
+      "bytes": 631,
+      "sha256": "d91c203e261ac59e61f684a2cf6a9c438e961741e6f869fbe58ed2a0ca0d7688"
+    }
+  ]
+}

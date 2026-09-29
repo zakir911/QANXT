@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-046",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "The exclusion is recorded on the coverage decision itself",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run cab3c5fb-1861-4af0-8de1-6ed63c09aa2c",
+  "expected": "A reader of this decision alone can see what was left out",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "/statements",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:32:48.863Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-046/2026-09-29T01-51-22Z/coverage-decision.json",
+      "bytes": 1391,
+      "sha256": "dd4902d370b971acdd85741fb13d43cd47b2f4b83d16efd24f0b434005f035c9"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-046/2026-09-29T01-51-22Z/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "3582aeecb9ca91ac63bb1e7e18bf1b40434d35fdcb5cc1fa81045828939028a3"
+    }
+  ]
+}

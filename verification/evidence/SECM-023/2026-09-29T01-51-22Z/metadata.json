@@ -1,0 +1,35 @@
+{
+  "testId": "SECM-023",
+  "suite": "Security scanning",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "The origin-validation finding carries the CWE, OWASP category and severity it should",
+  "preconditions": [
+    "the detection scenario produced a finding"
+  ],
+  "input": "The finding produced by the detection scenario, compared against the lab ground truth",
+  "expected": "CWE CWE-352, OWASP A01:2021, severity Medium, and a severity derived from stored factors rather than assigned",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "CWE-352, A01:2021, Medium (11/19) — Medium (11/19): straightforward to exploit, limited impact, no account needed, reaches non-sensitive data, publicly reachable.",
+  "metrics": {
+    "score": 11,
+    "maxScore": 19
+  },
+  "startedAt": "2026-09-29T02:20:45.286Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "mapping.json",
+      "path": "evidence/SECM-023/2026-09-29T01-51-22Z/mapping.json",
+      "bytes": 883,
+      "sha256": "99a83307a40dfded9d976e989b311271bee5bfb097795d052b67575becf7ca51"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "case": "timeout",
+  "lab": "timeout",
+  "accept": [
+    "timingIssue",
+    "applicationDefect"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "dbad6a4d-02a4-4d64-bd4a-9d7cd0c8983e",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15102ms).",
+    "signature": "a445d26b3c8bef9382635afb9fb6d2e4c169edd48f1ad9bf801ca8675dcb9702",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-29T02:05:05.460865+00:00",
+    "lastSeenAt": "2026-09-29T02:05:05.460865+00:00",
+    "analysis": {
+      "summary": "An assertion failed on outcome reads \"OK 42\".",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"calculating…\" (waited 15102ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"5e2b90ba-de64-44eb-bc8e-59d34b687e4d\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"6a90138d-37d6-45e8-af5f-86f2658c1af8\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"8542974a-f036-4e62-8a01-ea445b7a791c\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"d1ad76bd-9e59-464d-847d-c960d99a4ac5\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"dbc05b1a-94c8-46bb-a3b3-707c87c33b83\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"dfa76635-0cd6-481e-9ad9-99793f4a97b6\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"e3b312a9-97b8-492c-94be-89662a0145eb\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"e1c5ecf9-deeb-4e46-9a05-335b0bf5307c\"}"
+    }
+  }
+}

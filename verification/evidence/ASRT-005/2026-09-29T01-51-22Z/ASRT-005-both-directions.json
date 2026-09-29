@@ -1,0 +1,71 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "948af700-3f31-44d4-87f0-327c2636368d",
+      "order": 6,
+      "action": "assertHidden",
+      "description": "payments-table is not visible",
+      "status": "passed",
+      "startedAt": "2026-09-29T01:58:40.942+00:00",
+      "durationMs": 12,
+      "url": "http://localhost:4300/payments",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "payments-table",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"payments-table\""
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "8eb95ed9-fe61-4d66-9158-72d9a8501758",
+      "order": 6,
+      "action": "assertHidden",
+      "description": "payment-submit is not visible",
+      "status": "failed",
+      "startedAt": "2026-09-29T01:58:43.196+00:00",
+      "durationMs": 15017,
+      "url": "http://localhost:4300/payments",
+      "wasHealed": false,
+      "errorMessage": "The element was expected to be hidden but was visible.",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "payment-submit",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"payment-submit\""
+    },
+    "failure": {
+      "id": "393daab8-8644-49cb-8e28-b405968a1d36",
+      "category": "applicationDefect",
+      "categoryConfidence": 80,
+      "rawMessage": "The element was expected to be hidden but was visible.",
+      "signature": "bb9bcd5d0f9dcafe2e9b8b3f7b563b366aae2aae85482be4e5d7109b616cd96f",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-29T01:59:01.012652+00:00",
+      "lastSeenAt": "2026-09-29T01:59:01.012653+00:00",
+      "analysis": {
+        "summary": "The API answered correctly and the page showed something else.",
+        "likelyCause": "Every API call the step before it made succeeded (GET /api/dashboard → 200 in 0ms; GET /api/accounts → 200 in 0ms; GET /api/beneficiaries → 200 in 0ms; and 1 more), so the data was right and what was rendered from it was not. The defect is in the front end rather than the service.",
+        "evidence": "4 API call(s) during the step before it, all successful. Engine message: The element was expected to be hidden but was visible.",
+        "suggestedAction": "Compare the response body in the network evidence with what the failure screenshot shows. Start with the rendering, not the endpoint.",
+        "category": "applicationDefect",
+        "confidence": 80,
+        "isLikelyApplicationDefect": true,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "qanxt-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"060015c8-d81b-44f1-bdb9-706f912400e6\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"1d7680dc-9faa-47dc-8f92-f731f798b698\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"6ec5d230-22be-4dfc-ab44-c0dcbe94ce53\", \"kind\": \"DomSnapshot\", \"name\": \"step-6-failure.html\"}, {\"id\": \"9e484047-53ae-4c31-8410-491fa88f2725\", \"kind\": \"Screenshot\", \"name\": \"step-6-failure.png\"}, {\"id\": \"a15eea8b-466a-42e3-8432-0aca6cbc1a51\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"ac252570-897a-4842-bc02-98616f553ada\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"aed3973e-963a-4c11-adca-77aeea846603\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"cbc8aaba-f13b-4efb-82a5-baf8fbc00b37\", \"kind\": \"AccessibilityTree\", \"name\": \"step-6-failure.a11y.json\"}], \"executionId\": \"27299ed8-c05a-4885-a096-cdd620e95b37\"}"
+      }
+    }
+  }
+}

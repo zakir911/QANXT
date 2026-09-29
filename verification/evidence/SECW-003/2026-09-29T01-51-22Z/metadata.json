@@ -1,0 +1,41 @@
+{
+  "testId": "SECW-003",
+  "suite": "Security scans QA NXT runs itself",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "Starting a scan queues a job and records a scan that has not run yet",
+  "preconditions": [
+    "an authorized, discovered application"
+  ],
+  "input": "POST /api/v1/security/scans/start with no narrowing",
+  "expected": "202 with the queue and job it was placed on, and a stored scan whose gate says NOT SCANNED rather than reporting a clean result it has no basis for",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "202; 5 target(s), 4 of 4 check(s); stored status queued",
+  "metrics": {
+    "targets": 5,
+    "checks": 4
+  },
+  "startedAt": "2026-09-29T02:20:57.173Z",
+  "durationMs": 37,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "started.json",
+      "path": "evidence/SECW-003/2026-09-29T01-51-22Z/started.json",
+      "bytes": 496,
+      "sha256": "2ea3b3ebb15ce1ef6a832898afecbf589525b9316e69311cf2270858264cff69"
+    },
+    {
+      "file": "queued.json",
+      "path": "evidence/SECW-003/2026-09-29T01-51-22Z/queued.json",
+      "bytes": 198,
+      "sha256": "56747ded2b2ce8e242d2d5b12edf5bcbcb9c403954ff10ec6e7e8a228cc24fa9"
+    }
+  ]
+}

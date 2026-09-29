@@ -1,0 +1,34 @@
+{
+  "case": "http-401",
+  "lab": "authenticationFailure",
+  "accept": [
+    "authenticationIssue"
+  ],
+  "actual": "authenticationIssue",
+  "failure": {
+    "id": "6c79f6e7-0694-423b-8990-69d923ee7a6e",
+    "category": "authenticationIssue",
+    "categoryConfidence": 85,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15048ms).",
+    "signature": "5963369c8ead5498daf314fe8689f031fef3dd1cf800ba2cf00fb20acd47cb83",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-29T02:03:51.006098+00:00",
+    "lastSeenAt": "2026-09-29T02:03:51.006098+00:00",
+    "analysis": {
+      "summary": "The step before this one made an API call that was refused with 401.",
+      "likelyCause": "GET /api/answer → 401 in 0ms — the session was not accepted, so the page had nothing to render.",
+      "evidence": "GET /api/answer → 401 in 0ms, made by step 2. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15048ms).",
+      "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+      "category": "authenticationIssue",
+      "confidence": 85,
+      "isLikelyApplicationDefect": false,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"1dc1280d-5a06-40d3-8d63-a8ae5482f166\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"1f648c19-5ea8-426c-8149-f46a12808172\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"29543e11-5156-4f54-af22-ac515b4b0a3c\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"79590956-dadf-4a54-a0e6-fdc586aaaf2a\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"86b76e09-8312-490b-a661-6081fa384c18\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"a13e45f1-74d3-4b0e-b488-464e66378529\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"d12be961-aa89-403b-91fc-37af2618aa60\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"f9709a4c-6579-477f-a054-b296eba93af7\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"d6176802-ea32-4c78-9c05-83b04ff4a675\"}"
+    }
+  }
+}

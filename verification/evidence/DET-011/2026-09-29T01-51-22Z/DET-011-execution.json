@@ -1,0 +1,42 @@
+{
+  "id": "DET-011",
+  "case": "missing-element",
+  "expectation": "fails",
+  "status": "failed",
+  "stepsPassed": 3,
+  "stepsTotal": 4,
+  "failure": {
+    "id": "2e541f96-51d4-4336-9305-3c2697810bc3",
+    "category": "locatorChange",
+    "categoryConfidence": 90,
+    "rawMessage": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\".",
+    "signature": "93f108068cf11949af91189462e35614fb5300a1e509c284cd3a7bc55053bea9",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-29T02:03:04.730008+00:00",
+    "lastSeenAt": "2026-09-29T02:03:04.730008+00:00",
+    "analysis": {
+      "summary": "The element this step targets has changed.",
+      "likelyCause": "The stored locator no longer matches, but a closely resembling element was found (95% similarity). The markup changed, not the behaviour.",
+      "evidence": "A healing candidate scored 95% against the element's recorded signals.",
+      "suggestedAction": "Review and approve the healing proposal to update the locator.",
+      "category": "locatorChange",
+      "confidence": 90,
+      "isLikelyApplicationDefect": false,
+      "isHealable": true,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"2bd1b556-c817-4c61-8b40-5e30641fe037\", \"kind\": \"AccessibilityTree\", \"name\": \"step-4-failure.a11y.json\"}, {\"id\": \"31bd8db5-4de8-41b0-9709-8326228ba73d\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"67bd054e-4a78-4ab9-bdbc-809ed7c7345e\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"81b9222f-21c1-4a21-b501-b2c1455d5a55\", \"kind\": \"DomSnapshot\", \"name\": \"step-4-failure.html\"}, {\"id\": \"8db39fb6-b9f4-40d0-9b7a-dd798014ea75\", \"kind\": \"Screenshot\", \"name\": \"step-4-failure.png\"}, {\"id\": \"ba619eca-6480-47ea-9044-3f52bfe7e4d1\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"ffe005df-6f62-46d1-bf2c-ca1ac73c72fc\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}], \"executionId\": \"bdc15a4a-b51d-48d2-b691-2b136d758426\"}"
+    }
+  },
+  "failingStep": {
+    "order": 4,
+    "action": "assertText",
+    "error": "testId=\"outcome\" could not be used: No element matched testId=\"outcome\"."
+  },
+  "consoleErrors": 0,
+  "networkErrors": 0,
+  "screenshots": 2
+}

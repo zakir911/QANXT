@@ -2,7 +2,7 @@
 
 **Status: CERTIFIED**
 
-Run `2026-09-28T17-02-54Z` · build `257f562` · generated 2026-09-28T17:43:51.705Z
+Run `2026-09-29T01-51-22Z` · build `fb13a5e` · generated 2026-09-29T02:32:49.955Z
 
 10 of 10 questions answered YES, 0 NO, 0 NOT VERIFIED.
 Every answer below is derived from golden tests that executed in this run; none is asserted.
@@ -28,7 +28,7 @@ Measured against hand-written ground truth for a React single-page application, 
 
 | Test | Result | Detail |
 | --- | --- | --- |
-| DISC-001 | **PASS** | status completed, 11 page(s) in 18s |
+| DISC-001 | **PASS** | status completed, 11 page(s) in 23s |
 | DISC-002 | **PASS** | recall 100.0% (9/9) |
 | DISC-003 | **PASS** | precision 100.0% |
 | DISC-004 | **PASS** | found, requiresAuthentication=false |
@@ -85,15 +85,15 @@ Eleven failure classes, each on its own page of an application otherwise identic
 | Test | Result | Detail |
 | --- | --- | --- |
 | DET-001 | **PASS** | passed, 4/4 steps; 1 screenshot(s) |
-| DET-002 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15018ms).; 2 screenshot(s); classified applicationD |
-| DET-003 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15066ms).; 2 screenshot(s); classified authenticati |
-| DET-004 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15026ms).; 2 screenshot(s); classified authenticati |
-| DET-005 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15058ms).; 2 screenshot(s); classified applicationD |
-| DET-006 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15028ms).; 2 screenshot(s); classified applicationD |
-| DET-007 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15067ms).; 2 screenshot(s); classified applic |
-| DET-008 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15028ms).; 2 screenshot(s); classified networkIssue |
-| DET-009 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15061ms).; 2 screenshot(s); classified applic |
-| DET-010 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "OK 99" (waited 15090ms).; 2 screenshot(s); classified applicationDe |
+| DET-002 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15048ms).; 2 screenshot(s); classified applicationD |
+| DET-003 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15068ms).; 2 screenshot(s); classified authenticati |
+| DET-004 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15094ms).; 2 screenshot(s); classified authenticati |
+| DET-005 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15059ms).; 2 screenshot(s); classified applicationD |
+| DET-006 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15106ms).; 2 screenshot(s); classified applicationD |
+| DET-007 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15058ms).; 2 screenshot(s); classified applic |
+| DET-008 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15038ms).; 2 screenshot(s); classified networkIssue |
+| DET-009 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "calculating…" (waited 15089ms).; 2 screenshot(s); classified applic |
+| DET-010 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "OK 99" (waited 15064ms).; 2 screenshot(s); classified applicationDe |
 | DET-011 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): testId="outcome" could not be used: No element matched testId="outcome".; 2 screenshot(s); classified locatorChange |
 | DET-012 | **PASS** | http-500: passed, timeout: passed, connection-reset: passed |
 
@@ -172,13 +172,13 @@ Includes a payment that is confirmed on screen and never recorded, a value that 
 
 | Test | Result | Detail |
 | --- | --- | --- |
-| DET-010 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "OK 99" (waited 15090ms).; 2 screenshot(s); classified applicationDe |
+| DET-010 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "OK 99" (waited 15064ms).; 2 screenshot(s); classified applicationDe |
 | DET-011 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): testId="outcome" could not be used: No element matched testId="outcome".; 2 screenshot(s); classified locatorChange |
 | FA-016 | **PASS** | failed; the confirmation banner passed, the payment list assertion failed |
 | ASRT-001 | **PASS** | holds → passed; breaks → failed; message: testId="no-such-element-anywhere" could not be used: No element matched testId="no-such-element-anywhere". |
-| ASRT-002 | **PASS** | holds → passed; breaks → failed; message: Expected the element to contain "Something Else Entirely" but it read "Dashboard" (waited 15043ms). |
+| ASRT-002 | **PASS** | holds → passed; breaks → failed; message: Expected the element to contain "Something Else Entirely" but it read "Dashboard" (waited 15022ms). |
 | ASRT-003 | **PASS** | holds → passed; breaks → failed; message: Expected the URL to contain "/nowhere-at-all" but it was "http://localhost:4300/dashboard". |
-| ASRT-004 | **PASS** | holds → passed; breaks → failed; message: Expected the value "999" but found "250" (waited 15091ms). |
+| ASRT-004 | **PASS** | holds → passed; breaks → failed; message: Expected the value "999" but found "250" (waited 15051ms). |
 | ASRT-005 | **PASS** | holds → passed; breaks → failed; message: The element was expected to be hidden but was visible. |
 | GEN-011 | **PASS** | FAULT_EMPTY_TRANSACTIONS on /transactions (the transactions list renders nothing): 1/2 test(s) that visit that page failed (all 5 passed when it was healthy): TC-0001 pas |
 
@@ -194,9 +194,9 @@ Ten identical runs, twenty runs against a genuinely unstable application, and te
 
 | Test | Result | Detail |
 | --- | --- | --- |
-| REL-001 | **PASS** | 10/10 passed; verdicts: passed; duration 440–683ms (median 504ms) |
-| REL-002 | **PASS** | 8 passed, 12 failed across 20 runs; delays the application served: 100ms, 800ms, 2500ms, 6000ms |
-| REL-003 | **PASS** | the platform records 20 execution(s): 8 passed, 12 failed, flakiness score 56; this suite observed 8/20 passing |
+| REL-001 | **PASS** | 10/10 passed; verdicts: passed; duration 455–618ms (median 537ms) |
+| REL-002 | **PASS** | 7 passed, 13 failed across 20 runs; delays the application served: 100ms, 800ms, 2500ms, 6000ms |
+| REL-003 | **PASS** | the platform records 20 execution(s): 7 passed, 13 failed, flakiness score 56; this suite observed 7/20 passing |
 | REL-005 | **PASS** | 10/10 reached a verdict, 10 passed; statuses: passed |
 
 Evidence: 4 artifact(s) under `verification/evidence/`
@@ -212,9 +212,9 @@ Screenshots, a Playwright trace, console and network logs, and a screenshot per 
 | Test | Result | Detail |
 | --- | --- | --- |
 | EXEC-012 | **PASS** | 1 screenshot(s), 5 artifact(s) in total |
-| EXEC-013 | **PASS** | 1 trace(s), 932004 bytes |
+| EXEC-013 | **PASS** | 1 trace(s), 862983 bytes |
 | EXEC-014 | **PASS** | 8 network event(s) of which 7 are API calls; 1 console event(s) |
-| DET-002 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15018ms).; 2 screenshot(s); classified applicationD |
+| DET-002 | **PASS** | failed, 3/4 steps; failed at step 4 (assertText): Expected the element to contain "OK 42" but it read "failed" (waited 15048ms).; 2 screenshot(s); classified applicationD |
 | DISC-014 | **PASS** | 11/11 page(s) have a screenshot |
 
 Evidence: 6 artifact(s) under `verification/evidence/`

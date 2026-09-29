@@ -1,0 +1,36 @@
+{
+  "testId": "PERF-001",
+  "suite": "Performance baseline",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "How long discovery of a nine-page single-page application takes",
+  "preconditions": [
+    "the lab bank is running with no faults"
+  ],
+  "input": "Three crawls of the same application, each from an empty model",
+  "expected": "Three completed crawls, with their durations recorded",
+  "severity": "low",
+  "result": "PASS",
+  "detail": "crawl: median 15063ms (min 15061ms, p95 15066ms, max 15066ms, n=3); 11 pages, 259 elements; about 1369ms per page",
+  "metrics": {
+    "discoveryMs": 15063,
+    "discoveryP95Ms": 15066,
+    "perPageMs": 1369
+  },
+  "startedAt": "2026-09-29T02:23:33.172Z",
+  "durationMs": 45434,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "discovery-timings.json",
+      "path": "evidence/PERF-001/2026-09-29T01-51-22Z/discovery-timings.json",
+      "bytes": 521,
+      "sha256": "2aa4c54e0fe1d2765d69c9a20b8a915633f83af26b8eda42cb84cd7f50f7ce99"
+    }
+  ]
+}

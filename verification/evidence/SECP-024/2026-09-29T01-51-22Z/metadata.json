@@ -1,0 +1,34 @@
+{
+  "testId": "SECP-024",
+  "suite": "Security scanning",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "The upload-type check reports nothing once the flaw is corrected",
+  "preconditions": [
+    "every fault in the lab switched off, including VULN_UPLOAD_ANY_TYPE"
+  ],
+  "input": "The same upload-type check against the corrected application",
+  "expected": "No finding of this category — a detector that reports the same thing whether or not the flaw is present is not a detector",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "extension 400, declared size 413, traversal 201 stored as 'qanxt-probe.txt'",
+  "metrics": {
+    "falsePositives": 0
+  },
+  "startedAt": "2026-09-29T02:20:45.303Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "corrected.json",
+      "path": "evidence/SECP-024/2026-09-29T01-51-22Z/corrected.json",
+      "bytes": 192,
+      "sha256": "f842c3c388edc66890dade19964e6781ba09c874e34dab999f3eb91e69bbb5eb"
+    }
+  ]
+}

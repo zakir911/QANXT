@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-015",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A pass for an application that does not exist is refused",
+  "preconditions": [
+    "the platform is running"
+  ],
+  "input": "a deliberately wrong request",
+  "expected": "Starting one answers with an error rather than creating an empty run",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "404 {\"code\":\"not_found\",\"title\":\"The application was not found.\",\"status\":404,\"correlationId\":\"f73de5adea024fa6923fb3b2432e6",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:30:35.923Z",
+  "durationMs": 5,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "response.json",
+      "path": "evidence/AQF-015/2026-09-29T01-51-22Z/response.json",
+      "bytes": 171,
+      "sha256": "0f84e1256267a9474a959c9861e364bc1083f38032676b9f21206d7324e7badd"
+    }
+  ]
+}

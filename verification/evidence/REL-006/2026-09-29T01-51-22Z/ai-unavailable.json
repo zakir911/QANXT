@@ -1,0 +1,29 @@
+{
+  "status": "failed",
+  "failure": {
+    "id": "1722f3fe-22ed-403c-aa4f-862213c26dcd",
+    "category": "applicationDefect",
+    "categoryConfidence": 95,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15077ms).",
+    "signature": "212fa52454cbcaa3c61fe11c490de3dd78562f21e1550208109c86a509db5270",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-29T02:23:31.000654+00:00",
+    "lastSeenAt": "2026-09-29T02:23:31.000654+00:00",
+    "analysis": {
+      "summary": "The step failed because the API call it made returned 500.",
+      "likelyCause": "GET /api/answer → 500 in 0ms — the fault is in the application or a service it depends on, not in the test.",
+      "evidence": "The failing step made 1 API call(s); GET /api/answer → 500 in 0ms. Engine message: Expected the element to contain \"OK 42\" but it read \"failed\" (waited 15077ms).",
+      "suggestedAction": "Take this request to the team that owns the endpoint. Re-running will not help until the service is fixed.",
+      "category": "applicationDefect",
+      "confidence": 95,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"006fe1ed-063d-4cf8-a09d-15dfc71f1e1c\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"28315b94-7061-4ec0-8f70-c93af6c3e53a\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"28e078e2-f38d-4d57-9fb3-7f05afe92874\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"5683efd6-5230-4776-854f-1d09a8336c54\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"96dc9006-fe09-40af-b0a6-aba280906a23\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"b5a09747-12e7-4ac8-86e2-433306cc0d96\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}, {\"id\": \"c83c5b61-6fd8-4028-9017-5a4411a5571c\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"ca3ec340-335d-4fa3-9031-6428c62e85b3\", \"kind\": \"Video\", \"name\": \"execution.webm\"}], \"executionId\": \"ca87f3f8-9616-4fe2-a9e6-a8096f889c3c\"}"
+    }
+  }
+}

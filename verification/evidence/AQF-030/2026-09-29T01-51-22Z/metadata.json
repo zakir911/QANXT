@@ -1,0 +1,32 @@
+{
+  "testId": "AQF-030",
+  "suite": "Autonomous fault handling",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "No pass under fault conditions recorded a decision without evidence",
+  "preconditions": [
+    "passes have run against deliberately broken applications"
+  ],
+  "input": "the recorded passes",
+  "expected": "The evidence rule holds when things are going wrong",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 of 30 without evidence",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:30:57.315Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQF-030/2026-09-29T01-51-22Z/decisions.json",
+      "bytes": 16522,
+      "sha256": "22b8313b2e1edf16bbde9f2dcbf7bffdef61937723cab14379b771dd29d611df"
+    }
+  ]
+}

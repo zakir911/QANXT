@@ -1,0 +1,36 @@
+{
+  "testId": "SECD-009",
+  "suite": "Security scanning",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A session lifetime far above the threshold is reported, as declared rather than witnessed",
+  "preconditions": [
+    "VULN_LONG_SESSION switched on and every other fault in the lab switched off",
+    "the lab audit agrees with the ground truth"
+  ],
+  "input": "Session: the session-lifetime check against the lab",
+  "expected": "Exactly one ExcessiveSessionLifetime finding, carrying the exchanges that establish it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "ExcessiveSessionLifetime: The application states a session lifetime of 30 day(s) (1 exchange(s))",
+  "metrics": {
+    "detected": 1,
+    "exchanges": 1
+  },
+  "startedAt": "2026-09-29T02:20:44.953Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "vulnerable.json",
+      "path": "evidence/SECD-009/2026-09-29T01-51-22Z/vulnerable.json",
+      "bytes": 429,
+      "sha256": "5fd97e954d35618ebc0f81725e8ef7cfc8929243c13c70cce5479beb630e5933"
+    }
+  ]
+}

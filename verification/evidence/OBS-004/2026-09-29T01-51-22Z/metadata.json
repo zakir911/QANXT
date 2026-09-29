@@ -1,0 +1,35 @@
+{
+  "testId": "OBS-004",
+  "suite": "Isolation, audit and observability",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "Liveness and readiness answer different questions, and liveness depends on nothing",
+  "preconditions": [
+    "the API is running with its database and queue reachable"
+  ],
+  "input": "GET /live, /ready and /health",
+  "expected": "All three answer; /live reports healthy without consulting a dependency",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "/live 200 \"Healthy\"; /ready 200 \"Healthy\"; /health 200 \"Healthy\"",
+  "metrics": {
+    "live": 200,
+    "ready": 200
+  },
+  "startedAt": "2026-09-29T02:20:08.327Z",
+  "durationMs": 69,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "health.json",
+      "path": "evidence/OBS-004/2026-09-29T01-51-22Z/health.json",
+      "bytes": 182,
+      "sha256": "bbf4cbffb433f01ac10f24839a03337347cd96b781baa8f71f6c22fcc139d82a"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "testId": "HEAL-M01",
+  "suite": "Self-healing",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "Healing is measured as four counts, so a rate cannot hide a wrong heal",
+  "preconditions": [
+    "every healing scenario above has executed"
+  ],
+  "input": "Three healable scenarios and ten that must be refused",
+  "expected": "False-healing rate 0%: no scenario that had to be refused was healed",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "12 opportunities: 2 correctly healed, 10 correctly refused, 0 wrongly healed, 0 missed — false-healing rate 0.0%",
+  "metrics": {
+    "healingOpportunities": 12,
+    "correctHeals": 2,
+    "correctRejections": 10,
+    "incorrectHeals": 0,
+    "missedHeals": 0,
+    "healingSuccessRate": 1,
+    "falseHealingRate": 0
+  },
+  "startedAt": "2026-09-29T02:11:37.282Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "healing-metrics.json",
+      "path": "evidence/HEAL-M01/2026-09-29T01-51-22Z/healing-metrics.json",
+      "bytes": 2441,
+      "sha256": "4ccd7e8533823d2065518c239dab939ca84a07a67e0b5445ecaf19ac69d2e874"
+    }
+  ]
+}

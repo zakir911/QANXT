@@ -1,0 +1,38 @@
+{
+  "testId": "AQP-029",
+  "suite": "Autonomous policy",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "An unknown environment is not reported as production",
+  "preconditions": [
+    "a pass has run against an application whose environment nothing identifies"
+  ],
+  "input": "agent run 59180fc4-7e88-403a-a26f-52016f16e139",
+  "expected": "The denial is EnvironmentUnknown rather than ProductionNotPermitted",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "0 production refusals",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:26:29.558Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "unknown-decisions.json",
+      "path": "evidence/AQP-029/2026-09-29T01-51-22Z/unknown-decisions.json",
+      "bytes": 10482,
+      "sha256": "d53ee00ce5e3b5bd18497c180c31bee851c90c37ef1b94071ca82465c8083cb0"
+    },
+    {
+      "file": "unknown-run.json",
+      "path": "evidence/AQP-029/2026-09-29T01-51-22Z/unknown-run.json",
+      "bytes": 1306,
+      "sha256": "9698d6040b272139d4385b61005a35f1b5ae73ead619923bed0abc7640fcb5c8"
+    }
+  ]
+}

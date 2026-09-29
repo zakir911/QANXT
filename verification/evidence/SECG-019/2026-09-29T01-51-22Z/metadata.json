@@ -1,0 +1,34 @@
+{
+  "testId": "SECG-019",
+  "suite": "Security scanning",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "The scope guard refuses over the rate limit",
+  "preconditions": [
+    "the guard evaluated directly, with no application involved"
+  ],
+  "input": "over the rate limit",
+  "expected": "Refused with rateLimitExceeded. A limit a caller can decline to observe is documentation.",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "rateLimitExceeded: At the limit of 5 request(s) per second.",
+  "metrics": {
+    "rungsPassed": 7
+  },
+  "startedAt": "2026-09-29T02:20:45.515Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "decision.json",
+      "path": "evidence/SECG-019/2026-09-29T01-51-22Z/decision.json",
+      "bytes": 400,
+      "sha256": "30dcf852314ee92ca47522ca848dadc9c61bd7114547c8499e3880386cb254d8"
+    }
+  ]
+}

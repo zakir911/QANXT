@@ -1,0 +1,35 @@
+{
+  "case": "wrong-value",
+  "lab": "assertionFailed",
+  "accept": [
+    "applicationDefect",
+    "dataIssue"
+  ],
+  "actual": "applicationDefect",
+  "failure": {
+    "id": "1b4bf2cf-09fe-4748-a7da-fb947482f75f",
+    "category": "applicationDefect",
+    "categoryConfidence": 70,
+    "rawMessage": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15094ms).",
+    "signature": "d101b89d5b43211877d556f8dfa2c3eff58b5ac022f82b667b116c8bbf0b95e0",
+    "isNewFailure": true,
+    "isRegression": false,
+    "occurrenceCount": 1,
+    "firstSeenAt": "2026-09-29T02:06:02.106404+00:00",
+    "lastSeenAt": "2026-09-29T02:06:02.106404+00:00",
+    "analysis": {
+      "summary": "An assertion failed on outcome reads \"OK 42\".",
+      "likelyCause": "The application produced a different value from the one the test expects. Either the application's behaviour changed, or the expectation is out of date.",
+      "evidence": "Expected the element to contain \"OK 42\" but it read \"OK 99\" (waited 15094ms).",
+      "suggestedAction": "Compare the expected and actual values in the failure message. If the application's new value is correct, update the expectation deliberately — never silently.",
+      "category": "applicationDefect",
+      "confidence": 70,
+      "isLikelyApplicationDefect": true,
+      "isHealable": false,
+      "producedByAi": false,
+      "provider": "local",
+      "model": "qanxt-rules-v1",
+      "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"05cd7b99-c40d-444b-8e11-c0a79f446811\", \"kind\": \"AccessibilityTree\", \"name\": \"step-3-failure.a11y.json\"}, {\"id\": \"0ceb46de-fb90-43e6-9833-3d1de16092b4\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"20c7503d-afa1-4e77-9f41-366af0da13be\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"69962520-00db-4a04-ae1e-16abc169bc46\", \"kind\": \"DomSnapshot\", \"name\": \"step-3-failure.html\"}, {\"id\": \"7c8c0199-2cc0-495c-a55a-8ecea3c662ac\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"7ea8cdb2-85db-4a4a-aa43-f4fd997dfb91\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"807783dd-2406-4e74-a93b-3c7ee77fd712\", \"kind\": \"Screenshot\", \"name\": \"step-3-failure.png\"}], \"executionId\": \"e801ca2b-c9ef-4f90-80bd-99abf914ca10\"}"
+    }
+  }
+}

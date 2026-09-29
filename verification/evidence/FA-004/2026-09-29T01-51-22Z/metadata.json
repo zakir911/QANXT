@@ -1,0 +1,34 @@
+{
+  "testId": "FA-004",
+  "suite": "Failure analysis",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A http 403 failure is classified as authenticationIssue",
+  "preconditions": [
+    "the http-403 case failed"
+  ],
+  "input": "The failure category the platform assigned to /case/http-403",
+  "expected": "One of: authenticationIssue — the lab calls this authorizationFailure",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "classified \"authenticationIssue\" at 85% confidence; the lab expects authorizationFailure (accepting authenticationIssue)",
+  "metrics": {
+    "correct": 1
+  },
+  "startedAt": "2026-09-29T02:06:20.465Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "FA-004-classification.json",
+      "path": "evidence/FA-004/2026-09-29T01-51-22Z/FA-004-classification.json",
+      "bytes": 2379,
+      "sha256": "5cf2267051a9a050190491e24b799fc03b035f0e6d7b71e20f2e0089059060a6"
+    }
+  ]
+}

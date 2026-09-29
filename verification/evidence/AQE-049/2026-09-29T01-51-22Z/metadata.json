@@ -1,0 +1,38 @@
+{
+  "testId": "AQE-049",
+  "suite": "Autonomous execution",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A refusal records who refused and why",
+  "preconditions": [
+    "a pass has been refused permission for the action it asked about"
+  ],
+  "input": "agent run 9c33c632-fd6e-4eac-a18b-8197a1b812b1",
+  "expected": "The approval carries a person and a reason",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "agentrefused-e44lrqjq2t@example.test: Refused by the golden suite to exercise the refusal path.",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:28:18.897Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "refused-run.json",
+      "path": "evidence/AQE-049/2026-09-29T01-51-22Z/refused-run.json",
+      "bytes": 933,
+      "sha256": "6ac7dcabff0b16a51d75958747be29db05ba7fd7480af8ccfce4c4053648096a"
+    },
+    {
+      "file": "refused-approvals.json",
+      "path": "evidence/AQE-049/2026-09-29T01-51-22Z/refused-approvals.json",
+      "bytes": 926,
+      "sha256": "5e9a796169f1cbde0b780e0bbb148d43b7a4565de33d9ed7265aed3bb5b2e27a"
+    }
+  ]
+}

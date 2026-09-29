@@ -1,0 +1,22 @@
+{
+  "name": "Round trip (DAT-007)",
+  "description": "Written by a person, read by the CLI",
+  "fields": [
+    {
+      "key": "customerEmail",
+      "kind": "seededRandom",
+      "generatorJson": "{\"type\": \"email\"}",
+      "seed": 99
+    },
+    {
+      "key": "orderReference",
+      "kind": "static",
+      "value": "QANXT-TEST-007"
+    },
+    {
+      "key": "password",
+      "kind": "secretReference",
+      "value": "${secret:app_password}"
+    }
+  ]
+}

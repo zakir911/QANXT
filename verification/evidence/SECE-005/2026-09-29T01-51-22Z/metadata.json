@@ -1,0 +1,35 @@
+{
+  "testId": "SECE-005",
+  "suite": "Security scanning",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "Every finding the engine can emit declares a confidence",
+  "preconditions": [
+    "the engine source"
+  ],
+  "input": "Each finding literal across the seven check families",
+  "expected": "All of them set a confidence from the engine's own three factors. A finding with no confidence does not read as unknown anywhere downstream — it reads as whatever the reader's fallback is, and every fallback is a number nobody chose for it",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "32 finding site(s); 0 declare no confidence",
+  "metrics": {
+    "sites": 32,
+    "silent": 0
+  },
+  "startedAt": "2026-09-29T02:20:45.528Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "sites.json",
+      "path": "evidence/SECE-005/2026-09-29T01-51-22Z/sites.json",
+      "bytes": 3220,
+      "sha256": "a6c021de83f92b76d32c5019d7607b5370a4a5d155a177510ef750cfa1b691ce"
+    }
+  ]
+}

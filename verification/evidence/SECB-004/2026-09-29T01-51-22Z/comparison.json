@@ -1,0 +1,50 @@
+{
+  "findings": [
+    {
+      "id": "BOLA-0",
+      "application": "access-control-lab",
+      "category": "BOLA",
+      "endpoint": "/api/accounts/{id}",
+      "parameter": "id",
+      "observedAsRole": "alice",
+      "severity": "High",
+      "confidence": "Medium",
+      "status": "Regressed",
+      "isNew": false,
+      "isRegression": true,
+      "hasEvidence": true,
+      "check": "authz.bola",
+      "fingerprint": "934fababec4acd11",
+      "previousStatus": "Resolved",
+      "regressionNote": "This finding was recorded as resolved and has been detected again."
+    },
+    {
+      "id": "BrokenFunctionLevelAuthorization-1",
+      "application": "access-control-lab",
+      "category": "BrokenFunctionLevelAuthorization",
+      "endpoint": "/api/admin/users",
+      "parameter": null,
+      "observedAsRole": "alice",
+      "severity": "High",
+      "confidence": "Medium",
+      "status": "Regressed",
+      "isNew": false,
+      "isRegression": true,
+      "hasEvidence": true,
+      "check": "authz.vertical",
+      "fingerprint": "63c1825f5fc88327",
+      "previousStatus": "Resolved",
+      "regressionNote": "This finding was recorded as resolved and has been detected again."
+    }
+  ],
+  "disappeared": [],
+  "summary": {
+    "current": 2,
+    "baseline": 2,
+    "new": 0,
+    "regressed": 2,
+    "carriedForward": 0,
+    "notReproduced": 0,
+    "notObserved": 0
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "testId": "AQI-057",
+  "suite": "Autonomous intelligence",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A named priority that matches nothing is reported, not silently ignored",
+  "preconditions": [
+    "a pass has analysed coverage for an application"
+  ],
+  "input": "agent run cab3c5fb-1861-4af0-8de1-6ed63c09aa2c",
+  "expected": "The coverage decision names the areas a person asked for that correspond to no capability",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "named areas matching nothing: authentication",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:32:48.865Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "coverage-decision.json",
+      "path": "evidence/AQI-057/2026-09-29T01-51-22Z/coverage-decision.json",
+      "bytes": 1391,
+      "sha256": "dd4902d370b971acdd85741fb13d43cd47b2f4b83d16efd24f0b434005f035c9"
+    },
+    {
+      "file": "coverage-findings.json",
+      "path": "evidence/AQI-057/2026-09-29T01-51-22Z/coverage-findings.json",
+      "bytes": 11831,
+      "sha256": "3582aeecb9ca91ac63bb1e7e18bf1b40434d35fdcb5cc1fa81045828939028a3"
+    }
+  ]
+}

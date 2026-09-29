@@ -1,0 +1,71 @@
+{
+  "holds": {
+    "status": "passed",
+    "assertion": {
+      "id": "3ef2e861-0ffa-494a-98ee-65dff4722f61",
+      "order": 2,
+      "action": "assertAttribute",
+      "description": "username's name is \"username\"",
+      "status": "passed",
+      "startedAt": "2026-09-29T01:58:18.383+00:00",
+      "durationMs": 77,
+      "url": "http://localhost:4300/login",
+      "wasHealed": false,
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"username\""
+    }
+  },
+  "breaks": {
+    "status": "failed",
+    "assertion": {
+      "id": "5842efa8-dff3-4805-8606-6998d8a3edd8",
+      "order": 2,
+      "action": "assertAttribute",
+      "description": "username's name is \"account-number\"",
+      "status": "failed",
+      "startedAt": "2026-09-29T01:58:20.49+00:00",
+      "durationMs": 15121,
+      "url": "http://localhost:4300/login",
+      "wasHealed": false,
+      "errorMessage": "Expected attribute \"name\" to be \"account-number\" but it was \"username\" (waited 15048ms).",
+      "locatorUsed": {
+        "strategy": "testId",
+        "value": "username",
+        "exact": false,
+        "fallbacks": []
+      },
+      "locatorDescription": "testId=\"username\""
+    },
+    "failure": {
+      "id": "1454b672-4a62-49b8-a717-873e328b601b",
+      "category": "authenticationIssue",
+      "categoryConfidence": 90,
+      "rawMessage": "Expected attribute \"name\" to be \"account-number\" but it was \"username\" (waited 15048ms).",
+      "signature": "2ce5cd0463189558386a6157b0405ce952a404820b8f05f7c8e1991a8e010311",
+      "isNewFailure": true,
+      "isRegression": false,
+      "occurrenceCount": 1,
+      "firstSeenAt": "2026-09-29T01:58:39.937623+00:00",
+      "lastSeenAt": "2026-09-29T01:58:39.937623+00:00",
+      "analysis": {
+        "summary": "The step failed because the API call it made was refused with 401.",
+        "likelyCause": "GET /api/session → 401 in 0ms — the session was not accepted, or the account lacks a permission this endpoint requires.",
+        "evidence": "GET /api/session → 401 in 0ms. Engine message: Expected attribute \"name\" to be \"account-number\" but it was \"username\" (waited 15048ms).",
+        "suggestedAction": "Check the test account's permissions and this environment's session lifetime.",
+        "category": "authenticationIssue",
+        "confidence": 90,
+        "isLikelyApplicationDefect": false,
+        "isHealable": false,
+        "producedByAi": false,
+        "provider": "local",
+        "model": "qanxt-rules-v1",
+        "evidenceRefsJson": "{\"artifacts\": [{\"id\": \"334b4217-ff22-42ee-8532-baff9a4f7b0a\", \"kind\": \"Trace\", \"name\": \"trace.zip\"}, {\"id\": \"58eaace9-f525-42a6-a643-dd17ee689a7a\", \"kind\": \"Screenshot\", \"name\": \"final.png\"}, {\"id\": \"67ed6542-ff94-43f8-9140-1055413e744e\", \"kind\": \"AccessibilityTree\", \"name\": \"step-2-failure.a11y.json\"}, {\"id\": \"7f8aaeaf-e778-4285-93e6-e871ef2baf99\", \"kind\": \"ConsoleLog\", \"name\": \"execution.console.json\"}, {\"id\": \"abeb3b89-b81e-42f0-95c0-e47e8153a247\", \"kind\": \"Video\", \"name\": \"execution.webm\"}, {\"id\": \"ba3ff75e-9e34-46fc-b7d3-aa0503c50c33\", \"kind\": \"DomSnapshot\", \"name\": \"step-2-failure.html\"}, {\"id\": \"d0473ada-a1d2-46e5-bf18-957313e38609\", \"kind\": \"NetworkLog\", \"name\": \"execution.network.json\"}, {\"id\": \"dae4e37e-5500-4f92-9010-1c9ae91da168\", \"kind\": \"Screenshot\", \"name\": \"step-2-failure.png\"}], \"executionId\": \"9d3a5aa3-e300-4083-acc9-3cb2961b0e92\"}"
+      }
+    }
+  }
+}

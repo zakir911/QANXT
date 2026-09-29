@@ -1,0 +1,32 @@
+{
+  "testId": "DISC-005",
+  "suite": "Discovery",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "Pages behind the sign-in are marked as requiring authentication",
+  "preconditions": [
+    "discovery has completed"
+  ],
+  "input": "Every page the ground truth marks requiresAuth",
+  "expected": "Each is marked requiresAuthentication by the platform",
+  "severity": "medium",
+  "result": "PASS",
+  "detail": "8/8 marked private",
+  "metrics": null,
+  "startedAt": "2026-09-29T01:54:06.472Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "auth-flags.json",
+      "path": "evidence/DISC-005/2026-09-29T01-51-22Z/auth-flags.json",
+      "bytes": 769,
+      "sha256": "574116ca0a1b794264c744afab4591e6c5a1e93e3caa49ce7fb1e2ef9aeaef64"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "testId": "PERF-002",
+  "suite": "Performance baseline",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "How long a twelve-step journey takes from queued to verdict",
+  "preconditions": [
+    "the journey above is imported",
+    "the bank is healthy"
+  ],
+  "input": "Ten executions of the same unedited test",
+  "expected": "Ten passing runs, with their durations recorded",
+  "severity": "low",
+  "result": "PASS",
+  "detail": "queued to verdict: median 2048ms (min 2042ms, p95 2054ms, max 2054ms, n=10); in the browser: median 962ms (min 824ms, p95 1064ms, max 1064ms, n=10); platform overhead about 1086ms; about 80ms per step",
+  "metrics": {
+    "runWallClockMs": 2048,
+    "runWallClockP95Ms": 2054,
+    "runEngineMs": 962,
+    "platformOverheadMs": 1086,
+    "perStepMs": 80
+  },
+  "startedAt": "2026-09-29T02:24:18.633Z",
+  "durationMs": 20478,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "execution-timings.json",
+      "path": "evidence/PERF-002/2026-09-29T01-51-22Z/execution-timings.json",
+      "bytes": 1499,
+      "sha256": "a671530d5157a54c377e64c034c9565984f76e803a1083d58d3fa5417375fafc"
+    }
+  ]
+}

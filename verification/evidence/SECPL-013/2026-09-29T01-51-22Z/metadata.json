@@ -1,0 +1,32 @@
+{
+  "testId": "SECPL-013",
+  "suite": "Security scopes, scans and findings",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A regression makes the stored scan's gate decision FAIL",
+  "preconditions": [
+    "the scan that produced the regression"
+  ],
+  "input": "GET that scan",
+  "expected": "The gate embedded in the scan reads FAIL, naming the regression. The gate is computed from what the scan recorded, not from what the scope says today",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "fail: 1 security finding(s) that were fixed have come back. A regression fails at any severity: something that was repaired has been undone.",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:20:48.047Z",
+  "durationMs": 53,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "gate.json",
+      "path": "evidence/SECPL-013/2026-09-29T01-51-22Z/gate.json",
+      "bytes": 2042,
+      "sha256": "cdb4383571cbb08b514581753869441770d3370744cb939cceb1bf941e4a49c6"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "testId": "SCH-001",
+  "suite": "Scheduling",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A schedule created through the API fires on its own and starts a real run",
+  "preconditions": [
+    "the platform is running with the schedule runner enabled",
+    "the lab bank is up"
+  ],
+  "input": "A schedule with the cron expression \"* * * * *\"",
+  "expected": "Within a minute or two the platform starts a run of the scheduled tests with no further input, records it on the schedule, and the run reaches a verdict",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "fired at 2026-09-29T02:16:09.694334+00:00, run a5a7b542-c535-4731-8fa5-0a319a7c70e2 (passed, trigger scheduled, 1/1 passed); next run 2026-09-29T02:17:00+00:00",
+  "metrics": {
+    "testsRun": 1
+  },
+  "startedAt": "2026-09-29T02:15:15.334Z",
+  "durationMs": 56483,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "schedule.json",
+      "path": "evidence/SCH-001/2026-09-29T01-51-22Z/schedule.json",
+      "bytes": 580,
+      "sha256": "1209354c1ac009efa27b78d5ce29827e31782dcb502967443bdaac85f3374c5d"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/SCH-001/2026-09-29T01-51-22Z/run.json",
+      "bytes": 782,
+      "sha256": "a05e09e6686cfda52a630fd35e87569286755d6bc9f42dd300ec77f0612354d9"
+    }
+  ]
+}

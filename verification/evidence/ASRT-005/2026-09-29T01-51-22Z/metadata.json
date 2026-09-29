@@ -1,0 +1,32 @@
+{
+  "testId": "ASRT-005",
+  "suite": "Assertions",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "assertHidden holds when it should and fails when it should not",
+  "preconditions": [
+    "the lab bank is running with no faults"
+  ],
+  "input": "Two journeys: one where the assertHidden is satisfied, one where it is deliberately wrong",
+  "expected": "The first run passes; the second FAILS with a message naming expected and actual",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "holds → passed; breaks → failed; message: The element was expected to be hidden but was visible.",
+  "metrics": null,
+  "startedAt": "2026-09-29T01:59:02.673Z",
+  "durationMs": 1,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "ASRT-005-both-directions.json",
+      "path": "evidence/ASRT-005/2026-09-29T01-51-22Z/ASRT-005-both-directions.json",
+      "bytes": 3764,
+      "sha256": "b15bb14dfcabd5b060d13bc48623bb3be35b3bb06ea8bba9cc2c1de774da8b2b"
+    }
+  ]
+}

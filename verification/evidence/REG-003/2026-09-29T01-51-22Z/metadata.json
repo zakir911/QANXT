@@ -1,0 +1,35 @@
+{
+  "testId": "REG-003",
+  "suite": "Regression selection",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "A change to one area selects the tests that reach it and leaves the others out",
+  "preconditions": [
+    "tests covering accounts, payments and profile exist"
+  ],
+  "input": "A change to src/pages/accounts/List.tsx and src/api/accounts/service.ts",
+  "expected": "The accounts tests and the smoke test selected; the payments and profile tests left out with their scores shown",
+  "severity": "critical",
+  "result": "PASS",
+  "detail": "3/5 selected: TC-0001(70) TC-0004(70) TC-0005(40) | excluded: TC-0002(30) TC-0003(30)",
+  "metrics": {
+    "selected": 3,
+    "total": 5
+  },
+  "startedAt": "2026-09-29T02:14:21.739Z",
+  "durationMs": 22,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": "1.0.0",
+  "evidence": [
+    {
+      "file": "selection.json",
+      "path": "evidence/REG-003/2026-09-29T01-51-22Z/selection.json",
+      "bytes": 7618,
+      "sha256": "881f2548e40f8856803ddf37836c2838bb8745d4d42dc91a49236e64e82c4f16"
+    }
+  ]
+}

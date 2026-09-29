@@ -1,0 +1,44 @@
+{
+  "testId": "AQN-033",
+  "suite": "Autonomous planning",
+  "runId": "2026-09-29T01-51-22Z",
+  "objective": "The pass records that it left excluded pages alone",
+  "preconditions": [
+    "a real autonomous pass has run against the lab bank and produced a plan"
+  ],
+  "input": "agent run 6a97df0d-0560-496b-ab40-d51095f58956",
+  "expected": "A decision explains the exclusion in the agent's own trail",
+  "severity": "high",
+  "result": "PASS",
+  "detail": "Left 1 page(s) alone because a person excluded them.",
+  "metrics": null,
+  "startedAt": "2026-09-29T02:25:19.549Z",
+  "durationMs": 0,
+  "build": {
+    "commit": "fb13a5e",
+    "branch": "claude/blissful-pasteur-qtbzbs",
+    "dirty": false
+  },
+  "browser": "chromium",
+  "applicationVersion": null,
+  "evidence": [
+    {
+      "file": "plan.json",
+      "path": "evidence/AQN-033/2026-09-29T01-51-22Z/plan.json",
+      "bytes": 4708,
+      "sha256": "f9a012a2d7c7a1142fb1e72178a82f7e9b2bf9b03faa09a63d4f9057a5bafc5b"
+    },
+    {
+      "file": "run.json",
+      "path": "evidence/AQN-033/2026-09-29T01-51-22Z/run.json",
+      "bytes": 760,
+      "sha256": "6fda14aa8f6b864924edd6f9dbb8f7f4db7c73c149988ff94706276411b274cd"
+    },
+    {
+      "file": "decisions.json",
+      "path": "evidence/AQN-033/2026-09-29T01-51-22Z/decisions.json",
+      "bytes": 3580,
+      "sha256": "4a62a9341b07baf39c8479e4494c8e259e50d90b8c511e40a0ab622e1d16992c"
+    }
+  ]
+}
