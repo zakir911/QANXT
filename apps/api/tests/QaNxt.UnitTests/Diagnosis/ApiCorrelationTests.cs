@@ -316,6 +316,25 @@ public class ApiCorrelationTests
     }
 
     [Fact]
+    public void A_refusal_is_still_an_authorization_problem_when_nothing_was_correlated()
+    {
+        // The boundary of the widened negative. That rule needs calls observed around the
+        // failing step; with none, an execution-wide 401 is the only evidence there is and
+        // it must still be read as a session problem.
+        //
+        // The neighbouring no-calls test carries no auth errors, so it would keep passing if
+        // the "calls were observed" clause were dropped from
+        // EveryCallAroundTheFailingStepSucceeded — and every assertion failure would quietly
+        // become a front-end defect. This is the test that goes red instead.
+        var verdict = DeterministicFailureClassifier.Classify(Input(
+            "Expected the text \"Welcome\" but it read \"Please sign in\".",
+            "assertText", ApiCorrelation.None, authErrors: 1));
+
+        verdict.Category.Should().Be(FailureCategory.AuthenticationIssue);
+        verdict.Summary.Should().Be("The session was not authorised.");
+    }
+
+    [Fact]
     public void A_classification_with_no_correlation_behaves_exactly_as_it_did_before()
     {
         // Executions recorded before the link existed still classify. The correlation is
