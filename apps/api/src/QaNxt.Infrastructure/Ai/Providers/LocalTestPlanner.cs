@@ -352,12 +352,37 @@ internal static class LocalTestPlanner
             // In order of how directly each answers "did the application refuse the range?".
             // The last is the weakest of the three and still falsifiable: a filter that
             // ignored the dates would list records, and the step would fail.
+            //
+            // What a tier CLAIMS has to match what it CHECKS, so the name, the objective and
+            // the expected results are decided by the same branch that chooses the assertion.
+            // Declaring "a validation message explains that the range is invalid" on all three
+            // — which this generator did — shipped a test whose stated expectation was the
+            // opposite of its assertion: the weakest tier passes exactly when the application
+            // silently returns nothing, the behaviour the objective named as the failure. A
+            // reviewer reading the test case sees a promise the steps never keep, and a green
+            // run means less than it says. BUG-0016 made these assertions falsifiable; it left
+            // them untruthful.
+            //
+            // The first tier is also rarer than it looks. Discovery records a page in its
+            // pre-interaction state, so a validation message rendered in response to the very
+            // submit this scenario performs is not in the element set, and validationTarget is
+            // null for every application of that shape. The lower tiers are the normal path,
+            // not the exception, which is why their wording carries the weight: they say what
+            // they checked, and they say plainly what they did not.
+            string name;
+            string objective;
+            string expectedResults;
+
             if (validationTarget is not null)
             {
                 filterSteps.Add(StepWithAssertion("Confirm the invalid range is reported", "assertVisible",
                     Locator(validationTarget.Value),
                     Assertion("visible", Locator(validationTarget.Value),
                         description: "The application explains that the range is invalid.")));
+
+                name = $"Reject an invalid filter range on {title}";
+                objective = "An impossible filter range is refused rather than silently returning nothing.";
+                expectedResults = "A validation message explains that the range is invalid.";
             }
             else if (emptyState is not null)
             {
@@ -365,6 +390,12 @@ internal static class LocalTestPlanner
                     Locator(emptyState.Value),
                     Assertion("visible", Locator(emptyState.Value),
                         description: "The application reports that nothing matched.")));
+
+                name = $"An impossible filter range on {title} returns no records";
+                objective = "An impossible filter range returns no records and the page says so.";
+                expectedResults = "The page reports that nothing matched. Whether the range was refused "
+                    + "with a validation message is not checked: discovery observed no element that "
+                    + "reports one on this page.";
             }
             else
             {
@@ -372,17 +403,23 @@ internal static class LocalTestPlanner
                     Locator(table),
                     Assertion("hidden", Locator(table),
                         description: "No records are listed, because no record can fall inside an impossible range.")));
+
+                name = $"An impossible filter range on {title} lists no records";
+                objective = "An impossible filter range leaves no records listed.";
+                expectedResults = "The list of records is not displayed. Whether the range was refused "
+                    + "with a validation message is not checked: discovery observed no element that "
+                    + "reports one on this page.";
             }
 
             yield return new
             {
-                name = $"Reject an invalid filter range on {title}",
-                objective = "An impossible filter range is refused rather than silently returning nothing.",
+                name,
+                objective,
                 category = "negative",
                 priority = "medium",
                 risk = "medium",
                 preconditions = "The customer is signed in.",
-                expectedResults = "A validation message explains that the range is invalid.",
+                expectedResults,
                 tags = new[] { "filter", "negative", Slug(route) },
                 testData = new Dictionary<string, string>(),
                 steps = filterSteps.ToArray()
