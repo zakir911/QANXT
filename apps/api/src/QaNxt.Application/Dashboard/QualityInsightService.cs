@@ -54,6 +54,14 @@ public sealed class QualityInsightService : IQualityInsightService
             ? null
             : await _db.Projects.FirstOrDefaultAsync(p => p.Id == request.ProjectId, ct);
 
+        // The denominator behind any claim about stability. Without it an empty
+        // unstableTests list is ambiguous — it means either "every test that repeated was
+        // consistent" or "no test has repeated yet" — and the answer asserted the first
+        // whichever was true, reporting a clean bill of health over a sample of nothing.
+        var testsRunMoreThanOnce = await _db.TestCases
+            .Where(tc => request.ProjectId == null || tc.ProjectId == request.ProjectId)
+            .CountAsync(tc => tc.ExecutionCount > 1, ct);
+
         var context = new
         {
             question = request.Question,
@@ -80,6 +88,7 @@ public sealed class QualityInsightService : IQualityInsightService
                 executionCount = t.ExecutionCount,
                 resultChanges = (int)Math.Round(t.FlakinessScore * Math.Max(0, t.ExecutionCount - 1) / 100.0)
             }),
+            stability = new { testsRunMoreThanOnce },
             failureCategories = view.FailureCategories.Select(c => new { category = ToCamel(c.Category.ToString()), count = c.Count }),
             newFailures = await NewFailuresAsync(request.ProjectId, since, ct),
             healedTests = await HealedAsync(request.ProjectId, since, ct),

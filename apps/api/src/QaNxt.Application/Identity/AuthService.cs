@@ -81,7 +81,13 @@ public sealed class AuthService : IAuthService
                 DisplayName = request.DisplayName.Trim(),
                 PasswordHash = _hasher.Hash(request.Password),
                 Status = UserStatus.Active,
-                CreatedAt = now
+                CreatedAt = now,
+                // Registering signs you in: the call ends by issuing a session, the same as
+                // LoginAsync does. Leaving this null meant the person who had just created
+                // the organization read "Last signed in: never" about themselves on the
+                // Settings page they landed on. Not set in IssueAsync, because the refresh
+                // path goes through there too and a refresh is not a sign-in.
+                LastLoginAt = now
             };
             _db.Users.Add(user);
 

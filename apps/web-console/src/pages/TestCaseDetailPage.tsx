@@ -54,7 +54,15 @@ export default function TestCaseDetailPage() {
   });
 
   if (isLoading) return <Spinner label="Loading test case" />;
-  if (error) return <ErrorNotice error={error} onRetry={() => void refetch()} />;
+  // A record that does not exist will not start existing on a retry, so the way back to
+  // the list is offered alongside it rather than leaving a dead end.
+  if (error) return (
+    <ErrorNotice
+      error={error}
+      onRetry={() => void refetch()}
+      action={<Link to="/tests" className="btn-secondary btn-sm">Back to test cases</Link>}
+    />
+  );
   if (!data) return null;
 
   return (

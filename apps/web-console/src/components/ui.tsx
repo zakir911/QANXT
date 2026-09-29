@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { humanize } from '../lib/format';
 
 /** Status colouring, in one place so a verdict never looks different on two screens. */
@@ -58,19 +59,28 @@ export function StatusBadge({ status, title }: { status: string; title?: string 
   return <span className={`badge ${tone}`} title={title}>{humanize(status)}</span>;
 }
 
-export function Card({ title, description, actions, children, className = '' }: {
+export function Card({ id, title, description, actions, children, className = '', labelledBy, sectionRef }: {
+  id?: string;
   title?: ReactNode;
   description?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
   className?: string;
+  /** Set by {@link useDisclosedPanel} so a panel that appears on demand names itself. */
+  labelledBy?: string;
+  sectionRef?: Ref<HTMLElement>;
 }) {
   return (
-    <section className={`card ${className}`}>
+    <section
+      id={id}
+      ref={sectionRef}
+      className={`card ${className}`}
+      aria-labelledby={labelledBy}
+    >
       {(title || actions) && (
         <header className="flex items-start justify-between gap-4 px-5 py-4 border-b border-line">
           <div>
-            {title && <h2 className="text-base font-semibold text-ink">{title}</h2>}
+            {title && <h2 id={labelledBy} className="text-base font-semibold text-ink">{title}</h2>}
             {description && <p className="text-sm text-ink-muted mt-0.5">{description}</p>}
           </div>
           {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
@@ -79,6 +89,42 @@ export function Card({ title, description, actions, children, className = '' }: 
       <div className="p-5">{children}</div>
     </section>
   );
+}
+
+/**
+ * Wires a form panel that appears when a button is pressed.
+ *
+ * These panels opened with nothing to announce them and focus left on `<body>`, so a
+ * keyboard or screen-reader user got no signal that a form had appeared and had to tab
+ * through the header and fifteen navigation links to reach the first field.
+ *
+ * They are laid out inline, in the page flow, so they are NOT modals: marking them
+ * `aria-modal` would tell a screen reader the rest of the page is inert when it is not.
+ * A named region plus moved focus is the accurate treatment — the panel announces itself,
+ * and the trigger says whether it is open.
+ *
+ * `id` must be unique on the page; pass something stable like 'new-project'.
+ */
+export function useDisclosedPanel(id: string, open: boolean) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const headingId = `${id}-heading`;
+
+  useEffect(() => {
+    if (!open) return;
+    const first = sectionRef.current?.querySelector<HTMLElement>(
+      'input:not([type="hidden"]), select, textarea'
+    );
+    // preventScroll: the panel is already in view, and yanking the viewport on open is
+    // its own annoyance.
+    first?.focus({ preventScroll: true });
+  }, [open]);
+
+  return {
+    /** Spread onto the button that opens the panel. */
+    triggerProps: { 'aria-expanded': open, 'aria-controls': id } as const,
+    /** Spread onto the Card that is the panel. */
+    panelProps: { id, labelledBy: headingId, sectionRef } as const
+  };
 }
 
 export function Metric({ label, value, tone = 'neutral', hint }: {
@@ -122,7 +168,17 @@ export function EmptyState({ title, description, action }: {
   );
 }
 
-export function ErrorNotice({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+/**
+ * `action` is the way out when retrying cannot work.
+ *
+ * "Try again" is the right offer for a request that failed in transit. It is the wrong and
+ * only offer for a record that does not exist: opening a run id that was never real left
+ * the reader on a dead end whose one button could never succeed, with no link back to the
+ * list. A caller that knows the resource is missing passes somewhere to go instead.
+ */
+export function ErrorNotice(
+  { error, onRetry, action }: { error: unknown; onRetry?: () => void; action?: ReactNode }
+) {
   const message = error instanceof Error ? error.message : String(error);
   const correlationId = (error as { correlationId?: string }).correlationId;
 
@@ -132,10 +188,15 @@ export function ErrorNotice({ error, onRetry }: { error: unknown; onRetry?: () =
       {correlationId && (
         <p className="mt-1 text-xs text-bad/80 font-mono">Reference: {correlationId}</p>
       )}
-      {onRetry && (
-        <button type="button" onClick={onRetry} className="btn-secondary btn-sm mt-2.5">
-          Try again
-        </button>
+      {(onRetry || action) && (
+        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+          {onRetry && (
+            <button type="button" onClick={onRetry} className="btn-secondary btn-sm">
+              Try again
+            </button>
+          )}
+          {action}
+        </div>
       )}
     </div>
   );

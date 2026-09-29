@@ -109,3 +109,34 @@ unchanged prompt replayed the pre-fix response and the API log said so:
 A deployment that upgrades the rule engine keeps serving the old rules' output to any
 organization that already generated from the same model, for up to a week. Verification here
 was completed by changing the prompt so the hash differed. Raised separately.
+
+---
+
+## The rest of the QA pass
+
+The remaining fourteen findings from the same report were fixed alongside this one. They are
+listed here rather than as records of their own because none needed an investigation: the
+report already carried the reproduction and the evidence.
+
+| ID | Fix | Verified by |
+| --- | --- | --- |
+| ISSUE-002 | `.card` and `.table-wrap` take `min-w-0`, and the wrap scrolls (`overflow-x-auto`) instead of clipping | At 375px the document no longer scrolls sideways (750 → 375) and the last column moves from x=728 to x=333 when the table is scrolled |
+| ISSUE-003 | The evidence copy names what is masked (DOM, accessibility tree, console and network logs) and what is not (screenshot, trace, video); the column reads "no" rather than an em dash | Card and column now agree: network log "yes", the other three "no" |
+| ISSUE-004 | The insight context carries `testsRunMoreThanOnce`; with none, the answer says stability cannot be judged yet and sets `insufficientEvidence` | Both branches exercised: 0 repeated → "nothing to judge stability from yet"; 10 repeated → "all 10 test(s) … produced a consistent result" |
+| ISSUE-005 | The tile counts distinct kinds among the records shown; the catalogue size moved into the hint | "ACTION KINDS IN THIS PAGE 6" against 7 matching records |
+| ISSUE-006 | `LastDiscoveredAt` comes from the newest **completed** run's `CompletedAt`, not the newest run's `CreatedAt` | Card during a run: "Running", zeroes, and no "last explored" claim |
+| ISSUE-007 | The nav measures its own overflow and fades the side that has more | At 1280px one right fade; scrolled to the end it becomes a left fade and Settings is fully visible |
+| ISSUE-008 | `useDisclosedPanel` names the panel as a region and moves focus to its first field; the trigger carries `aria-expanded`/`aria-controls`. Not `aria-modal`: these panels are inline, and the rest of the page is not inert | Focus moves from `<body>` to the first input; panel labelled by its own heading |
+| ISSUE-009 | `tidyForLog` strips ANSI codes and the multi-line call-log trailer; a download link is reported as one rather than as a load failure | Log is clean; "Did not open …: it serves a file download, not a page." |
+| ISSUE-010 | The card maps the strategy to the words the form uses | "Authentication: Form login" |
+| ISSUE-011 | `key={mode}` remounts the login form on a tab switch | All four fields empty after switching tabs |
+| ISSUE-012 | The correlation-id field is sized for a correlation id | 350px, placeholder no longer clipped |
+| ISSUE-013 | A real not-found page inside the layout; `ErrorNotice` takes an `action` so a missing record offers a way back | "That page does not exist" naming the path; "Back to test runs" beside "Try again" |
+| ISSUE-014 | A visit marks the URL it landed on as visited, not only the one it asked for | `/dashboard` mapped once, was twice |
+| ISSUE-015 | Registration sets `LastLoginAt`, because it issues a session. Not in `IssueAsync`, which the refresh path also uses | Settings reads "just now" for the account that just registered |
+
+Regression test added for `tidyForLog` (`apps/browser-worker/test/exploration-log.test.ts`),
+because an earlier draft of it type-checked, returned the right answer for the common case,
+and silently stopped collapsing whitespace. The other thirteen are changes whose evidence is
+the behaviour above; none of them had a seam worth a unit test that the existing suites and
+the end-to-end walk do not already cover.

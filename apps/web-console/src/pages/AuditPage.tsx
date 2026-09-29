@@ -85,6 +85,11 @@ export default function AuditPage() {
   const entries = data?.entries ?? [];
   const shown = (data?.offset ?? 0) + entries.length;
   const failedInPage = entries.filter(e => !e.succeeded).length;
+  // Kinds present in what is on screen, not the size of the catalogue. This tile used to
+  // show actions.length — how many kinds the product is able to record — under the label
+  // "Action kinds recorded", beside two tiles that are scoped to the query. A new
+  // organization with one audit record read as 44 kinds of action having happened in it.
+  const kindsInPage = new Set(entries.map(e => e.action)).size;
 
   const reset = (apply: () => void) => { apply(); setOffset(0); };
 
@@ -105,7 +110,11 @@ export default function AuditPage() {
           tone={failedInPage > 0 ? 'bad' : 'neutral'}
           hint="Actions that did not succeed — a refused sign-in, a rejected change."
         />
-        <Metric label="Action kinds recorded" value={String(actions.length)} />
+        <Metric
+          label="Action kinds in this page"
+          value={String(kindsInPage)}
+          hint={`Distinct kinds among the records shown. This product can record ${actions.length}.`}
+        />
       </div>
 
       <Card title="Filter">
@@ -129,7 +138,10 @@ export default function AuditPage() {
           <label className="label">
             <span className="block mb-1">Correlation id</span>
             <input
-              className="input w-auto font-mono"
+              // w-auto sized the field to its own content, which was narrower than the
+              // placeholder, so the hint rendered as "Everything one reques". A correlation
+              // id is 32 hex characters; the field is sized for one.
+              className="input w-full sm:w-[22rem] font-mono"
               type="text"
               placeholder="Everything one request did"
               value={correlationId}

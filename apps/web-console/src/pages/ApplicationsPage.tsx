@@ -4,8 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, PageHeader, Spinner, StatusBadge } from '../components/ui';
-import { formatRelative } from '../lib/format';
+import { Card, EmptyState, ErrorNotice, PageHeader, Spinner, StatusBadge, useDisclosedPanel } from '../components/ui';
+import { formatRelative, humanize } from '../lib/format';
 
 interface ApplicationSummary {
   id: string; projectId: string; name: string; baseUrl: string; description: string;
@@ -14,11 +14,24 @@ interface ApplicationSummary {
   lastDiscoveredAt?: string; lastDiscoveryStatus?: string; createdAt: string;
 }
 
+// The same words the Strategy dropdown uses. The card printed the wire value, so an
+// application registered through the form's own "Form login" option came back reading
+// "Authentication: formLogin" — the one piece of camelCase on a card that is otherwise
+// prose. Unknown values fall through to humanize rather than being hidden, so a strategy
+// added to the API but not to this map still reads as something.
+const AUTH_STRATEGY_LABELS: Record<string, string> = {
+  none: 'none',
+  formLogin: 'Form login',
+  bearerToken: 'Bearer token',
+  basicAuth: 'HTTP basic'
+};
+
 export default function ApplicationsPage() {
   const { can } = useAuth();
   const { projectId, project } = useProject();
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
+  const panel = useDisclosedPanel('add-application', adding);
   const [error, setError] = useState<unknown>(null);
 
   const { data: applications = [], isLoading, refetch } = useQuery({
@@ -96,12 +109,12 @@ export default function ApplicationsPage() {
         title="Applications"
         description={`Applications under test in ${project?.name ?? 'this project'}.`}
         actions={can(Permissions.applicationWrite) && !adding && (
-          <button type="button" className="btn-primary" onClick={() => setAdding(true)}>Add application</button>
+          <button type="button" className="btn-primary" onClick={() => setAdding(true)} {...panel.triggerProps}>Add application</button>
         )}
       />
 
       {adding && (
-        <Card title="Add an application"
+        <Card title="Add an application" {...panel.panelProps}
               description="Discovery will stay inside the allowed domains and budgets you set here."
               className="mb-4">
           <form onSubmit={handleCreate} className="grid gap-3.5 sm:grid-cols-2">
@@ -197,7 +210,7 @@ export default function ApplicationsPage() {
             title="No applications yet"
             description="Add the web application you want to test. The platform will explore it, build a model of its pages and elements, and generate tests from that model."
             action={can(Permissions.applicationWrite) && (
-              <button type="button" className="btn-primary" onClick={() => setAdding(true)}>Add an application</button>
+              <button type="button" className="btn-primary" onClick={() => setAdding(true)} {...panel.triggerProps}>Add an application</button>
             )}
           />
         </Card>
@@ -220,7 +233,7 @@ export default function ApplicationsPage() {
               </dl>
 
               <p className="text-xs text-ink-muted mb-3">
-                Authentication: {application.authStrategy === 'none' ? 'none' : application.authStrategy}
+                Authentication: {AUTH_STRATEGY_LABELS[application.authStrategy] ?? humanize(application.authStrategy)}
                 {application.hasCredentials && ' · credentials configured'}
                 {application.lastDiscoveredAt && ` · last explored ${formatRelative(application.lastDiscoveredAt)}`}
               </p>

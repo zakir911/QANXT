@@ -54,7 +54,15 @@ export default function ExecutionDetailPage() {
   });
 
   if (isLoading) return <Spinner label="Loading execution" />;
-  if (error) return <ErrorNotice error={error} onRetry={() => void refetch()} />;
+  // A record that does not exist will not start existing on a retry, so the way back to
+  // the list is offered alongside it rather than leaving a dead end.
+  if (error) return (
+    <ErrorNotice
+      error={error}
+      onRetry={() => void refetch()}
+      action={<Link to="/runs" className="btn-secondary btn-sm">Back to test runs</Link>}
+    />
+  );
   if (!data) return null;
 
   const screenshots = data.artifacts.filter(a => a.kind === 'screenshot');
@@ -263,7 +271,13 @@ export default function ExecutionDetailPage() {
           )}
 
           <Card title="All artifacts"
-                description="Evidence is masked before it is stored — screenshots, DOM snapshots and logs never carry a credential.">
+                description={
+                  'Text evidence is masked before it is written to disk: DOM snapshots, the '
+                  + 'accessibility tree, and the console and network logs. A screenshot, a trace or a '
+                  + 'video is a recording of the rendered page, which the masker cannot rewrite, so '
+                  + 'treat those as carrying whatever was on screen. The Masked column says which is '
+                  + 'which for every file here.'
+                }>
             <div className="table-wrap">
               <table className="table">
                 <thead><tr><th>Kind</th><th>Name</th><th>Size</th><th>Masked</th><th></th></tr></thead>
@@ -273,7 +287,15 @@ export default function ExecutionDetailPage() {
                       <td><span className="badge bg-surface-sunken text-ink-muted">{humanize(artifact.kind)}</span></td>
                       <td className="font-mono text-xs">{artifact.name}</td>
                       <td className="tabular-nums text-xs">{formatBytes(artifact.sizeBytes)}</td>
-                      <td className="text-xs">{artifact.isMasked ? 'yes' : '—'}</td>
+                      {/* "no", not an em dash. A dash in a column headed Masked reads as "not
+                          applicable" or "unknown", and the one thing this column must never be is
+                          vague: it is how somebody decides whether a file is safe to attach to a
+                          ticket. */}
+                      <td className="text-xs">
+                        {artifact.isMasked
+                          ? 'yes'
+                          : <span className="text-ink-muted" title="A recording of the rendered page; masking cannot rewrite it.">no</span>}
+                      </td>
                       <td>
                         <ArtifactLink artifactId={artifact.id} name={artifact.name} className="btn-secondary btn-sm">
                           Download

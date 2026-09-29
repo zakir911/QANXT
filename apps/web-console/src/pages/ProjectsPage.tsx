@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject, type ProjectSummary } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, PageHeader, Spinner } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, PageHeader, Spinner, useDisclosedPanel } from '../components/ui';
 import { formatDateTime, humanize } from '../lib/format';
 
 interface ProjectDetail {
@@ -19,6 +19,7 @@ export default function ProjectsPage() {
   const { projects, setProjectId, isLoading } = useProject();
   const queryClient = useQueryClient();
   const [creating, setCreating] = useState(false);
+  const panel = useDisclosedPanel('new-project', creating);
   const [error, setError] = useState<unknown>(null);
   const [editing, setEditing] = useState<string | null>(null);
 
@@ -52,14 +53,14 @@ export default function ProjectsPage() {
         title="Projects"
         description="A project groups the applications, tests and quality rules for one product."
         actions={can(Permissions.projectWrite) && !creating && (
-          <button type="button" className="btn-primary" onClick={() => setCreating(true)}>
+          <button type="button" className="btn-primary" onClick={() => setCreating(true)} {...panel.triggerProps}>
             New project
           </button>
         )}
       />
 
       {creating && (
-        <Card title="New project" className="mb-4">
+        <Card title="New project" className="mb-4" {...panel.panelProps}>
           <form onSubmit={handleCreate} className="grid gap-3.5 sm:grid-cols-2">
             <div>
               <label className="label" htmlFor="name">Name</label>
@@ -100,7 +101,7 @@ export default function ProjectsPage() {
             title="No projects yet"
             description="Create a project, add the application you want to test, and run discovery against it."
             action={can(Permissions.projectWrite) && (
-              <button type="button" className="btn-primary" onClick={() => setCreating(true)}>
+              <button type="button" className="btn-primary" onClick={() => setCreating(true)} {...panel.triggerProps}>
                 Create your first project
               </button>
             )}

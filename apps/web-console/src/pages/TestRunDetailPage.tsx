@@ -86,7 +86,15 @@ export default function TestRunDetailPage() {
   }, [isActive]);
 
   if (isLoading) return <Spinner label="Loading run" />;
-  if (error) return <ErrorNotice error={error} onRetry={() => void refetch()} />;
+  // A record that does not exist will not start existing on a retry, so the way back to
+  // the list is offered alongside it rather than leaving a dead end.
+  if (error) return (
+    <ErrorNotice
+      error={error}
+      onRetry={() => void refetch()}
+      action={<Link to="/runs" className="btn-secondary btn-sm">Back to test runs</Link>}
+    />
+  );
   if (!run) return null;
 
   const verdicts = run.passedCount + run.failedCount + run.healedCount;

@@ -86,8 +86,14 @@ public sealed class ApplicationService : IApplicationService
                     .Where(p => p.ApplicationId == a.Id).Select(p => p.Id).Contains(e.ApplicationPageId)),
                 _db.ApiEndpoints.Count(e => e.ApplicationId == a.Id),
                 _db.Journeys.Count(j => j.ApplicationId == a.Id),
-                _db.DiscoveryRuns.Where(r => r.ApplicationId == a.Id)
-                    .OrderByDescending(r => r.CreatedAt).Select(r => (DateTimeOffset?)r.CreatedAt).FirstOrDefault(),
+                // When the application was last explored, which is when a run FINISHED. This
+                // was the newest run's CreatedAt — the moment it was queued — so the console
+                // said "last explored just now" the instant somebody pressed Run discovery,
+                // beside a Queued badge and four zeroes. Nothing had been explored yet.
+                _db.DiscoveryRuns.Where(r => r.ApplicationId == a.Id && r.CompletedAt != null)
+                    .OrderByDescending(r => r.CompletedAt).Select(r => r.CompletedAt).FirstOrDefault(),
+                // The newest run's status, queued ones included: that is the badge, and a
+                // queued run is exactly what it should say.
                 _db.DiscoveryRuns.Where(r => r.ApplicationId == a.Id)
                     .OrderByDescending(r => r.CreatedAt).Select(r => (DiscoveryStatus?)r.Status).FirstOrDefault(),
                 a.CreatedAt))

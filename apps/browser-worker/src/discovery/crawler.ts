@@ -239,7 +239,13 @@ export class Crawler {
       // settle catches the content without waiting on long-poll connections that never idle.
       await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => undefined);
     } catch (error) {
-      this.note(`Could not load ${entry.url}: ${this.masker.maskText(error instanceof Error ? error.message : String(error))}`);
+      // A link that serves a file rather than a page is not a failure. Playwright reports
+      // it by throwing "Download is starting", which went into the exploration log as
+      // "Could not load ...", so every CSV or PDF export on a page read as a broken link.
+      const raw = error instanceof Error ? error.message : String(error);
+      this.note(/download is starting/i.test(raw)
+        ? `Did not open ${entry.url}: it serves a file download, not a page.`
+        : `Could not load ${entry.url}: ${this.masker.maskText(tidyForLog(raw))}`);
       return null;
     }
 
@@ -252,6 +258,13 @@ export class Crawler {
       this.visited.add(normalized);
       return null;
     }
+
+    // Mark where we actually landed, not only what we asked for. The queue loop records
+    // entry.url, so a redirect left the landing URL unvisited: the base URL redirecting to
+    // /dashboard mapped that page, then the explicit /dashboard link in the navigation
+    // mapped it again 650ms later — a duplicate line in the exploration log and a page
+    // spent from the budget for nothing.
+    this.visited.add(normalized);
 
     const screenshotKey = await this.captureScreenshot(page, normalized);
     const domKey = await this.captureDom(page, normalized);
@@ -493,10 +506,31 @@ export class Crawler {
   }
 
   private note(message: string): void {
-    const line = `[${new Date().toISOString()}] ${this.masker.maskText(message)}`;
+    const line = `[${new Date().toISOString()}] ${this.masker.maskText(tidyForLog(message))}`;
     this.progressLog.push(line);
     this.logger.info(message);
   }
+}
+
+
+/**
+ * Makes driver output fit a log that is rendered one entry per line.
+ *
+ * Playwright's errors are written for a terminal: they carry ANSI colour codes and a
+ * multi-line "Call log:" trailer. Both went into the console verbatim, so the exploration
+ * log showed literal escape sequences — `[2m  - navigating to "…"[22m` — and a stack of
+ * driver internals in the middle of a list of pages. The message itself is worth keeping;
+ * the terminal formatting around it is not.
+ */
+export function tidyForLog(message: string): string {
+  const withoutColour = message
+    // eslint-disable-next-line no-control-regex
+    .replace(/\u001b\[[0-9;]*m/g, '')
+    // The same codes turn up with the escape byte already lost, as a bare "[2m".
+    .replace(/\[\d{1,3}m/g, '');
+
+  const firstLine = withoutColour.split(/\r?\n/)[0] ?? '';
+  return firstLine.replace(/\s+/g, ' ').trim();
 }
 
 /**

@@ -22,8 +22,13 @@
 }
 
 @layer components {
+  /* min-w-0 because a card is routinely a grid or flex item, and those default to
+     min-width: auto — they refuse to shrink below their content. A card holding a wide
+     table therefore stretched its own grid track and pushed the page sideways: at 375px
+     the Settings cards laid out at 686px and the document scrolled to 750. The table
+     inside is what should scroll, and it cannot until the card agrees to be narrow. */
   .card {
-    @apply bg-surface border border-line rounded-xl;
+    @apply bg-surface border border-line rounded-xl min-w-0;
   }
 
   .card-pad {
@@ -53,7 +58,14 @@
     @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap;
   }
 
-  .table-wrap { @apply card overflow-hidden; }
+  /* overflow-x-auto, not overflow-hidden. Both clip to the card's rounded corners —
+     any overflow value but visible does — while auto also lets a table wider than its
+     card be scrolled to. With hidden, a run's Gate, Duration and Started columns simply
+     stopped existing below about 700px, and the page did not scroll either, so there was
+     no way to reach them at all. min-w-0 is the other half: without it a wide table
+     stretches the wrap past its grid or flex parent instead of scrolling inside it, which
+     is what pushed the whole Settings page sideways on a phone. */
+  .table-wrap { @apply card overflow-x-auto min-w-0; }
   .table { @apply w-full text-sm; }
   .table thead th {
     @apply bg-surface-sunken text-left text-xs font-semibold uppercase tracking-wide

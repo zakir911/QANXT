@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, PageHeader, ProviderNote, Spinner, StatusBadge } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, PageHeader, ProviderNote, Spinner, StatusBadge, useDisclosedPanel } from '../components/ui';
 import { formatDuration, formatRelative } from '../lib/format';
 
 interface TestCaseRow {
@@ -30,6 +30,7 @@ export default function TestCasesPage() {
   const { projectId, project } = useProject();
   const queryClient = useQueryClient();
   const [generating, setGenerating] = useState(false);
+  const panel = useDisclosedPanel('generate-tests', generating);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [runError, setRunError] = useState<unknown>(null);
@@ -99,7 +100,7 @@ export default function TestCasesPage() {
         actions={
           <div className="flex gap-2">
             {can(Permissions.testGenerate) && !generating && (
-              <button type="button" className="btn-primary" onClick={() => { setGenerating(true); setResult(null); }}>
+              <button type="button" className="btn-primary" onClick={() => { setGenerating(true); setResult(null); }} {...panel.triggerProps}>
                 Generate tests
               </button>
             )}
@@ -121,7 +122,7 @@ export default function TestCasesPage() {
       )}
 
       {generating && (
-        <Card title="Generate tests from the application model"
+        <Card title="Generate tests from the application model" {...panel.panelProps}
               description="Generation works only from pages and elements discovery actually observed, so the steps it produces reference real controls."
               className="mb-4">
           <form onSubmit={handleGenerate} className="grid gap-3.5 sm:grid-cols-2">
@@ -193,7 +194,7 @@ export default function TestCasesPage() {
             title="No test cases yet"
             description="Run discovery against an application, then generate tests from what it found. You can edit anything that is generated before running it."
             action={can(Permissions.testGenerate) && (
-              <button type="button" className="btn-primary" onClick={() => setGenerating(true)}>Generate tests</button>
+              <button type="button" className="btn-primary" onClick={() => setGenerating(true)} {...panel.triggerProps}>Generate tests</button>
             )}
           />
         </Card>

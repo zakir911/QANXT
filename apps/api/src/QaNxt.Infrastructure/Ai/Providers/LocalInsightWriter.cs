@@ -35,12 +35,30 @@ internal static class LocalInsightWriter
         var categories = LocalJson.Array(context, "failureCategories").ToList();
 
         string answer;
+        // Set by any branch whose numbers do not support a conclusion, so the console can
+        // label the answer rather than presenting it as a finding.
+        var insufficientEvidence = false;
 
         if (lowered.Contains("unstable") || lowered.Contains("flaky"))
         {
             if (unstable.Count == 0)
             {
-                answer = "No test in the selected window shows unstable behaviour: every test that ran more than once produced a consistent result.";
+                // An empty unstable list means one of two different things, and they must not
+                // be reported the same way. Instability can only be observed across repeated
+                // runs, so with nothing run twice the honest answer is that the question
+                // cannot be answered yet — not that everything is stable. Saying "every test
+                // that ran more than once produced a consistent result" when no test ran
+                // more than once is true and useless, and it reads as reassurance.
+                var repeated = LocalJson.Int(
+                    context.TryGetProperty("stability", out var st) ? st : default, "testsRunMoreThanOnce");
+
+                answer = repeated == 0
+                    ? "Instability can only be seen across repeated runs, and no test in the selected "
+                      + "window has run more than once, so there is nothing to judge stability from yet. "
+                      + "Run the suite again and ask once a test has a second result to compare."
+                    : $"No test in the selected window shows unstable behaviour: all {repeated} test(s) "
+                      + "that ran more than once produced a consistent result.";
+                insufficientEvidence = repeated == 0;
             }
             else
             {
@@ -130,7 +148,7 @@ internal static class LocalInsightWriter
         return LocalJson.Serialize(new
         {
             answer,
-            insufficientEvidence = false,
+            insufficientEvidence,
             findings = findings.Take(20).ToList()
         });
     }

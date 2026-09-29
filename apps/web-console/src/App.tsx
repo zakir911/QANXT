@@ -22,6 +22,7 @@ import AuditPage from './pages/AuditPage';
 import SecurityPage from './pages/SecurityPage';
 import VerificationPage from './pages/VerificationPage';
 import SettingsPage from './pages/SettingsPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { isAuthenticated } = useAuth();
@@ -66,8 +67,11 @@ export default function App() {
         <Route path="audit" element={<AuditPage />} />
         <Route path="verification" element={<VerificationPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        {/* Inside the authenticated layout so an unknown address keeps the navigation and
+            the person can carry on. RequireAuth still sends a signed-out visitor to the
+            sign-in page first, so this never leaks the shell to a stranger. */}
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

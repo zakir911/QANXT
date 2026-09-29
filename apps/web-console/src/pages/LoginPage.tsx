@@ -81,7 +81,12 @@ export default function LoginPage() {
             ))}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3.5">
+          {/* key={mode} remounts the form when the tab changes, so the fields start empty.
+              Both tabs render the same uncontrolled Email and Password inputs, so without
+              it React kept the nodes and their values: typing a password on Sign in and
+              then switching to Create an organization carried that password into the
+              registration form, ready to submit, without the person retyping it. */}
+          <form key={mode} onSubmit={handleSubmit} className="space-y-3.5">
             {mode === 'register' && (
               <>
                 <div>
