@@ -78,8 +78,15 @@ export function Card({ id, title, description, actions, children, className = ''
       aria-labelledby={labelledBy}
     >
       {(title || actions) && (
-        <header className="flex items-start justify-between gap-4 px-5 py-4 border-b border-line">
-          <div>
+        <header className="flex flex-wrap items-start justify-between gap-4 px-5 py-4 border-b border-line">
+          {/* flex-wrap and min-w-0 are what keep a narrow viewport from scrolling sideways.
+              `.badge` is whitespace-nowrap and the actions are shrink-0, so a card whose
+              title and status badge together exceed the width had no way to give: neither
+              side could shrink, and the row ran past the screen (QA pass, ISSUE-002,
+              measured at 430px against a 375px viewport). Wrapping drops the actions onto
+              their own line instead, and min-w-0 lets a long title shrink rather than
+              push, because a flex item defaults to min-width:auto. */}
+          <div className="min-w-0">
             {title && <h2 id={labelledBy} className="text-base font-semibold text-ink">{title}</h2>}
             {description && <p className="text-sm text-ink-muted mt-0.5">{description}</p>}
           </div>
