@@ -23,7 +23,7 @@ instead](#windows), below.
 7. [Checking it really works](#7-checking-it-really-works) — [per-area gates](#4-one-area-at-a-time)
 8. [Settings worth knowing](#8-settings-worth-knowing)
 9. [When it does not work](#9-when-it-does-not-work)
-10. [Updating, resetting, removing](#10-updating-resetting-removing)
+10. [Running it again, updating, resetting, removing](#10-running-it-again-updating-resetting-removing)
 11. [What was verified, and where](#11-what-was-verified-and-where)
 
 ---
@@ -699,6 +699,11 @@ no package. Run `./node_modules/.bin/playwright install chromium` from
 `apps/browser-worker` instead and read the exit status, then run the launch check in
 section 5.
 
+**`make dev` says `No rule to make target 'dev'`.** You are not in the clone. `make`
+reads the `Makefile` in the current directory, and a prompt of `~ %` means your home
+directory, which has none. `cd` to the directory you cloned into and run it again. Every
+`make` command in this guide is run from the repository root.
+
 **`make dev` stops with `Error 127` just after the worker starts (macOS).** 127 is
 "command not found", and the command was `setsid`, which the console's start script used
 to detach the dev server. setsid is util-linux and does not exist on macOS. Fixed; update
@@ -804,7 +809,22 @@ host, and asks for the database name first.
 
 ---
 
-## 10. Updating, resetting, removing
+## 10. Running it again, updating, resetting, removing
+
+**Start it again in a new terminal.** `make dev` runs the four processes in the
+foreground and stops them all on Ctrl-C, so they live exactly as long as the terminal you
+started them from. Closing that window stops the product. To bring it back:
+
+```bash
+cd <the directory you cloned into>
+make dev
+```
+
+From the repository root, always. `make` has no rule to offer anywhere else.
+
+Nothing is lost when you stop it. Your projects, applications, runs and evidence are in
+PostgreSQL, which Homebrew or systemd keeps running independently. You do not need
+`make setup` again unless you pulled new code.
 
 **Update:**
 
