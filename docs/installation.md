@@ -654,6 +654,18 @@ ANTHROPIC_API_KEY=sk-ant-…
 
 ## 9. When it does not work
 
+**`make dev` fails at the browser worker with dozens of `Cannot find module
+'@qa-nxt/shared-types'` errors.** The workspace libraries have not been built. `dist/` is
+gitignored and `pnpm install` only links the package, so a clone that has not been
+through a current `make setup` has nothing for the worker's compiler to read. Every other
+error in that wall cascades from this one. Fix it with:
+
+```bash
+pnpm --filter "./packages/**" build
+```
+
+`make setup` now does this for you; this is only needed on a clone set up before it did.
+
 **`git clone` says `repository not found` for a URL you copied from GitHub.** You have
 copied a web page address. Clone URLs come from the **Code** button and end in `.git`;
 anything with `/tree/<branch>` or `/blob/` in it is the page you were reading. Clone the

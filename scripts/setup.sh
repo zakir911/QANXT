@@ -46,6 +46,17 @@ fi
 echo "Installing Node dependencies…"
 pnpm install
 
+# The workspace libraries have to exist as built output before anything that imports
+# them will typecheck. `@qa-nxt/shared-types` resolves to ./dist/index.d.ts, dist/ is
+# gitignored, and `pnpm install` only links the package — it does not build it. On a
+# fresh clone that left `make dev` failing at the browser worker's tsc with 97 errors,
+# every one of them cascading from "Cannot find module '@qa-nxt/shared-types'".
+#
+# Only packages/, not the apps: each app builds itself when it starts, and security-engine
+# ships its source directly, so pnpm skips it for having no build script.
+echo "Building the workspace libraries…"
+pnpm --filter "./packages/**" build
+
 echo "Restoring .NET dependencies…"
 dotnet restore apps/api/QaNxt.sln
 
