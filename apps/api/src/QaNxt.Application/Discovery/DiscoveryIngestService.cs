@@ -22,6 +22,12 @@ public interface IDiscoveryIngestService
     Task<Result> RecordProgressAsync(Guid discoveryRunId, DiscoveryProgressPayload progress, CancellationToken ct = default);
     Task<Result> CompleteAsync(Guid discoveryRunId, DiscoveryCompletionPayload completion, CancellationToken ct = default);
     Task<Result> MarkRunningAsync(Guid discoveryRunId, string workerId, CancellationToken ct = default);
+
+    /// <summary>Ends a run the worker could not finish, with the reason it could not.</summary>
+    /// <param name="permanent">True when retrying cannot help — a missing browser binary, a
+    /// malformed job — so the run is ended now rather than left to the sweep.</param>
+    Task<Result> FailAsync(Guid discoveryRunId, string reason, bool permanent, string? workerId = null,
+        CancellationToken ct = default);
 }
 
 public sealed class DiscoveryIngestService : IDiscoveryIngestService
@@ -55,6 +61,58 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
         run.StartedAt ??= _clock.UtcNow;
         run.WorkerId = workerId;
         await _db.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Ends a run that failed, and says why on the run itself.
+    ///
+    /// Without this a worker that could not even open a browser left the run on
+    /// <c>Running</c> for ever: the failure was known to the worker, written to its log, and
+    /// never written anywhere a user could see it. "Running" with nothing behind it is worse
+    /// than "Failed" with a reason, because the first invites someone to keep waiting.
+    /// </summary>
+    public async Task<Result> FailAsync(Guid discoveryRunId, string reason, bool permanent,
+        string? workerId = null, CancellationToken ct = default)
+    {
+        var run = await _db.DiscoveryRuns.FirstOrDefaultAsync(r => r.Id == discoveryRunId, ct);
+        if (run is null) return Result.Failure(Error.NotFound("The discovery run"));
+
+        // A run that already reported is not overwritten. A failure callback can arrive after
+        // a successful completion when a late retry loses the race, and the completed graph is
+        // the better record of what happened.
+        if (run.Status is DiscoveryStatus.Completed or DiscoveryStatus.PartiallyCompleted
+                       or DiscoveryStatus.Cancelled)
+        {
+            _logger.LogInformation(
+                "Ignoring a failure report for discovery run {RunId}, which already finished as {Status}",
+                run.Id, run.Status);
+            return Result.Success();
+        }
+
+        var masked = _masker.MaskText(reason);
+
+        run.Status = DiscoveryStatus.Failed;
+        run.CompletedAt = _clock.UtcNow;
+        run.StartedAt ??= _clock.UtcNow;
+        if (workerId is not null) run.WorkerId = workerId;
+        run.ErrorMessage = permanent
+            ? masked + " Retrying will not help, so the run was ended rather than queued again."
+            : masked;
+        run.ProgressLog = Append(run.ProgressLog,
+            $"[{_clock.UtcNow:HH:mm:ss}] The run failed: {masked}");
+
+        await _db.SaveChangesAsync(ct);
+
+        _logger.LogWarning(
+            "Discovery run {RunId} failed on worker {WorkerId} ({Kind}): {Reason}",
+            run.Id, run.WorkerId, permanent ? "permanent" : "retryable", masked);
+
+        await _events.PublishAsync(run.OrganizationId, new ExecutionEvent(
+            ExecutionEventTypes.DiscoveryCompleted, run.Id, null,
+            new { status = run.Status.ToString(), errorMessage = run.ErrorMessage, permanent },
+            _clock.UtcNow), ct);
+
         return Result.Success();
     }
 

@@ -79,6 +79,20 @@ export class ControlPlaneClient {
     await this.post(`/api/v1/worker/discovery/${runId}/complete`, report);
   }
 
+  /**
+   * Reports a crawl this worker could not finish.
+   *
+   * `permanent` means retrying cannot help, so the control plane ends the run now rather
+   * than leaving it on Running until a sweep decides nobody is coming back. Delivering this
+   * is the difference between a user seeing why a run stopped and a user watching a spinner
+   * that never stops.
+   */
+  async discoveryFailed(
+    runId: string, reason: string, permanent: boolean, workerId: string
+  ): Promise<void> {
+    await this.post(`/api/v1/worker/discovery/${runId}/failed`, { reason, permanent, workerId });
+  }
+
   // ---- Execution -----------------------------------------------------------
 
   async executionStarted(executionId: string, workerId: string): Promise<void> {

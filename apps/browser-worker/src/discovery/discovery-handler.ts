@@ -6,6 +6,7 @@ import { ControlPlaneClient } from '../api/control-plane-client.js';
 import type { BrowserPool } from '../browser/browser-pool.js';
 import type { WorkerConfig } from '../config.js';
 import type { Logger } from '../util/logger.js';
+import { classifyFailure } from '../queue/permanent-failure.js';
 import { Crawler } from './crawler.js';
 
 /**
@@ -14,6 +15,12 @@ import { Crawler } from './crawler.js';
  * Artifacts are uploaded before the report is sent so that the report never references a
  * file that does not exist in the store — a page node pointing at a screenshot on a
  * worker that has since been recycled is worse than one with no screenshot at all.
+ *
+ * Any failure after the run was marked running is reported back before it is rethrown.
+ * Previously there was no catch at all: a browser that would not launch threw straight past
+ * this function, the control plane was never told, and the run it had just marked Running
+ * stayed that way indefinitely while the queue re-delivered the job forever. The throw is
+ * still needed — the queue decides whether to retry — but the user finds out either way.
  */
 export async function handleDiscoveryJob(
   job: DiscoveryJob,
@@ -72,6 +79,21 @@ export async function handleDiscoveryJob(
       pages: report.pages.length,
       apiEndpoints: report.apiEndpoints.length
     });
+  } catch (error) {
+    const verdict = classifyFailure(error);
+
+    // Reported on a best effort: if the control plane is the thing that is unreachable this
+    // will fail too, and the run is then reconciled by the API's own sweep. Losing the
+    // report must not replace the original error with a reporting error.
+    try {
+      await client.discoveryFailed(
+        job.discoveryRunId, verdict.reason, verdict.permanent, config.workerId);
+    } catch (reportFailure) {
+      logger.error('The discovery failure could not be reported to the control plane',
+        reportFailure, { originalReason: verdict.reason });
+    }
+
+    throw error;
   } finally {
     await rm(artifactDir, { recursive: true, force: true }).catch(() => undefined);
   }

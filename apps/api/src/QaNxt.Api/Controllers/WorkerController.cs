@@ -75,6 +75,21 @@ public sealed class WorkerController : ApiControllerBase
         return FromResult(await _discoveryIngest.CompleteAsync(runId, body, ct), () => NoContent());
     }
 
+    /// <summary>Reports a crawl the worker could not finish, and why.</summary>
+    /// <remarks>
+    /// Without this the only way a run left Running was a successful completion, so any
+    /// failure before the first page — a browser that will not launch, most often — left the
+    /// run reporting Running indefinitely with the reason only in the worker's own log.
+    /// </remarks>
+    [HttpPost("discovery/{runId:guid}/failed")]
+    public async Task<IActionResult> DiscoveryFailed(Guid runId, [FromBody] WorkerFailureBody body, CancellationToken ct)
+    {
+        if (!Authorize(runId, "discovery", out var failure)) return failure!;
+        return FromResult(
+            await _discoveryIngest.FailAsync(runId, body.Reason, body.Permanent, body.WorkerId, ct),
+            () => NoContent());
+    }
+
     // ---- Execution -----------------------------------------------------------
 
     /// <summary>Confirms a worker has started an execution.</summary>
@@ -279,6 +294,11 @@ public sealed class WorkerController : ApiControllerBase
     }
 
     public sealed record WorkerStartedBody(string WorkerId);
+
+    /// <summary>Why a worker could not finish a job. <paramref name="Permanent"/> says
+    /// retrying cannot help, which is what lets the run be ended now instead of waiting for
+    /// the sweep to decide nobody is coming back.</summary>
+    public sealed record WorkerFailureBody(string Reason, bool Permanent, string? WorkerId);
 
     /// <summary>A worker token names exactly one job and one scope. Anything else is refused.</summary>
     private bool Authorize(Guid jobId, string scope, out IActionResult? failure)

@@ -6,6 +6,7 @@ import { loadConfig, type WorkerConfig } from './config.js';
 import { handleDiscoveryJob } from './discovery/discovery-handler.js';
 import { handleExecutionJob } from './execution/execution-handler.js';
 import { handleSecurityScanJob } from './security/security-handler.js';
+import { classifyFailure } from './queue/permanent-failure.js';
 import { RedisStreamConsumer, type QueuedJob } from './queue/redis-consumer.js';
 import { Logger } from './util/logger.js';
 
@@ -123,12 +124,44 @@ async function runJob(
     await consumer.acknowledge(job.id);
     logger.info(`Finished a ${kind} job`, { jobId: job.id, durationMs: Date.now() - started });
   } catch (error) {
-    // The job stays pending. After the visibility window another worker reclaims it,
-    // which is the right behaviour for a crashed browser or a transient network fault.
-    logger.error(`A ${kind} job failed and will be retried by another consumer`, error, {
-      jobId: job.id, durationMs: Date.now() - started
+    const verdict = classifyFailure(error);
+    const elapsed = Date.now() - started;
+
+    // A failure that another attempt cannot fix is not retried at all. The case that forced
+    // this: a browser binary that was never installed failed in 126ms, was released, was
+    // reclaimed by this same consumer a visibility window later, and failed again — forever,
+    // on a job that could not pass, while its run reported Running the whole time.
+    if (verdict.permanent) {
+      await consumer.deadLetter({
+        jobId: job.id,
+        deliveryCount: job.deliveryCount,
+        reason: verdict.reason,
+        permanent: true
+      });
+      return;
+    }
+
+    if (job.deliveryCount >= consumer.attemptLimit) {
+      await consumer.deadLetter({
+        jobId: job.id,
+        deliveryCount: job.deliveryCount,
+        reason:
+          `${verdict.reason} This was delivery ${job.deliveryCount} of `
+          + `${consumer.attemptLimit}, so the job was not retried again.`,
+        permanent: false
+      });
+      return;
+    }
+
+    // Still has budget. The job stays pending and comes back after a backoff that grows with
+    // each attempt, which is the right behaviour for a crashed browser or a network blip.
+    logger.error(`A ${kind} job failed and will be retried`, error, {
+      jobId: job.id,
+      durationMs: elapsed,
+      attempt: job.deliveryCount,
+      of: consumer.attemptLimit
     });
-    await consumer.release(job.id, error instanceof Error ? error.message : String(error));
+    await consumer.release(job.id, verdict.reason, job.deliveryCount);
   }
 }
 

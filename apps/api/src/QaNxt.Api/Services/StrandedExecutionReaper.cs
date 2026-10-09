@@ -17,7 +17,7 @@ namespace QaNxt.Api.Services;
 /// platform shows work in progress that will never progress. A verdict of "failed, because
 /// the worker stopped reporting" is worth far more than silence.
 ///
-/// Discovery runs are already reconciled this way; this is the same idea for executions.</summary>
+/// Security scans and discovery runs are reconciled the same way, each by its own sweep.</summary>
 public sealed class StrandedExecutionReaper : BackgroundService
 {
     private static readonly TimeSpan SweepInterval = TimeSpan.FromMinutes(1);

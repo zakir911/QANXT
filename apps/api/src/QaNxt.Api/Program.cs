@@ -72,6 +72,7 @@ builder.Services.AddHostedService<QaNxt.Api.Services.AgentRunnerService>();
 // ever; without this a caller waits on a run that will never finish.
 builder.Services.AddHostedService<QaNxt.Api.Services.StrandedExecutionReaper>();
 builder.Services.AddHostedService<QaNxt.Api.Services.StrandedSecurityScanReaper>();
+builder.Services.AddHostedService<QaNxt.Api.Services.StrandedDiscoveryRunReaper>();
 // Regression that happens without anybody asking. Off with Scheduling:Enabled=false.
 builder.Services.AddHostedService<QaNxt.Api.Services.ScheduleRunnerService>();
 
