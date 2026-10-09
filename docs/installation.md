@@ -654,6 +654,11 @@ ANTHROPIC_API_KEY=sk-ant-…
 
 ## 9. When it does not work
 
+**`make dev` stops with `Error 127` just after the worker starts (macOS).** 127 is
+"command not found", and the command was `setsid`, which the console's start script used
+to detach the dev server. setsid is util-linux and does not exist on macOS. Fixed; update
+your clone.
+
 **`make dev` fails at the browser worker with dozens of `Cannot find module
 '@qa-nxt/shared-types'` errors.** The workspace libraries have not been built. `dist/` is
 gitignored and `pnpm install` only links the package, so a clone that has not been

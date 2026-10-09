@@ -28,10 +28,29 @@ case "${1:-start}" in
     # wrapper stays a child of this script, and a caller that pipes our output — as
     # `console-ctl.sh start | tail -1` does — waits for a pipe the wrapper never closes.
     # The console starts either way; the command that started it is what hangs.
+    #
     # The dev server goes into its own session so it holds nothing of this script's.
-    ( cd "${ROOT}/apps/web-console" \
-      && setsid --fork node_modules/.bin/vite --host 127.0.0.1 --port 5173 --strictPort \
-           < /dev/null > "$LOGFILE" 2>&1 )
+    # setsid is util-linux and does not exist on macOS, where this whole line was
+    # `command not found` and took `make dev` down with exit 127 after everything else
+    # had started. The fallback buys the two properties that actually matter without a
+    # session: the subshell exits at once so the server is reparented away and is no
+    # longer ours to wait on, and nohup keeps it alive when the terminal closes. The
+    # three sibling scripts have always detached this way.
+    if command -v setsid >/dev/null 2>&1; then
+      ( cd "${ROOT}/apps/web-console" \
+        && setsid --fork node_modules/.bin/vite --host 127.0.0.1 --port 5173 --strictPort \
+             < /dev/null > "$LOGFILE" 2>&1 )
+    else
+      # The subshell rebinds its own descriptors with exec before forking, so the server
+      # inherits the log file rather than whatever the caller gave us. Redirecting the
+      # command instead of the subshell is not enough: the server came up holding the
+      # caller's stdout, and `console-ctl.sh start | tail -1` then waited forever on a
+      # pipe nothing would close — the same hang the npx note above describes.
+      ( cd "${ROOT}/apps/web-console"
+        exec < /dev/null > "$LOGFILE" 2>&1
+        nohup node_modules/.bin/vite --host 127.0.0.1 --port 5173 --strictPort &
+      )
+    fi
     # --fork matters. Plain `setsid cmd &` execs in place, so the dev server stays this
     # script's own child; the script then sits in wait() and never exits, and a caller that
     # pipes our output waits for a pipe we never close. With --fork the intermediate exits
