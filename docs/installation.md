@@ -191,10 +191,15 @@ For **Path B**:
 ```bash
 brew install node@22 postgresql@16 redis git
 brew link --force --overwrite node@22   # node@22 is keg-only, so --force is required
-corepack enable                         # provides pnpm
+npm install -g pnpm                     # Homebrew's node does not reliably ship corepack
 brew services start postgresql@16
 brew services start redis
 ```
+
+`npm install -g pnpm` rather than `corepack enable`: Homebrew's node formula has not
+carried corepack dependably, so that command tends to fail with `corepack: command not
+found` and leave you without pnpm. npm is bundled, so this route works either way. If you
+prefer corepack and your install has it, `corepack enable` does the same job.
 
 **Put the PostgreSQL client tools on your PATH.** `postgresql@16` is keg-only too, so
 `brew install` leaves `psql` and `createdb` where no shell will find them. The server
@@ -620,6 +625,9 @@ ANTHROPIC_API_KEY=sk-ant-…
 not add itself to your PATH; it prints a "Next steps" block asking you to. Run the
 `brew shellenv` lines in [macOS](#macos). This also explains a `command not found` for
 anything Homebrew installed afterwards.
+
+**`pnpm: command not found` after `corepack enable` (macOS).** Homebrew's node has not
+dependably included corepack. Use `npm install -g pnpm` instead; npm is bundled.
 
 **`psql: command not found`, but PostgreSQL is running (macOS).** `postgresql@16` is
 keg-only, so the client tools are not on your PATH even though `brew services` started
