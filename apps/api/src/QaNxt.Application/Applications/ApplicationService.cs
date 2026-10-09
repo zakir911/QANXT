@@ -17,13 +17,13 @@ public sealed record CreateApplicationRequest(
     string? AllowedDomains, string? ExcludedPaths,
     int? MaxCrawlDepth, int? MaxPages, int? MaxActions, int? ExplorationTimeoutSeconds,
     AuthenticationStrategy AuthStrategy, string? LoginUrl, string? LoginFlowJson,
-    ApplicationCredentials? Credentials);
+    ApplicationCredentials? Credentials, bool? RespectRobotsTxt = null);
 
 public sealed record UpdateApplicationRequest(
     string? Name, string? BaseUrl, string? Description, string? AllowedDomains, string? ExcludedPaths,
     int? MaxCrawlDepth, int? MaxPages, int? MaxActions, int? ExplorationTimeoutSeconds,
     AuthenticationStrategy? AuthStrategy, string? LoginUrl, string? LoginFlowJson,
-    ApplicationCredentials? Credentials);
+    ApplicationCredentials? Credentials, bool? RespectRobotsTxt = null);
 
 public sealed record ApplicationSummary(
     Guid Id, Guid ProjectId, string Name, string BaseUrl, string Description,
@@ -137,6 +137,9 @@ public sealed class ApplicationService : IApplicationService
             MaxPages = request.MaxPages ?? 50,
             MaxActions = request.MaxActions ?? 400,
             ExplorationTimeoutSeconds = request.ExplorationTimeoutSeconds ?? 600,
+            // On unless somebody says otherwise. The crawler enforces this, so turning it
+            // off is a decision about somebody else's application and is audited below.
+            RespectRobotsTxt = request.RespectRobotsTxt ?? true,
             AuthStrategy = request.AuthStrategy,
             LoginUrl = request.LoginUrl?.Trim(),
             LoginFlowJson = request.LoginFlowJson,
@@ -153,6 +156,16 @@ public sealed class ApplicationService : IApplicationService
         await _audit.LogAsync(AuditAction.ApplicationCreated, nameof(ApplicationEntity), application.Id,
             $"Application '{application.Name}' added for {application.BaseUrl}.",
             projectId: application.ProjectId, ct: ct);
+
+        if (!application.RespectRobotsTxt)
+        {
+            // ConfigurationChanged rather than ApplicationCreated or ApplicationUpdated: this
+            // is one decision about how the crawler treats somebody else's site, and it reads
+            // the same in the trail whether it was made at registration or afterwards.
+            await _audit.LogAsync(AuditAction.ConfigurationChanged, nameof(ApplicationEntity), application.Id,
+                $"robots.txt will NOT be respected when exploring '{application.Name}'.",
+                projectId: application.ProjectId, ct: ct);
+        }
 
         if (request.Credentials is not null)
         {
@@ -185,6 +198,15 @@ public sealed class ApplicationService : IApplicationService
         if (request.MaxPages is not null) application.MaxPages = request.MaxPages.Value;
         if (request.MaxActions is not null) application.MaxActions = request.MaxActions.Value;
         if (request.ExplorationTimeoutSeconds is not null) application.ExplorationTimeoutSeconds = request.ExplorationTimeoutSeconds.Value;
+        if (request.RespectRobotsTxt is { } respectRobots && respectRobots != application.RespectRobotsTxt)
+        {
+            application.RespectRobotsTxt = respectRobots;
+            await _audit.LogAsync(AuditAction.ConfigurationChanged, nameof(ApplicationEntity), application.Id,
+                respectRobots
+                    ? $"robots.txt will be respected when exploring '{application.Name}'."
+                    : $"robots.txt will NOT be respected when exploring '{application.Name}'.",
+                projectId: application.ProjectId, ct: ct);
+        }
         if (request.AuthStrategy is not null) application.AuthStrategy = request.AuthStrategy.Value;
         if (request.LoginUrl is not null) application.LoginUrl = request.LoginUrl.Trim();
         if (request.LoginFlowJson is not null) application.LoginFlowJson = request.LoginFlowJson;

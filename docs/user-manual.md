@@ -115,6 +115,8 @@ keep it short.
 | **Login URL** | The sign-in page. |
 | **Credentials** | A test account. Encrypted before storage; the API never returns them, and a password typed during a run is stored as `***REDACTED***`. |
 | **Allowed domains** | Where QA NXT may go. Anything else is refused, and a test that tries is reported `blocked` rather than failed. |
+| **Excluded paths** | Paths the crawler must never open. Defaults to `/logout,/signout,/delete`. |
+| **Respect robots.txt** | On by default — see below. |
 
 ![The applications page listing the registered Demo Bank application](images/manual/04-applications.png)
 
@@ -122,6 +124,26 @@ keep it short.
 > application bounces every visitor to the sign-in page, a crawl starting there can reach
 > exactly one page — and discovery will report "completed" while it does it. Give it a page
 > a signed-in user would land on.
+
+#### Respect robots.txt
+
+Left on, discovery reads `robots.txt` from each host it crawls and will not open a path the
+file disallows for the browser's user-agent. `Allow` rules are honoured, so a path carved
+back out of a broader `Disallow` is still explored. A `Crawl-delay` is honoured too, up to
+ten seconds — a longer one would spend the whole exploration budget waiting, and the
+exploration log says when the cap applied.
+
+Two cases are worth knowing before you point it at a site you do not run:
+
+- **If `robots.txt` cannot be read at all** — the request fails, or the server answers 429 or
+  5xx — nothing on that host is explored. Rules nobody can see are not permission. The
+  exploration log says exactly this, so a run that maps nothing does not look like an empty
+  application.
+- **If there is no `robots.txt`** (a 404), the site publishes no rules and everything within
+  your allowed domains and budgets is explored.
+
+Turning it off is a deliberate choice about somebody else's application, so it is written to
+the audit log with who made it. Turn it off for an application you are responsible for.
 
 ---
 
@@ -889,6 +911,9 @@ Worth knowing before you rely on it:
   as you wrote it; approving the proposal is what changes it.
 - **It does not test what it cannot reach.** Anything outside an application's allowed
   domains is refused, and the run says `blocked` with the reason.
+- **It does not crawl a path the site asked it not to**, unless you have turned
+  "respect robots.txt" off on the application, which is audited. A host whose `robots.txt`
+  cannot be read is not crawled at all.
 - **It does not take instructions from the application under test.** Text on a page is data.
   A page that says "ignore your instructions" is treated as content, never as a command.
 - **It does not invent numbers.** Every figure on the dashboard is computed from stored

@@ -79,6 +79,21 @@ both VERIFIED from memory — which is exactly the mistake this table exists to 
 | Multi-factor authentication | **NOT TESTED** | |
 | An application larger than a 25-page crawl | **NOT TESTED** | Every application tested is small |
 
+### robots.txt
+
+Discovery enforces an application's `robots.txt` when the application asks it to, which is
+the default. Two things about that enforcement are approximations, and are worth knowing
+before you point a crawl at a site you do not run:
+
+| | Status | Note |
+| --- | --- | --- |
+| `Disallow`, `Allow`, longest-pattern-wins, `*` and `$` | VERIFIED | Parsed and enforced; a real crawl against a server publishing rules is in `test/robots.test.ts` |
+| A missing `robots.txt` (404) permits everything | VERIFIED | |
+| An unreadable `robots.txt` (429, 5xx, a failed request) permits nothing | VERIFIED | Fails closed, and the exploration log says why |
+| Group selection by user-agent | **APPROXIMATE** | The worker drives a real browser and sends a real browser's user-agent, so there is no bot token to match on. A group header matches when its token appears anywhere in that user-agent string, which can select a group a site did not mean for us. It errs towards honouring more rules, not fewer. |
+| `Crawl-delay` | **CAPPED AT 10 SECONDS** | Honoured up to the cap. A longer delay would spend a whole exploration budget waiting; the exploration log records when the cap applied. |
+| A site that serves different rules per path or per request | **NOT TESTED** | `robots.txt` is read once per origin per run |
+
 ## Environments
 
 | | Status |

@@ -8,6 +8,7 @@ import type {
 import { buildLocatorFor } from '../browser/locator-builder.js';
 import { SecretMasker } from '../security/masker.js';
 import { isUrlAllowed, normalizeUrl } from '../security/url-guard.js';
+import { RobotsPolicy, requestContextFetcher } from '../security/robots.js';
 import type { Logger } from '../util/logger.js';
 import { classifyPage, inferRequiresAuthentication } from './classify.js';
 import { extractPage, type RawElement, type RawPageCapture } from './page-extractor.js';
@@ -20,7 +21,8 @@ import { performLogin, type LoginResult } from '../browser/authenticator.js';
  * target, follows itself round paginated loops forever, wanders onto third-party domains,
  * and eventually clicks something destructive. Depth, page, action and time budgets, URL
  * normalization, an allowlist and an exclusion list are all enforced before each
- * navigation, not after.
+ * navigation, not after. When the application asks for robots.txt to be respected, that is
+ * enforced in the same place and on the same terms.
  */
 
 export interface CrawlOptions {
@@ -57,6 +59,9 @@ export class Crawler {
   private readonly routeShapeCounts = new Map<string, number>();
   private blockedByPolicy = 0;
   private actionsUsed = 0;
+  /** Null when the application has asked for robots.txt to be ignored. */
+  private robots: RobotsPolicy | null = null;
+  private lastNavigationAt = 0;
 
   constructor(
     private readonly context: BrowserContext,
@@ -78,6 +83,8 @@ export class Crawler {
     this.attachListeners(page);
 
     try {
+      await this.loadRobotsPolicy(page);
+
       let authenticated = false;
       if (this.options.auth.strategy !== 'none') {
         // Map the sign-in page before signing in. Afterwards the application redirects a
@@ -128,6 +135,13 @@ export class Crawler {
         if (!guard.allowed) {
           this.blockedByPolicy++;
           this.note(`Skipped ${entry.url}: ${guard.reason}`);
+          continue;
+        }
+
+        const robots = await this.robots?.allows(entry.url);
+        if (robots && !robots.allowed) {
+          this.blockedByPolicy++;
+          this.note(`Skipped ${entry.url}: ${robots.reason}`);
           continue;
         }
 
@@ -182,6 +196,51 @@ export class Crawler {
   }
 
   /**
+   * Reads robots.txt for the base URL's origin, or records that the application asked for
+   * it to be ignored.
+   *
+   * The user agent is taken from the browser rather than invented: group selection in
+   * robots.txt is only meaningful against the string the site actually sees, and the worker
+   * drives a real browser that sends a real browser's user-agent.
+   *
+   * The fetch goes through the browser context's own request API so it shares the crawl's
+   * proxy settings and cookie jar. Failing to read robots.txt is not caught here: when the
+   * rules cannot be read, `RobotsPolicy` refuses the origin and says why, and that refusal
+   * is the point.
+   */
+  private async loadRobotsPolicy(page: Page): Promise<void> {
+    if (!this.options.budget.respectRobotsTxt) {
+      this.note('robots.txt is not being consulted: this application is configured to ignore it.');
+      return;
+    }
+
+    const userAgent = await page.evaluate(() => navigator.userAgent).catch(() => '');
+    if (userAgent === '') {
+      // Only the wildcard group can match an empty user-agent, so a site's rules for this
+      // browser specifically would be skipped. Rare, and not worth failing a run over, but
+      // it changes which rules were honoured and so belongs in the evidence.
+      this.note('Could not read the browser user-agent, so only robots.txt rules for '
+        + '"User-agent: *" are being applied.');
+    }
+
+    this.robots = new RobotsPolicy(
+      requestContextFetcher(this.context.request, Math.min(this.options.navigationTimeoutMs, 10_000)),
+      userAgent,
+      (origin, description) => this.note(`${origin}: ${description}`)
+    );
+  }
+
+  /** Honours a `Crawl-delay` the origin published, measured from the last navigation. */
+  private async waitForCrawlDelay(url: string): Promise<void> {
+    const delayMs = this.robots?.crawlDelayMsFor(url) ?? 0;
+    if (delayMs <= 0) return;
+
+    const waitMs = delayMs - (Date.now() - this.lastNavigationAt);
+    if (waitMs <= 0) return;
+    await new Promise(resolve => setTimeout(resolve, waitMs));
+  }
+
+  /**
    * Visits and records the login page, unauthenticated.
    *
    * Failing here must not fail the run: the page is worth having, but it is not worth
@@ -198,6 +257,16 @@ export class Crawler {
     });
     if (!guard.allowed) {
       this.note(`Did not map the sign-in page: ${guard.reason}`);
+      return;
+    }
+
+    const robots = await this.robots?.allows(loginUrl);
+    if (robots && !robots.allowed) {
+      // Signing in still goes ahead. robots.txt governs what a crawler may retrieve on its
+      // own account, and the authenticator navigates to the login page because a person
+      // with an account told it to; what it must not do is add the page to the map as a
+      // crawl result.
+      this.note(`Did not map the sign-in page: ${robots.reason}`);
       return;
     }
 
@@ -224,10 +293,13 @@ export class Crawler {
   }
 
   private async visit(page: Page, entry: QueueEntry, authenticated: boolean): Promise<CrawledPage | null> {
+    await this.waitForCrawlDelay(entry.url);
+
     const started = Date.now();
     let httpStatus: number | undefined;
 
     try {
+      this.lastNavigationAt = started;
       const response = await page.goto(entry.url, {
         waitUntil: 'domcontentloaded',
         timeout: this.options.navigationTimeoutMs

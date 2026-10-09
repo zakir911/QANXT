@@ -77,6 +77,9 @@ export default function ApplicationsPage() {
       excludedPaths: String(form.get('excludedPaths') ?? '/logout,/signout,/delete'),
       maxCrawlDepth: Number(form.get('maxCrawlDepth') ?? 3),
       maxPages: Number(form.get('maxPages') ?? 50),
+      // An unchecked checkbox sends nothing, so the absence is the "off" — reading it as
+      // a missing field would leave the default on and silently ignore the choice.
+      respectRobotsTxt: form.get('respectRobotsTxt') !== null,
       authStrategy,
       loginUrl: String(form.get('loginUrl') ?? '') || null,
       loginFlowJson: form.get('successUrlContains')
@@ -152,6 +155,17 @@ export default function ApplicationsPage() {
               <label className="label" htmlFor="maxPages">Page budget</label>
               <input id="maxPages" name="maxPages" type="number" min={1} max={1000}
                      defaultValue={50} className="input" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="flex items-center gap-2 text-sm text-ink" htmlFor="respectRobotsTxt">
+                <input id="respectRobotsTxt" name="respectRobotsTxt" type="checkbox" defaultChecked />
+                Respect robots.txt
+              </label>
+              <p className="mt-1 text-xs text-ink-muted">
+                Discovery reads the site's robots.txt and will not open a path it disallows. If the
+                file cannot be read at all, nothing is explored, because rules nobody can see are
+                not permission. Turn this off only for an application you are responsible for.
+              </p>
             </div>
 
             <fieldset className="sm:col-span-2 grid gap-3.5 sm:grid-cols-2 border-t border-line pt-3.5">
