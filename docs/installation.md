@@ -317,7 +317,17 @@ only command here that destroys anything.
 
 ## 5. Path B — from source
 
-On Windows, run all of this **inside the Ubuntu (WSL2) terminal**.
+**The commands below are identical on macOS and Linux.** On **Windows**, run all of them
+inside the Ubuntu (WSL2) terminal, where they are ordinary Linux commands.
+
+Finish [§3](#3-prerequisites) first. `make setup` starts PostgreSQL and Redis if it can,
+but it does not install them:
+
+| | What §3 leaves you with |
+| --- | --- |
+| **macOS** | PostgreSQL and Redis installed by Homebrew and already running under `brew services`. |
+| **Linux** | The `postgresql-16` and `redis-server` packages installed. |
+| **Windows** | The Linux row, inside WSL2. |
 
 ```bash
 git clone <this repository> qanxt
@@ -338,6 +348,17 @@ Missing prerequisites:
 ```
 
 Install what it names and run `make setup` again. It is safe to repeat.
+
+`make setup` then creates the `qanxt` role and database. It reaches PostgreSQL as a
+superuser in whichever way your machine allows: a direct connection when you are one
+already (which is what Homebrew gives you on macOS), otherwise through the `postgres`
+account with `sudo`. If it can reach neither, it stops and prints the two commands to run
+yourself rather than failing on a password prompt:
+
+```bash
+psql -d postgres -c "CREATE ROLE qanxt LOGIN PASSWORD 'qanxt' CREATEDB;"
+createdb -O qanxt qanxt
+```
 
 ### Run it
 
@@ -656,13 +677,14 @@ something nobody checked, it links to each vendor's own instructions.
 | `./scripts/verify-product` — 761 of 771 golden tests, 10 not verified, every gate green, CERTIFIED | Linux |
 | `./scripts/verify-autonomous-qa` — 271 golden tests, 30 of 30 requirements, exit 0 | Linux |
 | `./scripts/verify-security` and `./scripts/verify-continuous-quality` | Linux |
+| `make setup` reaching PostgreSQL as a superuser **three ways** — a direct connection as the current user (the shape Homebrew gives macOS, reproduced here with a superuser role), `su` as root, and `sudo -u postgres` as an ordinary user — plus the refusal message when none is available | Linux. The direct path was proven by reproducing a Mac's privilege shape, not on a Mac. |
 
 ### Not verified
 
 | | Why |
 | --- | --- |
 | **The minimum hardware column** in §1 | Nobody has run QA NXT on 8 GB and 2 cores. Those figures are derived from what the parts actually consume, not measured on such a machine. The comfortable column is what this was developed and verified on. |
-| Any step on **Windows** or **macOS** | Neither operating system was available here. The prerequisites are the ones the code actually requires, and the commands are the vendors' documented ones, but nobody has walked them end to end. Treat §3 for those two platforms as carefully-derived rather than tested. |
+| Any step on **Windows** or **macOS** | Neither operating system was available here. The prerequisites are the ones the code actually requires, and the commands are the vendors' documented ones, but nobody has walked them end to end. Treat §3 for those two platforms as carefully-derived rather than tested. The one part since exercised directly is how `make setup` reaches PostgreSQL: its three paths are listed under Verified below, and the macOS one was proven by reproducing that machine's shape on Linux, not on a Mac. |
 | **Path A end to end** | Two of the four images build and run here; the console and demo-bank images could not be built in this environment because the image registry they need is unreachable, so the full compose stack has never been started in one piece. `docs/verification-status.md` has the detail. |
 | **WSL2** | The Linux instructions are what WSL2 runs, and nothing in them depends on the kernel, but the WSL2 route itself has not been walked. |
 
