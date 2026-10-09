@@ -136,7 +136,7 @@ public sealed class ApplicationService : IApplicationService
             Description = request.Description?.Trim() ?? string.Empty,
             // The base URL's own host is always permitted; anything else has to be asked for.
             AllowedDomains = NormalizeAllowlist(request.AllowedDomains, request.BaseUrl),
-            ExcludedPaths = request.ExcludedPaths?.Trim() ?? "/logout,/signout,/delete",
+            ExcludedPaths = ExclusionsOrDefault(request.ExcludedPaths),
             MaxCrawlDepth = request.MaxCrawlDepth ?? 3,
             MaxPages = request.MaxPages ?? 50,
             MaxActions = request.MaxActions ?? 400,
@@ -197,7 +197,7 @@ public sealed class ApplicationService : IApplicationService
         if (request.BaseUrl is not null) application.BaseUrl = baseUrl;
         if (request.Description is not null) application.Description = request.Description.Trim();
         if (request.AllowedDomains is not null) application.AllowedDomains = NormalizeAllowlist(request.AllowedDomains, application.BaseUrl);
-        if (request.ExcludedPaths is not null) application.ExcludedPaths = request.ExcludedPaths.Trim();
+        if (request.ExcludedPaths is not null) application.ExcludedPaths = ExclusionsOrDefault(request.ExcludedPaths);
         if (request.MaxCrawlDepth is not null) application.MaxCrawlDepth = request.MaxCrawlDepth.Value;
         if (request.MaxPages is not null) application.MaxPages = request.MaxPages.Value;
         if (request.MaxActions is not null) application.MaxActions = request.MaxActions.Value;
@@ -292,6 +292,27 @@ public sealed class ApplicationService : IApplicationService
 
     /// <summary>The base URL's host is always included, so a caller cannot lock the
     /// platform out of the application it was just asked to test.</summary>
+    /// <summary>The paths discovery must never open, or the default when none were chosen.</summary>
+    /// <remarks>
+    /// Blank means "I did not choose", which is the default. It used to mean "exclude
+    /// nothing": the original was <c>request.ExcludedPaths?.Trim() ?? Default</c>, and
+    /// <c>""?.Trim()</c> is <c>""</c>, not null, so the <c>??</c> never fired. Clearing the
+    /// field in the console stored an empty list and silently dropped the only control
+    /// stopping a crawl from opening sign-out or a delete link on somebody else's
+    /// application (QA pass, ISSUE-001).
+    ///
+    /// Both Create and Update route through here so the rule cannot drift between them.
+    /// There is deliberately no way to store an empty exclusion list: nobody has asked for
+    /// one, and an accident is exactly what this prevents.
+    /// </remarks>
+    public const string DefaultExcludedPaths = "/logout,/signout,/delete";
+
+    private static string ExclusionsOrDefault(string? requested)
+    {
+        var trimmed = requested?.Trim();
+        return string.IsNullOrEmpty(trimmed) ? DefaultExcludedPaths : trimmed;
+    }
+
     private static string NormalizeAllowlist(string? allowedDomains, string baseUrl)
         => string.Join(',', ParseAllowlist(allowedDomains, baseUrl));
 

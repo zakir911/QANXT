@@ -81,15 +81,27 @@ export default function ApplicationsPage() {
     const password = String(form.get('password') ?? '');
     const authStrategy = String(form.get('authStrategy') ?? 'none');
 
+    // FormData gives "" for a field the user emptied, never null, so `?? default` never
+    // fires for one. Blank means "I did not choose", which is the default: clearing
+    // "Excluded paths" used to submit an empty list and silently drop the only control
+    // stopping a crawl from opening sign-out or a delete link, and clearing a budget
+    // submitted 0, which the API refuses by naming a range the user never typed.
+    const blankMeansDefault = (key: string) => String(form.get(key) ?? '').trim();
+    const text = (key: string, fallback: string) => blankMeansDefault(key) || fallback;
+    const count = (key: string, fallback: number) => {
+      const typed = blankMeansDefault(key);
+      return typed === '' ? fallback : Number(typed);
+    };
+
     create.mutate({
       projectId,
       name: String(form.get('name') ?? ''),
       baseUrl: String(form.get('baseUrl') ?? ''),
       description: String(form.get('description') ?? ''),
       allowedDomains: String(form.get('allowedDomains') ?? ''),
-      excludedPaths: String(form.get('excludedPaths') ?? '/logout,/signout,/delete'),
-      maxCrawlDepth: Number(form.get('maxCrawlDepth') ?? 3),
-      maxPages: Number(form.get('maxPages') ?? 50),
+      excludedPaths: text('excludedPaths', '/logout,/signout,/delete'),
+      maxCrawlDepth: count('maxCrawlDepth', 3),
+      maxPages: count('maxPages', 50),
       // An unchecked checkbox sends nothing, so the absence is the "off" — reading it as
       // a missing field would leave the default on and silently ignore the choice.
       respectRobotsTxt: form.get('respectRobotsTxt') !== null,

@@ -101,6 +101,72 @@ describe('the robots.txt setting on the add-application form', () => {
 });
 
 /**
+ * A cleared field means "use the default", not "send nothing".
+ *
+ * FormData returns "" for a field the user emptied, never null, so `?? default` never fires
+ * for one. Clearing "Excluded paths" therefore submitted an empty exclusion list and the
+ * /logout,/signout,/delete protection vanished silently; clearing a number field submitted
+ * 0, which the API rejects with a range the user never typed (QA pass, ISSUE-001).
+ */
+describe('a cleared field on the add-application form', () => {
+  const openAndSubmit = async (clear: string[]) => {
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Add application' }));
+    await userEvent.type(screen.getByLabelText('Name'), 'Public Site');
+    await userEvent.type(screen.getByLabelText('Base URL'), 'https://site.example.test/');
+    for (const label of clear) await userEvent.clear(screen.getByLabelText(label));
+    await userEvent.click(screen.getByRole('button', { name: 'Add application' }));
+  };
+
+  const body = () => {
+    const call = apiRequest.mock.calls.find(([path, options]) =>
+      path === '/api/v1/applications' && (options as { method?: string })?.method === 'POST');
+    return (call?.[1] as { body: Record<string, unknown> } | undefined)?.body;
+  };
+
+  beforeEach(() => {
+    permissions.current = new Set(['application:write', 'discovery:run']);
+    apiRequest.mockReset();
+    apiRequest.mockImplementation(async (path: string) =>
+      path.startsWith('/api/v1/applications?') ? [] : { id: 'app-1' });
+  });
+
+  test('clearing the excluded paths sends the default, not an empty list', async () => {
+    await openAndSubmit(['Excluded paths']);
+
+    await waitFor(() => expect(body()).toBeDefined());
+    // An empty list is the one value that drops the only control stopping a crawl from
+    // opening sign-out or a delete link on somebody else's application.
+    expect(body()!.excludedPaths).toBe('/logout,/signout,/delete');
+  });
+
+  test('clearing a budget sends its default, not zero', async () => {
+    await openAndSubmit(['Crawl depth', 'Page budget']);
+
+    await waitFor(() => expect(body()).toBeDefined());
+    expect(body()!.maxCrawlDepth).toBe(3);
+    expect(body()!.maxPages).toBe(50);
+  });
+
+  test('a value the user actually typed is still sent', async () => {
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Add application' }));
+    await userEvent.type(screen.getByLabelText('Name'), 'Public Site');
+    await userEvent.type(screen.getByLabelText('Base URL'), 'https://site.example.test/');
+    await userEvent.clear(screen.getByLabelText('Excluded paths'));
+    await userEvent.type(screen.getByLabelText('Excluded paths'), '/admin');
+    await userEvent.clear(screen.getByLabelText('Crawl depth'));
+    await userEvent.type(screen.getByLabelText('Crawl depth'), '7');
+    await userEvent.click(screen.getByRole('button', { name: 'Add application' }));
+
+    // The guard must not reach past the blank case and overwrite a real choice.
+    await waitFor(() => expect(body()).toBeDefined());
+    expect(body()!.excludedPaths).toBe('/admin');
+    expect(body()!.maxCrawlDepth).toBe(7);
+  });
+});
+
+/**
  * The same setting after registration. There is no separate application detail route — the
  * card on this page is the detail view — so this is where its current state has to be
  * readable and where it has to be changeable. Before this it could only be changed by
