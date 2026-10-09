@@ -5,14 +5,12 @@ import { Permissions, useAuth } from '../lib/auth';
 import { useProject } from '../lib/project';
 import { Card, EmptyState, ErrorNotice, Metric, PageHeader, Spinner, StatusBadge } from '../components/ui';
 import { formatRelative } from '../lib/format';
+import SecurityScopeEditor, { type SecurityScopeRecord } from './SecurityScopeEditor';
 
-interface SecurityScope {
-  id: string; applicationId: string; enabled: boolean;
-  authorizationNote?: string | null;
-  authorizedByUserId?: string | null; authorizedAt?: string | null;
-  allowedDomains: string; allowActiveTesting: boolean;
-  allowDestructiveTesting: boolean; allowProduction: boolean;
-}
+// The editor round-trips the whole record, so the full shape lives with it rather than
+// being partially restated here. This used to list only the six fields the read-only view
+// displayed, which is why nothing could edit it.
+type SecurityScope = SecurityScopeRecord;
 
 interface Finding {
   id: string; reference: string; category: string; title: string;
@@ -50,7 +48,7 @@ interface Trend {
   summary: string;
 }
 
-interface AppSummary { id: string; name: string }
+interface AppSummary { id: string; name: string; baseUrl?: string }
 
 interface SurfaceItem {
   kind: string; id: string; identifier: string; httpMethod?: string | null;
@@ -94,10 +92,12 @@ export default function SecurityPage() {
   const [triaging, setTriaging] = useState<Finding | null>(null);
 
   const [started, setStarted] = useState<StartedScan | null>(null);
+  const [editingScope, setEditingScope] = useState(false);
 
   const mayRead = can(Permissions.securityRead);
   const mayTriage = can(Permissions.securityTriage);
   const mayScan = can(Permissions.securityScan);
+  const mayAuthorize = can(Permissions.securityAuthorize);
 
   const { data: applications = [] } = useQuery({
     queryKey: ['applications', projectId],
@@ -254,6 +254,18 @@ export default function SecurityPage() {
           <Card
             title="Authorization"
             description="Nothing can be security tested without a written authorization against this application."
+            actions={mayAuthorize ? (
+              <button
+                type="button"
+                className={scopeQuery.data ? 'btn-secondary btn-sm' : 'btn-primary btn-sm'}
+                onClick={() => setEditingScope(open => !open)}
+                data-testid="scope-edit"
+              >
+                {editingScope
+                  ? 'Close'
+                  : scopeQuery.data ? 'Edit authorization' : 'Authorize this application'}
+              </button>
+            ) : undefined}
           >
             {scopeQuery.isLoading && <Spinner label="Loading the scope" />}
             {scopeQuery.isError && (
@@ -263,6 +275,10 @@ export default function SecurityPage() {
                   'There is no security scope. That is not a configuration gap to fill in casually: '
                   + 'a scope records that a named person authorized testing of this application, and '
                   + 'until somebody writes one, nothing here can be scanned.'
+                  + (mayAuthorize
+                    ? ' Use "Authorize this application" to write one.'
+                    : ' Writing one needs the security:authorize permission, which this account'
+                      + ' does not have. A project administrator can do it.')
                 }
               />
             )}
@@ -292,6 +308,20 @@ export default function SecurityPage() {
               </dl>
             )}
           </Card>
+
+          {mayAuthorize && (
+            <SecurityScopeEditor
+              applicationId={selected}
+              applicationName={applications.find(a => a.id === selected)?.name ?? 'this application'}
+              // Offered as a starting point, not applied silently: the host the application
+              // already points at is almost always the one being authorized, and making the
+              // user retype it invites a typo that would quietly permit nothing.
+              suggestedHost={hostOf(applications.find(a => a.id === selected)?.baseUrl)}
+              existing={scopeQuery.data ?? null}
+              open={editingScope}
+              onClose={() => setEditingScope(false)}
+            />
+          )}
 
           {/* ---- Running one ------------------------------------------------- */}
           {mayScan && (
@@ -690,4 +720,20 @@ function TriageDialog({ finding, pending, error, onCancel, onSubmit }: {
       </form>
     </Card>
   );
+}
+
+/**
+ * The host of an application's base URL, for the scope's starting allowlist.
+ *
+ * Returns an empty string rather than guessing when the URL will not parse: an allowlist
+ * that silently contains something wrong is worse than one the user has to fill in, because
+ * the guard would refuse every request and the reason would look like a product fault.
+ */
+function hostOf(baseUrl: string | undefined): string {
+  if (!baseUrl) return '';
+  try {
+    return new URL(baseUrl).hostname;
+  } catch {
+    return '';
+  }
 }

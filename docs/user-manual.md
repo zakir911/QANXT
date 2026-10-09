@@ -377,7 +377,16 @@ exactly what they authorized.
 A scope saved without changing anything permits nothing — the right answer for a record whose
 only job is to say what a person agreed to.
 
-Writing one needs `security:authorize` (project admin and above), and today it is an API call:
+Writing one needs `security:authorize` (project admin and above). On the Authorization card,
+**Authorize this application** opens the editor; on an application that already has a scope the
+same button reads **Edit authorization**. The form starts with active, destructive and
+production testing all off, requires a note substantial enough to be a record of a decision,
+and asks you to type `DESTRUCTIVE` or `PRODUCTION` to confirm either of those two, because a
+checkbox is too cheap for "send requests nobody can assume are reversible" and "touch
+production". Unchecking **Scope is enabled** withdraws authorization without destroying the
+record of who gave it.
+
+The same thing over the API, for a pipeline or a script:
 
 ```bash
 curl -X PUT "$QANXT_API_URL/api/v1/security/applications/$APP_ID/scope" \
@@ -398,9 +407,6 @@ curl -X PUT "$QANXT_API_URL/api/v1/security/applications/$APP_ID/scope" \
     "allowProduction": false
   }'
 ```
-
-**The console displays the scope; it has no editor for it.** That is a gap rather than a
-principle, and it is worth knowing before you go hunting for the button.
 
 The note is the part that matters. "Authorized" with no name, no date and no boundary is the
 paperwork without the decision, and it is the first thing anyone will ask to see if a scan ever
