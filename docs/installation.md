@@ -220,18 +220,30 @@ carry older runtimes.
 Install .NET 8 from [Microsoft's .NET 8 page](https://dotnet.microsoft.com/download/dotnet/8.0):
 take **SDK 8.0.x → macOS → Arm64** on Apple Silicon, or **x64** on an Intel Mac. Picking
 x64 on Apple Silicon works but runs everything under Rosetta. The `.pkg` installs to
-`/usr/local/share/dotnet` and symlinks `/usr/local/bin/dotnet`, which is already on your
-PATH.
+`/usr/local/share/dotnet`.
 
-If `dotnet` still reports `command not found` straight afterwards, zsh is the reason: it
-caches where commands live and does not notice a new binary in a directory it has already
-looked in. `rehash`, or a new terminal window, fixes it:
+**Then put it on your PATH yourself.** The installer is supposed to symlink
+`/usr/local/bin/dotnet` and does not always do so on Apple Silicon, which leaves `dotnet`
+reporting `command not found` immediately after a successful install. Setting the path
+explicitly works either way:
 
 ```bash
-ls -l /usr/local/share/dotnet/dotnet   # there? then it is only the cache
-rehash
+echo 'export PATH="/usr/local/share/dotnet:$PATH"' >> ~/.zprofile
+echo 'export DOTNET_ROOT="/usr/local/share/dotnet"' >> ~/.zprofile
+export PATH="/usr/local/share/dotnet:$PATH"
+export DOTNET_ROOT="/usr/local/share/dotnet"
 dotnet --list-sdks
 ```
+
+One other thing can produce the same message: zsh caches where commands live and will not
+notice a new binary in a directory it has already searched. `rehash`, or a new terminal,
+clears that. To tell the two apart, look on disk first:
+
+```bash
+ls -l /usr/local/share/dotnet/dotnet /usr/local/bin/dotnet 2>&1
+```
+
+Present but not found means PATH or the cache. Absent means the installer did not run.
 
 Apple Silicon needs nothing extra beyond the PATH steps above; both .NET and Node ship
 native arm64 builds.
@@ -648,10 +660,12 @@ dependably included corepack. Use `npm install -g pnpm` instead; npm is bundled.
 keg-only, so the client tools are not on your PATH even though `brew services` started
 the server. `make setup` needs `psql` and will stop without it. See [macOS](#macos).
 
-**`dotnet: command not found` right after installing the .pkg (macOS).** zsh caches
-command locations and will not spot a new binary in a directory it has already searched.
-Run `rehash`, or open a new terminal. If `/usr/local/share/dotnet/dotnet` does not exist
-either, the installer has not run — see [macOS](#macos).
+**`dotnet: command not found` right after installing the .pkg (macOS).** Two causes, and
+`ls -l /usr/local/share/dotnet/dotnet /usr/local/bin/dotnet` tells them apart. If the
+first exists and the second does not, the installer skipped the symlink, which it does
+sometimes on Apple Silicon: add `/usr/local/share/dotnet` to your PATH, as
+[macOS](#macos) shows. If both exist, it is zsh's command cache — run `rehash` or open a
+new terminal. If neither exists, the installer has not run.
 
 **`dotnet` runs but the API exits with `framework 'Microsoft.NETCore.App' version '8.0.x'
 not found`.** You have a .NET SDK, but not .NET 8, and an SDK does not carry older
