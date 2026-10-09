@@ -196,6 +196,16 @@ brew services start postgresql@16
 brew services start redis
 ```
 
+**Put the PostgreSQL client tools on your PATH.** `postgresql@16` is keg-only too, so
+`brew install` leaves `psql` and `createdb` where no shell will find them. The server
+still starts, because `brew services` uses absolute paths — which is why this shows up
+later as a missing `psql` rather than a database that will not run:
+
+```bash
+echo "export PATH=\"$(brew --prefix postgresql@16)/bin:\$PATH\"" >> ~/.zprofile
+export PATH="$(brew --prefix postgresql@16)/bin:$PATH"
+```
+
 **The .NET SDK needs care.** The `dotnet-sdk` cask tracks whatever .NET is current, which
 is no longer 8. This project targets `net8.0` and pins nothing, so a newer SDK will build
 it but `make dev` then fails at run time with `framework 'Microsoft.NETCore.App' version
@@ -203,17 +213,29 @@ it but `make dev` then fails at run time with `framework 'Microsoft.NETCore.App'
 [Microsoft's .NET 8 page](https://dotnet.microsoft.com/download/dotnet/8.0) or from a
 versioned cask if your Homebrew has one.
 
-Apple Silicon needs nothing extra beyond the PATH step above; both .NET and Node ship
+Apple Silicon needs nothing extra beyond the PATH steps above; both .NET and Node ship
 native arm64 builds.
 
-Confirm. `dotnet --list-sdks` rather than `--version`, because `--version` prints only the
-one SDK it selected and will look healthy while 8.x is missing:
+Confirm. This reports every tool at once rather than stopping at the first missing one,
+because finding them one failed command at a time is the thing `make setup` goes out of
+its way to avoid:
 
 ```bash
-dotnet --list-sdks && node --version && pnpm --version && psql --version
+for t in dotnet node pnpm psql; do
+  printf '%-8s %s\n' "$t" "$(command -v $t || echo 'MISSING')"
+done
 ```
 
-You want an `8.0.x` line in the SDK list. If there is none, the API will not run.
+Anything `MISSING` is either not installed or not on your PATH; the two PATH steps above
+cover Homebrew itself and the PostgreSQL client. Then check the SDK list:
+
+```bash
+dotnet --list-sdks
+```
+
+You want an `8.0.x` line. `--list-sdks` rather than `--version`, because `--version`
+prints only the one SDK it selected and reads healthy while 8.x is absent. If there is no
+`8.0.x`, the API will not run.
 
 ---
 
@@ -598,6 +620,10 @@ ANTHROPIC_API_KEY=sk-ant-…
 not add itself to your PATH; it prints a "Next steps" block asking you to. Run the
 `brew shellenv` lines in [macOS](#macos). This also explains a `command not found` for
 anything Homebrew installed afterwards.
+
+**`psql: command not found`, but PostgreSQL is running (macOS).** `postgresql@16` is
+keg-only, so the client tools are not on your PATH even though `brew services` started
+the server. `make setup` needs `psql` and will stop without it. See [macOS](#macos).
 
 **`dotnet` runs but the API exits with `framework 'Microsoft.NETCore.App' version '8.0.x'
 not found`.** You have a .NET SDK, but not .NET 8, and an SDK does not carry older
