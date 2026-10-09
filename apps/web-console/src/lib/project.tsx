@@ -35,16 +35,25 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     () => localStorage.getItem(STORAGE_KEY)
   );
 
-  const { data: projects = [], isLoading } = useQuery({
+  const { data: projects = [], isLoading, isSuccess } = useQuery({
     queryKey: ['projects'],
     queryFn: () => apiRequest<ProjectSummary[]>('/api/v1/projects'),
     enabled: isAuthenticated
   });
 
   useEffect(() => {
+    // Only a loaded project list is evidence about what the account has. An in-flight or
+    // failed query is not: clearing on either would drop the user's selection whenever the
+    // API blipped. This used a non-empty list as the proxy for "loaded", which made the
+    // case that matters most the one case it skipped — an account with no projects kept a
+    // remembered id forever, and because the pages only guard against a null selection, a
+    // dead id was sent on every request and came back as "The project was not found."
+    if (!isSuccess) return;
+
     // A remembered project that no longer exists (deleted, or a different organization)
-    // must not leave every screen silently empty.
-    if (projectId && projects.length > 0 && !projects.some(p => p.id === projectId)) {
+    // must not leave every screen silently empty, or every action failing on an id the
+    // user cannot see and the project switcher cannot replace.
+    if (projectId && !projects.some(p => p.id === projectId)) {
       setProjectIdState(null);
       localStorage.removeItem(STORAGE_KEY);
       return;
@@ -53,7 +62,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setProjectIdState(projects[0]!.id);
       localStorage.setItem(STORAGE_KEY, projects[0]!.id);
     }
-  }, [projects, projectId]);
+  }, [projects, projectId, isSuccess]);
 
   const value = useMemo<ProjectContextValue>(() => ({
     projects,
