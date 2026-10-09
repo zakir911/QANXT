@@ -793,6 +793,7 @@ something nobody checked, it links to each vendor's own instructions.
 | `./scripts/verify-autonomous-qa` — 271 golden tests, 30 of 30 requirements, exit 0 | Linux |
 | `./scripts/verify-security` and `./scripts/verify-continuous-quality` | Linux |
 | **§3 macOS prerequisites, on a real Apple Silicon Mac** — Homebrew on PATH, node@22, pnpm, postgresql@16, redis, and .NET 8 SDK 8.0.425, ending with all four tools resolving | macOS 15, Apple Silicon. Walked by a reader, who found six defects in §3 doing it: no Homebrew PATH step, `brew link` missing `--force`, the `dotnet-sdk` cask not being .NET 8, postgresql@16 keg-only so no `psql`, `corepack enable` not working on Homebrew's node, and the .NET installer not creating `/usr/local/bin/dotnet`. All six are fixed above. |
+| **`make setup`, end to end, on a real Apple Silicon Mac** — prerequisites checked, `.env` written with generated secrets, `pnpm install`, `dotnet restore`, Homebrew's PostgreSQL and Redis started, the `qanxt` role and database created, migrations applied | macOS 15, Apple Silicon. The first time `make setup` has run on macOS. It exercises the Homebrew branch of `scripts/services-ctl.sh` and its `direct` superuser path, both of which had only been proven by simulation on Linux before this. |
 | `make setup` reaching PostgreSQL as a superuser **three ways** — a direct connection as the current user (the shape Homebrew gives macOS, reproduced here with a superuser role), `su` as root, and `sudo -u postgres` as an ordinary user — plus the refusal message when none is available | Linux. The direct path was proven by reproducing a Mac's privilege shape, not on a Mac. |
 
 ### Not verified
@@ -801,7 +802,7 @@ something nobody checked, it links to each vendor's own instructions.
 | --- | --- |
 | **The minimum hardware column** in §1 | Nobody has run QA NXT on 8 GB and 2 cores. Those figures are derived from what the parts actually consume, not measured on such a machine. The comfortable column is what this was developed and verified on. |
 | Any step on **Windows** | Not available here. The prerequisites are the ones the code actually requires and the commands are the vendors' documented ones, but nobody has walked them. Treat §3 for Windows as carefully-derived rather than tested. |
-| **macOS** beyond §3 | §3 has now been walked on an Apple Silicon Mac (see Verified). Everything after it — `make setup`, `make dev`, the first-run path — has not. |
+| **macOS** beyond `make setup` | §3 and `make setup` have now been walked on an Apple Silicon Mac (see Verified). `make dev`, the first-run path in §6, `make test` and the verification scripts have not. |
 | **Path A end to end** | Two of the four images build and run here; the console and demo-bank images could not be built in this environment because the image registry they need is unreachable, so the full compose stack has never been started in one piece. `docs/verification-status.md` has the detail. |
 | **WSL2** | The Linux instructions are what WSL2 runs, and nothing in them depends on the kernel, but the WSL2 route itself has not been walked. |
 
