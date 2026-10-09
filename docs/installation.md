@@ -162,6 +162,23 @@ Install [Homebrew](https://brew.sh) if you do not have it:
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
+**Then put it on your PATH.** The installer does not do this for you; it prints a "Next
+steps" block asking you to, and it is the step people miss. Without it every `brew`
+command below fails with `brew: command not found`, because Apple Silicon installs
+Homebrew in `/opt/homebrew`, which no shell looks in by default:
+
+```bash
+echo >> ~/.zprofile
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+On an Intel Mac the path is `/usr/local/bin/brew`. Check it took:
+
+```bash
+brew --version
+```
+
 Then, for **Path A**:
 
 ```bash
@@ -172,21 +189,31 @@ open -a Docker          # start it once, and let it finish starting
 For **Path B**:
 
 ```bash
-brew install --cask dotnet-sdk        # .NET 8 SDK
 brew install node@22 postgresql@16 redis git
-brew link --overwrite node@22
-corepack enable                       # provides pnpm
+brew link --force --overwrite node@22   # node@22 is keg-only, so --force is required
+corepack enable                         # provides pnpm
 brew services start postgresql@16
 brew services start redis
 ```
 
-Apple Silicon needs nothing extra; both .NET and Node ship native arm64 builds.
+**The .NET SDK needs care.** The `dotnet-sdk` cask tracks whatever .NET is current, which
+is no longer 8. This project targets `net8.0` and pins nothing, so a newer SDK will build
+it but `make dev` then fails at run time with `framework 'Microsoft.NETCore.App' version
+'8.0.x' not found` — the SDK does not carry older runtimes. Install .NET 8 itself, from
+[Microsoft's .NET 8 page](https://dotnet.microsoft.com/download/dotnet/8.0) or from a
+versioned cask if your Homebrew has one.
 
-Confirm:
+Apple Silicon needs nothing extra beyond the PATH step above; both .NET and Node ship
+native arm64 builds.
+
+Confirm. `dotnet --list-sdks` rather than `--version`, because `--version` prints only the
+one SDK it selected and will look healthy while 8.x is missing:
 
 ```bash
-dotnet --version && node --version && pnpm --version && psql --version
+dotnet --list-sdks && node --version && pnpm --version && psql --version
 ```
+
+You want an `8.0.x` line in the SDK list. If there is none, the API will not run.
 
 ---
 
@@ -566,6 +593,15 @@ ANTHROPIC_API_KEY=sk-ant-…
 ---
 
 ## 9. When it does not work
+
+**`brew: command not found`, right after installing Homebrew (macOS).** The installer does
+not add itself to your PATH; it prints a "Next steps" block asking you to. Run the
+`brew shellenv` lines in [macOS](#macos). This also explains a `command not found` for
+anything Homebrew installed afterwards.
+
+**`dotnet` runs but the API exits with `framework 'Microsoft.NETCore.App' version '8.0.x'
+not found`.** You have a .NET SDK, but not .NET 8, and an SDK does not carry older
+runtimes. `dotnet --list-sdks` will show no `8.0.x` line. See [macOS](#macos).
 
 **`make` is not recognised (Windows).** Expected — see [Windows](#windows). Use WSL2, or
 Docker Desktop with the `docker compose` commands written out in [Path A](#4-path-a--docker).
