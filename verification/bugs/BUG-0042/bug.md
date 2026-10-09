@@ -84,6 +84,16 @@ in the console's application form. Turning it off is a decision about somebody e
 application, so it is written to the audit log with who made it; leaving it on is not audited,
 because a default nobody chose is not a decision and would bury the entries that are.
 
+**Visibility and change afterwards** — there is no separate application detail route; the card
+on the Applications page is the detail view. It now says which way the setting is: quiet prose
+when robots.txt is respected, and a badge when it is not, because that is the state where a
+crawl ignores what the site asked for and somebody reading a list should not have to parse a
+sentence to find it. A checkbox beside **Run discovery** changes it, and the off direction
+confirms first, naming the application and saying the change is recorded. The state is shown
+to anybody who can read the page; only `application:write` gets the control. `RespectRobotsTxt`
+had to join `ApplicationSummary` for any of this: it was on `ApplicationDetail` only, and the
+list endpoint is what the cards are built from.
+
 ## Two approximations, both documented
 
 | | |
@@ -123,19 +133,26 @@ AssertionError: expected '[…] robots.txt…' to contain '1 disallow and 1 allo
 A stub would not have caught the original defect. The parser did not exist, but neither did
 the call, and only one of those is visible from a unit test.
 
-`apps/api/tests/QaNxt.IntegrationTests/RobotsPolicyTests.cs` — 6 tests on the settability half,
-asserting the stored row as well as the response, because the worker reads the row. Four of the
-six fail against the unfixed service:
+`apps/api/tests/QaNxt.IntegrationTests/RobotsPolicyTests.cs` — 7 tests on the settability half,
+asserting the stored row as well as the response, because the worker reads the row. The seventh
+covers the summary the cards are built from, and asserts both states: a field hardcoded to one
+value satisfies an assertion on that value alone, which an earlier draft of it did. Four of the
+seven fail against the unfixed service:
 
 ```
 Failed The_flag_can_be_changed_afterwards_and_the_change_is_audited
   Expected (StoredFlagAsync(created.Id)) to be False, but found True.
 ```
 
-`apps/web-console/src/pages/ApplicationsPage.test.tsx` — 3 tests on the form: the box is on by
-default and the form states the consequence, and the request body carries `true` when it is
-left alone and `false` when it is unchecked. Removing only the one line that reads the field
-fails the last two:
+`apps/web-console/src/pages/ApplicationsPage.test.tsx` — 9 tests. Three on the form: the box is
+on by default and the form states the consequence, and the request body carries `true` when it
+is left alone and `false` when it is unchecked. Six on the card: each state as it is rendered,
+the confirmation before turning it off, that declining it sends nothing, that turning it back
+on needs no confirmation, and that the state is still visible without `application:write`
+while the control is not. All six fail with the card changes removed.
+
+Removing only the one line of the form that reads the checkbox fails two of the three form
+tests:
 
 ```
 × sends true when left alone     AssertionError: expected undefined to be true
@@ -150,5 +167,5 @@ absence as "not specified" would have left the default on and discarded the choi
 | | |
 | --- | --- |
 | .NET unit | 896 passed |
-| .NET integration | 66 passed (60 before, 6 added) |
-| Node | 307 passed across five packages: 141 in the worker (108 before, 33 added) and 58 in the console (55 before, 3 added) |
+| .NET integration | 67 passed (60 before, 7 added) |
+| Node | 313 passed across five packages: 141 in the worker (108 before, 33 added) and 64 in the console (55 before, 9 added) |

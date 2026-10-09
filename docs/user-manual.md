@@ -142,6 +142,12 @@ Two cases are worth knowing before you point it at a site you do not run:
 - **If there is no `robots.txt`** (a 404), the site publishes no rules and everything within
   your allowed domains and budgets is explored.
 
+Each application's card on the Applications page says which way the setting is: "robots.txt is
+respected" in passing when it is on, and a **robots.txt is ignored** badge when it is not, so
+you can see it across a list without opening anything. The checkbox beside **Run discovery**
+changes it, and turning it off asks you to confirm first. Somebody without
+`application:write` still sees the state; they just cannot change it.
+
 Turning it off is a deliberate choice about somebody else's application, so it is written to
 the audit log with who made it. Turn it off for an application you are responsible for.
 

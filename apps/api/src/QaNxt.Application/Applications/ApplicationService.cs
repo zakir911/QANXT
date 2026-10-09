@@ -29,7 +29,10 @@ public sealed record ApplicationSummary(
     Guid Id, Guid ProjectId, string Name, string BaseUrl, string Description,
     AuthenticationStrategy AuthStrategy, bool HasCredentials,
     int PageCount, int ElementCount, int ApiEndpointCount, int JourneyCount,
-    DateTimeOffset? LastDiscoveredAt, DiscoveryStatus? LastDiscoveryStatus, DateTimeOffset CreatedAt);
+    DateTimeOffset? LastDiscoveredAt, DiscoveryStatus? LastDiscoveryStatus,
+    // Part of the summary and not only the detail, because it changes what a crawl will do
+    // and the console lists applications rather than opening them one at a time.
+    bool RespectRobotsTxt, DateTimeOffset CreatedAt);
 
 public sealed record ApplicationDetail(
     Guid Id, Guid ProjectId, string Name, string BaseUrl, string Description,
@@ -96,6 +99,7 @@ public sealed class ApplicationService : IApplicationService
                 // queued run is exactly what it should say.
                 _db.DiscoveryRuns.Where(r => r.ApplicationId == a.Id)
                     .OrderByDescending(r => r.CreatedAt).Select(r => (DiscoveryStatus?)r.Status).FirstOrDefault(),
+                a.RespectRobotsTxt,
                 a.CreatedAt))
             .ToListAsync(ct);
     }

@@ -160,6 +160,25 @@ public class RobotsPolicyTests(ApiFactory factory)
     }
 
     [Fact]
+    public async Task The_list_an_application_appears_in_says_whether_robots_txt_is_respected()
+    {
+        // The console lists applications rather than opening them one at a time, and the
+        // card is the detail view, so the summary has to carry the flag. It did not: only
+        // ApplicationDetail had it, which left the card unable to say what a crawl would do.
+        var (tenant, projectId) = await NewProjectAsync();
+        var ignoring = await CreateAsync(tenant, projectId, respect: false);
+        var respecting = await CreateAsync(tenant, projectId, respect: true);
+
+        var listed = await (await tenant.Client.GetAsync($"/api/v1/applications?projectId={projectId}"))
+            .Content.ReadFromJsonAsync<ApplicationSummaryResponse[]>(ApiFactory.Json);
+
+        // Both states, because a field that always reports the same value would satisfy an
+        // assertion on either one alone.
+        listed!.Single(a => a.Id == ignoring.Id).RespectRobotsTxt.Should().BeFalse();
+        listed.Single(a => a.Id == respecting.Id).RespectRobotsTxt.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task An_update_that_does_not_mention_the_flag_leaves_it_alone()
     {
         var (tenant, projectId) = await NewProjectAsync();
@@ -175,3 +194,6 @@ public class RobotsPolicyTests(ApiFactory factory)
 
 /// <summary>The fields of an application's detail document this suite reads.</summary>
 public sealed record ApplicationDetailResponse(Guid Id, string BaseUrl, bool RespectRobotsTxt);
+
+/// <summary>The fields of a listed application this suite reads.</summary>
+public sealed record ApplicationSummaryResponse(Guid Id, string Name, bool RespectRobotsTxt);

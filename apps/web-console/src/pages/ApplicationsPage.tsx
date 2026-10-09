@@ -11,7 +11,8 @@ interface ApplicationSummary {
   id: string; projectId: string; name: string; baseUrl: string; description: string;
   authStrategy: string; hasCredentials: boolean;
   pageCount: number; elementCount: number; apiEndpointCount: number; journeyCount: number;
-  lastDiscoveredAt?: string; lastDiscoveryStatus?: string; createdAt: string;
+  lastDiscoveredAt?: string; lastDiscoveryStatus?: string;
+  respectRobotsTxt: boolean; createdAt: string;
 }
 
 // The same words the Strategy dropdown uses. The card printed the wire value, so an
@@ -45,6 +46,18 @@ export default function ApplicationsPage() {
       apiRequest('/api/v1/applications', { method: 'POST', body }),
     onSuccess: async () => {
       setAdding(false);
+      setError(null);
+      await queryClient.invalidateQueries({ queryKey: ['applications'] });
+    },
+    onError: setError
+  });
+
+  const setRobots = useMutation({
+    mutationFn: ({ applicationId, respectRobotsTxt }: { applicationId: string; respectRobotsTxt: boolean }) =>
+      apiRequest(`/api/v1/applications/${applicationId}`, {
+        method: 'PATCH', body: { respectRobotsTxt }
+      }),
+    onSuccess: async () => {
       setError(null);
       await queryClient.invalidateQueries({ queryKey: ['applications'] });
     },
@@ -252,6 +265,17 @@ export default function ApplicationsPage() {
                 {application.lastDiscoveredAt && ` · last explored ${formatRelative(application.lastDiscoveredAt)}`}
               </p>
 
+              {/* The off state is the one worth noticing without reading, because it is the
+                  one where a crawl ignores what the site asked for. On is the default and
+                  stays as quiet prose. */}
+              <p className="text-xs mb-3">
+                {application.respectRobotsTxt ? (
+                  <span className="text-ink-muted">Crawl boundary: robots.txt is respected.</span>
+                ) : (
+                  <span className="badge bg-warn-light text-warn">robots.txt is ignored</span>
+                )}
+              </p>
+
               <div className="flex flex-wrap items-center gap-2">
                 {can(Permissions.discoveryRun) && (
                   <button
@@ -267,6 +291,29 @@ export default function ApplicationsPage() {
                   <Link to={`/applications/${application.id}/graph`} className="btn-secondary btn-sm">
                     View application map
                   </Link>
+                )}
+                {can(Permissions.applicationWrite) && (
+                  <label className="flex items-center gap-2 text-xs text-ink ml-auto">
+                    <input
+                      type="checkbox"
+                      checked={application.respectRobotsTxt}
+                      // Scoped to the card being saved. A single isPending would disable
+                      // every application's checkbox while one of them is in flight.
+                      disabled={setRobots.isPending && setRobots.variables?.applicationId === application.id}
+                      onChange={event => {
+                        const respectRobotsTxt = event.target.checked;
+                        // Only the off direction is confirmed. Turning it back on restores
+                        // the default and needs no ceremony; turning it off from a list card
+                        // is a decision about somebody else's site and is too easy to click.
+                        if (!respectRobotsTxt && !confirm(
+                          `Ignore robots.txt when exploring ${application.name}? `
+                          + 'Discovery will open paths the site asked crawlers to leave alone. '
+                          + 'This is recorded in the audit log.')) return;
+                        setRobots.mutate({ applicationId: application.id, respectRobotsTxt });
+                      }}
+                    />
+                    Respect robots.txt
+                  </label>
                 )}
               </div>
             </Card>
