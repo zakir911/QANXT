@@ -32,7 +32,7 @@ export default function ApplicationsPage() {
   const { projectId, project } = useProject();
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
-  const panel = useDisclosedPanel('add-application', adding);
+  const panel = useDisclosedPanel('add-application', adding, () => { setAdding(false); setError(null); });
   const [error, setError] = useState<unknown>(null);
 
   const { data: applications = [], isLoading, refetch } = useQuery({
@@ -136,8 +136,13 @@ export default function ApplicationsPage() {
       <PageHeader
         title="Applications"
         description={`Applications under test in ${project?.name ?? 'this project'}.`}
-        actions={can(Permissions.applicationWrite) && !adding && (
-          <button type="button" className="btn-primary" onClick={() => setAdding(true)} {...panel.triggerProps}>Add application</button>
+        actions={can(Permissions.applicationWrite) && (
+          // Stays mounted while the panel is open so aria-expanded can actually say so,
+          // and so a keyboard user has a way back out (QA pass, ISSUE-003).
+          <button type="button" className="btn-primary"
+                  onClick={() => { setAdding(!adding); setError(null); }} {...panel.triggerProps}>
+            Add application
+          </button>
         )}
       />
 
@@ -233,7 +238,7 @@ export default function ApplicationsPage() {
 
             <div className="sm:col-span-2 flex gap-2">
               <button type="submit" className="btn-primary" disabled={create.isPending}>
-                {create.isPending ? 'Adding…' : 'Add application'}
+                {create.isPending ? 'Creating…' : 'Create application'}
               </button>
               <button type="button" className="btn-secondary" onClick={() => { setAdding(false); setError(null); }}>
                 Cancel
@@ -249,7 +254,7 @@ export default function ApplicationsPage() {
             title="No applications yet"
             description="Add the web application you want to test. The platform will explore it, build a model of its pages and elements, and generate tests from that model."
             action={can(Permissions.applicationWrite) && (
-              <button type="button" className="btn-primary" onClick={() => setAdding(true)} {...panel.triggerProps}>Add an application</button>
+              <button type="button" className="btn-primary" onClick={() => setAdding(true)} {...panel.triggerProps}>Add your first application</button>
             )}
           />
         </Card>

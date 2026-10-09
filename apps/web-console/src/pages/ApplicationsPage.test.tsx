@@ -46,8 +46,6 @@ const application = (respectRobotsTxt: boolean) => ({
 });
 
 describe('the robots.txt setting on the add-application form', () => {
-  // The page's trigger and the form's submit share the label "Add application"; the trigger
-  // is removed once the form is open, so after this there is exactly one of them.
   const openForm = async () => {
     renderPage();
     await userEvent.click(await screen.findByRole('button', { name: 'Add application' }));
@@ -55,7 +53,9 @@ describe('the robots.txt setting on the add-application form', () => {
     await userEvent.type(screen.getByLabelText('Base URL'), 'https://site.example.test/');
   };
 
-  const submit = () => userEvent.click(screen.getByRole('button', { name: 'Add application' }));
+  // "Add application" opens the panel and stays mounted while it is open; "Create
+  // application" is the submit. They were both called "Add application" until ISSUE-005.
+  const submit = () => userEvent.click(screen.getByRole('button', { name: 'Create application' }));
 
   const submittedBody = () => {
     const call = apiRequest.mock.calls.find(([path, options]) =>
@@ -101,6 +101,90 @@ describe('the robots.txt setting on the add-application form', () => {
 });
 
 /**
+ * The disclosure panel's keyboard and screen-reader contract.
+ *
+ * The trigger carried aria-expanded, but the page unmounted it the moment the panel
+ * opened, so the attribute could only ever be read as "false" — a control that announces
+ * collapsed and then vanishes rather than announcing expanded (QA pass, ISSUE-003). With
+ * the trigger gone and focus moved into the panel, the only way out was Cancel or tabbing
+ * the whole form (ISSUE-004).
+ */
+describe('the add-application panel as a disclosure', () => {
+  beforeEach(() => {
+    permissions.current = new Set(['application:write', 'discovery:run']);
+    apiRequest.mockReset();
+    apiRequest.mockImplementation(async (path: string) =>
+      path.startsWith('/api/v1/applications?') ? [] : { id: 'app-1' });
+  });
+
+  const trigger = () => screen.getByRole('button', { name: 'Add application' });
+
+  test('the trigger reports the panel as expanded while it is open', async () => {
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Add application' }));
+
+    // The trigger has to still be there to say so. aria-expanded="false" on a control that
+    // never becomes true is a false statement in the accessibility tree.
+    expect(trigger()).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger()).toHaveAttribute('aria-controls', 'add-application');
+  });
+
+  test('the trigger reports collapsed again once the panel closes', async () => {
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Add application' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(trigger()).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('Escape inside the panel closes it and gives focus back to the trigger', async () => {
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Add application' }));
+    expect(screen.getByLabelText('Name')).toHaveFocus();
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.queryByLabelText('Name')).not.toBeInTheDocument();
+    // Dropping focus on <body> after closing strands a keyboard user at the top of the page.
+    expect(trigger()).toHaveFocus();
+  });
+
+  test('focus still lands on a trigger when nothing was focused to open it', async () => {
+    renderPage();
+    const opener = await screen.findByRole('button', { name: 'Add application' });
+    // A programmatic click never focuses the button, so the opener is <body>: connected,
+    // but not a focus target. The browser caught this where userEvent did not.
+    opener.click();
+    await screen.findByLabelText('Name');
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.getByRole('button', { name: 'Add application' })).toHaveFocus();
+  });
+
+  test('each control that acts on the panel has its own name', async () => {
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Add application' }));
+
+    // Opening, submitting and cancelling are three different actions, so they read as
+    // three different names. "Add application" used to name both the trigger and the
+    // submit, and the empty state called the same action "Add an application".
+    const names = screen.getAllByRole('button').map(b => b.textContent?.trim());
+    expect(names).toContain('Add application');
+    expect(names).toContain('Create application');
+    expect(names.filter(n => n === 'Add application')).toHaveLength(1);
+  });
+
+  test('the empty state names the action distinctly too', async () => {
+    renderPage();
+    await screen.findByRole('button', { name: 'Add application' });
+
+    expect(screen.getByRole('button', { name: 'Add your first application' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add an application' })).not.toBeInTheDocument();
+  });
+});
+
+/**
  * A cleared field means "use the default", not "send nothing".
  *
  * FormData returns "" for a field the user emptied, never null, so `?? default` never fires
@@ -115,7 +199,7 @@ describe('a cleared field on the add-application form', () => {
     await userEvent.type(screen.getByLabelText('Name'), 'Public Site');
     await userEvent.type(screen.getByLabelText('Base URL'), 'https://site.example.test/');
     for (const label of clear) await userEvent.clear(screen.getByLabelText(label));
-    await userEvent.click(screen.getByRole('button', { name: 'Add application' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Create application' }));
   };
 
   const body = () => {
@@ -157,7 +241,7 @@ describe('a cleared field on the add-application form', () => {
     await userEvent.type(screen.getByLabelText('Excluded paths'), '/admin');
     await userEvent.clear(screen.getByLabelText('Crawl depth'));
     await userEvent.type(screen.getByLabelText('Crawl depth'), '7');
-    await userEvent.click(screen.getByRole('button', { name: 'Add application' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Create application' }));
 
     // The guard must not reach past the blank case and overwrite a real choice.
     await waitFor(() => expect(body()).toBeDefined());

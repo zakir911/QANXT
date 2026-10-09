@@ -30,7 +30,7 @@ export default function TestCasesPage() {
   const { projectId, project } = useProject();
   const queryClient = useQueryClient();
   const [generating, setGenerating] = useState(false);
-  const panel = useDisclosedPanel('generate-tests', generating);
+  const panel = useDisclosedPanel('generate-tests', generating, () => { setGenerating(false); setError(null); });
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [runError, setRunError] = useState<unknown>(null);
@@ -99,8 +99,10 @@ export default function TestCasesPage() {
         description={`${cases.length} test case(s) in ${project?.name ?? 'this project'}.`}
         actions={
           <div className="flex gap-2">
-            {can(Permissions.testGenerate) && !generating && (
-              <button type="button" className="btn-primary" onClick={() => { setGenerating(true); setResult(null); }} {...panel.triggerProps}>
+            {can(Permissions.testGenerate) && (
+              // Mounted while the panel is open so aria-expanded can say so (QA pass, ISSUE-003).
+              <button type="button" className="btn-primary"
+                      onClick={() => { setGenerating(!generating); setResult(null); setError(null); }} {...panel.triggerProps}>
                 Generate tests
               </button>
             )}

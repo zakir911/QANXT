@@ -110,14 +110,34 @@ export function Card({ id, title, description, actions, children, className = ''
  * A named region plus moved focus is the accurate treatment — the panel announces itself,
  * and the trigger says whether it is open.
  *
+ * For the trigger to say that, it has to still be on the page while the panel is open.
+ * Every caller used to drop it (`{open && <button …>}`), so `aria-expanded` could only
+ * ever be read as "false": a control that announces collapsed and then disappears instead
+ * of announcing expanded. Callers keep the trigger mounted and let it toggle, which also
+ * gives a keyboard user somewhere to go back to (QA pass, ISSUE-003).
+ *
+ * `onClose` wires Escape and focus return. Without it the panel still works, but a
+ * keyboard user who lands in it can only leave by finding Cancel or tabbing the whole
+ * form (ISSUE-004). Escape is handled only while focus is inside the panel: the page
+ * around it is live, not inert, so Escape pressed elsewhere is not ours to swallow.
+ *
  * `id` must be unique on the page; pass something stable like 'new-project'.
  */
-export function useDisclosedPanel(id: string, open: boolean) {
+export function useDisclosedPanel(id: string, open: boolean, onClose?: () => void) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const headingId = `${id}-heading`;
 
+  // Held in a ref so an inline arrow from the caller does not resubscribe the key
+  // listener on every render.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; });
+
+  // Whatever had focus when the panel opened, so closing can hand it back.
+  const openedFrom = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
     if (!open) return;
+    openedFrom.current = document.activeElement as HTMLElement | null;
     const first = sectionRef.current?.querySelector<HTMLElement>(
       'input:not([type="hidden"]), select, textarea'
     );
@@ -126,8 +146,43 @@ export function useDisclosedPanel(id: string, open: boolean) {
     first?.focus({ preventScroll: true });
   }, [open]);
 
+  // Where focus goes when the panel closes. Left alone it lands on <body>, which strands
+  // a keyboard user at the top of the document after every cancel.
+  //
+  // Not a ref on the trigger: `triggerProps` is spread onto more than one button on some
+  // pages (a header action and an empty-state action), and one ref across several
+  // elements is last-one-wins, so focus came back to an arbitrary trigger. The opener is
+  // the right target, and when it has since unmounted — the empty-state button goes away
+  // as soon as the panel it opened appears — any mounted trigger for this panel will do.
+  const wasOpen = useRef(open);
+  useEffect(() => {
+    if (wasOpen.current && !open) {
+      const opener = openedFrom.current;
+      // `document.body` is connected but not focusable, so it is not a usable target:
+      // a panel opened by a programmatic click (or any path that never focused a control)
+      // would otherwise "restore" focus to nothing and leave the user on <body>.
+      const usable = opener !== null && opener.isConnected && opener !== document.body;
+      const target = usable ? opener : document.querySelector<HTMLElement>(`[aria-controls="${id}"]`);
+      target?.focus({ preventScroll: true });
+    }
+    wasOpen.current = open;
+  }, [open, id]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      const inside = sectionRef.current?.contains(document.activeElement);
+      if (!inside) return;
+      event.stopPropagation();
+      onCloseRef.current?.();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open]);
+
   return {
-    /** Spread onto the button that opens the panel. */
+    /** Spread onto the button that opens the panel. Keep it mounted while open. */
     triggerProps: { 'aria-expanded': open, 'aria-controls': id } as const,
     /** Spread onto the Card that is the panel. */
     panelProps: { id, labelledBy: headingId, sectionRef } as const

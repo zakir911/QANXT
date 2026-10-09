@@ -19,7 +19,7 @@ export default function ProjectsPage() {
   const { projects, setProjectId, isLoading } = useProject();
   const queryClient = useQueryClient();
   const [creating, setCreating] = useState(false);
-  const panel = useDisclosedPanel('new-project', creating);
+  const panel = useDisclosedPanel('new-project', creating, () => { setCreating(false); setError(null); });
   const [error, setError] = useState<unknown>(null);
   const [editing, setEditing] = useState<string | null>(null);
 
@@ -52,8 +52,10 @@ export default function ProjectsPage() {
       <PageHeader
         title="Projects"
         description="A project groups the applications, tests and quality rules for one product."
-        actions={can(Permissions.projectWrite) && !creating && (
-          <button type="button" className="btn-primary" onClick={() => setCreating(true)} {...panel.triggerProps}>
+        actions={can(Permissions.projectWrite) && (
+          // Mounted while the panel is open so aria-expanded can say so (QA pass, ISSUE-003).
+          <button type="button" className="btn-primary"
+                  onClick={() => { setCreating(!creating); setError(null); }} {...panel.triggerProps}>
             New project
           </button>
         )}
