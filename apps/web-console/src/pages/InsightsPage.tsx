@@ -16,12 +16,18 @@ interface ProviderStatus {
   kind: string; name: string; isConfigured: boolean; defaultModel: string; notes: string;
 }
 
+// One per intent the rules engine routes, so the buttons are a map of what it can answer
+// rather than a sample. The old list covered five of them and left the rest undiscoverable.
 const SUGGESTIONS = [
+  'What should we investigate first?',
   'Which tests are most unstable?',
   'Which failures are likely application defects?',
-  'What should the QA team investigate first?',
+  'Which tests are slowest?',
+  'What is our test coverage?',
+  'How is quality trending?',
+  'What is our security posture?',
   'Which tests were self-healed, and how confident were the repairs?',
-  'How is quality trending overall?'
+  'Are we safe to release?'
 ];
 
 /**
@@ -71,15 +77,23 @@ export default function InsightsPage() {
       />
 
       {configured.length === 0 && (
+        // Worded as a statement of how it works rather than as something missing. The old
+        // copy led with "no model provider is configured", which reads as a prerequisite the
+        // user has failed to meet, when the rules engine is the supported default and a
+        // provider is the option.
         <div className="mb-4 rounded-lg border border-line bg-surface-sunken px-4 py-3">
           <p className="text-sm text-ink">
-            No model provider is configured, so answers come from QA NXT's built-in rules.
-            They are computed from the same records and are always labelled as such.
+            Answers come from QA NXT&rsquo;s built-in rules: counted directly from your
+            executions, discovery, healing and security records, with the identifiers behind
+            every statement so you can go and check it.
           </p>
           <p className="mt-1 text-xs text-ink-muted">
-            Set <span className="font-mono">OPENAI_API_KEY</span>,{' '}
+            A model provider is optional. Setting{' '}
+            <span className="font-mono">OPENAI_API_KEY</span>,{' '}
             <span className="font-mono">ANTHROPIC_API_KEY</span> or{' '}
-            <span className="font-mono">GEMINI_API_KEY</span> to enable a model provider.
+            <span className="font-mono">GEMINI_API_KEY</span> lets answers be phrased by a
+            model instead, from the same records and under the same rule that nothing may be
+            stated the records do not support.
           </p>
         </div>
       )}

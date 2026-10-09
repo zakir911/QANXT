@@ -57,6 +57,41 @@ pnpm install
 echo "Building the workspace libraries…"
 pnpm --filter "./packages/**" build
 
+# pnpm install brings in the Playwright client, not the browser it drives: the binaries are
+# a separate download. Without this, setup finished successfully and the first discovery run
+# died with "Executable doesn't exist at …" — the failure a user hit on a fresh macOS clone,
+# with nothing in setup to prevent it and (until this branch) nothing surfacing the reason.
+#
+# Called directly rather than through `pnpm --filter … exec`, which returns exit status 0
+# whether the download succeeded, failed on every mirror, or matched no package at all.
+# A step that cannot fail is not a step.
+echo "Downloading the browser the worker drives…"
+if [[ -n "${PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD:-}" ]]; then
+  echo "  Skipped: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD is set."
+elif [[ ! -x apps/browser-worker/node_modules/.bin/playwright ]]; then
+  echo "  Skipped: Playwright is not installed in apps/browser-worker." >&2
+else
+  if ( cd apps/browser-worker && ./node_modules/.bin/playwright install chromium ); then
+    echo "  Chromium is installed."
+  else
+    # Not fatal. Everything else setup does is still worth having, and the rest of the
+    # platform works without a browser — but say plainly what will not work, rather than
+    # printing "Setup complete" over a worker that cannot run a single crawl.
+    cat >&2 <<'BROWSER'
+
+  The browser download failed. Setup is otherwise complete, but discovery and test
+  execution need it and will fail until it succeeds. Retry with:
+
+      cd apps/browser-worker && ./node_modules/.bin/playwright install chromium
+
+  On Linux you may also need its system libraries:
+
+      cd apps/browser-worker && sudo ./node_modules/.bin/playwright install-deps chromium
+
+BROWSER
+  fi
+fi
+
 echo "Restoring .NET dependencies…"
 dotnet restore apps/api/QaNxt.sln
 

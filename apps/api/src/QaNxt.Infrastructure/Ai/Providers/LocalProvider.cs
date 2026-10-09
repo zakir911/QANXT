@@ -86,21 +86,38 @@ public sealed class LocalProvider : ILlmProvider
 }
 
 /// <summary>Helpers shared by the local rule engines.</summary>
+/// <remarks>
+/// Every accessor tolerates being handed an element that is not an object, including the
+/// default <see cref="JsonElement"/> a caller gets back for a property that was not there.
+/// <see cref="JsonElement.TryGetProperty(string, out JsonElement)"/> throws on an undefined
+/// element rather than returning false, so without this guard one absent field in a context
+/// takes down the whole answer with "the question could not be answered" — which is how a
+/// rule engine ends up looking broken for a reason that has nothing to do with the rules.
+/// Not every caller builds the full context, and none of them should have to.
+/// </remarks>
 internal static class LocalJson
 {
+    /// <summary>True when this element can be asked for a property at all.</summary>
+    private static bool IsReadable(JsonElement element)
+        => element.ValueKind == JsonValueKind.Object;
+
     public static string? String(JsonElement element, string property)
-        => element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.String
+        => IsReadable(element)
+            && element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.String
             ? value.GetString() : null;
 
     public static int Int(JsonElement element, string property, int fallback = 0)
-        => element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.Number
+        => IsReadable(element)
+            && element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.Number
             ? value.GetInt32() : fallback;
 
     public static bool Bool(JsonElement element, string property)
-        => element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.True;
+        => IsReadable(element)
+            && element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.True;
 
     public static IEnumerable<JsonElement> Array(JsonElement element, string property)
-        => element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.Array
+        => IsReadable(element)
+            && element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.Array
             ? value.EnumerateArray() : Enumerable.Empty<JsonElement>();
 
     public static string Serialize(object value) => JsonSerializer.Serialize(value, JsonDefaults.Options);
