@@ -465,18 +465,46 @@ them all on Ctrl-C. Logs go to `/tmp/qanxt-*.log`.
 
 ### A browser for the worker
 
-The worker drives a real Chromium. The first `pnpm install` fetches it. If you see
-`Executable doesn't exist at …`, fetch it explicitly:
+The worker drives a real Chromium. `pnpm install` installs the Playwright *client*, not
+the browser, so on a fresh clone you have to fetch the browser yourself. Call the binary
+directly:
 
 ```bash
-pnpm --filter @qa-nxt/browser-worker exec playwright install chromium
+cd apps/browser-worker
+./node_modules/.bin/playwright install chromium
 ```
 
-On Linux you may also need its system libraries:
+About a 150MB download, so expect a progress bar for a minute or two.
+
+Do not route this through `pnpm --filter … exec`. It looks tidier and it hides failure:
+pnpm returns exit status 0 whether the download succeeded, failed on every mirror, or
+matched no package at all, so a broken install is indistinguishable from a working one.
+
+On Linux you may also need Chromium's system libraries, which wants root:
 
 ```bash
-pnpm --filter @qa-nxt/browser-worker exec playwright install-deps chromium
+cd apps/browser-worker
+sudo ./node_modules/.bin/playwright install-deps chromium
 ```
+
+Now check it. Two directories have to exist, `chromium-1194` and
+`chromium_headless_shell-1194`, those being the build this repo's Playwright 1.56 pins:
+
+```bash
+ls ~/Library/Caches/ms-playwright/   # macOS
+ls ~/.cache/ms-playwright/           # Linux
+```
+
+The worker launches the headless shell, so the second one is the one that matters. Files
+on disk are not proof that a browser starts, though, and this is the check that is:
+
+```bash
+cd apps/browser-worker
+node -e "const {chromium}=require('playwright'); chromium.launch().then(b=>b.close()).then(()=>console.log('browser OK')).catch(e=>{console.error('browser FAILED:', e.message.split('\n')[0]); process.exit(1)})"
+```
+
+`browser OK` means discovery can run. Anything else means it cannot, whatever the console
+reports.
 
 ---
 
@@ -659,8 +687,17 @@ serves `/swagger`, `/health` and `/api/v1/...`. Nothing is wrong.
 
 **Discovery sits on `Running` and never finishes.** The worker took the job and could not
 finish it. `tail -40 /tmp/qanxt-worker.log` says why. The usual cause on a new machine is
-a missing browser — `Executable doesn't exist at …` — fixed with
-`pnpm --filter @qa-nxt/browser-worker exec playwright install chromium`.
+a missing browser, logged as `Executable doesn't exist at …`; fix it with the steps under
+"A browser for the worker" in section 5. The worker releases a failed job back to the
+queue, so a permanently broken browser gives you a run that retries forever and a status
+that reads `Running` with nothing behind it.
+
+**`playwright install chromium` appears to do nothing.** If you ran it as
+`pnpm --filter @qa-nxt/browser-worker exec playwright install chromium`, silence tells you
+nothing: that form exits 0 on success, on a failed download, and on a filter that matched
+no package. Run `./node_modules/.bin/playwright install chromium` from
+`apps/browser-worker` instead and read the exit status, then run the launch check in
+section 5.
 
 **`make dev` stops with `Error 127` just after the worker starts (macOS).** 127 is
 "command not found", and the command was `setsid`, which the console's start script used
