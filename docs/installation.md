@@ -416,6 +416,12 @@ cd qanxt
 make setup
 ```
 
+The clone address is the one behind the repository's green **Code** button, ending in
+`.git`. It is not the URL in your browser's address bar while you are reading the code:
+anything containing `/tree/<branch>` or `/blob/` is a web page, and `git clone` will
+reject it with `repository not found`. To start from a branch other than the default,
+clone first and then `git checkout <branch>`.
+
 `make setup` checks every prerequisite first and reports them together, then copies
 `.env.example` to `.env`, **generates the three secrets for you**, installs dependencies,
 starts PostgreSQL and Redis, and applies the database migrations.
@@ -647,6 +653,11 @@ ANTHROPIC_API_KEY=sk-ant-…
 ---
 
 ## 9. When it does not work
+
+**`git clone` says `repository not found` for a URL you copied from GitHub.** You have
+copied a web page address. Clone URLs come from the **Code** button and end in `.git`;
+anything with `/tree/<branch>` or `/blob/` in it is the page you were reading. Clone the
+repository, then `git checkout <branch>`.
 
 **`brew: command not found`, right after installing Homebrew (macOS).** The installer does
 not add itself to your PATH; it prints a "Next steps" block asking you to. Run the
