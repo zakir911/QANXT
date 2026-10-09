@@ -654,6 +654,14 @@ ANTHROPIC_API_KEY=sk-ant-…
 
 ## 9. When it does not work
 
+**`http://localhost:5080/` shows a 404.** Expected. The API has no page at its root; it
+serves `/swagger`, `/health` and `/api/v1/...`. Nothing is wrong.
+
+**Discovery sits on `Running` and never finishes.** The worker took the job and could not
+finish it. `tail -40 /tmp/qanxt-worker.log` says why. The usual cause on a new machine is
+a missing browser — `Executable doesn't exist at …` — fixed with
+`pnpm --filter @qa-nxt/browser-worker exec playwright install chromium`.
+
 **`make dev` stops with `Error 127` just after the worker starts (macOS).** 127 is
 "command not found", and the command was `setsid`, which the console's start script used
 to detach the dev server. setsid is util-linux and does not exist on macOS. Fixed; update

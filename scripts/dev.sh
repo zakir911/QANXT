@@ -31,9 +31,12 @@ bash scripts/console-ctl.sh start
 cat <<'READY'
 
   Console    http://localhost:5173
-  API        http://localhost:5080
   API docs   http://localhost:5080/swagger
+  API health http://localhost:5080/health
   Demo bank  http://localhost:4200
+
+  The API serves no page at http://localhost:5080/ — it is an API, and / is a 404.
+  Use the two links above.
 
   Logs: /tmp/qanxt-api.log, /tmp/qanxt-worker.log, /tmp/qanxt-console.log, /tmp/qanxt-demo-bank.log
 
