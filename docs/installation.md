@@ -211,12 +211,27 @@ echo "export PATH=\"$(brew --prefix postgresql@16)/bin:\$PATH\"" >> ~/.zprofile
 export PATH="$(brew --prefix postgresql@16)/bin:$PATH"
 ```
 
-**The .NET SDK needs care.** The `dotnet-sdk` cask tracks whatever .NET is current, which
-is no longer 8. This project targets `net8.0` and pins nothing, so a newer SDK will build
-it but `make dev` then fails at run time with `framework 'Microsoft.NETCore.App' version
-'8.0.x' not found` — the SDK does not carry older runtimes. Install .NET 8 itself, from
-[Microsoft's .NET 8 page](https://dotnet.microsoft.com/download/dotnet/8.0) or from a
-versioned cask if your Homebrew has one.
+**The .NET SDK needs care, and Homebrew is not the way to get it.** The `dotnet-sdk` cask
+tracks whatever .NET is current, which is no longer 8. This project targets `net8.0` and
+pins nothing, so a newer SDK will build it and then `make dev` fails at run time with
+`framework 'Microsoft.NETCore.App' version '8.0.x' not found`, because an SDK does not
+carry older runtimes.
+
+Install .NET 8 from [Microsoft's .NET 8 page](https://dotnet.microsoft.com/download/dotnet/8.0):
+take **SDK 8.0.x → macOS → Arm64** on Apple Silicon, or **x64** on an Intel Mac. Picking
+x64 on Apple Silicon works but runs everything under Rosetta. The `.pkg` installs to
+`/usr/local/share/dotnet` and symlinks `/usr/local/bin/dotnet`, which is already on your
+PATH.
+
+If `dotnet` still reports `command not found` straight afterwards, zsh is the reason: it
+caches where commands live and does not notice a new binary in a directory it has already
+looked in. `rehash`, or a new terminal window, fixes it:
+
+```bash
+ls -l /usr/local/share/dotnet/dotnet   # there? then it is only the cache
+rehash
+dotnet --list-sdks
+```
 
 Apple Silicon needs nothing extra beyond the PATH steps above; both .NET and Node ship
 native arm64 builds.
@@ -632,6 +647,11 @@ dependably included corepack. Use `npm install -g pnpm` instead; npm is bundled.
 **`psql: command not found`, but PostgreSQL is running (macOS).** `postgresql@16` is
 keg-only, so the client tools are not on your PATH even though `brew services` started
 the server. `make setup` needs `psql` and will stop without it. See [macOS](#macos).
+
+**`dotnet: command not found` right after installing the .pkg (macOS).** zsh caches
+command locations and will not spot a new binary in a directory it has already searched.
+Run `rehash`, or open a new terminal. If `/usr/local/share/dotnet/dotnet` does not exist
+either, the installer has not run — see [macOS](#macos).
 
 **`dotnet` runs but the API exits with `framework 'Microsoft.NETCore.App' version '8.0.x'
 not found`.** You have a .NET SDK, but not .NET 8, and an SDK does not carry older
