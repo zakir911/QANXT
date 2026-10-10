@@ -21,6 +21,18 @@ namespace QaNxt.UnitTests.Ai;
 /// honestly when a control genuinely offers nothing.</summary>
 public class ElementCoverageTests
 {
+    /// <summary>
+    /// Generates a plan and validates it against the real test_plan schema.
+    ///
+    /// The validation is the point. These tests originally passed <c>JsonSchema = "{}"</c>,
+    /// which is what every other local-provider test does, so they exercised the generator
+    /// and skipped the thing that actually rejects its output. A generator emitting a
+    /// category and four step actions that were not in the schema's enums passed eleven
+    /// green tests and failed on the first real press of the button.
+    ///
+    /// The orchestrator validates by schema name, so a test that does not is testing a
+    /// different pipeline from the one the product runs.
+    /// </summary>
     private static JsonElement Plan(string contextJson)
     {
         var provider = new LocalProvider(NullLogger<LocalProvider>.Instance);
@@ -36,8 +48,38 @@ public class ElementCoverageTests
         };
 
         var response = provider.CompleteAsync(request).GetAwaiter().GetResult();
+
+        var validation = new SchemaValidator().Validate(response.Content, AiSchemaCatalog.TestPlan);
+        validation.IsValid.Should().BeTrue(
+            "the plan has to satisfy the schema the orchestrator validates against: "
+            + string.Join("; ", validation.Errors.Take(5)));
+
         return JsonDocument.Parse(response.Content).RootElement.Clone();
     }
+
+    /// <summary>Actions the browser worker implements, from its action-runner switch.
+    ///
+    /// Separate from the schema on purpose. The schema is what the orchestrator accepts and
+    /// the runner is what can actually happen, and they had drifted: the schema allowed
+    /// noConsoleErrors as an assertion the runner does not implement, and the runner
+    /// implemented checkAccessibility which the schema did not allow. A step that validates
+    /// and cannot run produces a test that fails for ever on a working application.</summary>
+    private static readonly HashSet<string> ExecutableActions = new()
+    {
+        "navigate", "click", "doubleClick", "fill", "select", "check", "uncheck", "hover",
+        "press", "upload", "download", "wait", "screenshot", "scroll",
+        "checkAccessibility", "checkVisual", "executeScript",
+        "assertUrl", "assertVisible", "assertHidden", "assertText", "assertValue",
+        "assertCount", "assertAttribute", "assertEnabled", "assertDisabled"
+    };
+
+    /// <summary>Assertion types the browser worker implements.</summary>
+    private static readonly HashSet<string> ExecutableAssertions = new()
+    {
+        "textEquals", "textContains", "visible", "hidden", "urlEquals", "urlContains",
+        "valueEquals", "countEquals", "attributeEquals", "enabled", "disabled",
+        "httpStatusEquals"
+    };
 
     private static List<JsonElement> Scenarios(JsonElement plan)
         => plan.GetProperty("scenarios").EnumerateArray().ToList();
@@ -96,12 +138,15 @@ public class ElementCoverageTests
     }
 
     [Fact]
-    public void Every_page_gets_an_accessibility_and_a_console_check()
+    public void Every_page_gets_an_accessibility_check_and_a_reachability_check()
     {
         var names = Names(Plan(Context(LoginPage)));
 
         names.Should().Contain(n => n.Contains("accessibility violations"));
-        names.Should().Contain(n => n.Contains("without console errors"));
+        // Was a console-error check. The schema lists noConsoleErrors but the worker does
+        // not implement it, and an unimplemented assertion is reported as a failure, so
+        // that test would have failed for ever against a healthy application.
+        names.Should().Contain(n => n.Contains("reachable and stays on its own route"));
     }
 
     [Fact]
@@ -172,10 +217,16 @@ public class ElementCoverageTests
 
             steps.Should().Contain(s => s.GetProperty("action").GetString() == "navigate");
 
+            // Either an explicit assertion, or an action that is itself the check:
+            // checkAccessibility and checkVisual fail the step when they find a problem,
+            // so they carry no separate assertion.
             var assertions = steps.Sum(s => s.TryGetProperty("assertions", out var a)
                 && a.ValueKind == JsonValueKind.Array ? a.GetArrayLength() : 0);
-            assertions.Should().BeGreaterThan(0,
-                $"\"{scenario.GetProperty("name").GetString()}\" asserts nothing");
+            var selfAsserting = steps.Any(s =>
+                s.GetProperty("action").GetString() is "checkAccessibility" or "checkVisual");
+
+            (assertions > 0 || selfAsserting).Should().BeTrue(
+                $"\"{scenario.GetProperty("name").GetString()}\" checks nothing");
         }
     }
 
@@ -231,5 +282,55 @@ public class ElementCoverageTests
 
         Scenarios(plan).Count.Should().BeGreaterThan(40,
             "thirty pages with a required, format-checked field are worth more than forty tests");
+    }
+
+    [Fact]
+    public void Every_generated_step_is_one_the_worker_can_actually_run()
+    {
+        // Schema-valid is not the same as runnable. An unimplemented assertion is reported
+        // by the runner as a failure, not skipped, so a test using one fails for ever
+        // against a perfectly healthy application — which is worse than not generating it.
+        var contexts = new[]
+        {
+            Context(LoginPage),
+            Context("""
+                [ { "kind": "dashboard", "route": "/admin/settings", "title": "Settings",
+                    "url": "https://admin.example.test/admin/settings",
+                    "elements": [
+                      { "kind": "select", "accessibleName": "Region", "testId": "region" },
+                      { "kind": "checkbox", "accessibleName": "Enable alerts", "testId": "alerts" },
+                      { "kind": "dateInput", "accessibleName": "Valid from", "testId": "from", "type": "date" },
+                      { "kind": "textInput", "accessibleName": "Amount", "testId": "amt", "isRequired": true } ] } ]
+                """),
+            Context("""
+                [ { "kind": "unknown", "route": "/about", "title": "About",
+                    "url": "https://admin.example.test/about", "elements": [] } ]
+                """)
+        };
+
+        foreach (var context in contexts)
+        {
+            foreach (var scenario in Scenarios(Plan(context)))
+            {
+                var name = scenario.GetProperty("name").GetString();
+
+                foreach (var step in scenario.GetProperty("steps").EnumerateArray())
+                {
+                    var action = step.GetProperty("action").GetString()!;
+                    ExecutableActions.Should().Contain(action,
+                        $"\"{name}\" uses the step action \"{action}\", which the worker does not run");
+
+                    if (!step.TryGetProperty("assertions", out var assertions)
+                        || assertions.ValueKind != JsonValueKind.Array) continue;
+
+                    foreach (var assertion in assertions.EnumerateArray())
+                    {
+                        var type = assertion.GetProperty("type").GetString()!;
+                        ExecutableAssertions.Should().Contain(type,
+                            $"\"{name}\" asserts \"{type}\", which the worker does not implement");
+                    }
+                }
+            }
+        }
     }
 }

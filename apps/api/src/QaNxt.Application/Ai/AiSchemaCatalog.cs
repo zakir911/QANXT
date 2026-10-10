@@ -79,7 +79,7 @@ public static class AiSchemaCatalog
             "properties": {
               "name": { "type": "string", "maxLength": 200 },
               "objective": { "type": "string", "maxLength": 1000 },
-              "category": { "type": "string", "enum": ["positive","negative","boundary","validation","security","session","errorHandling"] },
+              "category": { "type": "string", "enum": ["positive","negative","boundary","validation","security","session","errorHandling","accessibility","visual","compatibility"] },
               "priority": { "type": "string", "enum": ["critical","high","medium","low"] },
               "risk": { "type": "string", "enum": ["critical","high","medium","low"] },
               "preconditions": { "type": "string", "maxLength": 1000 },
@@ -96,7 +96,7 @@ public static class AiSchemaCatalog
                   "required": ["description", "action"],
                   "properties": {
                     "description": { "type": "string", "maxLength": 500 },
-                    "action": { "type": "string", "enum": ["navigate","click","doubleClick","fill","select","check","uncheck","hover","press","upload","download","wait","screenshot","scroll","assertText","assertVisible","assertHidden","assertUrl","assertValue","assertCount","assertAttribute","assertEnabled","assertDisabled"] },
+                    "action": { "type": "string", "enum": ["navigate","click","doubleClick","fill","select","check","uncheck","hover","press","upload","download","wait","screenshot","scroll","checkAccessibility","checkVisual","assertText","assertVisible","assertHidden","assertUrl","assertValue","assertCount","assertAttribute","assertEnabled","assertDisabled"] },
                     "target": {{LocatorSchema}},
                     "value": { "type": "string", "maxLength": 2000 },
                     "url": { "type": "string", "maxLength": 2048 },

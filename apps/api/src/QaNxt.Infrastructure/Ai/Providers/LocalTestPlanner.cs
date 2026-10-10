@@ -525,15 +525,18 @@ internal static class LocalTestPlanner
 
 
 
-    /// <summary>Whether a scenario is about the page itself rather than a control on it.
+    /// <summary>The tag marking a scenario as about the page itself, not a control on it.
     ///
-    /// Matched on the tags the generator sets rather than on the name, because the name is
-    /// built from the page title and a title containing the word "console" would otherwise
-    /// make a real test look like a page-level one.</summary>
+    /// An explicit marker rather than a guess from the other tags: this drives the summary's
+    /// "no testable control" disclosure, and keying it on a tag that happens to describe the
+    /// check means renaming that tag silently stops reporting uncovered pages. That nearly
+    /// happened when the console check became a reachability check.</summary>
+    private const string PageLevelTag = "page-level";
+
     private static bool IsPageLevel(object scenario)
     {
         var tags = scenario.GetType().GetProperty("tags")?.GetValue(scenario) as string[];
-        return tags is not null && (tags.Contains("accessibility") || tags.Contains("console"));
+        return tags is not null && tags.Contains(PageLevelTag);
     }
 
     /// <summary>The precondition about signing in, or none.
@@ -632,9 +635,10 @@ internal static class LocalTestPlanner
                         Step($"Open {title}", "navigate", url: url),
                         Step($"Enter {checking} into {label}", "fill", target: locator, value: value),
                         SubmitStep(submit),
-                        StepWithAssertion("Confirm the application did not break", "assertNoConsoleErrors", null,
-                            Assertion("noConsoleErrors", null, null,
-                                "No unhandled error was raised by the boundary value."))));
+                        StepWithAssertion("Confirm the application is still responding", "assertUrl", null,
+                            Assertion("urlContains", null, route,
+                                "The application handled the boundary value without navigating away "
+                                + "to an error page."))));
             }
 
             // Whitespace is its own case: a field that trims is correct, a field that
@@ -674,9 +678,9 @@ internal static class LocalTestPlanner
                 steps: Steps(
                     Step($"Open {title}", "navigate", url: url),
                     Step($"Choose a different option in {label}", "select", target: Locator(select)),
-                    StepWithAssertion("Confirm the page did not error", "assertNoConsoleErrors", null,
-                        Assertion("noConsoleErrors", null, null,
-                            $"Changing {label} raised no unhandled error."))));
+                    StepWithAssertion($"Confirm {label} still shows a value", "assertVisible", Locator(select),
+                        Assertion("visible", Locator(select), null,
+                            $"{label} is still present and usable after the choice."))));
         }
 
         foreach (var checkbox in elements.Where(e =>
@@ -713,35 +717,44 @@ internal static class LocalTestPlanner
             requiresSignIn: requiresSignIn,
             expected: "No critical or serious violation is reported. "
                     + "Automated rules cover a part of accessibility, not all of it.",
-            tags: new[] { "accessibility", Slug(route) },
+            tags: new[] { "accessibility", PageLevelTag, Slug(route) },
             steps: Steps(
                 Step($"Open {title}", "navigate", url: url),
-                StepWithAssertion("Run the accessibility rules", "assertAccessible", null,
-                    Assertion("accessible", null, "critical",
-                        "No critical or serious accessibility violation on this page."))));
+                Step("Run the accessibility rules", "checkAccessibility")));
 
-        // And one that the page loads without the browser complaining. Console errors are
-        // the cheapest real signal an application gives, and nothing else was checking them.
+        // A reachability check for the page itself.
+        //
+        // This was a console-error assertion, which reads better and cannot run: the
+        // schema lists noConsoleErrors but the executor does not implement it, and an
+        // unimplemented assertion is reported as a failure, so every such test would have
+        // failed for ever on a working application. Discovery already records the console
+        // error count per page; asserting on it needs the executor to support it first.
         yield return Scenario(
-            name: $"{title} loads without console errors",
-            objective: $"Opening {title} raises no JavaScript error.",
+            name: $"{title} is reachable and stays on its own route",
+            objective: $"Opening {title} lands on {route} rather than redirecting to an error "
+                     + "page or a sign-in the test did not expect.",
             category: "positive",
             priority: "medium",
             route: route,
             requiresSignIn: requiresSignIn,
-            expected: "The page loads and the browser console reports no error.",
-            tags: new[] { "smoke", "console", Slug(route) },
+            expected: $"The browser ends up on {route}.",
+            tags: new[] { "smoke", PageLevelTag, Slug(route) },
             steps: Steps(
                 Step($"Open {title}", "navigate", url: url),
-                StepWithAssertion("Confirm the console is clean", "assertNoConsoleErrors", null,
-                    Assertion("noConsoleErrors", null, null,
-                        $"{title} raised no unhandled JavaScript error while loading."))));
+                StepWithAssertion("Confirm the route", "assertUrl", null,
+                    Assertion("urlContains", null, route,
+                        $"{title} is reachable at {route}."))));
     }
 
     /// <summary>A submit step, or a no-op description when the page has no button to press.</summary>
+    /// <summary>Submits, or moves focus on so a field-level validator fires.
+    ///
+    /// Tab rather than a "blur" action: blur is not in the step vocabulary the schema
+    /// allows or the executor implements, and a step the runner rejects is worse than no
+    /// step at all.</summary>
     private static object SubmitStep(JsonElement? submit)
         => submit is null
-            ? Step("Move focus away from the field to trigger validation", "blur")
+            ? Step("Move focus away from the field to trigger validation", "press", value: "Tab")
             : Step("Submit", "click", target: Locator(submit.Value));
 
     private static object[] Steps(params object[] steps) => steps;
