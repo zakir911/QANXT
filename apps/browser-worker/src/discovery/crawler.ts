@@ -17,6 +17,10 @@ import type { RawClickCandidate } from './page-extractor.js';
 /** Controls examined per page. Enough for a full sidebar, bounded so one dense page
  * cannot consume a crawl's whole action budget. */
 const MAX_CLICK_CANDIDATES = 40;
+
+/** URLs taken from a sitemap. Bounded so a large public sitemap cannot replace the
+ * crawl with a list, while still being far more than most applications publish. */
+const MAX_SITEMAP_URLS = 500;
 import { collectClickCandidates, extractPage, type RawElement, type RawPageCapture } from './page-extractor.js';
 import { performLogin, type LoginResult } from '../browser/authenticator.js';
 
@@ -68,6 +72,9 @@ export class Crawler {
   /** Null when the application has asked for robots.txt to be ignored. */
   private robots: RobotsPolicy | null = null;
   private lastNavigationAt = 0;
+  /** Navigation-shaped controls not clicked because the crawl is in links-only mode.
+   * Counted so a crawl that found one page can say why rather than looking complete. */
+  private navigationNotFollowed = 0;
 
   constructor(
     private readonly context: BrowserContext,
@@ -108,7 +115,30 @@ export class Crawler {
         }
       }
 
+      // The base URL, then everything the owner named, then anything the application
+      // publishes about itself. A crawl that can only follow links covers only what is
+      // linked, which on a client-side-routed application is the landing page alone.
       const queue: QueueEntry[] = [{ url: this.options.baseUrl, depth: 0 }];
+
+      for (const seed of this.options.budget.seedUrls ?? []) {
+        const resolved = this.resolveSeed(seed);
+        if (resolved && normalizeUrl(resolved) !== normalizeUrl(this.options.baseUrl)) {
+          queue.push({ url: resolved, depth: 0, viaAccessibleName: 'a route you listed' });
+        }
+      }
+
+      if (this.options.budget.useSitemap) {
+        for (const fromSitemap of await this.readSitemap(page)) {
+          if (!queue.some(entry => normalizeUrl(entry.url) === normalizeUrl(fromSitemap))) {
+            queue.push({ url: fromSitemap, depth: 0, viaAccessibleName: 'the sitemap' });
+          }
+        }
+      }
+
+      if (queue.length > 1) {
+        this.note(`Starting from ${queue.length} URLs: the base URL plus `
+          + `${queue.length - 1} from your route list and the sitemap.`);
+      }
 
       while (queue.length > 0) {
         if (signal?.aborted) { status = 'cancelled'; break; }
@@ -188,6 +218,25 @@ export class Crawler {
       this.note(`Discovery failed: ${errorMessage}`);
     } finally {
       await page.close().catch(() => undefined);
+    }
+
+    // A thin crawl has to account for itself. One page can mean the application has one
+    // page, or that the crawler was not allowed to reach the rest — and only the first
+    // reading is visible from the numbers, which is how a crawl that found nothing ends
+    // up looking like a crawl that found everything.
+    if (this.pages.size <= 1 && status === 'completed') {
+      if (this.navigationNotFollowed > 0) {
+        this.note(
+          `Only ${this.pages.size} page(s) were explored, and ${this.navigationNotFollowed} `
+          + 'navigation control(s) were left unclicked because this application is set to '
+          + 'follow links only. Set "How discovery explores" to "Also click navigation '
+          + 'controls" on the application, or list its routes, to reach the rest.');
+      } else if ((this.options.budget.seedUrls ?? []).length === 0) {
+        this.note(
+          `Only ${this.pages.size} page(s) were explored and no link was found to follow. `
+          + 'If this application routes without links, list its routes on the application '
+          + 'so discovery can open them directly.');
+      }
     }
 
     return {
@@ -389,6 +438,89 @@ export class Crawler {
     return discovered;
   }
 
+
+  /**
+   * Turns one entry from the owner's route list into an absolute URL.
+   *
+   * Accepts a path or a whole URL, because people write both and refusing one of them
+   * teaches nothing. Anything that will not resolve is reported rather than dropped: a
+   * route somebody listed and that was silently ignored is worse than one that errors,
+   * since the crawl afterwards looks complete.
+   */
+  private resolveSeed(seed: string): string | null {
+    const trimmed = seed.trim();
+    if (trimmed.length === 0) return null;
+
+    try {
+      return new URL(trimmed, this.options.baseUrl).toString();
+    } catch {
+      this.note(`Ignored "${trimmed}" from your route list: it is not a URL or a path.`);
+      return null;
+    }
+  }
+
+  /**
+   * Reads the application's own sitemap for routes nothing links to.
+   *
+   * A plain GET of a file the application publishes about itself, through the same browser
+   * context so it carries the session. Index sitemaps are followed one level, which covers
+   * the common shape without turning a crawl into a sitemap crawl.
+   *
+   * Failure is silent by design beyond a log line: most applications have no sitemap, and
+   * saying so on every run would train people to ignore the exploration log.
+   */
+  private async readSitemap(page: Page): Promise<string[]> {
+    const candidates = ['/sitemap.xml', '/sitemap_index.xml'];
+    const found = new Set<string>();
+
+    for (const candidate of candidates) {
+      if (found.size >= MAX_SITEMAP_URLS) break;
+
+      let xml: string;
+      try {
+        const url = new URL(candidate, this.options.baseUrl).toString();
+        const response = await page.request.get(url, { timeout: 10_000 });
+        if (!response.ok()) continue;
+        xml = await response.text();
+      } catch {
+        continue;
+      }
+
+      // Deliberately a regex and not an XML parser. The only thing wanted is the <loc>
+      // values, the worker has no XML dependency, and a malformed sitemap should yield
+      // whatever it does contain rather than throwing the crawl away.
+      const locations = [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map(m => m[1]!);
+
+      for (const location of locations) {
+        if (found.size >= MAX_SITEMAP_URLS) break;
+
+        // An index sitemap lists sitemaps. One level deep only.
+        if (/sitemap.*\.xml$/i.test(location) && !candidates.includes(location)) {
+          try {
+            const nested = await page.request.get(location, { timeout: 10_000 });
+            if (!nested.ok()) continue;
+            const nestedXml = await nested.text();
+            for (const inner of [...nestedXml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)]) {
+              if (found.size >= MAX_SITEMAP_URLS) break;
+              if (!/\.xml$/i.test(inner[1]!)) found.add(inner[1]!);
+            }
+          } catch {
+            // A nested sitemap that will not load costs us its entries, nothing more.
+          }
+          continue;
+        }
+
+        found.add(location);
+      }
+    }
+
+    if (found.size > 0) {
+      this.note(`Read ${found.size} URL(s) from the sitemap.`);
+    }
+
+    return [...found];
+  }
+
   /**
    * Finds pages that nothing links to, by clicking the controls that lead to them.
    *
@@ -410,7 +542,21 @@ export class Crawler {
     page: Page, entry: QueueEntry, discovered: CrawledPage
   ): Promise<QueueEntry[]> {
     const mode = this.options.budget.interactionMode;
-    if (mode === 'links') return [];
+
+    if (mode === 'links') {
+      // Still look, so the run can report what it chose not to do. A crawl that found one
+      // page because clicking is off is indistinguishable from an application with one
+      // page, and the second reading is the one people take.
+      try {
+        const candidates = await page.evaluate(
+          collectClickCandidates, MAX_CLICK_CANDIDATES) as RawClickCandidate[];
+        this.navigationNotFollowed += candidates.filter(c =>
+          decide(c, 'navigation', false).click).length;
+      } catch {
+        // Counting is advisory; failing to count must not fail the crawl.
+      }
+      return [];
+    }
 
     const found: QueueEntry[] = [];
     const startUrl = page.url();

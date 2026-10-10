@@ -18,14 +18,16 @@ public sealed record CreateApplicationRequest(
     int? MaxCrawlDepth, int? MaxPages, int? MaxActions, int? ExplorationTimeoutSeconds,
     AuthenticationStrategy AuthStrategy, string? LoginUrl, string? LoginFlowJson,
     ApplicationCredentials? Credentials, bool? RespectRobotsTxt = null,
-    string? InteractionMode = null, bool? AllowStateChangingClicks = null);
+    string? InteractionMode = null, bool? AllowStateChangingClicks = null,
+    string? SeedUrls = null, bool? UseSitemap = null);
 
 public sealed record UpdateApplicationRequest(
     string? Name, string? BaseUrl, string? Description, string? AllowedDomains, string? ExcludedPaths,
     int? MaxCrawlDepth, int? MaxPages, int? MaxActions, int? ExplorationTimeoutSeconds,
     AuthenticationStrategy? AuthStrategy, string? LoginUrl, string? LoginFlowJson,
     ApplicationCredentials? Credentials, bool? RespectRobotsTxt = null,
-    string? InteractionMode = null, bool? AllowStateChangingClicks = null);
+    string? InteractionMode = null, bool? AllowStateChangingClicks = null,
+    string? SeedUrls = null, bool? UseSitemap = null);
 
 public sealed record ApplicationSummary(
     Guid Id, Guid ProjectId, string Name, string BaseUrl, string Description,
@@ -41,6 +43,7 @@ public sealed record ApplicationDetail(
     string AllowedDomains, string ExcludedPaths, int MaxCrawlDepth, int MaxPages, int MaxActions,
     int ExplorationTimeoutSeconds, bool RespectRobotsTxt,
     string InteractionMode, bool AllowStateChangingClicks,
+    string SeedUrls, bool UseSitemap,
     AuthenticationStrategy AuthStrategy, string? LoginUrl, string? LoginFlowJson,
     bool HasCredentials, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt);
 
@@ -159,6 +162,8 @@ public sealed class ApplicationService : IApplicationService
         if (!createMode.IsSuccess) return Result<ApplicationDetail>.Failure(createMode.Error!);
         application.InteractionMode = createMode.Value!;
         application.AllowStateChangingClicks = request.AllowStateChangingClicks ?? false;
+        application.SeedUrls = NormalizeSeedUrls(request.SeedUrls);
+        application.UseSitemap = request.UseSitemap ?? true;
 
         if (request.Credentials is not null)
             application.EncryptedCredentials = Protect(request.Credentials);
@@ -237,6 +242,9 @@ public sealed class ApplicationService : IApplicationService
 
             if (changed) await LogInteractionAsync(application, ct);
         }
+
+        if (request.SeedUrls is not null) application.SeedUrls = NormalizeSeedUrls(request.SeedUrls);
+        if (request.UseSitemap is not null) application.UseSitemap = request.UseSitemap.Value;
 
         if (request.AuthStrategy is not null) application.AuthStrategy = request.AuthStrategy.Value;
         if (request.LoginUrl is not null) application.LoginUrl = request.LoginUrl.Trim();
@@ -317,21 +325,23 @@ public sealed class ApplicationService : IApplicationService
         return null;
     }
 
-    /// <summary>The base URL's host is always included, so a caller cannot lock the
-    /// platform out of the application it was just asked to test.</summary>
-    /// <summary>The paths discovery must never open, or the default when none were chosen.</summary>
-    /// <remarks>
-    /// Blank means "I did not choose", which is the default. It used to mean "exclude
-    /// nothing": the original was <c>request.ExcludedPaths?.Trim() ?? Default</c>, and
-    /// <c>""?.Trim()</c> is <c>""</c>, not null, so the <c>??</c> never fired. Clearing the
-    /// field in the console stored an empty list and silently dropped the only control
-    /// stopping a crawl from opening sign-out or a delete link on somebody else's
-    /// application (QA pass, ISSUE-001).
+    /// <summary>Tidies the owner's route list into one comma-separated line.
     ///
-    /// Both Create and Update route through here so the rule cannot drift between them.
-    /// There is deliberately no way to store an empty exclusion list: nobody has asked for
-    /// one, and an accident is exactly what this prevents.
-    /// </remarks>
+    /// People paste these from a browser, a spreadsheet or a sitemap, so newlines, blank
+    /// lines and stray spaces all arrive. Duplicates are dropped because a route listed
+    /// twice is not two routes, and the crawl would skip the second anyway while the
+    /// stored value implied otherwise.</summary>
+    private static string NormalizeSeedUrls(string? requested)
+    {
+        if (string.IsNullOrWhiteSpace(requested)) return string.Empty;
+
+        var entries = requested
+            .Split(new[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries
+                                              | StringSplitOptions.TrimEntries)
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+
+        return string.Join(',', entries);
+    }
 
     /// <summary>The modes a crawl may run in. Anything else is refused rather than quietly
     /// treated as the safe default, because silently downgrading "interactive" to "links"
@@ -350,12 +360,27 @@ public sealed class ApplicationService : IApplicationService
 
     public const string DefaultExcludedPaths = "/logout,/signout,/delete";
 
+    /// <summary>The paths discovery must never open, or the default when none were chosen.</summary>
+    /// <remarks>
+    /// Blank means "I did not choose", which is the default. It used to mean "exclude
+    /// nothing": the original was <c>request.ExcludedPaths?.Trim() ?? Default</c>, and
+    /// <c>""?.Trim()</c> is <c>""</c>, not null, so the <c>??</c> never fired. Clearing the
+    /// field in the console stored an empty list and silently dropped the only control
+    /// stopping a crawl from opening sign-out or a delete link on somebody else's
+    /// application (QA pass, ISSUE-001).
+    ///
+    /// Both Create and Update route through here so the rule cannot drift between them.
+    /// There is deliberately no way to store an empty exclusion list: nobody has asked for
+    /// one, and an accident is exactly what this prevents.
+    /// </remarks>
     private static string ExclusionsOrDefault(string? requested)
     {
         var trimmed = requested?.Trim();
         return string.IsNullOrEmpty(trimmed) ? DefaultExcludedPaths : trimmed;
     }
 
+    /// <summary>The base URL's host is always included, so a caller cannot lock the
+    /// platform out of the application it was just asked to test.</summary>
     private static string NormalizeAllowlist(string? allowedDomains, string baseUrl)
         => string.Join(',', ParseAllowlist(allowedDomains, baseUrl));
 
@@ -415,6 +440,7 @@ public sealed class ApplicationService : IApplicationService
         a.Id, a.ProjectId, a.Name, a.BaseUrl, a.Description, a.AllowedDomains, a.ExcludedPaths,
         a.MaxCrawlDepth, a.MaxPages, a.MaxActions, a.ExplorationTimeoutSeconds, a.RespectRobotsTxt,
         a.InteractionMode, a.AllowStateChangingClicks,
+        a.SeedUrls, a.UseSitemap,
         a.AuthStrategy, a.LoginUrl, a.LoginFlowJson, a.EncryptedCredentials != null, a.CreatedAt, a.UpdatedAt);
 }
 

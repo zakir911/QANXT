@@ -206,6 +206,10 @@ public sealed class DiscoveryService : IDiscoveryService
                 TimeoutSeconds = run.TimeoutSeconds,
                 AllowPrivateNetworks = _targetPolicy.AllowPrivateNetworks,
                 RespectRobotsTxt = application.RespectRobotsTxt,
+                SeedUrls = application.SeedUrls
+                    .Split(new[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries
+                                                      | StringSplitOptions.TrimEntries),
+                UseSitemap = application.UseSitemap,
                 InteractionMode = application.InteractionMode,
                 AllowStateChangingClicks = application.AllowStateChangingClicks
             },

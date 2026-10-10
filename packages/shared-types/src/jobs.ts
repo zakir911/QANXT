@@ -49,6 +49,17 @@ export interface CrawlBudget {
   allowPrivateNetworks: boolean;
   respectRobotsTxt: boolean;
   /**
+   * Routes or absolute URLs to explore besides the base URL, already resolved and
+   * de-duplicated by the control plane.
+   *
+   * The answer to an application the crawler cannot reach by following links: the owner
+   * names the routes. Each one is still checked against the allowlist, the exclusions and
+   * robots.txt before it is opened.
+   */
+  seedUrls: string[];
+  /** Whether to read /sitemap.xml for routes nothing links to. */
+  useSitemap: boolean;
+  /**
    * How the crawler finds pages that no anchor links to.
    *
    * `links` follows `a[href]` only. That is all discovery ever did, and on a modern admin

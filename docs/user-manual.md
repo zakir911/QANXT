@@ -116,14 +116,43 @@ keep it short.
 | **Credentials** | A test account. Encrypted before storage; the API never returns them, and a password typed during a run is stored as `***REDACTED***`. |
 | **Allowed domains** | Where QA NXT may go. Anything else is refused, and a test that tries is reported `blocked` rather than failed. |
 | **Excluded paths** | Paths the crawler must never open. Defaults to `/logout,/signout,/delete`. |
+| **Routes to explore** | Pages to visit besides the base URL, one per line. Needed when nothing links to them — see below. |
+| **Read the application's sitemap** | On by default. Discovery reads `/sitemap.xml` and explores what it lists. |
 | **Respect robots.txt** | On by default — see below. |
 
 ![The applications page listing the registered Demo Bank application](images/manual/04-applications.png)
 
 > **Choose the base URL with care.** QA NXT crawls outward from it. If the root of your
 > application bounces every visitor to the sign-in page, a crawl starting there can reach
-> exactly one page — and discovery will report "completed" while it does it. Give it a page
-> a signed-in user would land on.
+> exactly one page. Give it a page a signed-in user would land on.
+
+#### Reaching pages nothing links to
+
+Discovery follows links. That is enough for a site with a navigation bar of `<a href>`
+elements, and not enough for a lot of real admin applications, where the menu is a set of
+buttons that route in JavaScript, or lives behind a hamburger, or is built from the signed-in
+user's permissions after the page loads. Point discovery at one of those and it maps one
+page: the one it landed on.
+
+Three things get you the rest of the application, in the order worth trying:
+
+1. **List the routes.** Put them in **Routes to explore**, one per line. `/users` and
+   `https://admin.example.com/users` both work, so a path from your router config or a URL
+   pasted from the address bar are equally fine. Each one still has to pass the allowed
+   domains, the excluded paths and robots.txt — listing a route grants no exemption.
+2. **Leave the sitemap on.** If your application publishes `/sitemap.xml`, discovery reads it
+   and explores what it lists, up to 500 URLs. It is read through the signed-in session, so a
+   sitemap behind the login works. A sitemap index is followed one level.
+3. **Set "How discovery explores" to navigation.** Discovery then clicks navigation controls —
+   links, menu items, tabs, buttons that look like navigation — instead of only following
+   `href`s. It will not click anything that looks like it changes data: nothing matching
+   delete, remove, submit, pay, send, cancel and the like. This finds menus you did not know
+   to list, and costs more of the action budget per page.
+
+A run that mapped a single page says so and says why, in the exploration log, rather than
+reporting "completed" and leaving you to guess. If it names navigation controls it did not
+follow, option 3 is your answer. If it found no links at all and no routes were listed,
+option 1 is.
 
 #### Respect robots.txt
 

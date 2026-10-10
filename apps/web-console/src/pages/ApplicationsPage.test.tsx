@@ -454,3 +454,118 @@ describe('editing an application', () => {
     expect(patchBody()).toBeUndefined();
   });
 });
+
+/**
+ * Discovery can only reach what is linked from where it starts. An admin application that
+ * routes in JavaScript, or hides its navigation behind a menu, maps exactly one page: the
+ * screen it lands on. These two controls are the way out of that, so they have to survive
+ * a round trip through the form rather than only through the API.
+ */
+describe('the routes an owner lists for discovery', () => {
+  beforeEach(() => {
+    permissions.current = new Set(['application:write', 'discovery:run']);
+    apiRequest.mockReset();
+    apiRequest.mockImplementation(async (path: string) =>
+      path.startsWith('/api/v1/applications?') ? [] : { id: 'app-1' });
+  });
+
+  const openForm = async () => {
+    renderPage();
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Add application' }));
+    await user.type(screen.getByLabelText(/^Name/), 'Admin');
+    await user.type(screen.getByLabelText(/Base URL/), 'https://admin.example.test/');
+    return user;
+  };
+
+  const createdBody = () => {
+    const call = apiRequest.mock.calls.find(([path, options]) =>
+      path === '/api/v1/applications' && (options as { method?: string })?.method === 'POST');
+    return (call?.[1] as { body: Record<string, unknown> } | undefined)?.body;
+  };
+
+  test('are typed one per line, and the form says why that is needed', async () => {
+    await openForm();
+
+    expect(screen.getByLabelText('Routes to explore')).toBeInTheDocument();
+    // Somebody whose crawl found one page needs to be told the reason here, not in the
+    // manual: the starting page has no links to follow.
+    expect(screen.getByText(/only reach what is linked from where it starts/i)).toBeInTheDocument();
+  });
+
+  test('reach the API as typed, for the server to normalise', async () => {
+    const user = await openForm();
+
+    await user.type(screen.getByLabelText('Routes to explore'), '/users\n/reports/monthly');
+    await user.click(screen.getByRole('button', { name: 'Create application' }));
+
+    await waitFor(() => expect(createdBody()).toBeDefined());
+    // The console does not split or trim: one place decides what a route list means, and
+    // that place is the API, which the worker reads from.
+    expect(createdBody()!.seedUrls).toBe('/users\n/reports/monthly');
+  });
+
+  test('come with the sitemap read on, since most applications publish one', async () => {
+    const user = await openForm();
+
+    expect((screen.getByLabelText(/Read the application's sitemap/) as HTMLInputElement).checked)
+      .toBe(true);
+
+    await user.click(screen.getByRole('button', { name: 'Create application' }));
+    await waitFor(() => expect(createdBody()).toBeDefined());
+    expect(createdBody()!.useSitemap).toBe(true);
+  });
+
+  test('can have the sitemap read turned off', async () => {
+    const user = await openForm();
+
+    await user.click(screen.getByLabelText(/Read the application's sitemap/));
+    await user.click(screen.getByRole('button', { name: 'Create application' }));
+
+    await waitFor(() => expect(createdBody()).toBeDefined());
+    // An unchecked box sends no form field at all, so false has to be inferred from its
+    // absence. Reading the field would have silently left the sitemap on.
+    expect(createdBody()!.useSitemap).toBe(false);
+  });
+
+  test('are shown back one per line when the application is edited', async () => {
+    apiRequest.mockImplementation((path: string) => {
+      if (path === '/api/v1/applications/app-1') {
+        return Promise.resolve({
+          id: 'app-1', name: 'Admin', baseUrl: 'https://admin.example.test/',
+          description: '', allowedDomains: '', excludedPaths: '/logout',
+          maxCrawlDepth: 4, maxPages: 120, respectRobotsTxt: true,
+          interactionMode: 'navigation',
+          seedUrls: 'https://admin.example.test/users,https://admin.example.test/reports',
+          useSitemap: false,
+          authStrategy: 'none', loginUrl: null, hasCredentials: false
+        });
+      }
+      if (String(path).startsWith('/api/v1/applications')) return Promise.resolve([application(true)]);
+      return Promise.resolve([]);
+    });
+
+    renderPage();
+    const user = userEvent.setup();
+    await user.click(await screen.findByTestId('edit-app-1'));
+    await waitFor(() => expect(screen.getByLabelText(/^Name/)).toHaveValue('Admin'));
+
+    // Stored comma separated, edited one per line: a comma-joined wall of URLs in a three
+    // row box is unreadable, and the list is the thing being edited.
+    expect(screen.getByLabelText('Routes to explore')).toHaveValue(
+      'https://admin.example.test/users\nhttps://admin.example.test/reports');
+    expect((screen.getByLabelText(/Read the application's sitemap/) as HTMLInputElement).checked)
+      .toBe(false);
+
+    await user.click(screen.getByRole('button', { name: /Save changes/ }));
+    await waitFor(() => expect(apiRequest.mock.calls.some(
+      ([, o]) => (o as { method?: string } | undefined)?.method === 'PATCH')).toBe(true));
+    const patch = apiRequest.mock.calls.find(
+      ([, o]) => (o as { method?: string } | undefined)?.method === 'PATCH');
+    const body = (patch![1] as { body: Record<string, unknown> }).body;
+    // Saving an unrelated change must not clear the route list.
+    expect(body.seedUrls).toBe(
+      'https://admin.example.test/users\nhttps://admin.example.test/reports');
+    expect(body.useSitemap).toBe(false);
+  });
+});

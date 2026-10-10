@@ -21,6 +21,25 @@ public class Application : BaseEntity, ITenantOwned, IAuditable, ISoftDeletable
     public string AllowedDomains { get; set; } = string.Empty;
     /// <summary>Comma-separated URL path prefixes that must never be visited (logout, delete, …).</summary>
     public string ExcludedPaths { get; set; } = "/logout,/signout,/delete";
+
+    /// <summary>Routes or absolute URLs to explore in addition to the base URL.
+    ///
+    /// Discovery can only reach what is linked from where it starts. An application whose
+    /// navigation is a client-side router exposes no links to follow, so a crawl of it
+    /// finds the landing page and stops however large the budget is. The person who owns
+    /// the application knows its routes; this is how they say so, and it needs no clicking
+    /// and no guessing.
+    ///
+    /// Comma or newline separated. Each entry still passes the URL guard, the exclusion
+    /// list and robots.txt, exactly as a followed link would.</summary>
+    public string SeedUrls { get; set; } = string.Empty;
+
+    /// <summary>Whether discovery reads /sitemap.xml to find routes nothing links to.
+    ///
+    /// On by default: a sitemap is a list the application publishes about itself, reading
+    /// it is a plain GET, and an application that offers one is asking to be crawled from
+    /// it.</summary>
+    public bool UseSitemap { get; set; } = true;
     public int MaxCrawlDepth { get; set; } = 3;
     public int MaxPages { get; set; } = 50;
     public int MaxActions { get; set; } = 400;

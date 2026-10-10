@@ -32,6 +32,7 @@ interface ApplicationDetail {
   allowedDomains: string; excludedPaths: string;
   maxCrawlDepth: number; maxPages: number;
   respectRobotsTxt: boolean; interactionMode: string;
+  seedUrls: string; useSitemap: boolean;
   authStrategy: string; loginUrl?: string | null; hasCredentials: boolean;
 }
 
@@ -149,6 +150,9 @@ export default function ApplicationsPage() {
       // a missing field would leave the default on and silently ignore the choice.
       respectRobotsTxt: form.get('respectRobotsTxt') !== null,
       interactionMode: String(form.get('interactionMode') ?? 'links'),
+      seedUrls: String(form.get('seedUrls') ?? ''),
+      // An unchecked box sends nothing, so absence is the "off".
+      useSitemap: form.get('useSitemap') !== null,
       authStrategy,
       loginUrl: String(form.get('loginUrl') ?? '') || null,
       loginFlowJson: form.get('successUrlContains')
@@ -252,6 +256,29 @@ export default function ApplicationsPage() {
               <label className="label" htmlFor="maxPages">Page budget</label>
               <input id="maxPages" name="maxPages" type="number" min={1} max={1000}
                      defaultValue={editing?.maxPages ?? 50} className="input" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="label" htmlFor="seedUrls">Routes to explore</label>
+              <textarea id="seedUrls" name="seedUrls" rows={3} className="input"
+                        placeholder={'/dashboard\n/users\n/reports/monthly'}
+                        defaultValue={editing?.seedUrls?.split(',').join('\n') ?? ''} />
+              <p className="mt-1 text-xs text-ink-muted">
+                One per line, or comma separated. Paths or full URLs both work. Discovery can
+                only reach what is linked from where it starts, so an application that routes
+                without links needs its routes naming here. Each one is still checked against
+                the allowed domains, the excluded paths and robots.txt.
+              </p>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="flex items-center gap-2 text-sm text-ink" htmlFor="useSitemap">
+                <input id="useSitemap" name="useSitemap" type="checkbox"
+                       defaultChecked={editing?.useSitemap ?? true} />
+                Read the application's sitemap
+              </label>
+              <p className="mt-1 text-xs text-ink-muted">
+                Discovery reads /sitemap.xml and explores what it lists. A plain request for a
+                file the application publishes about itself.
+              </p>
             </div>
             <div className="sm:col-span-2">
               <label className="label" htmlFor="interactionMode">How discovery explores</label>
