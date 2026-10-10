@@ -709,17 +709,21 @@ directory, which has none. `cd` to the directory you cloned into and run it agai
 to detach the dev server. setsid is util-linux and does not exist on macOS. Fixed; update
 your clone.
 
-**`make dev` fails at the browser worker with dozens of `Cannot find module
-'@qa-nxt/shared-types'` errors.** The workspace libraries have not been built. `dist/` is
-gitignored and `pnpm install` only links the package, so a clone that has not been
-through a current `make setup` has nothing for the worker's compiler to read. Every other
-error in that wall cascades from this one. Fix it with:
+**The browser worker fails to compile against `@qa-nxt/shared-types`**, either with
+`Cannot find module '@qa-nxt/shared-types'` or, more confusingly, with
+`Property 'x' does not exist on type 'Y'` for a property that is plainly there in the
+source. Both are the same thing: the workspace libraries have not been rebuilt. `dist/` is
+gitignored and `pnpm install` only links the package, so a fresh clone has nothing for the
+compiler to read, and a `git pull` that changed `packages/shared-types` leaves every
+consumer compiling against the previous version. Every other error in the wall cascades
+from this one. Fix it with:
 
 ```bash
 pnpm --filter "./packages/**" build
 ```
 
-`make setup` now does this for you; this is only needed on a clone set up before it did.
+`make setup` and `make dev` both do this now, so it should not recur. It is here because
+the second form of the error sends you looking in the wrong file.
 
 **`git clone` says `repository not found` for a URL you copied from GitHub.** You have
 copied a web page address. Clone URLs come from the **Code** button and end in `.git`;

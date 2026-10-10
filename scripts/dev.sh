@@ -21,6 +21,22 @@ stop_all() {
 }
 trap stop_all EXIT INT TERM
 
+# The workspace libraries are build output and `dist/` is gitignored, so a `git pull` that
+# changes packages/shared-types leaves every consumer compiling against the previous
+# version. That surfaces as the worker failing tsc with "Property X does not exist on type
+# Y" for a property that plainly does exist in the source — which sends the reader looking
+# for the bug in the wrong file.
+#
+# `pnpm install` only links the package and does not build it, and `make setup` is the only
+# thing that ever did. Nobody runs setup after a pull. Doing it here costs a second or two
+# when nothing changed and removes a whole class of confusing failure.
+echo "Building the workspace libraries…"
+if ! pnpm --filter "./packages/**" build; then
+  echo "The workspace libraries did not build. Everything downstream compiles against" >&2
+  echo "their previous output, so fix this before reading any error the worker reports." >&2
+  exit 1
+fi
+
 bash scripts/services-ctl.sh --with-database
 bash scripts/api-ctl.sh start
 bash scripts/api-ctl.sh wait
