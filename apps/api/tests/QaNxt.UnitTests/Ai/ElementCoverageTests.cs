@@ -1,5 +1,7 @@
 using System.Text.Json;
 using QaNxt.Application.Ai;
+using QaNxt.Application.Contracts;
+using System.Text.Json.Serialization;
 using QaNxt.Infrastructure.Ai.Providers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -329,6 +331,73 @@ public class ElementCoverageTests
                         ExecutableAssertions.Should().Contain(type,
                             $"\"{name}\" asserts \"{type}\", which the worker does not implement");
                     }
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void Every_generated_step_survives_the_step_validator_the_service_runs()
+    {
+        // The third gate, and the one that dropped all eight scenarios on a user's screen
+        // after the first two were satisfied. Schema-valid and worker-implemented still is
+        // not enough: BrowserActionValidator refuses a fill with an empty value, an
+        // assertUrl with no expected, and a select with no value, and TestGenerationService
+        // drops any scenario containing one.
+        //
+        // Checking two of three gates is how the same class of defect reached a user twice.
+        // This runs the real validator over every step the engine produces.
+        var policy = new BrowserActionPolicy(
+            AllowScriptExecution: false,
+            AllowXPathLocators: true,
+            (string url, out string reason) => { reason = string.Empty; return true; });
+
+        var contexts = new[]
+        {
+            Context(LoginPage),
+            Context("""
+                [ { "kind": "dashboard", "route": "/admin/settings", "title": "Settings",
+                    "url": "https://admin.example.test/admin/settings",
+                    "elements": [
+                      { "kind": "select", "accessibleName": "Region", "testId": "region" },
+                      { "kind": "checkbox", "accessibleName": "Enable alerts", "testId": "alerts" },
+                      { "kind": "dateInput", "accessibleName": "Valid from", "testId": "from", "type": "date" },
+                      { "kind": "textInput", "accessibleName": "Amount", "testId": "amt", "isRequired": true } ] } ]
+                """),
+            Context("""
+                [ { "kind": "form", "route": "/apply", "title": "Apply",
+                    "url": "https://admin.example.test/apply",
+                    "elements": [
+                      { "kind": "textInput", "accessibleName": "Full name", "testId": "n", "isRequired": true } ] } ]
+                """),
+            Context("""
+                [ { "kind": "unknown", "route": "/about", "title": "About",
+                    "url": "https://admin.example.test/about", "elements": [] } ]
+                """)
+        };
+
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+        {
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+        };
+
+        foreach (var context in contexts)
+        {
+            var plan = Plan(context);
+
+            foreach (var scenario in Scenarios(plan))
+            {
+                var name = scenario.GetProperty("name").GetString();
+
+                foreach (var step in scenario.GetProperty("steps").EnumerateArray())
+                {
+                    var action = JsonSerializer.Deserialize<BrowserAction>(step.GetRawText(), options);
+                    action.Should().NotBeNull($"\"{name}\" has a step that will not deserialise");
+
+                    var validation = BrowserActionValidator.Validate(action!, policy);
+                    validation.IsValid.Should().BeTrue(
+                        $"\"{name}\" step \"{step.GetProperty("description").GetString()}\" "
+                        + $"would be dropped: {string.Join("; ", validation.Errors)}");
                 }
             }
         }

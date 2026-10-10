@@ -433,7 +433,15 @@ public sealed class TestGenerationService : ITestGenerationService
             return false;
         }
 
-        var hasAssertion = scenario.Steps.Any(s => IsAssertionAction(s.Action) || s.Assertions.Count > 0);
+        // checkAccessibility and checkVisual are not in the assertion verb list, but each
+        // one fails its step when it finds a problem, which is what an assertion is. Without
+        // this every accessibility scenario the engine produced was dropped as "asserts
+        // nothing" — silently, since the drop warning blames the scenario rather than the
+        // rule that rejected it.
+        var hasAssertion = scenario.Steps.Any(s =>
+            IsAssertionAction(s.Action)
+            || s.Assertions.Count > 0
+            || s.Action is BrowserActionType.CheckAccessibility or BrowserActionType.CheckVisual);
         if (!hasAssertion)
         {
             warnings.Add($"Scenario '{scenario.Name}' was dropped: it asserts nothing, so it could not fail meaningfully.");

@@ -200,8 +200,11 @@ internal static class LocalTestPlanner
             {
                 Step("Open the sign-in page", "navigate", url: url),
                 Step("Enter the username", "fill", usernameLocator, value: "${secret:app_username}"),
-                Step("Leave the password empty", "fill", passwordLocator, value: ""),
-                Step("Submit the sign-in form", "click", submitLocator),
+                // The password is never typed. A fill with an empty value is refused by the
+                // step validator, so this scenario was silently dropped on every generation
+                // since it was written: the suite was one test smaller than it reported and
+                // nothing said why.
+                Step("Submit the sign-in form without a password", "click", submitLocator),
                 StepWithAssertion("Confirm the password field is still shown", "assertVisible", passwordLocator,
                     Assertion("visible", passwordLocator, description: "The form was not accepted without a password."))
             }
@@ -590,11 +593,14 @@ internal static class LocalTestPlanner
                     tags: new[] { "validation", "required", Slug(route) },
                     steps: Steps(
                         Step($"Open {title}", "navigate", url: url),
-                        Step($"Leave {label} empty", "fill", target: locator, value: string.Empty),
+                        // The field is simply never filled. "fill" with an empty value is
+                        // refused by the step validator, and not touching the control is a
+                        // truer test of required-ness than clearing it would be.
                         SubmitStep(submit),
                         StepWithAssertion("Confirm the value was refused", "assertUrl", null,
                             Assertion("urlContains", null, route,
-                                $"The user stays on {title} because {label} was not supplied."))));
+                                $"The user stays on {title} because {label} was not supplied."),
+                            expected: route)));
             }
 
             foreach (var (value, checking) in LocalElementRules.InvalidValuesFor(semantic))
@@ -615,7 +621,8 @@ internal static class LocalTestPlanner
                         SubmitStep(submit),
                         StepWithAssertion("Confirm the value was refused", "assertUrl", null,
                             Assertion("urlContains", null, route,
-                                $"The user stays on {title} because {label} was invalid."))));
+                                $"The user stays on {title} because {label} was invalid."),
+                            expected: route)));
             }
 
             foreach (var (value, checking) in LocalElementRules.BoundaryValuesFor(semantic))
@@ -638,7 +645,8 @@ internal static class LocalTestPlanner
                         StepWithAssertion("Confirm the application is still responding", "assertUrl", null,
                             Assertion("urlContains", null, route,
                                 "The application handled the boundary value without navigating away "
-                                + "to an error page."))));
+                                + "to an error page."),
+                            expected: route)));
             }
 
             // Whitespace is its own case: a field that trims is correct, a field that
@@ -658,7 +666,8 @@ internal static class LocalTestPlanner
                     SubmitStep(submit),
                     StepWithAssertion("Confirm the value was refused", "assertUrl", null,
                         Assertion("urlContains", null, route,
-                            $"The user stays on {title} because {label} held no real content."))));
+                            $"The user stays on {title} because {label} held no real content."),
+                        expected: route)));
         }
 
         // Selects: the default, and each option, because an option that errors when chosen
@@ -677,7 +686,10 @@ internal static class LocalTestPlanner
                 tags: new[] { "ui", "select", Slug(route) },
                 steps: Steps(
                     Step($"Open {title}", "navigate", url: url),
-                    Step($"Choose a different option in {label}", "select", target: Locator(select)),
+                    // select carries a value or the step validator refuses it. Index 1 is
+                    // the first option after the usual placeholder.
+                    Step($"Choose a different option in {label}", "select",
+                        target: Locator(select), value: "1"),
                     StepWithAssertion($"Confirm {label} still shows a value", "assertVisible", Locator(select),
                         Assertion("visible", Locator(select), null,
                             $"{label} is still present and usable after the choice."))));
@@ -743,7 +755,8 @@ internal static class LocalTestPlanner
                 Step($"Open {title}", "navigate", url: url),
                 StepWithAssertion("Confirm the route", "assertUrl", null,
                     Assertion("urlContains", null, route,
-                        $"{title} is reachable at {route}."))));
+                        $"{title} is reachable at {route}."),
+                    expected: route)));
     }
 
     /// <summary>A submit step, or a no-op description when the page has no button to press.</summary>
