@@ -48,6 +48,8 @@ public sealed record CrawlBudgetPayload
     [JsonPropertyName("timeoutSeconds")] public int TimeoutSeconds { get; init; } = 600;
     [JsonPropertyName("allowPrivateNetworks")] public bool AllowPrivateNetworks { get; init; }
     [JsonPropertyName("respectRobotsTxt")] public bool RespectRobotsTxt { get; init; } = true;
+    [JsonPropertyName("interactionMode")] public string InteractionMode { get; init; } = "links";
+    [JsonPropertyName("allowStateChangingClicks")] public bool AllowStateChangingClicks { get; init; }
 }
 
 // ---- Worker callbacks -------------------------------------------------------

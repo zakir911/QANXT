@@ -205,7 +205,9 @@ public sealed class DiscoveryService : IDiscoveryService
                 MaxActions = application.MaxActions,
                 TimeoutSeconds = run.TimeoutSeconds,
                 AllowPrivateNetworks = _targetPolicy.AllowPrivateNetworks,
-                RespectRobotsTxt = application.RespectRobotsTxt
+                RespectRobotsTxt = application.RespectRobotsTxt,
+                InteractionMode = application.InteractionMode,
+                AllowStateChangingClicks = application.AllowStateChangingClicks
             },
             // Scoped to this run, and expiring with its budget plus a margin: a leaked
             // worker token is worth almost nothing.

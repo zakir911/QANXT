@@ -11,7 +11,13 @@ import { isUrlAllowed, normalizeUrl } from '../security/url-guard.js';
 import { RobotsPolicy, requestContextFetcher } from '../security/robots.js';
 import type { Logger } from '../util/logger.js';
 import { classifyPage, inferRequiresAuthentication } from './classify.js';
-import { extractPage, type RawElement, type RawPageCapture } from './page-extractor.js';
+import { decide } from './clickable.js';
+import type { RawClickCandidate } from './page-extractor.js';
+
+/** Controls examined per page. Enough for a full sidebar, bounded so one dense page
+ * cannot consume a crawl's whole action budget. */
+const MAX_CLICK_CANDIDATES = 40;
+import { collectClickCandidates, extractPage, type RawElement, type RawPageCapture } from './page-extractor.js';
 import { performLogin, type LoginResult } from '../browser/authenticator.js';
 
 /**
@@ -166,6 +172,12 @@ export class Crawler {
         if (entry.depth < this.options.budget.maxDepth) {
           for (const link of this.collectLinks(discovered, entry.depth)) {
             if (!this.visited.has(normalizeUrl(link.url))) queue.push(link);
+          }
+
+          // Clicking comes after link following so the cheap, certain route is exhausted
+          // first and the budget is spent on pages nothing else would have reached.
+          for (const clicked of await this.probeInteractions(page, entry, discovered)) {
+            if (!this.visited.has(normalizeUrl(clicked.url))) queue.push(clicked);
           }
         }
       }
@@ -375,6 +387,109 @@ export class Crawler {
 
     this.note(`Mapped ${discovered.route || '/'} — ${discovered.elements.length} elements, ${capture.links.length} links, kind=${discovered.kind}`);
     return discovered;
+  }
+
+  /**
+   * Finds pages that nothing links to, by clicking the controls that lead to them.
+   *
+   * An admin application whose sidebar is buttons calling a client-side router has no
+   * anchor for the crawler to follow, so link-only discovery saw the landing page and
+   * stopped. This presses the controls that look like they navigate and records wherever
+   * the URL ends up.
+   *
+   * What it will press is decided by {@link decide}, outside the browser, and is cautious
+   * by default: anything shaped like a state change is skipped unless the application
+   * explicitly permits it. The reasons are written to the exploration log, because a page
+   * that was not explored is worth as much to a reader as one that was.
+   *
+   * After every click the crawler returns to the page it started from. A click that opens
+   * a modal, or does nothing at all, must not leave the next candidate being judged
+   * against a page that is no longer there.
+   */
+  private async probeInteractions(
+    page: Page, entry: QueueEntry, discovered: CrawledPage
+  ): Promise<QueueEntry[]> {
+    const mode = this.options.budget.interactionMode;
+    if (mode === 'links') return [];
+
+    const found: QueueEntry[] = [];
+    const startUrl = page.url();
+
+    let candidates: RawClickCandidate[];
+    try {
+      candidates = await page.evaluate(collectClickCandidates, MAX_CLICK_CANDIDATES) as RawClickCandidate[];
+    } catch (error) {
+      this.note(`Could not look for clickable navigation on ${discovered.route || '/'}: `
+        + this.masker.maskText(tidyForLog(error instanceof Error ? error.message : String(error))));
+      return [];
+    }
+
+    let skipped = 0;
+
+    for (const candidate of candidates) {
+      if (this.actionsUsed >= this.options.budget.maxActions) {
+        this.note('Stopped looking for clickable navigation: the action budget was reached.');
+        break;
+      }
+
+      const decision = decide(candidate, mode, this.options.budget.allowStateChangingClicks);
+      if (!decision.click) {
+        // Only the interesting refusals are logged. "It is an ordinary link" would be
+        // every anchor on the page and would bury the ones that matter.
+        if (decision.reason.includes('changes data') || decision.reason.includes('form')) {
+          this.note(`Did not click "${candidate.accessibleName || candidate.tagName}" on `
+            + `${discovered.route || '/'}: ${decision.reason}.`);
+        }
+        skipped++;
+        continue;
+      }
+
+      try {
+        const locator = page.locator(candidate.selector).first();
+        if (await locator.count() === 0) continue;
+
+        this.actionsUsed++;
+        await locator.click({ timeout: 5000, noWaitAfter: true });
+        // Long enough for a client-side route change to land, short enough that a page
+        // of inert buttons does not cost the whole crawl.
+        await page.waitForTimeout(400);
+        await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => undefined);
+
+        const after = page.url();
+        if (normalizeUrl(after) !== normalizeUrl(startUrl) && !this.visited.has(normalizeUrl(after))) {
+          found.push({
+            url: after,
+            depth: entry.depth + 1,
+            parentNormalizedUrl: discovered.normalizedUrl,
+            viaAccessibleName: candidate.accessibleName || undefined
+          });
+          this.note(`Found ${after} by clicking "${candidate.accessibleName || candidate.tagName}".`);
+        }
+      } catch {
+        // A control that will not take a click is not a failure of the crawl. It may have
+        // been re-rendered out from under us, which on a live application is ordinary.
+      }
+
+      // Back to where we started, whatever the click did.
+      if (normalizeUrl(page.url()) !== normalizeUrl(startUrl)) {
+        await page.goto(startUrl, {
+          waitUntil: 'domcontentloaded',
+          timeout: this.options.navigationTimeoutMs
+        }).catch(() => undefined);
+        await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => undefined);
+      } else {
+        // Same URL, but a modal or a menu may now be open. Escape closes most of them and
+        // costs nothing when there is nothing to close.
+        await page.keyboard.press('Escape').catch(() => undefined);
+      }
+    }
+
+    if (found.length > 0 || skipped > 0) {
+      this.note(`Clicked through ${discovered.route || '/'}: found ${found.length} page(s) `
+        + `no link pointed at, skipped ${skipped} control(s).`);
+    }
+
+    return found;
   }
 
   private collectLinks(page: CrawledPage, depth: number): QueueEntry[] {

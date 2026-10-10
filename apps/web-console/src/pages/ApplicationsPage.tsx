@@ -12,7 +12,7 @@ interface ApplicationSummary {
   authStrategy: string; hasCredentials: boolean;
   pageCount: number; elementCount: number; apiEndpointCount: number; journeyCount: number;
   lastDiscoveredAt?: string; lastDiscoveryStatus?: string;
-  respectRobotsTxt: boolean; createdAt: string;
+  respectRobotsTxt: boolean; interactionMode?: string; createdAt: string;
 }
 
 // The same words the Strategy dropdown uses. The card printed the wire value, so an
@@ -105,6 +105,7 @@ export default function ApplicationsPage() {
       // An unchecked checkbox sends nothing, so the absence is the "off" — reading it as
       // a missing field would leave the default on and silently ignore the choice.
       respectRobotsTxt: form.get('respectRobotsTxt') !== null,
+      interactionMode: String(form.get('interactionMode') ?? 'links'),
       authStrategy,
       loginUrl: String(form.get('loginUrl') ?? '') || null,
       loginFlowJson: form.get('successUrlContains')
@@ -185,6 +186,20 @@ export default function ApplicationsPage() {
               <label className="label" htmlFor="maxPages">Page budget</label>
               <input id="maxPages" name="maxPages" type="number" min={1} max={1000}
                      defaultValue={50} className="input" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="label" htmlFor="interactionMode">How discovery explores</label>
+              <select id="interactionMode" name="interactionMode" className="input" defaultValue="links">
+                <option value="links">Follow links only</option>
+                <option value="navigation">Also click navigation controls</option>
+                <option value="interactive">Click anything that does not look like it changes data</option>
+              </select>
+              <p className="mt-1 text-xs text-ink-muted">
+                An application whose menu is buttons calling a client-side router has no links to
+                follow, so "links only" finds the landing page and stops. The other two click
+                controls on a running system. Nothing in any mode clicks something whose label
+                reads like delete, pay, send or submit.
+              </p>
             </div>
             <div className="sm:col-span-2">
               <label className="flex items-center gap-2 text-sm text-ink" htmlFor="respectRobotsTxt">

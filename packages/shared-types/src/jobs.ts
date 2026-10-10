@@ -48,7 +48,37 @@ export interface CrawlBudget {
   timeoutSeconds: number;
   allowPrivateNetworks: boolean;
   respectRobotsTxt: boolean;
+  /**
+   * How the crawler finds pages that no anchor links to.
+   *
+   * `links` follows `a[href]` only. That is all discovery ever did, and on a modern admin
+   * application whose navigation is buttons calling a client-side router it finds the
+   * landing page and nothing else: there is no href to follow.
+   *
+   * `navigation` additionally clicks controls that are navigation-shaped — inside a `nav`,
+   * or carrying role `link`, `menuitem` or `tab` — and enqueues wherever the URL moves to.
+   *
+   * `interactive` clicks every enabled control that is not shaped like a state change.
+   * It finds the most and takes the longest.
+   *
+   * None of these modes clicks something that looks like it changes data. That is governed
+   * separately by {@link allowStateChangingClicks}, because "explore more" and "press the
+   * delete button on somebody's production system" are different decisions.
+   */
+  interactionMode: CrawlInteractionMode;
+  /**
+   * Whether the crawler may click controls that look like they change state: a form's
+   * submit button, anything inside a form, anything whose label reads like delete, remove,
+   * pay, send, confirm or save.
+   *
+   * Off unless somebody turns it on for an application, and it is meant for a throwaway
+   * environment. The crawler cannot know what a button does before pressing it, so this is
+   * the one decision it must not make on anybody's behalf.
+   */
+  allowStateChangingClicks: boolean;
 }
+
+export type CrawlInteractionMode = 'links' | 'navigation' | 'interactive';
 
 export interface DiscoveryJob {
   jobId: string;

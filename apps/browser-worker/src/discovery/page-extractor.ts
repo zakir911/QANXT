@@ -352,3 +352,99 @@ export function extractPage(maxElements: number): RawPageCapture {
     successMessages: messagesFrom('[role="status"], .success, .alert-success, [data-testid*="success"]')
   };
 }
+
+/**
+ * Collects the controls a crawl might click to reach a page nothing links to.
+ *
+ * Serialised into the page like {@link extractPage}, so it is self-contained and may not
+ * reference anything outside itself. It reports facts only — tag, role, label, whether it
+ * sits in a form or a nav, whether it is disabled — and decides nothing. What may actually
+ * be clicked is decided outside the browser, in clickable.ts, where it can be unit tested
+ * without a page.
+ */
+export function collectClickCandidates(maxCandidates: number): RawClickCandidate[] {
+  const SELECTOR = [
+    'button',
+    '[role="button"]',
+    '[role="link"]',
+    '[role="menuitem"]',
+    '[role="menuitemradio"]',
+    '[role="tab"]',
+    '[role="treeitem"]',
+    'a:not([href])',
+    '[onclick]'
+  ].join(',');
+
+  const visible = (element: Element): boolean => {
+    const style = window.getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  };
+
+  const nameOf = (element: Element): string => {
+    const aria = element.getAttribute('aria-label');
+    if (aria && aria.trim()) return aria.trim();
+
+    const labelledBy = element.getAttribute('aria-labelledby');
+    if (labelledBy) {
+      const target = document.getElementById(labelledBy);
+      if (target?.textContent?.trim()) return target.textContent.trim();
+    }
+
+    const title = element.getAttribute('title');
+    if (title && title.trim()) return title.trim();
+
+    return (element.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 120);
+  };
+
+  /** A selector that finds this element again after the page has been reloaded. */
+  const selectorFor = (element: Element, index: number): string => {
+    const testId = element.getAttribute('data-testid') ?? element.getAttribute('data-test-id');
+    if (testId) return `[data-testid="${testId}"], [data-test-id="${testId}"]`;
+
+    const id = element.getAttribute('id');
+    // Numeric-leading ids are legal in HTML and illegal in a bare CSS id selector.
+    if (id && /^[A-Za-z][\w-]*$/.test(id)) return `#${id}`;
+
+    return `${SELECTOR} >> nth=${index}`;
+  };
+
+  const out: RawClickCandidate[] = [];
+  const elements = Array.from(document.querySelectorAll(SELECTOR));
+
+  for (let i = 0; i < elements.length && out.length < maxCandidates; i += 1) {
+    const element = elements[i]!;
+    if (!visible(element)) continue;
+
+    out.push({
+      index: i,
+      tagName: element.tagName.toLowerCase(),
+      role: element.getAttribute('role') ?? (element.tagName === 'BUTTON' ? 'button' : ''),
+      accessibleName: nameOf(element),
+      type: element.getAttribute('type') ?? '',
+      href: element.getAttribute('href') ?? '',
+      inForm: element.closest('form') !== null,
+      inNav: element.closest('nav, [role="navigation"], [role="menubar"], [role="menu"]') !== null,
+      disabled: element.hasAttribute('disabled')
+        || element.getAttribute('aria-disabled') === 'true',
+      selector: selectorFor(element, i)
+    });
+  }
+
+  return out;
+}
+
+/** One clickable control as the page reports it. Judged outside the browser. */
+export interface RawClickCandidate {
+  index: number;
+  tagName: string;
+  role: string;
+  accessibleName: string;
+  type: string;
+  href: string;
+  inForm: boolean;
+  inNav: boolean;
+  disabled: boolean;
+  selector: string;
+}

@@ -17,13 +17,15 @@ public sealed record CreateApplicationRequest(
     string? AllowedDomains, string? ExcludedPaths,
     int? MaxCrawlDepth, int? MaxPages, int? MaxActions, int? ExplorationTimeoutSeconds,
     AuthenticationStrategy AuthStrategy, string? LoginUrl, string? LoginFlowJson,
-    ApplicationCredentials? Credentials, bool? RespectRobotsTxt = null);
+    ApplicationCredentials? Credentials, bool? RespectRobotsTxt = null,
+    string? InteractionMode = null, bool? AllowStateChangingClicks = null);
 
 public sealed record UpdateApplicationRequest(
     string? Name, string? BaseUrl, string? Description, string? AllowedDomains, string? ExcludedPaths,
     int? MaxCrawlDepth, int? MaxPages, int? MaxActions, int? ExplorationTimeoutSeconds,
     AuthenticationStrategy? AuthStrategy, string? LoginUrl, string? LoginFlowJson,
-    ApplicationCredentials? Credentials, bool? RespectRobotsTxt = null);
+    ApplicationCredentials? Credentials, bool? RespectRobotsTxt = null,
+    string? InteractionMode = null, bool? AllowStateChangingClicks = null);
 
 public sealed record ApplicationSummary(
     Guid Id, Guid ProjectId, string Name, string BaseUrl, string Description,
@@ -32,12 +34,13 @@ public sealed record ApplicationSummary(
     DateTimeOffset? LastDiscoveredAt, DiscoveryStatus? LastDiscoveryStatus,
     // Part of the summary and not only the detail, because it changes what a crawl will do
     // and the console lists applications rather than opening them one at a time.
-    bool RespectRobotsTxt, DateTimeOffset CreatedAt);
+    bool RespectRobotsTxt, string InteractionMode, DateTimeOffset CreatedAt);
 
 public sealed record ApplicationDetail(
     Guid Id, Guid ProjectId, string Name, string BaseUrl, string Description,
     string AllowedDomains, string ExcludedPaths, int MaxCrawlDepth, int MaxPages, int MaxActions,
     int ExplorationTimeoutSeconds, bool RespectRobotsTxt,
+    string InteractionMode, bool AllowStateChangingClicks,
     AuthenticationStrategy AuthStrategy, string? LoginUrl, string? LoginFlowJson,
     bool HasCredentials, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt);
 
@@ -100,6 +103,7 @@ public sealed class ApplicationService : IApplicationService
                 _db.DiscoveryRuns.Where(r => r.ApplicationId == a.Id)
                     .OrderByDescending(r => r.CreatedAt).Select(r => (DiscoveryStatus?)r.Status).FirstOrDefault(),
                 a.RespectRobotsTxt,
+                a.InteractionMode,
                 a.CreatedAt))
             .ToListAsync(ct);
     }
@@ -151,6 +155,11 @@ public sealed class ApplicationService : IApplicationService
             CreatedAt = _clock.UtcNow
         };
 
+        var createMode = NormalizeInteractionMode(request.InteractionMode);
+        if (!createMode.IsSuccess) return Result<ApplicationDetail>.Failure(createMode.Error!);
+        application.InteractionMode = createMode.Value!;
+        application.AllowStateChangingClicks = request.AllowStateChangingClicks ?? false;
+
         if (request.Credentials is not null)
             application.EncryptedCredentials = Protect(request.Credentials);
 
@@ -170,6 +179,8 @@ public sealed class ApplicationService : IApplicationService
                 $"robots.txt will NOT be respected when exploring '{application.Name}'.",
                 projectId: application.ProjectId, ct: ct);
         }
+
+        await LogInteractionAsync(application, ct);
 
         if (request.Credentials is not null)
         {
@@ -211,6 +222,22 @@ public sealed class ApplicationService : IApplicationService
                     : $"robots.txt will NOT be respected when exploring '{application.Name}'.",
                 projectId: application.ProjectId, ct: ct);
         }
+        if (request.InteractionMode is not null || request.AllowStateChangingClicks is not null)
+        {
+            var mode = NormalizeInteractionMode(request.InteractionMode ?? application.InteractionMode);
+            if (!mode.IsSuccess) return Result<ApplicationDetail>.Failure(mode.Error!);
+
+            var changed = mode.Value! != application.InteractionMode
+                       || (request.AllowStateChangingClicks ?? application.AllowStateChangingClicks)
+                          != application.AllowStateChangingClicks;
+
+            application.InteractionMode = mode.Value!;
+            application.AllowStateChangingClicks =
+                request.AllowStateChangingClicks ?? application.AllowStateChangingClicks;
+
+            if (changed) await LogInteractionAsync(application, ct);
+        }
+
         if (request.AuthStrategy is not null) application.AuthStrategy = request.AuthStrategy.Value;
         if (request.LoginUrl is not null) application.LoginUrl = request.LoginUrl.Trim();
         if (request.LoginFlowJson is not null) application.LoginFlowJson = request.LoginFlowJson;
@@ -305,6 +332,22 @@ public sealed class ApplicationService : IApplicationService
     /// There is deliberately no way to store an empty exclusion list: nobody has asked for
     /// one, and an accident is exactly what this prevents.
     /// </remarks>
+
+    /// <summary>The modes a crawl may run in. Anything else is refused rather than quietly
+    /// treated as the safe default, because silently downgrading "interactive" to "links"
+    /// would look like the setting did nothing.</summary>
+    private static readonly string[] InteractionModes = { "links", "navigation", "interactive" };
+
+    private static Result<string> NormalizeInteractionMode(string? requested)
+    {
+        var mode = requested?.Trim().ToLowerInvariant();
+        if (string.IsNullOrEmpty(mode)) return Result<string>.Success("links");
+        return InteractionModes.Contains(mode)
+            ? Result<string>.Success(mode)
+            : Error.Validation(
+                $"'{requested}' is not a crawl interaction mode. Use links, navigation or interactive.");
+    }
+
     public const string DefaultExcludedPaths = "/logout,/signout,/delete";
 
     private static string ExclusionsOrDefault(string? requested)
@@ -341,9 +384,37 @@ public sealed class ApplicationService : IApplicationService
         return hosts.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
+
+    /// <summary>Records what a crawl of this application is now permitted to do.
+    ///
+    /// Written whenever it is anything other than the default, and written as a
+    /// configuration change rather than an application update, because "the crawler may now
+    /// click controls on this system" is a decision somebody should be able to find in the
+    /// trail without reading a diff of every field.</summary>
+    private async Task LogInteractionAsync(ApplicationEntity application, CancellationToken ct)
+    {
+        if (application.InteractionMode == "links" && !application.AllowStateChangingClicks) return;
+
+        var what = application.InteractionMode switch
+        {
+            "navigation" => "click navigation controls",
+            "interactive" => "click any control that does not look like it changes data",
+            _ => "follow links only"
+        };
+
+        var andThen = application.AllowStateChangingClicks
+            ? " It may ALSO click controls that look like they change data, including form submits."
+            : string.Empty;
+
+        await _audit.LogAsync(AuditAction.ConfigurationChanged, nameof(ApplicationEntity), application.Id,
+            $"Discovery of '{application.Name}' may {what}.{andThen}",
+            projectId: application.ProjectId, ct: ct);
+    }
+
     private static ApplicationDetail Map(ApplicationEntity a) => new(
         a.Id, a.ProjectId, a.Name, a.BaseUrl, a.Description, a.AllowedDomains, a.ExcludedPaths,
         a.MaxCrawlDepth, a.MaxPages, a.MaxActions, a.ExplorationTimeoutSeconds, a.RespectRobotsTxt,
+        a.InteractionMode, a.AllowStateChangingClicks,
         a.AuthStrategy, a.LoginUrl, a.LoginFlowJson, a.EncryptedCredentials != null, a.CreatedAt, a.UpdatedAt);
 }
 

@@ -29,6 +29,20 @@ public class Application : BaseEntity, ITenantOwned, IAuditable, ISoftDeletable
 
     // ---- Authentication -----------------------------------------------------
     public AuthenticationStrategy AuthStrategy { get; set; } = AuthenticationStrategy.None;
+
+    /// <summary>How discovery finds pages nothing links to: <c>links</c>, <c>navigation</c>
+    /// or <c>interactive</c>.
+    ///
+    /// Defaults to <c>links</c>, which is what discovery always did. Anything else means the
+    /// crawler clicks controls on a running application, and that is a decision somebody has
+    /// to make per application rather than inherit.</summary>
+    public string InteractionMode { get; set; } = "links";
+
+    /// <summary>Whether the crawler may click controls that look like they change data.
+    ///
+    /// Off, and meant to stay off anywhere real. The crawler cannot know what a button does
+    /// before pressing it, so this is the one thing it must never infer.</summary>
+    public bool AllowStateChangingClicks { get; set; }
     public string? LoginUrl { get; set; }
     /// <summary>Declarative login description (selectors/labels for the username, password and
     /// submit controls, plus a success signal). Never contains the credentials themselves.</summary>
