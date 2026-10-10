@@ -81,7 +81,9 @@ public sealed class TestGenerationService : ITestGenerationService
                 "This application has no discovered pages yet. Run discovery before generating tests.");
         }
 
-        var context = BuildContext(application.BaseUrl, request.Requirement, pages, request.MaxScenarios ?? DefaultScenarioBudget);
+        var context = BuildContext(application.BaseUrl, request.Requirement, pages,
+            request.MaxScenarios ?? DefaultScenarioBudget,
+            application.AuthStrategy != AuthenticationStrategy.None);
 
         var result = await _ai.ExecuteAsync<GeneratedTestPlan>(new AiCallOptions
         {
@@ -244,8 +246,13 @@ public sealed class TestGenerationService : ITestGenerationService
     /// <summary>The ceiling when a caller does not ask for one.</summary>
     private const int DefaultScenarioBudget = 20;
 
-    private static object BuildContext(string baseUrl, string? requirement, List<PageContext> pages, int maxScenarios)
-        => new { baseUrl, requirement, maxScenarios, pages };
+    /// <param name="requiresSignIn">Whether this application is configured to authenticate.
+    /// Passed because the planner was asserting "The customer is signed in." as a
+    /// precondition on every smoke scenario, including for a public site where nothing in the
+    /// discovered model supported it.</param>
+    private static object BuildContext(string baseUrl, string? requirement, List<PageContext> pages,
+        int maxScenarios, bool requiresSignIn)
+        => new { baseUrl, requirement, maxScenarios, requiresSignIn, pages };
 
     private async Task<TestSuite> ResolveSuiteAsync(GenerateTestsRequest request, Guid projectId, string applicationName, CancellationToken ct)
     {

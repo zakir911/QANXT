@@ -10,7 +10,19 @@ namespace QaNxt.Infrastructure.Ai.Providers;
 /// application: sign-in pages get credential and lock-out coverage, forms get required-field
 /// and boundary coverage, lists get view and filter coverage, and every authenticated page
 /// gets a smoke check. It works from what discovery actually observed, so the steps it
-/// produces reference real locators on real pages.</summary>
+/// produces reference real locators on real pages.
+///
+/// Every page contributes at least one scenario. The kind-specific generators each refuse to
+/// invent a locator they cannot see — a login page with no password field it recognises, a
+/// form with no submit button — and each of them used to simply yield nothing in that case.
+/// With every discovered page falling into one of those branches the plan came back empty,
+/// and since the schema requires at least one scenario the user saw
+/// "/scenarios: Value should have at least 1 items (minItems)" with nothing to act on.
+///
+/// The fix is not to invent coverage. It is to fall back to the smoke scenario, which needs
+/// no elements at all: open the page, assert it rendered. That is a true statement about a
+/// page that exists, and it is the honest floor for a page whose controls were not
+/// recognised.</summary>
 internal static class LocalTestPlanner
 {
     public static string Generate(JsonElement context)
@@ -27,6 +39,16 @@ internal static class LocalTestPlanner
             .GroupBy(page => LocalJson.String(page, "title") ?? LocalJson.String(page, "route") ?? "/")
             .ToDictionary(group => group.Key, group => group.Count());
 
+        // Whether the application needs a sign-in at all. Without it the smoke scenario
+        // asserted "The customer is signed in." as a precondition on a public site, which is
+        // a claim about the application that discovery never observed.
+        var requiresSignIn = LocalJson.Bool(context, "requiresSignIn");
+
+        // Pages whose kind-specific generator produced nothing. Counted rather than
+        // discarded, so the summary can say which pages only got a smoke check instead of
+        // quietly implying they were covered properly.
+        var fellBackTo = new List<string>();
+
         foreach (var page in pages)
         {
             var kind = LocalJson.String(page, "kind") ?? "unknown";
@@ -37,6 +59,8 @@ internal static class LocalTestPlanner
                 : pageTitle;
             var url = LocalJson.String(page, "url") ?? route;
             var elements = LocalJson.Array(page, "elements").ToList();
+
+            var before = scenarios.Count;
 
             switch (kind)
             {
@@ -51,11 +75,20 @@ internal static class LocalTestPlanner
                     scenarios.AddRange(ListScenarios(url, title, route, elements));
                     break;
                 case "dashboard":
-                    scenarios.Add(SmokeScenario(url, title, route, elements, "Critical"));
+                    scenarios.Add(SmokeScenario(url, title, route, elements, "Critical", requiresSignIn));
                     break;
                 default:
-                    scenarios.Add(SmokeScenario(url, title, route, elements, "Medium"));
+                    scenarios.Add(SmokeScenario(url, title, route, elements, "Medium", requiresSignIn));
                     break;
+            }
+
+            if (scenarios.Count == before)
+            {
+                // The generator for this kind could not find the controls it needs. A smoke
+                // check is still true of a page that exists, and it is better than the page
+                // contributing nothing at all.
+                scenarios.Add(SmokeScenario(url, title, route, elements, "Medium", requiresSignIn));
+                fellBackTo.Add(route);
             }
         }
 
@@ -65,6 +98,18 @@ internal static class LocalTestPlanner
         var summary = requirement is null
             ? $"Generated {ordered.Count} scenarios from {pages.Count} discovered pages using QA NXT's built-in rules (no model provider configured)."
             : $"Generated {ordered.Count} scenarios covering \"{Truncate(requirement, 200)}\" from {pages.Count} discovered pages using QA NXT's built-in rules (no model provider configured).";
+
+        // Said plainly rather than left to be inferred from thin scenarios. A page that only
+        // got "it loads" has not been covered, and a reviewer deciding whether this suite
+        // means anything needs to know which pages those were.
+        if (fellBackTo.Count > 0)
+        {
+            var routes = string.Join(", ", fellBackTo.Take(10));
+            summary += $" {fellBackTo.Count} page(s) only got a load check because their controls"
+                     + $" were not recognised from the discovered model: {routes}"
+                     + (fellBackTo.Count > 10 ? ", …" : string.Empty)
+                     + ". Those pages are not covered beyond loading.";
+        }
 
         return LocalJson.Serialize(new { summary, scenarios = ordered });
     }
@@ -427,7 +472,8 @@ internal static class LocalTestPlanner
         }
     }
 
-    private static object SmokeScenario(string url, string title, string route, List<JsonElement> elements, string priority)
+    private static object SmokeScenario(string url, string title, string route,
+        List<JsonElement> elements, string priority, bool requiresSignIn)
     {
         var anchor = elements.FirstOrDefault(e => !string.IsNullOrEmpty(LocalJson.String(e, "accessibleName")));
         var steps = new List<object> { Step($"Open {title}", "navigate", url: url) };
@@ -441,11 +487,18 @@ internal static class LocalTestPlanner
         return new
         {
             name = $"{title} loads",
-            objective = $"{title} loads without error for a signed-in customer.",
+            objective = requiresSignIn
+                ? $"{title} loads without error for a signed-in customer."
+                : $"{title} loads without error.",
             category = "positive",
             priority = priority.ToLowerInvariant(),
             risk = priority.ToLowerInvariant(),
-            preconditions = "The customer is signed in.",
+            // Only claimed when the application is actually configured to sign in. Stating it
+            // for a public site describes a precondition nobody can satisfy and that
+            // discovery never observed.
+            preconditions = requiresSignIn
+                ? "The customer is signed in."
+                : "None.",
             expectedResults = "The page loads and displays its expected content.",
             tags = new[] { "smoke", Slug(route) },
             testData = new Dictionary<string, string>(),

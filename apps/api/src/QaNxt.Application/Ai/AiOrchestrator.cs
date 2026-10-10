@@ -152,8 +152,21 @@ public sealed class AiOrchestrator : IAiOrchestrator
                 systemPrompt, userPrompt, AiRequestStatus.SchemaRejected, errors, response, 0,
                 provider.EstimateCostUsd(model, response.Usage), ct, rawContent: extracted, schemaErrors: errors);
 
+            // Whose fault it is changes what the reader should do about it. A hosted model
+            // producing an off-schema response is the model misbehaving and retrying may
+            // help. The built-in rule engine failing its own schema is a defect in this
+            // product, and telling the user "the model's response" sends them looking for an
+            // API key they do not need. A user hit exactly this: the local planner returned
+            // an empty plan and the message blamed a model that was never involved.
+            var message = provider.Kind == LlmProviderKind.Local
+                ? $"QA NXT's built-in rules produced a result that does not satisfy the "
+                  + $"{options.SchemaName} schema, so it was rejected rather than used: {errors}. "
+                  + "This is a defect in QA NXT, not a problem with your application or a "
+                  + "missing model provider. The reference below identifies the request."
+                : $"The model's response did not satisfy the {options.SchemaName} schema: {errors}";
+
             return AiResult<T>.Failure(rejectedId, provider.Kind, model, AiRequestStatus.SchemaRejected,
-                $"The model's response did not satisfy the {options.SchemaName} schema: {errors}");
+                message);
         }
 
         T? value;
