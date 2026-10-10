@@ -88,7 +88,8 @@ export default function TestCasesPage() {
       applicationId: String(form.get('applicationId') ?? ''),
       suiteName: String(form.get('suiteName') ?? '') || null,
       requirement: String(form.get('requirement') ?? '') || null,
-      maxScenarios: Number(form.get('maxScenarios') ?? 20)
+      // Blank means no limit. A number nobody typed is not a limit the user chose.
+      maxScenarios: Number(String(form.get('maxScenarios') ?? '').trim() || 0)
     });
   };
 
@@ -149,8 +150,12 @@ export default function TestCasesPage() {
             </div>
             <div>
               <label className="label" htmlFor="maxScenarios">Maximum scenarios</label>
-              <input id="maxScenarios" name="maxScenarios" type="number" min={1} max={40}
-                     defaultValue={20} className="input" />
+              <input id="maxScenarios" name="maxScenarios" type="number" min={1}
+                     placeholder="no limit" className="input" />
+              <p className="mt-1 text-xs text-ink-muted">
+                Leave empty to generate everything the discovered model supports. This used to
+                default to 20, which capped the suite at a number nobody had chosen.
+              </p>
             </div>
 
             {error !== null && <div className="sm:col-span-2"><ErrorNotice error={error} /></div>}

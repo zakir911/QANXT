@@ -6,6 +6,13 @@ namespace QaNxt.Application.Ai;
 /// fields — because that strictness is what makes a model's output safe to act on. A
 /// response that invents a field or an action verb fails validation and is rejected
 /// rather than partially applied.</summary>
+/// <remarks>
+/// The scenarios array's maxItems is a guard on the size of a single response, not a limit
+/// on how many tests an application may have. It was 40, which silently truncated the
+/// deterministic engine and made a forty-page application look fully covered by forty
+/// tests. The caller's own budget is the limit that should apply, and it is applied in
+/// TestGenerationService where the user set it.
+/// </remarks>
 public static class AiSchemaCatalog
 {
     public const string TestPlan = "test_plan";
@@ -64,7 +71,7 @@ public static class AiSchemaCatalog
         "scenarios": {
           "type": "array",
           "minItems": 1,
-          "maxItems": 40,
+          "maxItems": 500,
           "items": {
             "type": "object",
             "additionalProperties": false,

@@ -62,25 +62,30 @@ public class EmptyTestPlanTests
         Count(plan).Should().BeGreaterThan(0,
             "an empty plan is rejected by the schema and surfaces as an unactionable error");
 
-        var scenario = plan.GetProperty("scenarios")[0];
-        scenario.GetProperty("name").GetString().Should().Contain("loads");
-        scenario.GetProperty("steps").GetArrayLength().Should().BeGreaterThan(0);
+        // Every page now earns an accessibility check and a console check from the element
+        // rules, which is more than the bare load check this originally asserted. Each one
+        // still has to be a runnable scenario.
+        foreach (var scenario in plan.GetProperty("scenarios").EnumerateArray())
+        {
+            scenario.GetProperty("steps").GetArrayLength().Should().BeGreaterThan(0);
+        }
     }
 
     [Fact]
-    public void The_summary_says_which_pages_only_got_a_load_check()
+    public void The_summary_says_which_pages_had_no_testable_control()
     {
         var plan = Plan(Context(LoginWithNoRecognisedFields));
 
-        // A page that only got "it loads" has not been covered, and a reviewer deciding
-        // whether this suite means anything needs to be told that rather than infer it.
-        Summary(plan).Should().Contain("only got a load check");
+        // The page-level checks mean no page produces nothing any more, which would let the
+        // improvement quietly hide the gap it used to disclose. A page whose controls
+        // produced no test has been loaded, not covered, and the summary has to say so.
+        Summary(plan).Should().Contain("no testable control was recognised");
         Summary(plan).Should().Contain("/signin");
         Summary(plan).Should().Contain("not covered beyond loading");
     }
 
     [Fact]
-    public void A_form_page_with_no_submit_button_still_produces_a_scenario()
+    public void A_form_page_with_no_submit_button_still_tests_its_field()
     {
         var plan = Plan(Context("""
             [ { "kind": "form", "route": "/apply", "title": "Apply",
@@ -88,8 +93,14 @@ public class EmptyTestPlanTests
                 "elements": [ { "kind": "textInput", "accessibleName": "Full name" } ] } ]
             """));
 
-        Count(plan).Should().BeGreaterThan(0);
-        Summary(plan).Should().Contain("/apply");
+        // The form generator bails with no submit button, but the field is still a field.
+        // Validation is triggered by moving focus away instead of by pressing a button.
+        Count(plan).Should().BeGreaterThan(1);
+        var names = plan.GetProperty("scenarios").EnumerateArray()
+            .Select(s => s.GetProperty("name").GetString()!).ToList();
+        names.Should().Contain(n => n.Contains("Full name"));
+        // Its controls did produce tests, so it is not reported as uncovered.
+        Summary(plan).Should().NotContain("no testable control");
     }
 
     [Fact]

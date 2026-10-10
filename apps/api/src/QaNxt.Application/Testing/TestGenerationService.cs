@@ -42,7 +42,12 @@ public interface ITestGenerationService
 /// always recoverable.</summary>
 public sealed class TestGenerationService : ITestGenerationService
 {
-    private const int MaxPagesInContext = 25;
+    /// <summary>How many pages one generation call reads.
+    ///
+    /// Still bounded, because this becomes one request payload, but the old 25 silently
+    /// excluded most of a large application from ever being considered. The summary says
+    /// when it bit, so a truncated run no longer looks like a complete one.</summary>
+    private const int MaxPagesInContext = 200;
     private const int MaxElementsPerPage = 30;
 
     private readonly IQaNxtDbContext _db;
@@ -80,6 +85,9 @@ public sealed class TestGenerationService : ITestGenerationService
             return Error.Validation(
                 "This application has no discovered pages yet. Run discovery before generating tests.");
         }
+
+        var discoveredPages = await _db.ApplicationPages
+            .CountAsync(p => p.ApplicationId == request.ApplicationId, ct);
 
         var context = BuildContext(application.BaseUrl, request.Requirement, pages,
             request.MaxScenarios ?? DefaultScenarioBudget,
@@ -123,7 +131,17 @@ public sealed class TestGenerationService : ITestGenerationService
         {
             persisted.Warnings.Add(
                 $"The plan proposed {truncated + budget} scenarios; {truncated} were dropped to stay "
-                + $"within the requested limit of {budget}.");
+                + $"within the requested limit of {budget}. Raise or clear the limit to keep them.");
+        }
+
+        if (discoveredPages > pages.Count)
+        {
+            // Said out loud. A run that considered 200 of 900 pages is not a run that
+            // covered the application, and nothing else on the screen would reveal it.
+            persisted.Warnings.Add(
+                $"This application has {discoveredPages} discovered pages and this run considered "
+                + $"{pages.Count} of them. The rest are not covered by these tests. Generate again "
+                + "with a page selection to reach them.");
         }
 
         await _audit.LogAsync(AuditAction.AiGeneration, nameof(TestSuite), suite.Id,
@@ -244,7 +262,13 @@ public sealed class TestGenerationService : ITestGenerationService
     };
 
     /// <summary>The ceiling when a caller does not ask for one.</summary>
-    private const int DefaultScenarioBudget = 20;
+    /// <summary>No cap unless the caller asks for one.
+    ///
+    /// This was 20, which is where "generate tests for my application" quietly became
+    /// "generate twenty tests". A limit the user did not choose is indistinguishable from
+    /// the engine having nothing more to offer, and it is the first thing that makes a
+    /// coverage number a lie. Zero means unlimited; the caller may still pass a number.</summary>
+    private const int DefaultScenarioBudget = 0;
 
     /// <param name="requiresSignIn">Whether this application is configured to authenticate.
     /// Passed because the planner was asserting "The customer is signed in." as a

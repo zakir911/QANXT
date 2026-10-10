@@ -68,11 +68,11 @@ internal static class LocalTestPlanner
                     scenarios.AddRange(LoginScenarios(url, title, elements));
                     break;
                 case "form":
-                    scenarios.AddRange(FormScenarios(url, title, route, elements));
+                    scenarios.AddRange(FormScenarios(url, title, route, elements, requiresSignIn));
                     break;
                 case "list":
                 case "report":
-                    scenarios.AddRange(ListScenarios(url, title, route, elements));
+                    scenarios.AddRange(ListScenarios(url, title, route, elements, requiresSignIn));
                     break;
                 case "dashboard":
                     scenarios.Add(SmokeScenario(url, title, route, elements, "Critical", requiresSignIn));
@@ -82,18 +82,30 @@ internal static class LocalTestPlanner
                     break;
             }
 
-            if (scenarios.Count == before)
-            {
-                // The generator for this kind could not find the controls it needs. A smoke
-                // check is still true of a page that exists, and it is better than the page
-                // contributing nothing at all.
-                scenarios.Add(SmokeScenario(url, title, route, elements, "Medium", requiresSignIn));
-                fellBackTo.Add(route);
-            }
+            var fromKind = scenarios.Count - before;
+
+            // Then the controls themselves, whatever the page was classified as. This is
+            // where most of the coverage comes from: the kind-specific generators above
+            // only recognise three page shapes, and every control on every other page used
+            // to contribute nothing.
+            var fromElements = ElementScenarios(url, title, route, elements, requiresSignIn).ToList();
+            scenarios.AddRange(fromElements);
+
+            // Every page now gets an accessibility check and a console check, so no page
+            // ends up with nothing. That makes the honest question a different one: did
+            // anything on this page get tested, or only the page itself? A page whose
+            // controls produced nothing has been loaded, not covered, and a reviewer
+            // deciding whether this suite means anything has to be told which pages those
+            // are — otherwise the improvement quietly hides the gap it used to disclose.
+            var controlScenarios = fromKind + fromElements.Count(s => !IsPageLevel(s));
+            if (controlScenarios == 0) fellBackTo.Add(route);
         }
 
-        // Keep the plan to a reviewable size; the schema caps it at 40 in any case.
-        var ordered = scenarios.Take(40).ToList();
+        // No cap here. The caller's budget is the only limit that should apply, and it is
+        // applied in TestGenerationService where the user set it: truncating silently at a
+        // number nobody chose is how an application with forty pages produced forty tests
+        // and looked complete.
+        var ordered = scenarios;
 
         var summary = requirement is null
             ? $"Generated {ordered.Count} scenarios from {pages.Count} discovered pages using QA NXT's built-in rules (no model provider configured)."
@@ -105,8 +117,8 @@ internal static class LocalTestPlanner
         if (fellBackTo.Count > 0)
         {
             var routes = string.Join(", ", fellBackTo.Take(10));
-            summary += $" {fellBackTo.Count} page(s) only got a load check because their controls"
-                     + $" were not recognised from the discovered model: {routes}"
+            summary += $" {fellBackTo.Count} page(s) only got a load check because no testable"
+                     + $" control was recognised on them: {routes}"
                      + (fellBackTo.Count > 10 ? ", …" : string.Empty)
                      + ". Those pages are not covered beyond loading.";
         }
@@ -220,7 +232,8 @@ internal static class LocalTestPlanner
 
     // ---- Forms -------------------------------------------------------------
 
-    private static IEnumerable<object> FormScenarios(string url, string title, string route, List<JsonElement> elements)
+    private static IEnumerable<object> FormScenarios(string url, string title, string route,
+        List<JsonElement> elements, bool requiresSignIn)
     {
         var inputs = elements.Where(IsTextInput).ToList();
         var submit = Find(elements, IsButton);
@@ -260,7 +273,7 @@ internal static class LocalTestPlanner
             category = "positive",
             priority = "high",
             risk = "high",
-            preconditions = "The customer is signed in.",
+            preconditions = SignedInPrecondition(requiresSignIn),
             expectedResults = successSignal is not null
                 ? "The form is accepted and the application confirms the outcome."
                 : "The form is accepted. Discovery found no confirmation element on this page, so no success "
@@ -280,7 +293,7 @@ internal static class LocalTestPlanner
                 category = "validation",
                 priority = "medium",
                 risk = "medium",
-                preconditions = "The customer is signed in.",
+                preconditions = SignedInPrecondition(requiresSignIn),
                 expectedResults = "The form is refused and each missing field is reported.",
                 tags = new[] { "form", "validation", Slug(route) },
                 testData = new Dictionary<string, string>(),
@@ -305,7 +318,7 @@ internal static class LocalTestPlanner
                 category = "boundary",
                 priority = "medium",
                 risk = "medium",
-                preconditions = "The customer is signed in.",
+                preconditions = SignedInPrecondition(requiresSignIn),
                 expectedResults = "The submission is refused with a validation message.",
                 tags = new[] { "form", "boundary", Slug(route) },
                 testData = new Dictionary<string, string> { ["amount"] = "-1" },
@@ -323,7 +336,8 @@ internal static class LocalTestPlanner
 
     // ---- Lists and reports --------------------------------------------------
 
-    private static IEnumerable<object> ListScenarios(string url, string title, string route, List<JsonElement> elements)
+    private static IEnumerable<object> ListScenarios(string url, string title, string route,
+        List<JsonElement> elements, bool requiresSignIn)
     {
         var table = elements.FirstOrDefault(e => LocalJson.String(e, "kind") == "table");
 
@@ -354,7 +368,9 @@ internal static class LocalTestPlanner
             category = "positive",
             priority = "high",
             risk = "medium",
-            preconditions = "The customer is signed in and has data to display.",
+            preconditions = requiresSignIn
+                ? "The customer is signed in and has data to display."
+                : "The page has data to display.",
             expectedResults = "The page loads and the records are visible.",
             tags = new[] { "read-only", Slug(route) },
             testData = new Dictionary<string, string>(),
@@ -463,7 +479,7 @@ internal static class LocalTestPlanner
                 category = "negative",
                 priority = "medium",
                 risk = "medium",
-                preconditions = "The customer is signed in.",
+                preconditions = SignedInPrecondition(requiresSignIn),
                 expectedResults,
                 tags = new[] { "filter", "negative", Slug(route) },
                 testData = new Dictionary<string, string>(),
@@ -505,6 +521,248 @@ internal static class LocalTestPlanner
             steps = steps.ToArray()
         };
     }
+
+
+
+
+    /// <summary>Whether a scenario is about the page itself rather than a control on it.
+    ///
+    /// Matched on the tags the generator sets rather than on the name, because the name is
+    /// built from the page title and a title containing the word "console" would otherwise
+    /// make a real test look like a page-level one.</summary>
+    private static bool IsPageLevel(object scenario)
+    {
+        var tags = scenario.GetType().GetProperty("tags")?.GetValue(scenario) as string[];
+        return tags is not null && (tags.Contains("accessibility") || tags.Contains("console"));
+    }
+
+    /// <summary>The precondition about signing in, or none.
+    ///
+    /// Stated only when the application is configured to authenticate. Asserting it on a
+    /// public page describes a precondition nobody can satisfy and that discovery never
+    /// observed — and it was hardcoded into every generator, not only the smoke one.</summary>
+    private static string SignedInPrecondition(bool requiresSignIn)
+        => requiresSignIn ? "The customer is signed in." : "None.";
+
+    // ---- Element-driven coverage -------------------------------------------
+
+    /// <summary>
+    /// Scenarios for the controls on a page, whatever the page was classified as.
+    ///
+    /// This is what turns a discovered page into real coverage. The kind-specific
+    /// generators above handle the shapes they recognise; this handles every control they
+    /// did not, which on most applications is nearly all of them. A required field deserves
+    /// a required-field test on a dashboard exactly as much as on a form.
+    ///
+    /// Each scenario is a complete, runnable test: navigate, act, assert. None of them
+    /// assert a specific message, because the message is the application's to choose — they
+    /// assert that the value was refused and the user was kept on the page, which is the
+    /// behaviour, and a reviewer can tighten it afterwards.
+    /// </summary>
+    private static IEnumerable<object> ElementScenarios(
+        string url, string title, string route, List<JsonElement> elements, bool requiresSignIn)
+    {
+        var fields = elements.Where(LocalElementRules.IsValidationSurface).ToList();
+        var submit = Find(elements, e => IsButton(e) && Mentions(e, "submit", "save", "continue", "next", "sign in", "log in", "search", "apply"))
+                  ?? Find(elements, IsButton);
+
+        foreach (var field in fields)
+        {
+            var semantic = LocalElementRules.SemanticOf(field);
+            var label = LabelOf(field);
+            var locator = Locator(field);
+            var required = LocalJson.Bool(field, "isRequired");
+
+            // Required first: it is the cheapest check and the one most often missing.
+            if (required)
+            {
+                yield return Scenario(
+                    name: $"{label} is required on {title}",
+                    objective: $"Submitting {title} without {label} is refused rather than accepted silently.",
+                    category: "negative",
+                    priority: "high",
+                    route: route,
+                    requiresSignIn: requiresSignIn,
+                    expected: $"The form is not submitted and {label} is reported as required.",
+                    tags: new[] { "validation", "required", Slug(route) },
+                    steps: Steps(
+                        Step($"Open {title}", "navigate", url: url),
+                        Step($"Leave {label} empty", "fill", target: locator, value: string.Empty),
+                        SubmitStep(submit),
+                        StepWithAssertion("Confirm the value was refused", "assertUrl", null,
+                            Assertion("urlContains", null, route,
+                                $"The user stays on {title} because {label} was not supplied."))));
+            }
+
+            foreach (var (value, checking) in LocalElementRules.InvalidValuesFor(semantic))
+            {
+                yield return Scenario(
+                    name: $"{label} rejects {checking} on {title}",
+                    objective: $"{label} refuses a value that is not a valid "
+                             + $"{semantic.ToString().ToLowerInvariant()}.",
+                    category: "negative",
+                    priority: "medium",
+                    route: route,
+                    requiresSignIn: requiresSignIn,
+                    expected: $"{label} is refused and the user stays on {title}.",
+                    tags: new[] { "validation", "format", Slug(route) },
+                    steps: Steps(
+                        Step($"Open {title}", "navigate", url: url),
+                        Step($"Enter {checking} into {label}", "fill", target: locator, value: value),
+                        SubmitStep(submit),
+                        StepWithAssertion("Confirm the value was refused", "assertUrl", null,
+                            Assertion("urlContains", null, route,
+                                $"The user stays on {title} because {label} was invalid."))));
+            }
+
+            foreach (var (value, checking) in LocalElementRules.BoundaryValuesFor(semantic))
+            {
+                yield return Scenario(
+                    name: $"{label} handles {checking} on {title}",
+                    objective: $"{label} behaves predictably at its boundary rather than "
+                             + "truncating, overflowing or erroring.",
+                    category: "boundary",
+                    priority: "medium",
+                    route: route,
+                    requiresSignIn: requiresSignIn,
+                    expected: $"{label} either accepts the value cleanly or refuses it with a message. "
+                            + "An unhandled error is a failure.",
+                    tags: new[] { "validation", "boundary", Slug(route) },
+                    steps: Steps(
+                        Step($"Open {title}", "navigate", url: url),
+                        Step($"Enter {checking} into {label}", "fill", target: locator, value: value),
+                        SubmitStep(submit),
+                        StepWithAssertion("Confirm the application did not break", "assertNoConsoleErrors", null,
+                            Assertion("noConsoleErrors", null, null,
+                                "No unhandled error was raised by the boundary value."))));
+            }
+
+            // Whitespace is its own case: a field that trims is correct, a field that
+            // accepts "   " as a name is not, and the two are indistinguishable without it.
+            yield return Scenario(
+                name: $"{label} does not accept whitespace alone on {title}",
+                objective: $"{label} treats a value of only spaces as empty rather than as content.",
+                category: "negative",
+                priority: "low",
+                route: route,
+                requiresSignIn: requiresSignIn,
+                expected: $"{label} is refused, the same as if it had been left empty.",
+                tags: new[] { "validation", "whitespace", Slug(route) },
+                steps: Steps(
+                    Step($"Open {title}", "navigate", url: url),
+                    Step($"Enter three spaces into {label}", "fill", target: locator, value: "   "),
+                    SubmitStep(submit),
+                    StepWithAssertion("Confirm the value was refused", "assertUrl", null,
+                        Assertion("urlContains", null, route,
+                            $"The user stays on {title} because {label} held no real content."))));
+        }
+
+        // Selects: the default, and each option, because an option that errors when chosen
+        // is a defect nobody finds by only ever leaving the default.
+        foreach (var select in elements.Where(e => LocalJson.String(e, "kind") == "select"))
+        {
+            var label = LabelOf(select);
+            yield return Scenario(
+                name: $"{label} can be changed on {title}",
+                objective: $"Choosing a different option in {label} is accepted and reflected.",
+                category: "positive",
+                priority: "medium",
+                route: route,
+                requiresSignIn: requiresSignIn,
+                expected: $"{label} shows the chosen option and the page does not error.",
+                tags: new[] { "ui", "select", Slug(route) },
+                steps: Steps(
+                    Step($"Open {title}", "navigate", url: url),
+                    Step($"Choose a different option in {label}", "select", target: Locator(select)),
+                    StepWithAssertion("Confirm the page did not error", "assertNoConsoleErrors", null,
+                        Assertion("noConsoleErrors", null, null,
+                            $"Changing {label} raised no unhandled error."))));
+        }
+
+        foreach (var checkbox in elements.Where(e =>
+                     LocalJson.String(e, "kind") is "checkbox" or "radio"))
+        {
+            var label = LabelOf(checkbox);
+            yield return Scenario(
+                name: $"{label} can be toggled on {title}",
+                objective: $"{label} responds to being toggled and holds its state.",
+                category: "positive",
+                priority: "low",
+                route: route,
+                requiresSignIn: requiresSignIn,
+                expected: $"{label} reflects the new state.",
+                tags: new[] { "ui", "toggle", Slug(route) },
+                steps: Steps(
+                    Step($"Open {title}", "navigate", url: url),
+                    Step($"Toggle {label}", "click", target: Locator(checkbox)),
+                    StepWithAssertion($"Confirm {label} changed state", "assertVisible", Locator(checkbox),
+                        Assertion("visible", Locator(checkbox), null,
+                            $"{label} is still present after being toggled."))));
+        }
+
+        // Every page gets an accessibility baseline. This is a deterministic engine check,
+        // not a judgement, and it is the kind of coverage that is cheap to run and
+        // expensive to retrofit.
+        yield return Scenario(
+            name: $"{title} has no critical accessibility violations",
+            objective: $"{title} passes the automated accessibility rules that can be checked "
+                     + "without a human.",
+            category: "accessibility",
+            priority: "medium",
+            route: route,
+            requiresSignIn: requiresSignIn,
+            expected: "No critical or serious violation is reported. "
+                    + "Automated rules cover a part of accessibility, not all of it.",
+            tags: new[] { "accessibility", Slug(route) },
+            steps: Steps(
+                Step($"Open {title}", "navigate", url: url),
+                StepWithAssertion("Run the accessibility rules", "assertAccessible", null,
+                    Assertion("accessible", null, "critical",
+                        "No critical or serious accessibility violation on this page."))));
+
+        // And one that the page loads without the browser complaining. Console errors are
+        // the cheapest real signal an application gives, and nothing else was checking them.
+        yield return Scenario(
+            name: $"{title} loads without console errors",
+            objective: $"Opening {title} raises no JavaScript error.",
+            category: "positive",
+            priority: "medium",
+            route: route,
+            requiresSignIn: requiresSignIn,
+            expected: "The page loads and the browser console reports no error.",
+            tags: new[] { "smoke", "console", Slug(route) },
+            steps: Steps(
+                Step($"Open {title}", "navigate", url: url),
+                StepWithAssertion("Confirm the console is clean", "assertNoConsoleErrors", null,
+                    Assertion("noConsoleErrors", null, null,
+                        $"{title} raised no unhandled JavaScript error while loading."))));
+    }
+
+    /// <summary>A submit step, or a no-op description when the page has no button to press.</summary>
+    private static object SubmitStep(JsonElement? submit)
+        => submit is null
+            ? Step("Move focus away from the field to trigger validation", "blur")
+            : Step("Submit", "click", target: Locator(submit.Value));
+
+    private static object[] Steps(params object[] steps) => steps;
+
+    /// <summary>One scenario, in the shape the test_plan schema expects.</summary>
+    private static object Scenario(
+        string name, string objective, string category, string priority, string route,
+        bool requiresSignIn, string expected, string[] tags, object[] steps)
+        => new
+        {
+            name = Truncate(name, 200),
+            objective = Truncate(objective, 500),
+            category,
+            priority,
+            risk = priority,
+            preconditions = requiresSignIn ? "The customer is signed in." : "None.",
+            expectedResults = Truncate(expected, 500),
+            tags,
+            testData = new Dictionary<string, string>(),
+            steps
+        };
 
     // ---- Building blocks ----------------------------------------------------
 
