@@ -27,12 +27,30 @@ const AUTH_STRATEGY_LABELS: Record<string, string> = {
   basicAuth: 'HTTP basic'
 };
 
+interface ApplicationDetail {
+  id: string; name: string; baseUrl: string; description: string;
+  allowedDomains: string; excludedPaths: string;
+  maxCrawlDepth: number; maxPages: number;
+  respectRobotsTxt: boolean; interactionMode: string;
+  authStrategy: string; loginUrl?: string | null; hasCredentials: boolean;
+}
+
 export default function ApplicationsPage() {
   const { can } = useAuth();
   const { projectId, project } = useProject();
+  // The id being edited, or null. An application could be created with credentials and
+  // then never changed: the API has always accepted a PATCH for every field, and the
+  // console offered one toggle. Somebody who registered an application before knowing its
+  // login had to delete it and start again.
+  const [editingId, setEditingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
-  const panel = useDisclosedPanel('add-application', adding, () => { setAdding(false); setError(null); });
+  // Told about both states: the panel is the same element whether it is adding or editing,
+  // so Escape and focus restore have to cover both or they silently stop working on edit.
+  const panel = useDisclosedPanel(
+    'add-application',
+    adding || editingId !== null,
+    () => { setAdding(false); setEditingId(null); setError(null); });
   const [error, setError] = useState<unknown>(null);
 
   const { data: applications = [], isLoading, refetch } = useQuery({
@@ -64,6 +82,25 @@ export default function ApplicationsPage() {
     onError: setError
   });
 
+  // The summary does not carry the crawl boundary, budgets or login URL, so an edit has to
+  // read the detail. Credentials are deliberately absent from it: they are write-only.
+  const { data: editing } = useQuery({
+    queryKey: ['application-detail', editingId],
+    queryFn: () => apiRequest<ApplicationDetail>(`/api/v1/applications/${editingId}`),
+    enabled: Boolean(editingId)
+  });
+
+  const update = useMutation({
+    mutationFn: ({ id, body }: { id: string; body: unknown }) =>
+      apiRequest(`/api/v1/applications/${id}`, { method: 'PATCH', body }),
+    onSuccess: async () => {
+      setError(null);
+      setEditingId(null);
+      await queryClient.invalidateQueries({ queryKey: ['applications'] });
+    },
+    onError: setError
+  });
+
   const startDiscovery = useMutation({
     mutationFn: (applicationId: string) =>
       apiRequest('/api/v1/discovery/runs', { method: 'POST', body: { applicationId } }),
@@ -74,7 +111,14 @@ export default function ApplicationsPage() {
     onError: setError
   });
 
-  const handleCreate = (event: FormEvent<HTMLFormElement>) => {
+  /**
+   * Builds the payload for both create and edit.
+   *
+   * On an edit the credential fields are left blank unless the user is replacing them:
+   * credentials are write-only, so the form cannot show what is stored, and sending empty
+   * strings would wipe a working login the moment somebody edited the page budget.
+   */
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const username = String(form.get('username') ?? '');
@@ -93,8 +137,7 @@ export default function ApplicationsPage() {
       return typed === '' ? fallback : Number(typed);
     };
 
-    create.mutate({
-      projectId,
+    const body = {
       name: String(form.get('name') ?? ''),
       baseUrl: String(form.get('baseUrl') ?? ''),
       description: String(form.get('description') ?? ''),
@@ -112,10 +155,16 @@ export default function ApplicationsPage() {
         ? JSON.stringify({ successUrlContains: String(form.get('successUrlContains')) })
         : null,
       // Credentials are write-only: they are encrypted on arrival and never returned.
+      // Credentials are write-only: they are encrypted on arrival and never returned.
+      // null means "leave whatever is stored alone", which is the only safe reading of an
+      // empty field on an edit.
       credentials: authStrategy === 'formLogin' && (username || password)
         ? { username, password, bearerToken: null, storageStateJson: null }
         : null
-    });
+    };
+
+    if (editingId) update.mutate({ id: editingId, body });
+    else create.mutate({ ...body, projectId });
   };
 
   if (!projectId) {
@@ -147,49 +196,67 @@ export default function ApplicationsPage() {
         )}
       />
 
-      {adding && (
-        <Card title="Add an application" {...panel.panelProps}
-              description="Discovery will stay inside the allowed domains and budgets you set here."
+      {(adding || editingId) && (
+        <Card title={editingId ? `Edit ${editing?.name ?? 'application'}` : 'Add an application'}
+              {...panel.panelProps}
+              description={editingId
+                ? 'Changing the login or the crawl boundary takes effect on the next discovery run.'
+                : 'Discovery will stay inside the allowed domains and budgets you set here.'}
               className="mb-4">
-          <form onSubmit={handleCreate} className="grid gap-3.5 sm:grid-cols-2">
+          {editingId && !editing ? (
+            // The fields use defaultValue, which only applies when the input mounts. Showing
+            // the form before the detail arrives would fill it with create-defaults and then
+            // leave them there, so somebody saving immediately would overwrite their real
+            // crawl boundary and budgets with values they never typed.
+            <Spinner label="Loading the application" />
+          ) : (
+          /* Keyed so switching between add and edit re-applies the defaults rather than
+             leaving the previous application's values in the fields. */
+          <form key={editingId ?? 'new'} onSubmit={handleSubmit}
+                className="grid gap-3.5 sm:grid-cols-2">
             <div>
               <label className="label" htmlFor="app-name">Name</label>
-              <input id="app-name" name="name" required className="input" placeholder="Demo Bank" />
+              <input id="app-name" name="name" required className="input" placeholder="Demo Bank"
+                     defaultValue={editing?.name ?? ''} />
             </div>
             <div>
               <label className="label" htmlFor="baseUrl">Base URL</label>
               <input id="baseUrl" name="baseUrl" type="url" required className="input"
-                     placeholder="http://localhost:4200/dashboard" />
+                     placeholder="http://localhost:4200/dashboard"
+                     defaultValue={editing?.baseUrl ?? ''} />
               <p className="mt-1 text-xs text-ink-muted">Where discovery starts once signed in.</p>
             </div>
             <div className="sm:col-span-2">
               <label className="label" htmlFor="description">Description</label>
-              <input id="description" name="description" className="input" />
+              <input id="description" name="description" className="input"
+                     defaultValue={editing?.description ?? ''} />
             </div>
             <div>
               <label className="label" htmlFor="allowedDomains">Additional allowed domains</label>
-              <input id="allowedDomains" name="allowedDomains" className="input" placeholder="cdn.example.com" />
+              <input id="allowedDomains" name="allowedDomains" className="input" placeholder="cdn.example.com"
+                     defaultValue={editing?.allowedDomains ?? ''} />
               <p className="mt-1 text-xs text-ink-muted">Comma-separated. The base URL's host is always allowed.</p>
             </div>
             <div>
               <label className="label" htmlFor="excludedPaths">Excluded paths</label>
               <input id="excludedPaths" name="excludedPaths" className="input"
-                     defaultValue="/logout,/signout,/delete" />
+                     defaultValue={editing?.excludedPaths ?? '/logout,/signout,/delete'} />
               <p className="mt-1 text-xs text-ink-muted">Paths the crawler must never open.</p>
             </div>
             <div>
               <label className="label" htmlFor="maxCrawlDepth">Crawl depth</label>
               <input id="maxCrawlDepth" name="maxCrawlDepth" type="number" min={1} max={10}
-                     defaultValue={3} className="input" />
+                     defaultValue={editing?.maxCrawlDepth ?? 3} className="input" />
             </div>
             <div>
               <label className="label" htmlFor="maxPages">Page budget</label>
               <input id="maxPages" name="maxPages" type="number" min={1} max={1000}
-                     defaultValue={50} className="input" />
+                     defaultValue={editing?.maxPages ?? 50} className="input" />
             </div>
             <div className="sm:col-span-2">
               <label className="label" htmlFor="interactionMode">How discovery explores</label>
-              <select id="interactionMode" name="interactionMode" className="input" defaultValue="links">
+              <select id="interactionMode" name="interactionMode" className="input"
+                      defaultValue={editing?.interactionMode ?? 'links'}>
                 <option value="links">Follow links only</option>
                 <option value="navigation">Also click navigation controls</option>
                 <option value="interactive">Click anything that does not look like it changes data</option>
@@ -203,7 +270,8 @@ export default function ApplicationsPage() {
             </div>
             <div className="sm:col-span-2">
               <label className="flex items-center gap-2 text-sm text-ink" htmlFor="respectRobotsTxt">
-                <input id="respectRobotsTxt" name="respectRobotsTxt" type="checkbox" defaultChecked />
+                <input id="respectRobotsTxt" name="respectRobotsTxt" type="checkbox"
+                       defaultChecked={editing?.respectRobotsTxt ?? true} />
                 Respect robots.txt
               </label>
               <p className="mt-1 text-xs text-ink-muted">
@@ -217,7 +285,8 @@ export default function ApplicationsPage() {
               <legend className="label">Authentication</legend>
               <div>
                 <label className="label" htmlFor="authStrategy">Strategy</label>
-                <select id="authStrategy" name="authStrategy" className="input" defaultValue="formLogin">
+                <select id="authStrategy" name="authStrategy" className="input"
+                        defaultValue={editing?.authStrategy ?? 'formLogin'}>
                   <option value="none">None — the application needs no sign-in</option>
                   <option value="formLogin">Form login</option>
                   <option value="bearerToken">Bearer token</option>
@@ -227,7 +296,8 @@ export default function ApplicationsPage() {
               <div>
                 <label className="label" htmlFor="loginUrl">Login URL</label>
                 <input id="loginUrl" name="loginUrl" type="url" className="input"
-                       placeholder="http://localhost:4200/login" />
+                       placeholder="http://localhost:4200/login"
+                       defaultValue={editing?.loginUrl ?? ''} />
               </div>
               <div>
                 <label className="label" htmlFor="username">Username</label>
@@ -238,6 +308,9 @@ export default function ApplicationsPage() {
                 <input id="password" name="password" type="password" className="input" autoComplete="off" />
                 <p className="mt-1 text-xs text-ink-muted">
                   Encrypted with AES-256-GCM on arrival. Never returned by the API, never written to evidence.
+                  {editing?.hasCredentials
+                    ? ' Credentials are already stored. Leave both fields blank to keep them.'
+                    : ''}
                 </p>
               </div>
               <div className="sm:col-span-2">
@@ -252,14 +325,19 @@ export default function ApplicationsPage() {
             {error !== null && <div className="sm:col-span-2"><ErrorNotice error={error} /></div>}
 
             <div className="sm:col-span-2 flex gap-2">
-              <button type="submit" className="btn-primary" disabled={create.isPending}>
-                {create.isPending ? 'Creating…' : 'Create application'}
+              <button type="submit" className="btn-primary"
+                      disabled={create.isPending || update.isPending}>
+                {editingId
+                  ? (update.isPending ? 'Saving…' : 'Save changes')
+                  : (create.isPending ? 'Creating…' : 'Create application')}
               </button>
-              <button type="button" className="btn-secondary" onClick={() => { setAdding(false); setError(null); }}>
+              <button type="button" className="btn-secondary"
+                      onClick={() => { setAdding(false); setEditingId(null); setError(null); }}>
                 Cancel
               </button>
             </div>
           </form>
+          )}
         </Card>
       )}
 
@@ -317,6 +395,21 @@ export default function ApplicationsPage() {
                     onClick={() => startDiscovery.mutate(application.id)}
                   >
                     {startDiscovery.isPending ? 'Starting…' : 'Run discovery'}
+                  </button>
+                )}
+                {can(Permissions.applicationWrite) && (
+                  <button
+                    type="button"
+                    className="btn-secondary btn-sm"
+                    data-testid={`edit-${application.id}`}
+                    onClick={() => {
+                      setEditingId(application.id);
+                      setAdding(false);
+                      setError(null);
+                    }}
+                    {...panel.triggerProps}
+                  >
+                    Edit
                   </button>
                 )}
                 {application.pageCount > 0 && (

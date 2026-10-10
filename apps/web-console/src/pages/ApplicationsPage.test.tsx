@@ -341,3 +341,116 @@ describe('the robots.txt setting on an application card', () => {
     expect(screen.queryByLabelText('Respect robots.txt')).not.toBeInTheDocument();
   });
 });
+
+
+/**
+ * An application could be created and then never changed. The API has always accepted a
+ * PATCH for every field; the console offered exactly one toggle, for robots.txt. So
+ * somebody who registered an application before knowing its login had to delete it and
+ * start again — which is how a user ended up with discovery reaching one page, the login
+ * screen, and no way to give it credentials.
+ */
+describe('editing an application', () => {
+  // Each describe in this file resets these itself: permissions is module-level state and
+  // an earlier test empties it to check the button hides. Without this the edit button is
+  // simply absent and the failure looks like the button was never added.
+  beforeEach(() => {
+    permissions.current = new Set(['application:write', 'discovery:run']);
+    apiRequest.mockReset();
+  });
+
+  const detail = (overrides: Record<string, unknown> = {}) => ({
+    id: 'app-1', name: 'Public Site', baseUrl: 'https://site.example.test/',
+    description: 'A site', allowedDomains: 'cdn.example.test',
+    excludedPaths: '/logout,/signout,/delete',
+    maxCrawlDepth: 4, maxPages: 120,
+    respectRobotsTxt: true, interactionMode: 'navigation',
+    authStrategy: 'formLogin', loginUrl: 'https://site.example.test/login',
+    hasCredentials: true, ...overrides
+  });
+
+  const openEditor = async () => {
+    apiRequest.mockImplementation((path: string) => {
+      if (path === '/api/v1/applications/app-1') return Promise.resolve(detail());
+      if (String(path).startsWith('/api/v1/applications')) return Promise.resolve([application(true)]);
+      return Promise.resolve([]);
+    });
+
+    renderPage();
+    const user = userEvent.setup();
+    await user.click(await screen.findByTestId('edit-app-1'));
+    await waitFor(() => expect(screen.getByLabelText(/^Name/)).toHaveValue('Public Site'));
+    return user;
+  };
+
+  const patchBody = () => {
+    const call = apiRequest.mock.calls.find(
+      ([, options]) => (options as { method?: string } | undefined)?.method === 'PATCH');
+    return (call?.[1] as { body: Record<string, unknown> } | undefined)?.body;
+  };
+
+  test('loads the stored settings rather than the create defaults', async () => {
+    await openEditor();
+
+    expect(screen.getByLabelText(/Base URL/)).toHaveValue('https://site.example.test/');
+    expect(screen.getByLabelText(/Excluded paths/i)).toHaveValue('/logout,/signout,/delete');
+    expect(screen.getByLabelText(/Page budget/)).toHaveValue(120);
+    expect(screen.getByLabelText(/How discovery explores/)).toHaveValue('navigation');
+    expect(screen.getByLabelText(/Login URL/)).toHaveValue('https://site.example.test/login');
+  });
+
+  test('says credentials are stored, since the form cannot show them', async () => {
+    await openEditor();
+    expect(screen.getByText(/Credentials are already stored/)).toBeInTheDocument();
+  });
+
+  test('leaving the credential fields blank does not wipe the stored login', async () => {
+    const user = await openEditor();
+
+    await user.clear(screen.getByLabelText(/Page budget/));
+    await user.type(screen.getByLabelText(/Page budget/), '200');
+    await user.click(screen.getByRole('button', { name: /Save changes/ }));
+
+    await waitFor(() => expect(patchBody()).toBeDefined());
+    // null means "leave what is stored alone". Sending empty strings would destroy a
+    // working login the moment somebody edited an unrelated field.
+    expect(patchBody()!.credentials).toBeNull();
+    expect(patchBody()!.maxPages).toBe(200);
+  });
+
+  test('typing a new password replaces the stored credentials', async () => {
+    const user = await openEditor();
+
+    await user.type(screen.getByLabelText(/^Username/), 'qa@example.test');
+    await user.type(screen.getByLabelText(/^Password/), 'a-new-secret');
+    await user.click(screen.getByRole('button', { name: /Save changes/ }));
+
+    await waitFor(() => expect(patchBody()).toBeDefined());
+    const credentials = patchBody()!.credentials as { username: string; password: string };
+    expect(credentials.username).toBe('qa@example.test');
+    expect(credentials.password).toBe('a-new-secret');
+  });
+
+  test('an edit patches rather than creating a second application', async () => {
+    const user = await openEditor();
+
+    await user.click(screen.getByRole('button', { name: /Save changes/ }));
+
+    await waitFor(() => expect(patchBody()).toBeDefined());
+    const posted = apiRequest.mock.calls.find(
+      ([, options]) => (options as { method?: string } | undefined)?.method === 'POST');
+    expect(posted).toBeUndefined();
+    // projectId belongs to a create. Sending it on a PATCH would invite moving an
+    // application between projects by accident.
+    expect(patchBody()).not.toHaveProperty('projectId');
+  });
+
+  test('cancelling an edit leaves the application alone', async () => {
+    const user = await openEditor();
+
+    await user.click(screen.getByRole('button', { name: /^Cancel$/ }));
+
+    await waitFor(() => expect(screen.queryByTestId('scope-form')).not.toBeInTheDocument());
+    expect(patchBody()).toBeUndefined();
+  });
+});
