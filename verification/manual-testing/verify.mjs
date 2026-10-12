@@ -575,9 +575,9 @@ function renderReport({ final, totals }) {
     const ids = verifiedBy[c.category] ?? [];
     const verified = ids.length === 0 ? 'human / journeys' : ids.every(id => status(id) === 'PASS') ? `yes (${ids.join(', ')})` : `no (${ids.filter(id => status(id) !== 'PASS').join(', ')})`;
     const automation = taxonomy.categories.find(x => x.key === c.category)?.automation;
-    return `| ${label[c.category] ?? c.category} | ${automation} | ${c.generated} | ${c.executed} | ${c.passed} | ${c.failed} | ${c.coveragePercent === null ? 'N/A' : `${c.coveragePercent}%`} | ${verified} |`;
+    return `| ${label[c.category] ?? c.category} | ${automation} | ${c.generated} | ${c.executed} | ${c.passed} | ${c.failed} | ${c.coveragePercent == null ? 'N/A' : `${c.coveragePercent}%`} | ${verified} |`;
   });
-  const formRows = final.forms.map(f => `| ${f.name} (\`${f.route}\`) | ${f.fields} | ${f.generated} | ${f.executed} | ${f.passed} | ${f.failed} | ${f.coveragePercent === null ? 'not measured' : `${f.coveragePercent}%`} | ${f.gaps} | ${f.humanTasksOpen}/${f.humanTasks} |`);
+  const formRows = final.forms.map(f => `| ${f.name} (\`${f.route}\`) | ${f.fields} | ${f.generated} | ${f.executed} | ${f.passed} | ${f.failed} | ${f.coveragePercent == null ? 'not measured' : `${f.coveragePercent}%`} | ${f.gaps} | ${f.humanTasksOpen}/${f.humanTasks} |`);
   const defectRows = [...detected.values()].map(d => `| ${d.defect.id} | \`${d.form}\` | ${d.defect.description} | ${d.defect.detectedBy.join(', ')} | ${d.hits.length ? `detected by ${d.hits.length} test(s): ${d.hits.slice(0, 3).map(h => h.reference).join(', ')}${d.hits.length > 3 ? '…' : ''}` : '**missed**'} |`);
   const gapGroups = {};
   for (const g of final.gaps) (gapGroups[g.status] ??= []).push(g);

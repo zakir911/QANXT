@@ -62,9 +62,9 @@ names the checks in this run that prove the category does what it says.
 | Browser compatibility | automated | 57 | 19 | 19 | 0 | 33.3% | yes (EXEC-002, COMP-CHROMIUM) |
 | Responsive | automated | 60 | 60 | 58 | 2 | 100% | yes (FAIL-001) |
 | Visual | automated | 59 | 59 | 59 | 0 | 100% | yes (GEN-003) |
-| Usability | partial | 0 | 0 | 0 | 0 | undefined% | yes (HUM-001) |
+| Usability | partial | 0 | 0 | 0 | 0 | N/A | yes (HUM-001) |
 | Exploratory | automated | 63 | 63 | 62 | 1 | 100% | yes (FAIL-001) |
-| Data integrity | human | 0 | 0 | 0 | 0 | undefined% | yes (HUM-001) |
+| Data integrity | human | 0 | 0 | 0 | 0 | N/A | yes (HUM-001) |
 | State transitions | automated | 53 | 53 | 53 | 0 | 100% | yes (GEN-003) |
 | Error handling | automated | 55 | 55 | 55 | 0 | 73.3% | yes (FAIL-001) |
 | Reliability and duplicates | automated | 54 | 54 | 53 | 1 | 100% | yes (FAIL-001) |
