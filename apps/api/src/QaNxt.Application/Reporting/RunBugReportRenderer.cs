@@ -174,6 +174,7 @@ public static class RunBugReportRenderer
             .Append("<div class=\"actual\"><h3>Actual</h3><p>").Append(E(bug.Actual)).Append("</p></div></div>");
 
         html.Append($"<div class=\"hint\"><h3>Where to look</h3><p>{E(bug.WhereToLook)}</p></div>");
+        if (bug.PageText is not null) html.Append("<h3>What the page showed</h3><pre class=\"page\">").Append(E(bug.PageText)).Append("</pre>");
 
         if (bug.Screenshots.Count > 0)
         {
@@ -228,7 +229,7 @@ public static class RunBugReportRenderer
 
         if (bug.AffectedTests.Count > 0)
         {
-            html.Append($"<h3>Affected tests ({bug.AffectedTests.Count})</h3><table><thead><tr><th>Test</th><th>Field / technique</th><th>Result</th></tr></thead><tbody>");
+            html.Append($"<h3>Affected tests ({bug.AffectedTests.Count})</h3><table class=\"affected\"><thead><tr><th>Test</th><th>Field / technique</th><th>Result</th></tr></thead><tbody>");
             foreach (var test in bug.AffectedTests)
                 html.Append($"<tr><td><strong>{E(test.Reference)}</strong><br>{E(test.Name)}</td><td>{E(test.Field ?? "—")}<br><span class=\"muted\">{E(test.Technique ?? string.Empty)}</span></td><td>{E(test.Actual)}</td></tr>");
             html.Append("</tbody></table>");
@@ -299,6 +300,7 @@ public static class RunBugReportRenderer
             md.AppendLine().AppendLine("### Expected").AppendLine().AppendLine(bug.Expected);
             md.AppendLine().AppendLine("### Actual").AppendLine().AppendLine(bug.Actual);
             md.AppendLine().AppendLine("### Where to look").AppendLine().AppendLine(bug.WhereToLook);
+            if (bug.PageText is not null) md.AppendLine().AppendLine("### What the page showed").AppendLine().AppendLine("```").AppendLine(bug.PageText).AppendLine("```");
             if (bug.Screenshots.Count > 0)
             {
                 md.AppendLine().AppendLine("### Screenshots").AppendLine();
@@ -531,6 +533,7 @@ ol.steps{padding-left:22px}ol.steps li{margin:4px 0}ol.steps li.failed{backgroun
 pre{background:#0f1420;color:#e6e9ef;border-radius:8px;padding:12px 14px;overflow-x:auto;font-size:12.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;max-height:420px}
 details{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:8px 0}summary{cursor:pointer}.label{margin:8px 0 4px;font-size:12px;color:var(--muted);text-transform:uppercase}
 code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em}.muted{color:var(--muted)}.bad{color:var(--bad)}.good{color:var(--good)}
+.affected th:nth-child(1){width:28%}.affected th:nth-child(2){width:18%}pre.page{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
 .aside{border-top:1px solid var(--line);padding-top:18px}footer{margin-top:40px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:14px}
 @media (max-width:720px){.compare{grid-template-columns:1fr}.bug{padding:16px}}
 @media print{main{max-width:none;padding:0}pre{max-height:none}details{break-inside:avoid}details:not([open])>*:not(summary){display:none}a{color:inherit}}

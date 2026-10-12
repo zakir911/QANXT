@@ -31,7 +31,7 @@ public class RunBugReportRendererTests
             "Application defect", 70, "Shop", pageUrl, "Create an account", "age", "POST /register", "Chromium", "141.0", "1440x900 (default)",
             DateTimeOffset.Parse("2026-10-12T10:01:00Z"), 2, null, "Found by TC-0001.", steps,
             new Dictionary<string, string> { ["age"] = "17", ["notes"] = new string('L', 5000) },
-            "The form is refused.", actual, steps[2], "Add the validation to the server.",
+            "The form is refused.", actual, steps[2], "500 Internal Server Error\nat handler (server.js:10:5)", "Add the validation to the server.",
             new[] { new ReportExchange("POST", "http://app.test/register", 200, 120, "content-type: application/x-www-form-urlencoded", "age=17", response, null) },
             "curl -i -X POST 'http://app.test/register'", Array.Empty<ReportConsoleLine>(), Array.Empty<ReportA11yViolation>(),
             new[] { Shot("step-3-failure.png", "The page when step 3 failed"), Shot("step-3-failure.png", "TC-0002: The page when step 3 failed") },
@@ -56,6 +56,7 @@ public class RunBugReportRendererTests
             .And.Contain("Steps to reproduce").And.Contain("Where to look").And.Contain("Verify the fix")
             .And.Contain("Failures that are not product bugs").And.Contain("TC-0009");
         html.Should().Contain("data:image/png;base64,");
+        html.Should().Contain("What the page showed").And.Contain("at handler (server.js:10:5)");
         html.Should().NotContain("src=\"http", "nothing is loaded from outside the file");
         html.Should().Contain("&quot;L&quot; &#215; 5000", "a 5000-character value is described, not printed");
         html.Should().Contain("alt=\"TC-0002: The page when step 3 failed\"");
@@ -89,6 +90,15 @@ public class RunBugReportRendererTests
     }
 
     [Fact]
+    public void The_text_a_page_showed_is_read_without_its_markup_scripts_or_styles()
+    {
+        var text = RunBugReportService.VisibleText(
+            "<html><head><title>x</title><style>p{}</style></head><body><h1>500 Internal Server Error</h1><script>var s=1</script>"
+            + "<pre>Error: boom\n    at handler (server.js:10:5)</pre><p>Tom &amp; Jerry</p></body></html>");
+        text.Should().Be("500 Internal Server Error\nError: boom\nat handler (server.js:10:5)\nTom & Jerry");
+    }
+
+    [Fact]
     public void A_request_is_replayed_with_its_body_and_quotes_escaped()
     {
         var curl = RunBugReportService.Curl(new NetworkEvent
@@ -101,5 +111,21 @@ public class RunBugReportRendererTests
         curl.Should().Contain("-H 'Content-Type: application/x-www-form-urlencoded'");
         curl.Should().Contain("O'\\''Brien", "a single quote cannot end the shell argument early");
         curl.Should().NotContain("hunter22", "a password in the body is masked");
+    }
+
+    [Fact]
+    public void An_anti_forgery_token_is_masked_in_a_replayed_request()
+    {
+        var curl = RunBugReportService.Curl(new NetworkEvent
+        {
+            Method = "POST", Url = "http://app.test/contact", RequestBodyExcerpt = "_csrf=fl-csrf-7c1e9a&subject=Hello&message=null"
+        })!;
+        curl.Should().Contain("_csrf=***REDACTED***&subject=Hello&message=null");
+
+        var json = RunBugReportService.Curl(new NetworkEvent
+        {
+            Method = "POST", Url = "http://app.test/api", RequestBodyExcerpt = "{\"csrfToken\":\"abc123\",\"name\":\"x\"}"
+        })!;
+        json.Should().NotContain("abc123").And.Contain("\"name\":\"x\"");
     }
 }

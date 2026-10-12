@@ -207,6 +207,7 @@ public sealed class RunBugReportService : IRunBugReportService
                     .Where(s => screenshots.All(existing => existing.StorageKey != s.StorageKey)).Take(1));
             }
 
+            var pageText = await PageTextAsync(artifacts.GetValueOrDefault(execution.Id), failing, ct);
             var actual = Masked(failure?.RawMessage ?? failing?.ErrorMessage ?? execution.ErrorMessage ?? "The test failed.");
             var category = testCase.Category is { } c ? TestingTaxonomy.All.FirstOrDefault(t => t.Category == c)?.Name : null;
             var title = defect?.Title ?? $"{(form is null ? string.Empty : form.Name + ": ")}{FirstSentence(actual)}";
@@ -232,6 +233,7 @@ public sealed class RunBugReportService : IRunBugReportService
                 Expected: string.IsNullOrWhiteSpace(testCase.ExpectedResults) ? defect?.ExpectedBehaviour ?? "(not recorded)" : testCase.ExpectedResults,
                 Actual: actual,
                 FailingStep: failingStep,
+                PageText: pageText,
                 WhereToLook: WhereToLook(failing, failure, testCase, form?.Name, serverError, actual),
                 Exchanges: exchanges,
                 Curl: Curl(serverError ?? executionNetwork.FirstOrDefault(n => n.Method != "GET" && n.ResourceType is "xhr" or "fetch" or "document")
@@ -280,6 +282,45 @@ public sealed class RunBugReportService : IRunBugReportService
     }
 
     // ---- Pieces -----------------------------------------------------------------------
+
+    private const int MaxPageSnapshotBytes = 512 * 1024;
+    private const int MaxPageTextChars = 3000;
+
+    /// <summary>The visible text of the page when the step failed, read from the DOM snapshot
+    /// the worker took (already masked). A server's error page, a validation message or a
+    /// stack trace the application printed is often the fastest clue there is.</summary>
+    private async Task<string?> PageTextAsync(List<Artifact>? artifacts, TestAction? failing, CancellationToken ct)
+    {
+        var snapshot = artifacts?.Where(a => a.Kind == ArtifactKind.DomSnapshot && (failing is null || a.TestActionId == failing.Id))
+            .OrderByDescending(a => a.CreatedAt).FirstOrDefault();
+        if (snapshot is null || snapshot.SizeBytes > MaxPageSnapshotBytes) return null;
+        try
+        {
+            await using var stream = await _store.GetAsync(snapshot.StorageKey, ct);
+            if (stream is null) return null;
+            using var reader = new StreamReader(stream);
+            var text = VisibleText(await reader.ReadToEndAsync(ct));
+            if (text.Length == 0) return null;
+            return Masked(text.Length > MaxPageTextChars ? text[..MaxPageTextChars] + "…" : text);
+        }
+        catch (IOException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>Text a person would see: scripts, styles and tags removed, entities decoded,
+    /// blank runs collapsed, line structure kept.</summary>
+    public static string VisibleText(string html)
+    {
+        var text = Regex.Replace(html, @"<(script|style|noscript|template|head)\b[^>]*>.*?</\1\s*>", " ", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        text = Regex.Replace(text, @"<!--.*?-->", " ", RegexOptions.Singleline);
+        text = Regex.Replace(text, @"<(br|/p|/div|/li|/tr|/h[1-6]|/pre|/label|/section|/form|/table|/ul|/ol)\b[^>]*>", "\n", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, @"<[^>]+>", " ");
+        text = System.Net.WebUtility.HtmlDecode(text);
+        var lines = text.Split('\n').Select(l => Regex.Replace(l, @"[ \t\r\f\v]+", " ").Trim()).Where(l => l.Length > 0);
+        return string.Join("\n", lines);
+    }
 
     /// <summary>The failing test a bug is shown with: the most important one, so the report
     /// leads with the clearest reproduction.</summary>
@@ -367,7 +408,7 @@ public sealed class RunBugReportService : IRunBugReportService
             .Take(MaxExchangesPerBug)
             .Select(n => new ReportExchange(n.Method, masker.MaskText(n.Url), n.StatusCode, n.DurationMs,
                 Headers(n.RequestHeadersJson, masker),
-                n.RequestBodyExcerpt is null ? null : masker.MaskJson(n.RequestBodyExcerpt),
+                n.RequestBodyExcerpt is null ? null : MaskSessionFields(masker.MaskJson(n.RequestBodyExcerpt)),
                 n.ResponseBodyExcerpt is null ? null : masker.MaskJson(n.ResponseBodyExcerpt),
                 n.FailureText)).ToList();
     }
@@ -415,10 +456,19 @@ public sealed class RunBugReportService : IRunBugReportService
             if (contentType.StartsWith("multipart/", StringComparison.OrdinalIgnoreCase))
                 return string.Join(" \\\n  ", lines) + "\n# The request was a file upload (multipart); repeat it with -F field=@file for each part shown under the request.";
             lines.Add($"-H {Quote("Content-Type: " + contentType)}");
-            lines.Add($"--data-raw {Quote(masker.MaskJson(body))}");
+            lines.Add($"--data-raw {Quote(MaskSessionFields(masker.MaskJson(body)))}");
         }
         return string.Join(" \\\n  ", lines);
     }
+
+    /// <summary>Anti-forgery tokens belong to the tester's session; a report shared beyond the
+    /// team must not carry one, and a replay needs a fresh one anyway.</summary>
+    internal static string MaskSessionFields(string body)
+        => SessionField().Replace(body, m => $"{m.Groups[1].Value}{m.Groups[2].Value}{SecretMasker.Redacted}");
+
+    private static Regex SessionField() => new(
+        @"((?:^|[&""\s{,])[""]?(?:_?csrf[\w-]*|_?xsrf[\w-]*|authenticity_token|__RequestVerificationToken|_token)[""]?)(\s*[=:]\s*[""]?)([^&""\s,}]+)",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static List<ReportA11yViolation> Accessibility(string? json)
     {

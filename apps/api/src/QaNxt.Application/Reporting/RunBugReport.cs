@@ -38,6 +38,7 @@ public sealed record ReportBug(
     IReadOnlyDictionary<string, string>? TestData,
     string Expected, string Actual,
     ReportStep? FailingStep,
+    string? PageText,
     string WhereToLook,
     IReadOnlyList<ReportExchange> Exchanges,
     string? Curl,
