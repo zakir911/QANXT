@@ -26,6 +26,7 @@ public sealed class LlmProviderFactory : ILlmProviderFactory
 
     public ILlmProvider Resolve(LlmProviderKind preferred)
     {
+        if (_options.Disabled) return _providers[LlmProviderKind.Local];
         if (_providers.TryGetValue(preferred, out var provider) && provider.IsConfigured) return provider;
 
         if (preferred != LlmProviderKind.Local)
@@ -58,6 +59,8 @@ public sealed class LlmProviderFactory : ILlmProviderFactory
     private LlmProviderStatus Describe(LlmProviderKind kind, string name, string notes)
     {
         var provider = _providers.GetValueOrDefault(kind);
+        if (_options.Disabled && kind != LlmProviderKind.Local)
+            return new LlmProviderStatus(kind, name, false, provider?.DefaultModel ?? string.Empty, "Disabled: AI_DISABLED is set, so no hosted model is called.");
         return new LlmProviderStatus(kind, name, provider?.IsConfigured ?? false, provider?.DefaultModel ?? string.Empty, notes);
     }
 

@@ -51,6 +51,7 @@ async function submit(form, overrides = {}, { cookie = 'fl_session=s1', file } =
   }
   if (form.csrf !== false) values._csrf = CSRF;
   Object.assign(values, overrides);
+  if ('_csrf' in overrides && overrides._csrf === undefined) delete values._csrf;
   for (const [key, value] of Object.entries(values)) if (value === undefined) delete values[key];
 
   if (form.api) {
@@ -124,6 +125,30 @@ const started = Date.now();
 await submit(byId('slow-form'));
 check(Date.now() - started >= 3400, 'FL-D07 manifests: submission takes at least 3.4 s');
 
+// Every server-side defect can be fixed, and fixed means gone: the regression loop the
+// verification runs depends on it.
 await fetch(`${BASE}/__reset`, { method: 'POST' });
+const fix = await fetch(`${BASE}/__fix`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ all: true }) });
+check(fix.ok, 'all defects can be switched off');
+check((await submit(byId('registration'), { confirmPassword: 'Different-passphrase1' })).status === 422, 'FL-D01 fixed: mismatched confirmation refused');
+check((await submit(byId('validation'), { age: '17' })).status === 422, 'FL-D02 fixed: age 17 refused');
+check(!(await (await submit(byId('search'), { q: '<qanxt-probe></qanxt-probe>' })).text()).includes('<qanxt-probe>'), 'FL-D06 fixed: query encoded');
+check((await submit(byId('profile'), { displayName: '   ' })).status === 422, 'FL-D08 fixed: whitespace refused');
+check((await submit(byId('date-form'), { startDate: '2026-02-10', endDate: '2026-02-01' })).status === 422, 'FL-D09 fixed: reversed dates refused');
+check((await submit(byId('payment'), { _csrf: undefined })).status === 422, 'FL-D10 fixed: payment now requires its token');
+check((await submit(byId('payment'), { _csrf: CSRF })).status === 303, 'FL-D10 fixed: payment accepted with its token');
+check((await submit(byId('dynamic'), { accountType: 'Business' })).status === 422, 'FL-D12 fixed: company name required');
+check((await submit(byId('error-handling'), { message: 'null' })).status === 303, 'FL-D05 fixed: "null" handled');
+check((await submit(byId('session-expiry'), {}, { cookie: '' })).status === 401, 'FL-D13 fixed: expired session asks to sign in');
+const quick = Date.now();
+await submit(byId('slow-form'));
+check(Date.now() - quick < 2000, 'FL-D07 fixed: submission under 2 s');
+
+// A form can change shape, for impact selection.
+await fetch(`${BASE}/__change`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ forms: ['simple-form'] }) });
+check((await (await fetch(`${BASE}/simple-form`)).text()).includes('name="company"'), 'simple-form gains a field when changed');
+
+await fetch(`${BASE}/__reset`, { method: 'POST' });
+check(!(await (await fetch(`${BASE}/simple-form`)).text()).includes('name="company"'), 'reset restores the declared lab');
 console.log(failures === 0 ? '\nForm lab self-test passed.' : `\nForm lab self-test: ${failures} failure(s).`);
 process.exit(failures === 0 ? 0 : 1);

@@ -36,13 +36,14 @@ public sealed class ExecutionIngestService : IExecutionIngestService
     private readonly SecretMasker _masker;
     private readonly IExecutionEventPublisher _events;
     private readonly IFailureAnalysisService _failureAnalysis;
+    private readonly Diagnosis.IDefectService _defects;
     private readonly IQualityGateEvaluator _qualityGates;
     private readonly Applications.IApiContractService _contracts;
     private readonly Notifications.INotificationService _notifications;
     private readonly ILogger<ExecutionIngestService> _logger;
 
     public ExecutionIngestService(IQaNxtDbContext db, IClock clock, SecretMasker masker,
-        IExecutionEventPublisher events, IFailureAnalysisService failureAnalysis,
+        IExecutionEventPublisher events, IFailureAnalysisService failureAnalysis, Diagnosis.IDefectService defects,
         IQualityGateEvaluator qualityGates, Applications.IApiContractService contracts,
         Notifications.INotificationService notifications,
         ILogger<ExecutionIngestService> logger)
@@ -52,6 +53,7 @@ public sealed class ExecutionIngestService : IExecutionIngestService
         _masker = masker;
         _events = events;
         _failureAnalysis = failureAnalysis;
+        _defects = defects;
         _qualityGates = qualityGates;
         _contracts = contracts;
         _notifications = notifications;
@@ -148,6 +150,10 @@ public sealed class ExecutionIngestService : IExecutionIngestService
         if (completion.Status is ExecutionStatus.Failed or ExecutionStatus.Error)
         {
             failure = await _failureAnalysis.RecordFailureAsync(execution, run, completion, ct);
+            // Proposed, never asserted: the same symptom in the same place joins an existing
+            // defect, a new one proposes one. A test or environment problem proposes nothing.
+            try { await _defects.CorrelateAsync(failure, ct); }
+            catch (Exception ex) { _logger.LogError(ex, "Could not correlate failure {FailureId} with a defect", failure.Id); }
         }
 
         await UpdateRunTotalsAsync(run, ct);

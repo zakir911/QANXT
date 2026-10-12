@@ -25,6 +25,7 @@ public static class EnvironmentConfiguration
             ["PRODUCT_NAME"] = "Product:Name",
             ["PRODUCT_TAGLINE"] = "Product:Tagline",
             ["AI_DEFAULT_PROVIDER"] = "Ai:DefaultProvider",
+            ["AI_DISABLED"] = "Ai:Disabled",
             ["AI_CACHE_ENABLED"] = "Ai:CacheEnabled",
             ["AI_MAX_TOKENS_PER_REQUEST"] = "Ai:MaxTokensPerRequest",
             ["AI_MONTHLY_BUDGET_USD"] = "Ai:MonthlyBudgetUsd",

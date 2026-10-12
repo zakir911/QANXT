@@ -22,6 +22,11 @@ import AuditPage from './pages/AuditPage';
 import SecurityPage from './pages/SecurityPage';
 import VerificationPage from './pages/VerificationPage';
 import SettingsPage from './pages/SettingsPage';
+import TestingPage from './pages/TestingPage';
+import CoveragePage from './pages/CoveragePage';
+import RepositoryPage from './pages/RepositoryPage';
+import DefectsPage from './pages/DefectsPage';
+import HumanTasksPage from './pages/HumanTasksPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function RequireAuth({ children }: { children: JSX.Element }) {
@@ -53,6 +58,11 @@ export default function App() {
         <Route path="applications" element={<ApplicationsPage />} />
         <Route path="applications/:applicationId/graph" element={<ApplicationGraphPage />} />
         <Route path="discovery" element={<DiscoveryPage />} />
+        <Route path="testing" element={<TestingPage />} />
+        <Route path="coverage" element={<CoveragePage />} />
+        <Route path="repository" element={<RepositoryPage />} />
+        <Route path="defects" element={<DefectsPage />} />
+        <Route path="human-tasks" element={<HumanTasksPage />} />
         <Route path="tests" element={<TestCasesPage />} />
         <Route path="tests/:testCaseId" element={<TestCaseDetailPage />} />
         <Route path="runs" element={<TestRunsPage />} />

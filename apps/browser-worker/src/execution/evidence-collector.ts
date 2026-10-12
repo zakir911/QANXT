@@ -27,6 +27,8 @@ export class EvidenceCollector {
   private readonly requestStartedAt = new WeakMap<Request, number>();
   /** Responses still being recorded. An assertion about the network waits for them. */
   private readonly pending = new Set<Promise<void>>();
+  /** Document and API requests that have left and not yet finished or failed. */
+  private readonly inFlight = new Set<Request>();
 
   constructor(
     private readonly directory: string,
@@ -80,7 +82,10 @@ export class EvidenceCollector {
 
     page.on('request', (request: Request) => {
       this.requestStartedAt.set(request, Date.now());
+      if (['document', 'xhr', 'fetch'].includes(request.resourceType())) this.inFlight.add(request);
     });
+    page.on('requestfinished', (request: Request) => { this.inFlight.delete(request); });
+    page.on('requestfailed', (request: Request) => { this.inFlight.delete(request); });
 
     page.on('response', (response: Response) => {
       const recording = this.recordResponse(response).catch(error =>
@@ -277,9 +282,23 @@ export class EvidenceCollector {
     return artifact;
   }
 
-  /** Waits until every response seen so far has been recorded. */
-  async settle(): Promise<void> {
-    while (this.pending.size > 0) await Promise.allSettled([...this.pending]);
+  /**
+   * Waits until every request that has left has come back, and every response has been
+   * recorded — bounded, because a long-poll or a stream never finishes.
+   *
+   * The page's own "network idle" is not enough: it is a load state, reached once, and asking
+   * for it again after a submission resolves at once. An assertion about what a submission
+   * sent then ran while the submission was still in flight and counted nothing, which hid a
+   * real double submission behind a pass.
+   */
+  async settle(timeoutMs = 10_000): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    // A request a click has only just triggered may not have been issued yet.
+    await new Promise(resolve => setTimeout(resolve, 100));
+    while ((this.inFlight.size > 0 || this.pending.size > 0) && Date.now() < deadline) {
+      if (this.pending.size > 0) await Promise.race([Promise.allSettled([...this.pending]), new Promise(r => setTimeout(r, 200))]);
+      else await new Promise(resolve => setTimeout(resolve, 50));
+    }
   }
 
   getArtifacts(): ArtifactReport[] { return this.artifacts; }

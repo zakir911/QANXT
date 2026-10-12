@@ -128,10 +128,12 @@ export function extractForms(maxFields: number): RawForm[] {
         return !outer || !root.contains(outer);
       });
 
+  // A submit-type button submits, whatever it says: "Continue" on a one-page form is its
+  // submit control. Only a plain button is read as a wizard's Next or Previous by its label.
   const buttonRole = (label: string, type: string): RawFormButton['role'] => {
     const lower = label.toLowerCase();
-    if (/^(next|continue|forward)\b/.test(lower)) return 'next';
-    if (/^(previous|back|prev)\b/.test(lower)) return 'previous';
+    if (type !== 'submit' && /^(next|continue|forward)\b/.test(lower)) return 'next';
+    if (type !== 'submit' && /^(previous|back|prev)\b/.test(lower)) return 'previous';
     if (type === 'reset' || /^(reset|clear)\b/.test(lower)) return 'reset';
     if (/^(cancel|close)\b/.test(lower)) return 'cancel';
     if (type === 'submit') return 'submit';

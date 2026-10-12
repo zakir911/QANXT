@@ -48,10 +48,13 @@ interface FormSignals {
   nativeValidation: boolean;
 }
 
+// Matched on conventions for error messages, not on the word "error" anywhere: a test id
+// like "error-handling-confirmation" is a confirmation on a form called error-handling.
 const ERROR_SELECTOR = [
   '[role="alert"]', '[aria-live="assertive"]', '.error', '.errors', '.error-message', '.field-error',
   '.invalid-feedback', '.form-error', '.alert-danger', '.alert-error', '[data-error]',
-  '[id$="-error"]', '[data-testid*="error"]', '.has-error .help-block'
+  '[id$="-error"]', '[id$="-errors"]', '[data-testid$="-error"]', '[data-testid$="-errors"]', '[data-testid="error"]',
+  '.has-error .help-block'
 ].join(',');
 
 const SUCCESS_SELECTOR = [
@@ -127,9 +130,13 @@ function describe(s: FormSignals): string {
 /** The submission was refused: the form is still there, it says why, and nothing confirmed it. */
 export async function assertFormRejected(page: Page, form: Locator, obs: Observations, timeoutMs: number): Promise<void> {
   await settlePage(page);
+  await obs.settle();
   const rejected = (s: FormSignals) => s.formPresent && s.successTexts.length === 0
     && (s.invalidFields.length > 0 || s.errorTexts.length > 0);
-  const result = await poll(timeoutMs, () => signals(page, form), rejected);
+  // A confirmation on a settled page is an answer too: waiting out the timeout for a
+  // refusal that will not come only makes the failure slow.
+  const confirmed = (s: FormSignals) => s.successTexts.length > 0 && s.errorTexts.length === 0;
+  const result = await poll(timeoutMs, () => signals(page, form), s => rejected(s) || confirmed(s));
   if (rejected(result)) return;
 
   await obs.settle();
@@ -147,6 +154,7 @@ export async function assertFormRejected(page: Page, form: Locator, obs: Observa
 /** The submission was accepted: a confirmation appeared or the form gave way, with no error. */
 export async function assertFormAccepted(page: Page, form: Locator, obs: Observations, timeoutMs: number): Promise<void> {
   await settlePage(page);
+  await obs.settle();
   const accepted = (s: FormSignals) => (s.successTexts.length > 0 || !s.formPresent)
     && s.invalidFields.length === 0 && s.errorTexts.length === 0;
   const result = await poll(timeoutMs, () => signals(page, form), accepted);
@@ -269,6 +277,11 @@ interface RequestExpectation {
   bodyContains?: string;
   /** "navigation" (default): since the test's last navigate step. "test": the whole test. */
   scope?: 'navigation' | 'test';
+  /** Count only requests the server did not refuse: no 4xx or 5xx answer. A request that
+   *  never got an answer (aborted by a second submission) is counted, because the server may
+   *  still have acted on it. Used for duplicate submission, where a second request the
+   *  server refused is not a second transaction. */
+  countUnrefusedOnly?: boolean;
 }
 
 const statusMatches = (code: number | undefined, accepted: (string | number)[]) =>
@@ -284,8 +297,9 @@ export async function assertRequests(page: Page, value: string | undefined, obs:
   const matching = events.filter(e =>
     (!expectation.method || e.method.toUpperCase() === expectation.method.toUpperCase())
     && (!expectation.urlContains || e.url.includes(expectation.urlContains))
-    && ['document', 'xhr', 'fetch', undefined].includes(e.resourceType));
-  const what = `${expectation.method ?? 'any'} request(s)${expectation.urlContains ? ` to "${expectation.urlContains}"` : ''}`;
+    && ['document', 'xhr', 'fetch', undefined].includes(e.resourceType)
+    && (!expectation.countUnrefusedOnly || e.statusCode === undefined || e.statusCode < 400));
+  const what = `${expectation.method ?? 'any'}${expectation.countUnrefusedOnly ? ' submission' : ' request'}(s)${expectation.urlContains ? ` to "${expectation.urlContains}"` : ''}${expectation.countUnrefusedOnly ? ' the server did not refuse' : ''}`;
   const problems: string[] = [];
   if (expectation.minCount !== undefined && matching.length < expectation.minCount) problems.push(`expected at least ${expectation.minCount} ${what} but saw ${matching.length}`);
   if (expectation.maxCount !== undefined && matching.length > expectation.maxCount) problems.push(`expected at most ${expectation.maxCount} ${what} but saw ${matching.length}`);

@@ -170,9 +170,24 @@ public sealed class TestRunService : ITestRunService
         var dispatched = 0;
         var dispatchErrors = new List<string>();
 
+        var skipped = 0;
         foreach (var execution in executions)
         {
             var testCase = cases.First(c => c.Id == execution.TestCaseId);
+
+            // A compatibility test belongs to one browser. In a run on another it is skipped,
+            // and says so, rather than passing in the wrong engine and being counted as
+            // evidence that the form works where it was never opened.
+            var target = TargetBrowserOf(testCase.Tags);
+            if (target is not null && target != run.Browser)
+            {
+                execution.Status = ExecutionStatus.Skipped;
+                execution.ErrorMessage = $"This compatibility test runs only in {target}; this run uses {run.Browser}.";
+                execution.CompletedAt = _clock.UtcNow;
+                skipped++;
+                continue;
+            }
+
             var payload = await BuildPayloadAsync(run, execution, testCase, project, environment, ct);
 
             if (payload.IsFailure)
@@ -202,9 +217,10 @@ public sealed class TestRunService : ITestRunService
         }
 
         run.BlockedCount = executions.Count(e => e.Status == ExecutionStatus.Blocked);
+        run.SkippedCount = skipped;
         if (dispatched == 0)
         {
-            run.Status = ExecutionStatus.Error;
+            run.Status = skipped == executions.Count ? ExecutionStatus.Skipped : ExecutionStatus.Error;
             run.CompletedAt = _clock.UtcNow;
         }
 
@@ -217,6 +233,9 @@ public sealed class TestRunService : ITestRunService
         await _events.PublishAsync(run.OrganizationId, new ExecutionEvent(
             ExecutionEventTypes.RunQueued, run.Id, null,
             new { run.Name, total = cases.Count, dispatched, errors = dispatchErrors }, _clock.UtcNow), ct);
+
+        if (dispatched == 0 && skipped == executions.Count)
+            return Result<TestRunSummary>.Success(Map(run));
 
         if (dispatched == 0)
         {
@@ -287,6 +306,18 @@ public sealed class TestRunService : ITestRunService
 
         _logger.LogInformation("Run {RunId} cancelled; {Count} queued execution(s) will not start", run.Id, pending.Count);
         return Result.Success();
+    }
+
+    /// <summary>The browser a compatibility test is tagged for, if it is tagged for one.</summary>
+    private static BrowserType? TargetBrowserOf(string tags)
+    {
+        foreach (var tag in tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (tag.StartsWith("browser:", StringComparison.OrdinalIgnoreCase)
+                && Enum.TryParse<BrowserType>(tag["browser:".Length..], ignoreCase: true, out var browser))
+                return browser;
+        }
+        return null;
     }
 
     private async Task<List<TestCase>> SelectCasesAsync(StartTestRunRequest request, CancellationToken ct)

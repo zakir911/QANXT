@@ -29,6 +29,44 @@ let records = [];
 let loginFailures = 0;
 let counter = 0;
 
+// ---------------------------------------------------------------------------
+// Fixing defects and changing forms, at run time
+//
+// Verification needs the loop a team lives in: a defect is found, the application is
+// fixed, the regression test passes. And it needs a form to change shape, to show that a
+// regression run picks the tests the change reached. Both are switches here, reset by
+// /__reset, so the lab's defects and its ground truth stay the default.
+// ---------------------------------------------------------------------------
+
+const fixed = new Set();
+const changed = new Set();
+const active = (id) => !fixed.has(id);
+
+/** Fields a changed form gains: a plain optional field, the smallest real change. */
+const EXTRA_FIELDS = {
+  'simple-form': [{ name: 'company', label: 'Company', type: 'text', attrs: { maxlength: 60 } }]
+};
+
+/** What fixing a defect changes about its form, beyond no longer listing the defect. */
+const FIXES = {
+  'FL-D03': { guardDuplicate: true },
+  'FL-D04': { a11yBroken: false },
+  'FL-D07': { slowMs: 0 },
+  'FL-D10': { csrf: undefined },
+  'FL-D15': { fixedWidth: false }
+};
+
+/** The form as it currently behaves: fixed defects removed, changes applied. */
+function live(form) {
+  const view = { ...form, defects: form.defects.filter(d => active(d.id)) };
+  for (const d of form.defects) if (!active(d.id) && FIXES[d.id]) Object.assign(view, FIXES[d.id]);
+  if (!active('FL-D04') && form.id === 'accessibility') {
+    view.fields = view.fields.map(f => f.name === 'nickname' ? { ...f, label: 'Nickname' } : f);
+  }
+  if (changed.has(form.id)) view.fields = [...view.fields, ...(EXTRA_FIELDS[form.id] ?? [])];
+  return view;
+}
+
 const nav = [['/', 'All forms', 'nav-home']];
 
 // ---------------------------------------------------------------------------
@@ -343,7 +381,7 @@ function scriptFor(form) {
       });
       wizard.querySelector('[data-action=previous]').addEventListener('click', () => {
         // FL-D11: going back empties the first step.
-        if (current === 1) steps[0].querySelectorAll('input').forEach(i => { i.value = ''; });
+        ${form.defects.some(d => d.id === 'FL-D11') ? "if (current === 1) steps[0].querySelectorAll('input').forEach(i => { i.value = ''; });" : ''}
         show(current - 1);
       });`);
   }
@@ -359,7 +397,18 @@ function scriptFor(form) {
         document.querySelector('[data-testid="${form.id}-errors"]')?.remove();
         result.hidden = true;
         const body = Object.fromEntries(new FormData(apiForm).entries());
-        const response = await fetch('${form.api}', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+        let response;
+        try {
+          response = await fetch('${form.api}', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+        } catch {
+          // A request that never reached the server is reported, not swallowed.
+          const offline = document.createElement('div');
+          offline.setAttribute('role', 'alert'); offline.className = 'error-summary';
+          offline.dataset.testid = '${form.id}-errors';
+          offline.textContent = 'We could not reach the server. Check your connection and try again.';
+          apiForm.before(offline);
+          return;
+        }
         const payload = await response.json();
         if (response.ok) {
           result.textContent = 'Received. Reference ' + payload.reference + '.';
@@ -421,21 +470,28 @@ ${FORMS.map(form => `<li><a href="${form.route}" data-testid="link-${form.id}">$
 </ul>`
 })));
 
-for (const form of FORMS) {
-  app.get(form.route, ctx => {
+for (const declared of FORMS) {
+  app.get(declared.route, ctx => {
+    const form = live(declared);
     if (form.session && !ctx.cookies.fl_session) ctx.setCookie('fl_session', `s${Date.now().toString(36)}`);
     return renderForm(ctx, form);
   });
+  const form = declared;
   app.get(`${form.route}/done`, ctx => renderDone(ctx, form));
 
   if (form.api) continue;
   if (form.method === 'get') continue;
 
-  app.post(form.route, async (ctx) => {
+  app.post(declared.route, async (ctx) => {
+    const form = live(declared);
     const body = await ctx.body();
 
-    if (form.session && !ctx.cookies.fl_session) return crash(ctx, 'saveNote');
-    if (form.id === 'error-handling') {
+    if (form.session && !ctx.cookies.fl_session) {
+      if (active('FL-D13')) return crash(ctx, 'saveNote');
+      return ctx.html(401, layout({ title: 'Session expired', application: APPLICATION, nav,
+        body: '<h1>Your session has expired</h1><p role="alert">Sign in again to save your note.</p>' }));
+    }
+    if (form.id === 'error-handling' && active('FL-D05')) {
       const message = textOf(body.message);
       if (message.length > 1000 || message.trim().toLowerCase() === 'null') return crash(ctx, 'sendSupportMessage');
     }
@@ -485,14 +541,15 @@ app.get('/search/results', ctx => {
   return ctx.html(200, layout({
     title: 'Search results', application: APPLICATION, nav,
     body: `<h1 data-testid="page-title">Search results</h1>
-<p role="status" data-testid="search-confirmation">Results for ${q} in ${escapeHtml(ctx.query.category ?? 'All')}</p>
+<p role="status" data-testid="search-confirmation">Results for ${active('FL-D06') ? q : escapeHtml(q)} in ${escapeHtml(ctx.query.category ?? 'All')}</p>
 <p data-testid="search-count">No matching items.</p>
 <p><a href="/search">Search again</a></p>`
   }));
 });
 
-for (const apiForm of FORMS.filter(form => form.api)) {
-  app.post(apiForm.api, async (ctx) => {
+for (const declaredApi of FORMS.filter(form => form.api)) {
+  app.post(declaredApi.api, async (ctx) => {
+    const apiForm = live(declaredApi);
     const body = await ctx.body();
     const errors = validate(apiForm, body);
     if (Object.keys(errors).length > 0) return ctx.json(422, { errors });
@@ -513,7 +570,27 @@ app.get('/api/records', ctx => ctx.json(200, {
 
 app.get('/__ground-truth', ctx => ctx.json(200, groundTruth(`http://127.0.0.1:${PORT}`)));
 
+app.post('/__fix', async ctx => {
+  const body = await ctx.body();
+  const known = new Set(FORMS.flatMap(f => f.defects.map(d => d.id)));
+  const ids = body.all ? [...known] : (body.defects ?? []);
+  const unknown = ids.filter(id => !known.has(id));
+  if (unknown.length) return ctx.json(400, { unknown });
+  ids.forEach(id => fixed.add(id));
+  return ctx.json(200, { fixed: [...fixed] });
+});
+
+app.post('/__change', async ctx => {
+  const body = await ctx.body();
+  const unknown = (body.forms ?? []).filter(id => !EXTRA_FIELDS[id]);
+  if (unknown.length) return ctx.json(400, { unknown, changeable: Object.keys(EXTRA_FIELDS) });
+  (body.forms ?? []).forEach(id => changed.add(id));
+  return ctx.json(200, { changed: [...changed] });
+});
+
 app.post('/__reset', ctx => {
+  fixed.clear();
+  changed.clear();
   records = [];
   loginFailures = 0;
   counter = 0;

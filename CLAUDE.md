@@ -9,10 +9,12 @@ worker, React console, PostgreSQL and Redis.
 | Run every test suite | `make test` |
 | Prove the product | `./scripts/verify-product` (~40 min, writes reports and a certification) |
 | One area only | `make verify-security`, `make verify-continuous-quality`, `make verify-autonomous-qa` |
+| Form-level testing, AI disabled | `./scripts/verify-complete-manual-testing` (~30 min, writes `verification/manual-testing-coverage-report.md`) |
 | What each command does | `make help` |
 
 Read `docs/architecture.md` first, then `docs/user-manual.md` for what the product does from a
-user's side. `docs/agent.md` covers the autonomous agent specifically.
+user's side. `docs/agent.md` covers the autonomous agent specifically, and `docs/form-testing.md`
+the deterministic form-level test engine, coverage and the testing taxonomy.
 
 **Two house rules the code is built around.** A pass means it ran, the expected behaviour was
 observed and there is evidence — never that the code exists. And nothing changes itself

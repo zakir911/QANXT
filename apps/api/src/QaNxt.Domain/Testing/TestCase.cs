@@ -84,4 +84,12 @@ public class TestCase : BaseEntity, ITenantOwned, IAuditable, ISoftDeletable
     public DateTimeOffset? DeletedAt { get; set; }
 
     public ICollection<TestStep> Steps { get; set; } = new List<TestStep>();
+
+    /// <summary>Moves the test through its life. Only an Active test runs, so whether it is
+    /// enabled follows from where it is: there is one switch, not two that can disagree.</summary>
+    public void SetLifecycle(TestCaseLifecycle lifecycle)
+    {
+        Lifecycle = lifecycle;
+        IsEnabled = lifecycle == TestCaseLifecycle.Active;
+    }
 }

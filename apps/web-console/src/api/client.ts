@@ -143,6 +143,28 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   return (text ? JSON.parse(text) : undefined) as T;
 }
 
+/**
+ * Sends a file as multipart form data — evidence for a verification task, a sheet of manual
+ * tests. The same refresh-once rule as apiRequest, so an expired token is not a lost upload.
+ */
+export async function apiUpload<T>(path: string, form: FormData): Promise<T> {
+  const send = (token?: string) => fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers: { accept: 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
+    body: form
+  });
+
+  let session = readSession();
+  let response = await send(session?.accessToken);
+  if (response.status === 401 && session?.refreshToken) {
+    session = await refreshSession();
+    if (session) response = await send(session.accessToken);
+  }
+  if (!response.ok) throw await toApiError(response);
+  const text = await response.text();
+  return (text ? JSON.parse(text) : undefined) as T;
+}
+
 async function toApiError(response: Response): Promise<ApiError> {
   let body: ApiErrorBody | undefined;
   try {

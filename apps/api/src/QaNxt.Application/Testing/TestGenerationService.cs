@@ -77,7 +77,10 @@ public sealed class TestGenerationService : ITestGenerationService
 
         var project = await _db.Projects.FirstOrDefaultAsync(p => p.Id == application.ProjectId, ct);
         if (project is null) return Error.NotFound("The project");
-        if (!project.AiEnabled) return Error.Validation("AI features are disabled for this project.");
+        // A project with AI switched off still generates: the request is served by the
+        // deterministic rules engine, which is not AI and never leaves the platform. Refusing
+        // here made "AI off" mean "no test generation", which is the dependency the platform
+        // is meant not to have.
 
         var pages = await LoadPagesAsync(request, ct);
         if (pages.Count == 0)
@@ -98,7 +101,7 @@ public sealed class TestGenerationService : ITestGenerationService
             Kind = AiRequestKind.TestCaseGeneration,
             SchemaName = AiSchemaCatalog.TestPlan,
             ProjectId = project.Id,
-            PreferredProvider = project.AiProvider,
+            PreferredProvider = project.AiEnabled ? project.AiProvider : LlmProviderKind.Local,
             Model = project.AiModel,
             MaxTokens = 8000,
             SystemPrompt = SystemPrompt,
@@ -125,7 +128,7 @@ public sealed class TestGenerationService : ITestGenerationService
         }
 
         var persisted = await PersistAsync(plan, suite, project, application.Id, result.AiRequestId,
-            request.Requirement, ct);
+            request.Requirement, result.IsLocalProvider, ct);
 
         if (truncated > 0)
         {
@@ -310,7 +313,7 @@ public sealed class TestGenerationService : ITestGenerationService
 
     private async Task<(int Cases, int Steps, List<string> Warnings)> PersistAsync(
         GeneratedTestPlan plan, TestSuite suite, Domain.Projects.Project project, Guid applicationId,
-        Guid aiRequestId, string? requirement, CancellationToken ct)
+        Guid aiRequestId, string? requirement, bool isLocal, CancellationToken ct)
     {
         var warnings = new List<string>();
         var policy = new BrowserActionPolicy(
@@ -349,7 +352,8 @@ public sealed class TestGenerationService : ITestGenerationService
                 Priority = scenario.Priority,
                 Risk = scenario.Risk,
                 Tags = Truncate(string.Join(',', scenario.Tags.Append(scenario.Category).Distinct()), 500),
-                Source = TestCaseSource.AiGenerated,
+                // Labelled for what produced it: the rules engine is not a model.
+                Source = isLocal ? TestCaseSource.RuleGenerated : TestCaseSource.AiGenerated,
                 GeneratedByAiRequestId = aiRequestId,
                 RequirementReference = requirement is null ? null : Truncate(requirement, 500),
                 CreatedByUserId = _currentUser.UserId,

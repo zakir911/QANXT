@@ -11,6 +11,11 @@ start() {
     echo "API already running (pid $(cat "$PIDFILE"))"; return 0
   fi
   set -a; [[ -f "${ROOT}/.env" ]] && . "${ROOT}/.env"; set +a
+  # A verification that must prove the platform works without AI sets this, and it wins over
+  # whatever .env says: AI off, and no hosted provider key the process could use.
+  if [[ -n "${QANXT_FORCE_AI_DISABLED:-}" ]]; then
+    export AI_DISABLED=true OPENAI_API_KEY= ANTHROPIC_API_KEY= GEMINI_API_KEY=
+  fi
   export ASPNETCORE_ENVIRONMENT="${ASPNETCORE_ENVIRONMENT:-Development}"
   export ASPNETCORE_URLS="${API_URL:-http://localhost:5080}"
   export DOTNET_NOLOGO=1

@@ -13,8 +13,13 @@ namespace QaNxt.Api.Controllers;
 public sealed class MetaController : ApiControllerBase
 {
     private readonly ProductOptions _product;
+    private readonly QaNxt.Infrastructure.Ai.AiOptions _ai;
 
-    public MetaController(IOptions<ProductOptions> product) => _product = product.Value;
+    public MetaController(IOptions<ProductOptions> product, IOptions<QaNxt.Infrastructure.Ai.AiOptions> ai)
+    {
+        _product = product.Value;
+        _ai = ai.Value;
+    }
 
     /// <summary>Branding and API version. The console reads this so the product name is
     /// never compiled into the front end.</summary>
@@ -24,7 +29,30 @@ public sealed class MetaController : ApiControllerBase
         product = _product.Name,
         tagline = _product.Tagline,
         version = _product.Version,
-        apiVersion = "v1"
+        apiVersion = "v1",
+        // Whether any hosted model may be called. The platform's testing works either way;
+        // this says which way it is working.
+        aiDisabled = _ai.Disabled,
+        aiRequiredForTesting = false
+    });
+
+    /// <summary>The testing taxonomy: every category, what it checks, and which modes include
+    /// it. The console's testing configuration is built from this rather than a copy.</summary>
+    [HttpGet("testing-taxonomy")]
+    public IActionResult GetTaxonomy() => Ok(new
+    {
+        modes = Enum.GetValues<TestingMode>().Select(mode => new
+        {
+            mode = mode.ToString().ToLowerInvariant(),
+            categories = new Application.Forms.TestingProfile { Mode = mode }.EffectiveCategories().Select(Application.Forms.TestingProfile.CategoryKey)
+        }),
+        categories = Application.Forms.TestingTaxonomy.All.Select(c => new
+        {
+            key = Application.Forms.TestingProfile.CategoryKey(c.Category), name = c.Name, description = c.Description,
+            group = c.Group, automation = c.Automation
+        }),
+        defaultWeights = Application.Forms.TestingProfile.DefaultWeights(),
+        defaultViewports = Application.Forms.TestingProfile.DefaultViewports()
     });
 
     /// <summary>The full permission catalogue and the built-in role matrix, used by the
@@ -58,6 +86,11 @@ public sealed class MetaController : ApiControllerBase
         defectSeverities = Enum.GetNames<DefectSeverity>(),
         defectStatuses = Enum.GetNames<DefectStatus>(),
         qualityGateMetrics = Enum.GetNames<QualityGateMetric>(),
-        qualityGateOperators = Enum.GetNames<QualityGateOperator>()
+        qualityGateOperators = Enum.GetNames<QualityGateOperator>(),
+        testCategories = Enum.GetNames<TestCategory>(),
+        testLifecycles = Enum.GetNames<TestCaseLifecycle>(),
+        automationStatuses = Enum.GetNames<AutomationStatus>(),
+        humanTaskStatuses = Enum.GetNames<HumanTaskStatus>(),
+        testingModes = Enum.GetNames<TestingMode>()
     });
 }

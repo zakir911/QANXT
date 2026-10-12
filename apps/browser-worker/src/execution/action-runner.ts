@@ -526,8 +526,15 @@ export async function evaluateAssertion(
         return await locator.isVisible() ? null : 'The element was expected to be visible but was not.';
       }
       case 'hidden': {
-        const count = target ? await countOf(page, target) : 0;
-        return count === 0 ? null : 'The element was expected to be hidden but was present and visible.';
+        // Hidden means not visible, which includes present-but-hidden. This used to fail
+        // whenever the element existed at all, so every assertHidden step that carried its
+        // own assertion record failed on a correctly hidden element.
+        if (!target) return null;
+        const locator = buildLocator(page, target);
+        const count = await locator.count();
+        if (count === 0) return null;
+        const visible = await locator.first().isVisible().catch(() => false);
+        return visible ? 'The element was expected to be hidden but was present and visible.' : null;
       }
       case 'textEquals': {
         const locator = await locate(page, target, timeout);

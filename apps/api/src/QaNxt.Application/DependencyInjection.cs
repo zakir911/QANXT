@@ -30,6 +30,13 @@ public static class DependencyInjection
         services.AddScoped<IDiscoveryService, DiscoveryService>();
         services.AddScoped<IDiscoveryIngestService, DiscoveryIngestService>();
         services.AddScoped<ITestGenerationService, TestGenerationService>();
+        services.AddScoped<Forms.IFormTestingService, Forms.FormTestingService>();
+        services.AddScoped<Forms.ICoverageService, Forms.CoverageService>();
+        services.AddScoped<Diagnosis.IDefectService, Diagnosis.DefectService>();
+        services.AddScoped<ITestRepositoryService, TestRepositoryService>();
+        services.AddScoped<IManualTestImportService, ManualTestImportService>();
+        services.AddScoped<IHumanVerificationService, HumanVerificationService>();
+        services.AddScoped<ISelectionRunService, SelectionRunService>();
         services.AddScoped<IApiTestService, ApiTestService>();
         services.AddScoped<IApiContractService, ApiContractService>();
         services.AddScoped<ITestRunService, TestRunService>();

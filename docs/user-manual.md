@@ -248,6 +248,52 @@ derivable from the page structure.
 A recorded password is never stored as text — it becomes a `${secret:…}` reference resolved
 at run time.
 
+### Generate a full suite for every form
+
+**Testing → Generate tests.** Discovery records every form it finds: each field, the limits the
+page declares for it (required, minimum and maximum length, minimum and maximum value, step,
+pattern, accepted file types), its options, which wizard step it is on, and — by changing each
+select, checkbox and radio group without submitting anything — which fields appear, disappear
+or are repopulated by each answer.
+
+From that, QA NXT designs a test suite for every form, category by category: valid
+submissions, every required field on its own, declared formats, every boundary
+(min−1, min, min+1, max−1, max, max+1), equivalence partitions, awkward input (spaces, tabs,
+Unicode, emoji, HTML and encoded characters, very long and null-like values), cross-field rules,
+conditional fields, wizards, duplicate submission, error handling, recovery, state transitions,
+security indicators, accessibility, API correlation, performance, responsive layouts, browsers,
+visual baselines and deterministic exploration. **No AI model is involved**, the count is not
+capped, and the same form always produces the same suite.
+
+What it cannot test, it says. A field that declares no maximum length gets an *unknown
+boundary* gap, never an invented limit. A rule that exists only on the server, a screen-reader
+walkthrough or a stored record becomes a gap or a **human verification task** with steps and an
+expected result. See `docs/form-testing.md` for the full taxonomy and how each test decides.
+
+**The testing configuration** chooses what applies: a mode (Quick, Standard, Comprehensive,
+Full regression, Custom), individual categories with **Select all** and **Deselect all**,
+browsers, viewports, response-time budgets, whether safe reflection probes may be used, and how
+much each category weighs in a form's coverage score.
+
+**Running.** *Run all*, *Run failed*, *Run impacted by changes* (forms whose shape changed since
+their tests last ran), *Run regression suite* (tests made from confirmed defects) and *Run
+selected categories*. Schedules and the CLI run the same tests.
+
+**Coverage** shows, for every form, its fields, tests generated, executed, passed and failed,
+category by category, a measured coverage score and the gaps against it. Coverage is the share
+of applicable tests that ran, with each open gap counted against it; a category that does not
+apply to a form is N/A and does not count. It is never shown as 100% while anything is open.
+
+**Defects** groups failures by their underlying problem — twenty tests failing on one server
+crash are one defect — as proposals for a person to confirm. A confirmed defect can become a
+permanent **regression test**.
+
+**Repository** filters every test by category, lifecycle (Draft, Active, Disabled, Deprecated,
+Archived), automation, form and last result; changes lifecycle and tags in bulk; duplicates;
+shows version history and compares versions; and **imports manual tests** from CSV, Excel,
+JSON or structured text. An imported test whose steps are all understood becomes an automated
+draft; anything else becomes a human verification task with its steps intact.
+
 ---
 
 ## 6. Running tests

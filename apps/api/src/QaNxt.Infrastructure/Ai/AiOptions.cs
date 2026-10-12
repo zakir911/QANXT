@@ -4,6 +4,11 @@ public sealed class AiOptions
 {
     /// <summary>openai | anthropic | gemini | local. Used when a project has no preference.</summary>
     public string DefaultProvider { get; set; } = "local";
+    /// <summary>AI_DISABLED. When true no hosted model is ever called, whatever a project
+    /// prefers and whatever keys are configured: every request is served by the deterministic
+    /// local engine. Everything the platform does keeps working, because nothing it does
+    /// depends on a model.</summary>
+    public bool Disabled { get; set; }
     public bool CacheEnabled { get; set; } = true;
     public int MaxTokensPerRequest { get; set; } = 8000;
     /// <summary>0 disables budget enforcement for the deployment; an organization's own

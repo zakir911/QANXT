@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# Complete manual-testing verification, with AI disabled, against the golden form lab.
+#
+#   ./scripts/verify-complete-manual-testing           everything (about 30 minutes)
+#   ./scripts/verify-complete-manual-testing --quick   skip the product's own unit tests
+#
+#   infrastructure → QA NXT with AI_DISABLED → form lab + self-test → unit tests for the
+#   form engine, oracles and console → end-to-end verification → report
+#
+# The end-to-end part creates a project, adds the lab, discovers it, configures testing,
+# generates, runs everything, checks every failure against the lab's ground truth, confirms
+# defects, makes regression tests, fixes the lab, re-runs, changes a form and runs what it
+# reached, imports manual tests in four formats, records a human verification, and measures
+# coverage. It writes verification/manual-testing-coverage-report.md from what it counted.
+#
+# Exits 0 only when every check passed. A check that cannot run here is NOT VERIFIED.
+set -uo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+QUICK=false
+[[ "${1:-}" == "--quick" ]] && QUICK=true
+
+section() { printf '\n\033[1m── %s ──\033[0m\n' "$1"; }
+fail() { printf '\n\033[31m%s\033[0m\n' "$1"; exit 1; }
+
+export MANUAL_TESTING_RUN_ID="${MANUAL_TESTING_RUN_ID:-$(date -u +%Y-%m-%dT%H-%M-%SZ)}"
+export QANXT_FORCE_AI_DISABLED=1
+
+section "Infrastructure"
+bash scripts/services-ctl.sh --with-database || fail "PostgreSQL and Redis did not start."
+bash scripts/migrate.sh >/dev/null || fail "The database could not be migrated."
+
+section "QA NXT, with AI disabled"
+# Restarted rather than reused: a running API may have been started with a model configured,
+# and this run has to prove the platform works without one.
+bash scripts/api-ctl.sh stop >/dev/null 2>&1 || true
+bash scripts/worker-ctl.sh stop >/dev/null 2>&1 || true
+bash scripts/api-ctl.sh start && bash scripts/api-ctl.sh wait || fail "The API did not start."
+bash scripts/worker-ctl.sh start || fail "The worker did not start."
+curl -fsS "${API_URL:-http://localhost:5080}/api/v1/meta" | grep -q '"aiDisabled":true' \
+  || fail "The API is not reporting AI as disabled; refusing to call this an AI-free verification."
+
+section "Golden form lab"
+bash test-lab/scripts/lab-ctl.sh start >/dev/null || fail "The test lab did not start."
+node test-lab/form-lab/selftest.mjs >/dev/null || fail "The form lab's self-test failed: its defects or ground truth are not what they claim."
+echo "form lab self-test passed: every declared defect manifests, and every fix removes it"
+
+if [[ "$QUICK" != true ]]; then
+  section "Unit tests: form engine, oracles, discovery, console"
+  dotnet test apps/api/tests/QaNxt.UnitTests --nologo -v q --filter "FullyQualifiedName~Forms" || fail "The form engine's unit tests failed."
+  ( cd apps/browser-worker && PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-/opt/pw-browsers}" npx vitest run test/form-discovery.test.ts test/form-oracles.test.ts ) \
+    || fail "The form discovery or oracle tests failed."
+  ( cd apps/web-console && npx vitest run src/pages/TestingPage.test.tsx ) || fail "The console's testing configuration tests failed."
+fi
+
+section "End-to-end verification"
+node verification/manual-testing/verify.mjs
+status=$?
+
+printf '\n'
+if [[ $status -ne 0 ]]; then
+  printf '\033[31mManual-testing verification FAILED.\033[0m See verification/manual-testing-coverage-report.md\n'
+  exit $status
+fi
+printf '\033[32mManual-testing verification passed.\033[0m\n'
+printf '  Report:   verification/manual-testing-coverage-report.md\n'
+printf '  Evidence: verification/evidence/MANUAL-TESTING/%s/\n' "$MANUAL_TESTING_RUN_ID"

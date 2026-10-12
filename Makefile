@@ -4,7 +4,7 @@ SHELL := /bin/bash
 
 .PHONY: help setup dev test build migrate db-reset api worker console demo-bank clean \
 	docker-up docker-down docker-logs docker-reset lint verify verify-all verify-product \
-	verify-continuous-quality verify-security verify-autonomous-qa golden demo \
+	verify-continuous-quality verify-security verify-autonomous-qa verify-complete-manual-testing golden demo \
 	demo-continuous-quality lab lab-stop
 
 help: ## Show available commands
@@ -36,6 +36,9 @@ verify-security: ## Prove the security engine against the vulnerable labs, with 
 
 verify-autonomous-qa: ## Prove the autonomous agent: plan, refuse, ask, execute — and trace every requirement
 	@bash scripts/verify-autonomous-qa
+
+verify-complete-manual-testing: ## Prove form-level testing end to end with AI disabled, against the golden form lab
+	@bash scripts/verify-complete-manual-testing
 
 golden: ## Run the golden test suite against a running platform and test lab
 	@bash scripts/run-golden-tests --all

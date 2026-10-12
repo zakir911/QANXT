@@ -168,6 +168,17 @@ describe('form oracles', () => {
     await fails(run({ action: 'assertRequests', value: JSON.stringify({ method: 'POST', urlContains: '/api/transfers', maxCount: 1 }) }), /at most 1 .* saw 2/);
   }, 30_000);
 
+  test('a submission still in flight is waited for, not missed', async () => {
+    // The transfer API answers after 600 ms. Asserting straight after the click used to
+    // count nothing, because the page had long since been "network idle" — which hid a real
+    // double submission behind a pass.
+    await open('/duplicate-submit');
+    await fill('duplicate-submit-payee', 'Acme');
+    await fill('duplicate-submit-amount', '10');
+    await submit('duplicate-submit');
+    await run({ action: 'assertRequests', value: JSON.stringify({ method: 'POST', urlContains: '/api/transfers', minCount: 1, maxCount: 1, statusIn: ['2xx'] }) });
+  }, 30_000);
+
   test('a slow submission is measured as slow (FL-D07)', async () => {
     await open('/slow-form');
     await fill('slow-form-company', 'Acme');

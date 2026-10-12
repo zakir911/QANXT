@@ -20,10 +20,13 @@ public sealed class TestCasesController : ApiControllerBase
     private readonly IClock _clock;
     private readonly ICurrentUser _currentUser;
     private readonly IAuditLogger _audit;
+    private readonly ITestRepositoryService _repository;
 
     public TestCasesController(IQaNxtDbContext db, ITestGenerationService generation,
-        IApiTestService apiTests, IClock clock, ICurrentUser currentUser, IAuditLogger audit)
+        IApiTestService apiTests, IClock clock, ICurrentUser currentUser, IAuditLogger audit,
+        ITestRepositoryService repository)
     {
+        _repository = repository;
         _db = db;
         _generation = generation;
         _apiTests = apiTests;
@@ -163,6 +166,10 @@ public sealed class TestCasesController : ApiControllerBase
         var testCase = await _db.TestCases.FirstOrDefaultAsync(tc => tc.Id == id, ct);
         if (testCase is null) return Problem(Error.NotFound("The test case"));
 
+        // The version as it was, kept so the two can be compared.
+        await _repository.SnapshotBeforeEditAsync(testCase, "Edited.", ct);
+        testCase.Version++;
+
         if (body.Name is not null) testCase.Name = body.Name.Trim();
         if (body.Objective is not null) testCase.Objective = body.Objective.Trim();
         if (body.Preconditions is not null) testCase.Preconditions = body.Preconditions.Trim();
@@ -170,7 +177,10 @@ public sealed class TestCasesController : ApiControllerBase
         if (body.Priority is not null) testCase.Priority = body.Priority.Value;
         if (body.Risk is not null) testCase.Risk = body.Risk.Value;
         if (body.Tags is not null) testCase.Tags = body.Tags.Trim();
-        if (body.IsEnabled is not null) testCase.IsEnabled = body.IsEnabled.Value;
+        // Enabling and disabling move the test through its lifecycle, which is what run
+        // selection reads; a flag that disagreed with the lifecycle would be ignored.
+        if (body.IsEnabled is not null)
+            testCase.SetLifecycle(body.IsEnabled.Value ? TestCaseLifecycle.Active : TestCaseLifecycle.Disabled);
 
         if (body.TestDataSetId is { } setId)
         {
@@ -213,6 +223,8 @@ public sealed class TestCasesController : ApiControllerBase
         var testCase = await _db.TestCases.FirstOrDefaultAsync(tc => tc.Id == id, ct);
         if (testCase is null) return Problem(Error.NotFound("The test case"));
 
+        await _repository.SnapshotBeforeEditAsync(testCase, $"Step {step.Order} edited.", ct);
+
         if (body.Description is not null) step.Description = body.Description.Trim();
         if (body.Target is not null) step.TargetJson = body.Target.ToJson();
         if (body.Value is not null)
@@ -243,7 +255,7 @@ public sealed class TestCasesController : ApiControllerBase
         if (testCase is null) return Problem(Error.NotFound("The test case"));
 
         testCase.DeletedAt = _clock.UtcNow;
-        testCase.IsEnabled = false;
+        testCase.SetLifecycle(TestCaseLifecycle.Archived);
         testCase.UpdatedByUserId = _currentUser.UserId;
         await _db.SaveChangesAsync(ct);
 
