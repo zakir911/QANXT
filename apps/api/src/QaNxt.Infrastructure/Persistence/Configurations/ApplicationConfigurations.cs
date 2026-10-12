@@ -9,6 +9,7 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<Domain.Applicat
     public void Configure(EntityTypeBuilder<Domain.Applications.Application> b)
     {
         b.ToTable("applications");
+        b.Property(x => x.TestingConfigJson).HasColumnType("jsonb");
         b.Property(x => x.Name).HasMaxLength(200).IsRequired();
         b.Property(x => x.BaseUrl).HasMaxLength(2048).IsRequired();
         b.Property(x => x.Description).HasMaxLength(2000);
@@ -67,6 +68,26 @@ public class PageTransitionConfiguration : IEntityTypeConfiguration<PageTransiti
             .HasForeignKey(x => x.FromPageId).OnDelete(DeleteBehavior.Cascade);
         b.HasOne(x => x.ToPage).WithMany()
             .HasForeignKey(x => x.ToPageId).OnDelete(DeleteBehavior.NoAction);
+    }
+}
+
+public class ApplicationFormConfiguration : IEntityTypeConfiguration<ApplicationForm>
+{
+    public void Configure(EntityTypeBuilder<ApplicationForm> b)
+    {
+        b.ToTable("application_forms");
+        b.Property(x => x.FormKey).HasMaxLength(200).IsRequired();
+        b.Property(x => x.Name).HasMaxLength(300);
+        b.Property(x => x.Route).HasMaxLength(512);
+        b.Property(x => x.PageUrl).HasMaxLength(2048);
+        b.Property(x => x.Action).HasMaxLength(2048);
+        b.Property(x => x.Method).HasMaxLength(10);
+        b.Property(x => x.ModelJson).HasColumnType("jsonb");
+        b.Property(x => x.ModelHash).HasMaxLength(64);
+        b.HasIndex(x => new { x.ApplicationPageId, x.FormKey }).IsUnique();
+        b.HasIndex(x => x.ApplicationId);
+        b.HasOne(x => x.Page).WithMany()
+            .HasForeignKey(x => x.ApplicationPageId).OnDelete(DeleteBehavior.Cascade);
     }
 }
 

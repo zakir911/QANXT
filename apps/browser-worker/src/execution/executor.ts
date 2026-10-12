@@ -154,6 +154,8 @@ export class TestExecutor {
         }
       }
 
+      let navigationMark = 0;
+      let navigationUrl: string | undefined;
       const actionContext: ActionContext = {
         defaultTimeoutMs: job.defaultTimeoutMs,
         allowScriptExecution: job.allowScriptExecution,
@@ -163,7 +165,15 @@ export class TestExecutor {
         resolveValue: raw => resolveReference(raw, job),
         resolveTemplate: raw => interpolateReferences(raw, job),
         visualStore: options.visualStore,
-        browserName: job.browser
+        browserName: job.browser,
+        observations: {
+          network: () => collector.getNetworkEvents(),
+          console: () => collector.getConsoleEvents(),
+          settle: () => collector.settle(),
+          networkMarkAtLastNavigation: () => navigationMark,
+          urlAtLastNavigation: () => navigationUrl,
+          workDir: executionDir
+        }
       };
 
       const apiOptions: ApiRequestContextOptions = {
@@ -176,10 +186,18 @@ export class TestExecutor {
       for (const [index, step] of job.steps.entries()) {
         if (signal?.aborted) { status = 'cancelled'; break; }
 
+        // Where the network record stood when the test last navigated, so a check about
+        // "what this submission sent" counts this submission and not the whole test.
+        if (step.action.action === 'navigate') {
+          await collector.settle();
+          navigationMark = collector.getNetworkEvents().length;
+        }
+
         collector.setCurrentAction(step.order);
         await options.onProgress?.(step.action.description, index + 1, job.steps.length);
 
         const result = await this.runStep(page, step, actionContext, apiOptions, apiSession, job, collector, healer, masker);
+        if (step.action.action === 'navigate' && page) navigationUrl = page.url();
         actions.push(result.report);
         if (result.healingEvent) healingEvents.push(result.healingEvent);
         await options.onActionCompleted?.(result.report);

@@ -1470,6 +1470,10 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("seed_urls");
 
+                    b.Property<string>("TestingConfigJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("testing_config_json");
+
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -1661,6 +1665,140 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_application_elements_application_page_id_aria_role_accessib~");
 
                     b.ToTable("application_elements", (string)null);
+                });
+
+            modelBuilder.Entity("QaNxt.Domain.Applications.ApplicationForm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("action");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
+                    b.Property<Guid>("ApplicationPageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_page_id");
+
+                    b.Property<DateTimeOffset?>("ChangedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("changed_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("DependencyCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("dependency_count");
+
+                    b.Property<Guid?>("DiscoveryRunId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("discovery_run_id");
+
+                    b.Property<int>("FieldCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("field_count");
+
+                    b.Property<string>("FormKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("form_key");
+
+                    b.Property<int>("GroupCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("group_count");
+
+                    b.Property<bool>("HasCsrfToken")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_csrf_token");
+
+                    b.Property<bool>("HasFormElement")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_form_element");
+
+                    b.Property<bool>("IsMultiStep")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_multi_step");
+
+                    b.Property<bool>("IsPresent")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_present");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_seen_at");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("method");
+
+                    b.Property<string>("ModelHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("model_hash");
+
+                    b.Property<string>("ModelJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("model_json");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("name");
+
+                    b.Property<bool>("NoValidate")
+                        .HasColumnType("boolean")
+                        .HasColumnName("no_validate");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("PageUrl")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("page_url");
+
+                    b.Property<int>("RequiredFieldCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("required_field_count");
+
+                    b.Property<string>("Route")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("route");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_application_forms");
+
+                    b.HasIndex("ApplicationId")
+                        .HasDatabaseName("ix_application_forms_application_id");
+
+                    b.HasIndex("ApplicationPageId", "FormKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_application_forms_application_page_id_form_key");
+
+                    b.ToTable("application_forms", (string)null);
                 });
 
             modelBuilder.Entity("QaNxt.Domain.Applications.ApplicationPage", b =>
@@ -2232,13 +2370,29 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(4000)")
                         .HasColumnName("actual_behaviour");
 
+                    b.Property<int>("AffectedTestCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("affected_test_count");
+
                     b.Property<Guid?>("AiRequestId")
                         .HasColumnType("uuid")
                         .HasColumnName("ai_request_id");
 
+                    b.Property<Guid?>("ApplicationFormId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_form_id");
+
+                    b.Property<Guid?>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
                     b.Property<Guid?>("AssignedToUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("assigned_to_user_id");
+
+                    b.Property<int?>("Category")
+                        .HasColumnType("integer")
+                        .HasColumnName("category");
 
                     b.Property<int>("Confidence")
                         .HasColumnType("integer")
@@ -2282,6 +2436,18 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("failure_id");
 
+                    b.Property<DateTimeOffset?>("FirstSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("first_seen_at");
+
+                    b.Property<DateTimeOffset?>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_seen_at");
+
+                    b.Property<int>("OccurrenceCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("occurrence_count");
+
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid")
                         .HasColumnName("organization_id");
@@ -2294,9 +2460,18 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("proposed_by_ai");
 
+                    b.Property<Guid?>("RegressionTestCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("regression_test_case_id");
+
                     b.Property<int>("Severity")
                         .HasColumnType("integer")
                         .HasColumnName("severity");
+
+                    b.Property<string>("Signature")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("signature");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")
@@ -2336,6 +2511,9 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                     b.HasIndex("FailureId")
                         .HasDatabaseName("ix_defects_failure_id");
 
+                    b.HasIndex("ProjectId", "Signature")
+                        .HasDatabaseName("ix_defects_project_id_signature");
+
                     b.HasIndex("ProjectId", "Status", "Severity")
                         .HasDatabaseName("ix_defects_project_id_status_severity");
 
@@ -2360,6 +2538,10 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
+
+                    b.Property<Guid?>("DefectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("defect_id");
 
                     b.Property<DateTimeOffset>("FirstSeenAt")
                         .HasColumnType("timestamp with time zone")
@@ -4673,6 +4855,257 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                     b.ToTable("assertions", (string)null);
                 });
 
+            modelBuilder.Entity("QaNxt.Domain.Testing.CoverageGap", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("ApplicationFormId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_form_id");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer")
+                        .HasColumnName("category");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("FieldKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("field_key");
+
+                    b.Property<string>("Missing")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("missing");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("project_id");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("RecommendedAction")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("recommended_action");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_coverage_gaps");
+
+                    b.HasIndex("ApplicationFormId")
+                        .HasDatabaseName("ix_coverage_gaps_application_form_id");
+
+                    b.HasIndex("ApplicationId")
+                        .HasDatabaseName("ix_coverage_gaps_application_id");
+
+                    b.ToTable("coverage_gaps", (string)null);
+                });
+
+            modelBuilder.Entity("QaNxt.Domain.Testing.FormFinding", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ApplicationFormId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_form_id");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("FieldKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("field_key");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("message");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("severity");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_form_findings");
+
+                    b.HasIndex("ApplicationFormId")
+                        .HasDatabaseName("ix_form_findings_application_form_id");
+
+                    b.ToTable("form_findings", (string)null);
+                });
+
+            modelBuilder.Entity("QaNxt.Domain.Testing.HumanVerificationTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("ApplicationFormId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_form_id");
+
+                    b.Property<Guid?>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
+                    b.Property<Guid?>("AssignedToUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assigned_to_user_id");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer")
+                        .HasColumnName("category");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("comments");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<Guid?>("CompletedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("completed_by_user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("EvidenceJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("evidence_json");
+
+                    b.Property<string>("ExpectedResult")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("expected_result");
+
+                    b.Property<string>("GenerationKey")
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)")
+                        .HasColumnName("generation_key");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("origin");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("project_id");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("reason");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Steps")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("steps");
+
+                    b.Property<Guid?>("TestCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("test_case_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_human_verification_tasks");
+
+                    b.HasIndex("ApplicationFormId")
+                        .HasDatabaseName("ix_human_verification_tasks_application_form_id");
+
+                    b.HasIndex("ProjectId", "GenerationKey")
+                        .HasDatabaseName("ix_human_verification_tasks_project_id_generation_key");
+
+                    b.HasIndex("ProjectId", "Status")
+                        .HasDatabaseName("ix_human_verification_tasks_project_id_status");
+
+                    b.ToTable("human_verification_tasks", (string)null);
+                });
+
             modelBuilder.Entity("QaNxt.Domain.Testing.TestAction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4809,13 +5242,29 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid?>("ApplicationFormId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_form_id");
+
                     b.Property<Guid?>("ApplicationId")
                         .HasColumnType("uuid")
                         .HasColumnName("application_id");
 
+                    b.Property<int>("AutomationStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("automation_status");
+
                     b.Property<int>("AverageDurationMs")
                         .HasColumnType("integer")
                         .HasColumnName("average_duration_ms");
+
+                    b.Property<int?>("Category")
+                        .HasColumnType("integer")
+                        .HasColumnName("category");
+
+                    b.Property<string>("CoverageKeysJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("coverage_keys_json");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -4828,6 +5277,11 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
+
+                    b.Property<string>("EvidenceRequirements")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("evidence_requirements");
 
                     b.Property<int>("ExecutionCount")
                         .HasColumnType("integer")
@@ -4843,6 +5297,11 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("fail_count");
 
+                    b.Property<string>("FieldKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("field_key");
+
                     b.Property<int>("FlakinessScore")
                         .HasColumnType("integer")
                         .HasColumnName("flakiness_score");
@@ -4850,6 +5309,11 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("GeneratedByAiRequestId")
                         .HasColumnType("uuid")
                         .HasColumnName("generated_by_ai_request_id");
+
+                    b.Property<string>("GenerationKey")
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)")
+                        .HasColumnName("generation_key");
 
                     b.Property<int>("HealCount")
                         .HasColumnType("integer")
@@ -4874,6 +5338,10 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                     b.Property<int?>("LastStatus")
                         .HasColumnType("integer")
                         .HasColumnName("last_status");
+
+                    b.Property<int>("Lifecycle")
+                        .HasColumnType("integer")
+                        .HasColumnName("lifecycle");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -4928,11 +5396,24 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("source");
 
+                    b.Property<Guid?>("SourceDefectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_defect_id");
+
                     b.Property<string>("Tags")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("tags");
+
+                    b.Property<string>("Technique")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("technique");
+
+                    b.Property<string>("TestDataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("test_data_json");
 
                     b.Property<Guid?>("TestDataSetId")
                         .HasColumnType("uuid")
@@ -4957,11 +5438,20 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_test_cases");
 
+                    b.HasIndex("ApplicationFormId")
+                        .HasDatabaseName("ix_test_cases_application_form_id");
+
                     b.HasIndex("TestDataSetId")
                         .HasDatabaseName("ix_test_cases_test_data_set_id");
 
                     b.HasIndex("TestSuiteId")
                         .HasDatabaseName("ix_test_cases_test_suite_id");
+
+                    b.HasIndex("ApplicationId", "Category")
+                        .HasDatabaseName("ix_test_cases_application_id_category");
+
+                    b.HasIndex("ProjectId", "GenerationKey")
+                        .HasDatabaseName("ix_test_cases_project_id_generation_key");
 
                     b.HasIndex("ProjectId", "Kind")
                         .HasDatabaseName("ix_test_cases_project_id_kind");
@@ -4974,6 +5464,58 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_test_cases_project_id_last_status_last_executed_at");
 
                     b.ToTable("test_cases", (string)null);
+                });
+
+            modelBuilder.Entity("QaNxt.Domain.Testing.TestCaseVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ChangeSummary")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("change_summary");
+
+                    b.Property<Guid?>("ChangedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("changed_by_user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("SnapshotJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("snapshot_json");
+
+                    b.Property<Guid>("TestCaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("test_case_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_test_case_versions");
+
+                    b.HasIndex("TestCaseId", "Version")
+                        .IsUnique()
+                        .HasDatabaseName("ix_test_case_versions_test_case_id_version");
+
+                    b.ToTable("test_case_versions", (string)null);
                 });
 
             modelBuilder.Entity("QaNxt.Domain.Testing.TestDataField", b =>
@@ -5790,6 +6332,18 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_application_elements_application_pages_application_page_id");
+
+                    b.Navigation("Page");
+                });
+
+            modelBuilder.Entity("QaNxt.Domain.Applications.ApplicationForm", b =>
+                {
+                    b.HasOne("QaNxt.Domain.Applications.ApplicationPage", "Page")
+                        .WithMany()
+                        .HasForeignKey("ApplicationPageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_application_forms_application_pages_application_page_id");
 
                     b.Navigation("Page");
                 });

@@ -2,7 +2,7 @@ import { mkdir, stat, writeFile } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
-import type { BrowserContext, ConsoleMessage, Page, Response } from 'playwright';
+import type { BrowserContext, ConsoleMessage, Page, Request, Response } from 'playwright';
 import type {
   ApiResponseRecord, ArtifactReport, ConsoleEventReport, NetworkEventReport
 } from '@qa-nxt/shared-types';
@@ -22,6 +22,11 @@ export class EvidenceCollector {
   private readonly consoleEvents: ConsoleEventReport[] = [];
   private readonly networkEvents: NetworkEventReport[] = [];
   private currentActionOrder: number | undefined;
+  /** When each request left, so a response's duration is honest when the browser's own
+   *  timing is not yet complete at the moment the response event fires. */
+  private readonly requestStartedAt = new WeakMap<Request, number>();
+  /** Responses still being recorded. An assertion about the network waits for them. */
+  private readonly pending = new Set<Promise<void>>();
 
   constructor(
     private readonly directory: string,
@@ -73,9 +78,15 @@ export class EvidenceCollector {
       });
     });
 
+    page.on('request', (request: Request) => {
+      this.requestStartedAt.set(request, Date.now());
+    });
+
     page.on('response', (response: Response) => {
-      void this.recordResponse(response).catch(error =>
+      const recording = this.recordResponse(response).catch(error =>
         this.logger.debug('Could not record a response', { error: String(error) }));
+      this.pending.add(recording);
+      void recording.finally(() => this.pending.delete(recording));
     });
   }
 
@@ -89,9 +100,13 @@ export class EvidenceCollector {
     const timing = request.timing();
     // Playwright reports -1 for phases that never happened (a cached response has no
     // request start); falling back keeps the duration honest rather than reporting 0.
+    // When the response event fires before the body has finished, responseEnd is still -1;
+    // the time from the request leaving to the response arriving is then the honest
+    // figure. Reporting 0 instead made a three-second submission look instantaneous.
+    const started = this.requestStartedAt.get(request);
     const durationMs = timing.responseEnd > 0
       ? Math.max(0, Math.round(timing.responseEnd - Math.max(0, timing.requestStart)))
-      : 0;
+      : started !== undefined ? Math.max(0, Date.now() - started) : 0;
     const contentType = response.headers()['content-type'] ?? '';
     let responseBody: string | undefined;
 
@@ -260,6 +275,11 @@ export class EvidenceCollector {
     };
     this.artifacts.push(artifact);
     return artifact;
+  }
+
+  /** Waits until every response seen so far has been recorded. */
+  async settle(): Promise<void> {
+    while (this.pending.size > 0) await Promise.allSettled([...this.pending]);
   }
 
   getArtifacts(): ArtifactReport[] { return this.artifacts; }

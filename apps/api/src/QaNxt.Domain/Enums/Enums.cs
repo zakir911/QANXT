@@ -41,7 +41,47 @@ public enum ElementKind
 
 public enum PageKind { Unknown = 0, Login = 1, Dashboard = 2, List = 3, Detail = 4, Form = 5, Report = 6, Settings = 7, Error = 8 }
 
-public enum TestCaseSource { Manual = 0, AiGenerated = 1, RecordedJourney = 2, Imported = 3 }
+public enum TestCaseSource
+{
+    Manual = 0, AiGenerated = 1, RecordedJourney = 2, Imported = 3,
+    /// <summary>Produced by the deterministic form-level test engine. No model was involved,
+    /// so it is not labelled AI-generated.</summary>
+    RuleGenerated = 4,
+    /// <summary>Made from a confirmed defect so that it stays tested.</summary>
+    DefectRegression = 5
+}
+
+/// <summary>The professional QA taxonomy every test is filed under.
+///
+/// One category per test, the one its oracle checks. Tags still carry everything else; the
+/// category is what coverage is counted by, so a test that is "a bit of everything" would
+/// make every coverage number mean nothing.</summary>
+public enum TestCategory
+{
+    Functional = 0, Negative = 1, Boundary = 2, Equivalence = 3, Validation = 4,
+    InputValidation = 5, CrossField = 6, Dynamic = 7, MultiStep = 8, Workflow = 9,
+    Regression = 10, Accessibility = 11, Security = 12, Api = 13, Performance = 14,
+    Compatibility = 15, Responsive = 16, Visual = 17, Usability = 18, Exploratory = 19,
+    DataIntegrity = 20, StateTransition = 21, ErrorHandling = 22, Reliability = 23,
+    Recovery = 24, Smoke = 25
+}
+
+/// <summary>Where a test is in its life. Only Active tests are selected by "run all".</summary>
+public enum TestCaseLifecycle { Draft = 0, Active = 1, Disabled = 2, Deprecated = 3, Archived = 4 }
+
+/// <summary>Whether a machine can decide the test's verdict.</summary>
+public enum AutomationStatus { Automated = 0, HumanVerification = 1, PartiallyAutomated = 2 }
+
+public enum HumanTaskStatus { Pending = 0, Passed = 1, Failed = 2, Blocked = 3, NotApplicable = 4 }
+
+/// <summary>How much of something could be tested, and why not the rest.</summary>
+public enum CoverageGapStatus { PartiallyCovered = 0, NotCovered = 1, HumanRequired = 2, Unsupported = 3, Unknown = 4 }
+
+public enum TestingMode { Quick = 0, Standard = 1, Comprehensive = 2, FullRegression = 3, Custom = 4 }
+
+/// <summary>A finding read from a form's structure rather than from running it. Kept apart
+/// from test failures: a heuristic is a reason to look, not a defect.</summary>
+public enum FormFindingKind { UsabilityHeuristic = 0, SecurityIndicator = 1, AccessibilityIndicator = 2 }
 
 public enum TestPriority { Critical = 0, High = 1, Medium = 2, Low = 3 }
 
@@ -53,6 +93,10 @@ public enum BrowserActionType
 {
     Navigate = 0, Click = 1, DoubleClick = 2, Fill = 3, Select = 4, Check = 5, Uncheck = 6,
     Hover = 7, Press = 8, Upload = 9, Download = 10, Wait = 11, Screenshot = 12, Scroll = 13,
+    /// <summary>Browser-state actions the form engine's state, recovery and exploratory
+    /// tests need: reload, history, clearing a field, the viewport, the session, the network.</summary>
+    Reload = 14, GoBack = 15, GoForward = 16, Clear = 17, SetViewport = 18, ClearCookies = 19,
+    SetOffline = 40,
     AssertText = 20, AssertVisible = 21, AssertHidden = 22, AssertUrl = 23, AssertValue = 24,
     AssertCount = 25, AssertAttribute = 26, AssertEnabled = 27, AssertDisabled = 28,
     /// <summary>Performs an HTTP request against the application's API rather than driving
@@ -76,6 +120,15 @@ public enum BrowserActionType
     /// deliberate change is one a team switches off within a fortnight, and a switched-off
     /// check finds nothing.</summary>
     CheckVisual = 32,
+    /// <summary>Form oracles. Each answers one question about the application's behaviour
+    /// without needing to know its wording: was the submission refused or accepted, is this
+    /// field reported invalid, is its error programmatically tied to it, did the server
+    /// error, how many requests did a submit send, did input come back as live markup.
+    /// Configuration, where a verb takes any, travels as JSON in the step's value.</summary>
+    AssertFormRejected = 50, AssertFormAccepted = 51, AssertFieldInvalid = 52, AssertFieldValid = 53,
+    AssertErrorAssociated = 54, AssertFocused = 55, AssertNoServerError = 56, AssertRequests = 57,
+    AssertLoadTimeUnder = 58, AssertNoMarkupInjection = 59, AssertPresent = 60, AssertValueLength = 61,
+    AssertNoHorizontalScroll = 62,
     /// <summary>Only permitted when the project explicitly allows scripting AND the caller
     /// holds the execution:script permission. Rejected by default.</summary>
     ExecuteScript = 90
@@ -111,7 +164,11 @@ public enum AssertionType
     /// <summary>The response body's shape matches a stored baseline. What "matches" means
     /// is the contract comparison: a field that vanished is a breaking change, a field that
     /// appeared is not.</summary>
-    ResponseSchemaMatches = 20
+    ResponseSchemaMatches = 20,
+    /// <summary>The step's own verb is the check — a form oracle — and this records it so
+    /// that a report can count what a test asserts. The engine evaluates the verb; this
+    /// assertion holds exactly when the step did.</summary>
+    StepVerdict = 21
 }
 
 /// <summary>What a test drives. An API test is still a <c>TestCase</c> — same suites, runs,

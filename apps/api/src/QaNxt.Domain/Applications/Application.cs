@@ -70,6 +70,10 @@ public class Application : BaseEntity, ITenantOwned, IAuditable, ISoftDeletable
     /// dispatch path, never returned to a client and never sent to an LLM.</summary>
     public string? EncryptedCredentials { get; set; }
 
+    /// <summary>Which testing categories, viewports, browsers and budgets apply to this
+    /// application, as the user configured them. Null means the Comprehensive default.</summary>
+    public string? TestingConfigJson { get; set; }
+
     public Guid? CreatedByUserId { get; set; }
     public Guid? UpdatedByUserId { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }

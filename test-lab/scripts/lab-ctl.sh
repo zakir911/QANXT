@@ -18,6 +18,8 @@ APPS=(
   "dynamic-app|dynamic-app|4330"
   "failure-app|failure-app|4340"
   "self-healing-app|self-healing-app|4350"
+  # The golden form lab: twenty forms with known rules and known deliberate defects.
+  "form-lab|form-lab|4370"
   # Not an application under test: a receiver, so that "QA NXT sent the notification" is
   # something a test can observe rather than infer from the sending code.
   "notification-sink|notification-sink|4360"

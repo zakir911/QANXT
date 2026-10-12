@@ -50,6 +50,7 @@ public interface IQaNxtDbContext
     DbSet<ApplicationPage> ApplicationPages { get; }
     DbSet<PageTransition> PageTransitions { get; }
     DbSet<ApplicationElement> ApplicationElements { get; }
+    DbSet<ApplicationForm> ApplicationForms { get; }
     DbSet<ApiEndpoint> ApiEndpoints { get; }
     DbSet<ApiContract> ApiContracts { get; }
     DbSet<ChangeImpactRule> ChangeImpactRules { get; }
@@ -59,6 +60,10 @@ public interface IQaNxtDbContext
 
     DbSet<TestSuite> TestSuites { get; }
     DbSet<TestCase> TestCases { get; }
+    DbSet<TestCaseVersion> TestCaseVersions { get; }
+    DbSet<CoverageGap> CoverageGaps { get; }
+    DbSet<HumanVerificationTask> HumanVerificationTasks { get; }
+    DbSet<FormFinding> FormFindings { get; }
     DbSet<TestStep> TestSteps { get; }
     DbSet<Assertion> Assertions { get; }
     DbSet<TestDataSet> TestDataSets { get; }

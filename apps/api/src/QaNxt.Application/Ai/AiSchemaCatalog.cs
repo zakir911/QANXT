@@ -96,7 +96,7 @@ public static class AiSchemaCatalog
                   "required": ["description", "action"],
                   "properties": {
                     "description": { "type": "string", "maxLength": 500 },
-                    "action": { "type": "string", "enum": ["navigate","click","doubleClick","fill","select","check","uncheck","hover","press","upload","download","wait","screenshot","scroll","checkAccessibility","checkVisual","assertText","assertVisible","assertHidden","assertUrl","assertValue","assertCount","assertAttribute","assertEnabled","assertDisabled"] },
+                    "action": { "type": "string", "enum": ["navigate","click","doubleClick","fill","select","check","uncheck","hover","press","upload","download","wait","screenshot","scroll","reload","goBack","goForward","clear","setViewport","clearCookies","setOffline","checkAccessibility","checkVisual","assertText","assertVisible","assertHidden","assertUrl","assertValue","assertCount","assertAttribute","assertEnabled","assertDisabled","assertFormRejected","assertFormAccepted","assertFieldInvalid","assertFieldValid","assertErrorAssociated","assertFocused","assertNoServerError","assertRequests","assertLoadTimeUnder","assertNoMarkupInjection","assertPresent","assertValueLength","assertNoHorizontalScroll"] },
                     "target": {{LocatorSchema}},
                     "value": { "type": "string", "maxLength": 2000 },
                     "url": { "type": "string", "maxLength": 2048 },

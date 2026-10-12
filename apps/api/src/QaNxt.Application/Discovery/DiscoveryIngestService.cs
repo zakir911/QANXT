@@ -239,6 +239,7 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
         foreach (var payload in completion.Pages)
         {
             await UpsertElementsAsync(run, existing[payload.NormalizedUrl], payload.Elements, now, ct);
+            await UpsertFormsAsync(run, applicationId, existing[payload.NormalizedUrl], payload.Forms, now, ct);
         }
 
         await _db.SaveChangesAsync(ct);
@@ -311,6 +312,71 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
         foreach (var (key, element) in byKey)
         {
             if (!seen.Contains(key)) element.IsVisible = false;
+        }
+    }
+
+    /// <summary>Records the forms found on one page.
+    ///
+    /// A form keeps its row across crawls, keyed by page and form key, so the tests made from
+    /// it stay attached to it. Its shape is hashed, and a change of hash is recorded as the
+    /// moment the form changed: that is what lets a regression run pick the tests a change
+    /// actually reached. A form the page no longer has is marked absent, not deleted.</summary>
+    private async Task UpsertFormsAsync(
+        DiscoveryRun run, Guid applicationId, ApplicationPage page, List<Forms.DiscoveredFormModel> forms,
+        DateTimeOffset now, CancellationToken ct)
+    {
+        var existing = await _db.ApplicationForms.Where(f => f.ApplicationPageId == page.Id).ToListAsync(ct);
+        var byKey = existing.ToDictionary(f => f.FormKey, StringComparer.Ordinal);
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var model in forms)
+        {
+            var key = Truncate(string.IsNullOrWhiteSpace(model.Key) ? "form" : model.Key, 200);
+            if (!seen.Add(key)) continue;
+
+            if (!byKey.TryGetValue(key, out var form))
+            {
+                form = new ApplicationForm
+                {
+                    OrganizationId = run.OrganizationId,
+                    ApplicationId = applicationId,
+                    ApplicationPageId = page.Id,
+                    FormKey = key,
+                    CreatedAt = now
+                };
+                _db.ApplicationForms.Add(form);
+                byKey[key] = form;
+            }
+
+            var hash = Forms.FormShape.Hash(model);
+            if (!string.IsNullOrEmpty(form.ModelHash) && form.ModelHash != hash) form.ChangedAt = now;
+            form.ModelHash = hash;
+            form.DiscoveryRunId = run.Id;
+            form.Name = Truncate(model.Name, 300);
+            form.Route = page.Route;
+            form.PageUrl = page.Url;
+            form.Action = Truncate(model.Action, 2048);
+            form.Method = Truncate(model.Method, 10);
+            form.HasFormElement = model.HasFormElement;
+            form.NoValidate = model.NoValidate;
+            form.HasCsrfToken = model.HasCsrfToken;
+            form.IsMultiStep = model.IsMultiStep;
+            form.GroupCount = model.GroupCount;
+            form.FieldCount = model.Fields.Count;
+            form.RequiredFieldCount = model.Fields.Count(f => f.Required);
+            form.DependencyCount = model.Dependencies.Count;
+            form.ModelJson = model.ToJson();
+            form.IsPresent = true;
+            form.LastSeenAt = now;
+        }
+
+        foreach (var (key, form) in byKey)
+        {
+            if (!seen.Contains(key) && form.IsPresent)
+            {
+                form.IsPresent = false;
+                form.ChangedAt = now;
+            }
         }
     }
 

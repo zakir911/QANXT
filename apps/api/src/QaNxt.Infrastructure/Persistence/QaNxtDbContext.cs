@@ -59,6 +59,7 @@ public class QaNxtDbContext : DbContext, IQaNxtDbContext
     public DbSet<ApplicationPage> ApplicationPages => Set<ApplicationPage>();
     public DbSet<PageTransition> PageTransitions => Set<PageTransition>();
     public DbSet<ApplicationElement> ApplicationElements => Set<ApplicationElement>();
+    public DbSet<ApplicationForm> ApplicationForms => Set<ApplicationForm>();
     public DbSet<ApiEndpoint> ApiEndpoints => Set<ApiEndpoint>();
     public DbSet<ApiContract> ApiContracts => Set<ApiContract>();
     public DbSet<ChangeImpactRule> ChangeImpactRules => Set<ChangeImpactRule>();
@@ -68,6 +69,10 @@ public class QaNxtDbContext : DbContext, IQaNxtDbContext
 
     public DbSet<TestSuite> TestSuites => Set<TestSuite>();
     public DbSet<TestCase> TestCases => Set<TestCase>();
+    public DbSet<TestCaseVersion> TestCaseVersions => Set<TestCaseVersion>();
+    public DbSet<CoverageGap> CoverageGaps => Set<CoverageGap>();
+    public DbSet<HumanVerificationTask> HumanVerificationTasks => Set<HumanVerificationTask>();
+    public DbSet<FormFinding> FormFindings => Set<FormFinding>();
     public DbSet<TestStep> TestSteps => Set<TestStep>();
     public DbSet<Assertion> Assertions => Set<Assertion>();
     public DbSet<TestDataSet> TestDataSets => Set<TestDataSet>();

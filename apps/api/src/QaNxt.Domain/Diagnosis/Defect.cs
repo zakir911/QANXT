@@ -35,4 +35,19 @@ public class Defect : BaseEntity, ITenantOwned, IAuditable
     public Guid? AssignedToUserId { get; set; }
     public Guid? CreatedByUserId { get; set; }
     public Guid? UpdatedByUserId { get; set; }
+
+    /// <summary>What correlates failures to this defect: the same symptom at the same place.
+    /// Deliberately excludes the test case, which is what made every failing test its own
+    /// cluster before.</summary>
+    public string? Signature { get; set; }
+    public Guid? ApplicationId { get; set; }
+    public Guid? ApplicationFormId { get; set; }
+    public TestCategory? Category { get; set; }
+    /// <summary>How many distinct tests have failed with this defect's signature.</summary>
+    public int AffectedTestCount { get; set; }
+    public int OccurrenceCount { get; set; }
+    public DateTimeOffset? FirstSeenAt { get; set; }
+    public DateTimeOffset? LastSeenAt { get; set; }
+    /// <summary>The regression test made from this defect, once one has been.</summary>
+    public Guid? RegressionTestCaseId { get; set; }
 }

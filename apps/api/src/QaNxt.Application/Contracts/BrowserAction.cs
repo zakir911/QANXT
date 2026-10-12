@@ -49,7 +49,14 @@ public static class BrowserActionVerbs
     {
         BrowserActionType.AssertText, BrowserActionType.AssertVisible, BrowserActionType.AssertHidden,
         BrowserActionType.AssertUrl, BrowserActionType.AssertValue, BrowserActionType.AssertCount,
-        BrowserActionType.AssertAttribute, BrowserActionType.AssertEnabled, BrowserActionType.AssertDisabled
+        BrowserActionType.AssertAttribute, BrowserActionType.AssertEnabled, BrowserActionType.AssertDisabled,
+        BrowserActionType.AssertFormRejected, BrowserActionType.AssertFormAccepted,
+        BrowserActionType.AssertFieldInvalid, BrowserActionType.AssertFieldValid,
+        BrowserActionType.AssertErrorAssociated, BrowserActionType.AssertFocused,
+        BrowserActionType.AssertNoServerError, BrowserActionType.AssertRequests,
+        BrowserActionType.AssertLoadTimeUnder, BrowserActionType.AssertNoMarkupInjection,
+        BrowserActionType.AssertPresent, BrowserActionType.AssertValueLength,
+        BrowserActionType.AssertNoHorizontalScroll
     };
 
     public static bool IsAssertion(BrowserActionType action) => Assertions.Contains(action);
@@ -77,12 +84,19 @@ public static class BrowserActionValidator
         BrowserActionType.Hover, BrowserActionType.Upload, BrowserActionType.Scroll,
         BrowserActionType.AssertText, BrowserActionType.AssertVisible, BrowserActionType.AssertHidden,
         BrowserActionType.AssertValue, BrowserActionType.AssertCount, BrowserActionType.AssertAttribute,
-        BrowserActionType.AssertEnabled, BrowserActionType.AssertDisabled
+        BrowserActionType.AssertEnabled, BrowserActionType.AssertDisabled,
+        BrowserActionType.Clear, BrowserActionType.AssertFormRejected, BrowserActionType.AssertFormAccepted,
+        BrowserActionType.AssertFieldInvalid, BrowserActionType.AssertFieldValid,
+        BrowserActionType.AssertErrorAssociated, BrowserActionType.AssertFocused,
+        BrowserActionType.AssertPresent, BrowserActionType.AssertValueLength
     };
 
     private static readonly HashSet<BrowserActionType> RequireValue = new()
     {
-        BrowserActionType.Fill, BrowserActionType.Select, BrowserActionType.Press
+        BrowserActionType.Fill, BrowserActionType.Select, BrowserActionType.Press,
+        BrowserActionType.SetViewport, BrowserActionType.SetOffline, BrowserActionType.AssertRequests,
+        BrowserActionType.AssertLoadTimeUnder, BrowserActionType.AssertNoMarkupInjection,
+        BrowserActionType.AssertValueLength
     };
 
     /// <summary>Patterns that suggest a real credential has been inlined into a plan.
@@ -127,8 +141,32 @@ public static class BrowserActionValidator
         if (action.Action == BrowserActionType.AssertCount && action.Count is null)
             errors.Add("assertCount requires a count.");
 
-        if (action.Action == BrowserActionType.Upload && string.IsNullOrWhiteSpace(action.FilePath))
-            errors.Add("upload requires a filePath from the managed test-file store.");
+        // A generated fixture ("fixture:png:2048") is created by the worker inside the
+        // execution's own directory, so a test can upload without a path on anybody's disk.
+        if (action.Action == BrowserActionType.Upload && string.IsNullOrWhiteSpace(action.FilePath)
+            && !UploadFixture.IsValid(action.Value))
+            errors.Add("upload requires a filePath from the managed test-file store, or a value of the form fixture:<extension>:<bytes>.");
+
+        if (action.Action == BrowserActionType.SetViewport && !string.IsNullOrEmpty(action.Value)
+            && !System.Text.RegularExpressions.Regex.IsMatch(action.Value, @"^\d{2,4}x\d{2,4}$"))
+            errors.Add("setViewport requires a value of the form <width>x<height>, e.g. 390x844.");
+
+        if (action.Action == BrowserActionType.Click && !string.IsNullOrEmpty(action.Value)
+            && !System.Text.RegularExpressions.Regex.IsMatch(action.Value, @"^repeat:\d{1,2}:\d{1,4}$"))
+            errors.Add("click takes no value, or repeat:<count>:<milliseconds> to click repeatedly.");
+
+        if (action.Action == BrowserActionType.SetOffline && action.Value is not (null or "" or "true" or "false"))
+            errors.Add("setOffline requires a value of true or false.");
+
+        if (action.Action is BrowserActionType.AssertLoadTimeUnder
+            && !string.IsNullOrEmpty(action.Value) && !int.TryParse(action.Value, out _))
+            errors.Add("assertLoadTimeUnder requires a number of milliseconds.");
+
+        if (action.Action == BrowserActionType.AssertRequests && !string.IsNullOrEmpty(action.Value))
+        {
+            try { System.Text.Json.JsonDocument.Parse(action.Value).Dispose(); }
+            catch (System.Text.Json.JsonException) { errors.Add("assertRequests requires a JSON description of the requests expected."); }
+        }
 
         if (action.Action == BrowserActionType.ApiRequest)
         {
@@ -190,3 +228,21 @@ public sealed record BrowserActionPolicy(
     UrlGuardDelegate UrlGuard);
 
 public delegate bool UrlGuardDelegate(string url, out string reason);
+
+/// <summary>A file the worker generates for an upload step: <c>fixture:png:2048</c> is a
+/// 2048-byte PNG. Bounded, so a test cannot ask a worker to write gigabytes.</summary>
+public static class UploadFixture
+{
+    public const int MaxBytes = 20 * 1024 * 1024;
+    private static readonly System.Text.RegularExpressions.Regex Shape =
+        new(@"^fixture:([a-z0-9]{1,8}):(\d{1,9})$", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    public static bool IsValid(string? value)
+    {
+        if (string.IsNullOrEmpty(value)) return false;
+        var match = Shape.Match(value);
+        return match.Success && long.Parse(match.Groups[2].Value) is > 0 and <= MaxBytes;
+    }
+
+    public static string For(string extension, int bytes) => $"fixture:{extension}:{bytes}";
+}

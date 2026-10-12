@@ -96,6 +96,7 @@ public sealed record DiscoveredPagePayload
     [JsonPropertyName("domKey")] public string? DomKey { get; init; }
     [JsonPropertyName("accessibilityKey")] public string? AccessibilityKey { get; init; }
     [JsonPropertyName("elements")] public List<DiscoveredElementPayload> Elements { get; init; } = new();
+    [JsonPropertyName("forms")] public List<Forms.DiscoveredFormModel> Forms { get; init; } = new();
 }
 
 public sealed record DiscoveredElementPayload

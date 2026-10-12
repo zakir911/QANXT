@@ -139,6 +139,9 @@ public class DefectConfiguration : IEntityTypeConfiguration<Defect>
         b.Property(x => x.ExternalKey).HasMaxLength(100);
         b.Property(x => x.ExternalUrl).HasMaxLength(2048);
         b.HasIndex(x => new { x.ProjectId, x.Status, x.Severity });
+        b.Property(x => x.Signature).HasMaxLength(128);
+        // Correlation looks a defect up by its signature on every new failure.
+        b.HasIndex(x => new { x.ProjectId, x.Signature });
         b.HasOne(x => x.Failure).WithMany(f => f.Defects)
             .HasForeignKey(x => x.FailureId).OnDelete(DeleteBehavior.SetNull);
     }

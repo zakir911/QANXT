@@ -10,8 +10,13 @@
 export const BROWSER_ACTION_TYPES = [
   'navigate', 'click', 'doubleClick', 'fill', 'select', 'check', 'uncheck',
   'hover', 'press', 'upload', 'download', 'wait', 'screenshot', 'scroll',
+  'reload', 'goBack', 'goForward', 'clear', 'setViewport', 'clearCookies', 'setOffline',
   'assertText', 'assertVisible', 'assertHidden', 'assertUrl', 'assertValue',
   'assertCount', 'assertAttribute', 'assertEnabled', 'assertDisabled',
+  'assertFormRejected', 'assertFormAccepted', 'assertFieldInvalid', 'assertFieldValid',
+  'assertErrorAssociated', 'assertFocused', 'assertNoServerError', 'assertRequests',
+  'assertLoadTimeUnder', 'assertNoMarkupInjection', 'assertPresent', 'assertValueLength',
+  'assertNoHorizontalScroll',
   'apiRequest',
   'checkAccessibility',
   'checkVisual',
@@ -22,7 +27,11 @@ export type BrowserActionType = (typeof BROWSER_ACTION_TYPES)[number];
 /** Verbs that assert rather than act. Used to decide how a step failure is reported. */
 export const ASSERTION_ACTIONS: readonly BrowserActionType[] = [
   'assertText', 'assertVisible', 'assertHidden', 'assertUrl', 'assertValue',
-  'assertCount', 'assertAttribute', 'assertEnabled', 'assertDisabled'
+  'assertCount', 'assertAttribute', 'assertEnabled', 'assertDisabled',
+  'assertFormRejected', 'assertFormAccepted', 'assertFieldInvalid', 'assertFieldValid',
+  'assertErrorAssociated', 'assertFocused', 'assertNoServerError', 'assertRequests',
+  'assertLoadTimeUnder', 'assertNoMarkupInjection', 'assertPresent', 'assertValueLength',
+  'assertNoHorizontalScroll'
 ];
 
 export const LOCATOR_STRATEGIES = [
@@ -71,7 +80,7 @@ export const ASSERTION_TYPES = [
   'httpStatusEquals', 'noConsoleErrors',
   'responseStatusIn', 'responseTimeUnderMs', 'responseBodyContains',
   'responseJsonPathEquals', 'responseJsonPathExists', 'responseJsonPathMatches',
-  'responseHeaderEquals', 'responseSchemaMatches'
+  'responseHeaderEquals', 'responseSchemaMatches', 'stepVerdict'
 ] as const;
 export type AssertionType = (typeof ASSERTION_TYPES)[number];
 

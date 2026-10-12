@@ -7,6 +7,12 @@ import { AccessibilityError, runAccessibilityCheck } from './accessibility-runne
 import { VisualError, runVisualStep, type BaselineStore } from './visual-runner.js';
 import { buildLocator, resolveLocator } from '../browser/locator-resolver.js';
 import { isUrlAllowed } from '../security/url-guard.js';
+import {
+  OracleError, assertErrorAssociated, assertFieldInvalid, assertFieldValid, assertFocused,
+  assertFormAccepted, assertFormRejected, assertLoadTimeUnder, assertNoHorizontalScroll,
+  assertNoMarkupInjection, assertNoServerError, assertRequests, assertValueLength,
+  materialiseFixture, type Observations
+} from './form-oracles.js';
 
 /**
  * Executes one validated action against a page.
@@ -43,6 +49,16 @@ export interface ActionContext {
   visualStore?: BaselineStore;
   /** The browser this run is using. Part of a baseline's identity. */
   browserName?: string;
+  /** What the execution has seen: network, console, the last navigation. The form
+   *  oracles need it; a context without it cannot run them. */
+  observations?: Observations;
+}
+
+function observationsOf(context: ActionContext): Observations {
+  if (!context.observations) {
+    throw new ActionError('This check reads the network and console of the run, and none were recorded for it.', false);
+  }
+  return context.observations;
 }
 
 /**
@@ -99,9 +115,23 @@ export async function runAction(
       return;
     }
 
-    case 'click':
-      await locate(page, target, timeout).then(l => l.click({ timeout }));
+    case 'click': {
+      const locator = await locate(page, target, timeout);
+      const repeat = /^repeat:(\d{1,2}):(\d{1,4})$/.exec(action.value ?? '');
+      const box = repeat ? await locator.boundingBox({ timeout }).catch(() => null) : null;
+      await locator.click({ timeout });
+      // "repeat:<n>:<ms>" clicks again the way an impatient person does: a few times, a
+      // moment apart, with the mouse where the control was. Real mouse input rather than a
+      // locator click, because a locator click waits for the page to settle first, and a
+      // person's second click does not. A disabled control ignores it, as it should.
+      if (repeat && box) {
+        for (let i = 1; i < Number(repeat[1]); i++) {
+          await page.waitForTimeout(Number(repeat[2]));
+          await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2).catch(() => undefined);
+        }
+      }
       return;
+    }
 
     case 'doubleClick':
       await locate(page, target, timeout).then(l => l.dblclick({ timeout }));
@@ -139,10 +169,44 @@ export async function runAction(
     }
 
     case 'upload': {
-      if (!action.filePath) throw new ActionError('upload requires a file path.', false);
-      await locate(page, target, timeout).then(l => l.setInputFiles(action.filePath!, { timeout }));
+      // A generated fixture is written into the execution's own directory; a path is used as given.
+      const path = action.filePath
+        ?? (action.value?.startsWith('fixture:') ? await materialiseFixture(action.value, observationsOf(context).workDir) : undefined);
+      if (!path) throw new ActionError('upload requires a file path or a fixture:<extension>:<bytes> value.', false);
+      await locate(page, target, timeout).then(l => l.setInputFiles(path, { timeout }));
       return;
     }
+
+    case 'reload':
+      await page.reload({ waitUntil: 'domcontentloaded', timeout });
+      return;
+
+    case 'goBack':
+      await page.goBack({ waitUntil: 'domcontentloaded', timeout });
+      return;
+
+    case 'goForward':
+      await page.goForward({ waitUntil: 'domcontentloaded', timeout });
+      return;
+
+    case 'clear':
+      await locate(page, target, timeout).then(l => l.clear({ timeout }));
+      return;
+
+    case 'setViewport': {
+      const match = /^(\d{2,4})x(\d{2,4})$/.exec(action.value ?? '');
+      if (!match) throw new ActionError('setViewport needs a value such as 390x844.', false);
+      await page.setViewportSize({ width: Number(match[1]), height: Number(match[2]) });
+      return;
+    }
+
+    case 'clearCookies':
+      await page.context().clearCookies();
+      return;
+
+    case 'setOffline':
+      await page.context().setOffline(action.value !== 'false');
+      return;
 
     case 'download': {
       const [download] = await Promise.all([
@@ -365,7 +429,65 @@ async function runAssertionAction(
     }
 
     default:
-      throw new ActionError(`Unsupported assertion: ${action.action}`, false);
+      await runFormOracle(page, action, context, target, timeout);
+  }
+}
+
+/**
+ * The form oracles. A locator that cannot be found is still a locator failure, so healing
+ * gets its chance; anything an oracle concludes is an assertion failure and is not healable,
+ * because re-pointing a "was this refused?" check at another element would answer a
+ * different question.
+ */
+async function runFormOracle(
+  page: Page, action: BrowserAction, context: ActionContext,
+  target: LocatorDescriptor | undefined, timeout: number
+): Promise<void> {
+  const oracleTimeout = Math.min(timeout, 10_000);
+  try {
+    switch (action.action) {
+      case 'assertFormRejected':
+        // Not resolved first, for the same reason as accepted: a form that was accepted and
+        // navigated away is the answer to the question, not a locator to heal.
+        if (!target) throw new ActionError('assertFormRejected requires the form as its target.', false);
+        return await assertFormRejected(page, buildLocator(page, target), observationsOf(context), oracleTimeout);
+      case 'assertFormAccepted':
+        // The form is expected to go away, so it is not resolved first: an accepted form
+        // that navigated is exactly a form whose locator no longer matches.
+        if (!target) throw new ActionError('assertFormAccepted requires the form as its target.', false);
+        return await assertFormAccepted(page, buildLocator(page, target), observationsOf(context), timeout);
+      case 'assertFieldInvalid':
+        return await assertFieldInvalid(page, await locate(page, target, timeout), oracleTimeout);
+      case 'assertFieldValid':
+        return await assertFieldValid(page, await locate(page, target, timeout), oracleTimeout);
+      case 'assertErrorAssociated':
+        return await assertErrorAssociated(page, await locate(page, target, timeout), oracleTimeout);
+      case 'assertFocused':
+        return await assertFocused(await locate(page, target, timeout), Math.min(timeout, 3_000));
+      case 'assertNoServerError':
+        return await assertNoServerError(page, observationsOf(context));
+      case 'assertRequests':
+        return await assertRequests(page, action.value, observationsOf(context));
+      case 'assertLoadTimeUnder':
+        return await assertLoadTimeUnder(page, action.value);
+      case 'assertNoMarkupInjection':
+        return await assertNoMarkupInjection(page, action.value);
+      case 'assertPresent': {
+        if (!target) throw new ActionError('assertPresent requires a target.', false);
+        const present = await waitForValue(timeout, () => countOf(page, target), count => count > 0);
+        if (!present.satisfied) throw new ActionError('Expected the element to exist on the page, but it does not.', false);
+        return;
+      }
+      case 'assertValueLength':
+        return await assertValueLength(await locate(page, target, timeout), action.value);
+      case 'assertNoHorizontalScroll':
+        return await assertNoHorizontalScroll(page);
+      default:
+        throw new ActionError(`Unsupported assertion: ${action.action}`, false);
+    }
+  } catch (error) {
+    if (error instanceof OracleError) throw new ActionError(error.message, false);
+    throw error;
   }
 }
 
@@ -439,6 +561,9 @@ export async function evaluateAssertion(
         const locator = await locate(page, target, timeout);
         return await locator.isEnabled() ? 'The element was expected to be disabled but was enabled.' : null;
       }
+      case 'stepVerdict':
+        // The step's own verb was the check, and the step has already passed to get here.
+        return null;
       default:
         return `Unsupported assertion type: ${assertion.type}`;
     }

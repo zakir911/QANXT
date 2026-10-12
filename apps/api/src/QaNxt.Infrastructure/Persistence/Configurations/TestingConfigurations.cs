@@ -57,6 +57,76 @@ public class TestCaseConfiguration : IEntityTypeConfiguration<TestCase>
             .HasForeignKey(x => x.TestSuiteId).OnDelete(DeleteBehavior.Cascade);
         b.HasOne(x => x.TestDataSet).WithMany()
             .HasForeignKey(x => x.TestDataSetId).OnDelete(DeleteBehavior.SetNull);
+        b.Property(x => x.Technique).HasMaxLength(120);
+        b.Property(x => x.FieldKey).HasMaxLength(200);
+        b.Property(x => x.GenerationKey).HasMaxLength(400);
+        b.Property(x => x.EvidenceRequirements).HasMaxLength(1000);
+        b.Property(x => x.CoverageKeysJson).HasColumnType("jsonb");
+        b.Property(x => x.TestDataJson).HasColumnType("jsonb");
+        // Lifecycle has no database default on purpose: Draft is 0, and a default would turn
+        // every draft into whatever the default was. Existing rows are backfilled to Active
+        // by the migration that added the column.
+        // Coverage reads tests by form and by category constantly.
+        b.HasIndex(x => x.ApplicationFormId);
+        b.HasIndex(x => new { x.ApplicationId, x.Category });
+        b.HasIndex(x => new { x.ProjectId, x.GenerationKey });
+    }
+}
+
+public class TestCaseVersionConfiguration : IEntityTypeConfiguration<TestCaseVersion>
+{
+    public void Configure(EntityTypeBuilder<TestCaseVersion> b)
+    {
+        b.ToTable("test_case_versions");
+        b.Property(x => x.SnapshotJson).HasColumnType("jsonb");
+        b.Property(x => x.ChangeSummary).HasMaxLength(1000);
+        b.HasIndex(x => new { x.TestCaseId, x.Version }).IsUnique();
+    }
+}
+
+public class CoverageGapConfiguration : IEntityTypeConfiguration<CoverageGap>
+{
+    public void Configure(EntityTypeBuilder<CoverageGap> b)
+    {
+        b.ToTable("coverage_gaps");
+        b.Property(x => x.FieldKey).HasMaxLength(200);
+        b.Property(x => x.Missing).HasMaxLength(500);
+        b.Property(x => x.Reason).HasMaxLength(2000);
+        b.Property(x => x.RecommendedAction).HasMaxLength(1000);
+        b.HasIndex(x => x.ApplicationId);
+        b.HasIndex(x => x.ApplicationFormId);
+    }
+}
+
+public class HumanVerificationTaskConfiguration : IEntityTypeConfiguration<HumanVerificationTask>
+{
+    public void Configure(EntityTypeBuilder<HumanVerificationTask> b)
+    {
+        b.ToTable("human_verification_tasks");
+        b.Property(x => x.Title).HasMaxLength(300).IsRequired();
+        b.Property(x => x.Reason).HasMaxLength(2000);
+        b.Property(x => x.Steps).HasMaxLength(4000);
+        b.Property(x => x.ExpectedResult).HasMaxLength(2000);
+        b.Property(x => x.Comments).HasMaxLength(4000);
+        b.Property(x => x.EvidenceJson).HasColumnType("jsonb");
+        b.Property(x => x.Origin).HasMaxLength(20);
+        b.Property(x => x.GenerationKey).HasMaxLength(400);
+        b.HasIndex(x => new { x.ProjectId, x.Status });
+        b.HasIndex(x => x.ApplicationFormId);
+        b.HasIndex(x => new { x.ProjectId, x.GenerationKey });
+    }
+}
+
+public class FormFindingConfiguration : IEntityTypeConfiguration<FormFinding>
+{
+    public void Configure(EntityTypeBuilder<FormFinding> b)
+    {
+        b.ToTable("form_findings");
+        b.Property(x => x.Code).HasMaxLength(80);
+        b.Property(x => x.FieldKey).HasMaxLength(200);
+        b.Property(x => x.Message).HasMaxLength(1000);
+        b.Property(x => x.Severity).HasMaxLength(20);
+        b.HasIndex(x => x.ApplicationFormId);
     }
 }
 

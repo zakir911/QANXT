@@ -34,4 +34,8 @@ public class Failure : BaseEntity, ITenantOwned
 
     public FailureAnalysis? Analysis { get; set; }
     public ICollection<Defect> Defects { get; set; } = new List<Defect>();
+
+    /// <summary>The underlying defect this failure was correlated to. Many failures can
+    /// share one: twenty tests failing on the same server crash are one defect.</summary>
+    public Guid? DefectId { get; set; }
 }

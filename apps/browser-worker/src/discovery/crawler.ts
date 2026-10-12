@@ -2,6 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { BrowserContext, ConsoleMessage, Page, Request, Response } from 'playwright';
 import type {
+  DiscoveredForm,
   AuthConfig, CrawlBudget, DiscoveredApiEndpoint, DiscoveredElement, DiscoveredPage,
   DiscoveredTransition, DiscoveryCompletionReport
 } from '@qa-nxt/shared-types';
@@ -22,6 +23,8 @@ const MAX_CLICK_CANDIDATES = 40;
  * crawl with a list, while still being far more than most applications publish. */
 const MAX_SITEMAP_URLS = 500;
 import { collectClickCandidates, extractPage, type RawElement, type RawPageCapture } from './page-extractor.js';
+import { extractForms, type RawForm } from './form-extractor.js';
+import { probeForm } from './form-probe.js';
 import { performLogin, type LoginResult } from '../browser/authenticator.js';
 
 /**
@@ -46,6 +49,9 @@ export interface CrawlOptions {
 
 /** A mapped page plus the links found on it, which are crawl state rather than part of
  *  what is reported back to the control plane. */
+/** How many controls the dependency probe may change on one page. */
+const MAX_PROBE_INTERACTIONS_PER_PAGE = 60;
+
 interface CrawledPage extends DiscoveredPage {
   links: string[];
 }
@@ -402,6 +408,8 @@ export class Crawler {
     const screenshotKey = await this.captureScreenshot(page, normalized);
     const domKey = await this.captureDom(page, normalized);
     const accessibilityKey = await this.captureAccessibilityTree(page, normalized);
+    // After the screenshot and DOM, because probing changes the page's controls.
+    const forms = await this.captureForms(page);
 
     const discovered: CrawledPage = {
       url: capture.url,
@@ -420,6 +428,7 @@ export class Crawler {
       domKey,
       accessibilityKey,
       elements: capture.elements.map(element => this.toDiscoveredElement(element)),
+      forms,
       links: capture.links
     };
 
@@ -434,10 +443,54 @@ export class Crawler {
       });
     }
 
-    this.note(`Mapped ${discovered.route || '/'} — ${discovered.elements.length} elements, ${capture.links.length} links, kind=${discovered.kind}`);
+    const formSummary = forms.length === 0 ? '' : `, ${forms.length} form(s) with ${forms.reduce((n, f) => n + f.fields.length, 0)} field(s)`;
+    this.note(`Mapped ${discovered.route || '/'} — ${discovered.elements.length} elements, ${capture.links.length} links${formSummary}, kind=${discovered.kind}`);
     return discovered;
   }
 
+
+  /**
+   * Reads every form on the page and what its answers change.
+   *
+   * Probing has its own per-page limit rather than drawing on the crawl's action budget:
+   * it is bounded by the number of controls on one page, and a page with a long form would
+   * otherwise spend the budget that reaches the rest of the application. A form that could
+   * not be read is reported and skipped, never allowed to fail the page.
+   */
+  private async captureForms(page: Page): Promise<DiscoveredForm[]> {
+    let raw: RawForm[];
+    try {
+      raw = await page.evaluate(extractForms, 300) as RawForm[];
+    } catch (error) {
+      this.note(`Could not read the forms on ${page.url()}: ${this.masker.maskText(tidyForLog(String(error)))}`);
+      return [];
+    }
+
+    const forms: DiscoveredForm[] = [];
+    let remaining = MAX_PROBE_INTERACTIONS_PER_PAGE;
+    for (const form of raw) {
+      const masked: RawForm = {
+        ...form,
+        fields: form.fields.map(field => ({
+          ...field,
+          defaultValue: field.defaultValue === null ? null : this.masker.maskText(field.defaultValue)
+        }))
+      };
+      if (remaining <= 0) {
+        forms.push({ ...masked, dependencies: [], probeNote: 'Not probed: the per-page probing limit was reached.' });
+        continue;
+      }
+      try {
+        const probe = await probeForm(page, form, remaining);
+        remaining -= probe.interactions;
+        if (probe.stoppedBecause) this.note(`Stopped probing ${form.key} on ${page.url()}: ${probe.stoppedBecause}.`);
+        forms.push({ ...masked, dependencies: probe.dependencies, probeNote: probe.stoppedBecause });
+      } catch (error) {
+        forms.push({ ...masked, dependencies: [], probeNote: `Probe failed: ${tidyForLog(String(error))}` });
+      }
+    }
+    return forms;
+  }
 
   /**
    * Turns one entry from the owner's route list into an absolute URL.
