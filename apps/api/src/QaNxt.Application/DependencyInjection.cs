@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<Forms.IFormTestingService, Forms.FormTestingService>();
         services.AddScoped<Forms.ICoverageService, Forms.CoverageService>();
         services.AddScoped<Diagnosis.IDefectService, Diagnosis.DefectService>();
+        services.AddScoped<Reporting.IRunBugReportService, Reporting.RunBugReportService>();
         services.AddScoped<ITestRepositoryService, TestRepositoryService>();
         services.AddScoped<IManualTestImportService, ManualTestImportService>();
         services.AddScoped<IHumanVerificationService, HumanVerificationService>();

@@ -165,6 +165,41 @@ export async function apiUpload<T>(path: string, form: FormData): Promise<T> {
   return (text ? JSON.parse(text) : undefined) as T;
 }
 
+/**
+ * Downloads a file the API only serves to a signed-in caller — a run's bug report. The
+ * bytes are fetched with the Authorization header and handed to the browser as a blob, so
+ * the token never appears in a URL. The file name is the one the API sends.
+ */
+export async function apiDownload(path: string, fallbackName: string): Promise<string> {
+  const send = (token?: string) => fetch(`${API_URL}${path}`, {
+    headers: token ? { authorization: `Bearer ${token}` } : {}
+  });
+
+  let session = readSession();
+  let response = await send(session?.accessToken);
+  if (response.status === 401 && session?.refreshToken) {
+    session = await refreshSession();
+    if (session) response = await send(session.accessToken);
+  }
+  if (!response.ok) throw await toApiError(response);
+
+  const disposition = response.headers.get('content-disposition') ?? '';
+  const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1];
+  const plain = /filename="?([^";]+)"?/i.exec(disposition)?.[1];
+  const name = encoded ? decodeURIComponent(encoded) : plain ?? fallbackName;
+
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  // Revoked on the next tick: the click has already handed the blob to the download.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+  return name;
+}
+
 async function toApiError(response: Response): Promise<ApiError> {
   let body: ApiErrorBody | undefined;
   try {

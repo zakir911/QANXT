@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { apiRequest } from '../api/client';
 import { useExecutionStream, type ExecutionEvent } from '../lib/live';
 import { Card, ErrorNotice, Metric, PageHeader, Spinner, StatusBadge } from '../components/ui';
+import { BugReportDownloads } from '../components/BugReportDownloads';
 import { formatDuration, formatPercent, formatRelative, humanize } from '../lib/format';
 
 interface TestRunSummary {
@@ -113,6 +114,7 @@ export default function TestRunDetailPage() {
                 {connected ? 'live' : 'polling'}
               </span>
             )}
+            {!isActive && <BugReportDownloads runId={run.id} />}
             <StatusBadge status={run.status} />
             <Link to="/runs" className="btn-secondary">Back</Link>
           </div>

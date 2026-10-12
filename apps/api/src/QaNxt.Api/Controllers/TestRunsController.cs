@@ -2,6 +2,7 @@ using QaNxt.Api.Authorization;
 using QaNxt.Application.Abstractions;
 using QaNxt.Application.Contracts;
 using QaNxt.Application.Quality;
+using QaNxt.Application.Reporting;
 using QaNxt.Application.Security;
 using QaNxt.Application.Testing;
 using QaNxt.Domain.Common;
@@ -17,12 +18,14 @@ public sealed class TestRunsController : ApiControllerBase
     private readonly ITestRunService _runs;
     private readonly IQualityGateEvaluator _gates;
     private readonly IQaNxtDbContext _db;
+    private readonly IRunBugReportService _bugReports;
 
-    public TestRunsController(ITestRunService runs, IQualityGateEvaluator gates, IQaNxtDbContext db)
+    public TestRunsController(ITestRunService runs, IQualityGateEvaluator gates, IQaNxtDbContext db, IRunBugReportService bugReports)
     {
         _runs = runs;
         _gates = gates;
         _db = db;
+        _bugReports = bugReports;
     }
 
     [HttpGet]
@@ -40,6 +43,16 @@ public sealed class TestRunsController : ApiControllerBase
     {
         var result = await _runs.StartAsync(request, ct);
         return FromResult(result, summary => AcceptedAtAction(nameof(Get), new { id = summary.Id }, summary));
+    }
+
+    /// <summary>The run's bug report, to download and hand to developers: <c>html</c> (one
+    /// self-contained page with screenshots), <c>zip</c> (the page, Markdown, JSON and every
+    /// evidence file) or <c>json</c>.</summary>
+    [HttpGet("{id:guid}/bug-report")]
+    public async Task<IActionResult> BugReport(Guid id, [FromQuery] string format = "html", CancellationToken ct = default)
+    {
+        var result = await _bugReports.ExportAsync(id, format, ct);
+        return FromResult(result, file => File(file.Content, file.ContentType, file.FileName));
     }
 
     [HttpPost("{id:guid}/cancel")]

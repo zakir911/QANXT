@@ -18,7 +18,7 @@
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { deflateRawSync } from 'node:zlib';
+import { deflateRawSync, inflateRawSync } from 'node:zlib';
 import { API, createProject, newTenant, registerApplication, request, runDiscovery } from '../golden-tests/platform.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -48,6 +48,34 @@ function save(name, value) {
   const path = join(EVIDENCE, name);
   writeFileSync(path, typeof value === 'string' ? value : JSON.stringify(value, null, 2));
   return `verification/evidence/MANUAL-TESTING/${RUN_ID}/${name}`;
+}
+
+/** Reads a zip's entries (stored or deflated) — enough to check an evidence pack. */
+function readZip(buffer) {
+  let end = buffer.length - 22;
+  while (end >= 0 && buffer.readUInt32LE(end) !== 0x06054b50) end--;
+  const count = buffer.readUInt16LE(end + 10);
+  let offset = buffer.readUInt32LE(end + 16);
+  const entries = new Map();
+  for (let i = 0; i < count; i++) {
+    const method = buffer.readUInt16LE(offset + 10);
+    const compressed = buffer.readUInt32LE(offset + 20);
+    const nameLength = buffer.readUInt16LE(offset + 28);
+    const extraLength = buffer.readUInt16LE(offset + 30);
+    const commentLength = buffer.readUInt16LE(offset + 32);
+    const local = buffer.readUInt32LE(offset + 42);
+    const name = buffer.toString('utf8', offset + 46, offset + 46 + nameLength);
+    const dataStart = local + 30 + buffer.readUInt16LE(local + 26) + buffer.readUInt16LE(local + 28);
+    const data = buffer.subarray(dataStart, dataStart + compressed);
+    entries.set(name, method === 8 ? inflateRawSync(data) : Buffer.from(data));
+    offset += 46 + nameLength + extraLength + commentLength;
+  }
+  return entries;
+}
+
+async function download(path) {
+  const response = await fetch(`${API}${path}`, { headers: { authorization: `Bearer ${tenant.token}` } });
+  return { status: response.status, type: response.headers.get('content-type') ?? '', disposition: response.headers.get('content-disposition') ?? '', body: Buffer.from(await response.arrayBuffer()) };
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -391,6 +419,47 @@ save('defects.json', defects);
 check('DEF-001', 'Defects', 'Failures propose defects', defects.length > 0 && defects.every(d => d.status === 'proposed'), `${defects.length} proposed`);
 check('DEF-002', 'Defects', 'Failures with one cause are one defect', defects.length < failures.length,
   `${failures.length} failing tests → ${defects.length} defects`);
+// ---------------------------------------------------------------------------
+// 6b. The bug report a developer is handed
+// ---------------------------------------------------------------------------
+
+const [bugHtml, bugZip, bugJson] = await Promise.all(['html', 'zip', 'json'].map(f => download(`/api/v1/testruns/${runAll.testRunId}/bug-report?format=${f}`)));
+const bugReport = bugJson.status === 200 ? JSON.parse(bugJson.body.toString('utf8')) : null;
+if (bugHtml.status === 200) writeFileSync(join(EVIDENCE, 'bug-report.html'), bugHtml.body);
+if (bugZip.status === 200) writeFileSync(join(EVIDENCE, 'bug-report.zip'), bugZip.body);
+const bugs = bugReport?.bugs ?? [];
+const accounted = bugs.reduce((n, b) => n + b.affectedTests.length, 0) + (bugReport?.notProductBugs.length ?? 0);
+const reported = new Set(bugs.flatMap(b => b.affectedTests.map(t => t.reference)));
+const missingFromReport = failures.filter(f => !reported.has(f.reference) && !(bugReport?.notProductBugs ?? []).some(o => o.reference === f.reference));
+check('REPORT-001', 'Bug report', 'Every failure of the run is in the downloadable bug report, grouped into bugs like the defects',
+  bugJson.status === 200 && accounted === failures.length && missingFromReport.length === 0 && bugs.length === defects.length,
+  `${failures.length} failing tests → ${bugs.length} bugs (${defects.length} defects), ${bugReport?.notProductBugs.length ?? 0} not product bugs`
+    + (missingFromReport.length ? `; missing: ${missingFromReport.map(f => f.reference).join(', ')}` : ''), save('bug-report.json', bugReport));
+
+const incomplete = bugs.filter(b => !b.pageUrl || !b.expected || !b.actual || !b.failingStep || b.steps.length < 2
+  || b.screenshots.length === 0 || !b.attachments.some(a => a.kind === 'trace') || !b.whereToLook || !b.verifyTheFix);
+const serverBug = bugs.find(b => /HTTP 500/.test(b.title));
+check('REPORT-002', 'Bug report', 'Each bug carries what a developer needs: page, steps with values, data, expected and actual, failing step, screenshot, trace, request, where to look, how to verify',
+  bugs.length > 0 && incomplete.length === 0 && Boolean(serverBug?.exchanges.some(x => x.statusCode === 500 && x.request)) && Boolean(serverBug?.curl),
+  incomplete.length ? `incomplete: ${incomplete.map(b => `${b.key} ${b.title}`).join(' | ')}`
+    : `${bugs.length} bugs complete; the server crash has its request (${serverBug?.exchanges.find(x => x.statusCode === 500)?.request?.slice(0, 60)}) and a curl replay`);
+
+const html = bugHtml.body.toString('utf8');
+const embedded = (html.match(/<img src="data:image\/png;base64,/g) ?? []).length;
+check('REPORT-003', 'Bug report', 'The HTML report is one file a developer can open anywhere, with the screenshots inside it',
+  bugHtml.status === 200 && bugHtml.type.startsWith('text/html') && /attachment/.test(bugHtml.disposition)
+    && bugs.every(b => html.includes(`id="${b.key}"`)) && embedded >= bugs.length && !/<(img|script|link)[^>]+(src|href)="https?:/.test(html),
+  `${Math.round(bugHtml.body.length / 1024)} KB, ${bugs.length} bugs, ${embedded} screenshots embedded, nothing loaded from outside`, 'bug-report.html');
+
+const pack = bugZip.status === 200 ? readZip(bugZip.body) : new Map();
+const packNames = [...pack.keys()];
+const perBug = bugs.filter(b => packNames.some(n => n.startsWith(`evidence/${b.key}/`) && n.endsWith('.png')) && packNames.includes(`evidence/${b.key}/trace.zip`));
+const packText = ['bug-report.html', 'bug-report.md', 'bug-report.json'].map(n => pack.get(n)?.toString('utf8') ?? '').join('\n');
+check('REPORT-004', 'Bug report', 'The evidence pack holds the report as HTML, Markdown and JSON with every bug\'s screenshots and Playwright trace, and no credentials',
+  ['bug-report.html', 'bug-report.md', 'bug-report.json', 'README.txt'].every(n => pack.has(n)) && perBug.length === bugs.length
+    && !packText.includes(tenant.token) && !/Bearer\s+eyJ/.test(packText),
+  `${packNames.length} files, ${Math.round(bugZip.body.length / 1024)} KB; ${perBug.length} of ${bugs.length} bugs with screenshots and a trace; no access token in any file`, 'bug-report.zip');
+
 const crashForm = formByRoute.get('/error-handling');
 const crashDefect = defects.find(d => d.applicationFormId === crashForm.id && /HTTP 500/.test(d.title));
 check('DEF-003', 'Defects', 'The server crash hit by several inputs is one defect with every affected test', (crashDefect?.affectedTestCount ?? 0) >= 2,

@@ -375,6 +375,39 @@ at something a rule decided.
 **An analysis never changes a verdict.** It explains a failure; it cannot turn one into a
 pass.
 
+### Hand the bugs to developers
+
+When a run has finished, its page offers two downloads:
+
+- **Bug report** — one HTML file. Open it in any browser, attach it to a ticket or an email,
+  or print it to PDF. The screenshots are inside it; nothing is loaded from elsewhere.
+- **Evidence pack (.zip)** — the same report as HTML, Markdown (to paste into an issue tracker)
+  and JSON, with every bug's screenshots, Playwright trace, video and page snapshots. A trace
+  replays the test step by step: `npx playwright show-trace evidence/BUG-01/trace.zip`.
+
+Failing tests are grouped into bugs the same way defects are — by symptom and place — so ten
+tests failing on one server crash are one bug with ten affected tests. Each bug says:
+
+| | |
+| --- | --- |
+| **Where** | Application, page, form, field, endpoint, browser and version, viewport |
+| **Steps to reproduce** | The actions that ran, with the exact values typed, and the step that failed |
+| **Test data** | Every value the test used |
+| **Expected and actual** | What should have happened, and what the check observed |
+| **Where to look** | A starting point read from the symptom — "the server does not enforce the minimum", "the error is not tied to the field" — marked as a starting point, not a diagnosis |
+| **Screenshots** | The page at the failure, for the test shown and for the other affected tests |
+| **API exchange** | The requests and responses around the failure, and a `curl` command that replays the request |
+| **Console and accessibility** | Browser errors, and any accessibility rules broken, with links to the rule |
+| **Affected tests** | Every test in the run that fails this way |
+| **Verify the fix** | Which tests to re-run, and the regression test guarding it once confirmed |
+
+Failures that are not the application's fault — a changed locator, an environment outage —
+are listed separately with who should act, so a developer is never sent to fix a test.
+Passwords, tokens, card numbers and other secrets are masked in every request, response and
+log in the report.
+
+The same downloads are available from the API: `GET /api/v1/testruns/{id}/bug-report?format=html|zip|json`.
+
 ---
 
 ## 9. When the application changes: self-healing

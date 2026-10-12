@@ -126,7 +126,9 @@ public sealed class DefectService : IDefectService
                 StepsToReproduce = Truncate(string.Join("\n", steps.Select((s, i) => $"{i + 1}. {s}")), 8000),
                 ExpectedBehaviour = Truncate(testCase.ExpectedResults, 4000),
                 ActualBehaviour = Truncate(failure.RawMessage, 4000),
-                Severity = SeverityOf(testCase),
+                // A server crash is at least major whatever test reached it: the input that
+                // found it is incidental, the failure is not.
+                Severity = serverError is null ? SeverityOf(testCase) : (DefectSeverity)Math.Min((int)SeverityOf(testCase), (int)DefectSeverity.Major),
                 Status = DefectStatus.Proposed,
                 Confidence = failure.CategoryConfidence,
                 ProposedByAi = false,

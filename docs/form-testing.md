@@ -154,6 +154,17 @@ same 5xx from the same endpoint, the same accepted-invalid behaviour on the same
 — never the test, so many failing tests become one defect with every test attached. A proposed
 defect becomes a regression test only after a person confirms it.
 
+## The bug report
+
+`RunBugReportService` (`apps/api/src/QaNxt.Application/Reporting/`) turns a finished run into
+a report for developers, served at `GET /api/v1/testruns/{id}/bug-report?format=html|zip|json`
+and from the run's page in the console. It uses the latest attempt of each test, groups
+failures by their defect, and keeps failures that are not the application's (locator,
+environment, network, authentication, or a defect a person rejected) apart with who should
+act. Steps are the actions that ran; network bodies and console lines are masked again on the
+server; links in the HTML are limited to http(s), embedded images and relative paths, so
+nothing the application under test returned can run in the report.
+
 ## Verification
 
 `./scripts/verify-complete-manual-testing` proves all of this end to end, with AI disabled,
