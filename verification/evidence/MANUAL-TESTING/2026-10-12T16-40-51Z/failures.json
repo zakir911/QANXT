@@ -1,0 +1,211 @@
+[
+  {
+    "reference": "TC-0041",
+    "name": "Feedback: announces the error for Nickname with the field",
+    "form": "/accessibility",
+    "category": "accessibility",
+    "technique": "error-associated",
+    "field": "nickname",
+    "explainedBy": [
+      "FL-D04"
+    ],
+    "error": "The field shows an error, but assistive technology would not announce it with the field: no aria-invalid, no error referenced by aria-describedby, message beside it: \"Enter nickname.\"."
+  },
+  {
+    "reference": "TC-0175",
+    "name": "Delivery address: fits a tablet screen (768x1024)",
+    "form": "/address",
+    "category": "responsive",
+    "technique": "viewport:tablet",
+    "explainedBy": [
+      "FL-D15"
+    ],
+    "error": "The page is 922px wide in a 768px viewport, so it scrolls horizontally."
+  },
+  {
+    "reference": "TC-0176",
+    "name": "Delivery address: fits a mobile screen (390x844)",
+    "form": "/address",
+    "category": "responsive",
+    "technique": "viewport:mobile",
+    "explainedBy": [
+      "FL-D15"
+    ],
+    "error": "The page is 922px wide in a 390px viewport, so it scrolls horizontally."
+  },
+  {
+    "reference": "TC-0377",
+    "name": "Book leave: refuses Last day before First day",
+    "form": "/date-form",
+    "category": "crossField",
+    "technique": "ordered:startDate:endDate:reversed",
+    "field": "endDate",
+    "explainedBy": [
+      "FL-D09"
+    ],
+    "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference DAT-0045.\" (now at http://127.0.0.1:4370/date-form/done?ref=DAT-0045)."
+  },
+  {
+    "reference": "TC-0490",
+    "name": "Transfer money: sends one submission when the submit control is pressed twice quickly",
+    "form": "/duplicate-submit",
+    "category": "reliability",
+    "technique": "rapid-repeat-submit",
+    "explainedBy": [
+      "FL-D03"
+    ],
+    "error": "expected at most 1 POST submission(s) the server did not refuse but saw 2."
+  },
+  {
+    "reference": "TC-0573",
+    "name": "Open an account: requires Company name once it is shown",
+    "form": "/dynamic",
+    "category": "dynamic",
+    "technique": "shows:accountType=Business:companyName:required-when-shown",
+    "field": "companyName",
+    "explainedBy": [
+      "FL-D12"
+    ],
+    "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference DYN-0061.\" (now at http://127.0.0.1:4370/dynamic/done?ref=DYN-0061)."
+  },
+  {
+    "reference": "TC-0647",
+    "name": "Contact support: handles the word null in Message",
+    "form": "/error-handling",
+    "category": "inputValidation",
+    "technique": "null-like",
+    "field": "message",
+    "explainedBy": [
+      "FL-D05"
+    ],
+    "error": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/error-handling → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/."
+  },
+  {
+    "reference": "TC-0650",
+    "name": "Contact support: handles 5000 characters in Message",
+    "form": "/error-handling",
+    "category": "inputValidation",
+    "technique": "very-long",
+    "field": "message",
+    "explainedBy": [
+      "FL-D05"
+    ],
+    "error": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/error-handling → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/."
+  },
+  {
+    "reference": "TC-0829",
+    "name": "Loan application: keeps the first step's answers after going back",
+    "form": "/multi-step",
+    "category": "multiStep",
+    "technique": "previous-keeps-answers",
+    "explainedBy": [
+      "FL-D11"
+    ],
+    "error": "Expected the value \"QA NXT test\" but found \"\" (waited 15194ms)."
+  },
+  {
+    "reference": "TC-0940",
+    "name": "Make a payment: carries an anti-forgery token",
+    "form": "/payment",
+    "category": "security",
+    "technique": "anti-forgery-token",
+    "explainedBy": [
+      "FL-D10"
+    ],
+    "error": "Expected the element to exist on the page, but it does not."
+  },
+  {
+    "reference": "TC-0971",
+    "name": "Edit profile: refuses Display name containing only spaces",
+    "form": "/profile",
+    "category": "negative",
+    "technique": "whitespace-only",
+    "field": "displayName",
+    "explainedBy": [
+      "FL-D08"
+    ],
+    "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference PRO-0241.\" (now at http://127.0.0.1:4370/profile/done?ref=PRO-0241)."
+  },
+  {
+    "reference": "TC-1100",
+    "name": "Create an account: refuses Confirm password that does not match Password",
+    "form": "/registration",
+    "category": "crossField",
+    "technique": "equals:password:confirmPassword",
+    "field": "confirmPassword",
+    "explainedBy": [
+      "FL-D01"
+    ],
+    "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference REG-0093.\" (now at http://127.0.0.1:4370/registration/done?ref=REG-0093)."
+  },
+  {
+    "reference": "TC-1164",
+    "name": "Search: does not reflect markup typed into Search for",
+    "form": "/search",
+    "category": "security",
+    "technique": "markup-reflection",
+    "field": "q",
+    "explainedBy": [
+      "FL-D06"
+    ],
+    "error": "Input was written back into the page as live markup: 1 <qanxt-probe-8bee5329> element(s) exist. The application does not encode what it reflects."
+  },
+  {
+    "reference": "TC-1231",
+    "name": "Session note: copes with the session disappearing before submission",
+    "form": "/session-expiry",
+    "category": "exploratory",
+    "technique": "session-cleared",
+    "explainedBy": [
+      "FL-D13"
+    ],
+    "error": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/session-expiry → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/."
+  },
+  {
+    "reference": "TC-1337",
+    "name": "Quote request: answers a submission within 2000 ms",
+    "form": "/slow-form",
+    "category": "performance",
+    "technique": "submit-response",
+    "explainedBy": [
+      "FL-D07"
+    ],
+    "error": "expected a response within 2000 ms but POST http://127.0.0.1:4370/slow-form took 3505 ms."
+  },
+  {
+    "reference": "TC-1374",
+    "name": "Validation rules: refuses 17 (one step below the minimum of 18) in Age",
+    "form": "/validation",
+    "category": "boundary",
+    "technique": "min-1",
+    "field": "age",
+    "explainedBy": [
+      "FL-D02"
+    ],
+    "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference VAL-0115.\" (now at http://127.0.0.1:4370/validation/done?ref=VAL-0115)."
+  },
+  {
+    "reference": "TC-1377",
+    "name": "Validation rules: refuses zero in Age",
+    "form": "/validation",
+    "category": "boundary",
+    "technique": "zero",
+    "field": "age",
+    "explainedBy": [
+      "FL-D02"
+    ],
+    "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference VAL-0116.\" (now at http://127.0.0.1:4370/validation/done?ref=VAL-0116)."
+  },
+  {
+    "reference": "TC-1378",
+    "name": "Validation rules: refuses a negative value in Age",
+    "form": "/validation",
+    "category": "boundary",
+    "technique": "negative",
+    "field": "age",
+    "explainedBy": [
+      "FL-D02"
+    ],
+    "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference VAL-0117.\" (now at http://127.0.0.1:4370/validation/done?ref=VAL-0117)."
+  }
+]
