@@ -418,7 +418,11 @@ const testById = new Map(tests.map(t => [t.id, t]));
 const formIdToTruth = new Map(truth.forms.map(f => [formByRoute.get(f.route)?.id, f]));
 const failures = failedExecs.map(e => {
   const test = testById.get(e.testCaseId);
-  const form = formIdToTruth.get(test?.applicationFormId);
+  // A page-level test belongs to a page, not a form: it is matched to the lab form on the
+  // page it names ("Title (/route): …"), so a page check that finds a form's declared defect
+  // is credited with it, and one that fails anywhere else is still unexplained.
+  const pageRoute = test && !test.applicationFormId ? /\((\/[^)]*)\):/.exec(test.name ?? '')?.[1] : undefined;
+  const form = formIdToTruth.get(test?.applicationFormId) ?? truth.forms.find(f => f.route === pageRoute);
   const category = camel(test?.category);
   const explainedBy = form?.defects.filter(d => d.detectedBy.includes(category)).map(d => d.id) ?? [];
   return { reference: e.reference, name: e.name, form: form?.route, category, technique: test?.technique, field: test?.fieldKey, explainedBy, error: e.errorMessage };

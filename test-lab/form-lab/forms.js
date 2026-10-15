@@ -243,7 +243,7 @@ export const FORMS = [
     ],
     submitLabel: 'Send feedback',
     defects: [
-      { id: 'FL-D04', description: 'The nickname input has no label, and its error is neither associated with it nor announced.', detectedBy: ['accessibility'] }
+      { id: 'FL-D04', description: 'The nickname input has no label, its error is neither associated with it nor announced, and the note under the form is light grey on white (too little contrast).', detectedBy: ['accessibility'] }
     ]
   },
   {
