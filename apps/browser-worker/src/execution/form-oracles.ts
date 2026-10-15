@@ -284,6 +284,20 @@ interface RequestExpectation {
   countUnrefusedOnly?: boolean;
 }
 
+/**
+ * Whether a request went to the expected address. The expectation comes from the API
+ * inventory, which stores addresses normalised — lower case, with ids as `{id}` — so a
+ * literal, case-sensitive "contains" missed a login posted to /IDSenseAPI/… when the
+ * inventory said /idsenseapi/…, and reported a working form as broken.
+ */
+export function urlMatches(url: string, expected: string): boolean {
+  const actual = url.toLowerCase();
+  const wanted = expected.toLowerCase();
+  if (!wanted.includes('{')) return actual.includes(wanted);
+  const pattern = wanted.split(/\{[^}]+\}/).map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('[^/?#]+');
+  return new RegExp(pattern).test(actual);
+}
+
 const statusMatches = (code: number | undefined, accepted: (string | number)[]) =>
   code !== undefined && accepted.some(a => typeof a === 'number' ? a === code : new RegExp(`^${String(a).replace(/x/g, '\\d')}$`).test(String(code)));
 
@@ -296,12 +310,18 @@ export async function assertRequests(page: Page, value: string | undefined, obs:
   const events = expectation.scope === 'test' ? obs.network() : obs.network().slice(obs.networkMarkAtLastNavigation());
   const matching = events.filter(e =>
     (!expectation.method || e.method.toUpperCase() === expectation.method.toUpperCase())
-    && (!expectation.urlContains || e.url.includes(expectation.urlContains))
+    && (!expectation.urlContains || urlMatches(e.url, expectation.urlContains))
     && ['document', 'xhr', 'fetch', undefined].includes(e.resourceType)
     && (!expectation.countUnrefusedOnly || e.statusCode === undefined || e.statusCode < 400));
   const what = `${expectation.method ?? 'any'}${expectation.countUnrefusedOnly ? ' submission' : ' request'}(s)${expectation.urlContains ? ` to "${expectation.urlContains}"` : ''}${expectation.countUnrefusedOnly ? ' the server did not refuse' : ''}`;
   const problems: string[] = [];
-  if (expectation.minCount !== undefined && matching.length < expectation.minCount) problems.push(`expected at least ${expectation.minCount} ${what} but saw ${matching.length}`);
+  if (expectation.minCount !== undefined && matching.length < expectation.minCount) {
+    // Name what was sent instead, so a reader can tell "nothing was sent" from "it went
+    // somewhere else" without opening the trace.
+    const sent = events.filter(e => ['document', 'xhr', 'fetch'].includes(e.resourceType ?? '') && e.method !== 'GET').slice(0, 3)
+      .map(e => `${e.method} ${e.url}${e.statusCode === undefined ? '' : ` → ${e.statusCode}`}`);
+    problems.push(`expected at least ${expectation.minCount} ${what} but saw ${matching.length}${sent.length ? ` (sent instead: ${sent.join('; ')})` : ' (no submission was sent at all)'}`);
+  }
   if (expectation.maxCount !== undefined && matching.length > expectation.maxCount) problems.push(`expected at most ${expectation.maxCount} ${what} but saw ${matching.length}`);
   const answered = matching.filter(e => e.statusCode !== undefined);
   if (expectation.statusIn && answered.some(e => !statusMatches(e.statusCode, expectation.statusIn!))) {
@@ -357,12 +377,49 @@ export async function assertValueLength(field: Locator, value: string | undefine
 
 export async function assertNoHorizontalScroll(page: Page): Promise<void> {
   await settlePage(page);
-  const result = await page.evaluate(() => ({
-    content: Math.max(document.documentElement.scrollWidth, document.body?.scrollWidth ?? 0),
-    viewport: window.innerWidth
-  }));
-  if (result.content > result.viewport + 1) {
-    throw new OracleError(`The page is ${result.content}px wide in a ${result.viewport}px viewport, so it scrolls horizontally.`);
+  // Whether a person can actually scroll sideways, not how wide the content is: decoration
+  // a site clips with overflow-x: hidden is wider than the viewport but cannot be reached,
+  // and reporting it sent developers after a layout that was fine.
+  const result = await page.evaluate(() => {
+    const root = document.scrollingElement ?? document.documentElement;
+    const viewport = document.documentElement.clientWidth || window.innerWidth;
+    // The window scrolls sideways unless the page tells it not to: html's overflow-x, or
+    // body's when html leaves it visible (CSS hands body's value to the window then).
+    // Hidden and clip stop a person scrolling; a script still could, so measuring with
+    // scrollTo would be wrong.
+    const htmlOverflow = getComputedStyle(document.documentElement).overflowX;
+    const windowOverflow = htmlOverflow !== 'visible' ? htmlOverflow : getComputedStyle(document.body).overflowX;
+    const overflow = Math.max(0, root.scrollWidth - viewport);
+    const reachable = windowOverflow === 'hidden' || windowOverflow === 'clip' ? 0 : overflow;
+    if (reachable <= 1) return { reachable, viewport, culprit: null as string | null, right: 0 };
+
+    // The element that sticks out furthest and is not itself inside something that clips.
+    const clips = (el: Element | null): boolean => {
+      for (let node = el?.parentElement; node && node !== document.body && node !== document.documentElement; node = node.parentElement) {
+        const overflow = getComputedStyle(node).overflowX;
+        if (overflow === 'hidden' || overflow === 'clip' || overflow === 'auto' || overflow === 'scroll') return true;
+      }
+      return false;
+    };
+    let culprit: Element | null = null;
+    let right = 0;
+    for (const el of Array.from(document.body.querySelectorAll('*')).slice(0, 5000)) {
+      const box = el.getBoundingClientRect();
+      if (box.width === 0 || box.right <= viewport + 1 || clips(el)) continue;
+      // Document order visits an element before its children, so on a tie the outermost
+      // element — the one with the fixed width — is kept, not the input inside it.
+      if (box.right > right + 0.5) { culprit = el; right = box.right; }
+    }
+    const describe = (el: Element) => {
+      const id = el.id ? `#${el.id}` : '';
+      const classes = typeof el.className === 'string' ? el.className.trim().split(/\s+/).filter(Boolean).slice(0, 3).map(c => `.${c}`).join('') : '';
+      return `${el.tagName.toLowerCase()}${id}${classes}`;
+    };
+    return { reachable, viewport, culprit: culprit ? describe(culprit) : null, right: Math.round(right + window.scrollX) };
+  });
+  if (result.reachable > 1) {
+    throw new OracleError(`The page can be scrolled sideways by ${Math.round(result.reachable)}px in a ${result.viewport}px-wide window`
+      + (result.culprit ? `; the element reaching furthest is ${result.culprit}, whose right edge is at ${result.right}px.` : '.'));
   }
 }
 

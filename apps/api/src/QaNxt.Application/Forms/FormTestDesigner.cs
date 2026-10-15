@@ -146,6 +146,23 @@ public static class FormTestDesigner
 
         public void Run()
         {
+            // A form nobody can see until something opens it, and nothing found to open it:
+            // every test would wait for a field that never appears and time out, which reads
+            // as a slow application. Generate none, and say why.
+            if (_form.HiddenAtLoad && _form.Opener is null)
+            {
+                _gaps.Add(new DesignedGap(TestCategory.Functional, null, "a way to open the form",
+                    "The form is hidden when its page loads, and discovery found no control on the page that shows it. Tests would wait for fields nobody can see.",
+                    "Record a journey that opens the form (for example its \"Contact us\" button), or discover again after adding the opener's route.",
+                    CoverageGapStatus.NotCovered));
+                Human(TestCategory.Functional, "open-hidden-form", "open and submit the form",
+                    "QA NXT could not find what opens this form, so it generated no tests for it.",
+                    $"Open {_ctx.PageUrl}, find the control that shows {Title}, fill it in and submit it.",
+                    "The form opens, accepts a valid submission and refuses an empty one.");
+                _applicable.Add(TestCategory.Functional);
+                return;
+            }
+
             if (_submit is null)
             {
                 _gaps.Add(new DesignedGap(TestCategory.Functional, null, "a control that submits the form",
@@ -192,7 +209,26 @@ public static class FormTestDesigner
         private void Add(DesignedTest test)
         {
             if (!_keys.Add(test.Key)) return;
-            _tests.Add(test);
+            _tests.Add(_form.Opener is null ? test : test with { Steps = WithOpener(test.Steps) });
+        }
+
+        /// <summary>For a form behind an opener (a dialog's "Contact us"), presses the opener
+        /// whenever the page has just been loaded, reloaded or returned to and the test goes
+        /// on to use the form.</summary>
+        private List<DesignedStep> WithOpener(IReadOnlyList<DesignedStep> steps)
+        {
+            var result = new List<DesignedStep>(steps.Count + 2);
+            for (var i = 0; i < steps.Count; i++)
+            {
+                result.Add(steps[i]);
+                var loads = steps[i].Action is BrowserActionType.Reload or BrowserActionType.GoBack
+                    || steps[i].Action == BrowserActionType.Navigate && string.Equals(steps[i].Url, _ctx.PageUrl, StringComparison.Ordinal);
+                var next = i + 1 < steps.Count ? steps[i + 1] : null;
+                if (loads && next is not null && next.Action is not (BrowserActionType.Navigate or BrowserActionType.SetViewport
+                        or BrowserActionType.AssertLoadTimeUnder or BrowserActionType.AssertNoHorizontalScroll))
+                    result.Add(new DesignedStep(BrowserActionType.Click, $"Press \"{_form.Opener!.Label}\" to open the form", _form.Opener.Locator));
+            }
+            return result;
         }
 
         private string Key(TestCategory category, string technique, string? field = null)

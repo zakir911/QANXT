@@ -64,6 +64,9 @@ export const FORMS = [
     ],
     submitLabel: 'Sign in',
     credentials: { username: 'demo', password: 'demo-pass' },
+    // Wide background decoration the page clips, as many marketing and sign-in pages do.
+    // The content is wider than a phone, but nobody can scroll to it: not a defect.
+    decoration: 'clipped-overflow',
     defects: []
   },
   {
@@ -265,6 +268,18 @@ export const FORMS = [
       { name: 'when', label: 'Preferred time', type: 'select', required: true, options: ['Morning', 'Afternoon', 'Evening'] }
     ],
     submitLabel: 'Request callback',
+    defects: []
+  },
+  {
+    id: 'contact-modal', route: '/contact-modal', title: 'Talk to sales',
+    purpose: 'A contact form inside a dialog that opens from a "Contact us" button. Correct; it has to be opened before it can be used.',
+    inDialog: { opener: 'Contact us' },
+    fields: [
+      { name: 'fullName', label: 'Full name', type: 'text', required: true, attrs: { maxlength: 60 } },
+      { name: 'workEmail', label: 'Work email', type: 'email', required: true },
+      { name: 'requirement', label: 'What do you need?', type: 'textarea', required: true, attrs: { maxlength: 500 } }
+    ],
+    submitLabel: 'Send message',
     defects: []
   },
   {

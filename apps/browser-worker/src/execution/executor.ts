@@ -7,6 +7,7 @@ import type {
   ExecutionStepPlan, HealingEventReport, LocatorDescriptor
 } from '@qa-nxt/shared-types';
 import { describeLocator } from '@qa-nxt/shared-types';
+import { buildLocator } from '../browser/locator-resolver.js';
 import { performLogin } from '../browser/authenticator.js';
 import type { BrowserPool } from '../browser/browser-pool.js';
 import { LocatorHealer } from '../healing/healer.js';
@@ -440,7 +441,7 @@ export class TestExecutor {
             ...base,
             status: 'failed',
             durationMs: Date.now() - started,
-            errorMessage: masker.maskText(error instanceof Error ? error.message.split('\n')[0] ?? error.message : String(error)),
+            errorMessage: masker.maskText(await explainTimeout(page, error instanceof Error ? error.message.split('\n')[0] ?? error.message : String(error), step.action.target)),
             screenshotKeys: await this.failureEvidence(page, step, collector, job, before)
           }
         };
@@ -652,6 +653,38 @@ export class TestExecutor {
 }
 
 class PreconditionError extends Error {}
+
+/**
+ * Says why an action on an element timed out. Playwright reports only that it waited; the
+ * reason — the element is hidden in a closed dialog, disabled, or covered by a banner — is
+ * what separates "the application is slow" from "the test cannot reach this control", and
+ * a timeout without it was being read as the first.
+ */
+export async function explainTimeout(page: Page, message: string, target: LocatorDescriptor | undefined): Promise<string> {
+  if (!target || !/Timeout \d+ms exceeded/i.test(message)) return message;
+  try {
+    const all = buildLocator(page, target);
+    const count = await all.count();
+    if (count === 0) return `${message} No element on the page matches it.`;
+    const element = all.first();
+    if (!(await element.isVisible())) {
+      return `${message} The element is on the page but hidden, so nobody can use it — it may be inside a closed dialog or a collapsed section that has to be opened first.`;
+    }
+    if (!(await element.isEnabled())) return `${message} The element is disabled.`;
+    const cover = await element.evaluate(el => {
+      const box = el.getBoundingClientRect();
+      const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      if (!top || top === el || el.contains(top) || top.contains(el)) return null;
+      const id = top.id ? `#${top.id}` : '';
+      const classes = typeof top.className === 'string' ? top.className.trim().split(/\s+/).filter(Boolean).slice(0, 2).map(c => `.${c}`).join('') : '';
+      return `${top.tagName.toLowerCase()}${id}${classes}`;
+    });
+    if (cover) return `${message} Another element (${cover}) covers it, so a click cannot reach it.`;
+  } catch {
+    // The diagnosis is a courtesy; the original message stands without it.
+  }
+  return message;
+}
 
 /**
  * Whether this job needs a browser page at all.

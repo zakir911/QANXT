@@ -96,6 +96,20 @@ public sealed class DefectService : IDefectService
         if (NotDefects.Contains(failure.Category)) return null;
         if (failure.Category != FailureCategory.ApplicationDefect && !oracle) return null;
 
+        // A check about the form's own elements that fails because the test is no longer on
+        // the form's page — a back button that returned somewhere else, a redirect after
+        // sign-in — says where the test ended up, not what the form does.
+        var form0 = testCase.ApplicationFormId is null ? null : await _db.ApplicationForms.FirstOrDefaultAsync(f => f.Id == testCase.ApplicationFormId, ct);
+        if (action is not null && form0 is not null && ElementCheck(action.Action)
+            && failure.RawMessage.Contains("No element matched", StringComparison.OrdinalIgnoreCase)
+            && !SamePage(action.Url, form0.PageUrl))
+        {
+            failure.Category = FailureCategory.TestDefect;
+            failure.CategoryConfidence = 75;
+            await _db.SaveChangesAsync(ct);
+            return null;
+        }
+
         var serverError = await _db.NetworkEvents
             .Where(n => n.TestExecutionId == failure.TestExecutionId && n.StatusCode >= 500)
             .OrderBy(n => n.OccurredAt).FirstOrDefaultAsync(ct);
@@ -119,7 +133,8 @@ public sealed class DefectService : IDefectService
                 ApplicationFormId = testCase.ApplicationFormId,
                 Category = testCase.Category,
                 Signature = signature,
-                Title = Truncate($"{(form is null ? string.Empty : form.Name + ": ")}{symptom}", 300),
+                // Where it happened leads the title: the form, or for a page-level check the page.
+                Title = Truncate($"{(form is not null ? form.Name + ": " : PagePath(action?.Url) is { } path ? path + ": " : string.Empty)}{symptom}", 300),
                 Description = Truncate($"Proposed from failing test {testCase.Reference} ({testCase.Name}). "
                     + $"{(testCase.Objective.Length > 0 ? "It checks: " + testCase.Objective + " " : string.Empty)}"
                     + "Every test that fails with the same symptom in the same place is attached to this defect.", 8000),
@@ -175,8 +190,11 @@ public sealed class DefectService : IDefectService
         else if (action is not null && action.Action == BrowserActionType.CheckAccessibility)
         {
             var rules = Regex.Matches(failure.RawMessage, @"\b([a-z]+(?:-[a-z]+)+)\b").Select(m => m.Groups[1].Value).Distinct().OrderBy(r => r).Take(5);
+            var ruleList = Regex.Matches(failure.RawMessage, @"([a-z]+(?:-[a-z]+)+) \((critical|serious|moderate|minor)\)").Select(m => m.Groups[1].Value).Distinct().ToList();
+            var elements = Regex.Match(failure.RawMessage, @"and (\d+) other element").Success ? int.Parse(Regex.Match(failure.RawMessage, @"and (\d+) other element").Groups[1].Value) + 1 : (int?)null;
             key = $"a11y|{place}|{string.Join(',', rules)}";
-            symptom = "has accessibility violations";
+            symptom = ruleList.Count == 0 ? "has accessibility violations"
+                : $"breaks the accessibility rule{(ruleList.Count > 1 ? "s" : string.Empty)} {string.Join(", ", ruleList)}{(elements is null ? string.Empty : $" on {elements} element{(elements == 1 ? string.Empty : "s")}")}";
         }
         else if (action is not null)
         {
@@ -227,6 +245,20 @@ public sealed class DefectService : IDefectService
         var end = message.IndexOfAny(new[] { '.', '\n' });
         var sentence = end > 0 ? message[..end] : message;
         return sentence.Length > 160 ? sentence[..160] : sentence;
+    }
+
+    private static string? PagePath(string? url) => Uri.TryCreate(url, UriKind.Absolute, out var uri) ? $"Page {uri.AbsolutePath}" : null;
+
+    private static bool ElementCheck(BrowserActionType action) => action is BrowserActionType.AssertVisible or BrowserActionType.AssertHidden
+        or BrowserActionType.AssertValue or BrowserActionType.AssertFocused or BrowserActionType.AssertErrorAssociated
+        or BrowserActionType.AssertFieldInvalid or BrowserActionType.AssertFieldValid or BrowserActionType.AssertText or BrowserActionType.AssertEnabled;
+
+    private static bool SamePage(string? actual, string? expected)
+    {
+        if (actual is null || expected is null) return true;
+        if (!Uri.TryCreate(actual, UriKind.Absolute, out var a) || !Uri.TryCreate(expected, UriKind.Absolute, out var e)) return true;
+        return string.Equals(a.Host, e.Host, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(a.AbsolutePath.TrimEnd('/'), e.AbsolutePath.TrimEnd('/'), StringComparison.OrdinalIgnoreCase);
     }
 
     private static DefectSeverity SeverityOf(TestCase testCase) => (testCase.Category, testCase.Priority) switch

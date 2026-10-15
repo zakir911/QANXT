@@ -27,7 +27,8 @@ const VALID = {
   accountType: 'Personal', title: 'Proof of address',
   startDate: '2026-01-10', endDate: '2026-01-12', startTime: '09:00',
   region: 'England', age: '30', subject: 'Help', message: 'Please call me back.',
-  nickname: 'Ada', when: 'Morning', company: 'Acme', seats: '10', payee: 'Acme Ltd', note: 'Remember the milk'
+  nickname: 'Ada', when: 'Morning', company: 'Acme', seats: '10', payee: 'Acme Ltd', note: 'Remember the milk',
+  workEmail: 'ada@example.test', requirement: 'A demo for our team.'
 };
 
 let failures = 0;

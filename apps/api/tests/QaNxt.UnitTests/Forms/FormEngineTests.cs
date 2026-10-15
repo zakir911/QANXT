@@ -192,6 +192,41 @@ public class FormEngineTests
     }
 
     [Fact]
+    public void A_form_hidden_behind_nothing_gets_no_tests_and_says_why()
+    {
+        // Every test of a form nobody can open waits for an invisible field and times out,
+        // which a report then reads as a slow application.
+        var design = Design(Registration() with { HiddenAtLoad = true, Opener = null });
+        design.Tests.Should().BeEmpty();
+        design.Gaps.Should().ContainSingle(g => g.Missing == "a way to open the form");
+        design.HumanTasks.Should().ContainSingle(t => t.Title.Contains("open and submit"));
+    }
+
+    [Fact]
+    public void A_form_behind_an_opener_is_opened_before_each_test_uses_it()
+    {
+        var opener = new FormOpenerModel { Label = "Contact us", Locator = TestId("contact-open") };
+        var design = Design(Registration() with { HiddenAtLoad = true, Opener = opener });
+        design.Tests.Should().NotBeEmpty();
+
+        foreach (var test in design.Tests)
+        {
+            var steps = test.Steps.ToList();
+            for (var i = 0; i < steps.Count - 1; i++)
+            {
+                var loads = steps[i].Action is BrowserActionType.Reload or BrowserActionType.GoBack
+                    || steps[i].Action == BrowserActionType.Navigate && steps[i].Url == "http://lab/registration";
+                var usesForm = steps[i + 1].Action is not (BrowserActionType.Navigate or BrowserActionType.SetViewport
+                    or BrowserActionType.AssertLoadTimeUnder or BrowserActionType.AssertNoHorizontalScroll);
+                if (loads && usesForm)
+                    steps[i + 1].Target!.Value.Should().Be("contact-open", $"{test.Name} must open the form after step {i + 1}");
+            }
+        }
+        design.Tests.Single(t => t.Technique == "page-load").Steps.Should().NotContain(s => s.Target != null && s.Target.Value == "contact-open",
+            "measuring the page load does not need the form open");
+    }
+
+    [Fact]
     public void A_one_page_forms_continue_button_is_its_submit_control()
     {
         var form = Registration() with

@@ -203,6 +203,10 @@ check('DISC-006', 'Discovery', 'Conditional fields and dependent lists are disco
 const wizards = truth.forms.filter(f => f.multiStep);
 check('DISC-007', 'Discovery', 'Multi-step forms are recognised with their steps', wizards.every(f => models[f.route]?.isMultiStep), wizards.map(f => f.route).join(', '));
 const records = await fetch(`${LAB_URL}/api/records`).then(r => r.json());
+const dialogModel = models['/contact-modal'];
+check('DISC-009', 'Discovery', 'A form hidden in a dialog is found together with the control that opens it',
+  dialogModel?.hiddenAtLoad === true && dialogModel?.opener?.label === 'Contact us',
+  dialogModel ? `hidden at load: ${dialogModel.hiddenAtLoad}; opener: ${dialogModel.opener ? `"${dialogModel.opener.label}"` : 'none'}` : '/contact-modal not discovered');
 check('DISC-008', 'Discovery', 'Discovery and probing submitted nothing', records.records.length === 0, `${records.records.length} record(s) in the lab`);
 const endpoints = await api(`/api/v1/applications/${application.id}/api-endpoints`).catch(() => []);
 measured.discovery = { pages: routes.size, forms: forms.length, fields: forms.reduce((n, f) => n + f.fieldCount, 0), endpoints: endpoints?.length ?? 0, constraints: declaredConstraints };
@@ -400,6 +404,21 @@ check('FAIL-001', 'Failure detection', 'Every deliberate defect in the lab is de
 check('FAIL-002', 'Failure detection', 'No failure outside the lab\'s declared defects (no false failures)', unexplained.length === 0,
   unexplained.length ? unexplained.slice(0, 8).map(f => `${f.reference} ${f.name}: ${String(f.error).slice(0, 100)}`).join(' | ') : `${failures.length} failure(s), all explained by declared defects`);
 measured.failures = { total: failures.length, unexplained: unexplained.length, detected: detected.size - missed.length, declared: detected.size };
+
+// Patterns a real application showed that are not defects, and must not be reported as
+// such: a form behind a "Contact us" dialog, and decoration a page clips.
+const verdictOf = id => String(executions.find(e => e.testCaseId === id)?.status ?? 'not run').toLowerCase();
+const dialogTests = tests.filter(t => t.applicationFormId === formByRoute.get('/contact-modal')?.id);
+const dialogRan = dialogTests.filter(t => ['passed', 'failed', 'error'].includes(verdictOf(t.id)));
+const dialogFailed = dialogTests.filter(t => ['failed', 'error'].includes(verdictOf(t.id)));
+check('FALSE-001', 'False positives', 'A correct form inside a dialog is opened by its tests and reported clean',
+  dialogRan.length >= 20 && dialogFailed.length === 0,
+  `${dialogRan.length} tests ran against /contact-modal; ${dialogFailed.length} failed${dialogFailed.length ? `: ${dialogFailed.slice(0, 4).map(t => t.reference).join(', ')}` : ''}`);
+const loginResponsive = tests.filter(t => t.applicationFormId === formByRoute.get('/login')?.id && camel(t.category) === 'responsive');
+const loginOverflow = loginResponsive.filter(t => ['failed', 'error'].includes(verdictOf(t.id)));
+check('FALSE-002', 'False positives', 'Decoration a page clips (overflow-x: hidden) is not reported as sideways scrolling',
+  loginResponsive.length > 0 && loginOverflow.length === 0,
+  `${loginResponsive.length} responsive tests on /login, ${loginOverflow.length} failed`);
 
 const failureList = await api(`/api/v1/failures?projectId=${project.id}&limit=200`);
 const sampleFailure = failureList.find(f => f.testExecutionId === failedExecs[0]?.id) ?? failureList[0];

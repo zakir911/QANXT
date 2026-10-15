@@ -298,6 +298,30 @@ public static class DeterministicFailureClassifier
                 IsLikelyApplicationDefect: false, IsHealable: true);
         }
 
+        // The worker says why an action on an element timed out. A control nobody can see, or
+        // one something else covers, is a test that cannot reach the form — not a slow page,
+        // and not, on that evidence alone, the application's fault.
+        if (lowered.Contains("on the page but hidden, so nobody can use it"))
+        {
+            return new DeterministicVerdict(
+                FailureCategory.TestDefect, 80,
+                "The test tried to use a control nobody can see.",
+                "The control exists but is hidden — usually inside a dialog or a collapsed section the test did not open first.",
+                message,
+                "Open what reveals the control before using it (discovery records an opener when it finds one), or record a journey that does.",
+                IsLikelyApplicationDefect: false, IsHealable: false);
+        }
+        if (lowered.Contains("covers it, so a click cannot reach it"))
+        {
+            return new DeterministicVerdict(
+                FailureCategory.TestDefect, 70,
+                "Another element covers the control.",
+                "Something on top of the control — often a cookie banner, a chat widget or an overlay — takes the click.",
+                message,
+                "Dismiss the covering element first. If it covers the control for real users too, report that as a defect by hand.",
+                IsLikelyApplicationDefect: false, IsHealable: false);
+        }
+
         if (input.ConsoleErrorCount > 0 && (lowered.Contains("timeout") || lowered.Contains("timed out")))
         {
             return new DeterministicVerdict(

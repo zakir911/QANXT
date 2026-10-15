@@ -168,6 +168,6 @@ nothing the application under test returned can run in the report.
 ## Verification
 
 `./scripts/verify-complete-manual-testing` proves all of this end to end, with AI disabled,
-against the golden form lab (`test-lab/form-lab`: twenty forms, fourteen deliberate defects,
+against the golden form lab (`test-lab/form-lab`: twenty-one forms (one behind a dialog), fourteen deliberate defects,
 ground truth generated from the same declarations the server validates with). It writes
 `verification/manual-testing-coverage-report.md` from what it counted.

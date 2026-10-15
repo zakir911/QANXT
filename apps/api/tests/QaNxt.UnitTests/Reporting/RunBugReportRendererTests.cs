@@ -90,6 +90,20 @@ public class RunBugReportRendererTests
     }
 
     [Fact]
+    public async Task Failures_with_one_cause_are_shown_once_with_every_test()
+    {
+        var report = Report();
+        var hidden = Enumerable.Range(1, 94).Select(i => new ReportOtherFailure($"TC-{i:0000}", $"Contact form test {i}", "Test defect",
+            "locator.click: Timeout 15000ms exceeded. The element is on the page but hidden, so nobody can use it.", "QA", Guid.NewGuid())).ToList();
+        report = report with { NotProductBugs = hidden.Append(new ReportOtherFailure("TC-0999", "Profile opens", "Locator change", "No element matched.", "QA", Guid.NewGuid())).ToList() };
+
+        var html = await RunBugReportRenderer.HtmlAsync(report, Read);
+        html.Should().Contain("<summary>94 tests</summary>");
+        System.Text.RegularExpressions.Regex.Matches(html, "on the page but hidden").Count.Should().Be(1, "one row for one cause");
+        html.Should().Contain("personal or customer data");
+    }
+
+    [Fact]
     public void The_text_a_page_showed_is_read_without_its_markup_scripts_or_styles()
     {
         var text = RunBugReportService.VisibleText(

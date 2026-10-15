@@ -27,6 +27,10 @@ public sealed record DiscoveredFormModel
     [JsonPropertyName("stepIndicatorText")] public string? StepIndicatorText { get; init; }
     [JsonPropertyName("dependencies")] public List<FormDependencyModel> Dependencies { get; init; } = new();
     [JsonPropertyName("probeNote")] public string? ProbeNote { get; init; }
+    /// <summary>No field was visible when the page loaded: the form lives behind something.</summary>
+    [JsonPropertyName("hiddenAtLoad")] public bool HiddenAtLoad { get; init; }
+    /// <summary>The control that reveals a form hidden at load, when discovery found one.</summary>
+    [JsonPropertyName("opener")] public FormOpenerModel? Opener { get; init; }
 
     public string ToJson() => JsonSerializer.Serialize(this, JsonDefaults.Options);
 
@@ -36,6 +40,12 @@ public sealed record DiscoveredFormModel
         try { return JsonSerializer.Deserialize<DiscoveredFormModel>(json, JsonDefaults.Options); }
         catch (JsonException) { return null; }
     }
+}
+
+public sealed record FormOpenerModel
+{
+    [JsonPropertyName("label")] public string Label { get; init; } = string.Empty;
+    [JsonPropertyName("locator")] public LocatorDescriptor Locator { get; init; } = new() { Strategy = LocatorStrategy.Css, Value = "button" };
 }
 
 public sealed record FormFieldModel

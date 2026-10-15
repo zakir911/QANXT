@@ -11,6 +11,9 @@ import { runAction, type ActionContext } from '../src/execution/action-runner.js
 import { EvidenceCollector } from '../src/execution/evidence-collector.js';
 import { SecretMasker } from '../src/security/masker.js';
 import { Logger } from '../src/util/logger.js';
+import { extractForms, type RawForm } from '../src/discovery/form-extractor.js';
+import { findOpener, formIsVisible } from '../src/discovery/form-probe.js';
+import { explainTimeout } from '../src/execution/executor.js';
 
 /**
  * The form oracles against the golden form lab.
@@ -203,9 +206,38 @@ describe('form oracles', () => {
   test('a fixed-width form overflows a phone and a fluid one does not (FL-D15)', async () => {
     await run({ action: 'setViewport', value: '390x844' });
     await open('/address');
-    await fails(run({ action: 'assertNoHorizontalScroll' }), /scrolls horizontally/);
+    await fails(run({ action: 'assertNoHorizontalScroll' }), /scrolled sideways/);
     await open('/registration');
     await run({ action: 'assertNoHorizontalScroll' });
+  }, 30_000);
+
+  test('decoration a page clips is not reported as sideways scrolling', async () => {
+    // The sign-in page carries a 1700px-wide background the page clips with overflow-x:
+    // hidden. Its content is wider than a phone; nobody can scroll to it.
+    await run({ action: 'setViewport', value: '390x844' });
+    await open('/login');
+    await run({ action: 'assertNoHorizontalScroll' });
+  }, 30_000);
+
+  test('a scrolling page names the element that sticks out', async () => {
+    await run({ action: 'setViewport', value: '390x844' });
+    await open('/address');
+    await fails(run({ action: 'assertNoHorizontalScroll' }), /element reaching furthest is form#address/);
+  }, 30_000);
+
+  test('a form in a closed dialog is found behind its opener, and a click on its hidden control says why it failed', async () => {
+    await open('/contact-modal');
+    const [raw] = (await page.evaluate(extractForms, 300)) as RawForm[];
+    expect(raw).toBeDefined();
+    expect(await formIsVisible(page, raw!)).toBe(false);
+    const found = await findOpener(page, raw!);
+    expect(found.opener?.label).toBe('Contact us');
+
+    const timedOut = 'locator.click: Timeout 1000ms exceeded.';
+    expect(await explainTimeout(page, timedOut, testId('contact-modal-submit'))).toMatch(/hidden, so nobody can use it/);
+    await run({ action: 'click', target: found.opener!.locator });
+    expect(await formIsVisible(page, raw!)).toBe(true);
+    expect(await explainTimeout(page, timedOut, testId('contact-modal-submit'))).toBe(timedOut);
   }, 30_000);
 
   test('the keyboard moves focus through the fields in order', async () => {

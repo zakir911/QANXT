@@ -1,7 +1,7 @@
 /**
  * The golden form lab.
  *
- * Twenty forms, one per kind a professional QA team meets, each validated on the server by
+ * Twenty-one forms, one per kind a professional QA team meets, each validated on the server by
  * rules derived from the same declarations the ground truth is generated from (forms.js).
  * Fourteen deliberate defects, each declared on its form with the testing categories that
  * should catch it.
@@ -287,19 +287,33 @@ function renderForm(ctx, form, values = {}, errors = {}, status = 200) {
       + `<div class="actions"><button type="submit" data-testid="${form.id}-submit">${escapeHtml(form.submitLabel)}</button></div>`;
   }
 
+  // Decoration wider than any phone, clipped by the page so it cannot be scrolled to.
+  const decoration = form.decoration === 'clipped-overflow'
+    ? '<div aria-hidden="true" data-testid="decoration" style="position:absolute;top:40px;left:0;width:1700px;height:160px;background:radial-gradient(closest-side,#e3efe9,transparent);pointer-events:none;z-index:-1"></div>'
+    : '';
+  const clip = form.decoration === 'clipped-overflow' ? 'html,body{overflow-x:hidden}' : '';
+  // A form in a dialog stays closed until its opener is pressed, unless the server is
+  // showing it again with errors or values.
+  const dialogOpen = Object.keys(errors).length > 0;
+  const formMarkup = (inner) => form.inDialog
+    ? `<button type="button" data-testid="${form.id}-open" aria-haspopup="dialog" aria-controls="${form.id}-dialog">${escapeHtml(form.inDialog.opener)}</button>
+<div role="dialog" aria-modal="true" aria-label="${escapeHtml(form.title)}" id="${form.id}-dialog" data-testid="${form.id}-dialog"${dialogOpen ? '' : ' hidden'}>${inner}</div>`
+    : inner;
+
   const lowContrast = form.a11yBroken ? '<p style="color:#bbb;background:#fff">Optional: tell us anything else.</p>' : '';
 
   return ctx.html(status, layout({
     title: form.title, application: APPLICATION, nav,
-    head: `<style>.error{color:#b00020}.error-summary{border:2px solid #b00020;padding:8px;margin-bottom:12px}.field{margin:10px 0}.inline{display:inline-flex;gap:6px;align-items:center;margin-right:12px}fieldset{border:1px solid #ccc;padding:8px}</style>`,
+    head: `<style>${clip}.error{color:#b00020}.error-summary{border:2px solid #b00020;padding:8px;margin-bottom:12px}.field{margin:10px 0}.inline{display:inline-flex;gap:6px;align-items:center;margin-right:12px}fieldset{border:1px solid #ccc;padding:8px}</style>`,
     body: `<h1 data-testid="page-title">${escapeHtml(form.title)}</h1>
 <p class="muted">${escapeHtml(form.purpose)}</p>
-${summary}
+${decoration}
+${formMarkup(`${summary}
 <form id="${form.id}" name="${form.id}" method="${method}"${action}${enctype}${novalidate}${width} data-testid="${form.id}-form" aria-label="${escapeHtml(form.title)}">
 ${csrf}
 ${fieldsMarkup}
 </form>
-<p class="status" role="status" data-testid="${form.id}-result" hidden></p>
+<p class="status" role="status" data-testid="${form.id}-result" hidden></p>`)}
 ${lowContrast}`,
     script: scriptFor(form)
   }));
@@ -307,6 +321,14 @@ ${lowContrast}`,
 
 function scriptFor(form) {
   const parts = [];
+
+  if (form.inDialog) {
+    parts.push(`
+      document.querySelector('[data-testid="${form.id}-open"]').addEventListener('click', () => {
+        document.getElementById('${form.id}-dialog').hidden = false;
+        document.getElementById('${form.id}-${form.fields[0].name}').focus();
+      });`);
+  }
 
   if (form.fields.some(f => f.dependsOn)) {
     parts.push(`

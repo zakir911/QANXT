@@ -59,7 +59,8 @@ public static class RunBugReportRenderer
 
         html.Append("<header class=\"top\"><p class=\"eyebrow\">QA NXT bug report</p>")
             .Append($"<h1>{E(run.Name)}</h1>")
-            .Append($"<p class=\"lede\">{E(Headline(report))}</p></header>");
+            .Append($"<p class=\"lede\">{E(Headline(report))}</p>")
+            .Append("<p class=\"notice\">Screenshots and snapshots show the application as the test saw it. If the application displays personal or customer data, share this report the way you would share that data.</p></header>");
 
         // The run, at a glance.
         html.Append("<section class=\"run\"><h2>Test run</h2><dl class=\"grid\">");
@@ -102,10 +103,16 @@ public static class RunBugReportRenderer
         if (report.NotProductBugs.Count > 0)
         {
             html.Append("<section class=\"aside\"><h2>Failures that are not product bugs</h2>")
-                .Append("<p>These tests failed for reasons other than the application's behaviour. They are listed so the totals add up; none needs a code change in the application.</p>")
-                .Append("<table><thead><tr><th>Test</th><th>Why it failed</th><th>Who acts</th></tr></thead><tbody>");
-            foreach (var other in report.NotProductBugs)
-                html.Append($"<tr><td><strong>{E(other.Reference)}</strong><br>{E(other.Name)}</td><td><em>{E(other.Classification)}</em><br>{E(other.Message)}</td><td>{E(other.WhoActs)}</td></tr>");
+                .Append("<p>These tests failed for reasons other than the application's behaviour. They are listed so the totals add up; none needs a code change in the application. Failures with the same cause are shown once.</p>")
+                .Append("<table class=\"others\"><thead><tr><th>Why they failed</th><th>Tests</th><th>Who acts</th></tr></thead><tbody>");
+            foreach (var group in GroupOthers(report.NotProductBugs))
+            {
+                var first = group.First();
+                var tests = group.Select(o => $"<strong>{E(o.Reference)}</strong> {E(o.Name)}").ToList();
+                var list = tests.Count <= 3 ? string.Join("<br>", tests)
+                    : $"<details><summary>{tests.Count} tests</summary>{string.Join("<br>", tests)}</details>";
+                html.Append($"<tr><td><em>{E(first.Classification)}</em><br>{E(first.Message)}</td><td>{list}</td><td>{E(first.WhoActs)}</td></tr>");
+            }
             html.Append("</tbody></table></section>");
         }
         if (report.PassedOnRetry.Count > 0)
@@ -343,7 +350,12 @@ public static class RunBugReportRenderer
         if (report.NotProductBugs.Count > 0)
         {
             md.AppendLine("## Failures that are not product bugs").AppendLine();
-            foreach (var other in report.NotProductBugs) md.AppendLine($"- **{other.Reference}** {other.Name} — _{other.Classification}_: {other.Message} Who acts: {other.WhoActs}");
+            foreach (var group in GroupOthers(report.NotProductBugs))
+            {
+                var first = group.First();
+                md.AppendLine($"- **{group.Count} test{(group.Count == 1 ? string.Empty : "s")}** — _{first.Classification}_: {first.Message} Who acts: {first.WhoActs}")
+                  .AppendLine($"  {string.Join(", ", group.Select(o => o.Reference))}");
+            }
             md.AppendLine();
         }
         if (report.PassedOnRetry.Count > 0)
@@ -428,7 +440,9 @@ public static class RunBugReportRenderer
             .AppendLine("A Playwright trace replays the test step by step with the DOM, network and console at each step:")
             .AppendLine("    npx playwright show-trace evidence/BUG-01/trace.zip")
             .AppendLine("or drop the file on https://trace.playwright.dev (it is opened in your browser, not uploaded).").AppendLine()
-            .AppendLine("Secrets, tokens, card numbers and passwords are masked in every file.");
+            .AppendLine("Secrets, tokens, card numbers and passwords are masked in every file.")
+            .AppendLine("Screenshots, videos, traces and page snapshots show the application as the test saw it. If it")
+            .AppendLine("displays personal or customer data, share this pack the way you would share that data.");
         if (omitted.Count > 0)
         {
             text.AppendLine().AppendLine("Left out of this pack (open them from the run in QA NXT):");
@@ -438,6 +452,13 @@ public static class RunBugReportRenderer
     }
 
     // ---- Helpers --------------------------------------------------------------------------
+
+    /// <summary>Failures with one cause, shown once: the same classification and the same
+    /// message once numbers and quoted values are set aside.</summary>
+    private static List<List<ReportOtherFailure>> GroupOthers(IEnumerable<ReportOtherFailure> others)
+        => others.GroupBy(o => $"{o.Classification}|{Regex.Replace(Regex.Replace(o.Message, "\"[^\"]*\"", "\"…\""), @"\d+", "#")}")
+            .Select(g => g.OrderBy(o => o.Reference, StringComparer.Ordinal).ToList())
+            .OrderByDescending(g => g.Count).ToList();
 
     private static string Headline(RunBugReport report)
     {
@@ -534,6 +555,8 @@ pre{background:#0f1420;color:#e6e9ef;border-radius:8px;padding:12px 14px;overflo
 details{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:8px 0}summary{cursor:pointer}.label{margin:8px 0 4px;font-size:12px;color:var(--muted);text-transform:uppercase}
 code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em}.muted{color:var(--muted)}.bad{color:var(--bad)}.good{color:var(--good)}
 .affected th:nth-child(1){width:28%}.affected th:nth-child(2){width:18%}pre.page{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+.notice{margin:10px 0 0;font-size:13px;color:var(--warn);background:var(--warn-bg);border-radius:8px;padding:6px 10px;display:inline-block}
+.others td:first-child{width:45%}
 .aside{border-top:1px solid var(--line);padding-top:18px}footer{margin-top:40px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:14px}
 @media (max-width:720px){.compare{grid-template-columns:1fr}.bug{padding:16px}}
 @media print{main{max-width:none;padding:0}pre{max-height:none}details{break-inside:avoid}details:not([open])>*:not(summary){display:none}a{color:inherit}}

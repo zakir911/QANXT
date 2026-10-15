@@ -1,5 +1,5 @@
 import type { Page } from 'playwright';
-import type { FormDependency } from '@qa-nxt/shared-types';
+import type { FormDependency, LocatorDescriptor } from '@qa-nxt/shared-types';
 import { buildLocator } from '../browser/locator-resolver.js';
 import { snapshotFormState, type RawForm, type RawFormField } from './form-extractor.js';
 
@@ -117,4 +117,98 @@ export async function probeForm(page: Page, form: RawForm, maxInteractions: numb
   }
 
   return { dependencies, interactions, stoppedBecause: unsafe };
+}
+
+// ---- Forms that are hidden until something opens them --------------------------------
+
+export interface FormOpener {
+  label: string;
+  locator: LocatorDescriptor;
+}
+
+const MAX_OPENER_CANDIDATES = 8;
+/** Never pressed while looking for an opener: these act, they do not reveal. */
+const DESTRUCTIVE = /\b(log ?out|sign ?out|delete|remove|pay|buy|purchase|checkout|order|unsubscribe|cancel|deactivate|close account|reset)\b/i;
+
+/** Whether any of the form's fields is visible right now. */
+export async function formIsVisible(page: Page, form: RawForm): Promise<boolean> {
+  const state = await page.evaluate(snapshotFormState, form.domIndex).catch(() => ({} as Snapshot));
+  return Object.values(state).some(field => field.visible);
+}
+
+/**
+ * Finds the control that reveals a form hidden at load — a contact form in a dialog behind
+ * "Contact us", a sign-up drawer behind "Get started".
+ *
+ * Without this every test of such a form waits for a field nobody can see and times out,
+ * and the timeouts read as a slow application. Each visible button on the page, and each
+ * link that stays on the page, is pressed in turn; the first one after which the form's
+ * fields are visible is the opener. The same rules as the dependency probe apply: anything
+ * that navigates or sends more than a GET stops the search, and controls whose label says
+ * they act (pay, delete, sign out) are never pressed.
+ */
+export async function findOpener(page: Page, form: RawForm): Promise<{ opener?: FormOpener; stoppedBecause?: string }> {
+  const startUrl = page.url();
+  let unsafe: string | undefined;
+  let restoring = false;
+  const onRequest = (request: { method(): string; url(): string; isNavigationRequest(): boolean }) => {
+    if (restoring) return;
+    if (request.method() !== 'GET') unsafe = `pressing a control sent a ${request.method()} to ${request.url()}`;
+    else if (request.isNavigationRequest() && request.url().split('#')[0] !== startUrl.split('#')[0]) unsafe = 'pressing a control navigated the page';
+  };
+  page.on('request', onRequest);
+  try {
+    const candidates = await page.evaluate(({ domIndex, limit }) => {
+      const target = domIndex >= 0 ? document.querySelectorAll('form')[domIndex] : null;
+      const visible = (el: Element) => {
+        const style = getComputedStyle(el);
+        const box = (el as HTMLElement).getBoundingClientRect();
+        return style.display !== 'none' && style.visibility !== 'hidden' && box.width > 0 && box.height > 0;
+      };
+      const out: { label: string; testId: string | null; kind: 'button' | 'link' }[] = [];
+      for (const el of Array.from(document.querySelectorAll('button, [role="button"], a'))) {
+        if (target && target.contains(el)) continue;
+        if (el.closest('form') && el.closest('form') !== target) continue;
+        if (!visible(el)) continue;
+        const href = el.tagName === 'A' ? (el.getAttribute('href') ?? '') : '';
+        if (el.tagName === 'A' && href && !href.startsWith('#') && !href.startsWith('javascript:')) continue;
+        const label = (el.getAttribute('aria-label') ?? (el as HTMLElement).innerText ?? '').trim().replace(/\s+/g, ' ');
+        if (!label || label.length > 60) continue;
+        const testId = el.getAttribute('data-testid') ?? el.getAttribute('data-test-id') ?? el.getAttribute('data-test');
+        out.push({ label, testId, kind: el.tagName === 'A' ? 'link' : 'button' });
+        if (out.length >= limit * 3) break;
+      }
+      return out;
+    }, { domIndex: form.domIndex, limit: MAX_OPENER_CANDIDATES });
+
+    // Labels that name the form's purpose first: "Contact us" for a contact form.
+    const words = new Set(`${form.name} ${form.fields.map(f => f.label ?? '').join(' ')}`.toLowerCase().split(/\W+/).filter(w => w.length > 3));
+    const ranked = candidates.filter(c => !DESTRUCTIVE.test(c.label))
+      .map(c => ({ ...c, score: c.label.toLowerCase().split(/\W+/).filter(w => words.has(w)).length + (/contact|open|start|get started|apply|request|enquir|sign ?up|register|feedback|book/i.test(c.label) ? 1 : 0) }))
+      .sort((a, b) => b.score - a.score).slice(0, MAX_OPENER_CANDIDATES);
+
+    for (const candidate of ranked) {
+      if (unsafe) break;
+      const locator: LocatorDescriptor = candidate.testId
+        ? { strategy: 'testId', value: candidate.testId }
+        : { strategy: 'role', value: candidate.kind, name: candidate.label, exact: true };
+      try {
+        await buildLocator(page, locator).first().click({ timeout: 2000 });
+      } catch {
+        continue;
+      }
+      await page.waitForTimeout(SETTLE_MS * 2);
+      if (!unsafe && await formIsVisible(page, form)) return { opener: { label: candidate.label, locator } };
+      restoring = true;
+      await page.goto(startUrl, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+      restoring = false;
+    }
+    return { stoppedBecause: unsafe };
+  } finally {
+    page.off('request', onRequest);
+    if (page.url() !== startUrl || unsafe === undefined) {
+      restoring = true;
+      await page.goto(startUrl, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+    }
+  }
 }

@@ -7,6 +7,7 @@ import type {
   DiscoveredTransition, DiscoveryCompletionReport
 } from '@qa-nxt/shared-types';
 import { buildLocatorFor } from '../browser/locator-builder.js';
+import { buildLocator } from '../browser/locator-resolver.js';
 import { SecretMasker } from '../security/masker.js';
 import { isUrlAllowed, normalizeUrl } from '../security/url-guard.js';
 import { RobotsPolicy, requestContextFetcher } from '../security/robots.js';
@@ -24,7 +25,7 @@ const MAX_CLICK_CANDIDATES = 40;
 const MAX_SITEMAP_URLS = 500;
 import { collectClickCandidates, extractPage, type RawElement, type RawPageCapture } from './page-extractor.js';
 import { extractForms, type RawForm } from './form-extractor.js';
-import { probeForm } from './form-probe.js';
+import { findOpener, formIsVisible, probeForm, type FormOpener } from './form-probe.js';
 import { performLogin, type LoginResult } from '../browser/authenticator.js';
 
 /**
@@ -480,11 +481,28 @@ export class Crawler {
         forms.push({ ...masked, dependencies: [], probeNote: 'Not probed: the per-page probing limit was reached.' });
         continue;
       }
+      // A form whose fields are all hidden at load lives behind something — usually a
+      // dialog. Find what opens it, so tests can open it too; probe it open.
+      let hiddenAtLoad = false;
+      let opener: FormOpener | undefined;
+      if (form.fields.length > 0 && !form.isMultiStep && !(await formIsVisible(page, form))) {
+        hiddenAtLoad = true;
+        const found = await findOpener(page, form).catch(() => ({ opener: undefined, stoppedBecause: undefined }));
+        opener = found.opener;
+        remaining -= MAX_PROBE_INTERACTIONS_PER_PAGE / 6;
+        if (!opener) {
+          this.note(`The form ${form.key} on ${page.url()} is hidden when the page loads and nothing on the page was found to open it${found.stoppedBecause ? ` (${found.stoppedBecause})` : ''}.`);
+          forms.push({ ...masked, dependencies: [], hiddenAtLoad, opener: null, probeNote: 'Hidden when the page loads; no control that opens it was found.' });
+          continue;
+        }
+        await buildLocator(page, opener.locator).first().click({ timeout: 2000 }).catch(() => undefined);
+        await page.waitForTimeout(300);
+      }
       try {
         const probe = await probeForm(page, form, remaining);
         remaining -= probe.interactions;
         if (probe.stoppedBecause) this.note(`Stopped probing ${form.key} on ${page.url()}: ${probe.stoppedBecause}.`);
-        forms.push({ ...masked, dependencies: probe.dependencies, probeNote: probe.stoppedBecause });
+        forms.push({ ...masked, dependencies: probe.dependencies, probeNote: probe.stoppedBecause, hiddenAtLoad, opener: opener ?? null });
       } catch (error) {
         forms.push({ ...masked, dependencies: [], probeNote: `Probe failed: ${tidyForLog(String(error))}` });
       }

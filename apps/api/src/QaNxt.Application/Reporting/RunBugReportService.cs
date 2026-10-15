@@ -181,7 +181,20 @@ public sealed class RunBugReportService : IRunBugReportService
             var failing = failure?.TestActionId is { } fa ? executionActions.FirstOrDefault(a => a.Id == fa)
                 : executionActions.FirstOrDefault(a => a.Status == ExecutionStatus.Failed);
             var form = testCase.ApplicationFormId is { } formId ? forms.GetValueOrDefault(formId) : null;
-            var executionNetwork = network.GetValueOrDefault(execution.Id) ?? new List<NetworkEvent>();
+            // Requests the test itself caused. The sign-in before the first step, and anything
+            // else with no step of its own, is setup: it is not this bug's evidence, unless the
+            // server failed on it.
+            var allNetwork = network.GetValueOrDefault(execution.Id) ?? new List<NetworkEvent>();
+            var executionNetwork = allNetwork.Any(n => n.TestActionId is not null)
+                ? allNetwork.Where(n => n.TestActionId is not null || n.StatusCode >= 500).ToList()
+                : allNetwork;
+            // Only a bug about what was sent or answered shows requests; a layout or an
+            // accessibility finding does not need the login call beside it.
+            var aboutRequests = failing?.Action is BrowserActionType.AssertRequests or BrowserActionType.AssertFormAccepted
+                    or BrowserActionType.AssertFormRejected or BrowserActionType.AssertNoServerError or BrowserActionType.AssertNoMarkupInjection
+                    or BrowserActionType.AssertLoadTimeUnder or BrowserActionType.ApiRequest
+                || executionNetwork.Any(n => n.StatusCode >= 500);
+            if (!aboutRequests) executionNetwork = executionNetwork.Where(n => n.StatusCode >= 400 || n.IsFailed).ToList();
             var exchanges = Exchanges(executionNetwork);
             var serverError = executionNetwork.FirstOrDefault(n => n.StatusCode >= 500);
             var endpoint = (serverError ?? executionNetwork.FirstOrDefault(n => n.Method != "GET" && n.ResourceType is "xhr" or "fetch" or "document")) is { } e
@@ -207,7 +220,12 @@ public sealed class RunBugReportService : IRunBugReportService
                     .Where(s => screenshots.All(existing => existing.StorageKey != s.StorageKey)).Take(1));
             }
 
-            var pageText = await PageTextAsync(artifacts.GetValueOrDefault(execution.Id), failing, ct);
+            // The page's text only when it carries the error: a server's error page, an
+            // internal-detail leak, a refusal message. Otherwise it is a dump of whatever the
+            // page showed — on an admin page, other people's data.
+            var showsError = executionNetwork.Any(n => n.StatusCode >= 500)
+                || failing?.Action is BrowserActionType.AssertNoServerError or BrowserActionType.AssertFormAccepted;
+            var pageText = showsError ? await PageTextAsync(artifacts.GetValueOrDefault(execution.Id), failing, ct) : null;
             var actual = Masked(failure?.RawMessage ?? failing?.ErrorMessage ?? execution.ErrorMessage ?? "The test failed.");
             var category = testCase.Category is { } c ? TestingTaxonomy.All.FirstOrDefault(t => t.Category == c)?.Name : null;
             var title = defect?.Title ?? $"{(form is null ? string.Empty : form.Name + ": ")}{FirstSentence(actual)}";
@@ -218,7 +236,9 @@ public sealed class RunBugReportService : IRunBugReportService
                 Key: string.Empty,
                 DefectId: defect?.Id, DefectReference: defect is null ? null : $"DEF-{number:0000}", DefectStatus: defect?.Status.ToString(),
                 Title: title, Severity: severity.ToString(), Priority: testCase.Priority.ToString(), Category: category,
-                Classification: Classification(failure?.Category), Confidence: failure?.CategoryConfidence ?? 0,
+                Classification: failure?.Category is null or FailureCategory.Unknown && failing is not null && IsCheck(failing.Action)
+                    ? "Application behaviour (a check failed)" : Classification(failure?.Category),
+                Confidence: failure?.CategoryConfidence ?? 0,
                 Application: testCase.ApplicationId is { } appId ? applicationName.GetValueOrDefault(appId) : null,
                 PageUrl: form?.PageUrl ?? failing?.Url ?? executionActions.Select(a => a.Url).FirstOrDefault(u => u is not null),
                 Form: form?.Name, Field: testCase.FieldKey, Endpoint: endpoint,
@@ -326,6 +346,9 @@ public sealed class RunBugReportService : IRunBugReportService
     /// leads with the clearest reproduction.</summary>
     private static TestExecution Representative(IEnumerable<TestExecution> group)
         => group.OrderBy(e => e.TestCase!.Priority).ThenBy(e => e.TestCase!.Reference, StringComparer.Ordinal).First();
+
+    private static bool IsCheck(BrowserActionType action)
+        => BrowserActionVerbs.IsAssertion(action) || action is BrowserActionType.CheckAccessibility or BrowserActionType.CheckVisual;
 
     private static bool IsProductSymptom(Failure failure, List<TestAction>? actions)
     {

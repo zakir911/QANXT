@@ -176,6 +176,10 @@ export interface DiscoveredForm {
   dependencies: FormDependency[];
   /** Why the dependency probe stopped early, when it did. */
   probeNote?: string;
+  /** No field of the form was visible when the page loaded. */
+  hiddenAtLoad?: boolean;
+  /** The control that reveals a form hidden at load (a dialog's "Contact us"), when one was found. */
+  opener?: { label: string; locator: LocatorDescriptor } | null;
 }
 
 /** One observed effect of answering a control: fields shown, hidden, made required, or repopulated. */
