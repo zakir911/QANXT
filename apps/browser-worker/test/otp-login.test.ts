@@ -64,6 +64,23 @@ function otpSite(): Server {
     if (url.pathname === '/not-a-login') {
       return send(page(`<h1>Maintenance</h1><label>Search <input type="search" name="q"></label><button>Go</button>`));
     }
+    // Shaped like a retail-banking login: a header full of buttons, a "Login" tab that is
+    // disabled because it is the current one, no <form>, and a Continue button that enables
+    // only once a user id has been typed (on keyup, for the keystroke variant).
+    if (url.pathname === '/bank-login') {
+      const event = url.searchParams.get('on') === 'keyup' ? 'keyup' : 'input';
+      return send(page(`<header><button>bedtime</button><button>A-</button><button>A</button><button>A+</button>
+        <button>Locate us</button><button>Contact us</button></header>
+        <nav><button disabled aria-current="page">Login</button></nav>
+        <div class="card"><label for="_r_o_">User ID</label><input type="text" name="userid" id="_r_o_">
+        <button id="go" disabled>Continue</button><button>Register now</button></div>
+        <footer><button>Privacy &amp; cookies policy</button><button>Terms &amp; conditions</button></footer>
+        <script>
+          const field = document.getElementById('_r_o_'), go = document.getElementById('go');
+          field.addEventListener('${event}', () => { go.disabled = field.value.length < 4; });
+          go.addEventListener('click', () => { location.href = '/two-step-password?user=' + encodeURIComponent(field.value); });
+        </script>`));
+    }
     if (url.pathname === '/login') {
       const style = url.searchParams.get('style') ?? 'single';
       return send(page(`<form action="/otp" method="get"><input type="hidden" name="style" value="${style}">
@@ -158,6 +175,26 @@ describe('sign-in with a one-time code', () => {
     expect(result.message).toBe('Signed in.');
     expect(headings).toContain('Dashboard');
   }, 30_000);
+
+  test('a bank login with a header of buttons and a disabled Login tab presses Continue', async () => {
+    const { result, headings } = await loginAt('/bank-login');
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 40_000);
+
+  test('a Continue button that listens for keystrokes is enabled by typing', async () => {
+    const { result, headings } = await loginAt('/bank-login?on=keyup');
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 40_000);
+
+  test('a button that stays disabled is named rather than waited on', async () => {
+    const started = Date.now();
+    const { result } = await loginAt('/bank-login', { username: 'ab' });
+    expect(result.succeeded).toBe(false);
+    expect(result.message).toMatch(/"Continue" button stayed disabled/);
+    expect(Date.now() - started).toBeLessThan(15_000);
+  }, 40_000);
 
   test('selectors configured for the application are used as given', async () => {
     const { result, headings } = await loginAt('/spa-login', {

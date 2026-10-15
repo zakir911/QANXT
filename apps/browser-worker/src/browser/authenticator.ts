@@ -217,33 +217,110 @@ async function findUsernameField(scope: Scope) {
   return index < 0 ? undefined : scope.locator(TEXT_INPUT).nth(index);
 }
 
-/** Presses the form's primary button (Sign in, Continue, Next…), or Enter in the field. */
-async function pressPrimary(page: Page, scope: Scope, field: ReturnType<Scope['locator']>, configured: LocatorDescriptor | undefined, options: LoginOptions): Promise<void> {
-  let button: ReturnType<Scope['locator']> | undefined;
+const BUTTONS = 'button, [role="button"], input[type="submit"], input[type="button"]';
+
+interface ButtonChoice { index: number; text: string; disabled: boolean }
+
+/**
+ * The buttons that could submit this step, best first.
+ *
+ * A login page carries more buttons than its form: a header "Login" that is only the
+ * current tab, font-size and theme toggles, "Register now". Taking the first button whose
+ * name says "login" clicked a header control that never became clickable and timed out.
+ * The button that submits is the one beside the field, after it in the page, in its form,
+ * and — before a password is shown — the one that says Continue or Next.
+ */
+async function rankButtons(field: ReturnType<Scope['locator']>, stage: 'identify' | 'password'): Promise<ButtonChoice[]> {
+  return field.evaluate((input, args) => {
+    const primary = new RegExp(args.primary, 'i');
+    const notPrimary = new RegExp(args.notPrimary, 'i');
+    const forward = /\b(continue|next|proceed|get otp|send otp|request otp|generate otp)\b/i;
+    const signIn = /\b(sign ?in|log ?in|login|submit|verify)\b/i;
+    const inputBox = input.getBoundingClientRect();
+    const form = (input as HTMLInputElement).form;
+    const all = Array.from(input.ownerDocument.querySelectorAll<HTMLElement>(args.selector));
+    const ranked: Array<{ index: number; text: string; disabled: boolean; score: number }> = [];
+    all.forEach((button, index) => {
+      const box = button.getBoundingClientRect();
+      const style = getComputedStyle(button);
+      if (box.width === 0 || box.height === 0 || style.visibility === 'hidden') return;
+      const text = (button.innerText || (button as HTMLInputElement).value || button.getAttribute('aria-label') || '').trim();
+      if (!text || notPrimary.test(text)) return;
+      const isSubmit = (button as HTMLButtonElement).type === 'submit' && (button as HTMLButtonElement).form === form && form !== null;
+      if (!primary.test(text) && !isSubmit) return;
+      let score = 0;
+      if (form && (button as HTMLButtonElement).form === form) score += 4;
+      if (isSubmit) score += 2;
+      if (input.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING) score += 3; else score -= 3;
+      const below = box.top - inputBox.bottom;
+      if (below >= -5 && below < 400) score += 2;
+      if (Math.abs(box.left + box.width / 2 - (inputBox.left + inputBox.width / 2)) < 300) score += 1;
+      if (args.stage === 'identify' && forward.test(text)) score += 3;
+      if (args.stage === 'password' && signIn.test(text)) score += 2;
+      const disabled = (button as HTMLButtonElement).disabled || button.getAttribute('aria-disabled') === 'true';
+      ranked.push({ index, text: text.slice(0, 40), disabled, score });
+    });
+    return ranked.sort((a, b) => b.score - a.score || a.index - b.index)
+      .map(({ index, text, disabled }) => ({ index, text, disabled }));
+  }, { selector: BUTTONS, primary: PRIMARY_BUTTON.source, notPrimary: NOT_PRIMARY.source, stage }).catch(() => []);
+}
+
+/**
+ * Presses the step's button (Continue, Next, Sign in…), or Enter in the field.
+ *
+ * A button disabled until the application has validated the field gets a moment, and the
+ * value is typed again key by key in case the application listens for keystrokes rather
+ * than the value changing. One that stays disabled is reported by name rather than waited
+ * on for the whole action timeout.
+ */
+async function pressPrimary(page: Page, scope: Scope, field: ReturnType<Scope['locator']>, configured: LocatorDescriptor | undefined,
+                            options: LoginOptions, stage: 'identify' | 'password', value: string): Promise<void> {
+  const clickTimeout = Math.min(options.actionTimeoutMs, 5000);
+  const press = async (button: ReturnType<Scope['locator']> | undefined) => {
+    await Promise.all([
+      page.waitForLoadState('domcontentloaded', { timeout: options.navigationTimeoutMs }).catch(() => undefined),
+      button ? button.click({ timeout: clickTimeout }) : field.press('Enter', { timeout: clickTimeout })
+    ]);
+  };
+
   if (configured) {
-    button = (await resolveLocator(scope, configured, { timeoutMs: options.actionTimeoutMs })).locator;
-  } else {
-    const form = field.locator('xpath=ancestor::form[1]');
-    if (await form.count().catch(() => 0) > 0) {
-      const inForm = form.locator('button[type="submit"], input[type="submit"], button:not([type])').filter({ visible: true });
-      for (let i = 0; i < await inForm.count().catch(() => 0); i++) {
-        const name = (await inForm.nth(i).innerText().catch(() => '')) || (await inForm.nth(i).getAttribute('value').catch(() => '')) || '';
-        if (!NOT_PRIMARY.test(name)) { button = inForm.nth(i); break; }
-      }
-    }
-    if (!button) {
-      const named = scope.getByRole('button', { name: PRIMARY_BUTTON }).filter({ visible: true });
-      for (let i = 0; i < await named.count().catch(() => 0); i++) {
-        const name = await named.nth(i).innerText().catch(() => '');
-        if (!NOT_PRIMARY.test(name)) { button = named.nth(i); break; }
-      }
+    await press((await resolveLocator(scope, configured, { timeoutMs: options.actionTimeoutMs })).locator);
+    return;
+  }
+
+  let choices = await rankButtons(field, stage);
+  if (choices.length === 0) { await press(undefined); return; }
+
+  if (choices[0]!.disabled) {
+    // Give the application a moment to validate what was filled, then type it as a person
+    // would and leave the field, which is what some applications wait for.
+    await page.waitForTimeout(1000);
+    choices = await rankButtons(field, stage);
+    if (choices[0]?.disabled) {
+      await field.fill('', { timeout: clickTimeout }).catch(() => undefined);
+      await field.pressSequentially(value, { delay: 30, timeout: options.actionTimeoutMs }).catch(() => undefined);
+      await field.press('Tab', { timeout: clickTimeout }).catch(() => undefined);
+      await page.waitForTimeout(1000);
+      choices = await rankButtons(field, stage);
     }
   }
 
-  await Promise.all([
-    page.waitForLoadState('domcontentloaded', { timeout: options.navigationTimeoutMs }).catch(() => undefined),
-    button ? button.click({ timeout: options.actionTimeoutMs }) : field.press('Enter', { timeout: options.actionTimeoutMs })
-  ]);
+  const enabled = choices.filter(choice => !choice.disabled);
+  if (enabled.length === 0) {
+    throw new Error(`The "${choices[0]!.text}" button stayed disabled after the ${stage === 'identify' ? 'user name' : 'password'} was entered; `
+      + 'the page may need something else first (a checkbox, a captcha or another field).');
+  }
+
+  const errors: string[] = [];
+  for (const choice of enabled.slice(0, 3)) {
+    try {
+      await press(scope.locator(BUTTONS).nth(choice.index));
+      return;
+    } catch (error) {
+      errors.push(`"${choice.text}": ${messageOf(error)}`);
+    }
+  }
+  throw new Error(`No button on the sign-in page could be pressed (${errors.join('; ')}).`);
 }
 
 /** Waits for a password field, a one-time-code prompt, or the page to settle without either. */
@@ -289,7 +366,7 @@ async function fillSignInForm(page: Page, auth: AuthConfig, options: LoginOption
 
   if (!auth.passwordLocator && await password.count().catch(() => 0) === 0) {
     // Two steps: the user id first, then whatever the application asks for next.
-    await pressPrimary(page, scope, username, undefined, options);
+    await pressPrimary(page, scope, username, undefined, options, 'identify', auth.username!);
     actions++;
     const next = await waitForNextStep(page, options.actionTimeoutMs);
     if (next === 'otp') return { succeeded: true, message: 'User id accepted; a one-time code is asked for next.', actionsUsed: actions };
@@ -311,7 +388,7 @@ async function fillSignInForm(page: Page, auth: AuthConfig, options: LoginOption
   await password.fill(auth.password, { timeout: options.actionTimeoutMs });
   actions++;
 
-  await pressPrimary(page, passwordScope, password, auth.submitLocator, options);
+  await pressPrimary(page, passwordScope, password, auth.submitLocator, options, 'password', auth.password);
   actions++;
   return { succeeded: true, message: 'Sign-in form submitted.', actionsUsed: actions };
 }
