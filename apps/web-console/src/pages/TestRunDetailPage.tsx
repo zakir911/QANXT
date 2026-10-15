@@ -151,7 +151,7 @@ export default function TestRunDetailPage() {
         <Metric label="Healed" value={run.healedCount} tone={run.healedCount > 0 ? 'info' : 'neutral'} onClick={() => verdict.toggle('healed')} active={verdict.is('healed')} />
         <Metric label="Pass rate" value={passRate === null ? '—' : formatPercent(passRate)}
                 tone={passRate === null ? 'neutral' : passRate >= 95 ? 'good' : passRate >= 80 ? 'warn' : 'bad'}
-                hint={formatDuration(run.durationMs)} />
+                hint={isActive ? 'still running' : formatDuration(run.durationMs)} />
       </div>
 
       {gate && (
