@@ -150,7 +150,7 @@ export class TestExecutor {
           // Not a test failure: the test never got a chance to run. Reporting it as one
           // would attribute an environment problem to the application under test.
           status = 'blocked';
-          errorMessage = `Preconditions were not met — ${login.message}`;
+          errorMessage = `Preconditions were not met — ${masker.maskText(login.message)}`;
           await collector.screenshot(page, 'login-failure', true);
           throw new PreconditionError(errorMessage);
         }

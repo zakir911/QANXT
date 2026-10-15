@@ -117,11 +117,13 @@ function otpSite(): Server {
         <label for="_r_o_">User ID</label><input type="text" name="userid" id="_r_o_">
         <button id="go">Continue</button><button>Register now</button>
         <script>document.getElementById('go').addEventListener('click', () => {
-          location.href = '/hfc-login2?mask=${url.searchParams.get('mask') ?? 'css'}&user=' + encodeURIComponent(document.getElementById('_r_o_').value); });</script>`));
+          location.href = '/hfc-login2?mask=${url.searchParams.get('mask') ?? 'css'}&slow=${url.searchParams.get('slow') ?? '0'}&user=' + encodeURIComponent(document.getElementById('_r_o_').value); });</script>`));
     }
     if (url.pathname === '/hfc-login2') {
       const js = url.searchParams.get('mask') === 'js';
+      const slow = Number(url.searchParams.get('slow') ?? '0');
       return send(page(`<header><button>bedtime</button><button>Login</button></header>
+        <p role="alert" class="notice">Never share your OTP. Your account is locked after 3 failed attempts.</p>
         <label for="_r_u_">User ID</label><input type="text" name="userid" id="_r_u_" value="${url.searchParams.get('user') ?? ''}">
         <label for="_r_v_">Password</label><input type="text" name="new-password" id="_r_v_" autocomplete="off"
           style="-webkit-text-security: disc"><button type="button" id="eye">visibility_off</button>
@@ -140,7 +142,8 @@ function otpSite(): Server {
                   box.addEventListener('input', () => { if (box.value === '') real = ''; });`
                : `box.addEventListener('input', () => { real = box.value; });`}
           document.getElementById('login').addEventListener('click', () => {
-            if (real === 'secret' && document.getElementById('_r_u_').value === 'tester') location.href = '/auto-otp?kind=single';
+            // A slow server: the code screen arrives seconds after Login is pressed.
+            if (real === 'secret' && document.getElementById('_r_u_').value === 'tester') setTimeout(() => { location.href = '/auto-otp?kind=single'; }, ${slow});
             else document.getElementById('err').hidden = false;
           });
         </script>`));
@@ -289,6 +292,21 @@ describe('sign-in with a one-time code', () => {
     expect(result.message).toBe('Signed in.');
     expect(headings).toContain('Dashboard');
   }, 40_000);
+
+  test('a code screen the server shows seconds after Login is still answered, past a standing warning', async () => {
+    const { result, headings } = await loginAt('/hfc-login?mask=css&slow=4000', { successUrlContains: '/verify' });
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 60_000);
+
+  test('a refused password fails at once and quotes what the application said', async () => {
+    const started = Date.now();
+    const { result } = await loginAt('/hfc-login?mask=css', { password: 'not-it', successUrlContains: '/verify' });
+    expect(result.succeeded).toBe(false);
+    expect(result.message).toMatch(/turned the sign-in down: "Wrong password"/);
+    expect(result.message).not.toContain('not-it');
+    expect(Date.now() - started).toBeLessThan(20_000);
+  }, 60_000);
 
   test('the same page opened directly signs in in one step', async () => {
     const { result, headings } = await loginAt('/hfc-login2?mask=css&user=');

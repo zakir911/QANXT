@@ -64,10 +64,12 @@ async function performFormLogin(page: Page, auth: AuthConfig, options: LoginOpti
 
   // Locators configured for this application win; without them the form is found the way a
   // person finds it, wherever and however late it renders.
+  let standing: ReadonlySet<string> = new Set();
   try {
     const filled = await fillSignInForm(page, auth, options);
     actions += filled.actionsUsed;
     if (!filled.succeeded) return fail(filled.message, actions);
+    standing = filled.standing ?? standing;
   } catch (error) {
     return fail(`The login form could not be completed: ${messageOf(error)}${await describeVisibleForm(page)}`, actions);
   }
@@ -82,71 +84,100 @@ async function performFormLogin(page: Page, auth: AuthConfig, options: LoginOpti
   // Verifying here would judge the attempt while the request is still in flight, which is
   // exactly what BUG-0007 was: correct credentials posted, then reported as wrong five
   // milliseconds before the application answered.
-  await waitForSignInOutcome(page, auth, options);
-
-  // Many applications ask for a one-time code once the password is accepted. Answering it
-  // here is what lets every page behind it be explored and tested.
-  const otp = await completeOneTimeCode(page, auth, options);
-  actions += otp.actionsUsed;
-  if (!otp.succeeded) return fail(otp.message, actions);
-
-  // Verify rather than assume. A login form that re-renders with an error message is the
-  // most common cause of a "successful" run that maps nothing but the login page.
-  if (auth.successLocator) {
-    try {
-      await buildLocator(page, auth.successLocator).first()
-        .waitFor({ state: 'visible', timeout: options.actionTimeoutMs });
-    } catch {
-      return fail('The configured post-login element did not appear; the credentials are probably wrong.', actions);
-    }
-  } else if (auth.successUrlContains) {
-    if (!page.url().includes(auth.successUrlContains)) {
-      return fail(`After signing in the browser was at ${page.url()}, which does not contain "${auth.successUrlContains}".`, actions);
-    }
-  } else if (page.url().startsWith(auth.loginUrl) && await hasVisiblePasswordField(page)) {
-    return fail('The browser is still on the login page with a password field visible; the credentials are probably wrong.', actions);
-  }
+  // Then watch until the sign-in is decided, answering a one-time-code screen whenever it
+  // appears. Deciding at one instant was the defect: a slow server had not shown the code
+  // screen yet, the code step found nothing to answer, and the sign-in was reported as
+  // failed one moment and succeeded the next.
+  const settled = await settleSignIn(page, auth, options, standing);
+  actions += settled.actionsUsed;
+  if (!settled.succeeded) return fail(settled.message, actions);
 
   return { succeeded: true, message: 'Signed in.', actionsUsed: actions };
 }
 
-/**
- * Waits for the sign-in to finish, whichever way this application finishes it.
- *
- * Returns as soon as the outcome is knowable rather than sleeping for a fixed time: a
- * server-rendered application navigates, a single-page application swaps the view, and
- * either may instead render an error. Waiting for a *failure* signal as well as a success
- * one is what keeps a genuinely wrong password fast — and still a failure.
- */
-async function waitForSignInOutcome(page: Page, auth: AuthConfig, options: LoginOptions): Promise<void> {
-  const deadline = Date.now() + options.actionTimeoutMs;
+// What an application says when it turns a sign-in down.
+const REFUSAL = /invalid|incorrect|wrong|failed|locked|already (logged|signed|active|in use)|another (session|device|browser)|session (is )?active|expired|does ?n[o']t match|not match|unable|try again|blocked|disabled|suspended|not (registered|found|valid|recogni[sz]ed)|attempts? (left|remaining|exceeded)/i;
+const MESSAGE_SELECTOR = '[role="alert"], [role="alertdialog"], [role="dialog"], [aria-live="assertive"], [aria-live="polite"], '
+  + '.error, [class*="error" i], [class*="alert" i], [class*="toast" i], [class*="snackbar" i], [class*="notification" i], [class*="message" i]';
 
-  while (Date.now() < deadline) {
-    if (page.isClosed()) return;
-
-    try {
-      if (auth.successLocator) {
-        if (await buildLocator(page, auth.successLocator).first().isVisible().catch(() => false)) return;
-      }
-      if (auth.successUrlContains && page.url().includes(auth.successUrlContains)) return;
-
-      const leftTheLoginPage = auth.loginUrl !== undefined && !page.url().startsWith(auth.loginUrl);
-      if (leftTheLoginPage) return;
-
-      // The password field going away is what a client-rendered application does instead
-      // of navigating.
-      if (!await hasVisiblePasswordField(page)) return;
-
-      // An error the application has already rendered means the answer has arrived and it
-      // is "no". Waiting out the rest of the timeout would only slow the report down.
-      if (await hasVisibleError(page)) return;
-    } catch {
-      // A navigation can tear down the execution context mid-check; the next iteration
-      // asks again rather than treating that as an answer.
-    }
-
-    await page.waitForTimeout(100);
+/** Short messages the page is showing right now (alerts, errors, toasts, dialogs). */
+async function visibleMessages(page: Page): Promise<string[]> {
+  const found: string[] = [];
+  for (const frame of page.frames()) {
+    const texts = await frame.evaluate(selector => Array.from(document.querySelectorAll<HTMLElement>(selector))
+      .filter(el => { const b = el.getBoundingClientRect(); return b.width > 0 && b.height > 0; })
+      .map(el => (el.innerText ?? '').replace(/\s+/g, ' ').trim())
+      .filter(text => text.length >= 3 && text.length <= 300), MESSAGE_SELECTOR).catch(() => [] as string[]);
+    found.push(...texts);
   }
+  // Nested matches repeat the same text; keep the shortest distinct ones.
+  return [...new Set(found)].sort((a, b) => a.length - b.length)
+    .filter((text, i, all) => !all.slice(0, i).some(shorter => text.includes(shorter) && text !== shorter)).slice(0, 5);
+}
+
+async function signedIn(page: Page, auth: AuthConfig): Promise<'yes' | 'maybe' | 'no'> {
+  if (auth.successLocator) {
+    return await buildLocator(page, auth.successLocator).first().isVisible().catch(() => false) ? 'yes' : 'no';
+  }
+  if (auth.successUrlContains) return page.url().includes(auth.successUrlContains) ? 'yes' : 'no';
+  // With no success signal configured: off the login page, or the form gone from it, with
+  // no code being asked for. "Maybe", because a page between two steps looks like that too.
+  const onLoginPage = auth.loginUrl !== undefined && page.url().startsWith(auth.loginUrl);
+  if ((!onLoginPage || !await hasVisiblePasswordField(page)) && !await findOtpField(page)) return 'maybe';
+  return 'no';
+}
+
+/**
+ * Watches the sign-in until it is decided: signed in, refused with a message, or out of
+ * time. A one-time-code screen is answered whenever it appears, however long the server
+ * takes to show it. A guess that the sign-in worked (no success signal configured) must
+ * hold for a moment, so the gap between the password and the code screen is not taken for
+ * the application.
+ */
+async function settleSignIn(page: Page, auth: AuthConfig, options: LoginOptions, standing: ReadonlySet<string>): Promise<LoginResult> {
+  let actions = 0;
+  let otpAnswered = false;
+  let maybeSince: number | undefined;
+  const deadline = Date.now() + Math.max(options.actionTimeoutMs, 15_000);
+
+  while (Date.now() < deadline && !page.isClosed()) {
+    try {
+      const state = await signedIn(page, auth);
+      if (state === 'yes') return { succeeded: true, message: 'Signed in.', actionsUsed: actions };
+      if (state === 'maybe') {
+        maybeSince ??= Date.now();
+        if (Date.now() - maybeSince >= 1500) return { succeeded: true, message: 'Signed in.', actionsUsed: actions };
+      } else {
+        maybeSince = undefined;
+      }
+
+      if (!otpAnswered && await findOtpField(page)) {
+        const otp = await completeOneTimeCode(page, auth, options);
+        actions += otp.actionsUsed;
+        otpAnswered = true;
+        if (!otp.succeeded) return fail(otp.message, actions);
+        continue;
+      }
+
+      const refusal = (await visibleMessages(page)).find(text => REFUSAL.test(text) && !standing.has(text));
+      if (refusal) {
+        return fail(`The application turned the sign-in down: "${refusal}" (at ${page.url()}).${await describeVisibleForm(page)}`, actions);
+      }
+    } catch {
+      // A navigation can tear down the execution context mid-check; ask again.
+    }
+    await page.waitForTimeout(200);
+  }
+
+  const shown = await visibleMessages(page);
+  const said = shown.length > 0 ? ` The page showed: ${shown.map(t => `"${t}"`).join('; ')}.` : ' The page showed no message.';
+  const waited = Math.round(Math.max(options.actionTimeoutMs, 15_000) / 1000);
+  const what = auth.successLocator
+    ? 'the configured post-login element did not appear'
+    : auth.successUrlContains
+      ? `the browser was still at ${page.url()}, which does not contain "${auth.successUrlContains}"`
+      : `the browser was still on the sign-in page (${page.url()})`;
+  return fail(`After signing in and waiting ${waited}s, ${what}.${said}${await describeVisibleForm(page)}`, actions);
 }
 
 type Scope = Page | Frame;
@@ -375,8 +406,9 @@ async function waitForNextStep(page: Page, timeoutMs: number): Promise<'password
  * one-time code) on the next screen. When no password field is beside the user id, the
  * form's primary button is pressed and the next screen is answered.
  */
-async function fillSignInForm(page: Page, auth: AuthConfig, options: LoginOptions): Promise<LoginResult> {
+async function fillSignInForm(page: Page, auth: AuthConfig, options: LoginOptions): Promise<LoginResult & { standing?: Set<string> }> {
   let actions = 0;
+  const standing = new Set<string>();
   const scope = await waitForLoginFrame(page, options.actionTimeoutMs);
   if (!scope) {
     return fail(`No sign-in form appeared on ${page.url()} within ${Math.round(options.actionTimeoutMs / 1000)}s.${await describeVisibleForm(page)}`, actions);
@@ -396,10 +428,11 @@ async function fillSignInForm(page: Page, auth: AuthConfig, options: LoginOption
 
   if (!auth.passwordLocator && await password.count().catch(() => 0) === 0) {
     // Two steps: the user id first, then whatever the application asks for next.
+    for (const text of await visibleMessages(page)) standing.add(text);
     await pressPrimary(page, scope, username, undefined, options, 'identify', auth.username!);
     actions++;
     const next = await waitForNextStep(page, options.actionTimeoutMs);
-    if (next === 'otp') return { succeeded: true, message: 'User id accepted; a one-time code is asked for next.', actionsUsed: actions };
+    if (next === 'otp') return { succeeded: true, message: 'User id accepted; a one-time code is asked for next.', actionsUsed: actions, standing };
     if (next === 'neither') {
       return fail(`After the user name was entered and the form's button pressed, no password field or one-time-code prompt appeared.${await describeVisibleForm(page)}`, actions);
     }
@@ -425,9 +458,12 @@ async function fillSignInForm(page: Page, auth: AuthConfig, options: LoginOption
   }
   actions++;
 
+  // Whatever the page already says before the attempt (a fraud warning, "locked after 3
+  // failed attempts") is not the application's answer to it.
+  for (const text of await visibleMessages(page)) standing.add(text);
   await pressPrimary(page, passwordScope, password, auth.submitLocator, options, 'password', auth.password);
   actions++;
-  return { succeeded: true, message: 'Sign-in form submitted.', actionsUsed: actions };
+  return { succeeded: true, message: 'Sign-in form submitted.', actionsUsed: actions, standing };
 }
 
 /**

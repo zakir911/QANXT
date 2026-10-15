@@ -118,7 +118,7 @@ export class Crawler {
         if (!login.succeeded) {
           // Continuing would produce a map of the login page repeated many times, which
           // is worse than useless — it looks like a successful crawl.
-          throw new Error(`Authentication failed: ${login.message}`);
+          throw new Error(`Authentication failed: ${this.masker.maskText(login.message)}`);
         }
       }
 
@@ -355,7 +355,7 @@ export class Crawler {
       navigationTimeoutMs: this.options.navigationTimeoutMs,
       actionTimeoutMs: this.options.navigationTimeoutMs
     });
-    this.note(result.succeeded ? 'Signed in successfully.' : `Sign-in failed: ${result.message}`);
+    this.note(result.succeeded ? 'Signed in successfully.' : `Sign-in failed: ${this.masker.maskText(result.message)}`);
     this.actionsUsed += result.actionsUsed;
     return result;
   }
