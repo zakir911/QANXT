@@ -171,3 +171,8 @@ nothing the application under test returned can run in the report.
 against the golden form lab (`test-lab/form-lab`: twenty-one forms (one behind a dialog), fourteen deliberate defects,
 ground truth generated from the same declarations the server validates with). It writes
 `verification/manual-testing-coverage-report.md` from what it counted.
+
+Stopping it part way (Ctrl-C, `kill`, a CI timeout) cancels the test runs it started, and the
+worker skips their queued tests, so a stopped verification does not leave work behind for the
+next one. The same holds for any run cancelled from the console or the API: a test still in the
+queue when its run is cancelled is never started.

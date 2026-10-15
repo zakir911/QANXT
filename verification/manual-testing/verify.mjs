@@ -85,8 +85,42 @@ const lab = (path, body) => fetch(`${LAB_URL}${path}`, body === undefined ? unde
 async function api(path, options = {}) {
   const response = await request(path, { timeoutMs: 600_000, ...options, token: tenant.token });
   if (!response.ok && !options.allowFailure) throw new Error(`${options.method ?? 'GET'} ${path} → ${response.status} ${response.text.slice(0, 400)}`);
+  // Every run this script starts is remembered until it finishes, so stopping the script
+  // cancels it instead of leaving its tests queued for whatever runs next.
+  if (response.ok && options.method === 'POST' && /\/runs$|^\/api\/v1\/testruns$/.test(path)) {
+    const runId = response.json?.testRunId ?? response.json?.id;
+    if (runId) activeRuns.add(runId);
+  }
   return response.json;
 }
+
+// ---------------------------------------------------------------------------
+// Stopping cleanly
+// ---------------------------------------------------------------------------
+
+/** Runs started by this script and not yet finished. */
+const activeRuns = new Set();
+let stopping = false;
+
+/** Cancels whatever this script still has running, then exits. A stopped verification used
+ *  to leave hundreds of tests queued; the worker went on running them, and they landed in the
+ *  lab during the next verification, which then reported submissions it had not made. */
+async function stop(reason, code) {
+  if (stopping) return;
+  stopping = true;
+  if (activeRuns.size > 0 && typeof tenant !== 'undefined') {
+    console.error(`\n${reason}: cancelling ${activeRuns.size} unfinished run(s) …`);
+    for (const runId of activeRuns) {
+      const response = await request(`/api/v1/testruns/${runId}/cancel`, { method: 'POST', token: tenant.token, timeoutMs: 15_000 }).catch(error => ({ ok: false, status: String(error) }));
+      console.error(`  ${runId}: ${response.ok ? 'cancelled' : `could not cancel (${response.status})`}`);
+    }
+  }
+  process.exit(code);
+}
+process.on('SIGINT', () => void stop('Interrupted', 130));
+process.on('SIGTERM', () => void stop('Stopped', 143));
+process.on('unhandledRejection', error => { console.error(error); void stop('Failed', 1); });
+process.on('uncaughtException', error => { console.error(error); void stop('Failed', 1); });
 
 async function upload(path, fileName, content, contentType) {
   const form = new FormData();
@@ -102,7 +136,7 @@ async function waitForRun(runId, label) {
   let last = '';
   while (Date.now() < deadline) {
     const run = await api(`/api/v1/testruns/${runId}`);
-    if (run.completedAt) return run;
+    if (run.completedAt) { activeRuns.delete(runId); return run; }
     const line = `${label}: ${run.passedCount + run.failedCount + run.skippedCount + run.blockedCount}/${run.totalCount}`;
     if (line !== last) { process.stdout.write(`  … ${line}\r`); last = line; }
     await sleep(10_000);

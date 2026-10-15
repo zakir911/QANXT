@@ -55,8 +55,20 @@ if [[ "$QUICK" != true ]]; then
 fi
 
 section "End-to-end verification"
-node verification/manual-testing/verify.mjs
+# Run in the background and wait, so a stop sent to this script (Ctrl-C, kill, a CI
+# timeout) reaches verify.mjs too, and it can cancel the runs it started before exiting.
+# Run in the foreground, only bash would get a kill, and node would carry on alone.
+node verification/manual-testing/verify.mjs &
+verify_pid=$!
+forward() { kill -"$1" "$verify_pid" 2>/dev/null; }
+trap 'forward TERM' INT
+trap 'forward TERM' TERM
+# wait returns early when a trapped signal arrives; wait again for verify.mjs to finish
+# cancelling its runs.
+wait "$verify_pid"
 status=$?
+while kill -0 "$verify_pid" 2>/dev/null; do wait "$verify_pid"; status=$?; done
+trap - INT TERM
 
 printf '\n'
 if [[ $status -ne 0 ]]; then

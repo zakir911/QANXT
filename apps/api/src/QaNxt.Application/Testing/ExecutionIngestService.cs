@@ -65,6 +65,12 @@ public sealed class ExecutionIngestService : IExecutionIngestService
         var execution = await _db.TestExecutions.FirstOrDefaultAsync(e => e.Id == executionId, ct);
         if (execution is null) return Result.Failure(Error.NotFound("The execution"));
 
+        // Cancelling a run marks its queued executions cancelled, but their jobs are still in
+        // the queue. Without this a worker that picked one up later set it running again, and
+        // a cancelled run carried on testing.
+        if (execution.Status == ExecutionStatus.Cancelled)
+            return Result.Failure(Error.Conflict("execution_cancelled", "This execution was cancelled before it started."));
+
         execution.Status = ExecutionStatus.Running;
         execution.StartedAt ??= _clock.UtcNow;
         execution.WorkerId = workerId;

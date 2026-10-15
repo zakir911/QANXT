@@ -2,7 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { ExecutionJob } from '@qa-nxt/shared-types';
-import { ControlPlaneClient } from '../api/control-plane-client.js';
+import { ControlPlaneClient, ControlPlaneError } from '../api/control-plane-client.js';
 import { createBaselineStore } from './baseline-store.js';
 import type { BrowserPool } from '../browser/browser-pool.js';
 import type { WorkerConfig } from '../config.js';
@@ -40,7 +40,17 @@ export async function handleExecutionJob(
   const artifactRoot = await mkdtemp(join(tmpdir(), `qanxt-exec-${job.executionId}-`));
 
   try {
-    await client.executionStarted(job.executionId, config.workerId);
+    try {
+      await client.executionStarted(job.executionId, config.workerId);
+    } catch (error) {
+      // The run was cancelled while this job waited in the queue: nothing to do, and
+      // nothing to report — the control plane already recorded it as cancelled.
+      if (error instanceof ControlPlaneError && error.status === 409) {
+        logger.info('Skipped: the execution was cancelled before it started');
+        return;
+      }
+      throw error;
+    }
     logger.info('Starting execution', { testCase: job.testCaseName, browser: job.browser, attempt: job.attempt });
 
     const executor = new TestExecutor(pool, logger);
