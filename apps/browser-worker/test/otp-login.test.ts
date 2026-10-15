@@ -109,6 +109,42 @@ function otpSite(): Server {
         <label>User ID <input name="userid"></label><label>Password <input type="password" name="password"></label>
         <button>Login</button></form>`));
     }
+    // A retail-banking sign-in in two pages: the user id on the first, then the user id again
+    // with a password box that is a text input the page masks itself. "css" masks with
+    // -webkit-text-security; "js" keeps the real value from keystrokes and shows dots.
+    if (url.pathname === '/hfc-login') {
+      return send(page(`<header><button>bedtime</button><button>A-</button><button>A+</button><button>Login</button></header>
+        <label for="_r_o_">User ID</label><input type="text" name="userid" id="_r_o_">
+        <button id="go">Continue</button><button>Register now</button>
+        <script>document.getElementById('go').addEventListener('click', () => {
+          location.href = '/hfc-login2?mask=${url.searchParams.get('mask') ?? 'css'}&user=' + encodeURIComponent(document.getElementById('_r_o_').value); });</script>`));
+    }
+    if (url.pathname === '/hfc-login2') {
+      const js = url.searchParams.get('mask') === 'js';
+      return send(page(`<header><button>bedtime</button><button>Login</button></header>
+        <label for="_r_u_">User ID</label><input type="text" name="userid" id="_r_u_" value="${url.searchParams.get('user') ?? ''}">
+        <label for="_r_v_">Password</label><input type="text" name="new-password" id="_r_v_" autocomplete="off"
+          style="-webkit-text-security: disc"><button type="button" id="eye">visibility_off</button>
+        <button type="button">Forgot password?</button>
+        <p id="err" role="alert" hidden>Wrong password</p>
+        <button id="login">Login</button>
+        <script>
+          const box = document.getElementById('_r_v_');
+          let real = '';
+          ${js ? `box.addEventListener('keydown', e => {
+                    if (e.key === 'Backspace') real = real.slice(0, -1);
+                    else if (e.key.length === 1) real += e.key;
+                    else return;
+                    e.preventDefault(); box.value = '•'.repeat(real.length);
+                  });
+                  box.addEventListener('input', () => { if (box.value === '') real = ''; });`
+               : `box.addEventListener('input', () => { real = box.value; });`}
+          document.getElementById('login').addEventListener('click', () => {
+            if (real === 'secret' && document.getElementById('_r_u_').value === 'tester') location.href = '/auto-otp?kind=single';
+            else document.getElementById('err').hidden = false;
+          });
+        </script>`));
+    }
     if (url.pathname === '/login') {
       const style = url.searchParams.get('style') ?? 'single';
       return send(page(`<form action="/otp" method="get"><input type="hidden" name="style" value="${style}">
@@ -240,6 +276,24 @@ describe('sign-in with a one-time code', () => {
     const { result } = await loginAt('/auto-login?kind=single', { otpValue: '000000' });
     expect(result.succeeded).toBe(false);
     expect(result.message).toMatch(/did not accept the fixed one-time code/);
+  }, 40_000);
+
+  test('a password box that is a text input the page masks itself is found and filled', async () => {
+    const { result, headings } = await loginAt('/hfc-login?mask=css');
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 40_000);
+
+  test('a password box that keeps the real value from keystrokes and shows dots is typed into', async () => {
+    const { result, headings } = await loginAt('/hfc-login?mask=js');
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 40_000);
+
+  test('the same page opened directly signs in in one step', async () => {
+    const { result, headings } = await loginAt('/hfc-login2?mask=css&user=');
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
   }, 40_000);
 
   test('selectors configured for the application are used as given', async () => {

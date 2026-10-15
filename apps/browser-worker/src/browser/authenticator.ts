@@ -152,7 +152,27 @@ async function waitForSignInOutcome(page: Page, auth: AuthConfig, options: Login
 type Scope = Page | Frame;
 
 const TEXT_INPUT = 'input:not([type]), input[type="text"], input[type="email"], input[type="tel"], input[type="number"]';
-const PASSWORD_INPUT = 'input[type="password"]:visible';
+// A password field is not always type="password": some applications use a text input
+// they mask themselves (with an eye toggle beside it), named or labelled as a password.
+// "passcode" is left out on purpose; that is a one-time code.
+const TEXT_LIKE = ':is([type="password"], [type="text"], [type="tel"], [type="number"], :not([type]))';
+const PASSWORD_INPUT = [
+  'input[type="password"]',
+  ...['name', 'id', 'placeholder', 'aria-label', 'autocomplete', 'formcontrolname', 'data-testid']
+    .flatMap(attribute => ['password', 'passwd', 'pwd'].map(word => `input${TEXT_LIKE}[${attribute}*="${word}" i]`)),
+  `input${TEXT_LIKE}[name*="mpin" i]`
+].map(selector => `${selector}:visible`).join(', ');
+const PASSWORD_LIKE = /passw|passwd|pwd|\bm?pin\b/i;
+
+/** The visible password field in this frame: by type, by its attributes, or by its label. */
+function passwordFieldIn(scope: Scope) {
+  return scope.locator(PASSWORD_INPUT)
+    .or(scope.getByLabel(/password/i).and(scope.locator(`input${TEXT_LIKE}:visible`)));
+}
+
+async function hasPasswordField(scope: Scope): Promise<boolean> {
+  return passwordFieldIn(scope).count().then(count => count > 0).catch(() => false);
+}
 const PRIMARY_BUTTON = /\b(sign ?in|log ?in|login|continue|next|proceed|submit|verify|send otp|get otp|request otp|generate otp)\b/i;
 const NOT_PRIMARY = /forgot|register|sign ?up|create|reset|resend|cancel|back|help|google|facebook|apple|microsoft/i;
 
@@ -171,7 +191,7 @@ async function waitForLoginFrame(page: Page, timeoutMs: number): Promise<Scope |
   while (Date.now() < deadline) {
     firstWithText = undefined;
     for (const frame of page.frames()) {
-      if (await frame.locator(PASSWORD_INPUT).count().catch(() => 0) > 0) return frame === page.mainFrame() ? page : frame;
+      if (await hasPasswordField(frame)) return frame === page.mainFrame() ? page : frame;
       if (!firstWithText && await visibleTextInputs(frame).count().catch(() => 0) > 0) {
         firstWithText = frame === page.mainFrame() ? page : frame;
       }
@@ -191,9 +211,13 @@ function visibleTextInputs(scope: Scope) {
 
 /** The input a person would type the user name into: scored on its name, label and place. */
 async function findUsernameField(scope: Scope) {
-  const index = await scope.evaluate(selector => {
+  const index = await scope.evaluate(({ selector, passwordLike }) => {
+    const passwordPattern = new RegExp(passwordLike, 'i');
+    const describe = (input: HTMLInputElement) => [input.name, input.id, input.placeholder, input.getAttribute('aria-label') ?? '',
+      input.autocomplete, ...Array.from(input.labels ?? []).map(l => l.textContent ?? '')].join(' ');
     const inputs = Array.from(document.querySelectorAll<HTMLInputElement>(selector));
-    const password = document.querySelector('input[type="password"]');
+    const password = document.querySelector('input[type="password"]')
+      ?? inputs.find(input => passwordPattern.test(describe(input))) ?? null;
     let best = -1;
     let bestScore = -Infinity;
     inputs.forEach((input, i) => {
@@ -203,7 +227,7 @@ async function findUsernameField(scope: Scope) {
         || box.width === 0 || box.height === 0) return;
       const label = [input.name, input.id, input.placeholder, input.getAttribute('aria-label') ?? '',
         input.autocomplete, ...Array.from(input.labels ?? []).map(l => l.textContent ?? '')].join(' ');
-      if (/search|captcha|otp|one-time/i.test(label) || input.type === 'search') return;
+      if (/search|captcha|otp|one-time/i.test(label) || input.type === 'search' || passwordPattern.test(label)) return;
       let score = 0;
       if (/username|email/.test(input.autocomplete)) score += 6;
       if (/user|email|e-mail|login|log-in|mobile|phone|customer|account|member|client|signin|\bid\b|userid|cif/i.test(label)) score += 3;
@@ -213,7 +237,7 @@ async function findUsernameField(scope: Scope) {
       if (score > bestScore) { bestScore = score; best = i; }
     });
     return best;
-  }, TEXT_INPUT);
+  }, { selector: TEXT_INPUT, passwordLike: PASSWORD_LIKE.source });
   return index < 0 ? undefined : scope.locator(TEXT_INPUT).nth(index);
 }
 
@@ -231,6 +255,9 @@ interface ButtonChoice { index: number; text: string; disabled: boolean }
  * and — before a password is shown — the one that says Continue or Next.
  */
 async function rankButtons(field: ReturnType<Scope['locator']>, stage: 'identify' | 'password' | 'otp'): Promise<ButtonChoice[]> {
+  // The field can be gone already (a code screen that submitted itself); waiting for it
+  // would cost the whole action timeout for nothing.
+  if (await field.count().catch(() => 0) === 0) return [];
   return field.evaluate((input, args) => {
     const primary = new RegExp(args.primary, 'i');
     const notPrimary = new RegExp(args.notPrimary, 'i');
@@ -265,7 +292,7 @@ async function rankButtons(field: ReturnType<Scope['locator']>, stage: 'identify
     });
     return ranked.sort((a, b) => b.score - a.score || a.index - b.index)
       .map(({ index, text, disabled }) => ({ index, text, disabled }));
-  }, { selector: BUTTONS, primary: PRIMARY_BUTTON.source, notPrimary: NOT_PRIMARY.source, stage }).catch(() => []);
+  }, { selector: BUTTONS, primary: PRIMARY_BUTTON.source, notPrimary: NOT_PRIMARY.source, stage }, { timeout: 2000 }).catch(() => []);
 }
 
 /**
@@ -332,7 +359,7 @@ async function waitForNextStep(page: Page, timeoutMs: number): Promise<'password
   while (Date.now() < deadline) {
     if (page.isClosed()) return 'neither';
     for (const frame of page.frames()) {
-      if (await frame.locator(PASSWORD_INPUT).count().catch(() => 0) > 0) return 'password';
+      if (await hasPasswordField(frame)) return 'password';
     }
     if (await findOtpField(page)) return 'otp';
     if (await hasVisibleError(page)) return 'neither';
@@ -365,7 +392,7 @@ async function fillSignInForm(page: Page, auth: AuthConfig, options: LoginOption
   let passwordScope: Scope = scope;
   let password = auth.passwordLocator
     ? (await resolveLocator(scope, auth.passwordLocator, { timeoutMs: options.actionTimeoutMs })).locator
-    : scope.locator(PASSWORD_INPUT).first();
+    : passwordFieldIn(scope).first();
 
   if (!auth.passwordLocator && await password.count().catch(() => 0) === 0) {
     // Two steps: the user id first, then whatever the application asks for next.
@@ -377,18 +404,25 @@ async function fillSignInForm(page: Page, auth: AuthConfig, options: LoginOption
       return fail(`After the user name was entered and the form's button pressed, no password field or one-time-code prompt appeared.${await describeVisibleForm(page)}`, actions);
     }
     for (const frame of page.frames()) {
-      if (await frame.locator(PASSWORD_INPUT).count().catch(() => 0) > 0) {
+      if (await hasPasswordField(frame)) {
         passwordScope = frame === page.mainFrame() ? page : frame;
         break;
       }
     }
-    password = passwordScope.locator(PASSWORD_INPUT).first();
+    password = passwordFieldIn(passwordScope).first();
   }
 
   if (!auth.password) {
     return fail('The application asks for a password and none is configured. Edit the application and enter the test account\'s password.', actions);
   }
-  await password.fill(auth.password, { timeout: options.actionTimeoutMs });
+  if (await password.getAttribute('type').catch(() => 'password') === 'password') {
+    await password.fill(auth.password, { timeout: options.actionTimeoutMs });
+  } else {
+    // A text field the application masks itself often keeps the real value from the keys it
+    // sees and shows dots instead; setting the value at once would bypass that.
+    await password.fill('', { timeout: options.actionTimeoutMs });
+    await password.pressSequentially(auth.password, { delay: 30, timeout: options.actionTimeoutMs });
+  }
   actions++;
 
   await pressPrimary(page, passwordScope, password, auth.submitLocator, options, 'password', auth.password);
@@ -591,7 +625,10 @@ async function hasVisibleError(page: Page): Promise<boolean> {
 }
 
 async function hasVisiblePasswordField(page: Page): Promise<boolean> {
-  return anyFrameHas(page, PASSWORD_INPUT);
+  for (const frame of page.frames()) {
+    if (await hasPasswordField(frame)) return true;
+  }
+  return false;
 }
 
 async function anyFrameHas(page: Page, selector: string): Promise<boolean> {
