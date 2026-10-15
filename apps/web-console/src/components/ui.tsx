@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode, Ref } from 'react';
 import { humanize } from '../lib/format';
 
@@ -54,9 +54,19 @@ const STATUS_TONE: Record<string, string> = {
   permitted: 'bg-warn-light text-warn'
 };
 
+const IN_PROGRESS = new Set(['running', 'queued', 'pending', 'inProgress', 'in_progress', 'starting']);
+
 export function StatusBadge({ status, title }: { status: string; title?: string }) {
   const tone = STATUS_TONE[status] ?? 'bg-surface-sunken text-ink-muted';
-  return <span className={`badge ${tone}`} title={title}>{humanize(status)}</span>;
+  // Work still under way turns, so "running" is visibly alive and not a label that might
+  // have been left behind by something that stopped.
+  const busy = IN_PROGRESS.has(status);
+  return (
+    <span className={`badge ${tone} inline-flex items-center gap-1.5`} title={title}>
+      {busy && <span className="inline-block h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin" aria-hidden="true" data-testid="status-spinner" />}
+      {humanize(status)}
+    </span>
+  );
 }
 
 export function Card({ id, title, description, actions, children, className = '', labelledBy, sectionRef }: {
@@ -189,11 +199,15 @@ export function useDisclosedPanel(id: string, open: boolean, onClose?: () => voi
   };
 }
 
-export function Metric({ label, value, tone = 'neutral', hint }: {
+export function Metric({ label, value, tone = 'neutral', hint, onClick, active = false }: {
   label: string;
   value: ReactNode;
   tone?: 'neutral' | 'good' | 'bad' | 'warn' | 'info';
   hint?: string;
+  /** Makes the tile a filter: pressing it narrows the list below to what it counts. */
+  onClick?: () => void;
+  /** Whether this tile's filter is the one applied. */
+  active?: boolean;
 }) {
   const tones = {
     neutral: 'text-ink',
@@ -202,11 +216,43 @@ export function Metric({ label, value, tone = 'neutral', hint }: {
     warn: 'text-warn',
     info: 'text-info'
   };
-  return (
-    <div className="card-pad">
+  const body = (
+    <>
       <div className="text-xs font-semibold uppercase tracking-wide text-ink-subtle">{label}</div>
       <div className={`mt-1 text-2xl font-bold tabular-nums ${tones[tone]}`}>{value}</div>
       {hint && <div className="mt-1 text-xs text-ink-muted">{hint}</div>}
+    </>
+  );
+  if (!onClick) return <div className="card-pad">{body}</div>;
+  return (
+    <button type="button" onClick={onClick} aria-pressed={active}
+            title={active ? `Showing ${label.toLowerCase()} — press again to show all` : `Show only ${label.toLowerCase()}`}
+            className={`card-pad text-left w-full rounded-lg border transition-colors hover:border-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand
+                        ${active ? 'border-brand ring-2 ring-brand/30 bg-brand/5' : 'border-transparent'}`}>
+      {body}
+    </button>
+  );
+}
+
+/** One filter a row of metric tiles selects: pressing the active tile clears it. */
+export function useMetricFilter<T extends string>(initial: T | null = null) {
+  const [filter, setFilter] = useState<T | null>(initial);
+  return {
+    filter,
+    set: setFilter,
+    toggle: (value: T) => setFilter(current => (current === value ? null : value)),
+    is: (value: T) => filter === value
+  };
+}
+
+/** Says which tile filter is applied, with a way back to everything. */
+export function FilterNote({ label, onClear }: { label: string | null; onClear: () => void }) {
+  if (!label) return null;
+  return (
+    <div className="mb-3 flex items-center gap-2 text-sm" role="status">
+      <span className="text-ink-muted">Showing only:</span>
+      <span className="badge bg-brand/10 text-brand">{label}</span>
+      <button type="button" className="text-brand hover:underline text-sm" onClick={onClear}>Show all</button>
     </div>
   );
 }

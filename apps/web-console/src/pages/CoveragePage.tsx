@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../api/client';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, Metric, PageHeader, Spinner, StatusBadge } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, FilterNote, Metric, PageHeader, Spinner, StatusBadge, useMetricFilter } from '../components/ui';
 import {
   ApplicationPicker, categoryLabel, percent, useApplications, useSelectedApplication,
   type ApplicationCoverage, type CategoryCoverage, type FormCoverage
@@ -22,12 +22,16 @@ const GAP_STATUS_LABEL: Record<string, string> = {
  * questions — "was it tested?" and "did it work?" — and gaps are listed with the reason for
  * each, so "not 100%" always comes with what is missing and why.
  */
+type FormFilter = 'failed' | 'notRun' | 'belowFull' | 'gaps';
+const FORM_FILTER_LABEL: Record<FormFilter, string> = { failed: 'Forms with failing tests', notRun: 'Forms with tests not yet run', belowFull: 'Forms below a 100% pass rate', gaps: 'Forms with gaps' };
+
 export default function CoveragePage() {
   const { projectId } = useProject();
   const { data: applications = [], isLoading: loadingApps } = useApplications();
   const [applicationId, setApplicationId] = useSelectedApplication(applications);
   const [gapFilter, setGapFilter] = useState('all');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const formFilter = useMetricFilter<FormFilter>();
 
   const { data: coverage, isLoading, error, refetch } = useQuery({
     queryKey: ['coverage', applicationId],
@@ -53,13 +57,20 @@ export default function CoveragePage() {
       {coverage ? (
         <>
           <p className="text-sm text-ink-muted" role="status">{coverage.statement}</p>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <Metric label="Coverage" value={percent(coverage.overallCoveragePercent)} tone={tone(coverage.overallCoveragePercent)}
-              hint="Weighted share of applicable tests that have run, with each open gap counted against it." />
-            <Metric label="Pass rate" value={percent(coverage.passPercent)} tone={tone(coverage.passPercent)} hint="Of the tests that ran, how many passed." />
-            <Metric label="Tests" value={`${coverage.surface.executedTests} / ${coverage.surface.testableTests}`} hint="Executed of active tests." />
-            <Metric label="Failed" value={coverage.surface.failedTests} tone={coverage.surface.failedTests > 0 ? 'bad' : 'good'} />
+              hint="Weighted share of applicable tests that have run, with each open gap counted against it."
+              onClick={() => formFilter.set(null)} active={formFilter.filter === null} />
+            <Metric label="Pass rate" value={percent(coverage.passPercent)} tone={tone(coverage.passPercent)} hint="Of the tests that ran, how many passed. Shows forms below 100%."
+              onClick={() => formFilter.toggle('belowFull')} active={formFilter.is('belowFull')} />
+            <Metric label="Tests" value={`${coverage.surface.executedTests} / ${coverage.surface.testableTests}`} hint="Executed of active tests. Shows forms with tests not yet run."
+              onClick={() => formFilter.toggle('notRun')} active={formFilter.is('notRun')} />
+            <Metric label="Failed" value={coverage.surface.failedTests} tone={coverage.surface.failedTests > 0 ? 'bad' : 'good'} hint="Shows forms with failing tests."
+              onClick={() => formFilter.toggle('failed')} active={formFilter.is('failed')} />
+            <Metric label="Gaps" value={coverage.gaps.length} tone={coverage.gaps.length ? 'warn' : 'good'} hint="Shows forms with gaps, and the gap list."
+              onClick={() => formFilter.toggle('gaps')} active={formFilter.is('gaps')} />
           </div>
+          <FilterNote label={formFilter.filter === null ? null : FORM_FILTER_LABEL[formFilter.filter]} onClear={() => formFilter.set(null)} />
 
           <Card title="Surface" description="What exists, what can be tested, what was, and what cannot be here.">
             <dl className="kv grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-4 text-sm">
@@ -93,7 +104,11 @@ export default function CoveragePage() {
           </Card>
 
           <section aria-label="Forms" className="grid gap-4 lg:grid-cols-2">
-            {coverage.forms.map(form => (
+            {coverage.forms.filter(form => formFilter.filter === null
+                || formFilter.filter === 'failed' && form.failed > 0
+                || formFilter.filter === 'notRun' && form.notRun > 0
+                || formFilter.filter === 'belowFull' && form.passPercent !== null && form.passPercent < 100
+                || formFilter.filter === 'gaps' && form.gaps > 0).map(form => (
               <FormCard key={form.formId} form={form} open={expanded === form.formId} onToggle={() => setExpanded(expanded === form.formId ? null : form.formId)} />
             ))}
           </section>

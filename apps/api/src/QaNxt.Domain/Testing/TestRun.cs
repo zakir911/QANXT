@@ -50,6 +50,10 @@ public class TestRun : BaseEntity, ITenantOwned, IAuditable
     /// <summary>Build identifier of the application under test, used for change correlation.</summary>
     public string? ApplicationBuildRef { get; set; }
 
+    /// <summary>The security scan started together with this run, when one was asked for. Its
+    /// findings belong to this run's bug report, beside the test failures.</summary>
+    public Guid? SecurityScanId { get; set; }
+
     public Guid? CreatedByUserId { get; set; }
     public Guid? UpdatedByUserId { get; set; }
 

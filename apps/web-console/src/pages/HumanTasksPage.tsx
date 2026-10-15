@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest, apiUpload } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, PageHeader, Spinner, StatusBadge } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, FilterNote, Metric, PageHeader, Spinner, StatusBadge } from '../components/ui';
 import { categoryLabel } from '../lib/quality';
 
 interface HumanTask {
@@ -29,8 +29,9 @@ export default function HumanTasksPage() {
   const [comments, setComments] = useState<Record<string, string>>({});
 
   const { data: tasks = [], isLoading } = useQuery({
-    queryKey: ['human-tasks', projectId, status],
-    queryFn: () => apiRequest<HumanTask[]>(`/api/v1/human-tasks?projectId=${projectId}${status ? `&status=${status}` : ''}`),
+    // Every task, filtered here, so the tiles can count each status.
+    queryKey: ['human-tasks', projectId],
+    queryFn: () => apiRequest<HumanTask[]>(`/api/v1/human-tasks?projectId=${projectId}`),
     enabled: Boolean(projectId)
   });
 
@@ -68,7 +69,19 @@ export default function HumanTasksPage() {
       {isLoading ? <Spinner label="Loading tasks" /> : null}
       {!isLoading && tasks.length === 0 ? <EmptyState title="Nothing here" description="Generation and manual-test import create tasks for anything that needs a person." /> : null}
 
-      {tasks.map(task => (
+      {tasks.length > 0 ? (
+        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <Metric label="All tasks" value={tasks.length} onClick={() => setStatus('')} active={status === ''} />
+          {STATUSES.map(s => (
+            <Metric key={s} label={LABEL[s] ?? s} value={tasks.filter(t => t.status === s).length}
+                    tone={s === 'passed' ? 'good' : s === 'failed' ? 'bad' : s === 'pending' ? 'warn' : 'neutral'}
+                    onClick={() => setStatus(status === s ? '' : s)} active={status === s} />
+          ))}
+        </div>
+      ) : null}
+      <FilterNote label={status ? LABEL[status] ?? status : null} onClear={() => setStatus('')} />
+
+      {tasks.filter(task => !status || task.status === status).map(task => (
         <Card key={task.id} title={task.title}
           description={`${categoryLabel(task.category)}${task.formName ? ` · ${task.formName}` : ''} · ${task.origin}`}
           actions={<StatusBadge status={['pending', 'passed', 'failed'].includes(task.status) ? task.status : 'skipped'} title={LABEL[task.status] ?? task.status} />}>

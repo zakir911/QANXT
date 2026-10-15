@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, PageHeader, ProviderNote, Spinner, StatusBadge, useDisclosedPanel } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, FilterNote, Metric, PageHeader, ProviderNote, Spinner, StatusBadge, useDisclosedPanel, useMetricFilter } from '../components/ui';
 import { formatDuration, formatRelative } from '../lib/format';
 
 interface TestCaseRow {
@@ -25,7 +25,14 @@ interface GenerationResult {
   estimatedCostUsd: number; warnings: string[];
 }
 
+type LastResult = 'passed' | 'failed' | 'never' | 'disabled';
+const resultOf = (c: { lastStatus?: string; executionCount: number }): LastResult | 'other' =>
+  !c.lastStatus || c.executionCount === 0 ? 'never'
+    : ['passed', 'healed', 'flaky'].includes(c.lastStatus) ? 'passed'
+    : ['failed', 'error', 'timedOut'].includes(c.lastStatus) ? 'failed' : 'other';
+
 export default function TestCasesPage() {
+  const last = useMetricFilter<LastResult>();
   const { can } = useAuth();
   const { projectId, project } = useProject();
   const queryClient = useQueryClient();
@@ -206,6 +213,15 @@ export default function TestCasesPage() {
           />
         </Card>
       ) : (
+        <>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-4">
+          <Metric label="Test cases" value={cases.length} onClick={() => last.set(null)} active={last.filter === null} />
+          <Metric label="Last run passed" value={cases.filter(c => resultOf(c) === 'passed').length} tone="good" onClick={() => last.toggle('passed')} active={last.is('passed')} />
+          <Metric label="Last run failed" value={cases.filter(c => resultOf(c) === 'failed').length} tone="bad" onClick={() => last.toggle('failed')} active={last.is('failed')} />
+          <Metric label="Never run" value={cases.filter(c => resultOf(c) === 'never').length} onClick={() => last.toggle('never')} active={last.is('never')} />
+          <Metric label="Disabled" value={cases.filter(c => !c.isEnabled).length} onClick={() => last.toggle('disabled')} active={last.is('disabled')} />
+        </div>
+        <FilterNote label={last.filter === null ? null : { passed: 'Last run passed', failed: 'Last run failed', never: 'Never run', disabled: 'Disabled' }[last.filter]} onClear={() => last.set(null)} />
         <div className="table-wrap">
           <table className="table">
             <thead>
@@ -215,7 +231,7 @@ export default function TestCasesPage() {
               </tr>
             </thead>
             <tbody>
-              {cases.map(testCase => (
+              {cases.filter(c => last.filter === null || (last.filter === 'disabled' ? !c.isEnabled : resultOf(c) === last.filter)).map(testCase => (
                 <tr key={testCase.id}>
                   <td className="font-mono text-xs whitespace-nowrap">{testCase.reference}</td>
                   <td>
@@ -256,6 +272,7 @@ export default function TestCasesPage() {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </>
   );

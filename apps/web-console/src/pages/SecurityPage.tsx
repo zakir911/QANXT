@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiError, apiRequest } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, Metric, PageHeader, Spinner, StatusBadge } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, FilterNote, Metric, PageHeader, Spinner, StatusBadge, useMetricFilter } from '../components/ui';
 import { formatRelative } from '../lib/format';
 import SecurityScopeEditor, { type SecurityScopeRecord } from './SecurityScopeEditor';
 
@@ -84,6 +84,7 @@ interface StartedScan {
  * incomparable are drawn hollow with the reason beside them.
  */
 export default function SecurityPage() {
+  const severity = useMetricFilter<'critical' | 'high'>();
   const { can } = useAuth();
   const { projectId } = useProject();
   const queryClient = useQueryClient();
@@ -102,8 +103,8 @@ export default function SecurityPage() {
   const { data: applications = [] } = useQuery({
     queryKey: ['applications', projectId],
     queryFn: () => apiRequest<AppSummary[]>(
-      `/api/v1/applications${projectId ? `?projectId=${projectId}` : ''}`),
-    enabled: mayRead
+      `/api/v1/applications?projectId=${projectId}`),
+    enabled: mayRead && Boolean(projectId)
   });
 
   const selected = applicationId || applications[0]?.id || '';
@@ -392,11 +393,14 @@ export default function SecurityPage() {
           {/* ---- Where things stand ------------------------------------------ */}
           <div className="grid gap-3 sm:grid-cols-4 my-4">
             <Metric label="Open findings" value={trend?.openNow ?? '—'}
-                    tone={(trend?.openNow ?? 0) > 0 ? 'warn' : 'neutral'} />
+                    tone={(trend?.openNow ?? 0) > 0 ? 'warn' : 'neutral'}
+                    onClick={() => severity.set(null)} active={severity.filter === null} />
             <Metric label="Critical" value={trend?.openCritical ?? '—'}
-                    tone={(trend?.openCritical ?? 0) > 0 ? 'bad' : 'neutral'} />
+                    tone={(trend?.openCritical ?? 0) > 0 ? 'bad' : 'neutral'}
+                    onClick={() => severity.toggle('critical')} active={severity.is('critical')} />
             <Metric label="High" value={trend?.openHigh ?? '—'}
-                    tone={(trend?.openHigh ?? 0) > 0 ? 'bad' : 'neutral'} />
+                    tone={(trend?.openHigh ?? 0) > 0 ? 'bad' : 'neutral'}
+                    onClick={() => severity.toggle('high')} active={severity.is('high')} />
             <Metric
               label="Median days to resolution"
               value={trend?.medianDaysToResolution?.toFixed(1) ?? '—'}
@@ -581,6 +585,7 @@ export default function SecurityPage() {
                 }
               />
             )}
+            <FilterNote label={severity.filter === null ? null : `${severity.filter[0]!.toUpperCase()}${severity.filter.slice(1)} severity`} onClear={() => severity.set(null)} />
             {(findingsQuery.data?.length ?? 0) > 0 && (
               <div className="table-wrap mt-3">
               <table className="table" data-testid="security-findings">
@@ -591,7 +596,7 @@ export default function SecurityPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {findingsQuery.data!.map(finding => (
+                  {findingsQuery.data!.filter(finding => severity.filter === null || finding.severity.toLowerCase() === severity.filter).map(finding => (
                     <tr key={finding.id}>
                       <td>
                         <StatusBadge status={finding.severity}

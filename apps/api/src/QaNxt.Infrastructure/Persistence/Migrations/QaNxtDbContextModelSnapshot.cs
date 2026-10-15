@@ -5877,6 +5877,10 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("quality_gate_summary_json");
 
+                    b.Property<Guid?>("SecurityScanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("security_scan_id");
+
                     b.Property<int>("SkippedCount")
                         .HasColumnType("integer")
                         .HasColumnName("skipped_count");

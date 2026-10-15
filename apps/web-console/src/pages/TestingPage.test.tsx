@@ -41,7 +41,11 @@ function renderPage() {
   return render(<QueryClientProvider client={client}><MemoryRouter><TestingPage /></MemoryRouter></QueryClientProvider>);
 }
 
+const scenario = { tests: 40, scope: false };
+
 beforeEach(() => {
+  scenario.tests = 40;
+  scenario.scope = false;
   apiRequest.mockReset();
   localStorage.clear();
   apiRequest.mockImplementation((path: string, options?: { method?: string; body?: unknown }) => {
@@ -50,6 +54,9 @@ beforeEach(() => {
     if (path.endsWith('/testing-profile') && options?.method === 'PUT') return Promise.resolve(options.body);
     if (path.endsWith('/testing-profile')) return Promise.resolve(PROFILE);
     if (path.endsWith('/forms')) return Promise.resolve([{ id: 'f1', formKey: 'registration', name: 'Create an account', route: '/registration', pageUrl: 'http://lab/registration', method: 'post', isMultiStep: false, hasCsrfToken: true, fieldCount: 5, requiredFieldCount: 5, dependencyCount: 0, isPresent: true, lastSeenAt: '2026-10-12T00:00:00Z' }]);
+    if (path.endsWith('/coverage')) return Promise.resolve({ surface: { testableTests: scenario.tests } });
+    if (path.endsWith('/scope')) return scenario.scope ? Promise.resolve({ enabled: true, authorizedAt: '2026-10-01T00:00:00Z' }) : Promise.reject(new Error('not found'));
+    if (path.endsWith('/runs') && options?.method === 'POST') return Promise.resolve({ testRunId: 'run-9', mode: 'all', selected: 12, explanation: 'Every active test.', securityScanId: 'scan-1', securityNote: 'Security scan SEC-0001 started.' });
     throw new Error(`unexpected call to ${path}`);
   });
 });
@@ -89,5 +96,33 @@ describe('TestingPage', () => {
     expect(await screen.findByText('Create an account')).toBeInTheDocument();
     expect(screen.getByText('/registration')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Generate tests' })).toBeEnabled();
+  });
+
+  test('security testing is offered only once a scope is authorised, and then travels with the run', async () => {
+    renderPage();
+    const box = await screen.findByRole('checkbox', { name: /Also run a security scan/ });
+    expect(box).toBeDisabled();
+    expect(screen.getByRole('link', { name: /Authorise it on the Security page/ })).toBeInTheDocument();
+  });
+
+  test('a run with the security scan asks for it, and says it started', async () => {
+    scenario.scope = true;
+    renderPage();
+    const box = await screen.findByRole('checkbox', { name: /Also run a security scan/ });
+    await waitFor(() => expect(box).toBeEnabled());
+    fireEvent.click(box);
+    fireEvent.click(screen.getByRole('button', { name: 'Run all tests and the security scan' }));
+
+    await waitFor(() => expect(apiRequest).toHaveBeenCalledWith('/api/v1/applications/app-1/runs', expect.objectContaining({ method: 'POST' })));
+    const body = apiRequest.mock.calls.find(([path, options]) => path.endsWith('/runs') && options?.method === 'POST')![1].body;
+    expect(body).toMatchObject({ mode: 'all', includeSecurity: true, securityProfile: 'Standard' });
+    expect(await screen.findByText('Security scan SEC-0001 started.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Follow the run and download the bug report/ })).toHaveAttribute('href', '/runs/run-9');
+  });
+
+  test('running waits until tests have been generated', async () => {
+    scenario.tests = 0;
+    renderPage();
+    expect(await screen.findByRole('button', { name: 'Run all tests' })).toBeDisabled();
   });
 });

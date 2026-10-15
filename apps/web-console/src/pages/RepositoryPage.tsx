@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest, apiUpload } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, PageHeader, Spinner, StatusBadge } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, Metric, PageHeader, Spinner, StatusBadge } from '../components/ui';
 import { ApplicationPicker, CATEGORY_LABEL, categoryLabel, useApplications, useSelectedApplication, type FormSummary } from '../lib/quality';
 
 interface RepositoryItem {
@@ -54,7 +54,7 @@ export default function RepositoryPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['repository', query],
-    queryFn: () => apiRequest<{ total: number; items: RepositoryItem[] }>(`/api/v1/test-repository?${query}`),
+    queryFn: () => apiRequest<{ total: number; items: RepositoryItem[]; facets?: { lifecycle: Record<string, number>; lastStatus: { passed: number; failed: number; neverRun: number } } }>(`/api/v1/test-repository?${query}`),
     enabled: Boolean(projectId)
   });
   const { data: forms = [] } = useQuery({
@@ -118,6 +118,24 @@ export default function RepositoryPage() {
       />
       {error ? <ErrorNotice error={error} /> : null}
       {message ? <p role="status" className="text-sm">{message}</p> : null}
+
+      {data?.facets ? (() => {
+        const facets = data.facets;
+        const total = Object.values(facets.lifecycle).reduce((a, b) => a + b, 0);
+        const pick = (next: Partial<typeof filters>) => { setPage(0); setFilters({ ...filters, lifecycle: '', lastStatus: '', ...next }); };
+        const isOnly = (lifecycle: string, lastStatus: string) => filters.lifecycle === lifecycle && filters.lastStatus === lastStatus;
+        return (
+          <div className="grid gap-4 sm:grid-cols-4 lg:grid-cols-8">
+            <Metric label="All tests" value={total} onClick={() => pick({})} active={isOnly('', '')} />
+            {LIFECYCLES.map(l => (
+              <Metric key={l} label={l} value={facets.lifecycle[l] ?? 0} tone={l === 'Active' ? 'good' : 'neutral'}
+                      onClick={() => pick(isOnly(l, '') ? {} : { lifecycle: l })} active={isOnly(l, '')} />
+            ))}
+            <Metric label="Last run passed" value={facets.lastStatus.passed} tone="good" onClick={() => pick(isOnly('Active', 'Passed') ? {} : { lifecycle: 'Active', lastStatus: 'Passed' })} active={isOnly('Active', 'Passed')} />
+            <Metric label="Last run failed" value={facets.lastStatus.failed} tone={facets.lastStatus.failed ? 'bad' : 'neutral'} onClick={() => pick(isOnly('Active', 'Failed') ? {} : { lifecycle: 'Active', lastStatus: 'Failed' })} active={isOnly('Active', 'Failed')} />
+          </div>
+        );
+      })() : null}
 
       <Card title="Filter">
         <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-6 text-sm">

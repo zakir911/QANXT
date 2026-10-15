@@ -25,8 +25,8 @@ public sealed class DiscoveryController : ApiControllerBase
     }
 
     [HttpGet("runs")]
-    public async Task<IActionResult> ListRuns([FromQuery] Guid? applicationId, [FromQuery] int limit = 25, CancellationToken ct = default)
-        => Ok(await _discovery.ListAsync(applicationId, limit, ct));
+    public async Task<IActionResult> ListRuns([FromQuery] Guid? applicationId, [FromQuery] Guid? projectId, [FromQuery] int limit = 25, CancellationToken ct = default)
+        => Ok(await _discovery.ListAsync(applicationId, limit, ct, projectId));
 
     [HttpGet("runs/{id:guid}")]
     public async Task<IActionResult> GetRun(Guid id, CancellationToken ct)

@@ -14,7 +14,17 @@ public sealed record RunBugReport(
     IReadOnlyList<ReportOtherFailure> NotProductBugs,
     IReadOnlyList<ReportFlakyTest> PassedOnRetry,
     IReadOnlyList<ReportSkipGroup> Skipped,
-    DateTimeOffset GeneratedAt);
+    DateTimeOffset GeneratedAt,
+    /// <summary>Pass and fail by testing type — functional, boundary, security and so on — so a
+    /// reader sees which kinds of testing passed before reading any bug.</summary>
+    IReadOnlyList<ReportTypeResult>? ByTestingType = null,
+    /// <summary>The security scan run together with these tests, when there was one.</summary>
+    ReportSecurityScan? Security = null);
+
+public sealed record ReportTypeResult(string TestingType, int Tests, int Passed, int Failed, int Skipped, int Bugs, string Verdict);
+
+public sealed record ReportSecurityScan(string Reference, string Status, string Profile, int ChecksExecuted, int ChecksSkipped,
+    int RequestsBlocked, int Findings, string? Note);
 
 public sealed record ReportRun(
     Guid Id, string Name, string Project, string? Environment, string? EnvironmentUrl,

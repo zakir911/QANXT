@@ -27,6 +27,11 @@ public interface IExecutionIngestService
     Task<Result> MarkRunningAsync(Guid executionId, string workerId, CancellationToken ct = default);
     Task<Result> RecordActionAsync(Guid executionId, ActionResultPayload action, CancellationToken ct = default);
     Task<Result> CompleteAsync(Guid executionId, ExecutionCompletionPayload completion, CancellationToken ct = default);
+
+    /// <summary>Recounts a run and finishes it if all of its executions have, the same way
+    /// the last execution's report would: counts, quality gate, completion event. For the
+    /// sweep that catches runs whose completion was missed.</summary>
+    Task ReconcileRunAsync(Guid runId, CancellationToken ct = default);
 }
 
 public sealed class ExecutionIngestService : IExecutionIngestService
@@ -429,6 +434,13 @@ public sealed class ExecutionIngestService : IExecutionIngestService
             if (isSustainedInstability && execution.Status == ExecutionStatus.Passed)
                 execution.Status = ExecutionStatus.Flaky;
         }
+    }
+
+    public async Task ReconcileRunAsync(Guid runId, CancellationToken ct = default)
+    {
+        var run = await _db.TestRuns.FirstOrDefaultAsync(r => r.Id == runId, ct);
+        if (run is null || run.CompletedAt is not null) return;
+        await UpdateRunTotalsAsync(run, ct);
     }
 
     private async Task UpdateRunTotalsAsync(TestRun run, CancellationToken ct)

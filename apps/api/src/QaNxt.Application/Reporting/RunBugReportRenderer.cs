@@ -84,12 +84,27 @@ public static class RunBugReportRenderer
         if (run.ConsoleUrl is not null) html.Append($"<p class=\"muted\">Open this run in QA NXT: <a href=\"{A(run.ConsoleUrl)}\">{E(run.ConsoleUrl)}</a></p>");
         html.Append("</section>");
 
+        // Which kinds of testing passed and which failed, before any detail.
+        if (report.ByTestingType is { Count: > 0 } types)
+        {
+            html.Append("<section><h2>Results by testing type</h2><table class=\"types\"><thead><tr><th>Testing type</th><th>Result</th><th>Tests</th><th>Passed</th><th>Failed</th><th>Not run</th><th>Bugs</th></tr></thead><tbody>");
+            foreach (var type in types)
+                html.Append($"<tr><td>{E(type.TestingType)}</td><td>{Verdict(type.Verdict)}</td><td>{type.Tests}</td><td>{type.Passed}</td><td>{type.Failed}</td><td>{type.Skipped}</td>")
+                    .Append($"<td>{(type.Bugs == 0 ? "0" : $"<a href=\"#type-{Anchor(type.TestingType)}\">{type.Bugs}</a>")}</td></tr>");
+            html.Append("</tbody></table>");
+            if (report.Security is { } scan)
+                html.Append($"<p class=\"muted\">Security scan {E(scan.Reference)} ({E(scan.Profile)} profile, {E(scan.Status)}): {scan.ChecksExecuted} checks run, {scan.ChecksSkipped} skipped, {scan.RequestsBlocked} requests blocked by the authorised scope, {scan.Findings} finding(s).{(scan.Note is null ? string.Empty : " " + E(scan.Note))}</p>");
+            else
+                html.Append("<p class=\"muted\">No security scan was run with these tests. Start one from Testing → Run, with “Also run a security scan” ticked.</p>");
+            html.Append("</section>");
+        }
+
         if (report.Bugs.Count > 0)
         {
-            html.Append("<section><h2>Bugs found</h2><table class=\"index\"><thead><tr><th>Bug</th><th>Severity</th><th>Title</th><th>Where</th><th>Tests</th></tr></thead><tbody>");
+            html.Append("<section><h2>Bugs found</h2><table class=\"index\"><thead><tr><th>Bug</th><th>Severity</th><th>Testing type</th><th>Title</th><th>Where</th><th>Tests</th></tr></thead><tbody>");
             foreach (var bug in report.Bugs)
                 html.Append($"<tr><td><a href=\"#{bug.Key}\">{bug.Key}</a>{(bug.DefectReference is null ? string.Empty : $"<br><span class=\"muted\">{bug.DefectReference}</span>")}</td>")
-                    .Append($"<td>{Badge(bug.Severity)}</td><td>{E(bug.Title)}</td><td>{E(bug.Form ?? bug.PageUrl ?? string.Empty)}{(bug.Field is null ? string.Empty : $" · <code>{E(bug.Field)}</code>")}</td>")
+                    .Append($"<td>{Badge(bug.Severity)}</td><td><span class=\"type\"{(report.Bugs.First(b => b.Category == bug.Category) == bug ? $" id=\"type-{Anchor(bug.Category ?? "other")}\"" : string.Empty)}>{E(bug.Category ?? "Other")}</span></td><td>{E(bug.Title)}</td><td>{E(bug.Form ?? bug.PageUrl ?? string.Empty)}{(bug.Field is null ? string.Empty : $" · <code>{E(bug.Field)}</code>")}</td>")
                     .Append($"<td>{bug.AffectedTests.Count}</td></tr>");
             html.Append("</tbody></table></section>");
         }
@@ -139,7 +154,7 @@ public static class RunBugReportRenderer
     {
         html.Append($"<article class=\"bug\" id=\"{bug.Key}\"><header><p class=\"eyebrow\">{bug.Key}{(bug.DefectReference is null ? string.Empty : $" · {bug.DefectReference} ({E(bug.DefectStatus ?? string.Empty)})")}</p>")
             .Append($"<h2>{E(bug.Title)}</h2><p>{Badge(bug.Severity)} <span class=\"tag\">Priority {E(bug.Priority)}</span>")
-            .Append(bug.Category is null ? string.Empty : $" <span class=\"tag\">{E(bug.Category)}</span>")
+            .Append($" <span class=\"type\" title=\"The kind of testing that found this\">Testing type: {E(bug.Category ?? "Other")}</span>")
             .Append($" <span class=\"tag\">{E(bug.Classification)}{(bug.Confidence > 0 ? $" · {bug.Confidence}% confidence" : string.Empty)}</span></p></header>");
 
         html.Append($"<p class=\"summary\">{E(bug.Summary)}</p>");
@@ -278,17 +293,25 @@ public static class RunBugReportRenderer
         md.AppendLine($"| Results | {run.Total} tests: {run.Passed} passed, {run.Failed} failed, {run.Skipped} skipped |");
         md.AppendLine($"| Run ID | {run.Id} |").AppendLine();
 
+        if (report.ByTestingType is { Count: > 0 } mdTypes)
+        {
+            md.AppendLine("## Results by testing type").AppendLine().AppendLine("| Testing type | Result | Tests | Passed | Failed | Not run | Bugs |").AppendLine("|---|---|---|---|---|---|---|");
+            foreach (var type in mdTypes) md.AppendLine($"| {type.TestingType} | {type.Verdict} | {type.Tests} | {type.Passed} | {type.Failed} | {type.Skipped} | {type.Bugs} |");
+            md.AppendLine();
+            if (report.Security is { } mdScan)
+                md.AppendLine($"Security scan {mdScan.Reference} ({mdScan.Profile}, {mdScan.Status}): {mdScan.ChecksExecuted} checks run, {mdScan.Findings} finding(s).{(mdScan.Note is null ? string.Empty : " " + mdScan.Note)}").AppendLine();
+        }
         if (report.Bugs.Count > 0)
         {
-            md.AppendLine("| Bug | Severity | Title | Tests |").AppendLine("|---|---|---|---|");
-            foreach (var bug in report.Bugs) md.AppendLine($"| {bug.Key} {bug.DefectReference} | {bug.Severity} | {Cell(bug.Title)} | {bug.AffectedTests.Count} |");
+            md.AppendLine("| Bug | Severity | Testing type | Title | Tests |").AppendLine("|---|---|---|---|---|");
+            foreach (var bug in report.Bugs) md.AppendLine($"| {bug.Key} {bug.DefectReference} | {bug.Severity} | {bug.Category ?? "Other"} | {Cell(bug.Title)} | {bug.AffectedTests.Count} |");
             md.AppendLine();
         }
 
         foreach (var bug in report.Bugs)
         {
             md.AppendLine($"## {bug.Key}: {bug.Title}").AppendLine();
-            md.AppendLine($"**Severity:** {bug.Severity} · **Priority:** {bug.Priority}{(bug.Category is null ? string.Empty : $" · **Category:** {bug.Category}")}{(bug.DefectReference is null ? string.Empty : $" · **Defect:** {bug.DefectReference} ({bug.DefectStatus})")}").AppendLine();
+            md.AppendLine($"**Testing type:** {bug.Category ?? "Other"} · **Severity:** {bug.Severity} · **Priority:** {bug.Priority}{(bug.DefectReference is null ? string.Empty : $" · **Defect:** {bug.DefectReference} ({bug.DefectStatus})")}").AppendLine();
             md.AppendLine(bug.Summary).AppendLine();
             md.AppendLine("| | |").AppendLine("|---|---|");
             void R(string label, string? value) { if (!string.IsNullOrWhiteSpace(value)) md.AppendLine($"| {label} | {Cell(value)} |"); }
@@ -337,8 +360,11 @@ public static class RunBugReportRenderer
                 md.AppendLine().AppendLine("### Accessibility violations").AppendLine();
                 foreach (var v in bug.Accessibility) md.AppendLine($"- **{v.Rule}** ({v.Impact}): {v.Help} {v.HelpUrl} — {string.Join(", ", v.Elements.Select(t => $"`{t}`"))}");
             }
-            md.AppendLine().AppendLine($"### Affected tests ({bug.AffectedTests.Count})").AppendLine();
-            foreach (var test in bug.AffectedTests) md.AppendLine($"- **{test.Reference}** {test.Name}: {test.Actual}");
+            if (bug.AffectedTests.Count > 0)
+            {
+                md.AppendLine().AppendLine($"### Affected tests ({bug.AffectedTests.Count})").AppendLine();
+                foreach (var test in bug.AffectedTests) md.AppendLine($"- **{test.Reference}** {test.Name}: {test.Actual}");
+            }
             if (bug.Attachments.Count > 0)
             {
                 md.AppendLine().AppendLine("### More evidence").AppendLine();
@@ -483,6 +509,15 @@ public static class RunBugReportRenderer
     private static string Tile(string label, int value, string? tone)
         => $"<div class=\"tile{(tone is null ? string.Empty : " " + tone)}\"><span>{value}</span>{E(label)}</div>";
 
+    private static string Verdict(string verdict) => verdict switch
+    {
+        "Passed" => "<span class=\"verdict good\">Passed</span>",
+        "Failed" => "<span class=\"verdict bad\">Failed</span>",
+        _ => $"<span class=\"verdict\">{E(verdict)}</span>"
+    };
+
+    private static string Anchor(string text) => Regex.Replace(text.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
+
     private static string Badge(string severity)
         => $"<span class=\"sev sev-{severity.ToLowerInvariant()}\">{E(severity)}</span>";
 
@@ -544,7 +579,8 @@ dl.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));g
 .tile.bad span{color:var(--bad)}.tile.good span{color:var(--good)}
 table{width:100%;border-collapse:collapse;margin:6px 0;font-size:14px}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}th{background:var(--soft);font-weight:600}
 .bug{border:1px solid var(--line);border-radius:14px;padding:22px 24px;page-break-before:always}.bug header{margin-bottom:10px}.summary{font-size:16px}
-.sev{display:inline-block;border-radius:999px;padding:1px 10px;font-size:12px;font-weight:700;text-transform:uppercase}.sev-blocker,.sev-critical{background:var(--bad);color:#fff}.sev-major{background:var(--warn-bg);color:var(--warn)}.sev-minor,.sev-trivial{background:var(--soft);color:var(--muted)}
+.sev{display:inline-block;border-radius:999px;padding:1px 10px;font-size:12px;font-weight:700;text-transform:uppercase}.sev-blocker,.sev-critical{background:var(--bad);color:#fff}.sev-major{background:var(--warn-bg);color:var(--warn)}.sev-minor,.sev-trivial,.sev-low,.sev-informational{background:var(--soft);color:var(--muted)}.sev-high{background:var(--bad);color:#fff}.sev-medium{background:var(--warn-bg);color:var(--warn)}
+.type{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600;background:#eef1ff;color:var(--brand)}.verdict{font-weight:700;color:var(--muted)}.verdict.good{color:var(--good)}.verdict.bad{color:var(--bad)}
 .tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 10px;font-size:12px;color:var(--muted);margin:2px 0}
 ol.steps{padding-left:22px}ol.steps li{margin:4px 0}ol.steps li.failed{background:var(--bad-bg);border-radius:6px;padding:4px 8px}ol.steps li.unreached,ol.steps li.failed-later{color:var(--muted)}
 .kind{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--brand)}.error{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:var(--bad);margin-top:4px;white-space:pre-wrap}

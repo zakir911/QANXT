@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, PageHeader, Spinner, StatusBadge } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, FilterNote, Metric, PageHeader, Spinner, StatusBadge, useMetricFilter } from '../components/ui';
 import { categoryLabel } from '../lib/quality';
 
 interface DefectSummary {
@@ -25,17 +25,25 @@ interface DefectDetail {
  * test listed under it. A proposal is not a finding until a person confirms it; a confirmed
  * defect can become a permanent regression test.
  */
+type DefectGroup = 'proposed' | 'confirmed' | 'resolved' | 'dismissed';
+const GROUP_LABEL: Record<DefectGroup, string> = { proposed: 'Needs review', confirmed: 'Confirmed', resolved: 'Resolved', dismissed: 'Rejected or duplicate' };
+const GROUP_OF: Record<string, DefectGroup | undefined> = {
+  proposed: 'proposed', open: 'confirmed', triaged: 'confirmed', inProgress: 'confirmed', resolved: 'resolved', rejected: 'dismissed', duplicate: 'dismissed'
+};
+
 export default function DefectsPage() {
   const { can } = useAuth();
   const { projectId } = useProject();
   const queryClient = useQueryClient();
   const [status, setStatus] = useState('');
+  const group = useMetricFilter<DefectGroup>();
   const [open, setOpen] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
 
   const { data: defects = [], isLoading } = useQuery({
-    queryKey: ['defects', projectId, status],
-    queryFn: () => apiRequest<DefectSummary[]>(`/api/v1/defects?projectId=${projectId}${status ? `&status=${status}` : ''}`),
+    // All of them, filtered here: the tiles count every status, so they need every defect.
+    queryKey: ['defects', projectId],
+    queryFn: () => apiRequest<DefectSummary[]>(`/api/v1/defects?projectId=${projectId}`),
     enabled: Boolean(projectId)
   });
   const { data: detail } = useQuery({
@@ -66,7 +74,7 @@ export default function DefectsPage() {
         title="Defects"
         description="One defect per underlying problem, however many tests found it. Proposed until a person confirms it."
         actions={
-          <select className="input" aria-label="Filter by status" value={status} onChange={e => setStatus(e.target.value)}>
+          <select className="input" aria-label="Filter by status" value={status} onChange={e => { setStatus(e.target.value); group.set(null); }}>
             <option value="">All statuses</option>
             {['proposed', 'open', 'triaged', 'inProgress', 'resolved', 'rejected', 'duplicate'].map(s => <option key={s} value={s}>{s === 'open' ? 'Confirmed (open)' : s === 'inProgress' ? 'In progress' : s[0]!.toUpperCase() + s.slice(1)}</option>)}
           </select>
@@ -77,12 +85,24 @@ export default function DefectsPage() {
       {!isLoading && defects.length === 0 ? <EmptyState title="No defects" description="A failing test that shows an application problem proposes one here." /> : null}
 
       {defects.length > 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <Metric label="Defects" value={defects.length} onClick={() => { group.set(null); setStatus(''); }} active={group.filter === null && !status} />
+          {(['proposed', 'confirmed', 'resolved', 'dismissed'] as DefectGroup[]).map(key => (
+            <Metric key={key} label={GROUP_LABEL[key]} value={defects.filter(d => GROUP_OF[d.status] === key).length}
+                    tone={key === 'proposed' ? 'warn' : key === 'confirmed' ? 'bad' : key === 'resolved' ? 'good' : 'neutral'}
+                    onClick={() => { group.toggle(key); setStatus(''); }} active={group.is(key)} />
+          ))}
+        </div>
+      ) : null}
+      <FilterNote label={group.filter ? GROUP_LABEL[group.filter] : null} onClear={() => group.set(null)} />
+
+      {defects.length > 0 ? (
         <Card>
           <div className="table-wrap">
             <table className="table">
               <thead><tr><th>Defect</th><th>Severity</th><th>Status</th><th>Category</th><th>Affected tests</th><th>Occurrences</th><th>Actions</th></tr></thead>
               <tbody>
-                {defects.map(d => (
+                {defects.filter(d => (group.filter === null || GROUP_OF[d.status] === group.filter) && (!status || d.status === status)).map(d => (
                   <tr key={d.id}>
                     <td>
                       <button type="button" className="text-left text-brand underline" aria-expanded={open === d.id} onClick={() => setOpen(open === d.id ? null : d.id)}>

@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, PageHeader, Spinner, StatusBadge, useDisclosedPanel } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, Metric, PageHeader, Spinner, StatusBadge, useDisclosedPanel, useMetricFilter } from '../components/ui';
 import { formatRelative, humanize } from '../lib/format';
 
 interface ApplicationSummary {
@@ -37,6 +37,7 @@ interface ApplicationDetail {
 }
 
 export default function ApplicationsPage() {
+  const discovered = useMetricFilter<'done' | 'never' | 'other'>();
   const { can } = useAuth();
   const { projectId, project } = useProject();
   // The id being edited, or null. An application could be created with credentials and
@@ -56,8 +57,9 @@ export default function ApplicationsPage() {
 
   const { data: applications = [], isLoading, refetch } = useQuery({
     queryKey: ['applications', projectId],
+    enabled: Boolean(projectId),
     queryFn: () => apiRequest<ApplicationSummary[]>(
-      `/api/v1/applications${projectId ? `?projectId=${projectId}` : ''}`)
+      `/api/v1/applications?projectId=${projectId}`)
   });
 
   const create = useMutation({
@@ -379,8 +381,21 @@ export default function ApplicationsPage() {
           />
         </Card>
       ) : (
+        <>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+          <Metric label="Applications" value={applications.length} onClick={() => discovered.set(null)} active={discovered.filter === null} />
+          <Metric label="Discovered" value={applications.filter(a => a.lastDiscoveryStatus === 'completed').length} tone="good"
+                  onClick={() => discovered.toggle('done')} active={discovered.is('done')} />
+          <Metric label="Not yet discovered" value={applications.filter(a => !a.lastDiscoveryStatus).length} tone="warn"
+                  onClick={() => discovered.toggle('never')} active={discovered.is('never')} />
+          <Metric label="Discovery failed or running" value={applications.filter(a => a.lastDiscoveryStatus && a.lastDiscoveryStatus !== 'completed').length}
+                  onClick={() => discovered.toggle('other')} active={discovered.is('other')} />
+        </div>
         <div className="grid gap-4 md:grid-cols-2">
-          {applications.map(application => (
+          {applications.filter(a => discovered.filter === null
+              || discovered.filter === 'done' && a.lastDiscoveryStatus === 'completed'
+              || discovered.filter === 'never' && !a.lastDiscoveryStatus
+              || discovered.filter === 'other' && a.lastDiscoveryStatus && a.lastDiscoveryStatus !== 'completed').map(application => (
             <Card
               key={application.id}
               title={application.name}
@@ -390,10 +405,11 @@ export default function ApplicationsPage() {
                 : <span className="badge bg-surface-sunken text-ink-muted">Not yet discovered</span>}
             >
               <dl className="grid grid-cols-4 gap-3 mb-4">
-                <div className="kv"><dt>Pages</dt><dd className="font-semibold">{application.pageCount}</dd></div>
-                <div className="kv"><dt>Elements</dt><dd className="font-semibold">{application.elementCount}</dd></div>
-                <div className="kv"><dt>API calls</dt><dd className="font-semibold">{application.apiEndpointCount}</dd></div>
-                <div className="kv"><dt>Journeys</dt><dd className="font-semibold">{application.journeyCount}</dd></div>
+                {/* Each count opens what it counts. */}
+                <div className="kv"><dt>Pages</dt><dd className="font-semibold"><Link className="text-brand hover:underline" to={`/applications/${application.id}/graph`}>{application.pageCount}</Link></dd></div>
+                <div className="kv"><dt>Elements</dt><dd className="font-semibold"><Link className="text-brand hover:underline" to={`/applications/${application.id}/graph`}>{application.elementCount}</Link></dd></div>
+                <div className="kv"><dt>API calls</dt><dd className="font-semibold"><Link className="text-brand hover:underline" to={`/applications/${application.id}/graph`}>{application.apiEndpointCount}</Link></dd></div>
+                <div className="kv"><dt>Journeys</dt><dd className="font-semibold"><Link className="text-brand hover:underline" to="/tests">{application.journeyCount}</Link></dd></div>
               </dl>
 
               <p className="text-xs text-ink-muted mb-3">
@@ -471,6 +487,7 @@ export default function ApplicationsPage() {
             </Card>
           ))}
         </div>
+        </>
       )}
     </>
   );

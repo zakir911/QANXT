@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../api/client';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, PageHeader, Spinner, StatusBadge } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, FilterNote, Metric, PageHeader, Spinner, StatusBadge, useMetricFilter } from '../components/ui';
 import { formatDuration, formatRelative, formatPercent } from '../lib/format';
 
 interface TestRunSummary {
@@ -13,13 +13,20 @@ interface TestRunSummary {
   qualityGatePassed?: boolean; ciBuildId?: string; ciBranch?: string;
 }
 
+type RunState = 'inProgress' | 'passed' | 'failed' | 'other';
+const RUN_STATE_LABEL: Record<RunState, string> = { inProgress: 'In progress', passed: 'Passed', failed: 'Failed', other: 'Cancelled or blocked' };
+const stateOf = (status: string): RunState =>
+  status === 'queued' || status === 'running' ? 'inProgress' : status === 'passed' ? 'passed' : status === 'failed' || status === 'error' ? 'failed' : 'other';
+
 export default function TestRunsPage() {
   const { projectId } = useProject();
+  const state = useMetricFilter<RunState>();
 
   const { data: runs = [], isLoading, error, refetch } = useQuery({
     queryKey: ['testruns', projectId],
+    enabled: Boolean(projectId),
     queryFn: () => apiRequest<TestRunSummary[]>(
-      `/api/v1/testruns?limit=30${projectId ? `&projectId=${projectId}` : ''}`),
+      `/api/v1/testruns?limit=30&projectId=${projectId}`),
     refetchInterval: query => {
       const rows = query.state.data as TestRunSummary[] | undefined;
       return rows?.some(r => r.status === 'queued' || r.status === 'running') ? 3000 : 20_000;
@@ -34,15 +41,27 @@ export default function TestRunsPage() {
       <PageHeader
         title="Test runs"
         description="Every execution, its evidence and its quality gate."
-        actions={<Link to="/tests" className="btn-secondary">Start a run from test cases</Link>}
+        actions={<Link to="/testing#step-4" className="btn-secondary">Start a run from Testing</Link>}
       />
+
+      {runs.length > 0 && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-4">
+          <Metric label="Runs" value={runs.length} onClick={() => state.set(null)} active={state.filter === null} />
+          {(['inProgress', 'passed', 'failed', 'other'] as RunState[]).map(key => (
+            <Metric key={key} label={RUN_STATE_LABEL[key]} value={runs.filter(r => stateOf(r.status) === key).length}
+                    tone={key === 'passed' ? 'good' : key === 'failed' ? 'bad' : key === 'inProgress' ? 'info' : 'neutral'}
+                    onClick={() => state.toggle(key)} active={state.is(key)} />
+          ))}
+        </div>
+      )}
+      <FilterNote label={state.filter === null ? null : RUN_STATE_LABEL[state.filter]} onClear={() => state.set(null)} />
 
       {runs.length === 0 ? (
         <Card>
           <EmptyState
             title="No runs yet"
-            description="Generate or write some tests, then run them. Each run captures screenshots, a trace, network and console output for every execution."
-            action={<Link to="/tests" className="btn-primary">Go to test cases</Link>}
+            description="Generate the tests and run them from the Testing page. Each run captures screenshots, a trace, network and console output for every execution."
+            action={<Link to="/testing" className="btn-primary">Go to Testing</Link>}
           />
         </Card>
       ) : (
@@ -55,7 +74,7 @@ export default function TestRunsPage() {
               </tr>
             </thead>
             <tbody>
-              {runs.map(run => {
+              {runs.filter(run => state.filter === null || stateOf(run.status) === state.filter).map(run => {
                 const verdicts = run.passedCount + run.failedCount + run.healedCount;
                 const passRate = verdicts === 0 ? null : (run.passedCount + run.healedCount) * 100 / verdicts;
                 return (

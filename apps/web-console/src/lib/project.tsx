@@ -58,7 +58,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem(STORAGE_KEY);
       return;
     }
-    if (!projectId && projects.length === 1) {
+    // Every screen is scoped to one project, so one is always chosen when any exists.
+    if (!projectId && projects.length > 0) {
       setProjectIdState(projects[0]!.id);
       localStorage.setItem(STORAGE_KEY, projects[0]!.id);
     }

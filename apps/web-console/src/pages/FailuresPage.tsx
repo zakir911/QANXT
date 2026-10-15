@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../api/client';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, PageHeader, Spinner, StatusBadge } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, FilterNote, PageHeader, Spinner, StatusBadge, useMetricFilter } from '../components/ui';
 import { formatPercent, formatRelative } from '../lib/format';
 
 interface DashboardView {
@@ -22,12 +22,14 @@ interface DashboardView {
  * an environment problem goes to whoever runs the environment.
  */
 export default function FailuresPage() {
+  const category = useMetricFilter<string>();
   const { projectId, project } = useProject();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['dashboard', projectId, 'failures'],
+    enabled: Boolean(projectId),
     queryFn: () => apiRequest<DashboardView>(
-      `/api/v1/dashboard?windowDays=30${projectId ? `&projectId=${projectId}` : ''}`)
+      `/api/v1/dashboard?windowDays=30&projectId=${projectId}`)
   });
 
   if (isLoading) return <Spinner label="Loading failures" />;
@@ -71,14 +73,20 @@ export default function FailuresPage() {
                 description="What kind of problem each failure actually is, which decides who should look at it.">
             <ul className="flex flex-wrap gap-2">
               {data.failureCategories.map(entry => (
-                <li key={entry.category} className="flex items-center gap-2 rounded-lg border border-line px-3 py-1.5">
-                  <StatusBadge status={entry.category} />
-                  <span className="text-sm font-semibold tabular-nums">{entry.count}</span>
+                <li key={entry.category}>
+                  {/* A category is a filter: pressing it lists only that kind of failure. */}
+                  <button type="button" onClick={() => category.toggle(entry.category)} aria-pressed={category.is(entry.category)}
+                          title={category.is(entry.category) ? 'Show every category' : `Show only ${entry.category}`}
+                          className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 hover:border-brand ${category.is(entry.category) ? 'border-brand ring-2 ring-brand/30' : 'border-line'}`}>
+                    <StatusBadge status={entry.category} />
+                    <span className="text-sm font-semibold tabular-nums">{entry.count}</span>
+                  </button>
                 </li>
               ))}
             </ul>
           </Card>
 
+          <FilterNote label={category.filter} onClear={() => category.set(null)} />
           <Card title="Most frequent failures">
             <div className="table-wrap">
               <table className="table">
@@ -86,7 +94,7 @@ export default function FailuresPage() {
                   <tr><th>Test</th><th>Category</th><th>Occurrences</th><th>Last seen</th><th>Message</th></tr>
                 </thead>
                 <tbody>
-                  {data.topFailingTests.map(test => (
+                  {data.topFailingTests.filter(test => category.filter === null || test.category === category.filter).map(test => (
                     <tr key={test.testCaseId}>
                       <td>
                         <Link to={`/tests/${test.testCaseId}`} className="font-medium text-brand hover:underline">

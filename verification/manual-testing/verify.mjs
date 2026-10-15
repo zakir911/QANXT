@@ -513,6 +513,37 @@ check('REPORT-004', 'Bug report', 'The evidence pack holds the report as HTML, M
     && !packText.includes(tenant.token) && !/Bearer\s+eyJ/.test(packText),
   `${packNames.length} files, ${Math.round(bugZip.body.length / 1024)} KB; ${perBug.length} of ${bugs.length} bugs with screenshots and a trace; no access token in any file`, 'bug-report.zip');
 
+// One report for everything: a run started from Testing with a security scan carries the
+// scan's findings, and every bug says which kind of testing found it.
+const scopeSaved = await request(`/api/v1/security/applications/${application.id}/scope`, {
+  method: 'PUT', token: tenant.token, body: {
+    enabled: true, authorizationNote: 'Golden form lab: synthetic application owned by the QA NXT verification suite.',
+    allowedDomains: '127.0.0.1', allowedApiDomains: '', allowedPaths: '', blockedPaths: '', environmentId: null,
+    maxRequestsPerSecond: 10, maxConcurrentRequests: 2, maxScanDurationMinutes: 10,
+    allowActiveTesting: true, allowDestructiveTesting: false, allowProduction: false
+  }
+});
+const withSecurity = await api(`/api/v1/applications/${application.id}/runs`, { method: 'POST', body: {
+  mode: 'selection', categories: ['smoke'], browser: 'Chromium', name: 'Smoke tests with a security scan', includeSecurity: true, securityProfile: 'Standard'
+} });
+await waitForRun(withSecurity.testRunId, 'smoke + security');
+let scanDone = null;
+for (let i = 0; withSecurity.securityScanId && i < 90; i++) {
+  const scan = await api(`/api/v1/security/scans/${withSecurity.securityScanId}`, { allowFailure: true });
+  if (scan?.completedAt || ['completed', 'failed', 'cancelled'].includes(String(scan?.status).toLowerCase())) { scanDone = scan; break; }
+  await sleep(10_000);
+}
+const combined = await download(`/api/v1/testruns/${withSecurity.testRunId}/bug-report?format=json`);
+const combinedReport = combined.status === 200 ? JSON.parse(combined.body.toString('utf8')) : null;
+save('bug-report-with-security.json', combinedReport);
+const securityRow = combinedReport?.byTestingType?.find(t => t.testingType === 'Security scan');
+const untyped = (combinedReport?.bugs ?? []).filter(b => !b.category);
+check('REPORT-005', 'Bug report', 'A run started with a security scan has one bug report with the scan\'s findings, results by testing type, and a testing type on every bug',
+  Boolean(scopeSaved.ok && withSecurity.securityScanId && scanDone && combinedReport?.security && securityRow && untyped.length === 0 && combinedReport.byTestingType.length >= 2),
+  `scope ${scopeSaved.ok ? 'authorised' : `refused (${scopeSaved.status})`}; ${withSecurity.securityNote ?? 'no security note'}; `
+    + `scan ${scanDone ? `${scanDone.status}, ${combinedReport?.security?.checksExecuted ?? 0} checks, ${combinedReport?.security?.findings ?? 0} finding(s)` : 'did not finish'}; `
+    + `types: ${(combinedReport?.byTestingType ?? []).map(t => `${t.testingType} ${t.verdict}`).join(', ')}`);
+
 const crashForm = formByRoute.get('/error-handling');
 const crashDefect = defects.find(d => d.applicationFormId === crashForm.id && /HTTP 500/.test(d.title));
 check('DEF-003', 'Defects', 'The server crash hit by several inputs is one defect with every affected test', (crashDefect?.affectedTestCount ?? 0) >= 2,

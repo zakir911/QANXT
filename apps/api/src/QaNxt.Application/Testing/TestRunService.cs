@@ -37,7 +37,9 @@ public sealed record TestRunSummary(
     /// Null means no check ran, which is a different statement from "no breaking changes".</summary>
     DateTimeOffset? ContractCheckedAt = null,
     int ContractBreakingChangeCount = 0,
-    int ContractPotentiallyBreakingChangeCount = 0);
+    int ContractPotentiallyBreakingChangeCount = 0,
+    /// <summary>The security scan started with this run, whose findings are in its bug report.</summary>
+    Guid? SecurityScanId = null);
 
 public interface ITestRunService
 {
@@ -263,7 +265,7 @@ public sealed class TestRunService : ITestRunService
                 _db.Environments.Where(e => e.Id == r.EnvironmentId).Select(e => e.Key).FirstOrDefault(),
                 _db.Environments.Where(e => e.Id == r.EnvironmentId).Select(e => e.Name).FirstOrDefault(),
                 r.ContractCheckedAt, r.ContractBreakingChangeCount,
-                r.ContractPotentiallyBreakingChangeCount))
+                r.ContractPotentiallyBreakingChangeCount, r.SecurityScanId))
             .ToListAsync(ct);
     }
 
@@ -644,5 +646,5 @@ public sealed class TestRunService : ITestRunService
         r.HealedCount, r.FlakyCount, r.QualityGatePassed, r.CiBuildId, r.CiBranch,
         r.CiProvider, r.CiCommitSha, r.ApplicationBuildRef, r.EnvironmentId,
         environment?.Key, environment?.Name,
-        r.ContractCheckedAt, r.ContractBreakingChangeCount, r.ContractPotentiallyBreakingChangeCount);
+        r.ContractCheckedAt, r.ContractBreakingChangeCount, r.ContractPotentiallyBreakingChangeCount, r.SecurityScanId);
 }

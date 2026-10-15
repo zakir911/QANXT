@@ -76,8 +76,69 @@ public sealed class StrandedExecutionReaper : BackgroundService
                      && e.StartedAt != null && e.StartedAt < cutoff)
             .ToListAsync(ct);
 
-        if (stranded.Count == 0) return;
+        if (stranded.Count > 0) await EndStrandedAsync(db, clock, stranded, grace, ct);
 
+        await EndUnclaimedAsync(db, clock, ct);
+
+        // Last, the runs themselves. A run is finished by whichever execution reports last,
+        // but when the last two report at the same moment each can still see the other as
+        // running, and then neither finishes it: every test done, the run "running" for ever.
+        // Any unfinished run whose executions have all finished is finished here, the same
+        // way the last report would have.
+        var ingest = scope.ServiceProvider.GetRequiredService<QaNxt.Application.Testing.IExecutionIngestService>();
+        var settled = clock.UtcNow - TimeSpan.FromMinutes(1);
+        var done = await db.TestRuns
+            .Where(r => r.CompletedAt == null && r.CreatedAt < settled
+                     && !db.TestExecutions.Any(e => e.TestRunId == r.Id
+                         && (e.Status == ExecutionStatus.Running || e.Status == ExecutionStatus.Queued || e.Status == ExecutionStatus.Pending)))
+            .Select(r => r.Id).ToListAsync(ct);
+        foreach (var runId in done)
+        {
+            await ingest.ReconcileRunAsync(runId, ct);
+            _logger.LogWarning("Run {RunId} had finished every execution but was never completed; completed it now", runId);
+        }
+    }
+
+    /// <summary>Ends executions no worker ever picked up. A queued execution has no start
+    /// time, so the stranded sweep never saw it: with the worker stopped, or its queue lost,
+    /// the run sat "queued" or "running" for ever. Judged by the run, not the execution — a
+    /// big run legitimately keeps tests queued for a long time, but not while nothing in it
+    /// has started or finished for this long.</summary>
+    private async Task EndUnclaimedAsync(IQaNxtDbContext db, IClock clock, CancellationToken ct)
+    {
+        var quiet = TimeSpan.FromMinutes(Math.Clamp(_configuration.GetValue("Execution:UnclaimedAfterMinutes", 20), 5, 480));
+        var cutoff = clock.UtcNow - quiet;
+        var candidates = await db.TestRuns
+            .Where(r => r.CompletedAt == null && r.CreatedAt < cutoff
+                     && db.TestExecutions.Any(e => e.TestRunId == r.Id && (e.Status == ExecutionStatus.Queued || e.Status == ExecutionStatus.Pending)))
+            .Select(r => new
+            {
+                r.Id,
+                LastActivity = db.TestExecutions.Where(e => e.TestRunId == r.Id)
+                    .Max(e => (DateTimeOffset?)(e.CompletedAt ?? e.StartedAt)) ?? r.StartedAt ?? r.CreatedAt
+            })
+            .ToListAsync(ct);
+        var idle = candidates.Where(c => c.LastActivity < cutoff).Select(c => c.Id).ToList();
+        if (idle.Count == 0) return;
+
+        var unclaimed = await db.TestExecutions
+            .Where(e => idle.Contains(e.TestRunId) && (e.Status == ExecutionStatus.Queued || e.Status == ExecutionStatus.Pending))
+            .ToListAsync(ct);
+        foreach (var execution in unclaimed)
+        {
+            execution.Status = ExecutionStatus.Blocked;
+            execution.CompletedAt = clock.UtcNow;
+            execution.ErrorMessage =
+                $"No worker picked this test up, and nothing in its run had moved for {quiet.TotalMinutes:0} minutes. "
+                + "Check that a browser worker is running (its logs, or `make worker`) and run the test again. "
+                + "It never ran, so it says nothing about the application.";
+        }
+        await db.SaveChangesAsync(ct);
+        _logger.LogWarning("Ended {Count} execution(s) no worker picked up, across {Runs} idle run(s)", unclaimed.Count, idle.Count);
+    }
+
+    private async Task EndStrandedAsync(IQaNxtDbContext db, IClock clock, List<Domain.Testing.TestExecution> stranded, TimeSpan grace, CancellationToken ct)
+    {
         foreach (var execution in stranded)
         {
             execution.Status = ExecutionStatus.Error;
@@ -99,36 +160,6 @@ public sealed class StrandedExecutionReaper : BackgroundService
         }
 
         await db.SaveChangesAsync(ct);
-
-        // Any run whose executions have all finished must now be completed, or the caller is
-        // still waiting on a run whose work is over.
-        var runIds = stranded.Select(e => e.TestRunId).Distinct().ToList();
-        var runs = await db.TestRuns.Where(r => runIds.Contains(r.Id)).ToListAsync(ct);
-
-        foreach (var run in runs)
-        {
-            var executions = await db.TestExecutions
-                .Where(e => e.TestRunId == run.Id)
-                .Select(e => e.Status)
-                .ToListAsync(ct);
-
-            var unfinished = executions.Count(s => s is ExecutionStatus.Running or ExecutionStatus.Queued
-                                                       or ExecutionStatus.Pending);
-            if (unfinished > 0) continue;
-
-            // There is no separate error counter on a run; a stranded execution is counted
-            // as blocked, which is what it is — the test never got to produce a verdict.
-            run.BlockedCount = executions.Count(s => s == ExecutionStatus.Error
-                                                  || s == ExecutionStatus.Blocked);
-            run.Status = ExecutionStatus.Error;
-            run.CompletedAt = clock.UtcNow;
-            run.DurationMs = run.StartedAt is null
-                ? 0
-                : (int)(clock.UtcNow - run.StartedAt.Value).TotalMilliseconds;
-        }
-
-        await db.SaveChangesAsync(ct);
-        _logger.LogWarning("Ended {Count} stranded execution(s) across {Runs} run(s)",
-            stranded.Count, runs.Count);
+        _logger.LogWarning("Ended {Count} stranded execution(s)", stranded.Count);
     }
 }

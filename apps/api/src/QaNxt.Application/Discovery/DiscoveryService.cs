@@ -22,7 +22,7 @@ public sealed record DiscoveryRunDetail(DiscoveryRunSummary Summary, string? Pro
 public interface IDiscoveryService
 {
     Task<Result<DiscoveryRunSummary>> StartAsync(StartDiscoveryRequest request, CancellationToken ct = default);
-    Task<IReadOnlyList<DiscoveryRunSummary>> ListAsync(Guid? applicationId, int limit, CancellationToken ct = default);
+    Task<IReadOnlyList<DiscoveryRunSummary>> ListAsync(Guid? applicationId, int limit, CancellationToken ct = default, Guid? projectId = null);
     Task<Result<DiscoveryRunDetail>> GetAsync(Guid id, CancellationToken ct = default);
 }
 
@@ -137,10 +137,13 @@ public sealed class DiscoveryService : IDiscoveryService
         return Result<DiscoveryRunSummary>.Success(await MapAsync(run, application.Name));
     }
 
-    public async Task<IReadOnlyList<DiscoveryRunSummary>> ListAsync(Guid? applicationId, int limit, CancellationToken ct = default)
+    public async Task<IReadOnlyList<DiscoveryRunSummary>> ListAsync(Guid? applicationId, int limit, CancellationToken ct = default, Guid? projectId = null)
     {
         var query = _db.DiscoveryRuns.AsQueryable();
         if (applicationId is not null) query = query.Where(r => r.ApplicationId == applicationId);
+        // The console scopes every screen to the project chosen at the top; runs of other
+        // projects' applications do not belong on it.
+        if (projectId is not null) query = query.Where(r => r.Application!.ProjectId == projectId);
 
         return await query
             .OrderByDescending(r => r.CreatedAt)

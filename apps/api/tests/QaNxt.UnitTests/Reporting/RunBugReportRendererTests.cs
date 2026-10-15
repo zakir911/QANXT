@@ -104,6 +104,36 @@ public class RunBugReportRendererTests
     }
 
     [Fact]
+    public async Task Every_bug_names_its_testing_type_and_the_report_says_which_types_passed()
+    {
+        var security = Report().Bugs[0] with
+        {
+            Key = "BUG-02", Category = "Security scan", Title = "Reflected cross-site scripting in q", Severity = "High",
+            AffectedTests = Array.Empty<ReportAffectedTest>(), Screenshots = Array.Empty<ReportArtifact>()
+        };
+        var report = Report() with
+        {
+            Bugs = new[] { Report().Bugs[0], security },
+            ByTestingType = new[]
+            {
+                new ReportTypeResult("Boundary values", 12, 11, 1, 0, 1, "Failed"),
+                new ReportTypeResult("Functional", 8, 8, 0, 0, 0, "Passed"),
+                new ReportTypeResult("Security scan", 40, 39, 1, 0, 1, "Failed")
+            },
+            Security = new ReportSecurityScan("SEC-0001", "completed", "Standard", 40, 0, 2, 1, null)
+        };
+
+        var html = await RunBugReportRenderer.HtmlAsync(report, Read);
+        html.Should().Contain("Results by testing type").And.Contain("<span class=\"verdict good\">Passed</span>").And.Contain("<span class=\"verdict bad\">Failed</span>");
+        html.Should().Contain("Testing type: Boundary values").And.Contain("Testing type: Security scan");
+        html.Should().Contain("Security scan SEC-0001").And.Contain("sev-high");
+
+        var markdown = RunBugReportRenderer.Markdown(report, _ => null);
+        markdown.Should().Contain("| Security scan | Failed | 40 | 39 | 1 | 0 | 1 |").And.Contain("**Testing type:** Security scan");
+        markdown.Should().NotContain("Affected tests (0)", "a security finding has no failing test to list");
+    }
+
+    [Fact]
     public void The_text_a_page_showed_is_read_without_its_markup_scripts_or_styles()
     {
         var text = RunBugReportService.VisibleText(

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer,
   Tooltip, XAxis, YAxis
@@ -55,12 +55,15 @@ const CATEGORY_COLOURS: Record<string, string> = {
 };
 
 export default function DashboardPage() {
+  // Every tile opens the page that lists what it counts.
+  const navigate = useNavigate();
   const { projectId, project } = useProject();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['dashboard', projectId],
+    enabled: Boolean(projectId),
     queryFn: () => apiRequest<DashboardView>(
-      `/api/v1/dashboard?windowDays=30${projectId ? `&projectId=${projectId}` : ''}`),
+      `/api/v1/dashboard?windowDays=30&projectId=${projectId}`),
     refetchInterval: 30_000
   });
 
@@ -90,24 +93,24 @@ export default function DashboardPage() {
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
-            <Metric label="Pass rate" value={formatPercent(summary.passRatePercent)}
+            <Metric label="Pass rate" onClick={() => navigate('/runs')} value={formatPercent(summary.passRatePercent)}
                     tone={summary.passRatePercent >= 95 ? 'good' : summary.passRatePercent >= 80 ? 'warn' : 'bad'}
                     hint={`${summary.passed + summary.healed} of ${summary.passed + summary.failed + summary.healed} verdicts`} />
-            <Metric label="Failed" value={summary.failed} tone={summary.failed > 0 ? 'bad' : 'neutral'}
+            <Metric label="Failed" onClick={() => navigate('/failures')} value={summary.failed} tone={summary.failed > 0 ? 'bad' : 'neutral'}
                     hint={summary.newFailures > 0 ? `${summary.newFailures} new` : 'none new'} />
-            <Metric label="Healed" value={summary.healed} tone={summary.healed > 0 ? 'info' : 'neutral'}
+            <Metric label="Healed" onClick={() => navigate('/healing')} value={summary.healed} tone={summary.healed > 0 ? 'info' : 'neutral'}
                     hint={`${summary.pendingHealingProposals} proposal(s) awaiting review`} />
-            <Metric label="Regression risk" value={`${summary.regressionRiskScore}/100`} tone={riskTone}
+            <Metric label="Regression risk" onClick={() => navigate('/coverage')} value={`${summary.regressionRiskScore}/100`} tone={riskTone}
                     hint={summary.regressionRiskRationale} />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-            <Metric label="Total tests" value={summary.totalTests} hint={`${summary.enabledTests} enabled`} />
-            <Metric label="Executions" value={summary.executionsInWindow}
+            <Metric label="Total tests" onClick={() => navigate('/repository')} value={summary.totalTests} hint={`${summary.enabledTests} enabled`} />
+            <Metric label="Executions" onClick={() => navigate('/runs')} value={summary.executionsInWindow}
                     hint={`avg ${formatDuration(summary.averageDurationMs)}`} />
-            <Metric label="Blocked" value={summary.blocked} tone={summary.blocked > 0 ? 'warn' : 'neutral'}
+            <Metric label="Blocked" onClick={() => navigate('/runs')} value={summary.blocked} tone={summary.blocked > 0 ? 'warn' : 'neutral'}
                     hint="preconditions not met" />
-            <Metric label="Open defects" value={summary.openDefects}
+            <Metric label="Open defects" onClick={() => navigate('/defects')} value={summary.openDefects}
                     tone={summary.openDefects > 0 ? 'warn' : 'neutral'} />
           </div>
 

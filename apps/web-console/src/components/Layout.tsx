@@ -7,24 +7,29 @@ import { useProject } from '../lib/project';
 
 interface Meta { product: string; tagline: string; version: string }
 
-const NAV = [
+/**
+ * In the order a tester works: set up the project and its application, explore it, plan and
+ * run the tests, then read what they found. The numbered steps are that path; the rest
+ * supports it (the test library, security scope, automation, administration).
+ */
+const NAV: { to: string; label: string; end?: boolean; step?: number; title?: string }[] = [
   { to: '/', label: 'Dashboard', end: true },
-  { to: '/projects', label: 'Projects' },
-  { to: '/applications', label: 'Applications' },
-  { to: '/discovery', label: 'Discovery' },
-  { to: '/testing', label: 'Testing' },
-  { to: '/coverage', label: 'Coverage' },
+  { to: '/projects', label: 'Projects', step: 1, title: 'Step 1: choose or create the project' },
+  { to: '/applications', label: 'Applications', step: 2, title: 'Step 2: add the application and its sign-in' },
+  { to: '/discovery', label: 'Discovery', step: 3, title: 'Step 3: explore the application to find its pages and forms' },
+  { to: '/testing', label: 'Testing', step: 4, title: 'Step 4: choose what to test, generate the tests and run them' },
+  { to: '/runs', label: 'Test runs', step: 5, title: 'Step 5: follow the run and download the bug report' },
+  { to: '/defects', label: 'Defects', step: 6, title: 'Step 6: confirm or reject what the tests found' },
+  { to: '/human-tasks', label: 'Human checks', step: 7, title: 'Step 7: do the checks only a person can make' },
+  { to: '/coverage', label: 'Coverage', step: 8, title: 'Step 8: see what was tested and what was not' },
+  { to: '/failures', label: 'Failures' },
   { to: '/repository', label: 'Repository' },
   { to: '/tests', label: 'Test cases' },
-  { to: '/runs', label: 'Test runs' },
-  { to: '/failures', label: 'Failures' },
-  { to: '/defects', label: 'Defects' },
-  { to: '/human-tasks', label: 'Human checks' },
-  { to: '/healing', label: 'Healing' },
+  { to: '/security', label: 'Security' },
   { to: '/schedules', label: 'Schedules' },
+  { to: '/healing', label: 'Healing' },
   { to: '/agent', label: 'Agent' },
   { to: '/insights', label: 'AI insights' },
-  { to: '/security', label: 'Security' },
   { to: '/audit', label: 'Audit' },
   { to: '/verification', label: 'Verification' },
   { to: '/settings', label: 'Settings' }
@@ -109,7 +114,9 @@ export default function Layout() {
               className="rounded-md bg-white/10 border border-white/20 px-2 py-1 text-sm text-white
                          [&>option]:text-ink"
             >
-              <option value="">All projects</option>
+              {/* Every screen shows one project's work, so there is no "all projects" view
+                  to mix them; the placeholder appears only while there is none to choose. */}
+              {projects.length === 0 && <option value="">No projects yet</option>}
               {projects.map(project => (
                 <option key={project.id} value={project.id}>{project.name}</option>
               ))}
@@ -141,6 +148,7 @@ export default function Layout() {
                 <NavLink
                   to={item.to}
                   end={item.end}
+                  title={item.title}
                   className={({ isActive }) =>
                     `inline-block whitespace-nowrap px-3.5 py-3 text-sm font-medium border-b-2 transition-colors ${
                       isActive
@@ -149,6 +157,9 @@ export default function Layout() {
                     }`
                   }
                 >
+                  {item.step !== undefined && (
+                    <span aria-hidden className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-brand/10 text-[10px] font-bold text-brand">{item.step}</span>
+                  )}
                   {item.label}
                 </NavLink>
               </li>

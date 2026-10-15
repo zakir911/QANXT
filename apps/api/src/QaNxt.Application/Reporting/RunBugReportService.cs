@@ -273,6 +273,30 @@ public sealed class RunBugReportService : IRunBugReportService
             bugs.Add((bug, (int)severity, affected.Count));
         }
 
+        // The security scan run with these tests: its findings are bugs in the same report,
+        // tagged with their testing type like every other bug.
+        ReportSecurityScan? security = null;
+        if (run.SecurityScanId is { } scanId)
+        {
+            var scan = await _db.SecurityScans.FirstOrDefaultAsync(x => x.Id == scanId, ct);
+            if (scan is not null)
+            {
+                var findings = await (from link in _db.SecurityScanFindings
+                                      join f in _db.SecurityFindings on link.SecurityFindingId equals f.Id
+                                      where link.SecurityScanId == scanId
+                                            && f.Status != Domain.Security.SecurityFindingStatus.FalsePositive
+                                            && f.Status != Domain.Security.SecurityFindingStatus.Accepted
+                                      select new { f, link.Severity, link.WasNew, link.WasRegression }).ToListAsync(ct);
+                var finished = scan.CompletedAt is not null;
+                security = new ReportSecurityScan(scan.Reference, scan.Status, scan.Profile.ToString(), scan.TestsExecuted, scan.TestsSkipped,
+                    scan.RequestsBlocked, findings.Count,
+                    !finished ? "The security scan had not finished when this report was made; download it again once it has to include everything it finds."
+                        : scan.ErrorMessage);
+                foreach (var item in findings.Where(x => x.Severity != Domain.Security.SecuritySeverity.Informational || x.f.Status == Domain.Security.SecurityFindingStatus.Confirmed))
+                    bugs.Add((SecurityBug(item.f, item.Severity, item.WasNew, item.WasRegression, scan), SecurityRank(item.Severity), 1));
+            }
+        }
+
         var ordered = bugs.OrderBy(b => b.SeverityRank).ThenByDescending(b => b.Affected).ThenBy(b => b.Bug.Title, StringComparer.Ordinal)
             .Select((b, i) => b.Bug with { Key = $"BUG-{i + 1:00}" }).ToList();
 
@@ -298,10 +322,66 @@ public sealed class RunBugReportService : IRunBugReportService
             run.CiCommitSha, run.CiBranch, run.CiBuildId, run.ApplicationBuildRef,
             _consoleUrl is null ? null : $"{_consoleUrl}/runs/{run.Id}");
 
-        return Result<RunBugReport>.Success(new RunBugReport(reportRun, ordered, others, flaky, skipped, _clock.UtcNow));
+        // Pass and fail by testing type, from the latest attempt of every test.
+        var byType = latest.GroupBy(e => e.TestCase?.Category is { } c ? TestingTaxonomy.All.FirstOrDefault(t => t.Category == c)?.Name ?? c.ToString() : "Recorded and imported tests")
+            .Select(g =>
+            {
+                var passed = g.Count(e => e.Status is ExecutionStatus.Passed or ExecutionStatus.Healed or ExecutionStatus.Flaky);
+                var failed = g.Count(e => FailedStatuses.Contains(e.Status));
+                var notRun = g.Count(e => e.Status is ExecutionStatus.Skipped or ExecutionStatus.Blocked or ExecutionStatus.Cancelled);
+                var bugsOfType = ordered.Count(b => b.Category == g.Key);
+                var verdict = failed > 0 ? (bugsOfType > 0 ? "Failed" : "Failed (not product bugs)") : passed == 0 ? "Not run" : g.Count() - passed - notRun > 0 ? "In progress" : "Passed";
+                return new ReportTypeResult(g.Key, g.Count(), passed, failed, notRun, bugsOfType, verdict);
+            })
+            .OrderBy(t => t.TestingType, StringComparer.Ordinal).ToList();
+        if (security is not null)
+            byType.Add(new ReportTypeResult("Security scan", security.ChecksExecuted + security.ChecksSkipped, security.Findings == 0 ? security.ChecksExecuted : security.ChecksExecuted - security.Findings,
+                security.Findings, security.ChecksSkipped, ordered.Count(b => b.Category == "Security scan"),
+                security.Note is not null && security.Status != "completed" ? "In progress" : security.Findings > 0 ? "Failed" : "Passed"));
+
+        return Result<RunBugReport>.Success(new RunBugReport(reportRun, ordered, others, flaky, skipped, _clock.UtcNow, byType, security));
     }
 
     // ---- Pieces -----------------------------------------------------------------------
+
+    private static int SecurityRank(Domain.Security.SecuritySeverity severity) => severity switch
+    {
+        Domain.Security.SecuritySeverity.Critical => (int)DefectSeverity.Critical,
+        Domain.Security.SecuritySeverity.High or Domain.Security.SecuritySeverity.Medium => (int)DefectSeverity.Major,
+        Domain.Security.SecuritySeverity.Low => (int)DefectSeverity.Minor,
+        _ => (int)DefectSeverity.Trivial
+    };
+
+    /// <summary>A security finding as a bug: the same sections a developer reads for any other,
+    /// filled from what the scan recorded.</summary>
+    private ReportBug SecurityBug(Domain.Security.SecurityFinding f, Domain.Security.SecuritySeverity severity, bool isNew, bool isRegression,
+        Domain.Security.SecurityScan scan)
+    {
+        var steps = f.ReproductionSteps.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select((line, i) => new ReportStep(i + 1, Masked(System.Text.RegularExpressions.Regex.Replace(line, @"^\d+[.)]\s*", "")), null, "passed", null, false))
+            .ToList();
+        var standards = string.Join(" · ", new[] { f.Cwe, f.OwaspWebCategory, f.OwaspApiCategory }.Where(x => !string.IsNullOrWhiteSpace(x)));
+        return new ReportBug(
+            Key: string.Empty, DefectId: null, DefectReference: f.Reference, DefectStatus: f.Status.ToString(),
+            Title: Masked(f.Title), Severity: severity.ToString(), Priority: severity >= Domain.Security.SecuritySeverity.High ? "High" : "Medium",
+            Category: "Security scan",
+            Classification: $"Security finding · {f.Confidence} confidence{(isRegression ? " · came back after being fixed" : isNew ? " · new in this scan" : string.Empty)}",
+            Confidence: f.Confidence switch { Domain.Security.SecurityConfidence.High => 90, Domain.Security.SecurityConfidence.Medium => 60, _ => 30 },
+            Application: null, PageUrl: f.Endpoint, Form: null, Field: f.Parameter,
+            Endpoint: f.HttpMethod is null || f.Endpoint is null ? f.Endpoint : $"{f.HttpMethod} {f.Endpoint}",
+            Browser: "—", BrowserVersion: null, Viewport: "—",
+            FirstSeenAt: f.FirstSeenAt, Occurrences: null, RegressionTest: null,
+            Summary: $"{Masked(f.Description)}{(standards.Length > 0 ? $" ({standards})" : string.Empty)}",
+            Steps: steps, TestData: f.ObservedAsRole is null ? null : new Dictionary<string, string> { ["signed in as"] = f.ObservedAsRole },
+            Expected: $"The application is not open to {f.Category.ToLowerInvariant()}.",
+            Actual: Masked(string.IsNullOrWhiteSpace(f.Impact) ? f.Description : f.Impact),
+            FailingStep: null, PageText: null,
+            WhereToLook: string.IsNullOrWhiteSpace(f.Remediation) ? "See the finding in QA NXT's Security page." : Masked(f.Remediation),
+            Exchanges: Array.Empty<ReportExchange>(), Curl: null, Console: Array.Empty<ReportConsoleLine>(), Accessibility: Array.Empty<ReportA11yViolation>(),
+            Screenshots: Array.Empty<ReportArtifact>(), Attachments: Array.Empty<ReportArtifact>(), AffectedTests: Array.Empty<ReportAffectedTest>(),
+            VerifyTheFix: $"Run the security scan again (Testing → Run with security, or Security → {scan.Reference}). The finding is marked resolved once a scan no longer observes it.",
+            ExecutionId: Guid.Empty, ExecutionUrl: _consoleUrl is null ? null : $"{_consoleUrl}/security");
+    }
 
     private const int MaxPageSnapshotBytes = 512 * 1024;
     private const int MaxPageTextChars = 3000;

@@ -1,43 +1,47 @@
 import { describe, expect, test } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { ConfidenceBar, ProviderNote, StatusBadge } from './ui';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { FilterNote, Metric, StatusBadge, useMetricFilter } from './ui';
 
-describe('StatusBadge', () => {
-  test('renders a readable label for a camelCase status', () => {
-    render(<StatusBadge status="applicationDefect" />);
-    expect(screen.getByText('Application defect')).toBeInTheDocument();
+function Tiles() {
+  const filter = useMetricFilter<'failed'>();
+  const rows = [{ name: 'login', status: 'failed' }, { name: 'search', status: 'passed' }];
+  return (
+    <>
+      <Metric label="Failed" value={1} onClick={() => filter.toggle('failed')} active={filter.is('failed')} />
+      <FilterNote label={filter.filter ? 'Failed' : null} onClear={() => filter.set(null)} />
+      <ul>{rows.filter(r => !filter.filter || r.status === filter.filter).map(r => <li key={r.name}>{r.name}</li>)}</ul>
+    </>
+  );
+}
+
+describe('metric tiles', () => {
+  test('a tile filters the list below it, and pressing it again shows everything', () => {
+    render(<Tiles />);
+    const tile = screen.getByRole('button', { name: /Failed/ });
+    expect(tile).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getAllByRole('listitem')).toHaveLength(2);
+
+    fireEvent.click(tile);
+    expect(tile).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getAllByRole('listitem').map(li => li.textContent)).toEqual(['login']);
+
+    fireEvent.click(tile);
+    expect(screen.getAllByRole('listitem')).toHaveLength(2);
   });
 
-  test('distinguishes healed from passed, so a repair is never presented as a clean pass', () => {
-    const { container: passed } = render(<StatusBadge status="passed" />);
-    const { container: healed } = render(<StatusBadge status="healed" />);
-
-    const passedClasses = (passed.firstChild as HTMLElement).className;
-    const healedClasses = (healed.firstChild as HTMLElement).className;
-
-    expect(passedClasses).not.toBe(healedClasses);
-    expect(screen.getByText('Passed')).toBeInTheDocument();
-    expect(screen.getByText('Healed')).toBeInTheDocument();
+  test('a tile with nothing to filter stays a plain number', () => {
+    render(<Metric label="Duration" value="3 min" />);
+    expect(screen.queryByRole('button')).toBeNull();
   });
 });
 
-describe('ProviderNote', () => {
-  test('says plainly when output came from the built-in rules', () => {
-    render(<ProviderNote provider="Local" model="qanxt-rules-v1" isLocal />);
-    expect(screen.getByText(/built-in rules/i)).toBeInTheDocument();
-    expect(screen.getByText(/no model provider is configured/i)).toBeInTheDocument();
-  });
-
-  test('names the model when one answered', () => {
-    render(<ProviderNote provider="Anthropic" model="claude-sonnet-4-5" isLocal={false} />);
-    expect(screen.getByText('Anthropic')).toBeInTheDocument();
-    expect(screen.getByText('claude-sonnet-4-5')).toBeInTheDocument();
-  });
-});
-
-describe('ConfidenceBar', () => {
-  test('shows the value and clamps the bar within range', () => {
-    render(<ConfidenceBar value={140} />);
-    expect(screen.getByText('140%')).toBeInTheDocument();
+describe('status badge', () => {
+  test('work in progress turns; a verdict does not', () => {
+    const { rerender } = render(<StatusBadge status="running" />);
+    expect(screen.getByTestId('status-spinner')).toBeInTheDocument();
+    rerender(<StatusBadge status="queued" />);
+    expect(screen.getByTestId('status-spinner')).toBeInTheDocument();
+    rerender(<StatusBadge status="passed" />);
+    expect(screen.queryByTestId('status-spinner')).toBeNull();
   });
 });

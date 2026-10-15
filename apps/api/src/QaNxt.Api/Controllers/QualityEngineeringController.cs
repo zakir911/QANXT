@@ -101,9 +101,11 @@ public sealed class QualityEngineeringController : ApiControllerBase
         => FromResult(await _selection.PreviewAsync(body.For(applicationId), ct));
 
     public sealed record SelectionBody(string Mode, TestCategory[]? Categories, Guid[]? FormIds, BrowserType? Browser,
-        Guid? EnvironmentId, int? Parallelism, string? Name, RunTrigger? Trigger)
+        Guid? EnvironmentId, int? Parallelism, string? Name, RunTrigger? Trigger,
+        bool IncludeSecurity = false, QaNxt.Domain.Security.SecurityProfile? SecurityProfile = null)
     {
-        public SelectionRunRequest For(Guid applicationId) => new(applicationId, Mode, Categories, FormIds, Browser, EnvironmentId, Parallelism, Name, Trigger);
+        public SelectionRunRequest For(Guid applicationId) => new(applicationId, Mode, Categories, FormIds, Browser, EnvironmentId, Parallelism, Name, Trigger,
+            IncludeSecurity, SecurityProfile);
     }
 
     // ---- Defects and failures --------------------------------------------------------
@@ -176,6 +178,22 @@ public sealed class QualityEngineeringController : ApiControllerBase
     {
         var query = _db.TestCases.Where(tc => tc.ProjectId == projectId);
         if (applicationId is not null) query = query.Where(tc => tc.ApplicationId == applicationId);
+        // The counts the page's tiles show, over the whole repository of this application:
+        // a tile that counted only the rows on screen would change as the user paged.
+        var byLifecycle = await query.GroupBy(tc => tc.Lifecycle).Select(g => new { g.Key, Count = g.Count() }).ToListAsync(ct);
+        var byLastStatus = await query.Where(tc => tc.Lifecycle == TestCaseLifecycle.Active)
+            .GroupBy(tc => tc.LastStatus).Select(g => new { g.Key, Count = g.Count() }).ToListAsync(ct);
+        var facets = new
+        {
+            lifecycle = byLifecycle.ToDictionary(x => x.Key.ToString(), x => x.Count),
+            lastStatus = new
+            {
+                // Exactly what the last-result filter selects, so a tile and the list it opens agree.
+                passed = byLastStatus.Where(x => x.Key == ExecutionStatus.Passed).Sum(x => x.Count),
+                failed = byLastStatus.Where(x => x.Key == ExecutionStatus.Failed).Sum(x => x.Count),
+                neverRun = byLastStatus.Where(x => x.Key == null).Sum(x => x.Count)
+            }
+        };
         if (category is not null) query = query.Where(tc => tc.Category == category);
         if (lifecycle is not null) query = query.Where(tc => tc.Lifecycle == lifecycle);
         if (automation is not null) query = query.Where(tc => tc.AutomationStatus == automation);
@@ -195,7 +213,7 @@ public sealed class QualityEngineeringController : ApiControllerBase
                 tc.ApplicationFormId, tc.FieldKey, source = tc.Source.ToString(), tc.Version, tc.LastStatus, tc.LastExecutedAt,
                 tc.ExecutionCount, tc.PassCount, tc.FailCount
             }).ToListAsync(ct);
-        return Ok(new { total, items });
+        return Ok(new { total, items, facets });
     }
 
     [HttpPost("~/api/v1/test-cases/{id:guid}/duplicate")]

@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject } from '../lib/project';
-import { Card, ConfidenceBar, EmptyState, ErrorNotice, PageHeader, Spinner, StatusBadge } from '../components/ui';
+import { Card, ConfidenceBar, EmptyState, ErrorNotice, Metric, PageHeader, Spinner, StatusBadge } from '../components/ui';
 import { formatRelative, humanize } from '../lib/format';
 
 interface HealingProposal {
@@ -31,9 +31,11 @@ export default function HealingPage() {
   const [error, setError] = useState<unknown>(null);
 
   const { data: proposals = [], isLoading } = useQuery({
-    queryKey: ['healing', projectId, filter],
+    // Every outcome, filtered here, so each tile can count its own.
+    queryKey: ['healing', projectId],
+    enabled: Boolean(projectId),
     queryFn: () => apiRequest<HealingProposal[]>(
-      `/api/v1/healing?limit=100${projectId ? `&projectId=${projectId}` : ''}${filter ? `&outcome=${filter}` : ''}`)
+      `/api/v1/healing?limit=100&projectId=${projectId}`)
   });
 
   const review = useMutation({
@@ -68,6 +70,16 @@ export default function HealingPage() {
 
       {error !== null && <div className="mb-4"><ErrorNotice error={error} /></div>}
 
+      {proposals.length > 0 && (
+        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6 mb-4">
+          <Metric label="Proposals" value={proposals.length} onClick={() => setFilter('')} active={filter === ''} />
+          {([['proposed', 'Awaiting review', 'warn'], ['applied', 'Applied in a run', 'info'], ['approved', 'Approved', 'good'], ['rejected', 'Rejected', 'neutral'], ['reverted', 'Reverted', 'neutral']] as const).map(([key, label, tone]) => (
+            <Metric key={key} label={label} value={proposals.filter(p => p.outcome === key).length} tone={tone}
+                    onClick={() => setFilter(filter === key ? '' : key)} active={filter === key} />
+          ))}
+        </div>
+      )}
+
       {proposals.length === 0 ? (
         <Card>
           <EmptyState
@@ -77,7 +89,7 @@ export default function HealingPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {proposals.map(proposal => {
+          {proposals.filter(p => !filter || p.outcome === filter).map(proposal => {
             const breakdown = parseBreakdown(proposal.scoreBreakdownJson);
             const decided = ['approved', 'rejected', 'reverted'].includes(proposal.outcome);
 

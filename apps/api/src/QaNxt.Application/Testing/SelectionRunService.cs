@@ -21,9 +21,16 @@ public sealed record SelectionRunRequest(
     Guid? EnvironmentId = null,
     int? Parallelism = null,
     string? Name = null,
-    RunTrigger? Trigger = null);
+    RunTrigger? Trigger = null,
+    /// <summary>Also scan the application for security problems, so the run's bug report
+    /// holds the security findings beside the test failures. Needs the application's
+    /// security scope authorised; without it the tests still run and the result says why the
+    /// scan did not.</summary>
+    bool IncludeSecurity = false,
+    Domain.Security.SecurityProfile? SecurityProfile = null);
 
-public sealed record SelectionRunResult(Guid? TestRunId, string Mode, int Selected, string Explanation, TestRunSummary? Run);
+public sealed record SelectionRunResult(Guid? TestRunId, string Mode, int Selected, string Explanation, TestRunSummary? Run,
+    Guid? SecurityScanId = null, string? SecurityNote = null);
 
 public interface ISelectionRunService
 {
@@ -42,11 +49,13 @@ public sealed class SelectionRunService : ISelectionRunService
 
     private readonly IQaNxtDbContext _db;
     private readonly ITestRunService _runs;
+    private readonly Security.ISecurityScanLauncher? _security;
 
-    public SelectionRunService(IQaNxtDbContext db, ITestRunService runs)
+    public SelectionRunService(IQaNxtDbContext db, ITestRunService runs, Security.ISecurityScanLauncher? security = null)
     {
         _db = db;
         _runs = runs;
+        _security = security;
     }
 
     public Task<Result<SelectionRunResult>> PreviewAsync(SelectionRunRequest request, CancellationToken ct = default)
@@ -120,6 +129,29 @@ public sealed class SelectionRunService : ISelectionRunService
             application.ProjectId, null, ids.ToArray(), request.EnvironmentId, request.Browser, true, request.Parallelism, null,
             request.Name ?? $"{application.Name} — {mode}", request.Trigger ?? RunTrigger.Manual, null), ct);
         if (!run.IsSuccess) return Result<SelectionRunResult>.Failure(run.Error!);
-        return Result<SelectionRunResult>.Success(new SelectionRunResult(run.Value!.Id, mode, ids.Count, explanation, run.Value));
+
+        Guid? scanId = null;
+        string? securityNote = null;
+        if (request.IncludeSecurity)
+        {
+            if (_security is null) securityNote = "Security scanning is not available on this platform.";
+            else
+            {
+                // The scan is refused, not forced, when the application's security scope is not
+                // authorised: the tests run regardless, and the note says what to do.
+                var scan = await _security.StartAsync(new Security.StartSecurityScanRequest(application.Id,
+                    request.SecurityProfile ?? Domain.Security.SecurityProfile.Standard), ct);
+                if (scan.IsSuccess)
+                {
+                    scanId = scan.Value!.SecurityScanId;
+                    var stored = await _db.TestRuns.FirstAsync(r => r.Id == run.Value!.Id, ct);
+                    stored.SecurityScanId = scanId;
+                    await _db.SaveChangesAsync(ct);
+                    securityNote = $"Security scan {scan.Value.Reference} started: {scan.Value.Summary}";
+                }
+                else securityNote = $"The tests are running, but the security scan did not start: {scan.Error!.Message}";
+            }
+        }
+        return Result<SelectionRunResult>.Success(new SelectionRunResult(run.Value!.Id, mode, ids.Count, explanation, run.Value, scanId, securityNote));
     }
 }

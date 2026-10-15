@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client';
 import { Permissions, useAuth } from '../lib/auth';
 import { useProject, type ProjectSummary } from '../lib/project';
@@ -16,7 +17,7 @@ interface ProjectDetail {
 
 export default function ProjectsPage() {
   const { can } = useAuth();
-  const { projects, setProjectId, isLoading } = useProject();
+  const { projects, project, setProjectId, isLoading } = useProject();
   const queryClient = useQueryClient();
   const [creating, setCreating] = useState(false);
   const panel = useDisclosedPanel('new-project', creating, () => { setCreating(false); setError(null); });
@@ -51,7 +52,7 @@ export default function ProjectsPage() {
     <>
       <PageHeader
         title="Projects"
-        description="A project groups the applications, tests and quality rules for one product."
+        description="A project groups the applications, tests and quality rules for one product. Choose the project at the top right; every screen then shows only its work."
         actions={can(Permissions.projectWrite) && (
           // Mounted while the panel is open so aria-expanded can say so (QA pass, ISSUE-003).
           <button type="button" className="btn-primary"
@@ -110,35 +111,49 @@ export default function ProjectsPage() {
           />
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {projects.map(project => (
+        <>
+          {/* The project chosen at the top, in full. Other projects are listed only to
+              switch to: their content belongs on their own screens, not mixed into this one. */}
+          {project && (
             <Card
-              key={project.id}
               title={project.name}
               description={project.description || 'No description'}
               actions={<span className="badge bg-surface-sunken text-ink-muted font-mono">{project.key}</span>}
+              className="mb-4"
             >
-              <dl className="grid grid-cols-3 gap-3 mb-4">
-                <div className="kv"><dt>Applications</dt><dd className="font-semibold">{project.applicationCount}</dd></div>
-                <div className="kv"><dt>Test cases</dt><dd className="font-semibold">{project.testCaseCount}</dd></div>
-                <div className="kv"><dt>Open defects</dt><dd className="font-semibold">{project.openDefectCount}</dd></div>
+              <dl className="grid grid-cols-3 gap-3 mb-4 max-w-xl">
+                <div className="kv"><dt>Applications</dt><dd className="font-semibold"><Link to="/applications" className="text-brand hover:underline">{project.applicationCount}</Link></dd></div>
+                <div className="kv"><dt>Test cases</dt><dd className="font-semibold"><Link to="/repository" className="text-brand hover:underline">{project.testCaseCount}</Link></dd></div>
+                <div className="kv"><dt>Open defects</dt><dd className="font-semibold"><Link to="/defects" className="text-brand hover:underline">{project.openDefectCount}</Link></dd></div>
               </dl>
               <div className="flex items-center gap-2">
-                <button type="button" className="btn-secondary btn-sm" onClick={() => setProjectId(project.id)}>
-                  Select
-                </button>
                 {can(Permissions.projectWrite) && (
                   <button type="button" className="btn-secondary btn-sm"
                           onClick={() => setEditing(editing === project.id ? null : project.id)}>
                     {editing === project.id ? 'Close settings' : 'Settings'}
                   </button>
                 )}
-                <span className="ml-auto text-xs text-ink-subtle">{formatDateTime(project.createdAt)}</span>
+                <span className="ml-auto text-xs text-ink-subtle">Created {formatDateTime(project.createdAt)}</span>
               </div>
               {editing === project.id && <ProjectSettings projectId={project.id} />}
             </Card>
-          ))}
-        </div>
+          )}
+          {projects.length > 1 && (
+            <Card title="Other projects" description="Switch to work on another project. Every screen then shows only that project.">
+              <ul className="divide-y divide-line">
+                {projects.filter(p => p.id !== project?.id).map(other => (
+                  <li key={other.id} className="flex items-center gap-3 py-2">
+                    <span className="font-medium text-ink">{other.name}</span>
+                    <span className="badge bg-surface-sunken text-ink-muted font-mono">{other.key}</span>
+                    <button type="button" className="btn-secondary btn-sm ml-auto" onClick={() => setProjectId(other.id)}>
+                      Switch to this project
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+        </>
       )}
     </>
   );

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../api/client';
 import { useProject } from '../lib/project';
-import { Card, EmptyState, ErrorNotice, PageHeader, Spinner, StatusBadge } from '../components/ui';
+import { Card, EmptyState, ErrorNotice, FilterNote, Metric, PageHeader, Spinner, StatusBadge, useMetricFilter } from '../components/ui';
 import { formatDateTime, formatRelative } from '../lib/format';
 
 interface DiscoveryRunSummary {
@@ -19,11 +19,14 @@ interface DiscoveryRunDetail {
 }
 
 export default function DiscoveryPage() {
-  const { projectId } = useProject();
+  const { projectId, project } = useProject();
+  const status = useMetricFilter<'active' | 'completed' | 'failed'>();
 
   const { data: runs = [], isLoading, error, refetch } = useQuery({
     queryKey: ['discovery-runs', projectId],
-    queryFn: () => apiRequest<DiscoveryRunSummary[]>('/api/v1/discovery/runs?limit=25'),
+    // Only the selected project's applications: another project's runs do not belong here.
+    queryFn: () => apiRequest<DiscoveryRunSummary[]>(`/api/v1/discovery/runs?limit=50&projectId=${projectId}`),
+    enabled: Boolean(projectId),
     // Discovery is long-running; polling keeps the page honest without a websocket.
     refetchInterval: query => {
       const rows = query.state.data as DiscoveryRunSummary[] | undefined;
@@ -32,6 +35,15 @@ export default function DiscoveryPage() {
     }
   });
 
+  if (!projectId) {
+    return (
+      <>
+        <PageHeader title="Discovery" description="Bounded exploration of an application: what exists, what it contains, and what it calls." />
+        <Card><EmptyState title="Choose a project" description="Discovery runs belong to a project's applications. Choose or create a project first."
+          action={<Link to="/projects" className="btn-primary">Go to projects</Link>} /></Card>
+      </>
+    );
+  }
   if (isLoading) return <Spinner label="Loading discovery runs" />;
   if (error) return <ErrorNotice error={error} onRetry={() => void refetch()} />;
 
@@ -43,6 +55,20 @@ export default function DiscoveryPage() {
         actions={<Link to="/applications" className="btn-secondary">Start a run from an application</Link>}
       />
 
+      {runs.length > 0 && (() => {
+        const isActive = (r: DiscoveryRunSummary) => r.status === 'queued' || r.status === 'running';
+        const counts = { active: runs.filter(isActive).length, completed: runs.filter(r => r.status === 'completed').length, failed: runs.filter(r => r.status === 'failed' || r.status === 'cancelled').length };
+        return (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+            <Metric label="Runs" value={runs.length} onClick={() => status.set(null)} active={status.filter === null} hint={project ? `in ${project.name}` : undefined} />
+            <Metric label="In progress" value={counts.active} tone={counts.active ? 'info' : 'neutral'} onClick={() => status.toggle('active')} active={status.is('active')} />
+            <Metric label="Completed" value={counts.completed} tone="good" onClick={() => status.toggle('completed')} active={status.is('completed')} />
+            <Metric label="Failed or cancelled" value={counts.failed} tone={counts.failed ? 'bad' : 'neutral'} onClick={() => status.toggle('failed')} active={status.is('failed')} />
+          </div>
+        );
+      })()}
+      <FilterNote label={status.filter === 'active' ? 'In progress' : status.filter === 'completed' ? 'Completed' : status.filter === 'failed' ? 'Failed or cancelled' : null} onClear={() => status.set(null)} />
+
       {runs.length === 0 ? (
         <Card>
           <EmptyState
@@ -53,7 +79,11 @@ export default function DiscoveryPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {runs.map(run => <DiscoveryRunCard key={run.id} run={run} />)}
+          {runs.filter(run => status.filter === null
+              || status.filter === 'active' && (run.status === 'queued' || run.status === 'running')
+              || status.filter === 'completed' && run.status === 'completed'
+              || status.filter === 'failed' && (run.status === 'failed' || run.status === 'cancelled'))
+            .map(run => <DiscoveryRunCard key={run.id} run={run} />)}
         </div>
       )}
     </>

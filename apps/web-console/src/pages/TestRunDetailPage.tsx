@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { apiRequest } from '../api/client';
 import { useExecutionStream, type ExecutionEvent } from '../lib/live';
-import { Card, ErrorNotice, Metric, PageHeader, Spinner, StatusBadge } from '../components/ui';
+import { Card, ErrorNotice, FilterNote, Metric, PageHeader, Spinner, StatusBadge, useMetricFilter } from '../components/ui';
 import { BugReportDownloads } from '../components/BugReportDownloads';
 import { formatDuration, formatPercent, formatRelative, humanize } from '../lib/format';
 
@@ -12,7 +12,15 @@ interface TestRunSummary {
   startedAt?: string; completedAt?: string; durationMs: number;
   totalCount: number; passedCount: number; failedCount: number; skippedCount: number;
   blockedCount: number; healedCount: number; flakyCount: number; qualityGatePassed?: boolean;
+  securityScanId?: string | null;
 }
+
+type Verdict = 'passed' | 'failed' | 'notRun' | 'healed';
+const VERDICT_LABEL: Record<Verdict, string> = { passed: 'Passed', failed: 'Failed', notRun: 'Not run (skipped or blocked)', healed: 'Healed' };
+const VERDICT_OF: Record<string, Verdict | undefined> = {
+  passed: 'passed', flaky: 'passed', failed: 'failed', error: 'failed', timedOut: 'failed',
+  skipped: 'notRun', blocked: 'notRun', cancelled: 'notRun', healed: 'healed'
+};
 
 interface ExecutionRow {
   id: string; testCaseId: string; reference: string; name: string; status: string;
@@ -53,6 +61,7 @@ export default function TestRunDetailPage() {
   });
 
   const isActive = run?.status === 'queued' || run?.status === 'running';
+  const verdict = useMetricFilter<Verdict>();
 
   const { data: executions = [] } = useQuery({
     queryKey: ['run-executions', runId],
@@ -134,11 +143,12 @@ export default function TestRunDetailPage() {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-4">
-        <Metric label="Total" value={run.totalCount} />
-        <Metric label="Passed" value={run.passedCount} tone={run.passedCount > 0 ? 'good' : 'neutral'} />
-        <Metric label="Failed" value={run.failedCount} tone={run.failedCount > 0 ? 'bad' : 'neutral'} />
-        <Metric label="Healed" value={run.healedCount} tone={run.healedCount > 0 ? 'info' : 'neutral'} />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6 mb-4">
+        <Metric label="Total" value={run.totalCount} onClick={() => verdict.set(null)} active={verdict.filter === null} />
+        <Metric label="Passed" value={run.passedCount} tone={run.passedCount > 0 ? 'good' : 'neutral'} onClick={() => verdict.toggle('passed')} active={verdict.is('passed')} />
+        <Metric label="Failed" value={run.failedCount} tone={run.failedCount > 0 ? 'bad' : 'neutral'} onClick={() => verdict.toggle('failed')} active={verdict.is('failed')} />
+        <Metric label="Not run" value={run.skippedCount + run.blockedCount} onClick={() => verdict.toggle('notRun')} active={verdict.is('notRun')} />
+        <Metric label="Healed" value={run.healedCount} tone={run.healedCount > 0 ? 'info' : 'neutral'} onClick={() => verdict.toggle('healed')} active={verdict.is('healed')} />
         <Metric label="Pass rate" value={passRate === null ? '—' : formatPercent(passRate)}
                 tone={passRate === null ? 'neutral' : passRate >= 95 ? 'good' : passRate >= 80 ? 'warn' : 'bad'}
                 hint={formatDuration(run.durationMs)} />
@@ -179,6 +189,12 @@ export default function TestRunDetailPage() {
         </Card>
       )}
 
+      {run.securityScanId && (
+        <p className="mb-3 text-sm">
+          A security scan ran with these tests; its findings are in the bug report. <Link to="/security" className="text-brand underline">See it on the Security page</Link>.
+        </p>
+      )}
+      <FilterNote label={verdict.filter === null ? null : VERDICT_LABEL[verdict.filter]} onClear={() => verdict.set(null)} />
       <div className="table-wrap">
         <table className="table">
           <thead>
@@ -188,7 +204,7 @@ export default function TestRunDetailPage() {
             </tr>
           </thead>
           <tbody>
-            {executions.map(execution => (
+            {executions.filter(e => verdict.filter === null || VERDICT_OF[e.status] === verdict.filter).map(execution => (
               <tr key={execution.id}>
                 <td>
                   <Link to={`/executions/${execution.id}`} className="font-medium text-brand hover:underline">
