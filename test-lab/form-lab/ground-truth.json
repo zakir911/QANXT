@@ -21,6 +21,7 @@
     "/accessibility",
     "/error-handling",
     "/api-form",
+    "/contact-modal",
     "/slow-form",
     "/duplicate-submit",
     "/session-expiry"
@@ -1169,6 +1170,56 @@
       "dependentOptions": null,
       "serverOnlyRules": [],
       "hasCsrfToken": false,
+      "defects": []
+    },
+    {
+      "id": "contact-modal",
+      "route": "/contact-modal",
+      "title": "Talk to sales",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Send message",
+      "fields": [
+        {
+          "name": "fullName",
+          "label": "Full name",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "60"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "workEmail",
+          "label": "Work email",
+          "type": "email",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "requirement",
+          "label": "What do you need?",
+          "type": "textarea",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "500"
+          },
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
       "defects": []
     },
     {
