@@ -1,0 +1,529 @@
+{
+  "runId": "2026-10-15T07-21-55Z",
+  "totals": {
+    "pass": 65,
+    "fail": 0,
+    "notVerified": 2
+  },
+  "checks": [
+    {
+      "id": "AI-001",
+      "area": "AI dependency",
+      "title": "The platform reports AI disabled",
+      "status": "PASS",
+      "detail": "aiDisabled=true, aiRequiredForTesting=false"
+    },
+    {
+      "id": "AI-002",
+      "area": "AI dependency",
+      "title": "No hosted model provider can be called",
+      "status": "PASS",
+      "detail": "4 provider(s) listed, only the local rules engine available"
+    },
+    {
+      "id": "FLOW-001",
+      "area": "Workflow",
+      "title": "A project is created with AI switched off for it",
+      "status": "PASS",
+      "detail": "project a812feda-dfc0-44d2-9495-4900b3127601"
+    },
+    {
+      "id": "FLOW-002",
+      "area": "Workflow",
+      "title": "The application is added",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:4370"
+    },
+    {
+      "id": "DISC-001",
+      "area": "Discovery",
+      "title": "Discovery completes",
+      "status": "PASS",
+      "detail": "status completed"
+    },
+    {
+      "id": "DISC-002",
+      "area": "Discovery",
+      "title": "Every page in the lab is discovered",
+      "status": "PASS",
+      "detail": "22 of 22 pages"
+    },
+    {
+      "id": "DISC-003",
+      "area": "Discovery",
+      "title": "Every form in the lab is discovered",
+      "status": "PASS",
+      "detail": "21 of 21 forms"
+    },
+    {
+      "id": "DISC-004",
+      "area": "Discovery",
+      "title": "Every field is discovered with its requiredness",
+      "status": "PASS",
+      "detail": "71 fields declared; 0 missing",
+      "evidence": "verification/evidence/MANUAL-TESTING/2026-10-15T07-21-55Z/field-discovery.json"
+    },
+    {
+      "id": "DISC-005",
+      "area": "Discovery",
+      "title": "Every declared constraint is discovered exactly",
+      "status": "PASS",
+      "detail": "66 constraints (minlength, maxlength, min, max, step, pattern, accept)"
+    },
+    {
+      "id": "DISC-006",
+      "area": "Discovery",
+      "title": "Conditional fields and dependent lists are discovered by probing, without submitting",
+      "status": "PASS",
+      "detail": "every conditional field and dependent list observed"
+    },
+    {
+      "id": "DISC-007",
+      "area": "Discovery",
+      "title": "Multi-step forms are recognised with their steps",
+      "status": "PASS",
+      "detail": "/multi-step"
+    },
+    {
+      "id": "DISC-009",
+      "area": "Discovery",
+      "title": "A form hidden in a dialog is found together with the control that opens it",
+      "status": "PASS",
+      "detail": "hidden at load: true; opener: \"Contact us\""
+    },
+    {
+      "id": "DISC-008",
+      "area": "Discovery",
+      "title": "Discovery and probing submitted nothing",
+      "status": "PASS",
+      "detail": "0 record(s) in the lab"
+    },
+    {
+      "id": "CONF-001",
+      "area": "Configuration",
+      "title": "The default mode is Comprehensive",
+      "status": "PASS",
+      "detail": "mode comprehensive"
+    },
+    {
+      "id": "CONF-002",
+      "area": "Configuration",
+      "title": "Comprehensive enables every category",
+      "status": "PASS",
+      "detail": "26 of 26"
+    },
+    {
+      "id": "CONF-003",
+      "area": "Configuration",
+      "title": "Select all (custom, every category) is accepted and stored",
+      "status": "PASS",
+      "detail": "26 categories"
+    },
+    {
+      "id": "CONF-004",
+      "area": "Configuration",
+      "title": "Deselect all is refused with a reason rather than generating nothing silently",
+      "status": "PASS",
+      "detail": "Custom mode needs at least one testing category. Choose some, or pick another mode."
+    },
+    {
+      "id": "GEN-001",
+      "area": "Generation",
+      "title": "Generation runs with AI disabled and says it used none",
+      "status": "PASS",
+      "detail": "1542 tests in 5866 ms by \"QA NXT form test engine (deterministic)\""
+    },
+    {
+      "id": "GEN-002",
+      "area": "Generation",
+      "title": "Every discovered form receives a test suite",
+      "status": "PASS",
+      "detail": "21 of 21 forms"
+    },
+    {
+      "id": "GEN-003",
+      "area": "Generation",
+      "title": "Every form has every category its fields and behaviour call for",
+      "status": "PASS",
+      "detail": "337 form×category expectations met"
+    },
+    {
+      "id": "GEN-004",
+      "area": "Generation",
+      "title": "Every discovered field has at least one test about it",
+      "status": "PASS",
+      "detail": "71 of 71 fields"
+    },
+    {
+      "id": "GEN-005",
+      "area": "Generation",
+      "title": "Every declared boundary has its boundary tests",
+      "status": "PASS",
+      "detail": "98 boundary cases"
+    },
+    {
+      "id": "GEN-006",
+      "area": "Generation",
+      "title": "Every required field and cross-field rule has its negative test",
+      "status": "PASS",
+      "detail": "all present"
+    },
+    {
+      "id": "GEN-007",
+      "area": "Generation",
+      "title": "No test is about something discovery did not find",
+      "status": "PASS",
+      "detail": "every field-level test names a discovered field; no coupon, discount or voucher test exists because the lab has none"
+    },
+    {
+      "id": "GEN-008",
+      "area": "Generation",
+      "title": "An undeclared limit is reported as unknown, never invented",
+      "status": "PASS",
+      "detail": "19 unknown-boundary gap(s); 0 maximum-length test(s) for fields that declare no maximum"
+    },
+    {
+      "id": "GEN-009",
+      "area": "Generation",
+      "title": "Every gap says what is missing, why, and what to do",
+      "status": "PASS",
+      "detail": "135 gaps"
+    },
+    {
+      "id": "GEN-010",
+      "area": "Generation",
+      "title": "Generation is deterministic and repeatable: the second pass changes nothing",
+      "status": "PASS",
+      "detail": "second pass: 0 created, 0 updated, 1542 unchanged"
+    },
+    {
+      "id": "GEN-011",
+      "area": "Generation",
+      "title": "No arbitrary cap: the count follows the forms",
+      "status": "PASS",
+      "detail": "tests per form range from 38 to 126"
+    },
+    {
+      "id": "EXEC-001",
+      "area": "Execution",
+      "title": "Every selected test runs to a verdict",
+      "status": "PASS",
+      "detail": "1542 executions in 1145 s: {\"passed\":1484,\"failed\":18,\"skipped\":40}"
+    },
+    {
+      "id": "EXEC-002",
+      "area": "Execution",
+      "title": "Only compatibility tests for other browsers are skipped, and they say why",
+      "status": "PASS",
+      "detail": "40 skipped, all tagged for Firefox or WebKit"
+    },
+    {
+      "id": "EVID-001",
+      "area": "Evidence",
+      "title": "A failing execution keeps screenshots, trace, video and DOM",
+      "status": "PASS",
+      "detail": "artifact kinds: screenshot, video, trace, domsnapshot, accessibilitytree, consolelog, networklog"
+    },
+    {
+      "id": "EVID-002",
+      "area": "Evidence",
+      "title": "Executions record their network traffic",
+      "status": "PASS",
+      "detail": "1 and 2 network events"
+    },
+    {
+      "id": "FAIL-001",
+      "area": "Failure detection",
+      "title": "Every deliberate defect in the lab is detected",
+      "status": "PASS",
+      "detail": "14 of 14 defects detected"
+    },
+    {
+      "id": "FAIL-002",
+      "area": "Failure detection",
+      "title": "No failure outside the lab's declared defects (no false failures)",
+      "status": "PASS",
+      "detail": "18 failure(s), all explained by declared defects"
+    },
+    {
+      "id": "FALSE-001",
+      "area": "False positives",
+      "title": "A correct form inside a dialog is opened by its tests and reported clean",
+      "status": "PASS",
+      "detail": "85 tests ran against /contact-modal; 0 failed"
+    },
+    {
+      "id": "FALSE-002",
+      "area": "False positives",
+      "title": "Decoration a page clips (overflow-x: hidden) is not reported as sideways scrolling",
+      "status": "PASS",
+      "detail": "3 responsive tests on /login, 0 failed"
+    },
+    {
+      "id": "FAIL-003",
+      "area": "Failure detection",
+      "title": "A failure has a detailed record, not just \"failed\"",
+      "status": "PASS",
+      "detail": "16 fields present, 8 artifacts, 4 reproduction steps"
+    },
+    {
+      "id": "DEF-001",
+      "area": "Defects",
+      "title": "Failures propose defects",
+      "status": "PASS",
+      "detail": "14 proposed"
+    },
+    {
+      "id": "DEF-002",
+      "area": "Defects",
+      "title": "Failures with one cause are one defect",
+      "status": "PASS",
+      "detail": "18 failing tests → 14 defects"
+    },
+    {
+      "id": "REPORT-001",
+      "area": "Bug report",
+      "title": "Every failure of the run is in the downloadable bug report, grouped into bugs like the defects",
+      "status": "PASS",
+      "detail": "18 failing tests → 14 bugs (14 defects), 0 not product bugs",
+      "evidence": "verification/evidence/MANUAL-TESTING/2026-10-15T07-21-55Z/bug-report.json"
+    },
+    {
+      "id": "REPORT-002",
+      "area": "Bug report",
+      "title": "Each bug carries what a developer needs: page, steps with values, data, expected and actual, failing step, screenshot, trace, request, where to look, how to verify",
+      "status": "PASS",
+      "detail": "14 bugs complete; the server crash has its request (_csrf=***REDACTED***&subject=QA+NXT+test&message=null) and a curl replay"
+    },
+    {
+      "id": "REPORT-003",
+      "area": "Bug report",
+      "title": "The HTML report is one file a developer can open anywhere, with the screenshots inside it",
+      "status": "PASS",
+      "detail": "1393 KB, 14 bugs, 17 screenshots embedded, nothing loaded from outside",
+      "evidence": "bug-report.html"
+    },
+    {
+      "id": "REPORT-004",
+      "area": "Bug report",
+      "title": "The evidence pack holds the report as HTML, Markdown and JSON with every bug's screenshots and Playwright trace, and no credentials",
+      "status": "PASS",
+      "detail": "77 files, 5964 KB; 14 of 14 bugs with screenshots and a trace; no access token in any file",
+      "evidence": "bug-report.zip"
+    },
+    {
+      "id": "DEF-003",
+      "area": "Defects",
+      "title": "The server crash hit by several inputs is one defect with every affected test",
+      "status": "PASS",
+      "detail": "DEF-0014 \"Contact support: POST /error-handling fails with HTTP 500\" — 2 tests"
+    },
+    {
+      "id": "DEF-004",
+      "area": "Defects",
+      "title": "Three boundary tests below one unenforced minimum are one defect",
+      "status": "PASS",
+      "detail": "DEF-0008 \"Validation rules: accepts an invalid age (below its minimum)\" — 3 tests"
+    },
+    {
+      "id": "DEF-005",
+      "area": "Defects",
+      "title": "A proposed defect cannot become a regression test until a person confirms it",
+      "status": "PASS",
+      "detail": "Confirm the defect first. A regression test is made from a confirmed defect, so that a proposal nobody has looked at cannot become a permanent test."
+    },
+    {
+      "id": "DEF-006",
+      "area": "Defects",
+      "title": "A confirmed defect becomes a permanent regression test",
+      "status": "PASS",
+      "detail": "TC-1543, TC-1544"
+    },
+    {
+      "id": "REG-001",
+      "area": "Regression",
+      "title": "The regression suite fails while the defects are still there",
+      "status": "PASS",
+      "detail": "2 selected; 2 failed, 0 passed"
+    },
+    {
+      "id": "REG-002",
+      "area": "Regression",
+      "title": "After the application is fixed, the same regression tests pass",
+      "status": "PASS",
+      "detail": "2 passed, 0 failed"
+    },
+    {
+      "id": "REG-003",
+      "area": "Regression",
+      "title": "Run failed re-runs exactly the failures, and the fixed ones now pass",
+      "status": "PASS",
+      "detail": "18 re-run; 5 now pass, 13 still fail (the defects not fixed)"
+    },
+    {
+      "id": "REG-004",
+      "area": "Regression",
+      "title": "A changed form is detected and its tests are selected for impacted regression",
+      "status": "PASS",
+      "detail": "changed: /simple-form; 21 new test(s) for the new field; 108 of 1563 selected. 1 form(s) changed since their tests last ran; their tests, and every test that has never run."
+    },
+    {
+      "id": "REG-005",
+      "area": "Regression",
+      "title": "The impacted regression runs",
+      "status": "PASS",
+      "detail": "68 passed, 0 failed, 40 skipped"
+    },
+    {
+      "id": "COV-001",
+      "area": "Coverage",
+      "title": "Per-form numbers add up to the application totals",
+      "status": "PASS",
+      "detail": "1565 form tests of 1565 active"
+    },
+    {
+      "id": "COV-002",
+      "area": "Coverage",
+      "title": "Coverage is measured and not claimed as 100% while gaps are open",
+      "status": "PASS",
+      "detail": "coverage 90.4%, pass rate 99.1%, 136 gaps"
+    },
+    {
+      "id": "COV-003",
+      "area": "Coverage",
+      "title": "A category that does not apply to a form is N/A and not counted",
+      "status": "PASS",
+      "detail": "registration multi-step: n/a"
+    },
+    {
+      "id": "COV-004",
+      "area": "Coverage",
+      "title": "Every coverage dimension is reported",
+      "status": "PASS",
+      "detail": "Pages 21/22; Forms 21/21; Fields 72/72; Validation rules 117/117; Boundaries 166/185; APIs 19/19; Testing types 23/26; Browsers 1/3; Viewports 3/4; Security controls 45/45; Accessibility checks 131/131; States 22/22; Workflows 0/0"
+    },
+    {
+      "id": "COMP-FIREFOX",
+      "area": "Compatibility",
+      "title": "Forms work in firefox",
+      "status": "NOT VERIFIED",
+      "detail": "firefox is not installed in this environment (/opt/pw-browsers holds .links, chromium, chromium-1194, chromium_headless_shell-1194, ffmpeg-1011). Its compatibility tests exist and were skipped, not passed."
+    },
+    {
+      "id": "COMP-WEBKIT",
+      "area": "Compatibility",
+      "title": "Forms work in webkit",
+      "status": "NOT VERIFIED",
+      "detail": "webkit is not installed in this environment (/opt/pw-browsers holds .links, chromium, chromium-1194, chromium_headless_shell-1194, ffmpeg-1011). Its compatibility tests exist and were skipped, not passed."
+    },
+    {
+      "id": "COMP-CHROMIUM",
+      "area": "Compatibility",
+      "title": "Forms work in Chromium",
+      "status": "PASS",
+      "detail": "Browsers configured; executed in: Chromium."
+    },
+    {
+      "id": "HUM-001",
+      "area": "Human verification",
+      "title": "Checks only a person can make become tasks with a reason, steps and expected result",
+      "status": "PASS",
+      "detail": "107 tasks: functional, multiStep, workflow, accessibility, security, usability, dataIntegrity"
+    },
+    {
+      "id": "HUM-002",
+      "area": "Human verification",
+      "title": "A verdict is recorded with evidence and survives regeneration",
+      "status": "PASS",
+      "detail": "\"Book leave: read and complete with a screen reader\" → passed with 1 evidence file; a failure without a comment was refused"
+    },
+    {
+      "id": "IMP-001",
+      "area": "Manual import",
+      "title": "CSV, JSON, Excel and structured text import",
+      "status": "PASS",
+      "detail": "csv: 3, json: 1, xlsx: 2, text: 2"
+    },
+    {
+      "id": "IMP-002",
+      "area": "Manual import",
+      "title": "Each imported test is routed to automation or to human verification, with the reason",
+      "status": "PASS",
+      "detail": "4 automatable (Simple form accepts a name; Search reflects the query; Checkout page opens; Profile page opens), 4 to human verification"
+    },
+    {
+      "id": "IMP-003",
+      "area": "Manual import",
+      "title": "Imported automatable tests execute and pass against the lab",
+      "status": "PASS",
+      "detail": "4 of 4 passed"
+    },
+    {
+      "id": "REPO-001",
+      "area": "Repository",
+      "title": "Tests can be duplicated, edited, and compared across versions",
+      "status": "PASS",
+      "detail": "2 versions; difference: Name: \"Feedback: renders with its fields and an enabled submit control\" → \"Feedback: renders with its fields and an enabled submit control (edited)\""
+    },
+    {
+      "id": "REPO-002",
+      "area": "Repository",
+      "title": "Disabled tests leave \"run all\", and come back when re-activated",
+      "status": "PASS",
+      "detail": "1569 → 1567"
+    },
+    {
+      "id": "AI-003",
+      "area": "AI dependency",
+      "title": "Nothing in the whole flow called a hosted model",
+      "status": "PASS",
+      "detail": "0 AI request record(s), 0 to a hosted provider"
+    }
+  ],
+  "measured": {
+    "discovery": {
+      "pages": 22,
+      "forms": 21,
+      "fields": 71,
+      "endpoints": 0,
+      "constraints": 66
+    },
+    "generation": {
+      "total": 1542,
+      "ms": 5866,
+      "byCategory": {
+        "smoke": 21,
+        "functional": 27,
+        "negative": 136,
+        "validation": 49,
+        "equivalence": 79,
+        "inputValidation": 356,
+        "reliability": 57,
+        "errorHandling": 58,
+        "recovery": 19,
+        "stateTransition": 56,
+        "security": 44,
+        "accessibility": 130,
+        "api": 37,
+        "performance": 42,
+        "responsive": 63,
+        "compatibility": 60,
+        "visual": 62,
+        "exploratory": 65,
+        "boundary": 162,
+        "crossField": 3,
+        "dynamic": 12,
+        "multiStep": 4
+      },
+      "gaps": 135,
+      "humanTasks": 106,
+      "findings": 21
+    },
+    "failures": {
+      "total": 18,
+      "unexplained": 0,
+      "detected": 14,
+      "declared": 14
+    }
+  }
+}

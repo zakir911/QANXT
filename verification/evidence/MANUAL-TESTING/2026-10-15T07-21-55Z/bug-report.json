@@ -1,0 +1,2294 @@
+{
+  "run": {
+    "id": "a8a0e9b1-1816-4743-a2ea-5a2584539172",
+    "name": "Verification — run all",
+    "project": "Golden form lab",
+    "applications": [
+      {
+        "name": "Golden Form Lab",
+        "baseUrl": "http://127.0.0.1:4370"
+      }
+    ],
+    "trigger": "Manual",
+    "browser": "Chromium",
+    "browserVersion": "141.0.7390.37",
+    "startedAt": "2026-10-15T07:24:32.865073+00:00",
+    "completedAt": "2026-10-15T07:43:34.303973+00:00",
+    "durationMs": 1141438,
+    "status": "Failed",
+    "total": 1542,
+    "passed": 1484,
+    "failed": 18,
+    "skipped": 40,
+    "blocked": 0
+  },
+  "bugs": [
+    {
+      "key": "BUG-01",
+      "defectId": "0263fefb-0893-450a-843b-4534000bfa2e",
+      "defectReference": "DEF-0005",
+      "defectStatus": "Proposed",
+      "title": "Make a payment: lacks an element it should have",
+      "severity": "Critical",
+      "priority": "High",
+      "category": "Security",
+      "classification": "Application defect",
+      "confidence": 70,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/payment",
+      "form": "Make a payment",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:28:32.38174+00:00",
+      "occurrences": 1,
+      "summary": "Found by TC-1027 (Make a payment: carries an anti-forgery token), which fails at step 2: Confirm an anti-forgery token is present.",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Make a payment",
+          "url": "http://127.0.0.1:4370/payment",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Confirm an anti-forgery token is present",
+          "status": "failed",
+          "error": "Expected the element to exist on the page, but it does not.",
+          "isCheck": true
+        }
+      ],
+      "expected": "A hidden anti-forgery field is present in the form.",
+      "actual": "Expected the element to exist on the page, but it does not.",
+      "failingStep": {
+        "order": 2,
+        "description": "Confirm an anti-forgery token is present",
+        "status": "failed",
+        "error": "Expected the element to exist on the page, but it does not.",
+        "isCheck": true
+      },
+      "whereToLook": "The form carries no anti-forgery token. Add a per-session token as a hidden field and verify it on the server (CWE-352). (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [],
+      "console": [],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "29bd954e-88e4-407d-97bb-fe192916c153",
+          "kind": "screenshot",
+          "fileName": "step-2-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 34229,
+          "caption": "The page when step 2 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "6bc8fd54-074a-48ee-9b49-e6a7b27b54a3",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 739604,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "e42beb7c-391e-4613-88b6-ed92c64cfee9",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 80417,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "cd8b1268-9ada-43ec-8224-5ae5620924fa",
+          "kind": "domsnapshot",
+          "fileName": "step-2-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 5797,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "175d0417-97ff-4c69-967f-9c04bb13997f",
+          "kind": "accessibilitytree",
+          "fileName": "step-2-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 1237,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-1027",
+          "name": "Make a payment: carries an anti-forgery token",
+          "technique": "anti-forgery-token",
+          "actual": "Expected the element to exist on the page, but it does not.",
+          "executionId": "6107925f-d65a-4aa4-b62b-9103175b398e"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-1027 in QA NXT — open this run and choose Run failed, or run the test on its own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "6107925f-d65a-4aa4-b62b-9103175b398e"
+    },
+    {
+      "key": "BUG-02",
+      "defectId": "4b7b581e-1ed4-4cf2-809b-5221ba7bdf93",
+      "defectReference": "DEF-0007",
+      "defectStatus": "Proposed",
+      "title": "Search: writes input from q back into the page as markup",
+      "severity": "Critical",
+      "priority": "High",
+      "category": "Security",
+      "classification": "Application defect",
+      "confidence": 70,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/search",
+      "form": "Search",
+      "field": "q",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:28:51.142606+00:00",
+      "occurrences": 1,
+      "summary": "Found by TC-1251 (Search: does not reflect markup typed into Search for), which fails at step 5: Confirm the input was not written back as markup.",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Search",
+          "url": "http://127.0.0.1:4370/search",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Enter a 45-character value in Search for",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Choose \"All\" in Category",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Press \"Search\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 5,
+          "description": "Confirm the input was not written back as markup",
+          "status": "failed",
+          "error": "Input was written back into the page as live markup: 1 <qanxt-probe-0a86ea43> element(s) exist. The application does not encode what it reflects.",
+          "isCheck": true
+        },
+        {
+          "order": 6,
+          "description": "Confirm the application handled it without a server error or leaked detail",
+          "status": "not reached",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "q": "<qanxt-probe-0a86ea43></qanxt-probe-0a86ea43>",
+        "category": "All"
+      },
+      "expected": "The marker element does not exist in the resulting page.",
+      "actual": "Input was written back into the page as live markup: 1 <qanxt-probe-0a86ea43> element(s) exist. The application does not encode what it reflects.",
+      "failingStep": {
+        "order": 5,
+        "description": "Confirm the input was not written back as markup",
+        "status": "failed",
+        "error": "Input was written back into the page as live markup: 1 <qanxt-probe-0a86ea43> element(s) exist. The application does not encode what it reflects.",
+        "isCheck": true
+      },
+      "whereToLook": "Input from \"q\" is written into the page as live HTML (reflected cross-site scripting, CWE-79). Encode output in the template, or set textContent rather than innerHTML. (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:4370/search/results?q=%3Cqanxt-probe-0a86ea43%3E%3C%2Fqanxt-probe-0a86ea43%3E&category=All",
+          "statusCode": 200,
+          "durationMs": 14,
+          "requestHeaders": "referer: http://127.0.0.1:4370/search\nupgrade-insecure-requests: 1"
+        }
+      ],
+      "curl": "curl -i -X GET 'http://127.0.0.1:4370/search/results?q=%3Cqanxt-probe-0a86ea43%3E%3C%2Fqanxt-probe-0a86ea43%3E&category=All'",
+      "console": [],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "b463c904-65a4-4fe6-a5bb-6fde38732098",
+          "kind": "screenshot",
+          "fileName": "step-5-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 24399,
+          "caption": "The page when step 5 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "6f57fbcf-c62b-41c9-97b4-3bd42db54d69",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 97845,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "25e799b1-bd8a-4b47-848e-229175967aba",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 115391,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "a22761ee-d836-4173-b9dc-8fc6607a5ca6",
+          "kind": "domsnapshot",
+          "fileName": "step-5-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 3810,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "6e750eb0-74ac-4c73-928b-c5c815d136a2",
+          "kind": "accessibilitytree",
+          "fileName": "step-5-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 446,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-1251",
+          "name": "Search: does not reflect markup typed into Search for",
+          "field": "q",
+          "technique": "markup-reflection",
+          "actual": "Input was written back into the page as live markup: 1 <qanxt-probe-0a86ea43> element(s) exist. The application does not encode what it reflects.",
+          "testData": {
+            "q": "<qanxt-probe-0a86ea43></qanxt-probe-0a86ea43>",
+            "category": "All"
+          },
+          "executionId": "24f50c59-c6ce-4d08-8253-2ffb95b2bb3b"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-1251 in QA NXT — open this run and choose Run failed, or run the test on its own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "24f50c59-c6ce-4d08-8253-2ffb95b2bb3b"
+    },
+    {
+      "key": "BUG-03",
+      "defectId": "9191bc9d-9f26-4954-9c17-7f792034bc81",
+      "defectReference": "DEF-0008",
+      "defectStatus": "Proposed",
+      "title": "Validation rules: accepts an invalid age (below its minimum)",
+      "severity": "Major",
+      "priority": "High",
+      "category": "Boundary values",
+      "classification": "Application defect",
+      "confidence": 70,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/validation",
+      "form": "Validation rules",
+      "field": "age",
+      "endpoint": "POST /validation",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:29:36.751182+00:00",
+      "occurrences": 3,
+      "summary": "Found by TC-1461 (Validation rules: refuses 17 (one step below the minimum of 18) in Age), which fails at step 9: Confirm 17 (one step below the minimum of 18) was refused. 3 tests in this run fail the same way (TC-1461, TC-1464, TC-1465).",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Validation rules",
+          "url": "http://127.0.0.1:4370/validation",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Enter \"abc\" in Username",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Enter \"17\" in Age",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Enter \"5000.00\" in Amount",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 5,
+          "description": "Enter \"50\" in Quantity",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 6,
+          "description": "Enter \"https://example.test/qa\" in Website",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 7,
+          "description": "Enter \"0120120\" in Phone",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 8,
+          "description": "Press \"Validate\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 9,
+          "description": "Confirm 17 (one step below the minimum of 18) was refused",
+          "status": "failed",
+          "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference VAL-0122.\" (now at http://127.0.0.1:4370/validation/done?ref=VAL-0122).",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "age": "17",
+        "phone": "0120120",
+        "amount": "5000.00",
+        "website": "https://example.test/qa",
+        "quantity": "50",
+        "username": "abc"
+      },
+      "expected": "The form is not accepted and Age is reported as invalid.",
+      "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference VAL-0122.\" (now at http://127.0.0.1:4370/validation/done?ref=VAL-0122).",
+      "failingStep": {
+        "order": 9,
+        "description": "Confirm 17 (one step below the minimum of 18) was refused",
+        "status": "failed",
+        "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference VAL-0122.\" (now at http://127.0.0.1:4370/validation/done?ref=VAL-0122).",
+        "isCheck": true
+      },
+      "whereToLook": "The application accepted a value it should refuse for \"age\" (technique: min-1). The page declares the rule, so the browser would stop a normal user — but the server does not enforce it, and anything that skips the page's checks gets through. Add the same validation to the server-side handler and return an error tied to \"age\". (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [
+        {
+          "method": "POST",
+          "url": "http://127.0.0.1:4370/validation",
+          "statusCode": 303,
+          "durationMs": 64,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/validation\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1",
+          "request": "_csrf=***REDACTED***&username=abc&age=17&amount=5000.00&quantity=50&website=https%3A%2F%2Fexample.test%2Fqa&phone=0120120"
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:4370/validation/done?ref=VAL-0122",
+          "statusCode": 200,
+          "durationMs": 110,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/validation\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1"
+        }
+      ],
+      "curl": "curl -i -X POST 'http://127.0.0.1:4370/validation' \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  --data-raw '_csrf=***REDACTED***&username=abc&age=17&amount=5000.00&quantity=50&website=https%3A%2F%2Fexample.test%2Fqa&phone=0120120'",
+      "console": [],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "50b71053-7614-486e-8c9f-f5fabadc849c",
+          "kind": "screenshot",
+          "fileName": "step-9-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 26370,
+          "caption": "The page when step 9 failed"
+        },
+        {
+          "id": "2cc93187-d949-4274-b205-ceae5e03423c",
+          "kind": "screenshot",
+          "fileName": "step-9-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 26587,
+          "caption": "TC-1464: The page when step 9 failed"
+        },
+        {
+          "id": "cabf71ee-088c-408e-89c4-d140701e0093",
+          "kind": "screenshot",
+          "fileName": "step-9-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 26488,
+          "caption": "TC-1465: The page when step 9 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "2d848e90-812c-4c51-9be7-4dccab2159c7",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 234955,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "137f0aba-cbbe-4f61-92ca-a73ed5fcb85c",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 269388,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "6859d34c-2d3a-4006-9cfc-f9e0d416ffec",
+          "kind": "domsnapshot",
+          "fileName": "step-9-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 3820,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "34dc185c-abe9-4c7c-957d-46f56c88b229",
+          "kind": "accessibilitytree",
+          "fileName": "step-9-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 425,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-1461",
+          "name": "Validation rules: refuses 17 (one step below the minimum of 18) in Age",
+          "field": "age",
+          "technique": "min-1",
+          "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference VAL-0122.\" (now at http://127.0.0.1:4370/validation/done?ref=VAL-0122).",
+          "testData": {
+            "age": "17",
+            "phone": "0120120",
+            "amount": "5000.00",
+            "website": "https://example.test/qa",
+            "quantity": "50",
+            "username": "abc"
+          },
+          "executionId": "8aa89e99-0a67-4986-8085-840aff2c57e1"
+        },
+        {
+          "reference": "TC-1464",
+          "name": "Validation rules: refuses zero in Age",
+          "field": "age",
+          "technique": "zero",
+          "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference VAL-0123.\" (now at http://127.0.0.1:4370/validation/done?ref=VAL-0123).",
+          "testData": {
+            "age": "0",
+            "phone": "0120120",
+            "amount": "5000.00",
+            "website": "https://example.test/qa",
+            "quantity": "50",
+            "username": "abc"
+          },
+          "executionId": "ea9ae39f-303e-4ee0-bbf8-cd2c19d53831"
+        },
+        {
+          "reference": "TC-1465",
+          "name": "Validation rules: refuses a negative value in Age",
+          "field": "age",
+          "technique": "negative",
+          "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference VAL-0124.\" (now at http://127.0.0.1:4370/validation/done?ref=VAL-0124).",
+          "testData": {
+            "age": "-1",
+            "phone": "0120120",
+            "amount": "5000.00",
+            "website": "https://example.test/qa",
+            "quantity": "50",
+            "username": "abc"
+          },
+          "executionId": "d42a750e-bcb3-411d-be7e-e7b605597b8c"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-1461, TC-1464, TC-1465 in QA NXT — open this run and choose Run failed, or run the tests on their own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "8aa89e99-0a67-4986-8085-840aff2c57e1"
+    },
+    {
+      "key": "BUG-04",
+      "defectId": "b1526430-1af9-4504-a56e-5de7b91acaf5",
+      "defectReference": "DEF-0014",
+      "defectStatus": "Proposed",
+      "title": "Contact support: POST /error-handling fails with HTTP 500",
+      "severity": "Major",
+      "priority": "Low",
+      "category": "Input handling",
+      "classification": "Application defect",
+      "confidence": 90,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/error-handling",
+      "form": "Contact support",
+      "field": "message",
+      "endpoint": "POST /error-handling",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:40:12.219158+00:00",
+      "occurrences": 2,
+      "summary": "Found by TC-0734 (Contact support: handles the word null in Message), which fails at step 5: Confirm the application handled it without a server error or leaked detail. 2 tests in this run fail the same way (TC-0734, TC-0737).",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Contact support",
+          "url": "http://127.0.0.1:4370/error-handling",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Enter \"QA NXT test\" in Subject",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Enter \"null\" in Message",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Press \"Send\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 5,
+          "description": "Confirm the application handled it without a server error or leaked detail",
+          "status": "failed",
+          "error": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/error-handling → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/.",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "message": "null",
+        "subject": "QA NXT test"
+      },
+      "expected": "The application accepts or refuses the value cleanly. A server error, an uncaught script error or internal detail on the page is a failure.",
+      "actual": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/error-handling → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/.",
+      "failingStep": {
+        "order": 5,
+        "description": "Confirm the application handled it without a server error or leaked detail",
+        "status": "failed",
+        "error": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/error-handling → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/.",
+        "isCheck": true
+      },
+      "pageText": "500 Internal Server Error\nTypeError: Cannot read properties of null (reading 'trim')\nat sendSupportMessage (/srv/form-lab/handlers.js:42:17)\nat processTicksAndRejections (node:internal/process/task_queues:95:5)",
+      "whereToLook": "The server failed: POST /error-handling returned HTTP 500. Start in the server handler for that route. The request that triggered it, with the values sent, is under API exchange, and the curl command replays it without a browser. The page also showed internal error detail to the user — catch the error and show a generic message as well as fixing the cause. (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [
+        {
+          "method": "POST",
+          "url": "http://127.0.0.1:4370/error-handling",
+          "statusCode": 500,
+          "durationMs": 35,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/error-handling\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1",
+          "request": "_csrf=***REDACTED***&subject=QA+NXT+test&message=null"
+        }
+      ],
+      "curl": "curl -i -X POST 'http://127.0.0.1:4370/error-handling' \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  --data-raw '_csrf=***REDACTED***&subject=QA+NXT+test&message=null'",
+      "console": [
+        {
+          "level": "error",
+          "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+          "url": "http://127.0.0.1:4370/error-handling"
+        }
+      ],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "3000a909-f49f-40f8-8319-1bd483402ff5",
+          "kind": "screenshot",
+          "fileName": "step-5-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 26315,
+          "caption": "The page when step 5 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "ab3c3292-5250-4056-ab2c-2b6b44cda79a",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 102693,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "78d37a84-9101-49d6-be51-facaefa6c439",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 130634,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "5b13f170-3787-4372-a9db-13b6ff858e6f",
+          "kind": "domsnapshot",
+          "fileName": "step-5-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 339,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "ed076ced-028e-49a2-91e6-0baecef8aa65",
+          "kind": "accessibilitytree",
+          "fileName": "step-5-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 346,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-0734",
+          "name": "Contact support: handles the word null in Message",
+          "field": "message",
+          "technique": "null-like",
+          "actual": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/error-handling → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/.",
+          "testData": {
+            "message": "null",
+            "subject": "QA NXT test"
+          },
+          "executionId": "03f2aa78-f2c9-401c-9104-42f8628728ab"
+        },
+        {
+          "reference": "TC-0737",
+          "name": "Contact support: handles 5000 characters in Message",
+          "field": "message",
+          "technique": "very-long",
+          "actual": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/error-handling → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/.",
+          "testData": {
+            "message": "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+            "subject": "QA NXT test"
+          },
+          "executionId": "356238b7-545a-45cb-badf-efe14e7a0e2a"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-0734, TC-0737 in QA NXT — open this run and choose Run failed, or run the tests on their own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "03f2aa78-f2c9-401c-9104-42f8628728ab"
+    },
+    {
+      "key": "BUG-05",
+      "defectId": "1a2f433e-d9c8-4bcd-a1e1-f485891a86d9",
+      "defectReference": "DEF-0010",
+      "defectStatus": "Proposed",
+      "title": "Delivery address: overflows a small screen",
+      "severity": "Major",
+      "priority": "Medium",
+      "category": "Responsive",
+      "classification": "Application defect",
+      "confidence": 70,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/address",
+      "form": "Delivery address",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "768x1024",
+      "firstSeenAt": "2026-10-15T07:30:30.673337+00:00",
+      "occurrences": 2,
+      "summary": "Found by TC-0175 (Delivery address: fits a tablet screen (768x1024)), which fails at step 3: Confirm nothing scrolls sideways. 2 tests in this run fail the same way (TC-0175, TC-0176).",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Use a tablet screen (768x1024)",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Open Delivery address",
+          "url": "http://127.0.0.1:4370/address",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Confirm nothing scrolls sideways",
+          "status": "failed",
+          "error": "The page can be scrolled sideways by 154px in a 768px-wide window; the element reaching furthest is form#address, whose right edge is at 922px.",
+          "isCheck": true
+        },
+        {
+          "order": 4,
+          "description": "Confirm Address line 1 is shown",
+          "status": "not reached",
+          "isCheck": true
+        },
+        {
+          "order": 5,
+          "description": "Confirm Address line 2 is shown",
+          "status": "not reached",
+          "isCheck": true
+        },
+        {
+          "order": 6,
+          "description": "Confirm Town or city is shown",
+          "status": "not reached",
+          "isCheck": true
+        },
+        {
+          "order": 7,
+          "description": "Confirm Postcode is shown",
+          "status": "not reached",
+          "isCheck": true
+        },
+        {
+          "order": 8,
+          "description": "Confirm Country is shown",
+          "status": "not reached",
+          "isCheck": true
+        },
+        {
+          "order": 9,
+          "description": "Confirm \"Save address\" is shown",
+          "status": "not reached",
+          "isCheck": true
+        }
+      ],
+      "expected": "Nothing overflows and every field is shown.",
+      "actual": "The page can be scrolled sideways by 154px in a 768px-wide window; the element reaching furthest is form#address, whose right edge is at 922px.",
+      "failingStep": {
+        "order": 3,
+        "description": "Confirm nothing scrolls sideways",
+        "status": "failed",
+        "error": "The page can be scrolled sideways by 154px in a 768px-wide window; the element reaching furthest is form#address, whose right edge is at 922px.",
+        "isCheck": true
+      },
+      "whereToLook": "An element is wider than the viewport. Look for fixed widths (width or min-width in px), and images or tables without max-width: 100%. (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [],
+      "console": [],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "0ea07699-3166-4e73-9e10-3519fe00a42b",
+          "kind": "screenshot",
+          "fileName": "step-3-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 35365,
+          "caption": "The page when step 3 failed"
+        },
+        {
+          "id": "56056e99-988c-4aaa-b831-444d1f17012f",
+          "kind": "screenshot",
+          "fileName": "step-3-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 34604,
+          "caption": "TC-0176: The page when step 3 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "9b193876-aec5-4654-80fa-af3b446c18bb",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 13426,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "cd0b4ee4-a955-4d25-b7af-c8fb49454b4d",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 44048,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "180f897b-4067-4b11-8dc8-cabbada644bf",
+          "kind": "domsnapshot",
+          "fileName": "step-3-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 5878,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "911471df-a50e-4fa0-acf6-44a246b12211",
+          "kind": "accessibilitytree",
+          "fileName": "step-3-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 1150,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-0175",
+          "name": "Delivery address: fits a tablet screen (768x1024)",
+          "technique": "viewport:tablet",
+          "actual": "The page can be scrolled sideways by 154px in a 768px-wide window; the element reaching furthest is form#address, whose right edge is at 922px.",
+          "executionId": "5309dc2d-9bc3-4238-98f9-808cb7cbe04a"
+        },
+        {
+          "reference": "TC-0176",
+          "name": "Delivery address: fits a mobile screen (390x844)",
+          "technique": "viewport:mobile",
+          "actual": "The page can be scrolled sideways by 532px in a 390px-wide window; the element reaching furthest is form#address, whose right edge is at 922px.",
+          "executionId": "32d2625c-1735-4537-8110-f6b3aa1ff04c"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-0175, TC-0176 in QA NXT — open this run and choose Run failed, or run the tests on their own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "5309dc2d-9bc3-4238-98f9-808cb7cbe04a"
+    },
+    {
+      "key": "BUG-06",
+      "defectId": "32fe11b9-cebb-47c6-a5d5-60117198158f",
+      "defectReference": "DEF-0001",
+      "defectStatus": "Proposed",
+      "title": "Book leave: accepts an invalid endDate (a cross-field rule)",
+      "severity": "Major",
+      "priority": "High",
+      "category": "Cross-field rules",
+      "classification": "Application defect",
+      "confidence": 70,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/date-form",
+      "form": "Book leave",
+      "field": "endDate",
+      "endpoint": "POST /date-form",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:26:18.705829+00:00",
+      "occurrences": 1,
+      "summary": "Found by TC-0464 (Book leave: refuses Last day before First day), which fails at step 7: Confirm the reversed range was refused.",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Book leave",
+          "url": "http://127.0.0.1:4370/date-form",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Enter \"2025-07-01\" in First day",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Enter \"2023-09-01\" in Last day",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Enter \"09:30\" in Start time",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 5,
+          "description": "Enter \"2026-06-15T09:30\" in Remind me at",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 6,
+          "description": "Press \"Book\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 7,
+          "description": "Confirm the reversed range was refused",
+          "status": "failed",
+          "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference DAT-0052.\" (now at http://127.0.0.1:4370/date-form/done?ref=DAT-0052).",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "endDate": "2023-09-01",
+        "reminder": "2026-06-15T09:30",
+        "startDate": "2025-07-01",
+        "startTime": "09:30"
+      },
+      "expected": "The form is not accepted and the order is reported.",
+      "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference DAT-0052.\" (now at http://127.0.0.1:4370/date-form/done?ref=DAT-0052).",
+      "failingStep": {
+        "order": 7,
+        "description": "Confirm the reversed range was refused",
+        "status": "failed",
+        "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference DAT-0052.\" (now at http://127.0.0.1:4370/date-form/done?ref=DAT-0052).",
+        "isCheck": true
+      },
+      "whereToLook": "The application accepted a combination of values it should refuse. The rule between these fields is not enforced on the server: add the check to the submit handler and return an error attached to the second field. (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [
+        {
+          "method": "POST",
+          "url": "http://127.0.0.1:4370/date-form",
+          "statusCode": 303,
+          "durationMs": 4,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/date-form\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1",
+          "request": "_csrf=***REDACTED***&startDate=2025-07-01&endDate=2023-09-01&startTime=09%3A30&reminder=2026-06-15T09%3A30"
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:4370/date-form/done?ref=DAT-0052",
+          "statusCode": 200,
+          "durationMs": 2,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/date-form\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1"
+        }
+      ],
+      "curl": "curl -i -X POST 'http://127.0.0.1:4370/date-form' \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  --data-raw '_csrf=***REDACTED***&startDate=2025-07-01&endDate=2023-09-01&startTime=09%3A30&reminder=2026-06-15T09%3A30'",
+      "console": [],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "67d501a7-9e75-4cf4-ba5f-06e4013d9148",
+          "kind": "screenshot",
+          "fileName": "step-7-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 26605,
+          "caption": "The page when step 7 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "f235a7e6-4a9f-4d94-8c30-0f90d5ad40ab",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 183907,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "21051ce7-2fa6-4dc5-b1db-fecddf0f2e0c",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 173065,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "0ba8a195-c770-45ff-a5a7-06c06b3f4f25",
+          "kind": "domsnapshot",
+          "fileName": "step-7-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 3805,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "6ca0ac8e-d0a9-4142-b981-8fc90d4cf28c",
+          "kind": "accessibilitytree",
+          "fileName": "step-7-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 413,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-0464",
+          "name": "Book leave: refuses Last day before First day",
+          "field": "endDate",
+          "technique": "ordered:startDate:endDate:reversed",
+          "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference DAT-0052.\" (now at http://127.0.0.1:4370/date-form/done?ref=DAT-0052).",
+          "testData": {
+            "endDate": "2023-09-01",
+            "reminder": "2026-06-15T09:30",
+            "startDate": "2025-07-01",
+            "startTime": "09:30"
+          },
+          "executionId": "b07d6c19-9f73-4f72-a515-c73d77028860"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-0464 in QA NXT — open this run and choose Run failed, or run the test on its own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "b07d6c19-9f73-4f72-a515-c73d77028860"
+    },
+    {
+      "key": "BUG-07",
+      "defectId": "d0055046-00d2-4247-8a5b-c3f932a866ff",
+      "defectReference": "DEF-0006",
+      "defectStatus": "Proposed",
+      "title": "Create an account: accepts an invalid confirmPassword (a cross-field rule)",
+      "severity": "Major",
+      "priority": "High",
+      "category": "Cross-field rules",
+      "classification": "Application defect",
+      "confidence": 70,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/registration",
+      "form": "Create an account",
+      "field": "confirmPassword",
+      "endpoint": "POST /registration",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:28:44.060087+00:00",
+      "occurrences": 1,
+      "summary": "Found by TC-1187 (Create an account: refuses Confirm password that does not match Password), which fails at step 8: Confirm the mismatch was refused.",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Create an account",
+          "url": "http://127.0.0.1:4370/registration",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Enter \"QA NXT test\" in Full name",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Enter \"qa.nxt@example.test\" in Email address",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Enter \"QaNxt-Passw0rd!\" in Password",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 5,
+          "description": "Enter \"Second-Passw0rd#\" in Confirm password",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 6,
+          "description": "Tick I accept the terms and conditions",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 7,
+          "description": "Press \"Create account\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 8,
+          "description": "Confirm the mismatch was refused",
+          "status": "failed",
+          "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference REG-0100.\" (now at http://127.0.0.1:4370/registration/done?ref=REG-0100).",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "email": "qa.nxt@example.test",
+        "terms": "on",
+        "fullName": "QA NXT test",
+        "password": "QaNxt-Passw0rd!",
+        "confirmPassword": "Second-Passw0rd#"
+      },
+      "expected": "The form is not accepted and the mismatch is reported.",
+      "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference REG-0100.\" (now at http://127.0.0.1:4370/registration/done?ref=REG-0100).",
+      "failingStep": {
+        "order": 8,
+        "description": "Confirm the mismatch was refused",
+        "status": "failed",
+        "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference REG-0100.\" (now at http://127.0.0.1:4370/registration/done?ref=REG-0100).",
+        "isCheck": true
+      },
+      "whereToLook": "The application accepted a combination of values it should refuse. The rule between these fields is not enforced on the server: add the check to the submit handler and return an error attached to the second field. (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:4370/registration/done?ref=REG-0100",
+          "statusCode": 200,
+          "durationMs": 0,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/registration\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1"
+        },
+        {
+          "method": "POST",
+          "url": "http://127.0.0.1:4370/registration",
+          "statusCode": 303,
+          "durationMs": 23,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/registration\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1",
+          "request": "_csrf=***REDACTED***&fullName=QA+NXT+test&email=qa.nxt%40example.test&password=***REDACTED***&confirmPassword=Second-Passw0rd%23&terms=on"
+        }
+      ],
+      "curl": "curl -i -X POST 'http://127.0.0.1:4370/registration' \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  --data-raw '_csrf=***REDACTED***&fullName=QA+NXT+test&email=qa.nxt%40example.test&password=***REDACTED***&confirmPassword=Second-Passw0rd%23&terms=on'",
+      "console": [],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "604cd24d-8647-4da7-895e-1719531f6df1",
+          "kind": "screenshot",
+          "fileName": "step-8-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 27427,
+          "caption": "The page when step 8 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "dd04026f-3cda-4f86-acdc-078b20587592",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 194154,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "272c1147-43af-44c5-b6de-b6667744c957",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 249969,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "841bb919-f909-47a7-a527-484808388930",
+          "kind": "domsnapshot",
+          "fileName": "step-8-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 3828,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "a56150ac-fb2d-403b-9045-1fa626ec30dd",
+          "kind": "accessibilitytree",
+          "fileName": "step-8-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 427,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-1187",
+          "name": "Create an account: refuses Confirm password that does not match Password",
+          "field": "confirmPassword",
+          "technique": "equals:password:confirmPassword",
+          "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference REG-0100.\" (now at http://127.0.0.1:4370/registration/done?ref=REG-0100).",
+          "testData": {
+            "email": "qa.nxt@example.test",
+            "terms": "on",
+            "fullName": "QA NXT test",
+            "password": "QaNxt-Passw0rd!",
+            "confirmPassword": "Second-Passw0rd#"
+          },
+          "executionId": "3f543a06-52c8-4068-ae1c-070ca5e41847"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-1187 in QA NXT — open this run and choose Run failed, or run the test on its own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "3f543a06-52c8-4068-ae1c-070ca5e41847"
+    },
+    {
+      "key": "BUG-08",
+      "defectId": "3c24c2e2-8571-4aa8-b53c-d8ed304257ce",
+      "defectReference": "DEF-0011",
+      "defectStatus": "Proposed",
+      "title": "Edit profile: accepts an invalid displayName (whitespace only)",
+      "severity": "Major",
+      "priority": "Medium",
+      "category": "Negative",
+      "classification": "Application defect",
+      "confidence": 70,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/profile",
+      "form": "Edit profile",
+      "field": "displayName",
+      "endpoint": "POST /profile",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:34:15.021101+00:00",
+      "occurrences": 1,
+      "summary": "Found by TC-1058 (Edit profile: refuses Display name containing only spaces), which fails at step 8: Confirm the whitespace-only value was refused.",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Edit profile",
+          "url": "http://127.0.0.1:4370/profile",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Enter 3 space(s) in Display name",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Enter \"qa.nxt@example.test\" in Email",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Enter \"QA NXT test notes\" in Bio",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 5,
+          "description": "Enter \"https://example.test/qa\" in Website",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 6,
+          "description": "Enter \"0120120\" in Phone",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 7,
+          "description": "Press \"Save profile\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 8,
+          "description": "Confirm the whitespace-only value was refused",
+          "status": "failed",
+          "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference PRO-0258.\" (now at http://127.0.0.1:4370/profile/done?ref=PRO-0258).",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "bio": "QA NXT test notes",
+        "email": "qa.nxt@example.test",
+        "phone": "0120120",
+        "website": "https://example.test/qa",
+        "displayName": "   "
+      },
+      "expected": "The form is not accepted; Display name is treated as empty.",
+      "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference PRO-0258.\" (now at http://127.0.0.1:4370/profile/done?ref=PRO-0258).",
+      "failingStep": {
+        "order": 8,
+        "description": "Confirm the whitespace-only value was refused",
+        "status": "failed",
+        "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference PRO-0258.\" (now at http://127.0.0.1:4370/profile/done?ref=PRO-0258).",
+        "isCheck": true
+      },
+      "whereToLook": "The application accepted a value it should refuse for \"displayName\" (technique: whitespace-only). The page declares the rule, so the browser would stop a normal user — but the server does not enforce it, and anything that skips the page's checks gets through. Add the same validation to the server-side handler and return an error tied to \"displayName\". (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [
+        {
+          "method": "POST",
+          "url": "http://127.0.0.1:4370/profile",
+          "statusCode": 303,
+          "durationMs": 40,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/profile\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1",
+          "request": "_csrf=***REDACTED***&displayName=+++&email=qa.nxt%40example.test&bio=QA+NXT+test+notes&website=https%3A%2F%2Fexample.test%2Fqa&phone=0120120"
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:4370/profile/done?ref=PRO-0258",
+          "statusCode": 200,
+          "durationMs": 1,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/profile\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1"
+        }
+      ],
+      "curl": "curl -i -X POST 'http://127.0.0.1:4370/profile' \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  --data-raw '_csrf=***REDACTED***&displayName=+++&email=qa.nxt%40example.test&bio=QA+NXT+test+notes&website=https%3A%2F%2Fexample.test%2Fqa&phone=0120120'",
+      "console": [],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "0b0a176d-b2d0-4f19-a190-48d66dd0a98f",
+          "kind": "screenshot",
+          "fileName": "step-8-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 26616,
+          "caption": "The page when step 8 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "a2adb812-649d-4583-997f-476cf2414c0f",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 248083,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "efa42afd-e582-4294-a795-f117540bac60",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 298682,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "eef4bc91-6dee-426c-bdcf-33b7308061bf",
+          "kind": "domsnapshot",
+          "fileName": "step-8-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 3803,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "b24a972d-c22a-41da-985c-c30a1589d565",
+          "kind": "accessibilitytree",
+          "fileName": "step-8-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 417,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-1058",
+          "name": "Edit profile: refuses Display name containing only spaces",
+          "field": "displayName",
+          "technique": "whitespace-only",
+          "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference PRO-0258.\" (now at http://127.0.0.1:4370/profile/done?ref=PRO-0258).",
+          "testData": {
+            "bio": "QA NXT test notes",
+            "email": "qa.nxt@example.test",
+            "phone": "0120120",
+            "website": "https://example.test/qa",
+            "displayName": "   "
+          },
+          "executionId": "ccdf8dd5-5506-4686-81df-a9a8ae716815"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-1058 in QA NXT — open this run and choose Run failed, or run the test on its own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "ccdf8dd5-5506-4686-81df-a9a8ae716815"
+    },
+    {
+      "key": "BUG-09",
+      "defectId": "d0908e87-d274-4a37-95ae-11cad5e0db88",
+      "defectReference": "DEF-0009",
+      "defectStatus": "Proposed",
+      "title": "Feedback: does not tie the error to nickname",
+      "severity": "Major",
+      "priority": "Medium",
+      "category": "Accessibility",
+      "classification": "Application defect",
+      "confidence": 70,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/accessibility",
+      "form": "Feedback",
+      "field": "nickname",
+      "endpoint": "POST /accessibility",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:30:16.630512+00:00",
+      "occurrences": 1,
+      "summary": "Found by TC-0041 (Feedback: announces the error for Nickname with the field), which fails at step 4: Confirm the error is tied to Nickname.",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Feedback",
+          "url": "http://127.0.0.1:4370/accessibility",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Enter \"qa.nxt@example.test\" in Email",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Press \"Send feedback\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Confirm the error is tied to Nickname",
+          "status": "failed",
+          "error": "The field shows an error, but assistive technology would not announce it with the field: no aria-invalid, no error referenced by aria-describedby, message beside it: \"Enter nickname.\".",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "email": "qa.nxt@example.test"
+      },
+      "expected": "Nickname has aria-invalid and an aria-describedby (or browser validation) message.",
+      "actual": "The field shows an error, but assistive technology would not announce it with the field: no aria-invalid, no error referenced by aria-describedby, message beside it: \"Enter nickname.\".",
+      "failingStep": {
+        "order": 4,
+        "description": "Confirm the error is tied to Nickname",
+        "status": "failed",
+        "error": "The field shows an error, but assistive technology would not announce it with the field: no aria-invalid, no error referenced by aria-describedby, message beside it: \"Enter nickname.\".",
+        "isCheck": true
+      },
+      "whereToLook": "The error for \"nickname\" is shown but not tied to the field: set aria-invalid=\"true\" on it and reference the error's id from aria-describedby (WCAG 3.3.1, 4.1.2), so a screen reader announces it with the field. (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [
+        {
+          "method": "POST",
+          "url": "http://127.0.0.1:4370/accessibility",
+          "statusCode": 422,
+          "durationMs": 17,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/accessibility\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1",
+          "request": "_csrf=***REDACTED***&nickname=&email=qa.nxt%40example.test"
+        }
+      ],
+      "curl": "curl -i -X POST 'http://127.0.0.1:4370/accessibility' \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  --data-raw '_csrf=***REDACTED***&nickname=&email=qa.nxt%40example.test'",
+      "console": [
+        {
+          "level": "error",
+          "message": "Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)",
+          "url": "http://127.0.0.1:4370/accessibility"
+        }
+      ],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "4a2ebdd2-d6ab-49fc-953b-5742e4680436",
+          "kind": "screenshot",
+          "fileName": "step-4-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 36798,
+          "caption": "The page when step 4 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "009f4e58-1b7f-4c49-99ff-6cdbad0c3d22",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 363648,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "bb8bdfcd-c73b-4fd0-85f1-e2a2fa8135cc",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 198184,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "3879b2c0-afb6-4de0-96ad-99b39e93356e",
+          "kind": "domsnapshot",
+          "fileName": "step-4-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 4996,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "45a3b153-941e-4d27-b72c-685b320f251b",
+          "kind": "accessibilitytree",
+          "fileName": "step-4-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 734,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-0041",
+          "name": "Feedback: announces the error for Nickname with the field",
+          "field": "nickname",
+          "technique": "error-associated",
+          "actual": "The field shows an error, but assistive technology would not announce it with the field: no aria-invalid, no error referenced by aria-describedby, message beside it: \"Enter nickname.\".",
+          "testData": {
+            "email": "qa.nxt@example.test"
+          },
+          "executionId": "91d57259-d155-47be-a21f-2a5d375902b8"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-0041 in QA NXT — open this run and choose Run failed, or run the test on its own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "91d57259-d155-47be-a21f-2a5d375902b8"
+    },
+    {
+      "key": "BUG-10",
+      "defectId": "99cf5b6c-28f8-4d39-9a72-0b783887f140",
+      "defectReference": "DEF-0004",
+      "defectStatus": "Proposed",
+      "title": "Loan application: loses the value of a field",
+      "severity": "Major",
+      "priority": "High",
+      "category": "Multi-step forms",
+      "classification": "Application defect",
+      "confidence": 70,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/multi-step",
+      "form": "Loan application",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:28:01.726839+00:00",
+      "occurrences": 1,
+      "summary": "Found by TC-0916 (Loan application: keeps the first step's answers after going back), which fails at step 6: Confirm Applicant name still holds what was entered.",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Loan application",
+          "url": "http://127.0.0.1:4370/multi-step",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Enter \"QA NXT test\" in Applicant name",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Enter \"qa.nxt@example.test\" in Contact email",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Press \"Next\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 5,
+          "description": "Press \"Previous\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 6,
+          "description": "Confirm Applicant name still holds what was entered",
+          "status": "failed",
+          "error": "Expected the value \"QA NXT test\" but found \"\" (waited 15147ms).",
+          "isCheck": true
+        },
+        {
+          "order": 7,
+          "description": "Confirm Contact email still holds what was entered",
+          "status": "not reached",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "email": "qa.nxt@example.test",
+        "applicant": "QA NXT test"
+      },
+      "expected": "Every answer on the first step is still there.",
+      "actual": "Expected the value \"QA NXT test\" but found \"\" (waited 15147ms).",
+      "failingStep": {
+        "order": 6,
+        "description": "Confirm Applicant name still holds what was entered",
+        "status": "failed",
+        "error": "Expected the value \"QA NXT test\" but found \"\" (waited 15147ms).",
+        "isCheck": true
+      },
+      "whereToLook": "The value of the field was lost. For a multi-step form, check that each step's answers are kept when the user goes back. (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [],
+      "console": [],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "a0efcf59-afcd-4e0c-9053-d794eba7ca44",
+          "kind": "screenshot",
+          "fileName": "step-6-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 34383,
+          "caption": "The page when step 6 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "3331fd0a-1e70-4c4d-93dd-4ee5ffab80aa",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 375087,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "27c2f2a1-fa80-4111-af35-657fbbd232ab",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 243376,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "b594438a-1c5a-47ce-950b-89bff96e9eaf",
+          "kind": "domsnapshot",
+          "fileName": "step-6-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 8745,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "4695c063-dbc4-4bf0-91aa-7e2c9f66794f",
+          "kind": "accessibilitytree",
+          "fileName": "step-6-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 764,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-0916",
+          "name": "Loan application: keeps the first step's answers after going back",
+          "technique": "previous-keeps-answers",
+          "actual": "Expected the value \"QA NXT test\" but found \"\" (waited 15147ms).",
+          "testData": {
+            "email": "qa.nxt@example.test",
+            "applicant": "QA NXT test"
+          },
+          "executionId": "52090b1c-efd5-46fb-b01f-8a6ff53e15fd"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-0916 in QA NXT — open this run and choose Run failed, or run the test on its own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "52090b1c-efd5-46fb-b01f-8a6ff53e15fd"
+    },
+    {
+      "key": "BUG-11",
+      "defectId": "f5774b4d-801e-4733-a8a7-b7208e5e1a4d",
+      "defectReference": "DEF-0003",
+      "defectStatus": "Proposed",
+      "title": "Open an account: accepts an invalid companyName (a conditional requirement)",
+      "severity": "Major",
+      "priority": "High",
+      "category": "Conditional and dynamic fields",
+      "classification": "Application defect",
+      "confidence": 70,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/dynamic",
+      "form": "Open an account",
+      "field": "companyName",
+      "endpoint": "POST /dynamic",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:26:54.086477+00:00",
+      "occurrences": 1,
+      "summary": "Found by TC-0660 (Open an account: requires Company name once it is shown), which fails at step 5: Confirm the empty Company name was refused.",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Open an account",
+          "url": "http://127.0.0.1:4370/dynamic",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Choose \"Business\" in Account type",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Enter \"qa.nxt@example.test\" in Email address",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Press \"Open account\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 5,
+          "description": "Confirm the empty Company name was refused",
+          "status": "failed",
+          "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference DYN-0068.\" (now at http://127.0.0.1:4370/dynamic/done?ref=DYN-0068).",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "email": "qa.nxt@example.test",
+        "accountType": "Business"
+      },
+      "expected": "The form is not accepted while Company name is empty.",
+      "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference DYN-0068.\" (now at http://127.0.0.1:4370/dynamic/done?ref=DYN-0068).",
+      "failingStep": {
+        "order": 5,
+        "description": "Confirm the empty Company name was refused",
+        "status": "failed",
+        "error": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference DYN-0068.\" (now at http://127.0.0.1:4370/dynamic/done?ref=DYN-0068).",
+        "isCheck": true
+      },
+      "whereToLook": "\"companyName\" is shown and required on the page once its trigger is answered, but the server accepts the submission without it. Enforce the same conditional requirement on the server. (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [
+        {
+          "method": "POST",
+          "url": "http://127.0.0.1:4370/dynamic",
+          "statusCode": 303,
+          "durationMs": 10,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/dynamic\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1",
+          "request": "_csrf=***REDACTED***&accountType=Business&companyName=&referralCode=&email=qa.nxt%40example.test"
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:4370/dynamic/done?ref=DYN-0068",
+          "statusCode": 200,
+          "durationMs": 12,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/dynamic\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1"
+        }
+      ],
+      "curl": "curl -i -X POST 'http://127.0.0.1:4370/dynamic' \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  --data-raw '_csrf=***REDACTED***&accountType=Business&companyName=&referralCode=&email=qa.nxt%40example.test'",
+      "console": [],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "15aa0760-cae9-4316-9c13-a0cf77a75f18",
+          "kind": "screenshot",
+          "fileName": "step-5-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 27477,
+          "caption": "The page when step 5 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "ca23c3c9-bbfc-47f4-8608-a81688dc577c",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 135838,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "fec99bff-edfc-4fed-a030-07acd55955c0",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 124320,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "d767f880-eb33-44fb-948f-0e08bd5e79aa",
+          "kind": "domsnapshot",
+          "fileName": "step-5-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 3809,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "3a05ee39-08e4-4bb8-90c3-cbec1be39928",
+          "kind": "accessibilitytree",
+          "fileName": "step-5-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 423,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-0660",
+          "name": "Open an account: requires Company name once it is shown",
+          "field": "companyName",
+          "technique": "shows:accountType=Business:companyName:required-when-shown",
+          "actual": "Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error message is shown; confirmation: \"Thank you. We received it. Reference DYN-0068.\" (now at http://127.0.0.1:4370/dynamic/done?ref=DYN-0068).",
+          "testData": {
+            "email": "qa.nxt@example.test",
+            "accountType": "Business"
+          },
+          "executionId": "09c0b114-392f-4048-9e37-8a88fd55b5e1"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-0660 in QA NXT — open this run and choose Run failed, or run the test on its own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "09c0b114-392f-4048-9e37-8a88fd55b5e1"
+    },
+    {
+      "key": "BUG-12",
+      "defectId": "2eb8d56f-308f-453d-a234-2065bdf0367c",
+      "defectReference": "DEF-0013",
+      "defectStatus": "Proposed",
+      "title": "Quote request: responds more slowly than its budget",
+      "severity": "Major",
+      "priority": "Medium",
+      "category": "Performance",
+      "classification": "Application defect",
+      "confidence": 70,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/slow-form",
+      "form": "Quote request",
+      "endpoint": "POST /slow-form",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:35:49.588977+00:00",
+      "occurrences": 1,
+      "summary": "Found by TC-1424 (Quote request: answers a submission within 2000 ms), which fails at step 5: Confirm the response came within 2000 ms.",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Quote request",
+          "url": "http://127.0.0.1:4370/slow-form",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Enter \"QA NXT test\" in Company",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Enter \"250\" in Seats",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Press \"Get a quote\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 5,
+          "description": "Confirm the response came within 2000 ms",
+          "status": "failed",
+          "error": "expected a response within 2000 ms but POST http://127.0.0.1:4370/slow-form took 3524 ms.",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "seats": "250",
+        "company": "QA NXT test"
+      },
+      "expected": "The submission is answered in under 2000 ms.",
+      "actual": "expected a response within 2000 ms but POST http://127.0.0.1:4370/slow-form took 3524 ms.",
+      "failingStep": {
+        "order": 5,
+        "description": "Confirm the response came within 2000 ms",
+        "status": "failed",
+        "error": "expected a response within 2000 ms but POST http://127.0.0.1:4370/slow-form took 3524 ms.",
+        "isCheck": true
+      },
+      "whereToLook": "The response took longer than its budget. The timing of each request is under API exchange; profile the server handler for the slowest one. (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [
+        {
+          "method": "POST",
+          "url": "http://127.0.0.1:4370/slow-form",
+          "statusCode": 303,
+          "durationMs": 3524,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/slow-form\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1",
+          "request": "_csrf=***REDACTED***&company=QA+NXT+test&seats=250"
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:4370/slow-form/done?ref=SLO-0304",
+          "statusCode": 200,
+          "durationMs": 15,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/slow-form\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1"
+        }
+      ],
+      "curl": "curl -i -X POST 'http://127.0.0.1:4370/slow-form' \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  --data-raw '_csrf=***REDACTED***&company=QA+NXT+test&seats=250'",
+      "console": [],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "d800ce77-cf0b-4cb2-83f2-7b6b2ceb9919",
+          "kind": "screenshot",
+          "fileName": "step-5-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 26866,
+          "caption": "The page when step 5 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "61cdad0b-c100-45ad-b700-06701ae4f8f1",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 182186,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "cc53a867-e96f-4723-b4dd-591fcc1d166d",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 140448,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "20ba8212-9a67-4aaf-bcaf-976615a2034e",
+          "kind": "domsnapshot",
+          "fileName": "step-5-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 3811,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "9b4bdbb6-785c-4aa2-bd68-7a62e5ce2d17",
+          "kind": "accessibilitytree",
+          "fileName": "step-5-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 419,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-1424",
+          "name": "Quote request: answers a submission within 2000 ms",
+          "technique": "submit-response",
+          "actual": "expected a response within 2000 ms but POST http://127.0.0.1:4370/slow-form took 3524 ms.",
+          "testData": {
+            "seats": "250",
+            "company": "QA NXT test"
+          },
+          "executionId": "db15bca0-4f2d-42ca-98a9-53a6a12b4b1b"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-1424 in QA NXT — open this run and choose Run failed, or run the test on its own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "db15bca0-4f2d-42ca-98a9-53a6a12b4b1b"
+    },
+    {
+      "key": "BUG-13",
+      "defectId": "1234fd15-c57f-44de-ae98-b67f939903ca",
+      "defectReference": "DEF-0012",
+      "defectStatus": "Proposed",
+      "title": "Session note: POST /session-expiry fails with HTTP 500",
+      "severity": "Major",
+      "priority": "Medium",
+      "category": "Exploratory",
+      "classification": "Application defect",
+      "confidence": 90,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/session-expiry",
+      "form": "Session note",
+      "endpoint": "POST /session-expiry",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:35:18.256854+00:00",
+      "occurrences": 1,
+      "summary": "Found by TC-1318 (Session note: copes with the session disappearing before submission), which fails at step 5: Confirm the application handled it without a server error or leaked detail.",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Session note",
+          "url": "http://127.0.0.1:4370/session-expiry",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Enter \"QA NXT test notes\" in Note",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Clear the session",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Press \"Save note\"",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 5,
+          "description": "Confirm the application handled it without a server error or leaked detail",
+          "status": "failed",
+          "error": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/session-expiry → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/.",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "note": "QA NXT test notes"
+      },
+      "expected": "No server error: the user is asked to sign in again, or the submission is handled.",
+      "actual": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/session-expiry → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/.",
+      "failingStep": {
+        "order": 5,
+        "description": "Confirm the application handled it without a server error or leaked detail",
+        "status": "failed",
+        "error": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/session-expiry → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/.",
+        "isCheck": true
+      },
+      "pageText": "500 Internal Server Error\nTypeError: Cannot read properties of null (reading 'trim')\nat saveNote (/srv/form-lab/handlers.js:42:17)\nat processTicksAndRejections (node:internal/process/task_queues:95:5)",
+      "whereToLook": "The server failed: POST /session-expiry returned HTTP 500. Start in the server handler for that route. The request that triggered it, with the values sent, is under API exchange, and the curl command replays it without a browser. The page also showed internal error detail to the user — catch the error and show a generic message as well as fixing the cause. (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [
+        {
+          "method": "POST",
+          "url": "http://127.0.0.1:4370/session-expiry",
+          "statusCode": 500,
+          "durationMs": 14,
+          "requestHeaders": "origin: http://127.0.0.1:4370\nreferer: http://127.0.0.1:4370/session-expiry\ncontent-type: application/x-www-form-urlencoded\nupgrade-insecure-requests: 1",
+          "request": "_csrf=***REDACTED***&note=QA+NXT+test+notes"
+        }
+      ],
+      "curl": "curl -i -X POST 'http://127.0.0.1:4370/session-expiry' \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  --data-raw '_csrf=***REDACTED***&note=QA+NXT+test+notes'",
+      "console": [
+        {
+          "level": "error",
+          "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+          "url": "http://127.0.0.1:4370/session-expiry"
+        }
+      ],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "895fd336-54f4-4831-92ff-cc16f59b30fd",
+          "kind": "screenshot",
+          "fileName": "step-5-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 25344,
+          "caption": "The page when step 5 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "f65429f4-cdc8-49de-8ee0-0b35c5573a03",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 116921,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "92e4eeb6-8447-4140-83c9-8ac1f09bbc48",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 110996,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "b6bd8c54-812f-4148-bfb9-528d85477731",
+          "kind": "domsnapshot",
+          "fileName": "step-5-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 329,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "888988b4-31e4-467b-b845-dc2cf63b70a2",
+          "kind": "accessibilitytree",
+          "fileName": "step-5-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 336,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-1318",
+          "name": "Session note: copes with the session disappearing before submission",
+          "technique": "session-cleared",
+          "actual": "Expected the application to handle this without an error, but 1 request(s) failed on the server, first POST http://127.0.0.1:4370/session-expiry → HTTP 500; the page shows internal error detail matching /\\bat [\\w$.<>]+ \\([^)]*:\\d+:\\d+\\)/.",
+          "testData": {
+            "note": "QA NXT test notes"
+          },
+          "executionId": "4f0724a4-2ec1-4dc1-856c-b334630ee981"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-1318 in QA NXT — open this run and choose Run failed, or run the test on its own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "4f0724a4-2ec1-4dc1-856c-b334630ee981"
+    },
+    {
+      "key": "BUG-14",
+      "defectId": "427365b5-ac39-4593-8f80-c6b89098faa5",
+      "defectReference": "DEF-0002",
+      "defectStatus": "Proposed",
+      "title": "Transfer money: sends a submission more than once",
+      "severity": "Major",
+      "priority": "High",
+      "category": "Reliability and duplicates",
+      "classification": "Application defect",
+      "confidence": 80,
+      "application": "Golden Form Lab",
+      "pageUrl": "http://127.0.0.1:4370/duplicate-submit",
+      "form": "Transfer money",
+      "endpoint": "POST /api/transfers",
+      "browser": "Chromium",
+      "browserVersion": "141.0.7390.37",
+      "viewport": "1440x900 (default)",
+      "firstSeenAt": "2026-10-15T07:26:38.79958+00:00",
+      "occurrences": 1,
+      "summary": "Found by TC-0577 (Transfer money: sends one submission when the submit control is pressed twice quickly), which fails at step 5: Confirm at most one POST was sent.",
+      "steps": [
+        {
+          "order": 1,
+          "description": "Open Transfer money",
+          "url": "http://127.0.0.1:4370/duplicate-submit",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 2,
+          "description": "Enter \"QA NXT test\" in Payee",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 3,
+          "description": "Enter \"500.50\" in Amount",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 4,
+          "description": "Press \"Send money\" repeatedly",
+          "status": "passed",
+          "isCheck": false
+        },
+        {
+          "order": 5,
+          "description": "Confirm at most one POST was sent",
+          "status": "failed",
+          "error": "expected at most 1 POST submission(s) the server did not refuse but saw 2.",
+          "isCheck": true
+        }
+      ],
+      "testData": {
+        "payee": "QA NXT test",
+        "amount": "500.50"
+      },
+      "expected": "Exactly one submission reaches the server.",
+      "actual": "expected at most 1 POST submission(s) the server did not refuse but saw 2.",
+      "failingStep": {
+        "order": 5,
+        "description": "Confirm at most one POST was sent",
+        "status": "failed",
+        "error": "expected at most 1 POST submission(s) the server did not refuse but saw 2.",
+        "isCheck": true
+      },
+      "whereToLook": "The submission was sent more than once. Disable the submit control while the request is in flight, and make the endpoint idempotent (an idempotency key, or a unique constraint on the business key) so a repeat cannot create a second record. (A starting point drawn from what the test observed, not a diagnosis of the code.)",
+      "exchanges": [
+        {
+          "method": "POST",
+          "url": "http://127.0.0.1:4370/api/transfers",
+          "statusCode": 201,
+          "durationMs": 590,
+          "requestHeaders": "referer: http://127.0.0.1:4370/duplicate-submit\ncontent-type: application/json",
+          "request": "{\"payee\":\"QA NXT test\",\"amount\":\"500.50\"}",
+          "response": "{\"reference\":\"DUP-0061\"}"
+        },
+        {
+          "method": "POST",
+          "url": "http://127.0.0.1:4370/api/transfers",
+          "statusCode": 201,
+          "durationMs": 618,
+          "requestHeaders": "referer: http://127.0.0.1:4370/duplicate-submit\ncontent-type: application/json",
+          "request": "{\"payee\":\"QA NXT test\",\"amount\":\"500.50\"}",
+          "response": "{\"reference\":\"DUP-0063\"}"
+        }
+      ],
+      "curl": "curl -i -X POST 'http://127.0.0.1:4370/api/transfers' \\\n  -H 'Content-Type: application/json' \\\n  --data-raw '{\"payee\":\"QA NXT test\",\"amount\":\"500.50\"}'",
+      "console": [],
+      "accessibility": [],
+      "screenshots": [
+        {
+          "id": "19815958-aec5-48e5-82b1-fb94ebe5bcba",
+          "kind": "screenshot",
+          "fileName": "step-5-failure.png",
+          "contentType": "image/png",
+          "sizeBytes": 33751,
+          "caption": "The page when step 5 failed"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "a7022638-22aa-438e-b53f-b6dcc42d8cea",
+          "kind": "video",
+          "fileName": "execution.webm",
+          "contentType": "video/webm",
+          "sizeBytes": 148326,
+          "caption": "Video of the whole test."
+        },
+        {
+          "id": "63d62d6e-744e-457a-9d16-90acda8106aa",
+          "kind": "trace",
+          "fileName": "trace.zip",
+          "contentType": "application/zip",
+          "sizeBytes": 219584,
+          "caption": "Playwright trace: every action with a DOM snapshot, the network and the console. Open it with `npx playwright show-trace trace.zip` or at https://trace.playwright.dev."
+        },
+        {
+          "id": "96f5458f-e9bf-43d8-8492-dab70cdf9452",
+          "kind": "domsnapshot",
+          "fileName": "step-5-failure.html",
+          "contentType": "text/html",
+          "sizeBytes": 7317,
+          "caption": "The page's HTML when the step failed, with secrets masked."
+        },
+        {
+          "id": "54d08b5c-3b2f-4880-a265-8a3b3708ef84",
+          "kind": "accessibilitytree",
+          "fileName": "step-5-failure.a11y.json",
+          "contentType": "application/json",
+          "sizeBytes": 746,
+          "caption": "The accessibility tree when the step failed — what a screen reader is given."
+        }
+      ],
+      "affectedTests": [
+        {
+          "reference": "TC-0577",
+          "name": "Transfer money: sends one submission when the submit control is pressed twice quickly",
+          "technique": "rapid-repeat-submit",
+          "actual": "expected at most 1 POST submission(s) the server did not refuse but saw 2.",
+          "testData": {
+            "payee": "QA NXT test",
+            "amount": "500.50"
+          },
+          "executionId": "75dded78-affe-431f-866a-75b40ae548c4"
+        }
+      ],
+      "verifyTheFix": "Re-run TC-0577 in QA NXT — open this run and choose Run failed, or run the test on its own. Each passes when the fix is in, and fails again with this report's symptom if it is not.",
+      "executionId": "75dded78-affe-431f-866a-75b40ae548c4"
+    }
+  ],
+  "notProductBugs": [],
+  "passedOnRetry": [],
+  "skipped": [
+    {
+      "reason": "This compatibility test runs only in Firefox; this run uses Chromium",
+      "count": 20,
+      "tests": [
+        "TC-0053",
+        "TC-0178",
+        "TC-0247",
+        "TC-0349",
+        "TC-0437",
+        "TC-0489",
+        "TC-0534",
+        "TC-0602",
+        "TC-0689",
+        "TC-0764",
+        "TC-0821",
+        "TC-0947",
+        "TC-1045",
+        "TC-1134",
+        "TC-1220",
+        "TC-1262",
+        "TC-1313",
+        "TC-1362",
+        "TC-1429",
+        "TC-1534"
+      ]
+    },
+    {
+      "reason": "This compatibility test runs only in Webkit; this run uses Chromium",
+      "count": 20,
+      "tests": [
+        "TC-0054",
+        "TC-0179",
+        "TC-0248",
+        "TC-0350",
+        "TC-0438",
+        "TC-0490",
+        "TC-0535",
+        "TC-0603",
+        "TC-0690",
+        "TC-0765",
+        "TC-0822",
+        "TC-0948",
+        "TC-1046",
+        "TC-1135",
+        "TC-1221",
+        "TC-1263",
+        "TC-1314",
+        "TC-1363",
+        "TC-1430",
+        "TC-1535"
+      ]
+    }
+  ],
+  "generatedAt": "2026-10-15T07:43:38.1659894+00:00"
+}
