@@ -60,7 +60,8 @@ export class TestExecutor {
     const masker = new SecretMasker()
       .withLiterals(Object.values(job.secrets))
       .withLiteral(job.auth.password)
-      .withLiteral(job.auth.bearerToken);
+      .withLiteral(job.auth.bearerToken)
+      .withLiteral(job.auth.otpValue);
 
     const collector = new EvidenceCollector(executionDir, masker, this.logger);
     const healer = new LocatorHealer(job.healing, this.logger);

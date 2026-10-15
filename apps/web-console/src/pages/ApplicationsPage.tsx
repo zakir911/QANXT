@@ -127,6 +127,9 @@ export default function ApplicationsPage() {
     const username = String(form.get('username') ?? '');
     const password = String(form.get('password') ?? '');
     const authStrategy = String(form.get('authStrategy') ?? 'none');
+    // "" on an edit means "keep the stored setting"; the API reads null that way.
+    const otpMode = String(form.get('otpMode') ?? '') || null;
+    const otpValue = String(form.get('otpValue') ?? '').trim();
 
     // FormData gives "" for a field the user emptied, never null, so `?? default` never
     // fires for one. Blank means "I did not choose", which is the default: clearing
@@ -161,11 +164,11 @@ export default function ApplicationsPage() {
         ? JSON.stringify({ successUrlContains: String(form.get('successUrlContains')) })
         : null,
       // Credentials are write-only: they are encrypted on arrival and never returned.
-      // Credentials are write-only: they are encrypted on arrival and never returned.
       // null means "leave whatever is stored alone", which is the only safe reading of an
-      // empty field on an edit.
-      credentials: authStrategy === 'formLogin' && (username || password)
-        ? { username, password, bearerToken: null, storageStateJson: null }
+      // empty field on an edit; blank fields inside an object keep their stored values too.
+      credentials: authStrategy === 'formLogin'
+        && (username || password || otpValue || (otpMode !== null && (otpMode !== 'none' || editingId)))
+        ? { username, password, bearerToken: null, storageStateJson: null, otpMode, otpValue }
         : null
     };
 
@@ -260,15 +263,18 @@ export default function ApplicationsPage() {
                      defaultValue={editing?.maxPages ?? 50} className="input" />
             </div>
             <div className="sm:col-span-2">
-              <label className="label" htmlFor="seedUrls">Routes to explore</label>
+              <label className="label" htmlFor="seedUrls">Routes to explore (optional)</label>
               <textarea id="seedUrls" name="seedUrls" rows={3} className="input"
                         placeholder={'/dashboard\n/users\n/reports/monthly'}
                         defaultValue={editing?.seedUrls?.split(',').join('\n') ?? ''} />
               <p className="mt-1 text-xs text-ink-muted">
-                One per line, or comma separated. Paths or full URLs both work. Discovery can
-                only reach what is linked from where it starts, so an application that routes
-                without links needs its routes naming here. Each one is still checked against
-                the allowed domains, the excluded paths and robots.txt.
+                Leave this empty for most applications: discovery starts at the base URL, signs in,
+                and follows every link it finds by itself, page after page, within the depth and
+                page budget. Add a route only for a page nothing links to, such as a deep link
+                sent by email. If the menu is made of buttons rather than links, choose "Also
+                click navigation controls" below instead of listing every page. One per line or
+                comma separated; paths or full URLs. Each one is still checked against the allowed
+                domains, the excluded paths and robots.txt.
               </p>
             </div>
             <div className="sm:col-span-2">
@@ -340,6 +346,29 @@ export default function ApplicationsPage() {
                   {editing?.hasCredentials
                     ? ' Credentials are already stored. Leave both fields blank to keep them.'
                     : ''}
+                </p>
+              </div>
+              <div>
+                <label className="label" htmlFor="otpMode">Second step after sign-in (one-time code)</label>
+                <select id="otpMode" name="otpMode" className="input" defaultValue={editingId ? '' : 'none'}>
+                  {editingId && <option value="">Keep what is stored</option>}
+                  <option value="none">None — no code is asked for</option>
+                  <option value="fixed">Fixed test code</option>
+                  <option value="totp">Authenticator app secret (TOTP)</option>
+                </select>
+              </div>
+              <div>
+                <label className="label" htmlFor="otpValue">Code or secret</label>
+                <input id="otpValue" name="otpValue" type="password" className="input" autoComplete="off"
+                       placeholder="246810 or JBSWY3DPEHPK3PXP" />
+                <p className="mt-1 text-xs text-ink-muted">
+                  For an application that asks for a code after the password. A fixed code is one the
+                  test environment always accepts. An authenticator secret is the key behind the QR
+                  code when the test account's authenticator was set up (letters A–Z and digits
+                  2–7); the worker computes the current code from it at every sign-in. Codes sent by
+                  SMS or email cannot be read automatically: ask for a fixed test code for the test
+                  account instead. Encrypted like the password and masked in evidence.
+                  {editingId ? ' Leave blank to keep the stored code.' : ''}
                 </p>
               </div>
               <div className="sm:col-span-2">

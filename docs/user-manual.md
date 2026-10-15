@@ -114,9 +114,10 @@ keep it short.
 | **Base URL** | Where the crawl starts. **Point this at a page behind the sign-in**, such as `/dashboard` — see the warning below. |
 | **Login URL** | The sign-in page. |
 | **Credentials** | A test account. Encrypted before storage; the API never returns them, and a password typed during a run is stored as `***REDACTED***`. |
+| **Second step after sign-in (one-time code)** | For an application that asks for a code after the password — see below. |
 | **Allowed domains** | Where QA NXT may go. Anything else is refused, and a test that tries is reported `blocked` rather than failed. |
 | **Excluded paths** | Paths the crawler must never open. Defaults to `/logout,/signout,/delete`. |
-| **Routes to explore** | Pages to visit besides the base URL, one per line. Needed when nothing links to them — see below. |
+| **Routes to explore** | Optional. Discovery follows links by itself; list a page here only when nothing links to it — see below. |
 | **Read the application's sitemap** | On by default. Discovery reads `/sitemap.xml` and explores what it lists. |
 | **Respect robots.txt** | On by default — see below. |
 
@@ -126,7 +127,31 @@ keep it short.
 > application bounces every visitor to the sign-in page, a crawl starting there can reach
 > exactly one page. Give it a page a signed-in user would land on.
 
+#### Applications that ask for a one-time code
+
+If the application asks for a code after the password, set **Second step after sign-in**:
+
+- **Fixed test code** — a code the test environment always accepts for the test account
+  (many identity providers and in-house MFA services have a test mode for this).
+- **Authenticator app secret (TOTP)** — the base32 key behind the QR code shown when the
+  test account's authenticator was set up, such as `JBSWY3DPEHPK3PXP`. The worker computes
+  the current six-digit code at every sign-in, exactly as the authenticator app would, so
+  every discovery and every test run gets a fresh code without anyone being asked.
+
+The worker finds the code field itself (`autocomplete="one-time-code"`, a field named or
+labelled otp, code, verification or passcode, or a row of single-digit boxes), enters the
+code, presses Verify, Continue or Submit, and checks the prompt has gone. A code that is
+refused fails the sign-in with a reason; so does a prompt for a code when none is set,
+rather than exploring the code page and calling it the application. The code or secret is
+encrypted with the password and masked in all evidence.
+
+Codes sent by **SMS or email** cannot be read automatically. Ask for a fixed test code for
+the test account, or an authenticator secret instead.
+
 #### Reaching pages nothing links to
+
+You do not have to list your pages. Discovery starts at the base URL and follows every link
+it finds, page after page, within the crawl depth and page budget.
 
 Discovery follows links. That is enough for a site with a navigation bar of `<a href>`
 elements, and not enough for a lot of real admin applications, where the menu is a set of

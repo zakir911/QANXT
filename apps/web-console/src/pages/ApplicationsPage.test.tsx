@@ -487,16 +487,16 @@ describe('the routes an owner lists for discovery', () => {
   test('are typed one per line, and the form says why that is needed', async () => {
     await openForm();
 
-    expect(screen.getByLabelText('Routes to explore')).toBeInTheDocument();
+    expect(screen.getByLabelText('Routes to explore (optional)')).toBeInTheDocument();
     // Somebody whose crawl found one page needs to be told the reason here, not in the
     // manual: the starting page has no links to follow.
-    expect(screen.getByText(/only reach what is linked from where it starts/i)).toBeInTheDocument();
+    expect(screen.getByText(/Add a route only for a page nothing links to/i)).toBeInTheDocument();
   });
 
   test('reach the API as typed, for the server to normalise', async () => {
     const user = await openForm();
 
-    await user.type(screen.getByLabelText('Routes to explore'), '/users\n/reports/monthly');
+    await user.type(screen.getByLabelText('Routes to explore (optional)'), '/users\n/reports/monthly');
     await user.click(screen.getByRole('button', { name: 'Create application' }));
 
     await waitFor(() => expect(createdBody()).toBeDefined());
@@ -552,7 +552,7 @@ describe('the routes an owner lists for discovery', () => {
 
     // Stored comma separated, edited one per line: a comma-joined wall of URLs in a three
     // row box is unreadable, and the list is the thing being edited.
-    expect(screen.getByLabelText('Routes to explore')).toHaveValue(
+    expect(screen.getByLabelText('Routes to explore (optional)')).toHaveValue(
       'https://admin.example.test/users\nhttps://admin.example.test/reports');
     expect((screen.getByLabelText(/Read the application's sitemap/) as HTMLInputElement).checked)
       .toBe(false);
@@ -567,5 +567,42 @@ describe('the routes an owner lists for discovery', () => {
     expect(body.seedUrls).toBe(
       'https://admin.example.test/users\nhttps://admin.example.test/reports');
     expect(body.useSitemap).toBe(false);
+  });
+});
+
+describe('the one-time code on the add-application form', () => {
+  beforeEach(() => {
+    permissions.current = new Set(['application:write', 'discovery:run']);
+    apiRequest.mockReset();
+    apiRequest.mockImplementation(async (path: string) =>
+      path.startsWith('/api/v1/applications?') ? [] : { id: 'app-1' });
+  });
+
+  const submittedBody = () => {
+    const call = apiRequest.mock.calls.find(([path, options]) =>
+      path === '/api/v1/applications' && (options as { method?: string })?.method === 'POST');
+    return (call?.[1] as { body: Record<string, unknown> }).body;
+  };
+
+  test('a fixed code is sent with the credentials', async () => {
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Add application' }));
+    await userEvent.type(screen.getByLabelText('Name'), 'Bank');
+    await userEvent.type(screen.getByLabelText('Base URL'), 'https://bank.example.test/');
+    await userEvent.type(screen.getByLabelText('Username'), 'alice');
+    await userEvent.type(screen.getByLabelText('Password'), 'pw');
+    await userEvent.selectOptions(screen.getByLabelText(/Second step after sign-in/), 'fixed');
+    await userEvent.type(screen.getByLabelText('Code or secret'), '246810');
+    await userEvent.click(screen.getByRole('button', { name: 'Create application' }));
+
+    await waitFor(() => expect(submittedBody()).toBeDefined());
+    expect(submittedBody().credentials).toMatchObject({ username: 'alice', password: 'pw', otpMode: 'fixed', otpValue: '246810' });
+  });
+
+  test('routes to explore are marked optional and say links are followed automatically', async () => {
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Add application' }));
+    expect(screen.getByLabelText('Routes to explore (optional)')).toBeInTheDocument();
+    expect(screen.getByText(/follows every link it finds by itself/)).toBeInTheDocument();
   });
 });

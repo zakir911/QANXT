@@ -196,6 +196,8 @@ public sealed class DiscoveryService : IDiscoveryService
                 Password = credentials.Password,
                 BearerToken = credentials.BearerToken,
                 StorageStateJson = credentials.StorageStateJson,
+                OtpMode = credentials.OtpMode,
+                OtpValue = credentials.OtpValue,
                 SuccessUrlContains = ExtractLoginFlowValue(application.LoginFlowJson, "successUrlContains")
             },
             Budget = new CrawlBudgetPayload

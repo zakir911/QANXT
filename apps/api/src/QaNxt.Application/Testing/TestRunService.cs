@@ -400,6 +400,8 @@ public sealed class TestRunService : ITestRunService
                 Password = credentials.Password,
                 BearerToken = credentials.BearerToken,
                 StorageStateJson = credentials.StorageStateJson,
+                OtpMode = credentials.OtpMode,
+                OtpValue = credentials.OtpValue,
                 SuccessUrlContains = ReadLoginFlowHint(application.LoginFlowJson, "successUrlContains")
             },
             Steps = steps.Select(step => new ExecutionStepPayload

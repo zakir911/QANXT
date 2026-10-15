@@ -1,6 +1,7 @@
 import type { Page } from 'playwright';
 import type { AuthConfig, LocatorDescriptor } from '@qa-nxt/shared-types';
 import { buildLocator, resolveLocator } from './locator-resolver.js';
+import { totp, totpSecondsRemaining } from './totp.js';
 
 /**
  * Signs into the application under test.
@@ -97,6 +98,12 @@ async function performFormLogin(page: Page, auth: AuthConfig, options: LoginOpti
   // milliseconds before the application answered.
   await waitForSignInOutcome(page, auth, options);
 
+  // Many applications ask for a one-time code once the password is accepted. Answering it
+  // here is what lets every page behind it be explored and tested.
+  const otp = await completeOneTimeCode(page, auth, options);
+  actions += otp.actionsUsed;
+  if (!otp.succeeded) return fail(otp.message, actions);
+
   // Verify rather than assume. A login form that re-renders with an error message is the
   // most common cause of a "successful" run that maps nothing but the login page.
   if (auth.successLocator) {
@@ -154,6 +161,136 @@ async function waitForSignInOutcome(page: Page, auth: AuthConfig, options: Login
 
     await page.waitForTimeout(100);
   }
+}
+
+/** Selectors for an input that asks for a one-time code, most specific first. */
+const OTP_FIELD_SELECTORS = [
+  'input[autocomplete="one-time-code"]',
+  'input[name*="otp" i]', 'input[id*="otp" i]',
+  'input[name*="totp" i]', 'input[name*="mfa" i]', 'input[name*="2fa" i]',
+  'input[name*="verification" i]', 'input[id*="verification" i]',
+  'input[name*="passcode" i]', 'input[id*="passcode" i]',
+  'input[name="code" i]', 'input[id="code" i]',
+  'input[aria-label*="one-time" i]', 'input[aria-label*="verification code" i]',
+  'input[placeholder*="code" i][inputmode="numeric"]'
+].map(selector => `${selector}:visible`);
+
+/** Separate one-character boxes, one per digit. */
+const OTP_DIGIT_BOXES = 'input[maxlength="1"]:visible';
+
+interface OtpField { kind: 'single' | 'digits'; count: number; selector: string }
+
+async function findOtpField(page: Page): Promise<OtpField | undefined> {
+  for (const selector of OTP_FIELD_SELECTORS) {
+    const count = await page.locator(selector).count().catch(() => 0);
+    if (count === 1) return { kind: 'single', count, selector };
+    if (count >= 4 && count <= 8) return { kind: 'digits', count, selector };
+  }
+  // A label naming the code, for forms that give the input no telling name.
+  for (const label of [/one[- ]time/i, /verification code/i, /security code/i, /authenticat(ion|or) code/i, /\b(otp|2fa|mfa)\b/i]) {
+    const field = page.getByLabel(label);
+    if (await field.count().catch(() => 0) === 1 && await field.isVisible().catch(() => false)
+      && await field.evaluate(element => element instanceof HTMLInputElement).catch(() => false)) {
+      const id = await field.evaluate(element => (element as HTMLInputElement).id).catch(() => '');
+      if (id) return { kind: 'single', count: 1, selector: `[id="${id}"]` };
+    }
+  }
+  const digits = await page.locator(OTP_DIGIT_BOXES).count().catch(() => 0);
+  if (digits >= 4 && digits <= 8) return { kind: 'digits', count: digits, selector: OTP_DIGIT_BOXES };
+  return undefined;
+}
+
+/**
+ * Answers a one-time-code prompt if the application shows one after the password.
+ *
+ * An application that asks for no code passes straight through. One that asks when no code
+ * is configured fails with a message that says what to configure, rather than going on to
+ * explore a sign-in page and calling it the application.
+ */
+async function completeOneTimeCode(page: Page, auth: AuthConfig, options: LoginOptions): Promise<LoginResult> {
+  const field = await findOtpField(page);
+  if (!field) return { succeeded: true, message: 'No one-time code was asked for.', actionsUsed: 0 };
+
+  const mode = auth.otpMode ?? 'none';
+  if (mode === 'none' || !auth.otpValue) {
+    return fail('After the password the application asked for a one-time code, and none is configured. '
+      + 'Edit the application and set "Second step after sign-in" to a fixed test code or an authenticator secret.', 0);
+  }
+
+  let code: string;
+  if (mode === 'totp') {
+    // A code about to expire may be refused by the time it arrives; wait for a fresh one.
+    if (totpSecondsRemaining() < 4) await page.waitForTimeout(totpSecondsRemaining() * 1000 + 200);
+    try {
+      code = totp(auth.otpValue);
+    } catch (error) {
+      return fail(messageOf(error), 0);
+    }
+  } else {
+    code = auth.otpValue.trim();
+  }
+
+  let actions = 0;
+  try {
+    if (field.kind === 'single') {
+      await page.locator(field.selector).first().fill(code, { timeout: options.actionTimeoutMs });
+      actions++;
+    } else {
+      const boxes = page.locator(field.selector);
+      // Typing into the first box suits applications that move focus themselves; filling
+      // each box covers the ones that do not.
+      for (let index = 0; index < Math.min(field.count, code.length); index++) {
+        await boxes.nth(index).fill(code[index]!, { timeout: options.actionTimeoutMs });
+        actions++;
+      }
+    }
+
+    const submit = await resolveLocator(page, defaultOtpSubmitLocator(), { timeoutMs: 1500 }).catch(() => undefined);
+    await Promise.all([
+      page.waitForLoadState('domcontentloaded', { timeout: options.navigationTimeoutMs }).catch(() => undefined),
+      submit
+        ? submit.locator.click({ timeout: options.actionTimeoutMs })
+        : page.keyboard.press('Enter')
+    ]);
+    actions++;
+  } catch (error) {
+    return fail(`The one-time code could not be entered: ${messageOf(error)}`, actions);
+  }
+
+  // Wait for the prompt to go away, or for the application to say no.
+  const deadline = Date.now() + options.actionTimeoutMs;
+  while (Date.now() < deadline) {
+    if (page.isClosed()) break;
+    try {
+      if (!await findOtpField(page)) {
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => undefined);
+        return { succeeded: true, message: 'One-time code accepted.', actionsUsed: actions };
+      }
+      if (await hasVisibleError(page)) break;
+    } catch {
+      // Navigation in progress; ask again.
+    }
+    await page.waitForTimeout(100);
+  }
+
+  return fail(mode === 'totp'
+    ? 'The application did not accept the authenticator code. Check that the secret belongs to this test account and that the worker clock is correct.'
+    : 'The application did not accept the fixed one-time code. Check the code configured for this application.', actions);
+}
+
+function defaultOtpSubmitLocator(): LocatorDescriptor {
+  return {
+    strategy: 'role', value: 'button', name: 'Verify',
+    fallbacks: [
+      { strategy: 'role', value: 'button', name: 'Continue' },
+      { strategy: 'role', value: 'button', name: 'Submit' },
+      { strategy: 'role', value: 'button', name: 'Confirm' },
+      { strategy: 'role', value: 'button', name: 'Sign in' },
+      { strategy: 'role', value: 'button', name: 'Log in' },
+      { strategy: 'css', value: 'button[type="submit"]:visible' },
+      { strategy: 'css', value: 'input[type="submit"]:visible' }
+    ]
+  };
 }
 
 /** An alert or an error region the application rendered in response to the attempt. */

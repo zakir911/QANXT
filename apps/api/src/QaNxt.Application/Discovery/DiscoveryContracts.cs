@@ -35,6 +35,10 @@ public sealed record AuthConfigPayload
     [JsonPropertyName("password")] public string? Password { get; init; }
     [JsonPropertyName("bearerToken")] public string? BearerToken { get; init; }
     [JsonPropertyName("storageStateJson")] public string? StorageStateJson { get; init; }
+    /// <summary>none, fixed or totp: the second step after the password, when there is one.</summary>
+    [JsonPropertyName("otpMode")] public string? OtpMode { get; init; }
+    /// <summary>The fixed code, or the authenticator secret the worker makes a code from.</summary>
+    [JsonPropertyName("otpValue")] public string? OtpValue { get; init; }
 }
 
 public sealed record CrawlBudgetPayload

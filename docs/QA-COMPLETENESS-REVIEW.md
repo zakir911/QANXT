@@ -7,7 +7,7 @@ Checked against the code on 2026-10-15, not against intentions.
 **Short answer:** it covers web functional, form-level, regression, accessibility,
 security-scope and API testing well enough to run unattended, with honest reporting. It
 does not yet replace a QA team for anything that needs a second channel (email, SMS, MFA),
-real load, native mobile, or the application's database, and two gaps carry real risk:
+real load, native mobile, or the application's database (a one-time code at sign-in is handled), and two gaps carry real risk:
 form tests can submit to production, and defects stay inside QA NXT.
 
 ## The path a tester follows
@@ -15,7 +15,7 @@ form tests can submit to production, and defects stay inside QA NXT.
 | Step | Where | State |
 |---|---|---|
 | 1. Choose or create the project | Projects | Done. Every screen shows only the selected project. |
-| 2. Add the application and its sign-in | Applications | Done. Credentials, seed routes, sitemap, robots.txt. |
+| 2. Add the application and its sign-in | Applications | Done. Credentials, one-time code (fixed or authenticator), optional routes, sitemap, robots.txt. |
 | 3. Explore it | Discovery | Done. Pages, elements, forms (including forms behind a dialog), API calls. |
 | 4. Choose, generate and run the tests | Testing | Done. Four guided steps; 26 testing types; optional security scan. |
 | 5. Follow the run, download the bug report | Test runs | Done. One report for test failures and security findings, tagged by testing type. |
@@ -51,7 +51,7 @@ form tests can submit to production, and defects stay inside QA NXT.
 |---|---|---|---|
 | 1 | **Form tests can submit on production.** Changing API requests are blocked on an environment marked production; browser form submissions are not. | A full run against a live site submits real contact forms, orders or sign-ups — dozens of submissions for every form it tests. | Refuse, or skip with a reason, every test that submits a form when the run's environment is production, unless the environment allows destructive tests. |
 | 2 | **Defects do not reach the team's tracker.** Jira is an enum value; there is no push to Jira, GitHub or Azure Boards. | Developers live in their tracker; a defect only in QA NXT is a defect someone must copy by hand. | Create and sync issues from confirmed defects, with the bug report attached; keep the external key on the defect. |
-| 3 | **Second-channel flows**: email confirmation, password reset links, SMS or authenticator codes, CAPTCHA. | Sign-up, reset and MFA are among the most important flows and the most often broken. | A test mailbox (e.g. Mailpit) and a TOTP secret per test identity; CAPTCHA stays a human task or a test-mode bypass. |
+| 3 | **Second-channel flows**: email confirmation, password reset links, SMS codes, CAPTCHA. A one-time code at sign-in is handled (fixed test code or authenticator secret). | Sign-up, reset and SMS verification are among the most important flows and the most often broken. | A test mailbox (e.g. Mailpit) and an SMS sink per test identity; CAPTCHA stays a human task or a test-mode bypass. |
 | 4 | **Test data clean-up.** Tests create records and nothing removes them. | Repeated runs fill staging with test data and can change what later tests see. | Tag created records with the run id and a per-application clean-up hook (API call or SQL) after the run. |
 | 5 | **Load and stress.** Single-user timings only. | A form that answers in 300 ms alone may fail at 200 users. | Export the discovered endpoints and payloads as a k6 or Gatling script; record its results beside the run. |
 | 6 | **Database verification.** "Was the right record stored?" is a human task. | Data integrity is the defect class users notice last and mind most. | Optional read-only connection, or an application API, to compare the stored record with what was submitted. |

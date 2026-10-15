@@ -1,0 +1,128 @@
+{
+  "failureId": "0f4792b7-efea-4860-8f21-8664c7079fda",
+  "testCaseId": "ec4078af-33c6-4fcd-a8f8-e01f822d511e",
+  "testReference": "TC-0041",
+  "testName": "Feedback: announces the error for Nickname with the field",
+  "category": "accessibility",
+  "technique": "error-associated",
+  "applicationName": "Golden Form Lab",
+  "pageUrl": "http://127.0.0.1:4370/accessibility",
+  "formName": "Feedback",
+  "field": "nickname",
+  "severity": "Major",
+  "priority": "Medium",
+  "expected": "Nickname has aria-invalid and an aria-describedby (or browser validation) message.",
+  "actual": "The field shows an error, but assistive technology would not announce it with the field: no aria-invalid, no error referenced by aria-describedby, message beside it: \"Enter nickname.\".",
+  "error": "The field shows an error, but assistive technology would not announce it with the field: no aria-invalid, no error referenced by aria-describedby, message beside it: \"Enter nickname.\".",
+  "stackTrace": "",
+  "url": "http://127.0.0.1:4370/accessibility",
+  "browser": "Chromium",
+  "browserVersion": "141.0.7390.37",
+  "viewport": "1440x900 (default)",
+  "at": "2026-10-15T13:02:19.15236+00:00",
+  "executionId": "d06aaee1-9b65-455b-8aa1-f78eaa501d0f",
+  "testRunId": "fb9e2330-9729-4d82-a7ae-0379ced4a7be",
+  "apiExchanges": [
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:4370/accessibility",
+      "statusCode": 422,
+      "durationMs": 21,
+      "request": "_csrf=fl-csrf-7c1e9a&nickname=&email=qa.nxt%40example.test"
+    }
+  ],
+  "consoleLogs": [
+    {
+      "level": "error",
+      "message": "Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)",
+      "url": "http://127.0.0.1:4370/accessibility",
+      "occurredAt": "2026-10-15T13:02:04.011+00:00"
+    }
+  ],
+  "networkLogs": [
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:4370/accessibility",
+      "statusCode": 200,
+      "durationMs": 6,
+      "isFailed": false
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:4370/accessibility",
+      "statusCode": 422,
+      "durationMs": 21,
+      "isFailed": true
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "032c0a72-ea63-476f-9e9c-a505a0351e8a",
+      "kind": "Video",
+      "name": "execution.webm",
+      "contentType": "video/webm",
+      "sizeBytes": 289401
+    },
+    {
+      "id": "38e79e30-4a12-4d7e-be8b-fb9051560633",
+      "kind": "NetworkLog",
+      "name": "execution.network.json",
+      "contentType": "application/json",
+      "sizeBytes": 2070
+    },
+    {
+      "id": "77bf6686-9bc7-40e3-b6bd-a039ec647b80",
+      "kind": "Trace",
+      "name": "trace.zip",
+      "contentType": "application/zip",
+      "sizeBytes": 196913
+    },
+    {
+      "id": "99104462-4dd1-4812-92a4-2aa30043ef82",
+      "kind": "ConsoleLog",
+      "name": "execution.console.json",
+      "contentType": "application/json",
+      "sizeBytes": 258
+    },
+    {
+      "id": "9fc8305e-36a4-4a38-8b42-00f072ba2181",
+      "kind": "Screenshot",
+      "name": "step-4-failure.png",
+      "contentType": "image/png",
+      "sizeBytes": 36798
+    },
+    {
+      "id": "ea07f0e9-5833-4e6a-a8f3-b929f0d70034",
+      "kind": "DomSnapshot",
+      "name": "step-4-failure.html",
+      "contentType": "text/html",
+      "sizeBytes": 4996
+    },
+    {
+      "id": "eb7022a3-154c-40c2-af40-c219fb55f9f3",
+      "kind": "AccessibilityTree",
+      "name": "step-4-failure.a11y.json",
+      "contentType": "application/json",
+      "sizeBytes": 734
+    },
+    {
+      "id": "f19ed198-8e30-4009-91c1-6cc35fc3bf5f",
+      "kind": "Screenshot",
+      "name": "final.png",
+      "contentType": "image/png",
+      "sizeBytes": 36798
+    }
+  ],
+  "testData": {
+    "email": "qa.nxt@example.test"
+  },
+  "reproductionSteps": [
+    "1. Open Feedback",
+    "2. Enter \"qa.nxt@example.test\" in Email",
+    "3. Press \"Send feedback\"",
+    "4. Confirm the error is tied to Nickname"
+  ],
+  "defectId": "d05d9cd1-00a5-4597-a806-6ae995106259",
+  "failureCategory": "ApplicationDefect",
+  "diagnosisSummary": "An assertion did not hold."
+}

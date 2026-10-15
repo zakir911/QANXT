@@ -10,7 +10,13 @@ using ApplicationEntity = QaNxt.Domain.Applications.Application;
 
 namespace QaNxt.Application.Applications;
 
-public sealed record ApplicationCredentials(string? Username, string? Password, string? BearerToken, string? StorageStateJson);
+/// <param name="OtpMode">The second step some sign-ins ask for after the password:
+/// <c>none</c>; <c>fixed</c>, a code a test environment always accepts; or <c>totp</c>, the
+/// secret behind an authenticator app, from which a fresh code is made at each sign-in. An SMS
+/// or email code cannot be read from here and needs one of the two.</param>
+/// <param name="OtpValue">The fixed code, or the authenticator secret (base32).</param>
+public sealed record ApplicationCredentials(string? Username, string? Password, string? BearerToken, string? StorageStateJson,
+    string? OtpMode = null, string? OtpValue = null);
 
 public sealed record CreateApplicationRequest(
     Guid ProjectId, string Name, string BaseUrl, string? Description,
@@ -166,7 +172,15 @@ public sealed class ApplicationService : IApplicationService
         application.UseSitemap = request.UseSitemap ?? true;
 
         if (request.Credentials is not null)
-            application.EncryptedCredentials = Protect(request.Credentials);
+        {
+            if (OtpProblem(request.Credentials, valueRequired: true) is { } otpProblem) return Error.Validation(otpProblem);
+            var otpMode = NormalizeOtpMode(request.Credentials.OtpMode);
+            application.EncryptedCredentials = Protect(request.Credentials with
+            {
+                OtpMode = otpMode is "none" ? null : otpMode,
+                OtpValue = otpMode is null or "none" ? null : request.Credentials.OtpValue?.Trim()
+            });
+        }
 
         _db.Applications.Add(application);
         await _db.SaveChangesAsync(ct);
@@ -252,7 +266,22 @@ public sealed class ApplicationService : IApplicationService
 
         if (request.Credentials is not null)
         {
-            application.EncryptedCredentials = Protect(request.Credentials);
+            // Credentials are write-only, so an edit that sets only the one-time code must not
+            // wipe the stored username and password: blanks keep what is stored.
+            var stored = string.IsNullOrEmpty(application.EncryptedCredentials) ? null : await ResolveCredentialsAsync(application, ct);
+            var incoming = request.Credentials;
+            var mode = NormalizeOtpMode(incoming.OtpMode) ?? stored?.OtpMode;
+            // A blank value keeps the stored one only while the kind of code stays the same:
+            // a fixed code is not an authenticator secret.
+            var valueRequired = incoming.OtpMode is not null && mode != stored?.OtpMode;
+            if (OtpProblem(incoming, valueRequired) is { } otpProblem) return Error.Validation(otpProblem);
+            application.EncryptedCredentials = Protect(new ApplicationCredentials(
+                Blank(incoming.Username) ? stored?.Username : incoming.Username,
+                Blank(incoming.Password) ? stored?.Password : incoming.Password,
+                incoming.BearerToken ?? stored?.BearerToken,
+                incoming.StorageStateJson ?? stored?.StorageStateJson,
+                mode is "none" ? null : mode,
+                mode is null or "none" ? null : Blank(incoming.OtpValue) ? stored?.OtpValue : incoming.OtpValue!.Trim()));
             await _audit.LogAsync(AuditAction.SecretConfigured, nameof(ApplicationEntity), application.Id,
                 $"Credentials updated for application '{application.Name}'.",
                 projectId: application.ProjectId, ct: ct);
@@ -299,6 +328,34 @@ public sealed class ApplicationService : IApplicationService
             ?? new ApplicationCredentials(null, null, null, null);
         return Task.FromResult(credentials);
     }
+
+    private static bool Blank(string? value) => string.IsNullOrWhiteSpace(value);
+
+    /// <summary>Why a one-time-code setting cannot work, before it is stored and fails at the
+    /// first sign-in instead.</summary>
+    internal static string? OtpProblem(ApplicationCredentials credentials, bool valueRequired)
+    {
+        var mode = NormalizeOtpMode(credentials.OtpMode);
+        if (mode is null or "none") return null;
+        var value = credentials.OtpValue?.Trim() ?? string.Empty;
+        return mode switch
+        {
+            "fixed" or "totp" when value.Length == 0 && valueRequired =>
+                mode == "fixed" ? "Enter the fixed one-time code the test environment accepts."
+                                : "Enter the authenticator secret for this test account.",
+            "fixed" when value.Length == 0 => null, // keeps the stored code on an edit
+            "fixed" when !System.Text.RegularExpressions.Regex.IsMatch(value, "^[A-Za-z0-9]{4,10}$") =>
+                "A fixed one-time code is 4 to 10 letters or digits, as the application expects it.",
+            "totp" when value.Length == 0 => null,
+            "totp" when !System.Text.RegularExpressions.Regex.IsMatch(value.Replace(" ", "").TrimEnd('='), "^[A-Za-z2-7]{16,}$") =>
+                "An authenticator secret is the base32 key shown when the authenticator is set up (letters A–Z and digits 2–7, usually 16 or 32 of them), not a code from the app.",
+            "fixed" or "totp" => null,
+            _ => "The one-time code setting must be none, fixed or totp."
+        };
+    }
+
+    internal static string? NormalizeOtpMode(string? mode)
+        => string.IsNullOrWhiteSpace(mode) ? null : mode.Trim().ToLowerInvariant();
 
     private string Protect(ApplicationCredentials credentials)
         => _protector.Protect(JsonSerializer.Serialize(credentials, JsonDefaults.Options));

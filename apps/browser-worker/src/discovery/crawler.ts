@@ -89,7 +89,7 @@ export class Crawler {
     private readonly logger: Logger
   ) {
     this.masker = new SecretMasker().withLiterals([
-      options.auth.password, options.auth.bearerToken, options.auth.username
+      options.auth.password, options.auth.bearerToken, options.auth.username, options.auth.otpValue
     ]);
   }
 

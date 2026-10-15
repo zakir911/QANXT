@@ -30,6 +30,13 @@ export interface AuthConfig {
   password?: string;
   bearerToken?: string;
   storageStateJson?: string;
+  /**
+   * A one-time code the application asks for after the password: none, a fixed code the
+   * test environment accepts, or an authenticator (TOTP) secret the worker computes codes
+   * from. Resolved at dispatch like the password and masked in evidence.
+   */
+  otpMode?: 'none' | 'fixed' | 'totp';
+  otpValue?: string;
 }
 
 /** The crawl boundary. The worker refuses to leave it, whatever the page contains. */
