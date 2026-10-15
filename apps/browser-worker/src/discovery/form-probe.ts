@@ -49,7 +49,9 @@ function diff(before: Snapshot, after: Snapshot): Omit<FormDependency, 'trigger'
   return { shows, hides, becomesRequired, optionsOf };
 }
 
-export async function probeForm(page: Page, form: RawForm, maxInteractions: number): Promise<ProbeResult> {
+export async function probeForm(page: Page, form: RawForm, maxInteractions: number,
+  /** Re-opens a form that lives behind an opener, after each reload puts it away again. */
+  afterReload: () => Promise<void> = async () => undefined): Promise<ProbeResult> {
   const dependencies: FormDependency[] = [];
   let interactions = 0;
   const startUrl = page.url();
@@ -108,6 +110,7 @@ export async function probeForm(page: Page, form: RawForm, maxInteractions: numb
       if (!unsafe) {
         restoring = true;
         await page.goto(startUrl, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+        await afterReload();
         restoring = false;
         interactions += 1;
       }

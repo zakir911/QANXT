@@ -148,6 +148,15 @@ describe('discovering forms', () => {
     expect(formOn('/registration')!.isMultiStep).toBe(false);
   });
 
+  test('a form in a closed dialog is found with its opener, and its fields as they are once it is open', () => {
+    const form = formOn('/contact-modal')!;
+    expect(form.hiddenAtLoad).toBe(true);
+    expect(form.opener?.label).toBe('Contact us');
+    // Once open every field shows; none is mistaken for a conditional field.
+    expect(form.fields.every(field => field.visible)).toBe(true);
+    expect(formOn('/registration')!.hiddenAtLoad).toBe(false);
+  });
+
   test('an anti-forgery token is reported only where there is one', () => {
     const wrong = truth.forms
       .filter(form => formOn(form.route))

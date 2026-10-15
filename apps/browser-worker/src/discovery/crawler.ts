@@ -495,14 +495,28 @@ export class Crawler {
           forms.push({ ...masked, dependencies: [], hiddenAtLoad, opener: null, probeNote: 'Hidden when the page loads; no control that opens it was found.' });
           continue;
         }
+      }
+      const open = async () => {
+        if (!opener) return;
         await buildLocator(page, opener.locator).first().click({ timeout: 2000 }).catch(() => undefined);
         await page.waitForTimeout(300);
+      };
+      let current = masked;
+      if (opener) {
+        // Read the form again with it open: which fields show is what a user sees once it
+        // is open, not the all-hidden state of the closed dialog, which would make every
+        // field look conditional.
+        await open();
+        const reopened = (await page.evaluate(extractForms, 300).catch(() => [] as RawForm[]) as RawForm[])
+          .find(f => f.domIndex === form.domIndex && f.key === form.key);
+        if (reopened) current = { ...masked, fields: masked.fields.map(field => ({ ...field, visible: reopened.fields.find(r => r.key === field.key)?.visible ?? field.visible })),
+          buttons: masked.buttons.map(button => ({ ...button, visible: reopened.buttons.find(r => r.label === button.label)?.visible ?? button.visible })) };
       }
       try {
-        const probe = await probeForm(page, form, remaining);
+        const probe = await probeForm(page, current, remaining, open);
         remaining -= probe.interactions;
         if (probe.stoppedBecause) this.note(`Stopped probing ${form.key} on ${page.url()}: ${probe.stoppedBecause}.`);
-        forms.push({ ...masked, dependencies: probe.dependencies, probeNote: probe.stoppedBecause, hiddenAtLoad, opener: opener ?? null });
+        forms.push({ ...current, dependencies: probe.dependencies, probeNote: probe.stoppedBecause, hiddenAtLoad, opener: opener ?? null });
       } catch (error) {
         forms.push({ ...masked, dependencies: [], probeNote: `Probe failed: ${tidyForLog(String(error))}` });
       }
