@@ -213,23 +213,49 @@ public static class FormTestDesigner
         }
 
         /// <summary>For a form behind an opener (a dialog's "Contact us"), presses the opener
-        /// whenever the page has just been loaded, reloaded or returned to and the test goes
-        /// on to use the form.</summary>
+        /// before the first step that uses the form after its page is loaded, reloaded or
+        /// returned to. Page-level steps (load time, sideways scrolling) do not need it, and a
+        /// reload after submitting is of the result page, which has no opener.</summary>
         private List<DesignedStep> WithOpener(IReadOnlyList<DesignedStep> steps)
         {
             var result = new List<DesignedStep>(steps.Count + 2);
-            for (var i = 0; i < steps.Count; i++)
+            var pending = false;
+            var submitted = false;
+            foreach (var step in steps)
             {
-                result.Add(steps[i]);
-                var loads = steps[i].Action is BrowserActionType.Reload or BrowserActionType.GoBack
-                    || steps[i].Action == BrowserActionType.Navigate && string.Equals(steps[i].Url, _ctx.PageUrl, StringComparison.Ordinal);
-                var next = i + 1 < steps.Count ? steps[i + 1] : null;
-                if (loads && next is not null && next.Action is not (BrowserActionType.Navigate or BrowserActionType.SetViewport
-                        or BrowserActionType.AssertLoadTimeUnder or BrowserActionType.AssertNoHorizontalScroll))
+                var opensPage = step.Action == BrowserActionType.Navigate && string.Equals(step.Url, _ctx.PageUrl, StringComparison.Ordinal);
+                if (opensPage || step.Action == BrowserActionType.GoBack)
+                {
+                    result.Add(step);
+                    pending = true;
+                    submitted = false;
+                    continue;
+                }
+                if (step.Action == BrowserActionType.Reload)
+                {
+                    result.Add(step);
+                    pending = !submitted;
+                    continue;
+                }
+                if (step.Action == BrowserActionType.Navigate) { result.Add(step); pending = false; continue; }
+
+                var pageLevel = step.Action is BrowserActionType.SetViewport or BrowserActionType.AssertLoadTimeUnder
+                    or BrowserActionType.AssertNoHorizontalScroll or BrowserActionType.ClearCookies or BrowserActionType.SetOffline
+                    or BrowserActionType.AssertNoServerError or BrowserActionType.AssertRequests;
+                if (pending && !pageLevel)
+                {
                     result.Add(new DesignedStep(BrowserActionType.Click, $"Press \"{_form.Opener!.Label}\" to open the form", _form.Opener.Locator));
+                    pending = false;
+                }
+                result.Add(step);
+                if (IsSubmission(step)) submitted = true;
             }
             return result;
         }
+
+        private bool IsSubmission(DesignedStep step)
+            => step.Action == BrowserActionType.Press && step.Value == "Enter"
+               || step.Action == BrowserActionType.Click && _submit is not null && step.Target == _submit.Locator;
 
         private string Key(TestCategory category, string technique, string? field = null)
             => $"form:{_ctx.FormId:N}|{TestingProfile.CategoryKey(category)}|{technique}" + (field is null ? string.Empty : $"|{field}");

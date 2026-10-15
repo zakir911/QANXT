@@ -211,17 +211,27 @@ public class FormEngineTests
 
         foreach (var test in design.Tests)
         {
+            // Every step that uses the form comes after an opener press, from the page's load
+            // (or reload before submitting, or return) onwards.
             var steps = test.Steps.ToList();
-            for (var i = 0; i < steps.Count - 1; i++)
+            var open = false;
+            var submitted = false;
+            foreach (var step in steps)
             {
-                var loads = steps[i].Action is BrowserActionType.Reload or BrowserActionType.GoBack
-                    || steps[i].Action == BrowserActionType.Navigate && steps[i].Url == "http://lab/registration";
-                var usesForm = steps[i + 1].Action is not (BrowserActionType.Navigate or BrowserActionType.SetViewport
-                    or BrowserActionType.AssertLoadTimeUnder or BrowserActionType.AssertNoHorizontalScroll);
-                if (loads && usesForm)
-                    steps[i + 1].Target!.Value.Should().Be("contact-open", $"{test.Name} must open the form after step {i + 1}");
+                if (step.Action == BrowserActionType.Navigate || step.Action == BrowserActionType.GoBack) { open = false; submitted = false; continue; }
+                if (step.Action == BrowserActionType.Reload) { if (!submitted) open = false; continue; }
+                if (step.Target?.Value == "contact-open") { open = true; continue; }
+                var usesForm = step.Target is not null && step.Action != BrowserActionType.SetViewport;
+                if (usesForm && !submitted) open.Should().BeTrue($"{test.Name}: \"{step.Description}\" needs the form open");
+                if (step.Target?.Value == "registration-submit" || step.Action == BrowserActionType.Press) submitted = true;
             }
         }
+        var responsive = design.Tests.First(t => t.Category == TestCategory.Responsive && t.Steps.Any(s => s.Action == BrowserActionType.AssertVisible)).Steps.ToList();
+        responsive.FindIndex(s => s.Target?.Value == "contact-open").Should().BeGreaterThan(responsive.FindIndex(s => s.Action == BrowserActionType.AssertNoHorizontalScroll),
+            "the page is measured as it loads, then the form is opened to check its fields");
+        var refresh = design.Tests.Single(t => t.Technique == "refresh-after-submit").Steps.ToList();
+        refresh.Skip(refresh.FindIndex(s => s.Action == BrowserActionType.Reload)).Should().NotContain(s => s.Target != null && s.Target.Value == "contact-open",
+            "a reload after submitting shows the result page, which has no opener");
         design.Tests.Single(t => t.Technique == "page-load").Steps.Should().NotContain(s => s.Target != null && s.Target.Value == "contact-open",
             "measuring the page load does not need the form open");
     }
