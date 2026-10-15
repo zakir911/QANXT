@@ -606,3 +606,31 @@ describe('the one-time code on the add-application form', () => {
     expect(screen.getByText(/follows every link it finds by itself/)).toBeInTheDocument();
   });
 });
+
+describe('sign-in page selectors', () => {
+  beforeEach(() => {
+    permissions.current = new Set(['application:write', 'discovery:run']);
+    apiRequest.mockReset();
+    apiRequest.mockImplementation(async (path: string) =>
+      path.startsWith('/api/v1/applications?') ? [] : { id: 'app-1' });
+  });
+
+  test('are sent with the post-login hint in the login flow', async () => {
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Add application' }));
+    await userEvent.type(screen.getByLabelText('Name'), 'Bank');
+    await userEvent.type(screen.getByLabelText('Base URL'), 'https://bank.example.test/');
+    await userEvent.type(screen.getByLabelText('Post-login URL contains'), '/home');
+    await userEvent.type(screen.getByLabelText('Selector: user name field'), '#userId');
+    await userEvent.click(screen.getByRole('button', { name: 'Create application' }));
+
+    const call = await waitFor(() => {
+      const found = apiRequest.mock.calls.find(([path, options]) =>
+        path === '/api/v1/applications' && (options as { method?: string })?.method === 'POST');
+      expect(found).toBeDefined();
+      return found!;
+    });
+    const body = (call[1] as { body: { loginFlowJson: string } }).body;
+    expect(JSON.parse(body.loginFlowJson)).toEqual({ successUrlContains: '/home', usernameSelector: '#userId' });
+  });
+});

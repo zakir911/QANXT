@@ -1,4 +1,4 @@
-import type { Page } from 'playwright';
+import type { Frame, Page } from 'playwright';
 import type { AuthConfig, LocatorDescriptor } from '@qa-nxt/shared-types';
 import { buildLocator, resolveLocator } from './locator-resolver.js';
 import { totp, totpSecondsRemaining } from './totp.js';
@@ -52,7 +52,8 @@ async function performFormLogin(page: Page, auth: AuthConfig, options: LoginOpti
 
   if (!auth.loginUrl) return fail('No login URL is configured for this application.', actions);
   if (!auth.username) return fail('No username was supplied for form login.', actions);
-  if (!auth.password) return fail('No password was supplied for form login.', actions);
+  // No password is checked for here: some sign-ins ask only for a user id and a one-time
+  // code. A password field with no password configured fails when it is reached.
 
   try {
     await page.goto(auth.loginUrl, { waitUntil: 'domcontentloaded', timeout: options.navigationTimeoutMs });
@@ -61,29 +62,14 @@ async function performFormLogin(page: Page, auth: AuthConfig, options: LoginOpti
     return fail(`The login page could not be loaded: ${messageOf(error)}`, actions);
   }
 
-  // Sensible defaults so an application with a conventional login form needs no
-  // configuration beyond a URL and credentials.
-  const usernameLocator = auth.usernameLocator ?? defaultUsernameLocator();
-  const passwordLocator = auth.passwordLocator ?? defaultPasswordLocator();
-  const submitLocator = auth.submitLocator ?? defaultSubmitLocator();
-
+  // Locators configured for this application win; without them the form is found the way a
+  // person finds it, wherever and however late it renders.
   try {
-    const username = await resolveLocator(page, usernameLocator, { timeoutMs: options.actionTimeoutMs });
-    await username.locator.fill(auth.username);
-    actions++;
-
-    const password = await resolveLocator(page, passwordLocator, { timeoutMs: options.actionTimeoutMs });
-    await password.locator.fill(auth.password);
-    actions++;
-
-    const submit = await resolveLocator(page, submitLocator, { timeoutMs: options.actionTimeoutMs });
-    await Promise.all([
-      page.waitForLoadState('domcontentloaded', { timeout: options.navigationTimeoutMs }).catch(() => undefined),
-      submit.locator.click({ timeout: options.actionTimeoutMs })
-    ]);
-    actions++;
+    const filled = await fillSignInForm(page, auth, options);
+    actions += filled.actionsUsed;
+    if (!filled.succeeded) return fail(filled.message, actions);
   } catch (error) {
-    return fail(`The login form could not be completed: ${messageOf(error)}`, actions);
+    return fail(`The login form could not be completed: ${messageOf(error)}${await describeVisibleForm(page)}`, actions);
   }
 
   await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => undefined);
@@ -163,6 +149,205 @@ async function waitForSignInOutcome(page: Page, auth: AuthConfig, options: Login
   }
 }
 
+type Scope = Page | Frame;
+
+const TEXT_INPUT = 'input:not([type]), input[type="text"], input[type="email"], input[type="tel"], input[type="number"]';
+const PASSWORD_INPUT = 'input[type="password"]:visible';
+const PRIMARY_BUTTON = /\b(sign ?in|log ?in|login|continue|next|proceed|submit|verify|send otp|get otp|request otp|generate otp)\b/i;
+const NOT_PRIMARY = /forgot|register|sign ?up|create|reset|cancel|back|help|google|facebook|apple|microsoft/i;
+
+/**
+ * The frame that holds the sign-in form, waiting for it to render.
+ *
+ * A single-page application renders its login form after `domcontentloaded`, sometimes
+ * seconds after, and some banks and identity providers put it inside an iframe. Looking
+ * once, in the top frame, is what reported a perfectly good login page as having no
+ * password field.
+ */
+async function waitForLoginFrame(page: Page, timeoutMs: number): Promise<Scope | undefined> {
+  const deadline = Date.now() + timeoutMs;
+  let firstWithText: Scope | undefined;
+  let textOnlySince: number | undefined;
+  while (Date.now() < deadline) {
+    firstWithText = undefined;
+    for (const frame of page.frames()) {
+      if (await frame.locator(PASSWORD_INPUT).count().catch(() => 0) > 0) return frame === page.mainFrame() ? page : frame;
+      if (!firstWithText && await visibleTextInputs(frame).count().catch(() => 0) > 0) {
+        firstWithText = frame === page.mainFrame() ? page : frame;
+      }
+    }
+    // A form with only a user id is the first step of a two-step sign-in; give a password
+    // field a moment to render beside it before treating it as one.
+    textOnlySince = firstWithText ? textOnlySince ?? Date.now() : undefined;
+    if (textOnlySince !== undefined && Date.now() - textOnlySince > 1500) return firstWithText;
+    await page.waitForTimeout(250);
+  }
+  return firstWithText;
+}
+
+function visibleTextInputs(scope: Scope) {
+  return scope.locator(TEXT_INPUT).filter({ visible: true });
+}
+
+/** The input a person would type the user name into: scored on its name, label and place. */
+async function findUsernameField(scope: Scope) {
+  const index = await scope.evaluate(selector => {
+    const inputs = Array.from(document.querySelectorAll<HTMLInputElement>(selector));
+    const password = document.querySelector('input[type="password"]');
+    let best = -1;
+    let bestScore = -Infinity;
+    inputs.forEach((input, i) => {
+      const style = getComputedStyle(input);
+      const box = input.getBoundingClientRect();
+      if (input.disabled || input.readOnly || style.visibility === 'hidden' || style.display === 'none'
+        || box.width === 0 || box.height === 0) return;
+      const label = [input.name, input.id, input.placeholder, input.getAttribute('aria-label') ?? '',
+        input.autocomplete, ...Array.from(input.labels ?? []).map(l => l.textContent ?? '')].join(' ');
+      if (/search|captcha|otp|one-time/i.test(label) || input.type === 'search') return;
+      let score = 0;
+      if (/username|email/.test(input.autocomplete)) score += 6;
+      if (/user|email|e-mail|login|log-in|mobile|phone|customer|account|member|client|signin|\bid\b|userid|cif/i.test(label)) score += 3;
+      if (password && input.form && input.form === (password as HTMLInputElement).form) score += 2;
+      if (password && (input.compareDocumentPosition(password) & Node.DOCUMENT_POSITION_FOLLOWING)) score += 1;
+      score -= i * 0.01; // the earlier of two equals
+      if (score > bestScore) { bestScore = score; best = i; }
+    });
+    return best;
+  }, TEXT_INPUT);
+  return index < 0 ? undefined : scope.locator(TEXT_INPUT).nth(index);
+}
+
+/** Presses the form's primary button (Sign in, Continue, Next…), or Enter in the field. */
+async function pressPrimary(page: Page, scope: Scope, field: ReturnType<Scope['locator']>, configured: LocatorDescriptor | undefined, options: LoginOptions): Promise<void> {
+  let button: ReturnType<Scope['locator']> | undefined;
+  if (configured) {
+    button = (await resolveLocator(scope, configured, { timeoutMs: options.actionTimeoutMs })).locator;
+  } else {
+    const form = field.locator('xpath=ancestor::form[1]');
+    if (await form.count().catch(() => 0) > 0) {
+      const inForm = form.locator('button[type="submit"], input[type="submit"], button:not([type])').filter({ visible: true });
+      for (let i = 0; i < await inForm.count().catch(() => 0); i++) {
+        const name = (await inForm.nth(i).innerText().catch(() => '')) || (await inForm.nth(i).getAttribute('value').catch(() => '')) || '';
+        if (!NOT_PRIMARY.test(name)) { button = inForm.nth(i); break; }
+      }
+    }
+    if (!button) {
+      const named = scope.getByRole('button', { name: PRIMARY_BUTTON }).filter({ visible: true });
+      for (let i = 0; i < await named.count().catch(() => 0); i++) {
+        const name = await named.nth(i).innerText().catch(() => '');
+        if (!NOT_PRIMARY.test(name)) { button = named.nth(i); break; }
+      }
+    }
+  }
+
+  await Promise.all([
+    page.waitForLoadState('domcontentloaded', { timeout: options.navigationTimeoutMs }).catch(() => undefined),
+    button ? button.click({ timeout: options.actionTimeoutMs }) : field.press('Enter', { timeout: options.actionTimeoutMs })
+  ]);
+}
+
+/** Waits for a password field, a one-time-code prompt, or the page to settle without either. */
+async function waitForNextStep(page: Page, timeoutMs: number): Promise<'password' | 'otp' | 'neither'> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (page.isClosed()) return 'neither';
+    for (const frame of page.frames()) {
+      if (await frame.locator(PASSWORD_INPUT).count().catch(() => 0) > 0) return 'password';
+    }
+    if (await findOtpField(page)) return 'otp';
+    if (await hasVisibleError(page)) return 'neither';
+    await page.waitForTimeout(150);
+  }
+  return 'neither';
+}
+
+/**
+ * Fills the user name and password and submits, in one step or two.
+ *
+ * Banks and identity providers often ask for the user id, then show the password (or a
+ * one-time code) on the next screen. When no password field is beside the user id, the
+ * form's primary button is pressed and the next screen is answered.
+ */
+async function fillSignInForm(page: Page, auth: AuthConfig, options: LoginOptions): Promise<LoginResult> {
+  let actions = 0;
+  const scope = await waitForLoginFrame(page, options.actionTimeoutMs);
+  if (!scope) {
+    return fail(`No sign-in form appeared on ${page.url()} within ${Math.round(options.actionTimeoutMs / 1000)}s.${await describeVisibleForm(page)}`, actions);
+  }
+
+  const username = auth.usernameLocator
+    ? (await resolveLocator(scope, auth.usernameLocator, { timeoutMs: options.actionTimeoutMs })).locator
+    : await findUsernameField(scope);
+  if (!username) return fail(`No field for the user name was found on the sign-in page.${await describeVisibleForm(page)}`, actions);
+  await username.fill(auth.username!, { timeout: options.actionTimeoutMs });
+  actions++;
+
+  let passwordScope: Scope = scope;
+  let password = auth.passwordLocator
+    ? (await resolveLocator(scope, auth.passwordLocator, { timeoutMs: options.actionTimeoutMs })).locator
+    : scope.locator(PASSWORD_INPUT).first();
+
+  if (!auth.passwordLocator && await password.count().catch(() => 0) === 0) {
+    // Two steps: the user id first, then whatever the application asks for next.
+    await pressPrimary(page, scope, username, undefined, options);
+    actions++;
+    const next = await waitForNextStep(page, options.actionTimeoutMs);
+    if (next === 'otp') return { succeeded: true, message: 'User id accepted; a one-time code is asked for next.', actionsUsed: actions };
+    if (next === 'neither') {
+      return fail(`After the user name was entered and the form's button pressed, no password field or one-time-code prompt appeared.${await describeVisibleForm(page)}`, actions);
+    }
+    for (const frame of page.frames()) {
+      if (await frame.locator(PASSWORD_INPUT).count().catch(() => 0) > 0) {
+        passwordScope = frame === page.mainFrame() ? page : frame;
+        break;
+      }
+    }
+    password = passwordScope.locator(PASSWORD_INPUT).first();
+  }
+
+  if (!auth.password) {
+    return fail('The application asks for a password and none is configured. Edit the application and enter the test account\'s password.', actions);
+  }
+  await password.fill(auth.password, { timeout: options.actionTimeoutMs });
+  actions++;
+
+  await pressPrimary(page, passwordScope, password, auth.submitLocator, options);
+  actions++;
+  return { succeeded: true, message: 'Sign-in form submitted.', actionsUsed: actions };
+}
+
+/**
+ * What the worker could see when it could not sign in: the fields and buttons, by type,
+ * name and label, never their values. Enough to tell a two-step login, a renamed field or
+ * a page that is not the login page at all, without opening the screenshot.
+ */
+async function describeVisibleForm(page: Page): Promise<string> {
+  const seen: string[] = [];
+  for (const frame of page.frames()) {
+    const items = await frame.evaluate(() => {
+      const visible = (el: Element) => { const b = el.getBoundingClientRect(); return b.width > 0 && b.height > 0; };
+      const out: string[] = [];
+      document.querySelectorAll<HTMLInputElement>('input:not([type="hidden"]), select, textarea').forEach(el => {
+        if (!visible(el) || out.length >= 10) return;
+        const label = Array.from((el as HTMLInputElement).labels ?? []).map(l => l.textContent?.trim()).filter(Boolean)[0]
+          ?? el.getAttribute('aria-label') ?? el.getAttribute('placeholder') ?? '';
+        out.push(`${el.tagName.toLowerCase()}${el.type ? `[type=${el.type}]` : ''}${el.name ? ` name="${el.name}"` : ''}${el.id ? ` id="${el.id}"` : ''}${label ? ` "${label.slice(0, 40)}"` : ''}`);
+      });
+      document.querySelectorAll('button, [role="button"], input[type="submit"]').forEach(el => {
+        if (!visible(el) || out.length >= 16) return;
+        const text = ((el as HTMLElement).innerText || (el as HTMLInputElement).value || el.getAttribute('aria-label') || '').trim();
+        if (text) out.push(`button "${text.slice(0, 30)}"`);
+      });
+      return out;
+    }).catch(() => [] as string[]);
+    const where = frame === page.mainFrame() ? '' : ` (in frame ${frame.url().slice(0, 80)})`;
+    seen.push(...items.map(item => item + where));
+  }
+  return seen.length === 0
+    ? ` The page at ${page.url()} showed no fields or buttons.`
+    : ` The page at ${page.url()} showed: ${seen.slice(0, 16).join('; ')}.`;
+}
+
 /** Selectors for an input that asks for a one-time code, most specific first. */
 const OTP_FIELD_SELECTORS = [
   'input[autocomplete="one-time-code"]',
@@ -178,13 +363,22 @@ const OTP_FIELD_SELECTORS = [
 /** Separate one-character boxes, one per digit. */
 const OTP_DIGIT_BOXES = 'input[maxlength="1"]:visible';
 
-interface OtpField { kind: 'single' | 'digits'; count: number; selector: string }
+interface OtpField { kind: 'single' | 'digits'; count: number; selector: string; scope: Scope }
 
+/** The one-time-code field, in whichever frame shows it. */
 async function findOtpField(page: Page): Promise<OtpField | undefined> {
+  for (const frame of page.frames()) {
+    const found = await findOtpFieldIn(frame === page.mainFrame() ? page : frame).catch(() => undefined);
+    if (found) return found;
+  }
+  return undefined;
+}
+
+async function findOtpFieldIn(page: Scope): Promise<OtpField | undefined> {
   for (const selector of OTP_FIELD_SELECTORS) {
     const count = await page.locator(selector).count().catch(() => 0);
-    if (count === 1) return { kind: 'single', count, selector };
-    if (count >= 4 && count <= 8) return { kind: 'digits', count, selector };
+    if (count === 1) return { kind: 'single', count, selector, scope: page };
+    if (count >= 4 && count <= 8) return { kind: 'digits', count, selector, scope: page };
   }
   // A label naming the code, for forms that give the input no telling name.
   for (const label of [/one[- ]time/i, /verification code/i, /security code/i, /authenticat(ion|or) code/i, /\b(otp|2fa|mfa)\b/i]) {
@@ -192,11 +386,11 @@ async function findOtpField(page: Page): Promise<OtpField | undefined> {
     if (await field.count().catch(() => 0) === 1 && await field.isVisible().catch(() => false)
       && await field.evaluate(element => element instanceof HTMLInputElement).catch(() => false)) {
       const id = await field.evaluate(element => (element as HTMLInputElement).id).catch(() => '');
-      if (id) return { kind: 'single', count: 1, selector: `[id="${id}"]` };
+      if (id) return { kind: 'single', count: 1, selector: `[id="${id}"]`, scope: page };
     }
   }
   const digits = await page.locator(OTP_DIGIT_BOXES).count().catch(() => 0);
-  if (digits >= 4 && digits <= 8) return { kind: 'digits', count: digits, selector: OTP_DIGIT_BOXES };
+  if (digits >= 4 && digits <= 8) return { kind: 'digits', count: digits, selector: OTP_DIGIT_BOXES, scope: page };
   return undefined;
 }
 
@@ -233,10 +427,10 @@ async function completeOneTimeCode(page: Page, auth: AuthConfig, options: LoginO
   let actions = 0;
   try {
     if (field.kind === 'single') {
-      await page.locator(field.selector).first().fill(code, { timeout: options.actionTimeoutMs });
+      await field.scope.locator(field.selector).first().fill(code, { timeout: options.actionTimeoutMs });
       actions++;
     } else {
-      const boxes = page.locator(field.selector);
+      const boxes = field.scope.locator(field.selector);
       // Typing into the first box suits applications that move focus themselves; filling
       // each box covers the ones that do not.
       for (let index = 0; index < Math.min(field.count, code.length); index++) {
@@ -245,7 +439,7 @@ async function completeOneTimeCode(page: Page, auth: AuthConfig, options: LoginO
       }
     }
 
-    const submit = await resolveLocator(page, defaultOtpSubmitLocator(), { timeoutMs: 1500 }).catch(() => undefined);
+    const submit = await resolveLocator(field.scope, defaultOtpSubmitLocator(), { timeoutMs: 1500 }).catch(() => undefined);
     await Promise.all([
       page.waitForLoadState('domcontentloaded', { timeout: options.navigationTimeoutMs }).catch(() => undefined),
       submit
@@ -295,46 +489,18 @@ function defaultOtpSubmitLocator(): LocatorDescriptor {
 
 /** An alert or an error region the application rendered in response to the attempt. */
 async function hasVisibleError(page: Page): Promise<boolean> {
-  return page.locator('[role="alert"]:visible, [data-testid*="error"]:visible, .error:visible')
-    .count().then(count => count > 0).catch(() => false);
+  return anyFrameHas(page, '[role="alert"]:visible, [data-testid*="error"]:visible, .error:visible');
 }
 
 async function hasVisiblePasswordField(page: Page): Promise<boolean> {
-  return page.locator('input[type="password"]:visible').count().then(count => count > 0).catch(() => false);
+  return anyFrameHas(page, PASSWORD_INPUT);
 }
 
-function defaultUsernameLocator(): LocatorDescriptor {
-  return {
-    strategy: 'label', value: 'Username',
-    fallbacks: [
-      { strategy: 'css', value: 'input[name="username"]' },
-      { strategy: 'css', value: 'input[name="email"]' },
-      { strategy: 'placeholder', value: 'Username' },
-      { strategy: 'role', value: 'textbox' }
-    ]
-  };
-}
-
-function defaultPasswordLocator(): LocatorDescriptor {
-  return {
-    strategy: 'css', value: 'input[type="password"]',
-    fallbacks: [
-      { strategy: 'label', value: 'Password' },
-      { strategy: 'placeholder', value: 'Password' }
-    ]
-  };
-}
-
-function defaultSubmitLocator(): LocatorDescriptor {
-  return {
-    strategy: 'role', value: 'button', name: 'Sign in',
-    fallbacks: [
-      { strategy: 'role', value: 'button', name: 'Log in' },
-      { strategy: 'role', value: 'button', name: 'Login' },
-      { strategy: 'css', value: 'button[type="submit"]' },
-      { strategy: 'css', value: 'input[type="submit"]' }
-    ]
-  };
+async function anyFrameHas(page: Page, selector: string): Promise<boolean> {
+  for (const frame of page.frames()) {
+    if (await frame.locator(selector).count().catch(() => 0) > 0) return true;
+  }
+  return false;
 }
 
 function fail(message: string, actionsUsed: number): LoginResult {

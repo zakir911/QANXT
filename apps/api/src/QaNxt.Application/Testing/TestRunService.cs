@@ -402,7 +402,10 @@ public sealed class TestRunService : ITestRunService
                 StorageStateJson = credentials.StorageStateJson,
                 OtpMode = credentials.OtpMode,
                 OtpValue = credentials.OtpValue,
-                SuccessUrlContains = ReadLoginFlowHint(application.LoginFlowJson, "successUrlContains")
+                SuccessUrlContains = ReadLoginFlowHint(application.LoginFlowJson, "successUrlContains"),
+                UsernameLocator = LoginFlowHints.CssLocator(application.LoginFlowJson, "usernameSelector"),
+                PasswordLocator = LoginFlowHints.CssLocator(application.LoginFlowJson, "passwordSelector"),
+                SubmitLocator = LoginFlowHints.CssLocator(application.LoginFlowJson, "submitSelector")
             },
             Steps = steps.Select(step => new ExecutionStepPayload
             {

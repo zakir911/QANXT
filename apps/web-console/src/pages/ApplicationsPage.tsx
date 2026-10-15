@@ -33,7 +33,20 @@ interface ApplicationDetail {
   maxCrawlDepth: number; maxPages: number;
   respectRobotsTxt: boolean; interactionMode: string;
   seedUrls: string; useSitemap: boolean;
-  authStrategy: string; loginUrl?: string | null; hasCredentials: boolean;
+  authStrategy: string; loginUrl?: string | null; loginFlowJson?: string | null; hasCredentials: boolean;
+}
+
+/** The sign-in hints stored with an application; the form edits four of them. */
+const LOGIN_HINTS = ['successUrlContains', 'usernameSelector', 'passwordSelector', 'submitSelector'] as const;
+
+function parseLoginFlow(json: string | null | undefined): Record<string, unknown> {
+  if (!json) return {};
+  try {
+    const parsed: unknown = JSON.parse(json);
+    return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : {};
+  } catch {
+    return {};
+  }
 }
 
 export default function ApplicationsPage() {
@@ -160,9 +173,15 @@ export default function ApplicationsPage() {
       useSitemap: form.get('useSitemap') !== null,
       authStrategy,
       loginUrl: String(form.get('loginUrl') ?? '') || null,
-      loginFlowJson: form.get('successUrlContains')
-        ? JSON.stringify({ successUrlContains: String(form.get('successUrlContains')) })
-        : null,
+      // Hints this form does not edit are kept; the four it shows are what the user left in them.
+      loginFlowJson: (() => {
+        const flow = parseLoginFlow(editing?.loginFlowJson);
+        for (const key of LOGIN_HINTS) {
+          const value = String(form.get(key) ?? '').trim();
+          if (value) flow[key] = value; else delete flow[key];
+        }
+        return Object.keys(flow).length > 0 || editing?.loginFlowJson ? JSON.stringify(flow) : null;
+      })(),
       // Credentials are write-only: they are encrypted on arrival and never returned.
       // null means "leave whatever is stored alone", which is the only safe reading of an
       // empty field on an edit; blank fields inside an object keep their stored values too.
@@ -373,11 +392,31 @@ export default function ApplicationsPage() {
               </div>
               <div className="sm:col-span-2">
                 <label className="label" htmlFor="successUrlContains">Post-login URL contains</label>
-                <input id="successUrlContains" name="successUrlContains" className="input" placeholder="/dashboard" />
+                <input id="successUrlContains" name="successUrlContains" className="input" placeholder="/dashboard"
+                       defaultValue={String(parseLoginFlow(editing?.loginFlowJson).successUrlContains ?? '')} />
                 <p className="mt-1 text-xs text-ink-muted">
                   How the platform confirms sign-in worked instead of mapping the login page repeatedly.
                 </p>
               </div>
+              <details className="sm:col-span-2" open={LOGIN_HINTS.slice(1).some(key => parseLoginFlow(editing?.loginFlowJson)[key])}>
+                <summary className="cursor-pointer text-sm text-ink">Sign-in page fields (only if sign-in fails)</summary>
+                <p className="mt-1 text-xs text-ink-muted">
+                  The worker finds the sign-in form itself, including one that renders late, sits in a
+                  frame, or asks for the user id and the password on separate screens. If it still
+                  cannot, the failure lists the fields it saw; put a CSS selector for each control here,
+                  such as <code>#userId</code> or <code>input[name="loginPwd"]</code>.
+                </p>
+                <div className="mt-2 grid gap-3.5 sm:grid-cols-3">
+                  {([['usernameSelector', 'Selector: user name field', '#userId'], ['passwordSelector', 'Selector: password field', 'input[name="pwd"]'],
+                     ['submitSelector', 'Selector: sign-in button', 'button#login']] as const).map(([key, label, placeholder]) => (
+                    <div key={key}>
+                      <label className="label" htmlFor={key}>{label}</label>
+                      <input id={key} name={key} className="input font-mono text-xs" placeholder={placeholder}
+                             defaultValue={String(parseLoginFlow(editing?.loginFlowJson)[key] ?? '')} />
+                    </div>
+                  ))}
+                </div>
+              </details>
             </fieldset>
 
             {error !== null && <div className="sm:col-span-2"><ErrorNotice error={error} /></div>}

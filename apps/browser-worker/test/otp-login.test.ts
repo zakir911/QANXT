@@ -35,6 +35,35 @@ function otpSite(): Server {
     const code = () => url.searchParams.get('code') ?? [1, 2, 3, 4, 5, 6].map(i => url.searchParams.get(`d${i}`) ?? '').join('');
     const expected = url.searchParams.get('style') === 'totp' ? totp(RFC_SECRET) : '246810';
 
+    // A single-page application that renders its form two seconds after load.
+    if (url.pathname === '/spa-login') {
+      return send(page(`<div id="root">Loading…</div><script>
+        setTimeout(() => { document.getElementById('root').innerHTML =
+          '<form action="/otp" method="get"><input type="hidden" name="style" value="single">'
+          + '<label>User ID <input name="j_uid"></label><label>Secret word <input type="password" name="pw"></label>'
+          + '<button type="submit">Login</button></form>'; }, 2000);</script>`));
+    }
+    // User id first, password on the next screen.
+    if (url.pathname === '/two-step') {
+      return send(page(`<form action="/two-step-password" method="get"><label>Customer ID <input name="customerId"></label>
+        <a href="/help">Forgot customer id?</a><button>Continue</button></form>`));
+    }
+    if (url.pathname === '/two-step-password') {
+      return send(page(`<form action="/otp" method="get"><input type="hidden" name="style" value="single">
+        <label>Password <input type="password" name="password"></label><button>Sign in</button></form>`));
+    }
+    // The form inside an iframe.
+    if (url.pathname === '/framed') {
+      return send(page(`<h1>Bank</h1><iframe src="/login?style=single" width="600" height="400"></iframe>`));
+    }
+    // Mobile number, then a code: no password at all.
+    if (url.pathname === '/mobile-login') {
+      return send(page(`<form action="/otp" method="get"><input type="hidden" name="style" value="single">
+        <label>Mobile number <input name="mobile" type="tel"></label><button>Get OTP</button></form>`));
+    }
+    if (url.pathname === '/not-a-login') {
+      return send(page(`<h1>Maintenance</h1><label>Search <input type="search" name="q"></label><button>Go</button>`));
+    }
     if (url.pathname === '/login') {
       const style = url.searchParams.get('style') ?? 'single';
       return send(page(`<form action="/otp" method="get"><input type="hidden" name="style" value="${style}">
@@ -63,7 +92,7 @@ describe('sign-in with a one-time code', () => {
   let base: string;
   let pool: BrowserPool;
   let context: BrowserContext;
-  const options = { navigationTimeoutMs: 10_000, actionTimeoutMs: 4_000 };
+  const options = { navigationTimeoutMs: 10_000, actionTimeoutMs: 5_000 };
 
   beforeAll(async () => {
     server = otpSite();
@@ -91,6 +120,61 @@ describe('sign-in with a one-time code', () => {
       await page.close();
     }
   };
+
+  const loginAt = async (path: string, extra: Record<string, unknown> = {}) => {
+    const page = await context.newPage();
+    try {
+      const result = await performLogin(page, {
+        strategy: 'formLogin', loginUrl: `${base}${path}`,
+        username: 'tester', password: 'secret', otpMode: 'fixed', otpValue: '246810', ...extra
+      }, options);
+      const headings = await Promise.all(page.frames().map(frame => frame.locator('h1').allTextContents().catch(() => [])));
+      return { result, headings: headings.flat() };
+    } finally {
+      await page.close();
+    }
+  };
+
+  test('a form that renders seconds after the page loads is waited for', async () => {
+    const { result, headings } = await loginAt('/spa-login');
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 30_000);
+
+  test('a user id first and the password on the next screen is signed into', async () => {
+    const { result, headings } = await loginAt('/two-step');
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 30_000);
+
+  test('a sign-in form inside an iframe is found and used', async () => {
+    const { result, headings } = await loginAt('/framed');
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 30_000);
+
+  test('a mobile number and a code, with no password, is signed into', async () => {
+    const { result, headings } = await loginAt('/mobile-login', { password: undefined });
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 30_000);
+
+  test('selectors configured for the application are used as given', async () => {
+    const { result, headings } = await loginAt('/spa-login', {
+      usernameLocator: { strategy: 'css', value: 'input[name="j_uid"]' },
+      passwordLocator: { strategy: 'css', value: 'input[name="pw"]' },
+      submitLocator: { strategy: 'css', value: 'button[type="submit"]' }
+    });
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 30_000);
+
+  test('a page with no sign-in form says what it did see, without values', async () => {
+    const { result } = await loginAt('/not-a-login');
+    expect(result.succeeded).toBe(false);
+    expect(result.message).toMatch(/showed: .*type=search.*name="q"/);
+    expect(result.message).not.toContain('secret');
+  }, 30_000);
 
   test('a fixed test code is entered and the application is reached', async () => {
     const { result, heading } = await login('single', { otpMode: 'fixed', otpValue: '246810' });

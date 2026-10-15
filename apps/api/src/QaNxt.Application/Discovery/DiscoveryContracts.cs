@@ -22,6 +22,32 @@ public sealed record DiscoveryJobPayload
     [JsonPropertyName("correlationId")] public string CorrelationId { get; init; } = string.Empty;
 }
 
+/// <summary>Optional hints about the sign-in page, stored as the application's login-flow JSON.</summary>
+public static class LoginFlowHints
+{
+    public static string? Read(string? loginFlowJson, string property)
+    {
+        if (string.IsNullOrWhiteSpace(loginFlowJson)) return null;
+        try
+        {
+            using var document = System.Text.Json.JsonDocument.Parse(loginFlowJson);
+            return document.RootElement.TryGetProperty(property, out var value)
+                   && value.ValueKind == System.Text.Json.JsonValueKind.String
+                   && !string.IsNullOrWhiteSpace(value.GetString())
+                ? value.GetString()!.Trim() : null;
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>A CSS selector the owner gave for one sign-in control, as the worker's locator
+    /// shape; null leaves the worker to find the control itself.</summary>
+    public static object? CssLocator(string? loginFlowJson, string property)
+        => Read(loginFlowJson, property) is { } selector ? new { strategy = "css", value = selector } : null;
+}
+
 public sealed record AuthConfigPayload
 {
     [JsonPropertyName("strategy")] public AuthenticationStrategy Strategy { get; init; } = AuthenticationStrategy.None;

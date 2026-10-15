@@ -127,6 +127,19 @@ keep it short.
 > application bounces every visitor to the sign-in page, a crawl starting there can reach
 > exactly one page. Give it a page a signed-in user would land on.
 
+#### If sign-in fails
+
+The worker finds the sign-in form the way a person would: it waits for a form that renders
+after the page loads, looks inside frames, and handles a user id on one screen and the
+password (or a one-time code) on the next. A sign-in with a mobile number and a code and no
+password works too.
+
+When it still cannot sign in, the message lists the fields and buttons it saw on the page —
+type, name, id and label, never their values — for example
+`input[type=text] name="loginId" "Login ID"; button "Proceed"`. Use that to fill in
+**Sign-in page fields** under Authentication: a CSS selector for the user name field, the
+password field and the sign-in button. Anything left blank is still found automatically.
+
 #### Applications that ask for a one-time code
 
 If the application asks for a code after the password, set **Second step after sign-in**:
