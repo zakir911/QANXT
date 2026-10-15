@@ -402,6 +402,25 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
             .Where(t => t.ApplicationId == applicationId)
             .ToListAsync(ct);
 
+        // The control discovery pressed to make each transition, found by its accessible name
+        // on the page it was pressed on. Kept so tests can reach a page the way a user does.
+        var fromIds = completion.Transitions.Select(t => pageIds.TryGetValue(t.FromNormalizedUrl, out var id) ? id : Guid.Empty)
+            .Where(id => id != Guid.Empty).Distinct().ToList();
+        var controls = await _db.ApplicationElements
+            .Where(e => fromIds.Contains(e.ApplicationPageId) && e.AccessibleName != null
+                        && (e.Kind == ElementKind.Link || e.Kind == ElementKind.Button || e.Kind == ElementKind.Menu
+                            || e.Kind == ElementKind.Tab || e.Kind == ElementKind.Navigation))
+            .Select(e => new { e.Id, e.ApplicationPageId, e.AccessibleName, e.Kind })
+            .ToListAsync(ct);
+        Guid? ControlFor(Guid pageId, string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return null;
+            var matches = controls.Where(c => c.ApplicationPageId == pageId
+                && string.Equals(c.AccessibleName!.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+            // Two controls with the same name cannot be told apart by it; better no path than a wrong one.
+            return matches.Count == 1 ? matches[0].Id : null;
+        }
+
         foreach (var payload in completion.Transitions)
         {
             if (!pageIds.TryGetValue(payload.FromNormalizedUrl, out var fromId)) continue;
@@ -411,10 +430,12 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
             var action = Enum.TryParse<BrowserActionType>(payload.Action, ignoreCase: true, out var parsed)
                 ? parsed : BrowserActionType.Click;
 
+            var trigger = ControlFor(fromId, payload.TriggerAccessibleName);
             var match = existing.FirstOrDefault(t => t.FromPageId == fromId && t.ToPageId == toId && t.Action == action);
             if (match is not null)
             {
                 match.TimesObserved++;
+                if (trigger is not null) match.TriggerElementId = trigger;
                 continue;
             }
 
@@ -425,6 +446,7 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
                 FromPageId = fromId,
                 ToPageId = toId,
                 Action = action,
+                TriggerElementId = trigger,
                 TimesObserved = 1,
                 CreatedAt = _clock.UtcNow
             };

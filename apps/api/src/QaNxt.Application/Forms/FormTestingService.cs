@@ -25,7 +25,12 @@ public sealed record FormGenerationSummary(
 public sealed record GenerateFormTestsResult(
     Guid TestSuiteId, string TestSuiteName, int Forms, int TestsCreated, int TestsUpdated, int TestsUnchanged,
     int TestsDeprecated, int TestsLeftAsEdited, int Gaps, int HumanTasks, int Findings,
-    bool UsedAi, string Engine, IReadOnlyList<FormGenerationSummary> PerForm, IReadOnlyList<string> Warnings);
+    bool UsedAi, string Engine, IReadOnlyList<FormGenerationSummary> PerForm, IReadOnlyList<string> Warnings,
+    int Pages = 0, int PageTests = 0, IReadOnlyList<PageGenerationSummary>? PerPage = null);
+
+/// <summary>What the page designer made for one discovered page.</summary>
+public sealed record PageGenerationSummary(Guid PageId, string Name, string Route, int Tests, bool ReachedByClicking,
+    IReadOnlyDictionary<string, int> TestsByCategory);
 
 public sealed record ApplicationFormSummary(
     Guid Id, string FormKey, string Name, string Route, string PageUrl, string Method, string? Action,
@@ -126,7 +131,11 @@ public sealed class FormTestingService : IFormTestingService
         var query = _db.ApplicationForms.Where(f => f.ApplicationId == application.Id && f.IsPresent);
         if (request.FormIds is { Length: > 0 }) query = query.Where(f => request.FormIds.Contains(f.Id));
         var forms = await query.OrderBy(f => f.Route).ThenBy(f => f.FormKey).ToListAsync(ct);
-        if (forms.Count == 0)
+        // Every page gets page-level tests, so an application whose pages have no forms still
+        // has something to test. Pages are designed only when the whole application is asked
+        // for, not for a selection of forms.
+        var designPages = request.FormIds is { Length: > 0 } ? new List<DesignPage>() : await LoadDesignPagesAsync(application.Id, ct);
+        if (forms.Count == 0 && designPages.All(p => p.Kind == PageKind.Login))
         {
             return Error.Validation(request.FormIds is { Length: > 0 }
                 ? "None of the selected forms is present in the latest discovery."
@@ -268,6 +277,71 @@ public sealed class FormTestingService : IFormTestingService
             deprecated++;
         }
 
+        // ---- Every page, with or without a form ----------------------------------------
+        var perPage = new List<PageGenerationSummary>();
+        var pageTests = 0;
+        if (designPages.Count > 0)
+        {
+            var hasSignIn = application.AuthStrategy != AuthenticationStrategy.None;
+            var signInNames = designPages.Where(p => p.Kind == PageKind.Login)
+                .SelectMany(p => p.Elements).Select(e => e.Name.Trim()).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var paths = await NavigationPathsAsync(application.Id, designPages, ct);
+            var designedPageKeys = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var page in designPages.Where(p => p.Kind != PageKind.Login))
+            {
+                var path = paths.TryGetValue(page.Id, out var found) ? found : Array.Empty<NavigationHop>();
+                var design = PageTestDesigner.Design(new PageDesignContext(page, path, hasSignIn, signInNames, profile));
+                var made = 0;
+                foreach (var designed in design.Tests)
+                {
+                    var invalid = Invalid(designed, policy);
+                    if (invalid is not null)
+                    {
+                        warnings.Add($"{designed.Name}: not stored, a step is not executable ({invalid}).");
+                        continue;
+                    }
+                    designedPageKeys.Add(designed.Key);
+                    made++;
+                    if (byKey.TryGetValue(designed.Key, out var testCase))
+                    {
+                        switch (Reconcile(testCase, designed, null))
+                        {
+                            case Outcome.Unchanged: unchanged++; break;
+                            case Outcome.Updated: updated++; break;
+                            case Outcome.LeftAsEdited: leftAsEdited++; break;
+                        }
+                    }
+                    else
+                    {
+                        testCase = NewTestCase(designed, suite, project.Id, application.Id, null, $"TC-{reference++:0000}");
+                        _db.TestCases.Add(testCase);
+                        WriteSteps(testCase, designed);
+                        byKey[designed.Key] = testCase;
+                        created++;
+                    }
+                }
+                foreach (var gap in design.Gaps)
+                {
+                    _db.CoverageGaps.Add(NewGap(project.Id, application.Id, null, gap));
+                    gapCount++;
+                }
+                pageTests += made;
+                perPage.Add(new PageGenerationSummary(page.Id, PageTestDesigner.PageName(page), page.Route, made, path.Count > 0,
+                    design.Tests.GroupBy(t => TestingProfile.CategoryKey(t.Category)).ToDictionary(g => g.Key, g => g.Count())));
+            }
+
+            // A page discovery no longer finds keeps its tests, deprecated, never deleted.
+            foreach (var testCase in existing.Where(tc => tc.GenerationKey!.StartsWith("page:", StringComparison.Ordinal)
+                         && !designedPageKeys.Contains(tc.GenerationKey!)
+                         && tc.Lifecycle is TestCaseLifecycle.Active or TestCaseLifecycle.Draft && tc.Source == TestCaseSource.RuleGenerated))
+            {
+                Snapshot(testCase, "Deprecated: the page, or what this test checked on it, is no longer found.");
+                testCase.SetLifecycle(TestCaseLifecycle.Deprecated);
+                deprecated++;
+            }
+        }
+
         // Things no form-level design can cover, said once per application.
         foreach (var gap in ApplicationGaps(profile))
         {
@@ -283,14 +357,67 @@ public sealed class FormTestingService : IFormTestingService
             warnings.Add($"{deprecated} generated test(s) were deprecated because what they tested is no longer on the form.");
 
         await _audit.LogAsync(AuditAction.TestCaseCreated, nameof(TestSuite), suite.Id,
-            $"Form test generation for '{application.Name}': {forms.Count} form(s), {created} created, {updated} updated, {deprecated} deprecated, {gapCount} gap(s). Deterministic engine; no AI.",
+            $"Test generation for '{application.Name}': {forms.Count} form(s), {perPage.Count} page(s), {created} created, {updated} updated, {deprecated} deprecated, {gapCount} gap(s). Deterministic engine; no AI.",
             projectId: project.Id, ct: ct);
 
         _logger.LogInformation("Generated form tests for {Application}: {Forms} forms, {Created} created, {Updated} updated, {Gaps} gaps",
             application.Id, forms.Count, created, updated, gapCount);
 
         return Result<GenerateFormTestsResult>.Success(new GenerateFormTestsResult(suite.Id, suite.Name, forms.Count, created, updated, unchanged, deprecated, leftAsEdited,
-            gapCount, taskCount, findingCount, UsedAi: false, Engine: "QA NXT form test engine (deterministic)", perForm, warnings));
+            gapCount, taskCount, findingCount, UsedAi: false, Engine: "QA NXT form and page test engine (deterministic)", perForm, warnings,
+            perPage.Count, pageTests, perPage));
+    }
+
+    /// <summary>Every discovered page with its elements and the locators discovery recorded.</summary>
+    private async Task<List<DesignPage>> LoadDesignPagesAsync(Guid applicationId, CancellationToken ct)
+    {
+        var pages = await _db.ApplicationPages.Where(p => p.ApplicationId == applicationId)
+            .OrderBy(p => p.Depth).ThenBy(p => p.Route)
+            .Select(p => new { p.Id, p.Url, p.Route, p.Title, p.Kind, p.RequiresAuthentication, p.HttpStatus })
+            .ToListAsync(ct);
+        var ids = pages.Select(p => p.Id).ToList();
+        var elements = await _db.ApplicationElements.Where(e => ids.Contains(e.ApplicationPageId) && e.PreferredLocatorJson != null)
+            .Select(e => new { e.Id, e.ApplicationPageId, e.Kind, e.AccessibleName, e.Text, e.Label, e.IsVisible, e.PreferredLocatorJson })
+            .ToListAsync(ct);
+        var byPage = elements.GroupBy(e => e.ApplicationPageId).ToDictionary(g => g.Key, g => g
+            .Select(e => (e, locator: LocatorDescriptor.FromJson(e.PreferredLocatorJson)))
+            .Where(x => x.locator is not null)
+            .Select(x => new DesignElement(x.e.Id, x.e.Kind, (x.e.AccessibleName ?? x.e.Text ?? x.e.Label ?? string.Empty).Trim(), x.e.IsVisible, x.locator!))
+            .ToList());
+        return pages.Select(p => new DesignPage(p.Id, p.Url, p.Route, p.Title, p.Kind, p.RequiresAuthentication, p.HttpStatus,
+            byPage.TryGetValue(p.Id, out var list) ? list : new List<DesignElement>())).ToList();
+    }
+
+    /// <summary>For each page, the clicks discovery made to reach it from the first page it
+    /// saw after signing in: the page it was found from, and the control pressed there, back
+    /// to a page reached by its address. A step whose control was not recorded ends the path.</summary>
+    private async Task<Dictionary<Guid, IReadOnlyList<NavigationHop>>> NavigationPathsAsync(Guid applicationId, List<DesignPage> pages, CancellationToken ct)
+    {
+        var parents = await _db.ApplicationPages.Where(p => p.ApplicationId == applicationId && p.ParentPageId != null)
+            .Select(p => new { p.Id, Parent = p.ParentPageId!.Value }).ToDictionaryAsync(p => p.Id, p => p.Parent, ct);
+        var triggers = (await _db.PageTransitions.Where(t => t.ApplicationId == applicationId && t.TriggerElementId != null)
+                .Select(t => new { t.FromPageId, t.ToPageId, Trigger = t.TriggerElementId!.Value, t.TimesObserved }).ToListAsync(ct))
+            .GroupBy(t => (t.FromPageId, t.ToPageId))
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(t => t.TimesObserved).First().Trigger);
+        var byId = pages.ToDictionary(p => p.Id);
+
+        var paths = new Dictionary<Guid, IReadOnlyList<NavigationHop>>();
+        foreach (var page in pages)
+        {
+            var hops = new List<NavigationHop>();
+            var current = page;
+            var seen = new HashSet<Guid> { page.Id };
+            while (hops.Count < 8 && parents.TryGetValue(current.Id, out var parentId) && byId.TryGetValue(parentId, out var parent)
+                   && parent.Kind != PageKind.Login && seen.Add(parentId)
+                   && triggers.TryGetValue((parentId, current.Id), out var triggerId)
+                   && parent.Elements.FirstOrDefault(e => e.Id == triggerId) is { } control && control.Name.Length > 0)
+            {
+                hops.Insert(0, new NavigationHop(parent, control, current));
+                current = parent;
+            }
+            paths[page.Id] = hops;
+        }
+        return paths;
     }
 
     private static string FormName(ApplicationForm form, DiscoveredFormModel model)
@@ -314,7 +441,7 @@ public sealed class FormTestingService : IFormTestingService
 
     /// <summary>Brings an existing generated test in line with its design, unless a person
     /// has edited it.</summary>
-    private Outcome Reconcile(TestCase testCase, DesignedTest designed, Guid formId)
+    private Outcome Reconcile(TestCase testCase, DesignedTest designed, Guid? formId)
     {
         var current = StoredFingerprint(testCase);
         var wanted = DesignedFingerprint(designed);
@@ -409,7 +536,7 @@ public sealed class FormTestingService : IFormTestingService
     private void Snapshot(TestCase testCase, string summary)
         => _db.TestCaseVersions.Add(TestCaseHistory.SnapshotOf(testCase, summary, _currentUser.UserId, _clock.UtcNow));
 
-    private TestCase NewTestCase(DesignedTest designed, TestSuite suite, Guid projectId, Guid applicationId, Guid formId, string reference)
+    private TestCase NewTestCase(DesignedTest designed, TestSuite suite, Guid projectId, Guid applicationId, Guid? formId, string reference)
     {
         var testCase = new TestCase
         {

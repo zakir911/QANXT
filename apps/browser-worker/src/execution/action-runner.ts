@@ -201,7 +201,13 @@ export async function runAction(
     }
 
     case 'clearCookies':
+      // "Clear the session": many applications keep their sign-in token in storage rather
+      // than a cookie, and clearing cookies alone leaves them signed in.
       await page.context().clearCookies();
+      await page.evaluate(() => {
+        try { localStorage.clear(); } catch { /* storage may be unavailable */ }
+        try { sessionStorage.clear(); } catch { /* storage may be unavailable */ }
+      }).catch(() => undefined);
       return;
 
     case 'setOffline':

@@ -16,6 +16,8 @@ interface GenerationResult {
   findings: number; usedAi: boolean; engine: string;
   perForm: { formId: string; name: string; route: string; fields: number; tests: number; gaps: number; humanTasks: number; testsByCategory: Record<string, number>; notApplicable: string[] }[];
   warnings: string[];
+  pages?: number; pageTests?: number;
+  perPage?: { pageId: string; name: string; route: string; tests: number; reachedByClicking: boolean; testsByCategory: Record<string, number> }[];
 }
 
 interface SelectionResult { testRunId?: string | null; mode: string; selected: number; explanation: string; securityScanId?: string | null; securityNote?: string | null }
@@ -123,7 +125,8 @@ export default function TestingPage() {
   const groups = taxonomy ? [...new Set(taxonomy.categories.map(c => c.group))] : [];
 
   // Where the tester is in the four steps, so the page says what to do next.
-  const step1Done = forms.length > 0;
+  const pageCount = coverage?.surface.discoveredPages ?? 0;
+  const step1Done = forms.length > 0 || pageCount > 0;
   const step2Done = Boolean(draft) && !dirty && effective.size > 0;
   const testsExist = (coverage?.surface.testableTests ?? 0) > 0 || generation !== null;
   const scopeAuthorised = Boolean(securityScope?.enabled && securityScope?.authorizedAt);
@@ -160,12 +163,14 @@ export default function TestingPage() {
       ) : null}
 
       {applicationId ? (
-        <Step n={1} id="step-1" title={`Check what discovery found (${forms.length} form${forms.length === 1 ? '' : 's'})`}
+        <Step n={1} id="step-1" title={`Check what discovery found (${pageCount} page${pageCount === 1 ? '' : 's'}, ${forms.length} form${forms.length === 1 ? '' : 's'})`}
           done={step1Done}
-          help="Every form discovery found on the application, with its fields. A test suite is made for each one. If a form you expect is missing, run discovery again — signed in, if the form is behind a login.">
-          {loadingForms ? <Spinner label="Loading forms" /> : forms.length === 0 ? (
-            <EmptyState title="No forms yet" description="Run discovery on this application first. Every form it finds, with its fields and their limits, appears here."
+          help="Every page discovery reached gets page tests: it opens, it is reached through the menu, it is not shown signed out, and the accessibility, load-time and screen-size checks. Every form below also gets its own form tests. If a page or form you expect is missing, run discovery again — signed in, if it is behind a login.">
+          {loadingForms ? <Spinner label="Loading forms" /> : forms.length === 0 && pageCount === 0 ? (
+            <EmptyState title="Nothing discovered yet" description="Run discovery on this application first. Every page it reaches, and every form with its fields and their limits, appears here."
               action={<Link to="/discovery" className="btn-primary">Go to Discovery</Link>} />
+          ) : forms.length === 0 ? (
+            <p className="text-sm text-ink-muted">{pageCount} page(s) discovered and no forms. Each page gets page tests in step 3.</p>
           ) : (
             <div className="table-wrap">
               <table className="table">
@@ -293,10 +298,10 @@ export default function TestingPage() {
 
       {applicationId ? (
         <Step n={3} id="step-3" title="Generate the tests" done={testsExist}
-          help="Makes every test that applies to each form, with no cap, and lists anything it could not test as a gap. Generating again after a new discovery updates the same tests; tests you edited are left as you left them."
+          help="Makes every test that applies to each page and each form, with no cap, and lists anything it could not test as a gap. Generating again after a new discovery updates the same tests; tests you edited are left as you left them."
           actions={can(Permissions.testGenerate) ? (
-            <button type="button" className="btn-primary btn-sm" disabled={generate.isPending || forms.length === 0 || dirty}
-              title={dirty ? 'Save the configuration first (step 2)' : forms.length === 0 ? 'Run discovery first (step 1)' : undefined} onClick={() => generate.mutate()}>
+            <button type="button" className="btn-primary btn-sm" disabled={generate.isPending || !step1Done || dirty}
+              title={dirty ? 'Save the configuration first (step 2)' : !step1Done ? 'Run discovery first (step 1)' : undefined} onClick={() => generate.mutate()}>
               {generate.isPending ? 'Generating…' : 'Generate tests'}
             </button>
           ) : undefined}>
@@ -308,9 +313,26 @@ export default function TestingPage() {
             <div className="rounded-lg border border-line p-4 text-sm" role="status">
               <p className="font-semibold">
                 {generation.testsCreated} created, {generation.testsUpdated} updated, {generation.testsUnchanged} unchanged,
-                {' '}{generation.testsDeprecated} deprecated across {generation.forms} form(s). {generation.gaps} gap(s), {generation.humanTasks} human verification task(s), {generation.findings} finding(s).
+                {' '}{generation.testsDeprecated} deprecated across {generation.pages ?? 0} page(s) and {generation.forms} form(s). {generation.gaps} gap(s), {generation.humanTasks} human verification task(s), {generation.findings} finding(s).
               </p>
               <p className="text-ink-muted text-xs mt-1">{generation.engine}. AI used: {generation.usedAi ? 'yes' : 'no'}.</p>
+              {generation.perPage && generation.perPage.length > 0 ? (
+                <div className="table-wrap mt-3">
+                  <table className="table">
+                    <thead><tr><th>Page</th><th>Tests</th><th>Reached by clicking</th><th>Categories</th></tr></thead>
+                    <tbody>
+                      {generation.perPage.map(page => (
+                        <tr key={page.pageId}>
+                          <td>{page.name}</td><td>{page.tests}</td>
+                          <td className="text-xs">{page.reachedByClicking ? 'yes' : <span className="text-ink-muted">by address only</span>}</td>
+                          <td className="text-xs">{Object.entries(page.testsByCategory).map(([k, v]) => `${categoryLabel(k)} ${v}`).join(' · ')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
+              {generation.perForm.length > 0 ? (
               <div className="table-wrap mt-3">
                 <table className="table">
                   <thead><tr><th>Form</th><th>Tests</th><th>Gaps</th><th>Human</th><th>Categories</th><th>Not applicable</th></tr></thead>
@@ -325,6 +347,7 @@ export default function TestingPage() {
                   </tbody>
                 </table>
               </div>
+              ) : null}
               {generation.warnings.length > 0 ? (
                 <ul className="mt-3 list-disc pl-5 text-xs text-warn">{generation.warnings.slice(0, 20).map(w => <li key={w}>{w}</li>)}</ul>
               ) : null}

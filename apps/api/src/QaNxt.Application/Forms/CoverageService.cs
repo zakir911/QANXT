@@ -54,6 +54,21 @@ public interface ICoverageService
 /// and the two are reported side by side so neither can stand in for the other.</summary>
 public sealed class CoverageService : ICoverageService
 {
+    /// <summary>Distinct pages named by the tests' page coverage keys ("page:{id}").</summary>
+    private static int PagesIn(IEnumerable<TestRow> tests, Func<TestRow, bool> filter)
+        => tests.Where(filter).SelectMany(t => CoverageKeys(t.Keys)).Where(k => k.StartsWith("page:", StringComparison.Ordinal)).Distinct().Count();
+
+    /// <summary>Whether a page-level test names this page.</summary>
+    private static bool PagesIn(IEnumerable<TestRow> tests, Func<TestRow, bool> filter, Guid pageId)
+        => tests.Where(filter).SelectMany(t => CoverageKeys(t.Keys)).Contains($"page:{pageId:N}");
+
+    private static IEnumerable<string> CoverageKeys(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return Array.Empty<string>();
+        try { return System.Text.Json.JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>(); }
+        catch (System.Text.Json.JsonException) { return Array.Empty<string>(); }
+    }
+
     private static readonly ExecutionStatus[] Verdicts =
     {
         ExecutionStatus.Passed, ExecutionStatus.Healed, ExecutionStatus.Flaky, ExecutionStatus.Failed,
@@ -147,8 +162,9 @@ public sealed class CoverageService : ICoverageService
 
         var dimensions = new List<DimensionCoverage>
         {
-            new("Pages", pages, forms.Select(f => f.ApplicationPageId).Distinct().Count(), formCoverage.Where(f => f.Executed > 0).Select(f => f.PageUrl).Distinct().Count(),
-                "Pages discovered; pages with forms that have tests; pages whose form tests have run."),
+            new("Pages", pages, Math.Min(pages, PagesIn(tests, _ => true) + forms.Select(f => f.ApplicationPageId).Distinct().Count(f => !PagesIn(tests, _ => true, f))),
+                Math.Min(pages, PagesIn(tests, Executed)),
+                "Pages discovered; pages with tests (page-level or form); pages whose tests have run."),
             new("Forms", forms.Count, formsWithTests, formsExecuted, "Forms discovered; with generated tests; with executed tests."),
             new("Fields", totalFields, field.Tested, field.Executed, "Fields discovered; with at least one test; whose tests have run."),
             new("Validation rules", rules.Tested + gaps.Count(g => g.Category is TestCategory.Validation or TestCategory.Negative or TestCategory.CrossField && Uncovered(g.Status)), rules.Tested, rules.Executed,
