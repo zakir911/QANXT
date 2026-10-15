@@ -81,6 +81,34 @@ function otpSite(): Server {
           go.addEventListener('click', () => { location.href = '/two-step-password?user=' + encodeURIComponent(field.value); });
         </script>`));
     }
+    // Code screens with no button at all: the page submits itself once the code is complete.
+    // "single" listens for input on one field; "boxes" moves focus box to box on keyup and
+    // submits after the last digit, the way most six-box screens behave.
+    if (url.pathname === '/auto-otp') {
+      const boxes = url.searchParams.get('kind') === 'boxes';
+      return send(page(`<header><button onclick="location.href='/auto-login'">Sign in</button></header><h1>Enter the code sent to your phone</h1>
+        ${url.searchParams.has('wrong') ? '<p role="alert">Invalid OTP</p>' : ''}
+        ${boxes ? [0, 1, 2, 3, 4, 5].map(i => `<input class="d" maxlength="1" inputmode="numeric" aria-label="Digit ${i + 1}">`).join('')
+                : '<input id="otp" name="otp" inputmode="numeric" maxlength="6" aria-label="OTP">'}
+        <button>Resend OTP</button>
+        <script>
+          const go = code => { location.href = '/verify?style=single&code=' + code; };
+          ${boxes
+            ? `const d = Array.from(document.querySelectorAll('.d'));
+               d.forEach((box, i) => box.addEventListener('keyup', () => {
+                 if (box.value && d[i + 1]) d[i + 1].focus();
+                 const code = d.map(x => x.value).join('');
+                 if (code.length === 6) go(code);
+               }));`
+            : `const f = document.getElementById('otp');
+               f.addEventListener('input', () => { if (f.value.length === 6) go(f.value); });`}
+        </script>`));
+    }
+    if (url.pathname === '/auto-login') {
+      return send(page(`<form action="/auto-otp" method="get"><input type="hidden" name="kind" value="${url.searchParams.get('kind') ?? 'single'}">
+        <label>User ID <input name="userid"></label><label>Password <input type="password" name="password"></label>
+        <button>Login</button></form>`));
+    }
     if (url.pathname === '/login') {
       const style = url.searchParams.get('style') ?? 'single';
       return send(page(`<form action="/otp" method="get"><input type="hidden" name="style" value="${style}">
@@ -194,6 +222,24 @@ describe('sign-in with a one-time code', () => {
     expect(result.succeeded).toBe(false);
     expect(result.message).toMatch(/"Continue" button stayed disabled/);
     expect(Date.now() - started).toBeLessThan(15_000);
+  }, 40_000);
+
+  test('a code screen with no button, which submits itself, is signed into', async () => {
+    const { result, headings } = await loginAt('/auto-login?kind=single');
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 40_000);
+
+  test('six digit boxes with no button, submitting after the last digit, are signed into', async () => {
+    const { result, headings } = await loginAt('/auto-login?kind=boxes');
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 40_000);
+
+  test('a wrong code on a screen with no button is a failure, not a sign-in', async () => {
+    const { result } = await loginAt('/auto-login?kind=single', { otpValue: '000000' });
+    expect(result.succeeded).toBe(false);
+    expect(result.message).toMatch(/did not accept the fixed one-time code/);
   }, 40_000);
 
   test('selectors configured for the application are used as given', async () => {

@@ -152,8 +152,10 @@ If the application asks for a code after the password, set **Second step after s
   every discovery and every test run gets a fresh code without anyone being asked.
 
 The worker finds the code field itself (`autocomplete="one-time-code"`, a field named or
-labelled otp, code, verification or passcode, or a row of single-digit boxes), enters the
-code, presses Verify, Continue or Submit, and checks the prompt has gone. A code that is
+labelled otp, code, verification or passcode, or a row of single-digit boxes) and types
+the code key by key. A screen with no button, which moves on by itself once the code is
+complete, is simply waited for; otherwise the button beside the code (Verify, Continue,
+Submit — never Resend) is pressed, or Enter. It then checks the prompt has gone. A code that is
 refused fails the sign-in with a reason; so does a prompt for a code when none is set,
 rather than exploring the code page and calling it the application. The code or secret is
 encrypted with the password and masked in all evidence.

@@ -154,7 +154,7 @@ type Scope = Page | Frame;
 const TEXT_INPUT = 'input:not([type]), input[type="text"], input[type="email"], input[type="tel"], input[type="number"]';
 const PASSWORD_INPUT = 'input[type="password"]:visible';
 const PRIMARY_BUTTON = /\b(sign ?in|log ?in|login|continue|next|proceed|submit|verify|send otp|get otp|request otp|generate otp)\b/i;
-const NOT_PRIMARY = /forgot|register|sign ?up|create|reset|cancel|back|help|google|facebook|apple|microsoft/i;
+const NOT_PRIMARY = /forgot|register|sign ?up|create|reset|resend|cancel|back|help|google|facebook|apple|microsoft/i;
 
 /**
  * The frame that holds the sign-in form, waiting for it to render.
@@ -230,7 +230,7 @@ interface ButtonChoice { index: number; text: string; disabled: boolean }
  * The button that submits is the one beside the field, after it in the page, in its form,
  * and — before a password is shown — the one that says Continue or Next.
  */
-async function rankButtons(field: ReturnType<Scope['locator']>, stage: 'identify' | 'password'): Promise<ButtonChoice[]> {
+async function rankButtons(field: ReturnType<Scope['locator']>, stage: 'identify' | 'password' | 'otp'): Promise<ButtonChoice[]> {
   return field.evaluate((input, args) => {
     const primary = new RegExp(args.primary, 'i');
     const notPrimary = new RegExp(args.notPrimary, 'i');
@@ -251,12 +251,15 @@ async function rankButtons(field: ReturnType<Scope['locator']>, stage: 'identify
       let score = 0;
       if (form && (button as HTMLButtonElement).form === form) score += 4;
       if (isSubmit) score += 2;
-      if (input.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING) score += 3; else score -= 3;
+      const follows = (input.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+      // On the code screen a button above the field (a header "Login") is never the one.
+      if (args.stage === 'otp' && !follows) return;
+      score += follows ? 3 : -3;
       const below = box.top - inputBox.bottom;
       if (below >= -5 && below < 400) score += 2;
       if (Math.abs(box.left + box.width / 2 - (inputBox.left + inputBox.width / 2)) < 300) score += 1;
       if (args.stage === 'identify' && forward.test(text)) score += 3;
-      if (args.stage === 'password' && signIn.test(text)) score += 2;
+      if (args.stage !== 'identify' && signIn.test(text)) score += 2;
       const disabled = (button as HTMLButtonElement).disabled || button.getAttribute('aria-disabled') === 'true';
       ranked.push({ index, text: text.slice(0, 40), disabled, score });
     });
@@ -502,46 +505,63 @@ async function completeOneTimeCode(page: Page, auth: AuthConfig, options: LoginO
   }
 
   let actions = 0;
+  // Typed key by key, as a person enters it: many code screens have no button at all and
+  // submit themselves once the last digit arrives, and they listen for keystrokes, which
+  // setting the value does not produce.
+  let input: ReturnType<Scope['locator']>;
   try {
     if (field.kind === 'single') {
-      await field.scope.locator(field.selector).first().fill(code, { timeout: options.actionTimeoutMs });
+      input = field.scope.locator(field.selector).first();
+      await input.fill('', { timeout: options.actionTimeoutMs });
+      await input.pressSequentially(code, { delay: 40, timeout: options.actionTimeoutMs });
       actions++;
     } else {
       const boxes = field.scope.locator(field.selector);
-      // Typing into the first box suits applications that move focus themselves; filling
-      // each box covers the ones that do not.
+      input = boxes.first();
+      // Each box is targeted rather than relying on focus moving by itself, so this works
+      // whether or not the application advances focus after a digit.
       for (let index = 0; index < Math.min(field.count, code.length); index++) {
-        await boxes.nth(index).fill(code[index]!, { timeout: options.actionTimeoutMs });
+        if (!await boxes.nth(index).isVisible().catch(() => false)) break; // already submitted
+        await boxes.nth(index).fill('', { timeout: options.actionTimeoutMs });
+        await boxes.nth(index).pressSequentially(code[index]!, { delay: 40, timeout: options.actionTimeoutMs });
         actions++;
       }
     }
-
-    const submit = await resolveLocator(field.scope, defaultOtpSubmitLocator(), { timeoutMs: 1500 }).catch(() => undefined);
-    await Promise.all([
-      page.waitForLoadState('domcontentloaded', { timeout: options.navigationTimeoutMs }).catch(() => undefined),
-      submit
-        ? submit.locator.click({ timeout: options.actionTimeoutMs })
-        : page.keyboard.press('Enter')
-    ]);
-    actions++;
   } catch (error) {
-    return fail(`The one-time code could not be entered: ${messageOf(error)}`, actions);
+    // A screen that submits on the last digit can navigate away mid-entry; that is success
+    // if the prompt has gone, which the wait below decides.
+    if (await findOtpField(page)) return fail(`The one-time code could not be entered: ${messageOf(error)}`, actions);
+    input = field.scope.locator(field.selector).first();
   }
 
-  // Wait for the prompt to go away, or for the application to say no.
-  const deadline = Date.now() + options.actionTimeoutMs;
-  while (Date.now() < deadline) {
-    if (page.isClosed()) break;
+  // Submitted by itself? A screen with no button gets the time a person would wait; one
+  // with a button gets a moment, so every sign-in is not three seconds slower.
+  const buttons = (await rankButtons(input, 'otp')).filter(choice => !choice.disabled);
+  if (await waitForOtpOutcome(page, buttons.length > 0 ? 1000 : 3000) === 'gone') {
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => undefined);
+    return { succeeded: true, message: 'One-time code accepted.', actionsUsed: actions };
+  }
+
+  if (!await hasVisibleError(page)) {
+    // Not by itself: press the screen's button if it has one, Enter if it has none. Only an
+    // enabled button beside the code is pressed, never "Resend".
+    const choices = buttons.length > 0 ? (await rankButtons(input, 'otp')).filter(choice => !choice.disabled) : [];
     try {
-      if (!await findOtpField(page)) {
-        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => undefined);
-        return { succeeded: true, message: 'One-time code accepted.', actionsUsed: actions };
-      }
-      if (await hasVisibleError(page)) break;
+      await Promise.all([
+        page.waitForLoadState('domcontentloaded', { timeout: options.navigationTimeoutMs }).catch(() => undefined),
+        choices[0]
+          ? field.scope.locator(BUTTONS).nth(choices[0].index).click({ timeout: Math.min(options.actionTimeoutMs, 5000) })
+          : input.press('Enter', { timeout: Math.min(options.actionTimeoutMs, 5000) })
+      ]);
+      actions++;
     } catch {
-      // Navigation in progress; ask again.
+      // The page moving on while the button was being pressed is decided below.
     }
-    await page.waitForTimeout(100);
+  }
+
+  if (await waitForOtpOutcome(page, options.actionTimeoutMs) === 'gone') {
+    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => undefined);
+    return { succeeded: true, message: 'One-time code accepted.', actionsUsed: actions };
   }
 
   return fail(mode === 'totp'
@@ -549,19 +569,20 @@ async function completeOneTimeCode(page: Page, auth: AuthConfig, options: LoginO
     : 'The application did not accept the fixed one-time code. Check the code configured for this application.', actions);
 }
 
-function defaultOtpSubmitLocator(): LocatorDescriptor {
-  return {
-    strategy: 'role', value: 'button', name: 'Verify',
-    fallbacks: [
-      { strategy: 'role', value: 'button', name: 'Continue' },
-      { strategy: 'role', value: 'button', name: 'Submit' },
-      { strategy: 'role', value: 'button', name: 'Confirm' },
-      { strategy: 'role', value: 'button', name: 'Sign in' },
-      { strategy: 'role', value: 'button', name: 'Log in' },
-      { strategy: 'css', value: 'button[type="submit"]:visible' },
-      { strategy: 'css', value: 'input[type="submit"]:visible' }
-    ]
-  };
+/** Waits for the code prompt to go away, or for the application to say no. */
+async function waitForOtpOutcome(page: Page, timeoutMs: number): Promise<'gone' | 'error' | 'still-there'> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (page.isClosed()) return 'still-there';
+    try {
+      if (!await findOtpField(page)) return 'gone';
+      if (await hasVisibleError(page)) return 'error';
+    } catch {
+      // Navigation in progress; ask again.
+    }
+    await page.waitForTimeout(100);
+  }
+  return 'still-there';
 }
 
 /** An alert or an error region the application rendered in response to the attempt. */
