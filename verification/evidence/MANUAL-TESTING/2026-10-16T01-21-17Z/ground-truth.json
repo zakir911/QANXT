@@ -1,0 +1,1375 @@
+{
+  "application": "QA NXT Golden Form Lab",
+  "baseUrl": "http://127.0.0.1:4370",
+  "generatedFrom": "test-lab/form-lab/forms.js",
+  "pages": [
+    "/",
+    "/simple-form",
+    "/registration",
+    "/login",
+    "/checkout",
+    "/payment",
+    "/profile",
+    "/address",
+    "/search",
+    "/multi-step",
+    "/dynamic",
+    "/file-upload",
+    "/date-form",
+    "/dependent-dropdown",
+    "/validation",
+    "/accessibility",
+    "/error-handling",
+    "/api-form",
+    "/contact-modal",
+    "/slow-form",
+    "/duplicate-submit",
+    "/session-expiry"
+  ],
+  "forms": [
+    {
+      "id": "simple-form",
+      "route": "/simple-form",
+      "title": "Simple form",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Send",
+      "fields": [
+        {
+          "name": "name",
+          "label": "Your name",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": []
+    },
+    {
+      "id": "registration",
+      "route": "/registration",
+      "title": "Create an account",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Create account",
+      "fields": [
+        {
+          "name": "fullName",
+          "label": "Full name",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "minlength": "2",
+            "maxlength": "60"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "email",
+          "label": "Email address",
+          "type": "email",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "minlength": "8"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "confirmPassword",
+          "label": "Confirm password",
+          "type": "password",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "minlength": "8"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "terms",
+          "label": "I accept the terms and conditions",
+          "type": "checkbox",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [
+        {
+          "id": "password-confirmation",
+          "fields": [
+            "password",
+            "confirmPassword"
+          ],
+          "kind": "equals"
+        }
+      ],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": [
+        {
+          "id": "FL-D01",
+          "description": "The server accepts a confirmation that does not match the password.",
+          "detectedBy": [
+            "crossField"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "login",
+      "route": "/login",
+      "title": "Sign in",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Sign in",
+      "fields": [
+        {
+          "name": "username",
+          "label": "Username",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": []
+    },
+    {
+      "id": "checkout",
+      "route": "/checkout",
+      "title": "Checkout",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Place order",
+      "fields": [
+        {
+          "name": "fullName",
+          "label": "Name on order",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "80"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "email",
+          "label": "Receipt email",
+          "type": "email",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "quantity",
+          "label": "Quantity",
+          "type": "number",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "min": "1",
+            "max": "10",
+            "step": "1"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "shipping",
+          "label": "Delivery",
+          "type": "radio",
+          "required": true,
+          "options": [
+            "Standard",
+            "Express"
+          ],
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "giftWrap",
+          "label": "Gift wrap",
+          "type": "checkbox",
+          "required": false,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "notes",
+          "label": "Delivery notes",
+          "type": "textarea",
+          "required": false,
+          "options": null,
+          "constraints": {
+            "maxlength": "200"
+          },
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": []
+    },
+    {
+      "id": "payment",
+      "route": "/payment",
+      "title": "Make a payment",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Pay now",
+      "fields": [
+        {
+          "name": "cardholder",
+          "label": "Cardholder name",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "60"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "cardNumber",
+          "label": "Card number",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "16",
+            "pattern": "[0-9]{16}"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "expiry",
+          "label": "Expiry month",
+          "type": "month",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "min": "2026-01",
+            "max": "2036-12"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "cvv",
+          "label": "Security code",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "4",
+            "pattern": "[0-9]{3,4}"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "amount",
+          "label": "Amount",
+          "type": "number",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "min": "1",
+            "max": "5000",
+            "step": "0.01"
+          },
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": false,
+      "defects": [
+        {
+          "id": "FL-D10",
+          "description": "The payment form carries no anti-forgery token.",
+          "detectedBy": [
+            "security"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "profile",
+      "route": "/profile",
+      "title": "Edit profile",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Save profile",
+      "fields": [
+        {
+          "name": "displayName",
+          "label": "Display name",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "40"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "email",
+          "label": "Email",
+          "type": "email",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "bio",
+          "label": "Bio",
+          "type": "textarea",
+          "required": false,
+          "options": null,
+          "constraints": {
+            "maxlength": "160"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "website",
+          "label": "Website",
+          "type": "url",
+          "required": false,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "phone",
+          "label": "Phone",
+          "type": "tel",
+          "required": false,
+          "options": null,
+          "constraints": {
+            "pattern": "[0-9+ ]{7,15}"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "newsletter",
+          "label": "Email me the newsletter",
+          "type": "switch",
+          "required": false,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": [
+        {
+          "id": "FL-D08",
+          "description": "A display name of only spaces is accepted.",
+          "detectedBy": [
+            "negative",
+            "validation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "address",
+      "route": "/address",
+      "title": "Delivery address",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Save address",
+      "fields": [
+        {
+          "name": "line1",
+          "label": "Address line 1",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "80"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "line2",
+          "label": "Address line 2",
+          "type": "text",
+          "required": false,
+          "options": null,
+          "constraints": {
+            "maxlength": "80"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "city",
+          "label": "Town or city",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "50"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "postcode",
+          "label": "Postcode",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "pattern": "[A-Za-z0-9 ]{3,10}"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "country",
+          "label": "Country",
+          "type": "select",
+          "required": true,
+          "options": [
+            "United Kingdom",
+            "United States",
+            "Canada",
+            "Germany"
+          ],
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": [
+        {
+          "id": "FL-D15",
+          "description": "The form is 900px wide and scrolls horizontally on a phone.",
+          "detectedBy": [
+            "responsive"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "search",
+      "route": "/search",
+      "title": "Search",
+      "method": "get",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Search",
+      "fields": [
+        {
+          "name": "q",
+          "label": "Search for",
+          "type": "search",
+          "required": false,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "category",
+          "label": "Category",
+          "type": "select",
+          "required": false,
+          "options": [
+            "All",
+            "Accounts",
+            "Cards",
+            "Loans"
+          ],
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": false,
+      "defects": [
+        {
+          "id": "FL-D06",
+          "description": "The results page writes the query into the page without escaping it (reflected markup injection).",
+          "detectedBy": [
+            "security"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi-step",
+      "route": "/multi-step",
+      "title": "Loan application",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": true,
+      "submit": "Submit application",
+      "fields": [
+        {
+          "name": "applicant",
+          "label": "Applicant name",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "60"
+          },
+          "conditional": null,
+          "step": 1
+        },
+        {
+          "name": "email",
+          "label": "Contact email",
+          "type": "email",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": 1
+        },
+        {
+          "name": "loanAmount",
+          "label": "Loan amount",
+          "type": "number",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "min": "1000",
+            "max": "50000",
+            "step": "100"
+          },
+          "conditional": null,
+          "step": 2
+        },
+        {
+          "name": "termMonths",
+          "label": "Term",
+          "type": "select",
+          "required": true,
+          "options": [
+            "12",
+            "24",
+            "36",
+            "48"
+          ],
+          "constraints": {},
+          "conditional": null,
+          "step": 2
+        },
+        {
+          "name": "agree",
+          "label": "I confirm these details are correct",
+          "type": "checkbox",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": 3
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": [
+        {
+          "id": "FL-D11",
+          "description": "Going back from step 2 empties the fields of step 1.",
+          "detectedBy": [
+            "multiStep"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dynamic",
+      "route": "/dynamic",
+      "title": "Open an account",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Open account",
+      "fields": [
+        {
+          "name": "accountType",
+          "label": "Account type",
+          "type": "select",
+          "required": true,
+          "options": [
+            "Personal",
+            "Business"
+          ],
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "companyName",
+          "label": "Company name",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "80"
+          },
+          "conditional": {
+            "field": "accountType",
+            "equals": "Business"
+          },
+          "step": null
+        },
+        {
+          "name": "hasReferral",
+          "label": "I have a referral code",
+          "type": "checkbox",
+          "required": false,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "referralCode",
+          "label": "Referral code",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "6",
+            "pattern": "[A-Z0-9]{6}"
+          },
+          "conditional": {
+            "field": "hasReferral",
+            "equals": "on"
+          },
+          "step": null
+        },
+        {
+          "name": "email",
+          "label": "Email address",
+          "type": "email",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": [
+        {
+          "id": "FL-D12",
+          "description": "The company name is shown for a business account but the server does not require it.",
+          "detectedBy": [
+            "dynamic"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "file-upload",
+      "route": "/file-upload",
+      "title": "Upload a document",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Upload",
+      "fields": [
+        {
+          "name": "title",
+          "label": "Document title",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "60"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "document",
+          "label": "Document",
+          "type": "file",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "accept": ".pdf,.png"
+          },
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [
+        "document: no larger than 1 MB"
+      ],
+      "hasCsrfToken": true,
+      "defects": []
+    },
+    {
+      "id": "date-form",
+      "route": "/date-form",
+      "title": "Book leave",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Book",
+      "fields": [
+        {
+          "name": "startDate",
+          "label": "First day",
+          "type": "date",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "min": "2020-01-01",
+            "max": "2030-12-31"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "endDate",
+          "label": "Last day",
+          "type": "date",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "min": "2020-01-01",
+            "max": "2030-12-31"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "startTime",
+          "label": "Start time",
+          "type": "time",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "reminder",
+          "label": "Remind me at",
+          "type": "datetime-local",
+          "required": false,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [
+        {
+          "id": "date-order",
+          "fields": [
+            "startDate",
+            "endDate"
+          ],
+          "kind": "notBefore"
+        }
+      ],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": [
+        {
+          "id": "FL-D09",
+          "description": "A last day before the first day is accepted.",
+          "detectedBy": [
+            "crossField"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dependent-dropdown",
+      "route": "/dependent-dropdown",
+      "title": "Choose a region",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Continue",
+      "fields": [
+        {
+          "name": "country",
+          "label": "Country",
+          "type": "select",
+          "required": true,
+          "options": [
+            "United Kingdom",
+            "United States",
+            "Canada",
+            "Germany"
+          ],
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "region",
+          "label": "Region",
+          "type": "select",
+          "required": true,
+          "options": [
+            "England",
+            "Scotland",
+            "Wales",
+            "Northern Ireland"
+          ],
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": {
+        "parent": "country",
+        "child": "region"
+      },
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": []
+    },
+    {
+      "id": "validation",
+      "route": "/validation",
+      "title": "Validation rules",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Validate",
+      "fields": [
+        {
+          "name": "username",
+          "label": "Username",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "minlength": "3",
+            "maxlength": "12",
+            "pattern": "[a-z0-9_]+"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "age",
+          "label": "Age",
+          "type": "number",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "min": "18",
+            "max": "120",
+            "step": "1"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "amount",
+          "label": "Amount",
+          "type": "number",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "min": "0.01",
+            "max": "10000",
+            "step": "0.01"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "quantity",
+          "label": "Quantity",
+          "type": "number",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "min": "1",
+            "max": "99",
+            "step": "1"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "website",
+          "label": "Website",
+          "type": "url",
+          "required": false,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "phone",
+          "label": "Phone",
+          "type": "tel",
+          "required": false,
+          "options": null,
+          "constraints": {
+            "pattern": "[0-9+ ]{7,15}"
+          },
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": [
+        {
+          "id": "FL-D02",
+          "description": "The server accepts an age of 17 though the field declares a minimum of 18.",
+          "detectedBy": [
+            "boundary"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "accessibility",
+      "route": "/accessibility",
+      "title": "Feedback",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Send feedback",
+      "fields": [
+        {
+          "name": "nickname",
+          "label": null,
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "email",
+          "label": "Email",
+          "type": "email",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": [
+        {
+          "id": "FL-D04",
+          "description": "The nickname input has no label, its error is neither associated with it nor announced, and the note under the form is light grey on white (too little contrast).",
+          "detectedBy": [
+            "accessibility"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "error-handling",
+      "route": "/error-handling",
+      "title": "Contact support",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Send",
+      "fields": [
+        {
+          "name": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "100"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "message",
+          "label": "Message",
+          "type": "textarea",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": [
+        {
+          "id": "FL-D05",
+          "description": "A message over 1000 characters, or the text \"null\", crashes the server with HTTP 500 and a stack trace.",
+          "detectedBy": [
+            "inputValidation",
+            "errorHandling"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "api-form",
+      "route": "/api-form",
+      "title": "Request a callback",
+      "method": "post",
+      "submitsWith": "fetch",
+      "multiStep": false,
+      "submit": "Request callback",
+      "fields": [
+        {
+          "name": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "60"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "phone",
+          "label": "Phone number",
+          "type": "tel",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "pattern": "[0-9+ ]{7,15}"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "when",
+          "label": "Preferred time",
+          "type": "select",
+          "required": true,
+          "options": [
+            "Morning",
+            "Afternoon",
+            "Evening"
+          ],
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": false,
+      "defects": []
+    },
+    {
+      "id": "contact-modal",
+      "route": "/contact-modal",
+      "title": "Talk to sales",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Send message",
+      "fields": [
+        {
+          "name": "fullName",
+          "label": "Full name",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "60"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "workEmail",
+          "label": "Work email",
+          "type": "email",
+          "required": true,
+          "options": null,
+          "constraints": {},
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "requirement",
+          "label": "What do you need?",
+          "type": "textarea",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "500"
+          },
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": []
+    },
+    {
+      "id": "slow-form",
+      "route": "/slow-form",
+      "title": "Quote request",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Get a quote",
+      "fields": [
+        {
+          "name": "company",
+          "label": "Company",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "80"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "seats",
+          "label": "Seats",
+          "type": "number",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "min": "1",
+            "max": "500",
+            "step": "1"
+          },
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": [
+        {
+          "id": "FL-D07",
+          "description": "Submission takes 3.5 seconds, over a 2 second response budget.",
+          "detectedBy": [
+            "performance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duplicate-submit",
+      "route": "/duplicate-submit",
+      "title": "Transfer money",
+      "method": "post",
+      "submitsWith": "fetch",
+      "multiStep": false,
+      "submit": "Send money",
+      "fields": [
+        {
+          "name": "payee",
+          "label": "Payee",
+          "type": "text",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "60"
+          },
+          "conditional": null,
+          "step": null
+        },
+        {
+          "name": "amount",
+          "label": "Amount",
+          "type": "number",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "min": "1",
+            "max": "1000",
+            "step": "0.01"
+          },
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": false,
+      "defects": [
+        {
+          "id": "FL-D03",
+          "description": "Clicking the submit control twice sends two transfers.",
+          "detectedBy": [
+            "reliability"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "session-expiry",
+      "route": "/session-expiry",
+      "title": "Session note",
+      "method": "post",
+      "submitsWith": "navigation",
+      "multiStep": false,
+      "submit": "Save note",
+      "fields": [
+        {
+          "name": "note",
+          "label": "Note",
+          "type": "textarea",
+          "required": true,
+          "options": null,
+          "constraints": {
+            "maxlength": "500"
+          },
+          "conditional": null,
+          "step": null
+        }
+      ],
+      "crossRules": [],
+      "dependentOptions": null,
+      "serverOnlyRules": [],
+      "hasCsrfToken": true,
+      "defects": [
+        {
+          "id": "FL-D13",
+          "description": "Submitting after the session cookie is gone returns HTTP 500 instead of a sign-in prompt.",
+          "detectedBy": [
+            "exploratory",
+            "errorHandling"
+          ]
+        }
+      ]
+    }
+  ],
+  "api": [
+    {
+      "method": "POST",
+      "path": "/api/callbacks",
+      "triggeredBy": "/api-form"
+    },
+    {
+      "method": "POST",
+      "path": "/api/transfers",
+      "triggeredBy": "/duplicate-submit"
+    }
+  ]
+}
