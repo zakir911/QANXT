@@ -124,7 +124,7 @@ describe('discovery against the demo banking application', () => {
     // crawler must stop after the second /accounts/<id> page rather than walking them all.
     const detailPages = report.pages.filter(p => /^\/accounts\/[^/]+$/.test(p.route));
     expect(detailPages.length).toBe(2);
-    expect(report.progressLog).toContain('already mapped 2 pages matching /accounts/*');
+    expect(report.progressLog).toContain('already mapped 2 pages matching /accounts/{id}');
   });
 
   test('normalizes urls so the same page is never mapped twice', () => {

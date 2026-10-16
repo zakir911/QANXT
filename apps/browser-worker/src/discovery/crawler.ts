@@ -27,6 +27,7 @@ import { collectClickCandidates, extractPage, type RawElement, type RawPageCaptu
 import { extractForms, type RawForm } from './form-extractor.js';
 import { findOpener, formIsVisible, probeForm, type FormOpener } from './form-probe.js';
 import { performLogin, type LoginResult } from '../browser/authenticator.js';
+import { CONCURRENT_SESSION, checkSessionSurvivesLoad, navigateInApp, performLogout, sessionGate, sessionKey } from '../browser/session.js';
 
 /**
  * Bounded breadth-first exploration of an application.
@@ -82,6 +83,12 @@ export class Crawler {
   /** Navigation-shaped controls not clicked because the crawl is in links-only mode.
    * Counted so a crawl that found one page can say why rather than looking complete. */
   private navigationNotFollowed = 0;
+  /** The application signs out on a page load, so pages are opened from inside it. */
+  private inApp = false;
+  /** Where the sign-in landed: the first page of the signed-in application. */
+  private landingUrl: string | undefined;
+  private signedIn = false;
+  private leaveSession: (() => void) | undefined;
 
   constructor(
     private readonly context: BrowserContext,
@@ -115,6 +122,18 @@ export class Crawler {
 
         const login = await this.authenticate(page);
         authenticated = login.succeeded;
+        if (login.succeeded) {
+          this.signedIn = true;
+          this.landingUrl = page.url();
+          // Does a fresh page load keep the user signed in? Banking applications often
+          // keep the session only in the page; loading each page by address would then
+          // map nothing but signed-out shells.
+          if (this.options.auth.strategy === 'formLogin') {
+            this.inApp = !(await sessionGate.survivesLoad(sessionKey(this.options.auth),
+              () => checkSessionSurvivesLoad(page, this.options.auth, this.options.navigationTimeoutMs)));
+            if (this.inApp) this.note('This application signs out on a page load (its session lives in the page), so discovery moves through it from inside: by its links and its router, never by loading an address.');
+          }
+        }
         if (!login.succeeded) {
           // Continuing would produce a map of the login page repeated many times, which
           // is worse than useless — it looks like a successful crawl.
@@ -125,7 +144,15 @@ export class Crawler {
       // The base URL, then everything the owner named, then anything the application
       // publishes about itself. A crawl that can only follow links covers only what is
       // linked, which on a client-side-routed application is the landing page alone.
-      const queue: QueueEntry[] = [{ url: this.options.baseUrl, depth: 0 }];
+      //
+      // Signed in, the crawl starts where the sign-in landed. A base URL that is the login
+      // page (a common choice) would otherwise send the crawl back to the sign-in screen,
+      // and from there only to the public pages it links to.
+      const start = authenticated && this.landingUrl && !this.isLoginPage(this.landingUrl) ? this.landingUrl : this.options.baseUrl;
+      const queue: QueueEntry[] = [{ url: start, depth: 0 }];
+      if (normalizeUrl(start) !== normalizeUrl(this.options.baseUrl) && !(authenticated && this.isLoginPage(this.options.baseUrl))) {
+        queue.push({ url: this.options.baseUrl, depth: 0 });
+      }
 
       for (const seed of this.options.budget.seedUrls ?? []) {
         const resolved = this.resolveSeed(seed);
@@ -169,6 +196,9 @@ export class Crawler {
         const entry = queue.shift()!;
         const normalized = normalizeUrl(entry.url);
         if (this.visited.has(normalized)) continue;
+        // The sign-in page was mapped before signing in; going back to it signed in would
+        // at best show it again and at worst sign the crawl out.
+        if (authenticated && this.isLoginPage(entry.url)) { this.visited.add(normalized); continue; }
 
         const guard = isUrlAllowed(entry.url, {
           allowedHosts: this.options.budget.allowedHosts,
@@ -224,7 +254,10 @@ export class Crawler {
       this.logger.error('Discovery run failed', error, { discoveryRunId });
       this.note(`Discovery failed: ${errorMessage}`);
     } finally {
+      // Sign out, so an application that allows one session per user lets the next job in.
+      if (this.signedIn) await performLogout(page).catch(() => false);
       await page.close().catch(() => undefined);
+      this.leaveSession?.();
     }
 
     // A thin crawl has to account for itself. One page can mean the application has one
@@ -349,12 +382,45 @@ export class Crawler {
     }
   }
 
+  private isLoginPage(url: string): boolean {
+    const login = this.options.auth.loginUrl;
+    if (!login) return false;
+    try { return normalizeUrl(url) === normalizeUrl(login); } catch { return false; }
+  }
+
+  /** Back to a page: from inside the application when a load would sign it out. */
+  private async reopen(page: Page, url: string): Promise<void> {
+    if (this.inApp) {
+      await navigateInApp(page, url, this.options.navigationTimeoutMs).catch(() => undefined);
+    } else {
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: this.options.navigationTimeoutMs }).catch(() => undefined);
+    }
+  }
+
+  /**
+   * Puts a page back to its starting state without loading it: away to another page of
+   * the application and back, which makes a single-page application build it afresh.
+   */
+  private async resetInApp(page: Page, url: string): Promise<void> {
+    const elsewhere = this.landingUrl && normalizeUrl(this.landingUrl) !== normalizeUrl(url)
+      ? this.landingUrl
+      : [...this.pages.values()].map(p => p.url).find(other => normalizeUrl(other) !== normalizeUrl(url));
+    if (elsewhere) await navigateInApp(page, elsewhere, this.options.navigationTimeoutMs).catch(() => undefined);
+    await navigateInApp(page, url, this.options.navigationTimeoutMs).catch(() => undefined);
+  }
+
   private async authenticate(page: Page): Promise<LoginResult> {
     this.note('Signing in to the application under test.');
-    const result = await performLogin(page, this.options.auth, {
-      navigationTimeoutMs: this.options.navigationTimeoutMs,
-      actionTimeoutMs: this.options.navigationTimeoutMs
-    });
+    const loginOptions = { navigationTimeoutMs: this.options.navigationTimeoutMs, actionTimeoutMs: this.options.navigationTimeoutMs };
+    const key = this.options.auth.strategy === 'formLogin' ? sessionKey(this.options.auth) : undefined;
+    const exclusive = key ? sessionGate.isSingle(key) : false;
+    if (key && !this.leaveSession) this.leaveSession = await sessionGate.enter(key);
+    let result = await performLogin(page, this.options.auth, loginOptions);
+    if (key && !result.succeeded && CONCURRENT_SESSION.test(result.message) && !exclusive) {
+      this.note('The application refused a second session for this account; waiting for its other sessions to end, then signing in again.');
+      this.leaveSession = await sessionGate.becomeExclusive(key, this.leaveSession ?? (() => undefined));
+      result = await performLogin(page, this.options.auth, loginOptions);
+    }
     this.note(result.succeeded ? 'Signed in successfully.' : `Sign-in failed: ${this.masker.maskText(result.message)}`);
     this.actionsUsed += result.actionsUsed;
     return result;
@@ -368,11 +434,16 @@ export class Crawler {
 
     try {
       this.lastNavigationAt = started;
-      const response = await page.goto(entry.url, {
-        waitUntil: 'domcontentloaded',
-        timeout: this.options.navigationTimeoutMs
-      });
-      httpStatus = response?.status();
+      if (this.inApp && authenticated) {
+        await navigateInApp(page, entry.url, this.options.navigationTimeoutMs);
+        httpStatus = undefined;
+      } else {
+        const response = await page.goto(entry.url, {
+          waitUntil: 'domcontentloaded',
+          timeout: this.options.navigationTimeoutMs
+        });
+        httpStatus = response?.status();
+      }
       this.actionsUsed++;
 
       // Single-page applications finish rendering after DOMContentLoaded; a short network
@@ -487,7 +558,7 @@ export class Crawler {
       let opener: FormOpener | undefined;
       if (form.fields.length > 0 && !form.isMultiStep && !(await formIsVisible(page, form))) {
         hiddenAtLoad = true;
-        const found = await findOpener(page, form).catch(() => ({ opener: undefined, stoppedBecause: undefined }));
+        const found = await findOpener(page, form, this.inApp ? (p, url) => this.resetInApp(p, url) : undefined).catch(() => ({ opener: undefined, stoppedBecause: undefined }));
         opener = found.opener;
         remaining -= MAX_PROBE_INTERACTIONS_PER_PAGE / 6;
         if (!opener) {
@@ -513,7 +584,7 @@ export class Crawler {
           buttons: masked.buttons.map(button => ({ ...button, visible: reopened.buttons.find(r => r.label === button.label)?.visible ?? button.visible })) };
       }
       try {
-        const probe = await probeForm(page, current, remaining, open);
+        const probe = await probeForm(page, current, remaining, open, this.inApp ? (p, url) => this.resetInApp(p, url) : undefined);
         remaining -= probe.interactions;
         if (probe.stoppedBecause) this.note(`Stopped probing ${form.key} on ${page.url()}: ${probe.stoppedBecause}.`);
         forms.push({ ...current, dependencies: probe.dependencies, probeNote: probe.stoppedBecause, hiddenAtLoad, opener: opener ?? null });
@@ -703,10 +774,7 @@ export class Crawler {
 
       // Back to where we started, whatever the click did.
       if (normalizeUrl(page.url()) !== normalizeUrl(startUrl)) {
-        await page.goto(startUrl, {
-          waitUntil: 'domcontentloaded',
-          timeout: this.options.navigationTimeoutMs
-        }).catch(() => undefined);
+        await this.reopen(page, startUrl);
         await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => undefined);
       } else {
         // Same URL, but a modal or a menu may now be open. Escape closes most of them and
@@ -960,10 +1028,22 @@ export function routeShapeOf(url: string): string {
   let path: string;
   try { path = new URL(url).pathname; } catch { return url; }
   const segments = path.split('/').filter(Boolean);
-  // A single-segment path is a route in its own right (/dashboard, /accounts), not an
-  // instance of one; generalising it would make every top-level page share a shape.
-  if (segments.length < 2) return path === '' ? '/' : path.toLowerCase();
-  return '/' + [...segments.slice(0, -1).map(s => s.toLowerCase()), '*'].join('/');
+  if (segments.length === 0) return '/';
+  // Only a segment that looks like a record's identifier is a variable: /accounts/8812 and
+  // /accounts/9001 are one page shown twice, but /Retail/accounts and /Retail/transfer are
+  // two pages. Treating every last segment as a variable capped an application whose
+  // pages all live under one prefix at three pages.
+  return '/' + segments.map(segment => isIdentifier(segment) ? '{id}' : segment.toLowerCase()).join('/');
+}
+
+/** Numbers, UUIDs, long hex, and codes that mix letters and several digits. */
+export function isIdentifier(segment: string): boolean {
+  const value = decodeURIComponent(segment);
+  if (/^\d+$/.test(value)) return true;
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) return true;
+  if (/^[0-9a-f]{12,}$/i.test(value)) return true;
+  // ORD-2024-0042, a1b2c3d4: letters and at least three digits, no spaces.
+  return /^[A-Za-z0-9_-]{6,}$/.test(value) && (value.match(/\d/g)?.length ?? 0) >= 3;
 }
 
 function safeRoute(url: string): string {

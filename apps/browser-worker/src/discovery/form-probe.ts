@@ -49,9 +49,15 @@ function diff(before: Snapshot, after: Snapshot): Omit<FormDependency, 'trigger'
   return { shows, hides, becomesRequired, optionsOf };
 }
 
+/** Puts the page back to its starting state. By default it is loaded again by address. */
+export type PageReset = (page: Page, url: string) => Promise<void>;
+const loadAgain: PageReset = async (page, url) => { await page.goto(url, { waitUntil: 'domcontentloaded' }).catch(() => undefined); };
+
 export async function probeForm(page: Page, form: RawForm, maxInteractions: number,
   /** Re-opens a form that lives behind an opener, after each reload puts it away again. */
-  afterReload: () => Promise<void> = async () => undefined): Promise<ProbeResult> {
+  afterReload: () => Promise<void> = async () => undefined,
+  /** For an application whose session does not survive a page load, a reset from inside it. */
+  reset: PageReset = loadAgain): Promise<ProbeResult> {
   const dependencies: FormDependency[] = [];
   let interactions = 0;
   const startUrl = page.url();
@@ -109,7 +115,7 @@ export async function probeForm(page: Page, form: RawForm, maxInteractions: numb
       // starting point and not from the state the last one left.
       if (!unsafe) {
         restoring = true;
-        await page.goto(startUrl, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+        await reset(page, startUrl);
         await afterReload();
         restoring = false;
         interactions += 1;
@@ -150,7 +156,7 @@ export async function formIsVisible(page: Page, form: RawForm): Promise<boolean>
  * that navigates or sends more than a GET stops the search, and controls whose label says
  * they act (pay, delete, sign out) are never pressed.
  */
-export async function findOpener(page: Page, form: RawForm): Promise<{ opener?: FormOpener; stoppedBecause?: string }> {
+export async function findOpener(page: Page, form: RawForm, reset: PageReset = loadAgain): Promise<{ opener?: FormOpener; stoppedBecause?: string }> {
   const startUrl = page.url();
   let unsafe: string | undefined;
   let restoring = false;
@@ -203,7 +209,7 @@ export async function findOpener(page: Page, form: RawForm): Promise<{ opener?: 
       await page.waitForTimeout(SETTLE_MS * 2);
       if (!unsafe && await formIsVisible(page, form)) return { opener: { label: candidate.label, locator } };
       restoring = true;
-      await page.goto(startUrl, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+      await reset(page, startUrl);
       restoring = false;
     }
     return { stoppedBecause: unsafe };
@@ -211,7 +217,7 @@ export async function findOpener(page: Page, form: RawForm): Promise<{ opener?: 
     page.off('request', onRequest);
     if (page.url() !== startUrl || unsafe === undefined) {
       restoring = true;
-      await page.goto(startUrl, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+      await reset(page, startUrl);
     }
   }
 }

@@ -9,6 +9,7 @@ import type {
 import { describeLocator } from '@qa-nxt/shared-types';
 import { buildLocator } from '../browser/locator-resolver.js';
 import { performLogin } from '../browser/authenticator.js';
+import { CONCURRENT_SESSION, checkSessionSurvivesLoad, navigateInApp, performLogout, sessionGate, sessionKey } from '../browser/session.js';
 import type { BrowserPool } from '../browser/browser-pool.js';
 import { LocatorHealer } from '../healing/healer.js';
 import { SecretMasker } from '../security/masker.js';
@@ -70,6 +71,9 @@ export class TestExecutor {
 
     let context: BrowserContext | undefined;
     let page: Page | undefined;
+    // The application's session gate, left when the job is over; and whether this job signed in.
+    let leaveSession: (() => void) | undefined;
+    let signedIn = false;
     // One HTTP client for the whole test, so a sequence of API calls behaves like a
     // sequence of calls from one client rather than from a dozen strangers.
     const apiSession = new ApiRequestSession();
@@ -142,10 +146,20 @@ export class TestExecutor {
       }
 
       if (auth.strategy === 'formLogin' && !testSignsInItself && page) {
-        const login = await performLogin(page, auth, {
-          navigationTimeoutMs: Math.max(job.defaultTimeoutMs, 30_000),
-          actionTimeoutMs: job.defaultTimeoutMs
-        });
+        // One application, one test account: join its sessions, and once it is known to
+        // allow only one, wait for the others to finish first.
+        const key = sessionKey(auth);
+        // Already one at a time when this job started: then it holds the only slot.
+        const exclusive = sessionGate.isSingle(key);
+        leaveSession = await sessionGate.enter(key);
+        const loginOptions = { navigationTimeoutMs: Math.max(job.defaultTimeoutMs, 30_000), actionTimeoutMs: job.defaultTimeoutMs };
+        let login = await performLogin(page, auth, loginOptions);
+        if (!login.succeeded && CONCURRENT_SESSION.test(login.message) && !exclusive) {
+          this.logger.info('The application refused a second session; waiting for its other sessions to end, then signing in again.', { executionId: job.executionId });
+          leaveSession = await sessionGate.becomeExclusive(key, leaveSession);
+          login = await performLogin(page, auth, loginOptions);
+        }
+        if (login.succeeded) signedIn = true;
         if (!login.succeeded) {
           // Not a test failure: the test never got a chance to run. Reporting it as one
           // would attribute an environment problem to the application under test.
@@ -156,9 +170,24 @@ export class TestExecutor {
         }
       }
 
+      // An application whose session lives in the page's memory is signed out by loading
+      // any page by its address; its tests move through it from inside instead.
+      const inApp = signedIn && page
+        ? !(await sessionGate.survivesLoad(sessionKey(auth), () => checkSessionSurvivesLoad(page!, auth, Math.max(job.defaultTimeoutMs, 15_000))))
+        : false;
+      if (inApp) {
+        this.logger.info('The application signs out on a page load; pages are opened from inside it.', { executionId: job.executionId });
+        if (job.steps.some(step => step.action.action === 'reload')) {
+          status = 'blocked';
+          errorMessage = 'Not run: this test reloads the page, and this application signs the user out on any page load (its session lives only in the page), so what the test checks after the reload cannot be observed.';
+          throw new PreconditionError(errorMessage);
+        }
+      }
+
       let navigationMark = 0;
       let navigationUrl: string | undefined;
       const actionContext: ActionContext = {
+        navigateInApp: inApp ? async (p, url, timeoutMs) => { await navigateInApp(p, url, timeoutMs); } : undefined,
         defaultTimeoutMs: job.defaultTimeoutMs,
         allowScriptExecution: job.allowScriptExecution,
         allowedHosts: job.allowedHosts,
@@ -245,6 +274,9 @@ export class TestExecutor {
         }
       }
 
+      // Sign out, so an application that allows one session per user lets the next test in.
+      if (signedIn && page && !page.isClosed()) await performLogout(page).catch(() => false);
+
       let video: ReturnType<Page['video']> | null = null;
       if (page && !page.isClosed()) {
         await collector.screenshot(page, 'final').catch(() => undefined);
@@ -257,6 +289,7 @@ export class TestExecutor {
       // The context must close before the video file is finalised on disk; registering it
       // any earlier records a zero-byte artifact.
       await context?.close().catch(() => undefined);
+      leaveSession?.();
 
       if (video) {
         try {

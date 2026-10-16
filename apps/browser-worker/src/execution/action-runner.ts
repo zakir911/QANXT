@@ -29,6 +29,15 @@ export interface ActionContext {
   allowedHosts: string[];
   allowPrivateNetworks: boolean;
   baseUrl: string;
+  /**
+   * Opens a page of the application from inside it, for an application whose session
+   * does not survive a page load. Absent, pages are loaded by address.
+   */
+  navigateInApp?: (page: Page, url: string, timeoutMs: number) => Promise<void>;
+  /** Set when a step cleared the session: from then on pages are loaded, signed out. */
+  sessionCleared?: boolean;
+  /** How long the last in-app navigation took, which stands in for the load time. */
+  lastInAppNavigationMs?: number;
   /** Resolves a value that is entirely one ${secret:...} or ${data:...} reference. */
   resolveValue(raw: string | undefined): string | undefined;
   /**
@@ -111,6 +120,13 @@ export async function runAction(
       // Re-checked here, not only at planning time: a redirect can take a permitted URL
       // somewhere that is not.
       if (!guard.allowed) throw new ActionError(`Navigation to ${url} was refused: ${guard.reason}`, false);
+      if (context.navigateInApp && !context.sessionCleared) {
+        const started = Date.now();
+        await context.navigateInApp(page, url, timeout);
+        context.lastInAppNavigationMs = Date.now() - started;
+        return;
+      }
+      context.lastInAppNavigationMs = undefined;
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout });
       return;
     }
@@ -204,6 +220,7 @@ export async function runAction(
       // "Clear the session": many applications keep their sign-in token in storage rather
       // than a cookie, and clearing cookies alone leaves them signed in.
       await page.context().clearCookies();
+      context.sessionCleared = true;
       await page.evaluate(() => {
         try { localStorage.clear(); } catch { /* storage may be unavailable */ }
         try { sessionStorage.clear(); } catch { /* storage may be unavailable */ }
@@ -475,7 +492,7 @@ async function runFormOracle(
       case 'assertRequests':
         return await assertRequests(page, action.value, observationsOf(context));
       case 'assertLoadTimeUnder':
-        return await assertLoadTimeUnder(page, action.value);
+        return await assertLoadTimeUnder(page, action.value, context.lastInAppNavigationMs);
       case 'assertNoMarkupInjection':
         return await assertNoMarkupInjection(page, action.value);
       case 'assertPresent': {

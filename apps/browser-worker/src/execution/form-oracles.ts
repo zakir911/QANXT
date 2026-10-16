@@ -343,9 +343,16 @@ function decodeBody(body: string | undefined): string {
   try { return `${body}\n${decodeURIComponent(body.replace(/\+/g, ' '))}`; } catch { return body; }
 }
 
-export async function assertLoadTimeUnder(page: Page, value: string | undefined): Promise<void> {
+export async function assertLoadTimeUnder(page: Page, value: string | undefined, inAppNavigationMs?: number): Promise<void> {
   const budget = Number(value);
   if (!Number.isFinite(budget) || budget <= 0) throw new OracleError('assertLoadTimeUnder needs a budget in milliseconds.');
+  // Reached from inside the application (its session does not survive a page load), so
+  // the browser has no new navigation timing: the time from asking for the page to the
+  // page settling is the load time a user sees.
+  if (inAppNavigationMs !== undefined) {
+    if (inAppNavigationMs > budget) throw new OracleError(`Expected the page to load within ${budget} ms but it took ${inAppNavigationMs} ms (opened from inside the application).`);
+    return;
+  }
   await page.waitForLoadState('load', { timeout: Math.max(budget * 3, 10_000) }).catch(() => undefined);
   const measured = await page.evaluate(() => {
     const entry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
