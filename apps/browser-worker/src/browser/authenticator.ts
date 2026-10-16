@@ -55,12 +55,9 @@ async function performFormLogin(page: Page, auth: AuthConfig, options: LoginOpti
   // No password is checked for here: some sign-ins ask only for a user id and a one-time
   // code. A password field with no password configured fails when it is reached.
 
-  try {
-    await page.goto(auth.loginUrl, { waitUntil: 'domcontentloaded', timeout: options.navigationTimeoutMs });
-    actions++;
-  } catch (error) {
-    return fail(`The login page could not be loaded: ${messageOf(error)}`, actions);
-  }
+  const loadProblem = await openLoginPage(page, auth.loginUrl, options.navigationTimeoutMs);
+  actions++;
+  if (loadProblem) return fail(`The login page could not be loaded: ${loadProblem}`, actions);
 
   // Locators configured for this application win; without them the form is found the way a
   // person finds it, wherever and however late it renders.
@@ -178,6 +175,64 @@ async function settleSignIn(page: Page, auth: AuthConfig, options: LoginOptions,
       ? `the browser was still at ${page.url()}, which does not contain "${auth.successUrlContains}"`
       : `the browser was still on the sign-in page (${page.url()})`;
   return fail(`After signing in and waiting ${waited}s, ${what}.${said}${await describeVisibleForm(page)}`, actions);
+}
+
+/**
+ * Opens the login page and waits only as long as it must.
+ *
+ * Waiting for the whole document to finish (DOMContentLoaded) failed the sign-in whenever
+ * one script on the page hung: an analytics tag, a chat widget, a CDN the network blocks.
+ * The form is often on screen long before that, so the page counts as open as soon as the
+ * server answers, and the form is then waited for by itself. A server that does not answer
+ * at all is asked once more. A failure says what the page was still waiting on.
+ */
+async function openLoginPage(page: Page, url: string, timeoutMs: number): Promise<string | undefined> {
+  const pending = new Map<object, string>();
+  const failed: string[] = [];
+  const onRequest = (request: { url(): string }) => { pending.set(request, request.url()); };
+  const onFinished = (request: object) => { pending.delete(request); };
+  const onFailed = (request: { url(): string; failure(): { errorText: string } | null }) => {
+    pending.delete(request);
+    failed.push(`${shortUrl(request.url())} (${request.failure()?.errorText ?? 'failed'})`);
+  };
+  page.on('request', onRequest);
+  page.on('requestfinished', onFinished);
+  page.on('requestfailed', onFailed);
+  let answered = false;
+  let last: unknown;
+  try {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        await page.goto(url, { waitUntil: 'commit', timeout: timeoutMs });
+        answered = true;
+        // Give the document a fair chance to finish, but a slow script is not a reason to
+        // stop: the form is looked for next, however long it takes to render.
+        await page.waitForLoadState('domcontentloaded', { timeout: Math.min(timeoutMs, 5_000) }).catch(() => undefined);
+        return undefined;
+      } catch (error) {
+        last = error;
+        if (attempt === 1) await page.waitForTimeout(2000);
+      }
+    }
+  } finally {
+    page.off('request', onRequest);
+    page.off('requestfinished', onFinished);
+    page.off('requestfailed', onFailed);
+  }
+
+  const host = (() => { try { return new URL(url).host; } catch { return url; } })();
+  const parts = [messageOf(last)];
+  if (!answered) {
+    parts.push(`${host} did not answer within ${Math.round(timeoutMs / 1000)}s, twice. Check that the site opens in a browser on the machine running the worker, and whether it needs a VPN, a proxy or an allow-listed IP address.`);
+  }
+  const waiting = [...new Set(pending.values())].slice(0, 5).map(shortUrl);
+  if (waiting.length > 0) parts.push(`Still waiting on: ${waiting.join(', ')}.`);
+  if (failed.length > 0) parts.push(`Failed: ${[...new Set(failed)].slice(0, 5).join(', ')}.`);
+  return parts.join(' ');
+}
+
+function shortUrl(value: string): string {
+  try { const u = new URL(value); return `${u.host}${u.pathname}`.slice(0, 120); } catch { return value.slice(0, 120); }
 }
 
 type Scope = Page | Frame;

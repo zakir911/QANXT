@@ -148,6 +148,14 @@ function otpSite(): Server {
           });
         </script>`));
     }
+    // A login page whose last script never finishes loading (an analytics tag, a blocked
+    // CDN): the form is on screen, but the document never finishes.
+    if (url.pathname === '/hanging-script-login') {
+      return send(page(`<form action="/otp" method="get"><input type="hidden" name="style" value="single">
+        <label>User ID <input name="userid"></label><label>Password <input type="password" name="password"></label>
+        <button>Login</button></form><script src="/never-answers.js"></script>`));
+    }
+    if (url.pathname === '/never-answers.js' || url.pathname === '/never-answers') return; // hold the request open
     if (url.pathname === '/login') {
       const style = url.searchParams.get('style') ?? 'single';
       return send(page(`<form action="/otp" method="get"><input type="hidden" name="style" value="${style}">
@@ -189,6 +197,7 @@ describe('sign-in with a one-time code', () => {
   afterAll(async () => {
     await context?.close().catch(() => undefined);
     await pool?.close();
+    server?.closeAllConnections();
     await new Promise(resolve => server?.close(resolve));
   });
 
@@ -313,6 +322,25 @@ describe('sign-in with a one-time code', () => {
     expect(result.message).toBe('Signed in.');
     expect(headings).toContain('Dashboard');
   }, 40_000);
+
+  test('a login page whose last script never loads is still signed into', async () => {
+    const { result, headings } = await loginAt('/hanging-script-login');
+    expect(result.message).toBe('Signed in.');
+    expect(headings).toContain('Dashboard');
+  }, 60_000);
+
+  test('a server that never answers is reported as not answering, after one retry', async () => {
+    const page = await context.newPage();
+    try {
+      const result = await performLogin(page, { strategy: 'formLogin', loginUrl: `${base}/never-answers`, username: 'tester', password: 'secret' },
+        { navigationTimeoutMs: 3_000, actionTimeoutMs: 3_000 });
+      expect(result.succeeded).toBe(false);
+      expect(result.message).toMatch(/did not answer within 3s, twice/);
+      expect(result.message).toMatch(/Still waiting on: 127\.0\.0\.1:\d+\/never-answers/);
+    } finally {
+      await page.close();
+    }
+  }, 60_000);
 
   test('selectors configured for the application are used as given', async () => {
     const { result, headings } = await loginAt('/spa-login', {
