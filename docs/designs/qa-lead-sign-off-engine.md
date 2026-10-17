@@ -138,6 +138,45 @@ This week, from a machine that can reach HFCB non-prod:
 - You kept bringing back real evidence: the 122-test report, every sign-in error verbatim. You test the product against reality, not against the demo.
 - When the second opinion said your "unaided" bar was wrong, you changed it rather than defending it. That is fast learning, and it bought back the week HFCB cost.
 
+## CEO Review (working)
+
+Mode: SCOPE REDUCTION (user answer to D12, 2026-10-17). Approach B approved as the design (office hours D9). Goal of the reduction: the smallest slice that lets two QA leads judge a real sign-off pack from a real HFCB run.
+
+### Decision ledger
+
+| ID and owner | Contract and evidence | Current | Proposed | Status | Exact approval and scope |
+|---|---|---|---|---|---|
+| CEO-1 (worker + console) | Live OTP relay for in-page sessions (Recommended step 1, second bullet). HFCB can supply a fixed test OTP, which automatic sign-in already supports (apps/browser-worker/src/browser/authenticator.ts) | Deferred | Defer to TODOS.md; first trial uses a fixed test OTP | deferred | D13 answer A (2026-10-17): defer the live OTP relay only; fixed/TOTP automatic sign-in unchanged |
+| CEO-2 (console + API) | Saved-session recording UI (step 1, first bullet). StorageState strategy exists (apps/api/src/QaNxt.Domain/Enums/Enums.cs:25) but has no recording screen | In scope | Keep | approved | D14 answer B (2026-10-17): keep the saved-session recording screen in scope |
+| CEO-3 (API + console) | Review gate (step 3). Draft lifecycle exists (apps/api/src/QaNxt.Application/Testing/ManualTestImportService.cs:134) | In scope | Keep | approved | D15 answer B (2026-10-17): keep the review gate in scope |
+| CEO-4 (API + console) | Formal sign-off action, frozen and versioned pack (step 5, Signing and After signing) | In scope | Keep | approved | D16 answer B (2026-10-17): keep the Sign off action and the frozen, versioned pack in scope |
+| CEO-5 (API + console) | Dashboard trust metrics (step 6) | In scope | Keep | approved | D18 answer B (2026-10-17; question shown as D18, saved payload labelled D17): keep the dashboard trust metrics in scope |
+| CEO-6 (worker + API + console; Section 1) | How the kept recording screen captures a session. Extension lacks a cookies permission (apps/browser-extension/manifest.json:7); worker already signs in and can save context storage state | Worker capture | Worker signs in (fixed OTP or authenticator) and saves storage state when it survives a page load | approved | D19 answer A (2026-10-17): worker signs in and saves the session; no extension permission |
+| CEO-7 (API + report; Section 1) | Verdict mapping for Healed, Flaky, Cancelled (apps/api/src/QaNxt.Domain/Enums/Enums.cs:198) not specified in step 4 | unmapped | Healed and Flaky count as passed but listed separately for review before sign-off; Cancelled is not run | approved | D20 answer A (2026-10-17): Healed ("passed with an unapproved locator change") and Flaky ("passed on retry") count as passed and are listed on the pack's first page for the signer to acknowledge; Cancelled is not run ("cancelled by <user>") |
+| CEO-8 (API + console; Section 3) | Who may sign off. No permission covers it today; QA lead set has HealingApprove, QualityGateWrite (apps/api/src/QaNxt.Application/Security/Permissions.cs:141) | none | New `release:signoff` permission for QA lead and above, audited | approved | D21 answer A (2026-10-17): new `release:signoff` permission in the QA lead set (project admin and above inherit it); every signing writes an audit entry with who, when and the build |
+| CEO-9 (API + migration; Section 9) | Classifying existing environments under the fail-closed guard. No unclassified state today: Kind defaults to Development, IsProduction to false (apps/api/src/QaNxt.Domain/Projects/Environment.cs:17,23) | none | Existing rows start unclassified (treated as production) until a person confirms | approved | D22 answer A (2026-10-17): every existing environment starts unclassified and is treated as production (read-only) until a person confirms its classification, one click from a banner; the confirmation records who and when |
+| CEO-K (all) | Production guard (step 2), three-state verdicts (step 4), generated sign-off pack on RunComparisonService.ReleaseAsync (apps/api/src/QaNxt.Api/Controllers/ReleaseController.cs:30) | In scope | Keep | unchanged | Not proposed for deferral; stays as approved in the design (D9) |
+
+### Scope after reduction
+
+- Retained: approach B steps 1 (saved-session recording; automatic sign-in with fixed test OTP or authenticator secret), 2 (production guard), 3 (review gate), 4 (three-state verdicts), 5 (sign-off pack with Sign off action, frozen and versioned), 6 (dashboard trust metrics).
+- Deferred to TODOS.md: CEO-1, the live OTP relay for in-page sessions (D13). First HFCB trial uses a fixed test OTP.
+- NOT in scope (deferred, not rejected): live OTP relay — reason: HFCB can supply a fixed test OTP and automatic sign-in with one already exists; build only if the bank refuses.
+
+### Section record
+
+- Section 1 (Architecture): leverage confirmed; rollback = redeploy previous build (migrations only add fields); CEO-6, CEO-7 resolved.
+- Section 2 (Error & Rescue): no new choice. Implementation owner must prove: signing is blocked while any run in the release is queued or running (D16 frozen pack); a failed pack render or hash write records no signature (all-or-nothing); trust metrics show an empty state, not 0% or 100%, with no approved tests.
+- Section 3 (Security): CEO-8 resolved (D21). Existing leverage: the audited production opt-in already exists (`ProductionTestingAuthorized`, `ProductionAuthorizedByUserId`, `ProductionAuthorizedAt`, apps/api/src/QaNxt.Domain/Projects/Environment.cs:28). Implementation owner must prove: passwords and OTP are masked in every pack artifact; test approval (step 3, "the lead approves") is limited to the QA lead set, permission name left to /plan-eng-review.
+- Section 4 (Data flow): approval carries the test version it saw; a late approval of a version the generator has since changed is rejected and the test stays Proposed (step 3), proven with a pause/release test. Sign off is idempotent per click; concurrent signings get distinct version numbers (unique constraint). Runs finishing after signing go into the next version only (D16).
+- Section 5 (Code quality): one domain function maps ExecutionStatus to passed / failed / not run (step 4 + D20); pack, dashboard and CoverageService call it, never re-derive it.
+- Section 6 (Tests, within approved coverage): mapping table test over all nine ExecutionStatus values; RolePermissionMatrix test for `release:signoff`; form-lab production-guard scenario (button fetch POST blocked, test not run); stale-approve race; expired saved session ends not run "session lost"; sign-off all-or-nothing; full form-lab verification stays 0 failed.
+- Section 7 (Performance): pack links evidence rather than embedding it; index on (application, lifecycle) for the review-gate grouping; guard interception only on production environments.
+- Section 8 (Observability): structured logs per guard block (method, host, test id) and per session reuse (reused / expired / re-recorded); audit entry per signing; pack records its run ids and build.
+- Section 9 (Deployment): additive migrations only (sign-off table, pack version and hash, classification flag, `release:signoff` in the role matrix); rollback = redeploy the previous build. CEO-9 resolved (D22). Post-deploy check: every environment shows "unclassified" until confirmed, and a run against one blocks a form submit.
+- Section 10 (Trajectory): reversibility 4/5 (a signed pack is permanent by design; everything else is additive). Debt to watch: the verdict mapping and the review gate both change what "a test" means; docs/form-testing.md and docs/user-manual.md must say so in the same change.
+- Section 11 (Design & UX): three screens (guided sign-in, review gate, sign-off pack) per docs/designs/sign-off-engine-wireframe.png. Every screen needs loading, empty, error, success and partial states (see state map in the review report). Run /plan-design-review before building the console screens.
+
 <!-- gstack:office-hours:concerns:start -->
 ## Reviewer Concerns
 
