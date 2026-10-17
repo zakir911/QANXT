@@ -591,6 +591,75 @@ issues verified: 3 of 3
 Verification is deterministic: a fix counts when its `applied_text` is in the current design and absent from the round-2 snapshot. It confirms applied edits, never a review verdict; no reviewer was launched past the cap.
 <!-- gstack:office-hours:concerns:end -->
 
+## Eng Review (working)
+
+Target: docs/designs/qa-lead-sign-off-engine.md (named by the user). Report file: this document.
+
+### Scope record
+feature answers: none proposed (CEO scope D13-D28 kept); structure: A Smaller arrangement (eng D2, 2026-10-17); accepted scope: CEO-retained steps 1-6 built as three new pieces (ReleaseSignOff entity + service; worker `production-guard.ts`) plus extensions to ExecutionStatus (domain mapping), TestRepositoryService (approval), RunBugReportRenderer + RunComparisonService.ReleaseAsync (pack), ReleaseController (sign-off endpoints), Dashboard service (trust metrics), executor.ts + session.ts (one run, one session); pending remedies: E-1 per-step reason contract, E-2 guard blind spots, E-3 false-failure denominator.
+
+### Scope Challenge findings
+1. [P2] (9/10) apps/api/src/QaNxt.Infrastructure/Storage/FileSystemArtifactStore.cs:13 `public int RetentionDays { get; set; } = 30;`. No sweep exists and `Artifact.ExpiresAt` is never set. Factual correction: D26 pinning blocks cascade deletes of runs and artifacts in a signed pack and exempts pinned artifacts from any future sweep.
+2. [P1] (9/10) apps/browser-worker/src/execution/api-runner.ts:92 is the only write guard (API steps only); there is no `page.route` in the worker. The guard is new code, already in scope (step 2).
+Result: scope accepted as-is.
+
+### Section 1 findings
+- E-1 [P2] (8/10): per-step reason (`assertion | locator | navigation | timeout | guard | session`), required by approved step 4; no question. An assertion that times out on a loaded, signed-in page is an assertion mismatch (failed).
+- E-2 [P2] (8/10): production contexts use `serviceWorkers: 'block'` and `routeWebSocket` (Playwright 1.56.0, apps/browser-worker/package.json:22) to meet step 2; required, no question.
+
+### Sections 2-4 findings
+- Code quality [P2] (8/10) apps/browser-worker/src/execution/executor.ts:230: the batch job (D3) reuses the existing per-step `runStep` loop per test; no copy.
+- Code quality [P2] (8/10) apps/api/src/QaNxt.Application/Forms/FormTestingService.cs:452 `if (testCase.UpdatedByUserId is not null) return Outcome.LeftAsEdited;`: edit detection moves to an explicit edited marker that approval never sets (required by step 3).
+- Error gap: a production context whose guard cannot install fails the run closed before the first navigation (required by step 2).
+- Tests: regression tests listed in the Test plan below; each new path has one.
+- Performance [P1] (9/10) apps/api/src/QaNxt.Application/Testing/TestRunService.cs:482 `IssueWorkerToken(..., TimeSpan.FromHours(2))`: batch jobs (D3) mint each test's callback token when that test starts, from a run-scoped batch token, so long batches are not refused after two hours (required by D3).
+
+## Decision ledger (eng)
+
+### E-4: Job model for one run, one session (D24)
+Finding: [P1] (9/10) apps/api/src/QaNxt.Application/Testing/TestRunService.cs:206 `await _queue.EnqueueAsync(QueueNames.Execution, "execution", payload.Value!, ct);` enqueues one job per test case; any worker may take any job.
+Plan baseline: D24 approved one run = one signed-in session for in-page apps; job model unspecified.
+Runtime evidence: per-test jobs with a fresh context and sign-in each (apps/browser-worker/src/execution/executor.ts:102).
+Comparison grid:
+| Choice | Current | A | B |
+|---|---|---|---|
+| E-4 job model | one job per test | one session-batch job per run+application+account for in-page apps; per-test results still reported | per-test jobs; worker keeps a live browser per run and reuses it |
+| D24 one run, one session | approved | kept | kept only while every job lands on the same worker |
+| Cookie-based apps | per-test jobs | unchanged | unchanged |
+Question D3: How should the queue carry a run that must share one session?
+Header: Job model
+Options:
+A) Batch job per run (recommended)
+For in-page apps, the API enqueues one job holding the run's tests in order; the worker signs in once, runs them, reports each result as it finishes, and signs out. Effort human ~3d / CC ~2h; low risk.
+B) Sticky per-test jobs
+Keep one job per test; the worker holds the signed-in browser between jobs. Effort human ~2d / CC ~1h; high risk: breaks with two workers or a restart.
+
+State: approved
+Actual answer: A) Batch job per run (eng D3, 2026-10-17)
+Accepted scope: for applications whose session lives in the page, the API enqueues one session-batch job per run, application and test account, holding the run's approved tests in order; the worker signs in once, runs them, reports each test's result as it finishes, signs out; cookie-based applications keep per-test jobs. Tests for the new job shape and its streaming results.
+History: none
+
+### E-3: False-failure rate denominator (CEO-5, outside voice #16)
+Finding: [P2] (8/10) design step 6 "the false-failure rate (defects the lead rejected as not bugs)" has no denominator.
+Plan baseline: CEO-5 (D18) kept the metric; definition pending.
+Runtime evidence: DefectStatus.Rejected exists (apps/api/src/QaNxt.Domain/Enums/Enums.cs:235); not every failure raises a defect.
+Comparison grid:
+| Choice | Current | A | B |
+|---|---|---|---|
+| E-3 denominator | undefined | failed tests in the window; numerator = failed tests whose defect the lead rejected | defects raised in the window; numerator = rejected defects |
+Question D4: What should the false-failure rate divide by?
+Header: FF rate
+Options:
+A) Failed tests (recommended)
+Rejected failures / all failed tests; a failure with no defect yet shows as "not triaged". Effort S; low risk.
+B) Raised defects
+Rejected defects / defects raised; failures never raised are invisible. Effort XS; medium risk.
+
+State: approved
+Actual answer: A) Failed tests (eng D4, 2026-10-17)
+Accepted scope: false-failure rate = failed tests whose defect the lead rejected / all failed tests in the window; failed tests with no triaged defect are counted and shown as "not triaged". Tests for the rate, the not-triaged count and the empty state.
+History: none
+
 ## GSTACK REVIEW REPORT
 
 | Review | Trigger | Why | Runs | Status | Findings |
