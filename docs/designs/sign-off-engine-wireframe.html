@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Sign-off engine sketch</title>
+<style>
+/* Rough wireframe: system fonts, thin grey borders, no colour. Three states of one flow. */
+body{font:14px/1.45 system-ui,sans-serif;margin:24px;color:#222;background:#fff}
+h1{font-size:18px;margin:0 0 4px}h2{font-size:15px;margin:0 0 8px}
+.screen{border:1.5px dashed #888;border-radius:10px;padding:16px;margin-bottom:22px}
+.tag{display:inline-block;border:1px solid #999;border-radius:4px;padding:0 6px;font-size:12px;margin-right:4px}
+.row{display:flex;gap:12px;flex-wrap:wrap}.tile{border:1px solid #aaa;border-radius:6px;padding:8px 12px;min-width:120px}
+.tile b{display:block;font-size:20px}
+table{border-collapse:collapse;width:100%;margin-top:8px}td,th{border:1px solid #bbb;padding:5px 8px;text-align:left;font-size:13px}
+button{border:1px solid #666;background:#fff;border-radius:4px;padding:4px 10px;font:inherit}
+.muted{color:#777}.big{font-size:16px;font-weight:600}
+</style></head><body>
+
+<!-- STATE 1: day one. The first thing a QA lead sees for a new, locked-down app is the guided sign-in,
+     not a credentials form. Automatic sign-in is offered as the fallback for unattended runs. -->
+<div class="screen">
+  <h1>1 · Sign in to HFCB Retail Banking (non-prod)</h1>
+  <p class="muted">Environment: <span class="tag">UAT</span> hfcdevs.com · production submissions blocked</p>
+  <p class="big">Record the sign-in once. You type the OTP; QA NXT keeps the session.</p>
+  <div class="row">
+    <button>Open browser and record sign-in</button>
+    <button>Use automatic sign-in instead (for scheduled runs)</button>
+  </div>
+  <p class="muted">Status: session saved 10:42 · checked 2 min ago · reaches /Retail/dashboard ✔ · expires about 15 min after last use</p>
+</div>
+
+<!-- STATE 2: review gate. Generated tests arrive as Proposed. The lead approves in bulk by form and type;
+     nothing runs until approved. Trust over volume: counts shown are approved and runnable, not generated. -->
+<div class="screen">
+  <h1>2 · Review proposed tests</h1>
+  <div class="row">
+    <div class="tile"><b>2,418</b>proposed</div><div class="tile"><b>1,960</b>approved</div>
+    <div class="tile"><b>312</b>needs a person</div><div class="tile"><b>146</b>rejected</div>
+  </div>
+  <table>
+    <tr><th>Form · page</th><th>Fields</th><th>Proposed</th><th>Types</th><th></th></tr>
+    <tr><td>Fund transfer · /Retail/transfer</td><td>6</td><td>118</td><td>validation 34 · boundary 22 · security 9 · a11y 6 …</td><td><button>Approve all</button> <button>Review</button></td></tr>
+    <tr><td>Add beneficiary · /Retail/beneficiaries</td><td>5</td><td>97</td><td>validation 30 · format 18 · duplicate 4 …</td><td><button>Approve all</button> <button>Review</button></td></tr>
+    <tr><td>Profile · /Retail/profile</td><td>4</td><td>61</td><td>…</td><td><span class="tag">approved</span></td></tr>
+  </table>
+</div>
+
+<!-- STATE 3: the sign-off pack: the artifact the buyer puts their name on. One page; three-state verdicts;
+     every number links to evidence. "Not run" is never folded into passed or failed. -->
+<div class="screen">
+  <h1>3 · Release 4.2 sign-off pack</h1>
+  <div class="row">
+    <div class="tile"><b>1,931</b>passed with evidence</div><div class="tile"><b>17</b>failed · 6 defects</div>
+    <div class="tile"><b>12</b>not run · reasons listed</div><div class="tile"><b>0</b>false failures (rejected by lead)</div>
+    <div class="tile"><b>98.5%</b>approved tests that ran</div>
+  </div>
+  <table>
+    <tr><th>Area</th><th>Coverage</th><th>Verdict</th></tr>
+    <tr><td>Forms (14) · fields (63)</td><td>63 of 63 fields tested</td><td>2 defects (major)</td></tr>
+    <tr><td>Security scan (standard)</td><td>authorised scope</td><td>1 medium finding</td></tr>
+    <tr><td>Human checks</td><td>9 of 11 done</td><td>2 pending: OTP by SMS, PDF statement</td></tr>
+  </table>
+  <p><button>Sign off release 4.2</button> <button>Download pack (PDF + evidence)</button> <span class="muted">Sign-off records who, when and the exact build.</span></p>
+</div>
+</body></html>
