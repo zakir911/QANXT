@@ -155,12 +155,17 @@ Mode: SCOPE REDUCTION (user answer to D12, 2026-10-17). Approach B approved as t
 | CEO-7 (API + report; Section 1) | Verdict mapping for Healed, Flaky, Cancelled (apps/api/src/QaNxt.Domain/Enums/Enums.cs:198) not specified in step 4 | unmapped | Healed and Flaky count as passed but listed separately for review before sign-off; Cancelled is not run | approved | D20 answer A (2026-10-17): Healed ("passed with an unapproved locator change") and Flaky ("passed on retry") count as passed and are listed on the pack's first page for the signer to acknowledge; Cancelled is not run ("cancelled by <user>") |
 | CEO-8 (API + console; Section 3) | Who may sign off. No permission covers it today; QA lead set has HealingApprove, QualityGateWrite (apps/api/src/QaNxt.Application/Security/Permissions.cs:141) | none | New `release:signoff` permission for QA lead and above, audited | approved | D21 answer A (2026-10-17): new `release:signoff` permission in the QA lead set (project admin and above inherit it); every signing writes an audit entry with who, when and the build |
 | CEO-9 (API + migration; Section 9) | Classifying existing environments under the fail-closed guard. No unclassified state today: Kind defaults to Development, IsProduction to false (apps/api/src/QaNxt.Domain/Projects/Environment.cs:17,23) | none | Existing rows start unclassified (treated as production) until a person confirms | approved | D22 answer A (2026-10-17): every existing environment starts unclassified and is treated as production (read-only) until a person confirms its classification, one click from a banner; the confirmation records who and when |
+| CEO-10 (founder; outside voice #1) | Build gated on HFCB confirming a fixed test OTP in writing (The Assignment step 1 unconfirmed; CEO-1 deferral rests on it) | not gated | Gate engineering on the written confirmation | approved | D23 answer A (2026-10-17): engineering waits for HFCB to confirm a fixed test OTP in writing; if they refuse, CEO-1 (live OTP relay) returns to scope before building |
+| CEO-11 (worker; outside voice #3) | One run = one signed-in session for in-page apps (step 1 "Between tests" and "Mid-run loss"); executor today signs in per test (apps/browser-worker/src/execution/executor.ts:102-171) | unclear after CEO-1 | Keep in scope | approved | D24 answer A (2026-10-17): for in-page sessions one run is one signed-in session, with step 1's "Between tests in one shared session" and "Mid-run loss" rules kept in scope; only the live OTP prompt stays deferred (CEO-1) |
+| CEO-2 reopened (outside voice #4) | Recording screen saves sign-in time only; HFCB cannot use a saved session | approved D14 | Defer to TODOS.md | deferred | D25 answer A (2026-10-17): reopened on outside-voice evidence; recording screen deferred to TODOS.md; automatic sign-in covers apps whose session survives a page load. D14 and D19 history retained |
+| CEO-12 (API; outside voice #7) | Evidence a signed pack links to can be deleted by retention | unpinned | Pin linked evidence for the life of the signed pack | approved | D26 answer A (2026-10-17): signing exempts every artifact the pack links to from retention and deletion, and records each artifact's hash in the pack manifest |
+| CEO-13 (API; outside voice #12) | Existing generated tests (created Active) under the new review gate; no Rejected lifecycle value (Enums.cs:70) | unspecified | Existing Active tests stay approved; new Approval field with Proposed / Approved / Rejected | approved | D27 answer A (2026-10-17): generated tests that already exist and are Active count as approved; only new or regenerated tests go through the gate; approval is its own field (Proposed / Approved / Rejected), not the Draft lifecycle |
 | CEO-K (all) | Production guard (step 2), three-state verdicts (step 4), generated sign-off pack on RunComparisonService.ReleaseAsync (apps/api/src/QaNxt.Api/Controllers/ReleaseController.cs:30) | In scope | Keep | unchanged | Not proposed for deferral; stays as approved in the design (D9) |
 
 ### Scope after reduction
 
 - Retained: approach B steps 1 (saved-session recording; automatic sign-in with fixed test OTP or authenticator secret), 2 (production guard), 3 (review gate), 4 (three-state verdicts), 5 (sign-off pack with Sign off action, frozen and versioned), 6 (dashboard trust metrics).
-- Deferred to TODOS.md: CEO-1, the live OTP relay for in-page sessions (D13). First HFCB trial uses a fixed test OTP.
+- Deferred to TODOS.md: CEO-1, the live OTP relay for in-page sessions (D13). First HFCB trial uses a fixed test OTP, confirmed in writing before engineering starts (D23). CEO-2, the saved-session recording screen (D25).
 - NOT in scope (deferred, not rejected): live OTP relay — reason: HFCB can supply a fixed test OTP and automatic sign-in with one already exists; build only if the bank refuses.
 
 ### Section record
@@ -170,12 +175,211 @@ Mode: SCOPE REDUCTION (user answer to D12, 2026-10-17). Approach B approved as t
 - Section 3 (Security): CEO-8 resolved (D21). Existing leverage: the audited production opt-in already exists (`ProductionTestingAuthorized`, `ProductionAuthorizedByUserId`, `ProductionAuthorizedAt`, apps/api/src/QaNxt.Domain/Projects/Environment.cs:28). Implementation owner must prove: passwords and OTP are masked in every pack artifact; test approval (step 3, "the lead approves") is limited to the QA lead set, permission name left to /plan-eng-review.
 - Section 4 (Data flow): approval carries the test version it saw; a late approval of a version the generator has since changed is rejected and the test stays Proposed (step 3), proven with a pause/release test. Sign off is idempotent per click; concurrent signings get distinct version numbers (unique constraint). Runs finishing after signing go into the next version only (D16).
 - Section 5 (Code quality): one domain function maps ExecutionStatus to passed / failed / not run (step 4 + D20); pack, dashboard and CoverageService call it, never re-derive it.
-- Section 6 (Tests, within approved coverage): mapping table test over all nine ExecutionStatus values; RolePermissionMatrix test for `release:signoff`; form-lab production-guard scenario (button fetch POST blocked, test not run); stale-approve race; expired saved session ends not run "session lost"; sign-off all-or-nothing; full form-lab verification stays 0 failed.
+- Section 6 (Tests, within approved coverage): mapping table test over all twelve ExecutionStatus values (Pending, Queued, Running rejected as not final; corrected after the outside voice); RolePermissionMatrix test for `release:signoff`; form-lab production-guard scenario (button fetch POST blocked, test not run); stale-approve race; expired saved session ends not run "session lost"; sign-off all-or-nothing; full form-lab verification stays 0 failed.
 - Section 7 (Performance): pack links evidence rather than embedding it; index on (application, lifecycle) for the review-gate grouping; guard interception only on production environments.
 - Section 8 (Observability): structured logs per guard block (method, host, test id) and per session reuse (reused / expired / re-recorded); audit entry per signing; pack records its run ids and build.
 - Section 9 (Deployment): additive migrations only (sign-off table, pack version and hash, classification flag, `release:signoff` in the role matrix); rollback = redeploy the previous build. CEO-9 resolved (D22). Post-deploy check: every environment shows "unclassified" until confirmed, and a run against one blocks a form submit.
 - Section 10 (Trajectory): reversibility 4/5 (a signed pack is permanent by design; everything else is additive). Debt to watch: the verdict mapping and the review gate both change what "a test" means; docs/form-testing.md and docs/user-manual.md must say so in the same change.
 - Section 11 (Design & UX): three screens (guided sign-in, review gate, sign-off pack) per docs/designs/sign-off-engine-wireframe.png. Every screen needs loading, empty, error, success and partial states (see state map in the review report). Run /plan-design-review before building the console screens.
+- Outside voice (Claude subagent, same model; no outside coverage). Verified corrections, no behavior change: (a) approval is a field separate from edits, and edit detection stops using `UpdatedByUserId`, which lifecycle calls set (apps/api/src/QaNxt.Application/Forms/FormTestingService.cs:452; apps/api/src/QaNxt.Application/Testing/TestRepositoryService.cs:116,129), else step 3 silently fails; (b) a run or job with no environment is unclassified and treated as production (apps/api/src/QaNxt.Application/Testing/TestRunService.cs:478 allows writes today); (c) the worker reports a reason per step (assertion mismatch, locator missing, navigation/timeout, guard) because executor.ts:238 marks all of them failed, and step 4 needs them apart; (d) a pack covers one application, one environment and one build (`ReleaseAsync` groups by project and build only); (e) the session gate holds per worker process only (apps/browser-worker/src/browser/session.ts:35); the first trial runs one worker. Implementation owner must prove: guard blocks service-worker traffic and WebSocket sends; keep-alive POSTs on production end as "session lost", not failed; `checkSessionSurvivesLoad` saving only when it is sure; a defined false-failure denominator. Risk recorded: nothing measures real defects reported as not run (escapes). Disagreement recorded: reviewer says the reduction kept too much; CEO-2 to CEO-5 were kept by explicit answers.
+
+Approval readiness: PASS — checked CEO-1 (D13), CEO-2 (D14, reopened D25), CEO-3 (D15), CEO-4 (D16), CEO-5 (D18), CEO-6 (D19), CEO-7 (D20), CEO-8 (D21), CEO-9 (D22), CEO-10 (D23), CEO-11 (D24), CEO-12 (D26), CEO-13 (D27), TODO choice (D28), CEO-K (office hours D9). No row pending.
+
+### Scope after the outside voice
+
+- Retained: step 1 automatic sign-in (fixed test OTP or authenticator secret) with one run = one session for in-page apps (D24); step 2 production guard, fail closed, including runs with no environment and existing environments starting unclassified (D22); step 3 review gate with a separate approval field, existing Active tests grandfathered (D27); step 4 three-state verdicts with per-step reasons and the D20 mapping; step 5 sign-off pack per application, environment and build, signed under `release:signoff` (D21), frozen, versioned, with pinned evidence (D26); step 6 dashboard trust metrics.
+- Gate: engineering starts only after HFCB confirms a fixed test OTP in writing (D23).
+
+### NOT in scope
+
+| Item | Disposition | Answer | Rationale |
+|---|---|---|---|
+| Live OTP relay for in-page sessions | deferred (TODOS.md) | D13 | HFCB fixed test OTP; returns to scope if HFCB refuses (D23) |
+| Saved-session recording screen | deferred (TODOS.md) | D25 | Saves sign-in time only; HFCB cannot use a saved session |
+| Escape metric for "not run" verdicts | deferred (TODOS.md) | D28 | Needs a signed pack and a later release to compare |
+| Cross-worker session lock | not tracked | D28 (not selected) | First trial runs one worker; risk recorded below |
+| AI, new test types, Jira, Firefox/WebKit, load, DB checks, mobile | out of the 48-hour slice | design (office hours) | Not needed for one signed HFCB pack |
+
+### What already exists
+
+| Existing | Reused for |
+|---|---|
+| Automatic sign-in with OTP, refusal detection, late OTP screens (apps/browser-worker/src/browser/authenticator.ts) | step 1 |
+| `sessionGate`, `checkSessionSurvivesLoad`, `navigateInApp`, `performLogout` (apps/browser-worker/src/browser/session.ts) | step 1, one run = one session (D24) |
+| Audited production opt-in fields (apps/api/src/QaNxt.Domain/Projects/Environment.cs:28) | step 2 exception |
+| `AllowMutatingApiRequests` (apps/api/src/QaNxt.Application/Testing/TestRunService.cs:478) | step 2, to be made fail closed |
+| Generator fingerprints and edit preservation (apps/api/src/QaNxt.Application/Forms/FormTestingService.cs:452) | step 3, with approval split from edits |
+| `ExecutionStatus`, `FailureCategory`, `DefectStatus.Rejected` (apps/api/src/QaNxt.Domain/Enums/Enums.cs) | steps 4 and 6 |
+| `TestRun.ApplicationBuildRef`, `RunComparisonService.ReleaseAsync`, bug-report renderer, `CoverageService` | step 5 |
+| `RolePermissionMatrix` and audit log (apps/api/src/QaNxt.Application/Security/Permissions.cs:141) | D21 |
+
+### Dream state delta
+
+The 12-month ideal: a QA lead points QA NXT at any locked-down app inside the bank's network, it gets in and stays in, tests every form, field and page, and the lead signs releases on a pack an auditor accepts, with the false-failure rate and escapes both measured. After this plan: one application type (HFCB with a fixed OTP) reaches a signed, auditable pack with zero false failures as the bar. Still missing: in-page apps without a fixed OTP (relay, D13), saved sessions (D25), escape measurement (D28), multi-worker scale, and a bank-network deployment path.
+
+### Error & Rescue Registry (strategy depth)
+
+| Capability | Failure mechanism | User impact | Safeguard | Owner must verify |
+|---|---|---|---|---|
+| Automatic sign-in | refusal, OTP rejected, login page never answers | not run with exact reason | settleSignIn, openLoginPage diagnostics (built, tested) | live HFCB run after D23 |
+| One run = one session (D24) | session lost mid-run; cannot return to landing page | remaining tests not run, "session lost" / "could not return…" | step 1 rules | pause/release test of mid-run loss |
+| Production guard | interception not installed; service worker or WebSocket bypass; keep-alive POST blocked | run blocked; or session lost on production | fail closed; no environment = unclassified (outside voice b) | guard lab scenario incl. fetch, service worker |
+| Review gate | stale approve after regeneration; approval mistaken for edit | changed test runs unreviewed | approval field + version check (outside voice a, Section 4) | race test; generator regression test |
+| Verdicts | locator missing reported as failed | false failure | per-step reason from worker (outside voice c) | mapping test over 12 statuses + worker reason tests |
+| Sign-off | runs still running; render or hash failure; evidence deleted | half-signed or broken pack | block until terminal; all-or-nothing; pinned evidence (D26) | transaction test; retention exemption test |
+| Trust metrics | no data; undefined denominator | misleading 0% / 100% | empty state | denominator defined in /plan-eng-review |
+
+### Failure Modes Registry
+
+```
+  CAPABILITY          | FAILURE MODE                     | RESCUED? | TEST?   | USER SEES?            | LOGGED?
+  --------------------|----------------------------------|----------|---------|-----------------------|--------
+  Sign-in             | OTP refused / page hangs         | Y        | Y       | not run + reason      | Y
+  Shared session      | session lost mid-run             | Y (plan) | planned | not run "session lost"| planned
+  Shared session      | two workers share one account    | N        | N       | session lost          | Y      <- risk, one worker in trial
+  Production guard    | no environment on run            | Y (plan) | planned | blocked submit        | planned
+  Production guard    | service worker / WebSocket       | unknown  | planned | —                     | planned  (owner: eng review)
+  Review gate         | stale approve                    | Y (plan) | planned | stays Proposed        | planned
+  Review gate         | approval read as edit            | Y (plan) | planned | test regenerates      | planned
+  Verdicts            | locator missing                  | Y (plan) | planned | not run "could not find X" | planned
+  Sign-off            | runs not terminal                | Y (plan) | planned | "N runs still running"| planned
+  Sign-off            | render/hash failure              | Y (plan) | planned | error, no signature   | planned
+  Sign-off            | evidence deleted later           | Y (D26)  | planned | intact pack           | planned
+  Trust metrics       | no approved tests                | Y (plan) | planned | empty state           | n/a
+```
+No row is RESCUED=N, TEST=N and silent: 0 CRITICAL GAPS. The cross-worker row is visible ("session lost") and bounded by one worker in the trial.
+
+### Diagrams
+
+System architecture:
+```
+ Console ──► API (.NET) ──► Redis queue ──► Worker (Playwright, headless)
+   │  review gate, sign off      │  verdict mapping, pack, hash      │  sign-in once, guard, per-step reason
+   │                             ▼                                   ▼
+   └──────────────────────► Postgres (tests+approval, runs, packs, audit) ◄── artifacts (pinned on signing)
+```
+Data flow with shadow paths:
+```
+ discover ─► generate ─► Proposed ─► approve(vN) ─► Active ─► run ─► step reasons ─► verdict ─► pack ─► sign
+                │            ▲          │ stale vN? ─► rejected (stays Proposed)        │ runs not terminal ─► blocked
+                └ changed ───┘          └ edit ≠ approval                               └ render/hash fail ─► no signature
+```
+Approval state machine:
+```
+ Proposed ──approve──► Approved ──generator changes test──► Proposed
+    └──reject──► Rejected (stays rejected on regeneration)        existing Active ─migration─► Approved (D27)
+```
+Run session flow (in-page apps, D24):
+```
+ sign in ─► test 1 ─► Escape + navigate to landing ─► check signed in ─► test 2 … ─► sign out
+                                      └ not signed in ─► remaining tests: not run "session lost"
+```
+Deployment and rollback:
+```
+ migrate (additive: approval field, classification, sign-off, pins) ─► deploy API ─► deploy worker ─► banner: confirm environments
+ rollback: redeploy previous build; added columns ignored; signed packs remain
+```
+
+### Stale Diagram Audit
+
+docs/architecture.md diagrams do not show sign-off packs or the review gate; update them in the same change (Section 10). No other diagram in touched files is affected.
+
+## Implementation Tasks
+Synthesized from this review's findings. Strategy depth: each task names the next design or verification action; /plan-eng-review chooses contracts. Effort ratios assumed: features ~30x, tests ~50x, research ~3x.
+
+- [ ] **T0 (P1, human: ~1d / CC: n/a)** — founder — Get HFCB's fixed test OTP confirmed in writing
+  - Surfaced by: outside voice #1, D23
+  - Files: to be determined
+  - Verify: written confirmation saved; if refused, reopen CEO-1
+- [ ] **T1 (P1, human: ~3d / CC: ~3h)** — worker — One run, one signed-in session for in-page apps
+  - Surfaced by: outside voice #3, D24
+  - Files: apps/browser-worker/src/execution/executor.ts, apps/browser-worker/src/browser/session.ts
+  - Verify: memory-bank lab run signs in once; mid-run loss marks remaining tests not run
+- [ ] **T2 (P1, human: ~2d / CC: ~1h)** — worker + API — Fail-closed production guard incl. runs with no environment; existing environments unclassified
+  - Surfaced by: Section 2, Section 9, outside voice #5, D22
+  - Files: apps/api/src/QaNxt.Application/Testing/TestRunService.cs, apps/api/src/QaNxt.Domain/Projects/Environment.cs
+  - Verify: form-lab guard scenario (button fetch POST blocked, test not run)
+- [ ] **T3 (P1, human: ~2d / CC: ~1h)** — API — Approval field separate from edits; stale-approve check; grandfather existing Active tests
+  - Surfaced by: outside voice #2, #12, Section 4, D27
+  - Files: apps/api/src/QaNxt.Application/Forms/FormTestingService.cs, apps/api/src/QaNxt.Application/Testing/TestRepositoryService.cs
+  - Verify: regenerating an approved test returns it to Proposed; race test
+- [ ] **T4 (P1, human: ~2d / CC: ~1h)** — worker + API — Per-step reasons and one verdict mapping (D20)
+  - Surfaced by: outside voice #6, #14, Section 5
+  - Files: apps/browser-worker/src/execution/executor.ts, apps/api/src/QaNxt.Domain/Enums/Enums.cs
+  - Verify: mapping test over 12 statuses; locator-missing ends not run
+- [ ] **T5 (P1, human: ~4d / CC: ~3h)** — API + console — Sign-off pack per application/environment/build, `release:signoff`, frozen, versioned, pinned evidence
+  - Surfaced by: CEO-4, CEO-8, CEO-12, outside voice #7, #8
+  - Files: apps/api/src/QaNxt.Application/Quality/RunComparisonService.cs, apps/api/src/QaNxt.Application/Security/Permissions.cs
+  - Verify: all-or-nothing signing test; permission matrix test; evidence survives retention
+- [ ] **T6 (P2, human: ~1d / CC: ~30min)** — API + console — Trust metrics with defined denominator and empty state
+  - Surfaced by: CEO-5, outside voice #16
+  - Files: to be determined
+  - Verify: dashboard shows "—" with no approved tests
+- [ ] **T7 (P2, human: ~2h / CC: ~15min)** — docs — Update architecture, user manual and form-testing docs for the gate and verdicts
+  - Surfaced by: Section 10
+  - Files: docs/architecture.md, docs/user-manual.md, docs/form-testing.md
+  - Verify: docs describe Proposed/Approved/Rejected and three-state verdicts
+- [ ] **T8 (P1, human: ~1d / CC: ~40min)** — verification — Full form-lab verification stays 0 failed with no false failures
+  - Surfaced by: Success Criteria, Section 6
+  - Files: scripts/verify-complete-manual-testing
+  - Verify: ./scripts/verify-complete-manual-testing reports 0 failed
+
+### Reality rows
+
+- REALITY: binding-decisions pass — no recorded decisions on this branch; plan honours CLAUDE.md house rules (CLAUDE.md:22)
+- REALITY: already-done finding — release quality per build already exists and the pack must build on it (apps/api/src/QaNxt.Api/Controllers/ReleaseController.cs:30)
+- REALITY: deferred-asks finding — user asked for all possible tests for every form, page and field; plan reframes it as trust over volume (premise 3, agreed)
+- REALITY: numbers finding — effort estimates are estimated; 1681 tests and 66/0/2 are measured (verification/manual-testing-coverage-report.md); 122/108 comes from the user's upload
+- REALITY: premise-table finding — 11 of 12 claims verified; Healed/Flaky/Cancelled were unmapped, now D20 (apps/api/src/QaNxt.Domain/Enums/Enums.cs:198)
+- REALITY: surface-check finding — new routes not yet named (apps/api/src/QaNxt.Api/Controllers/ReleaseController.cs:17)
+- REALITY: pr-count pass — no ship policy; one PR per wave
+- PLAN_REALITY: phase=ceo rows=7/7 missing=none verdict=complete; unverified=1 (122/108 from the user's upload)
+
+### Completion Summary
+
+```
+  +====================================================================+
+  |            MEGA PLAN REVIEW — COMPLETION SUMMARY                   |
+  +====================================================================+
+  | Mode selected        | SCOPE REDUCTION                             |
+  | System Audit         | strong existing leverage; approval==edit    |
+  |                      | and no-environment write holes found        |
+  | Step 0               | reduction; relay deferred (D13)             |
+  | Section 1  (Arch)    | 2 issues found (CEO-6, CEO-7)               |
+  | Section 2  (Errors)  | 10 error paths mapped, 0 GAPS               |
+  | Section 3  (Security)| 3 issues found, 1 High severity (CEO-8)     |
+  | Section 4  (Data/UX) | 4 edge cases mapped, 0 unhandled            |
+  | Section 5  (Quality) | 1 issue found                               |
+  | Section 6  (Tests)   | Diagram produced, 0 gaps                    |
+  | Section 7  (Perf)    | 3 issues found                              |
+  | Section 8  (Observ)  | 3 gaps found                                |
+  | Section 9  (Deploy)  | 1 risk flagged (CEO-9)                      |
+  | Section 10 (Future)  | Reversibility: 4/5, debt items: 1           |
+  | Section 11 (Design)  | 3 screens; state map; design review advised |
+  +--------------------------------------------------------------------+
+  | NOT in scope         | written (5 items)                           |
+  | What already exists  | written                                     |
+  | Dream state delta    | written                                     |
+  | Error/rescue registry| 7 rows, 0 CRITICAL GAPS                     |
+  | Failure modes        | 12 total, 0 CRITICAL GAPS                   |
+  | TODOS.md updates     | 3 items (relay, recording screen, escapes)  |
+  | Scope proposals      | n/a (reduction): 3 cuts deferred            |
+  | CEO plan             | skipped by mode                             |
+  | Outside voice        | Claude subagent (native fallback; codex not |
+  |                      | installed): completed, 16 findings, no      |
+  |                      | outside coverage                            |
+  | Lake Score           | N/A (options not scored for coverage)       |
+  | Diagrams produced    | 5 (architecture, data flow, state machine,  |
+  |                      | session flow, deploy/rollback)              |
+  | Stale diagrams found | 1 (docs/architecture.md)                    |
+  | Unresolved decisions | 0                                           |
+  | Reality rows         | 7/7 rows (PLAN_REALITY), 1 unverified       |
+  +====================================================================+
+```
+
+### Unresolved Decisions
+
+None. Every question D13–D28 was answered.
 
 <!-- gstack:office-hours:concerns:start -->
 ## Reviewer Concerns
@@ -386,3 +590,18 @@ issues verified: 3 of 3
 
 Verification is deterministic: a fix counts when its `applied_text` is in the current design and absent from the round-2 snapshot. It confirms applied edits, never a review verdict; no reviewer was launched past the cap.
 <!-- gstack:office-hours:concerns:end -->
+
+## GSTACK REVIEW REPORT
+
+| Review | Trigger | Why | Runs | Status | Findings |
+|--------|---------|-----|------|--------|----------|
+| CEO Review | `/plan-ceo-review` | Scope & strategy | 1 | CLEAR | mode: SCOPE_REDUCTION, 0 critical gaps |
+| Outside Review | native Claude subagent (codex not installed) | Independent 2nd opinion | 1 | completed (native; no external coverage) | 16 findings (native); 16 resolved; 0 unresolved |
+| Eng Review | `/plan-eng-review` | Architecture & tests (required) | 0 | — | — |
+| Design Review | `/plan-design-review` | UI/UX gaps | 0 | — | — |
+| DX Review | `/plan-devex-review` | Developer experience gaps | 0 | — | — |
+
+- **OUTSIDE COVERAGE:** codex — plan-review — unavailable (not installed); native Claude subagent fallback completed within the five-minute limit with 16 findings, all dispositioned (6 verified corrections, 5 decisions D23–D27, 1 TODO D28, the rest recorded for the implementation owner); no completed external review.
+- **VERDICT:** CEO CLEARED — eng review required.
+
+NO UNRESOLVED DECISIONS
