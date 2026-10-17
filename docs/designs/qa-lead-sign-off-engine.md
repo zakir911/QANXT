@@ -948,17 +948,61 @@ History: none
 - Tests (added to the test plan): notRun re-run copies the source run's build and includes only not-run tests; RunStopCause set for guard-unavailable, worker-lost and all-not-run; undo transitions audit-logged; stale-sign rejection (D24).
 - Performance: no new hot paths; the notRun selection reads one run's executions (indexed by run id).
 
+### Outside voice (re-run): native Claude subagent, completed within five minutes; no external coverage
+Verified and applied as corrections required by existing approvals (no new choice):
+1. [Critical, verified] apps/api/src/QaNxt.Application/Testing/TestRunService.cs:143 sets `ApplicationBuildRef` only from `request.Ci`; console and selection runs never carry a build. Step 5 already says the lead enters the build when starting a run: `SelectionRunRequest` and the start-run dialog gain a build field passed as `CiContext.ApplicationBuildRef`; a notRun re-run copies it and is refused when the source run has none.
+2. [High] A notRun re-run copies the source run's `EnvironmentId` and `Browser` as well (pack = one application, environment and build).
+3. [High] The "failed" and "notRun" modes select from each test's latest execution in the source run (with its per-step reason), not `TestCase.LastStatus`, so the domain mapping applies.
+4. [High, verified] apps/api/src/QaNxt.Api/Services/StrandedExecutionReaper.cs:107-150 is the single writer of `RunStopCause.WorkerLost` (unclaimed → Blocked at line 129, stranded → Error at line 144). Precedence: GuardUnavailable (set before any test) > WorkerLost > AllNotRun (set at run completion only when no other cause). The banner appears when the reaper fires (default `Execution:UnclaimedAfterMinutes` 20).
+5. [High] D24's check compares a pack draft version = hash of each list's test ids and their latest execution ids (counts are derived from it); check-and-sign runs in one transaction with a concurrency token.
+6. [Medium] Approval undo goes through the versioned approval endpoint (stale → 409) and writes one audit row per test, including bulk undo; it does not use the lifecycle audit at TestRepositoryService.cs:121. A grandfathered test undone and re-approved loses its badge, correctly, since a person then reviewed it.
+7. [Medium] Undo after a run changes the draft pack's lists (latest result per approved test) and so trips D24 for anyone mid-review; tested.
+8. [Medium] One active notRun re-run per source run (a second request returns the existing one); tests no longer approved are reported as "N tests no longer approved, not re-run"; a re-run of a re-run takes the not-run tests of the run it was started from. Cancelled is already mapped to not run (CEO D20).
+9. [Low] Tests added: source run without build refused; environment and browser copied; reaper-set WorkerLost; same counts, different contents rejected by D24; bulk undo writes one audit row per test.
+
+### Implementation Tasks (re-run; extend E2, E4, E5)
+- [ ] **R1 (P1, human: ~1d / CC: ~40min)** — API + console — Build field on start-run and SelectionRunRequest; notRun mode copying build, environment and browser; one active re-run per source run
+  - Surfaced by: outside voice 1, 2, 8; design D11
+  - Files: apps/api/src/QaNxt.Application/Testing/SelectionRunService.cs, apps/api/src/QaNxt.Application/Testing/TestRunService.cs
+  - Verify: re-run copies build/env/browser; refused without build; second click returns the same run
+- [ ] **R2 (P1, human: ~1d / CC: ~30min)** — API — RunStopCause with single writers and precedence; reaper sets WorkerLost
+  - Surfaced by: finding 2, outside voice 4; design D8
+  - Files: apps/api/src/QaNxt.Domain/Testing/TestRun.cs, apps/api/src/QaNxt.Api/Services/StrandedExecutionReaper.cs
+  - Verify: guard-unavailable, worker-lost and all-not-run each produce one cause
+- [ ] **R3 (P1, human: ~1d / CC: ~30min)** — API — Approval undo via the versioned endpoint with per-test audit
+  - Surfaced by: outside voice 6, 7; design D6
+  - Files: apps/api/src/QaNxt.Application/Testing/TestRepositoryService.cs
+  - Verify: bulk undo writes N audit rows; undo after a run changes the draft pack
+- [ ] **R4 (P1, human: ~1d / CC: ~30min)** — API — Pack draft version hash, transactional stale-sign rejection, per-list acknowledgements stored
+  - Surfaced by: R-1 (D24), outside voice 5; design D19
+  - Files: apps/api/src/QaNxt.Application/Quality/RunComparisonService.cs
+  - Verify: same counts with different contents rejected; concurrent signs serialised
+
+### Completion summary (eng re-run)
+- Step 0: Scope Challenge — scope accepted as-is
+- Reality rows: carried from the eng review (7/7, 1 unverified premise)
+- Architecture Review: 3 issues found (plus 9 from outside voice, all corrections)
+- Code Quality Review: 1 issue found
+- Test Review: test plan extended, 0 gaps remaining
+- Performance Review: 0 issues found
+- TODOS.md updates: 0 items proposed
+- Failure modes: 0 critical gaps flagged
+- Unresolved decisions: 0 in this review
+- Outside voice: native Claude subagent, completed (codex not installed; no external coverage)
+- Parallelization: R1-R4 extend lanes A (R1, R2) and B (R3, R4) of the eng plan
+- Lake Score: 1/1 (D24)
+
 ## GSTACK REVIEW REPORT
 
 | Review | Trigger | Why | Runs | Status | Findings |
 |--------|---------|-----|------|--------|----------|
 | CEO Review | `/plan-ceo-review` | Scope & strategy | 1 | CLEAR | mode: SCOPE_REDUCTION, 0 critical gaps |
-| Outside Review | native Claude subagent (codex not installed): CEO, Eng and Design phases | Independent 2nd opinion | 3 | CEO: completed (native); Eng: unavailable (timed out); Design: completed (native) | CEO: 16 findings, 16 resolved. Eng: no completed external review. Design: 19 findings folded into passes 1-7. No external (codex) coverage in any phase |
-| Eng Review | `/plan-eng-review` | Architecture & tests (required) | 1 | CLEAR | 7 issues, 0 critical gaps |
+| Outside Review | native Claude subagent (codex not installed): CEO, Eng, Design, Eng re-run | Independent 2nd opinion | 4 | CEO: completed; Eng: unavailable (timed out); Design: completed; Eng re-run: completed (all native) | CEO 16, Design 19, Eng re-run 9 findings, all resolved. No external (codex) coverage in any phase |
+| Eng Review | `/plan-eng-review` | Architecture & tests (required) | 2 | CLEAR | 7 issues, 0 critical gaps; re-run: 4 issues + 9 outside corrections, 0 critical gaps |
 | Design Review | `/plan-design-review` | UI/UX gaps | 1 | CLEAR | score: 2/10 → 8/10, 19 decisions |
 | DX Review | `/plan-devex-review` | Developer experience gaps | 0 | — | — |
 
-- **OUTSIDE COVERAGE:** codex — unavailable (not installed) in the CEO, Eng and Design phases. Native Claude subagent: CEO completed (16 findings), Eng timed out at five minutes, Design completed (cold read; findings raised as design D3-D21). No completed external review.
-- **VERDICT:** CEO + ENG + DESIGN CLEARED — ready to implement once HFCB confirms a fixed test OTP in writing (D23). Design D21 is captured by eng task E5; the run-level cause field (design D8) and re-run of not-run tests (design D11) extend eng tasks E2 and E5.
+- **OUTSIDE COVERAGE:** codex — unavailable (not installed) in every phase. Native Claude subagent: CEO completed (16 findings), Eng timed out, Design completed (19), Eng re-run completed (9, including the missing console build reference at TestRunService.cs:143). No completed external review.
+- **VERDICT:** CEO + ENG + DESIGN CLEARED — ready to implement once HFCB confirms a fixed test OTP in writing (D23).
 
 NO UNRESOLVED DECISIONS
