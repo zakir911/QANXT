@@ -660,17 +660,132 @@ Actual answer: A) Failed tests (eng D4, 2026-10-17)
 Accepted scope: false-failure rate = failed tests whose defect the lead rejected / all failed tests in the window; failed tests with no triaged defect are counted and shown as "not triaged". Tests for the rate, the not-triaged count and the empty state.
 History: none
 
+Approval readiness: PASS — checked E-4 (eng D3), E-3 (eng D4), structure (eng D2); E-1, E-2, the edit marker, guard fail-closed and per-test token minting are required work for approved contracts (step 4, step 2, step 3, D3); CEO rows CEO-1..CEO-13 carried from the CEO ledger.
+
+### Outside voice (eng)
+Native Claude subagent (codex not installed) dispatched with the five-minute limit; the timer fired first and the reviewer was stopped. Outside coverage: unavailable (timed out); no findings accepted.
+
+### TODOS.md (eng)
+No new TODO proposed. The cross-worker session lock stays declined (D28); D3 makes one run's session independent of worker count, while the per-account gate across runs remains per worker (one worker in the trial).
+
+### NOT in scope (eng)
+- Cross-worker per-account lock: declined at D28; one worker in the first trial.
+- Retention sweep for artifacts: none exists; D26 pinning only guards cascades and any future sweep.
+- Everything in the CEO "NOT in scope" table above.
+
+### What already exists (eng)
+- `runStep` per-step loop (apps/browser-worker/src/execution/executor.ts:230) — reused by the batch job.
+- `api-runner.ts:92` mutating-method guard — kept for API steps; production-guard.ts adds the browser-level guard.
+- `TestRepositoryService` lifecycle calls — extended with approval; edit detection moves off `UpdatedByUserId`.
+- `RunBugReportRenderer`, `RunComparisonService.ReleaseAsync`, `ReleaseController` — extended for the pack and sign-off.
+- `Artifact.ExpiresAt` (apps/api/src/QaNxt.Domain/Evidence/Artifact.cs:25) — unset today; pinned artifacts keep it null.
+
+### Diagrams (eng)
+Batch job (D3):
+```
+ API: run start ─► in-page app? ─yes─► 1 batch job {runId, tests[ordered], batchToken}
+                        └─no──► N per-test jobs (unchanged)
+ Worker: batch ─► guard? ─► sign in ─► for each test: mint test token ─► runStep loop ─► POST result
+                                          └ session lost ─► POST remaining as not run "session lost"
+                 ─► sign out ─► done
+```
+Approval vs edit:
+```
+ generator change ─► test.EditedByUserId set? ─yes─► LeftAsEdited (flag for review)
+                                  └─no──► regenerate ─► Approval = Proposed (show diff)
+ approve(version v) ─► v == current? ─yes─► Approved   └─no─► 409 stale, stays Proposed
+```
+
+### Failure modes (eng)
+| Path | Production failure | Test | Handling | User sees |
+|---|---|---|---|---|
+| Batch job | worker dies mid-batch | yes (kill worker in test) | executions left Running are swept to not run "worker lost" | clear reason |
+| Batch job | token expired after 2h | yes (clock) | per-test token minting | none |
+| Guard | context option not applied | yes | run fails closed before navigation | "production guard unavailable" |
+| Approval | stale approve | yes | 409, stays Proposed | "test changed, review again" |
+| Sign-off | concurrent signing | yes | unique (pack, version) | second signer gets next version |
+| Metrics | no failures triaged | yes | "not triaged" count | visible |
+No silent, untested, unhandled path: 0 critical gaps. Worker-lost sweep is required for D3 (a batch must not leave executions Running).
+
+### Worktree parallelization strategy
+| Step | Modules touched | Depends on |
+|---|---|---|
+| Verdict mapping + per-step reasons | apps/api Domain, apps/browser-worker execution | — |
+| Production guard | apps/browser-worker execution, apps/api Testing | — |
+| Approval field + review gate | apps/api Testing/Forms, apps/web-console | — |
+| Batch job | apps/api Testing, apps/browser-worker execution/browser | verdict mapping |
+| Sign-off pack | apps/api Quality/Reporting/Security, apps/web-console | verdict mapping, approval |
+| Trust metrics | apps/api Dashboard, apps/web-console | verdict mapping |
+Parallel lanes: Lane A: verdict mapping → batch job (shared browser-worker execution/). Lane B: approval field. Lane C: production guard after Lane A's executor changes merge (shared executor.ts).
+Execution order: launch A + B. Merge A, then C. Merge B, then sign-off pack and trust metrics.
+Conflict flags: executor.ts (A, C), TestRunService.cs (batch, guard).
+
+### Implementation Tasks (eng)
+- [ ] **E1 (P1, human: ~2d / CC: ~1h)** — worker + API — Per-step reasons and the domain verdict mapping over 12 statuses
+  - Surfaced by: Section 1 E-1
+  - Files: apps/browser-worker/src/execution/executor.ts, apps/api/src/QaNxt.Domain/Enums/Enums.cs
+  - Verify: mapping table test; locator-missing ends not run
+- [ ] **E2 (P1, human: ~3d / CC: ~2h)** — API + worker — Batch job per run for in-page apps with per-test token minting and worker-lost sweep
+  - Surfaced by: Section 1 E-4 (D3), Section 4 token finding
+  - Files: apps/api/src/QaNxt.Application/Testing/TestRunService.cs, apps/browser-worker/src/execution/executor.ts, apps/browser-worker/src/browser/session.ts
+  - Verify: memory-bank lab batch signs in once; clock-advanced token test; killed worker leaves no Running executions
+- [ ] **E3 (P1, human: ~2d / CC: ~1h)** — worker + API — production-guard.ts with route, serviceWorkers block, routeWebSocket; no-environment and unclassified treated as production
+  - Surfaced by: Scope Challenge 2, Section 1 E-2, D22
+  - Files: apps/browser-worker/src/execution/executor.ts, apps/api/src/QaNxt.Application/Testing/TestRunService.cs, apps/api/src/QaNxt.Domain/Projects/Environment.cs
+  - Verify: form-lab guard scenario (fetch, submit, SW, WebSocket); guard-install failure blocks run
+- [ ] **E4 (P1, human: ~2d / CC: ~1h)** — API + console — Approval field with version check; edit marker separate from approval; grandfather Active tests
+  - Surfaced by: Section 2 edit-marker finding, D27
+  - Files: apps/api/src/QaNxt.Application/Testing/TestRepositoryService.cs, apps/api/src/QaNxt.Application/Forms/FormTestingService.cs
+  - Verify: regenerated approved test returns to Proposed; stale approve 409
+- [ ] **E5 (P1, human: ~4d / CC: ~3h)** — API + console — ReleaseSignOff entity + service on ReleaseController; pack via RunBugReportRenderer; pinned evidence; release:signoff
+  - Surfaced by: D2, CEO-4/8/12, Scope Challenge 1
+  - Files: apps/api/src/QaNxt.Application/Quality/RunComparisonService.cs, apps/api/src/QaNxt.Application/Reporting/RunBugReportRenderer.cs, apps/api/src/QaNxt.Application/Security/Permissions.cs
+  - Verify: all-or-nothing signing; concurrent versions; run delete blocked for pinned evidence
+- [ ] **E6 (P2, human: ~1d / CC: ~30min)** — API + console — Trust metrics with D4 denominator and not-triaged count
+  - Surfaced by: E-3 (D4)
+  - Files: to be determined (Dashboard service)
+  - Verify: rate, not-triaged count and empty state tests
+
+### Unresolved decisions (eng)
+None.
+
+### Completion summary (eng)
+- Step 0: Scope Challenge — scope accepted as-is (smaller arrangement, D2)
+- Reality rows: 7/7 applicable rows emitted (PLAN_REALITY), 1 unverified premise (122/108 from the user's upload)
+- Architecture Review: 3 issues found (E-1, E-2, E-4)
+- Code Quality Review: 3 issues found
+- Test Review: diagram produced, 0 gaps identified
+- Performance Review: 1 issue found (callback token lifetime)
+- NOT in scope: written
+- What already exists: written
+- TODOS.md updates: 0 items proposed to user
+- Failure modes: 0 critical gaps flagged
+- Unresolved decisions: 0 in this review
+- Outside voice: native Claude subagent (codex not installed), unavailable (timed out at five minutes)
+- Parallelization: 3 lanes, 2 parallel / 1 sequential
+- Lake Score: 2/2 = answers picking a 10/10-leading option / answers scored for Completeness (D3, D4)
+
+### Reality rows (eng)
+- REALITY: premise-table finding — carried from CEO; unverified=1 (122/108 from the user's upload)
+- REALITY: already-done pass — no commits on origin/main since 2026-10-16 to executor.ts, TestRunService.cs, FormTestingService.cs, RunComparisonService.cs
+- REALITY: surface-check finding — new sign-off routes not yet named; existing /api/v1/release/quality confirmed (apps/api/src/QaNxt.Api/Controllers/ReleaseController.cs:17)
+- REALITY: binding-decisions pass — CEO decision log entry honoured (scope cut of 3 items)
+- REALITY: numbers pass — effort figures tagged [estimated]; 2h token TTL [measured: TestRunService.cs:482]; RetentionDays 30 [measured: FileSystemArtifactStore.cs:13]
+- REALITY: deferred-asks pass — CEO NOT-in-scope table carries the user's "all possible tests" ask
+- REALITY: pr-count pass — no .gstack/ship-policy.json; one PR per wave
+- PLAN_REALITY: phase=eng rows=7/7 missing=none verdict=complete
+
 ## GSTACK REVIEW REPORT
 
 | Review | Trigger | Why | Runs | Status | Findings |
 |--------|---------|-----|------|--------|----------|
 | CEO Review | `/plan-ceo-review` | Scope & strategy | 1 | CLEAR | mode: SCOPE_REDUCTION, 0 critical gaps |
-| Outside Review | native Claude subagent (codex not installed) | Independent 2nd opinion | 1 | completed (native; no external coverage) | 16 findings (native); 16 resolved; 0 unresolved |
-| Eng Review | `/plan-eng-review` | Architecture & tests (required) | 0 | — | — |
+| Outside Review | native Claude subagent (codex not installed), CEO and Eng phases | Independent 2nd opinion | 2 | CEO: completed (native, no external coverage); Eng: unavailable (timed out) | CEO: 16 findings (native); 16 resolved; 0 unresolved. Eng: no completed external review |
+| Eng Review | `/plan-eng-review` | Architecture & tests (required) | 1 | CLEAR | 7 issues, 0 critical gaps |
 | Design Review | `/plan-design-review` | UI/UX gaps | 0 | — | — |
 | DX Review | `/plan-devex-review` | Developer experience gaps | 0 | — | — |
 
-- **OUTSIDE COVERAGE:** codex — plan-review — unavailable (not installed); native Claude subagent fallback completed within the five-minute limit with 16 findings, all dispositioned (6 verified corrections, 5 decisions D23–D27, 1 TODO D28, the rest recorded for the implementation owner); no completed external review.
-- **VERDICT:** CEO CLEARED — eng review required.
+- **OUTSIDE COVERAGE:** codex — plan-review (CEO and Eng) — unavailable (not installed). CEO phase: native Claude subagent completed, 16 findings dispositioned. Eng phase: native Claude subagent stopped at the five-minute limit; no completed external review.
+- **VERDICT:** CEO + ENG CLEARED — ready to implement once HFCB confirms a fixed test OTP in writing (D23).
 
 NO UNRESOLVED DECISIONS
