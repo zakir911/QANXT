@@ -912,6 +912,42 @@ Decisions: "sign in again" in step 1 is replaced by "Re-run the N not-run tests"
 ```
 Unresolved decisions: none.
 
+## Eng Review re-run (after design review)
+
+Target: this document; focus on design D6, D8, D11, D19. Scope accepted as-is (about 6 existing files, no new classes; complexity gate skipped).
+
+### Findings
+1. [P1] (9/10) apps/api/src/QaNxt.Application/Testing/SelectionRunService.cs:45 `NotPassed = { Failed, Error, TimedOut, Blocked }`: the "failed" mode mixes failures with not-run tests. Required by step 4 and design D11: a `notRun` mode scoped to a source run that copies its `ApplicationBuildRef`; "failed" uses the domain verdict mapping (failed only).
+2. [P2] (9/10) apps/api/src/QaNxt.Domain/Testing/TestRun.cs:20-32 has no run-level cause. Required by design D8: `RunStopCause` (None, GuardUnavailable, WorkerLost, AllNotRun) + detail text, set by the API from batch and guard outcomes.
+3. [P2] (8/10) design D6 undo reuses the audit call in TestRepositoryService.cs:121; runs snapshot test ids at start, so undo never alters a queued run. Required; no question.
+
+### R-1: Signing when the pack changed after the page loaded (design D19)
+Finding: [P2] (8/10) design D19 stores per-list acknowledgements with the signature; between page load and Sign off, a defect can be triaged or a new run can finish, changing the counts the signer acknowledged.
+Plan baseline: D19 approved one checkbox per non-empty list, stored with the signature; behaviour on change unspecified.
+Runtime evidence: none (new code).
+Comparison grid:
+| Choice | Current | A | B |
+|---|---|---|---|
+| R-1 sign with changed counts | unspecified | sign request carries the counts seen; server rejects with "The pack changed since you opened it" and the page reloads with ticks cleared | server signs and records both the counts seen and the counts at signing |
+Question D24: What happens if the pack changed after the lead opened it?
+Header: Stale sign
+Options:
+A) Reject and reload (recommended)
+Sign carries the counts seen; any difference rejects the signing, reloads the pack and clears the ticks. Effort S; low risk.
+B) Sign and record both
+Signing proceeds; the signature stores counts seen and counts at signing. Effort S; medium risk.
+
+State: approved
+Actual answer: A) Reject and reload (eng re-run D24, 2026-10-17)
+Accepted scope: the sign request carries the per-list counts the signer saw (and the pack draft version); if any differs from the server's current draft, signing is rejected with "The pack changed since you opened it", nothing is recorded, and the page reloads with ticks cleared. Tests: counts change between load and sign → rejected; unchanged → signed with the stored acknowledgements.
+History: none
+
+### Sections 1-4 (re-run)
+- Architecture: the four additions sit in existing homes (SelectionRunService, TestRun, TestRepositoryService, ReleaseSignOff from D2); no new service.
+- Code quality: the `notRun` selection mode and the "failed" mode both use the domain verdict mapping; no second status list.
+- Tests (added to the test plan): notRun re-run copies the source run's build and includes only not-run tests; RunStopCause set for guard-unavailable, worker-lost and all-not-run; undo transitions audit-logged; stale-sign rejection (D24).
+- Performance: no new hot paths; the notRun selection reads one run's executions (indexed by run id).
+
 ## GSTACK REVIEW REPORT
 
 | Review | Trigger | Why | Runs | Status | Findings |
