@@ -775,17 +775,154 @@ None.
 - REALITY: pr-count pass — no .gstack/ship-policy.json; one PR per wave
 - PLAN_REALITY: phase=eng rows=7/7 missing=none verdict=complete
 
+## Design Review (working)
+
+Target: this document. No DESIGN.md; calibrated against apps/web-console/tailwind.config.js tokens and apps/web-console/src/components/ui.tsx. Designer mockups unavailable (no OpenAI key); text-only review. Independent Claude subagent cold read run (design D2).
+
+### Approved screen specs
+
+**Sign-off pack page** (design D3, answer 1A). Reading order:
+```
++------------------------------------------------------------------+
+| Release 4.2 sign-off pack                    [Download pack]     |
+| Retail Banking · UAT (non-prod) · build 4.2.0-rc3 · v2 · Draft   |  1 identity strip (+ production opt-in flag when used)
++------------------------------------------------------------------+
+| ! 1 run still running — signing unlocks when it finishes         |  2 blockers (each disables Sign off, states why)
++------------------------------------------------------------------+
+| Before you sign                                                  |  3 must-review lists
+|  Failed (17)      · Fund transfer · amount 0.001 accepted …      |
+|  Not run (12)     · session lost (9) · production guard (3)      |
+|  Healed (29)      · passed with an unapproved locator change     |
+|  Flaky (12)       · passed on retry                              |
++------------------------------------------------------------------+
+| [1,931 passed] [17 failed] [12 not run] [41 healed/flaky] [98.5% ran] |  4 counts
+| Coverage: forms · fields · security scan · human checks          |    coverage table
++------------------------------------------------------------------+
+| [x] acknowledgement      [Sign off release 4.2]                  |  5 acknowledge + sign together
++------------------------------------------------------------------+
+```
+The false-failure rate is not on the pack; it lives on the dashboard.
+
+**Run page** (design D4, answer 2A). Header "Ran X of Y approved". Tiles (existing `Metric` + `useMetricFilter`): Passed, Failed, Not run, Healed, Flaky, all from the domain verdict mapping (replaces `VERDICT_OF`, apps/web-console/src/pages/TestRunDetailPage.tsx:20). A "Why tests didn't run" card groups not-run tests by reason with count and next action: session lost → re-run remaining; production guard → classify environment; could not find X → open healing proposal. Executions table gains a Reason column.
+
+**Review gate** (design D5, answer 3A). One row per form (fields, proposed count), expandable to one row per testing type; Approve and Reject at both levels; link to individual tests. Tiles: Proposed, Changed since approval, Edited (needs review), Approved, Rejected. "Needs a person" removed.
+
+### Interaction states (Pass 2)
+
+```
+  FEATURE          | LOADING  | EMPTY                                  | ERROR                                   | SUCCESS                          | PARTIAL
+  -----------------|----------|----------------------------------------|-----------------------------------------|----------------------------------|------------------------------------------
+  Review gate      | Spinner  | "No proposed tests" + Generate tests   | ErrorNotice + retry                     | "All N tests reviewed" + Start a run | bulk: "112 approved · 6 changed since you loaded them — review" (6 stay Proposed, highlighted)
+  Run page         | Spinner; batch "Running test N of M" | — | run-level ErrorNotice: "Production guard unavailable — nothing was sent" + Retry; "Worker stopped after test N — M not run" + Re-run remaining | tiles + table | all not run: "No tests ran: <top reason>" + its next action
+  Sign-off pack    | Spinner  | "No runs for build X yet" + Start a run | render/hash failed: "Nothing was signed" + Retry; download failed: ErrorNotice + retry (serves stored frozen file) | signed: signature block (who, when, build, hash) replaces button | blockers: runs still running; no build reference; superseded: "Newer runs exist" + Create v(N+1); no permission: button disabled "Requires QA lead"
+  Trust metrics    | Spinner  | "No approved tests have run yet" + Start a run | ErrorNotice | ran ≥80% good / below warn; false failures 0 good / >0 bad | "N% · X triaged, Y not triaged → Triage", neutral until >50% triaged
+```
+Decisions: review gate partial result and reversibility (design D6, 4A): Approved → Proposed and Rejected → Proposed allowed, each audit-logged with who and when. Pack states (design D7, 5A). Run-level causes (design D8, 6A) need a run-level cause field from the API. Review gate states and the "Approved before review existed" badge + filter for grandfathered tests (design D9, 7A; D27). Metrics window = latest build per application, "ran" = latest result per approved test (design D10, 8A).
+
+### Journey (Pass 3)
+
+```
+  STEP | USER DOES                          | USER FEELS                  | PLAN SPECIFIES
+  -----|------------------------------------|-----------------------------|------------------------------------------------
+  1    | Generates tests for a new release  | hopeful, wary of volume     | result links to "Review N proposed tests" (D13)
+  2    | Bulk-approves by form and type     | in control                  | form→type rows, partial result, undo (D5, D6)
+  3    | Starts a run                       | cautious                    | "N proposed tests won't run" notice (D12)
+  4    | Opens the run page                 | anxious: did it work?       | "Ran X of Y", reasons card, run-level banner (D4, D8)
+  5    | Re-runs the not-run tests          | relieved, not stuck         | "Re-run the N not-run tests" under the same build (D11)
+  6    | Opens the pack from the run page   | focused                     | identity → blockers → review lists → counts (D3, D13)
+  7    | Clicks a failed row to its evidence| convinced, or not           | every row links to run and execution evidence (D13)
+  8    | Acknowledges and signs             | accountable, confident      | acknowledgement + Sign off together; signed block (D3, D7)
+```
+5-second: the identity strip and blockers say whether this pack can be signed. 5-minute: the review lists and evidence links. 5-year: a frozen, versioned pack that still opens with its evidence (D26).
+Decisions: "sign in again" in step 1 is replaced by "Re-run the N not-run tests" (design D11, 9A); the pack combines runs per build and shows each test's latest result. Proposed tests are counted at run start and in a "Not approved" pack column (design D12, 10A). Cross-links (design D13, 11A).
+
+### Specificity, system, responsive and open decisions (Passes 4-7)
+
+- **Changed-test diff** (design D14, 12A): a reason line from the generator ("Field Amount became required") above a two-column diff of only the changed steps, expected values and data (from the snapshot the generator already stores). Bulk approve over a group containing changed tests warns "includes N changed tests" first.
+- **Environment banner** (design D15, 13A; refines CEO D22's "one click"): shown in a new Environments card on SettingsPage (the console has no environments screen today) and in the start-run dialog. It lists each unclassified environment (name, URL) with "Production" (one click) and "Not production" (a confirm dialog naming the host). Audit-logged with who and when; allowed for whoever can edit environments. Classification appears on the run page and in the pack identity strip.
+- **Status tones** (design D16, 14A): new StatusBadge keys: notRun (warn + reason chip), testProposed (brand-light), testApproved (good), testRejected (neutral), grandfathered (neutral, outlined); healed and flaky use info; error/timedOut render through the domain mapping. Red is only for failed tests and defects.
+- **Placement** (design D17, 15A): review gate = a "Review" tab on TestCasesPage; run page changes in TestRunDetailPage; trust metrics = two Metric tiles on DashboardPage; banner as above; new Release sign-off page at `/releases/:applicationId/:build` built from PageHeader, Card, Metric, EmptyState, ErrorNotice and StatusBadge.
+- **Responsive and accessibility** (design D18, 16A): expandable rows are `<button aria-expanded>`; bulk results are announced through an `aria-live="polite"` region; each acknowledgement is a labelled `<input type="checkbox">`; Sign off has `aria-describedby` pointing at its blocker text; focus rings use the brand token. Widths: ≥1024px as specified; 768-1023px tiles in 2 columns; <768px lists stack and the sign bar sticks to the bottom; 44px touch targets. A keyboard-only test covers approve → sign.
+- **Acknowledgement** (design D19, 17A): one checkbox per non-empty list (failed, not run, healed, flaky), each label carrying its count; all required before Sign off enables; each tick is stored with the signature. The healed label adds "Acknowledging does not approve the healing."
+- **Long lists** (design D20, 18A): not run is grouped by reason, failed/healed/flaky by form, each with counts, the first 10 rows per group and "View all N"; the tick is not gated on opening it.
+- **Frozen view** (design D21, 19A): before signing, the Release page renders live (working draft); once signed, it shows the stored frozen HTML in a sandboxed iframe with the signature block, hash and a version switcher; downloads always serve the stored file.
+- **Wireframe correction:** state 1 of docs/designs/sign-off-engine-wireframe.png (guided sign-in) is deferred (CEO D13, D25) and must not be built; states 2 and 3 are superseded by the specs above.
+
+### NOT in scope (design)
+- Guided sign-in and saved-session screens: deferred (CEO D13, D25).
+- Visual mockups: the gstack designer has no OpenAI key here; specs are text and ASCII. Re-run with a key to generate them.
+- DESIGN.md: deferred to TODOS.md (design D22).
+
+### What already exists (design)
+- Tokens: apps/web-console/tailwind.config.js (role-named colours, AA-checked contrast, Inter).
+- Components: `PageHeader`, `Card`, `Metric` + `useMetricFilter` + `FilterNote`, `StatusBadge`, `EmptyState`, `ErrorNotice`, `Spinner` (apps/web-console/src/components/ui.tsx).
+- Pages extended: TestCasesPage, TestRunDetailPage (replace `VERDICT_OF` at line 20), DashboardPage, SettingsPage.
+- `BugReportDownloads` for the pack download pattern.
+
+### Implementation Tasks (design)
+- [ ] **U1 (P1, human: ~3d / CC: ~2h)** — console — Release sign-off page with the identity → blockers → review lists → counts → acknowledge order, eight states, per-list acknowledgements, grouped lists, frozen view after signing
+  - Surfaced by: Passes 1, 2, 7 (design D3, D7, D19, D20, D21)
+  - Files: apps/web-console/src/pages (new Release page), apps/web-console/src/App.tsx
+  - Verify: component tests per state; keyboard-only sign flow; signed view shows the stored file and hash
+- [ ] **U2 (P1, human: ~2d / CC: ~1h)** — console — Run page: "Ran X of Y", five tiles from the domain mapping, reasons card, Reason column, run-level banners, re-run not-run tests, link to pack
+  - Surfaced by: Passes 1-3 (design D4, D8, D11, D13)
+  - Files: apps/web-console/src/pages/TestRunDetailPage.tsx
+  - Verify: tests for all-not-run, guard-unavailable and worker-stopped runs; flaky no longer counted as passed
+- [ ] **U3 (P1, human: ~2d / CC: ~1h)** — console — Review tab: form → type rows, partial bulk result, undo, changed-test diff, grandfathered badge, states, proposed-count notice in the start-run dialog
+  - Surfaced by: Passes 1-4 (design D5, D6, D9, D12, D14)
+  - Files: apps/web-console/src/pages/TestCasesPage.tsx
+  - Verify: partial bulk result announced via aria-live; diff shows only changed steps
+- [ ] **U4 (P1, human: ~1d / CC: ~30min)** — console — Environments card and classification banner with a confirm for "Not production"
+  - Surfaced by: Pass 4 (design D15)
+  - Files: apps/web-console/src/pages/SettingsPage.tsx
+  - Verify: the confirm names the host; the choice appears in the audit log
+- [ ] **U5 (P2, human: ~1d / CC: ~30min)** — console — StatusBadge tones and dashboard trust tiles
+  - Surfaced by: Passes 2, 5 (design D10, D16)
+  - Files: apps/web-console/src/components/ui.tsx, apps/web-console/src/pages/DashboardPage.tsx
+  - Verify: ui.test.tsx badge cases; the rate stays neutral until >50% triaged
+- [ ] **U6 (P2, human: ~2h / CC: ~15min)** — console — Cross-links: generation result → review tab; run → pack; pack rows → evidence
+  - Surfaced by: Pass 3 (design D13)
+  - Files: apps/web-console/src/pages/TestCasesPage.tsx, TestRunDetailPage.tsx
+  - Verify: links resolve in component tests
+
+## Design Review Completion Summary
+
+```
+  +====================================================================+
+  |         DESIGN PLAN REVIEW — COMPLETION SUMMARY                    |
+  +====================================================================+
+  | System Audit         | no DESIGN.md; tokens + ui.tsx; 5 UI surfaces|
+  | Step 0               | 4/10 initial; all 7 dimensions (design D1)  |
+  | Pass 1  (Info Arch)  | 3/10 → 9/10 after fixes                     |
+  | Pass 2  (States)     | 2/10 → 9/10 after fixes                     |
+  | Pass 3  (Journey)    | 4/10 → 9/10 after fixes                     |
+  | Pass 4  (AI Slop)    | 5/10 → 8/10 after fixes                     |
+  | Pass 5  (Design Sys) | 5/10 → 8/10 after fixes (no DESIGN.md yet)  |
+  | Pass 6  (Responsive) | 3/10 → 9/10 after fixes                     |
+  | Pass 7  (Decisions)  | 3 resolved, 0 deferred                      |
+  +--------------------------------------------------------------------+
+  | NOT in scope         | written (3 items)                           |
+  | What already exists  | written                                     |
+  | TODOS.md updates     | 1 item proposed (DESIGN.md, added)          |
+  | Approved Mockups     | 0 generated, 0 approved (no designer key)   |
+  | Decisions made       | 19 added to plan (design D3-D21)            |
+  | Decisions deferred   | 0                                           |
+  | Overall design score | 2/10 → 8/10                                 |
+  +====================================================================+
+```
+Unresolved decisions: none.
+
 ## GSTACK REVIEW REPORT
 
 | Review | Trigger | Why | Runs | Status | Findings |
 |--------|---------|-----|------|--------|----------|
 | CEO Review | `/plan-ceo-review` | Scope & strategy | 1 | CLEAR | mode: SCOPE_REDUCTION, 0 critical gaps |
-| Outside Review | native Claude subagent (codex not installed), CEO and Eng phases | Independent 2nd opinion | 2 | CEO: completed (native, no external coverage); Eng: unavailable (timed out) | CEO: 16 findings (native); 16 resolved; 0 unresolved. Eng: no completed external review |
+| Outside Review | native Claude subagent (codex not installed): CEO, Eng and Design phases | Independent 2nd opinion | 3 | CEO: completed (native); Eng: unavailable (timed out); Design: completed (native) | CEO: 16 findings, 16 resolved. Eng: no completed external review. Design: 19 findings folded into passes 1-7. No external (codex) coverage in any phase |
 | Eng Review | `/plan-eng-review` | Architecture & tests (required) | 1 | CLEAR | 7 issues, 0 critical gaps |
-| Design Review | `/plan-design-review` | UI/UX gaps | 0 | — | — |
+| Design Review | `/plan-design-review` | UI/UX gaps | 1 | CLEAR | score: 2/10 → 8/10, 19 decisions |
 | DX Review | `/plan-devex-review` | Developer experience gaps | 0 | — | — |
 
-- **OUTSIDE COVERAGE:** codex — plan-review (CEO and Eng) — unavailable (not installed). CEO phase: native Claude subagent completed, 16 findings dispositioned. Eng phase: native Claude subagent stopped at the five-minute limit; no completed external review.
-- **VERDICT:** CEO + ENG CLEARED — ready to implement once HFCB confirms a fixed test OTP in writing (D23).
+- **OUTSIDE COVERAGE:** codex — unavailable (not installed) in the CEO, Eng and Design phases. Native Claude subagent: CEO completed (16 findings), Eng timed out at five minutes, Design completed (cold read; findings raised as design D3-D21). No completed external review.
+- **VERDICT:** CEO + ENG + DESIGN CLEARED — ready to implement once HFCB confirms a fixed test OTP in writing (D23). Design D21 is captured by eng task E5; the run-level cause field (design D8) and re-run of not-run tests (design D11) extend eng tasks E2 and E5.
 
 NO UNRESOLVED DECISIONS
