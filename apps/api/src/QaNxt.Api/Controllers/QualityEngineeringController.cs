@@ -102,10 +102,10 @@ public sealed class QualityEngineeringController : ApiControllerBase
 
     public sealed record SelectionBody(string Mode, TestCategory[]? Categories, Guid[]? FormIds, BrowserType? Browser,
         Guid? EnvironmentId, int? Parallelism, string? Name, RunTrigger? Trigger,
-        bool IncludeSecurity = false, QaNxt.Domain.Security.SecurityProfile? SecurityProfile = null)
+        bool IncludeSecurity = false, QaNxt.Domain.Security.SecurityProfile? SecurityProfile = null, bool? Headless = null)
     {
         public SelectionRunRequest For(Guid applicationId) => new(applicationId, Mode, Categories, FormIds, Browser, EnvironmentId, Parallelism, Name, Trigger,
-            IncludeSecurity, SecurityProfile);
+            IncludeSecurity, SecurityProfile, Headless);
     }
 
     // ---- Defects and failures --------------------------------------------------------

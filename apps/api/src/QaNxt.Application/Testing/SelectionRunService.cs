@@ -27,7 +27,10 @@ public sealed record SelectionRunRequest(
     /// security scope authorised; without it the tests still run and the result says why the
     /// scan did not.</summary>
     bool IncludeSecurity = false,
-    Domain.Security.SecurityProfile? SecurityProfile = null);
+    Domain.Security.SecurityProfile? SecurityProfile = null,
+    /// <summary>False to watch the run in a browser window. Only takes effect on a worker that
+    /// has a screen; elsewhere the tests run headless as usual.</summary>
+    bool? Headless = null);
 
 public sealed record SelectionRunResult(Guid? TestRunId, string Mode, int Selected, string Explanation, TestRunSummary? Run,
     Guid? SecurityScanId = null, string? SecurityNote = null);
@@ -126,7 +129,7 @@ public sealed class SelectionRunService : ISelectionRunService
         }
 
         var run = await _runs.StartAsync(new StartTestRunRequest(
-            application.ProjectId, null, ids.ToArray(), request.EnvironmentId, request.Browser, true, request.Parallelism, null,
+            application.ProjectId, null, ids.ToArray(), request.EnvironmentId, request.Browser, request.Headless ?? true, request.Parallelism, null,
             request.Name ?? $"{application.Name} — {mode}", request.Trigger ?? RunTrigger.Manual, null), ct);
         if (!run.IsSuccess) return Result<SelectionRunResult>.Failure(run.Error!);
 

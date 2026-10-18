@@ -49,6 +49,7 @@ export default function TestingPage() {
   const [generation, setGeneration] = useState<GenerationResult | null>(null);
   const [lastRun, setLastRun] = useState<SelectionResult | null>(null);
   const [runBrowser, setRunBrowser] = useState('Chromium');
+  const [watchRun, setWatchRun] = useState(false);
   const [includeSecurity, setIncludeSecurity] = useState(false);
   const [securityProfile, setSecurityProfile] = useState('Standard');
 
@@ -104,7 +105,7 @@ export default function TestingPage() {
     mutationFn: (body: { mode: string; categories?: string[] }) =>
       apiRequest<SelectionResult>(`/api/v1/applications/${applicationId}/runs`, {
         method: 'POST',
-        body: { ...body, browser: runBrowser, ...(includeSecurity ? { includeSecurity: true, securityProfile } : {}) }
+        body: { ...body, browser: runBrowser, ...(watchRun ? { headless: false } : {}), ...(includeSecurity ? { includeSecurity: true, securityProfile } : {}) }
       }),
     onSuccess: result => { setError(null); setLastRun(result); },
     onError: setError
@@ -364,6 +365,10 @@ export default function TestingPage() {
               <select className="input ml-2" value={runBrowser} onChange={e => setRunBrowser(e.target.value)}>
                 <option>Chromium</option><option>Firefox</option><option>Webkit</option>
               </select>
+            </label>
+            <label className="flex items-center gap-2 text-sm" title="Opens a browser window for each test on the worker's screen. A worker without a screen (Docker, a server) runs the tests headless as usual.">
+              <input type="checkbox" checked={watchRun} onChange={e => setWatchRun(e.target.checked)} />
+              Watch in a browser window
             </label>
             <button type="button" className="btn-primary" disabled={run.isPending || !testsExist} title={!testsExist ? 'Generate the tests first (step 3)' : undefined}
               onClick={() => run.mutate({ mode: 'all' })}>

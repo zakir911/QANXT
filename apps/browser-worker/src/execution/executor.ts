@@ -100,6 +100,7 @@ export class TestExecutor {
       masker.withLiterals([auth.password, auth.bearerToken]);
 
       context = await this.pool.createContext(job.browser, {
+        watch: job.headless === false,
         defaultTimeoutMs: job.defaultTimeoutMs,
         navigationTimeoutMs: Math.max(job.defaultTimeoutMs, 30_000),
         videoDir: job.capture.video ? join(executionDir, 'video') : undefined,

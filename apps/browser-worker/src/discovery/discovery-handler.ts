@@ -49,6 +49,7 @@ export async function handleDiscoveryJob(
     logger.info('Starting discovery', { baseUrl: job.baseUrl, maxPages: job.budget.maxPages });
 
     const context = await pool.createContext(job.browser, {
+      watch: job.headless === false,
       defaultTimeoutMs: config.actionTimeoutMs,
       navigationTimeoutMs: config.navigationTimeoutMs
     });

@@ -349,6 +349,19 @@ Open a run to see its totals, the quality-gate verdict, and every test in it:
 A run executes each test in a real browser on a worker. While it runs, the page updates
 itself — you do not need to reload to find out it finished.
 
+### Watching a run
+
+On **Testing → Run the tests**, tick **Watch in a browser window** to see each test drive the
+browser. The window opens on the *worker's* screen, so this works when the worker runs on a
+machine with a desktop — your own laptop or a tester's PC (`cd apps/browser-worker && npm run
+dev`). A worker in Docker or on a server has no screen: the run goes ahead headless, exactly
+as if the box were not ticked, and the worker logs that it had no screen.
+
+The worker runs `WORKER_CONCURRENCY` tests at once (2 by default), so you will see that many
+windows; set it to `1` to follow one test at a time. `WORKER_HEADLESS=false` shows every job,
+watched or not. To review a run afterwards without a screen, open its Playwright trace from
+**Evidence**.
+
 Note the **Healed** count beside **Passed**: a run that needed a repair is counted apart
 from one that did not. Note too that the quality gate reports *passed* here while the run
 failed — because no gates are configured, and the page says exactly that rather than

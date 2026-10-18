@@ -9,25 +9,46 @@ import type { Logger } from '../util/logger.js';
  * isolation without paying the launch cost per test.
  */
 export class BrowserPool {
-  private readonly browsers = new Map<BrowserName, Browser>();
+  /** Keyed by engine and mode: a watched run gets its own windowed browser beside the headless one. */
+  private readonly browsers = new Map<string, Browser>();
   private closing = false;
+  private warnedNoDisplay = false;
 
   constructor(
     private readonly headless: boolean,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly displayAvailable: () => boolean = hasDisplay
   ) {}
 
-  async acquire(name: BrowserName): Promise<Browser> {
+  /**
+   * Whether a job's browser opens a window. The worker's own setting (WORKER_HEADLESS=false)
+   * shows every job; a job can also ask to be watched. Either way a window needs a screen,
+   * and without one the job runs headless rather than failing.
+   */
+  resolveHeadless(watch?: boolean): boolean {
+    const wantsWindow = !this.headless || watch === true;
+    if (!wantsWindow) return true;
+    if (this.displayAvailable()) return false;
+    if (!this.warnedNoDisplay) {
+      this.warnedNoDisplay = true;
+      this.logger.warn('A browser window was asked for, but this worker has no screen; running headless', {});
+    }
+    return true;
+  }
+
+  async acquire(name: BrowserName, watch?: boolean): Promise<Browser> {
     if (this.closing) throw new Error('The browser pool is shutting down.');
 
-    const existing = this.browsers.get(name);
+    const headless = this.resolveHeadless(watch);
+    const key = `${name}:${headless ? 'headless' : 'headed'}`;
+    const existing = this.browsers.get(key);
     if (existing?.isConnected()) return existing;
 
     const engine = this.engineFor(name);
-    this.logger.info('Launching browser', { browser: name, headless: this.headless });
+    this.logger.info('Launching browser', { browser: name, headless });
 
     const browser = await engine.launch({
-      headless: this.headless,
+      headless,
       args: name === 'chromium'
         // Required for containerised runs; the worker is itself the sandbox boundary.
         ? ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
@@ -36,10 +57,10 @@ export class BrowserPool {
 
     browser.on('disconnected', () => {
       this.logger.warn('Browser disconnected', { browser: name });
-      this.browsers.delete(name);
+      this.browsers.delete(key);
     });
 
-    this.browsers.set(name, browser);
+    this.browsers.set(key, browser);
     return browser;
   }
 
@@ -48,7 +69,7 @@ export class BrowserPool {
    * test that corrupts its session cannot affect the next one.
    */
   async createContext(name: BrowserName, options: ContextOptions): Promise<BrowserContext> {
-    const browser = await this.acquire(name);
+    const browser = await this.acquire(name, options.watch);
     const context = await browser.newContext({
       viewport: options.viewport ?? { width: 1440, height: 900 },
       ignoreHTTPSErrors: options.ignoreHttpsErrors ?? false,
@@ -107,4 +128,12 @@ export interface ContextOptions {
   extraHeaders?: Record<string, string>;
   httpCredentials?: { username: string; password: string };
   userAgent?: string;
+  /** Open this job's browser in a window when the worker has a screen. */
+  watch?: boolean;
+}
+
+/** macOS and Windows always have a desktop; Linux has one only under X11 or Wayland. */
+export function hasDisplay(platform: NodeJS.Platform = process.platform, env: NodeJS.ProcessEnv = process.env): boolean {
+  if (platform === 'darwin' || platform === 'win32') return true;
+  return Boolean(env.DISPLAY || env.WAYLAND_DISPLAY);
 }
