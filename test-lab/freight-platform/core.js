@@ -131,6 +131,32 @@ export function createCore({ app, sessions, faults, state }) {
     pending.length = 0;
   }
 
+  /**
+   * The second-level navigation for a domain: its own screens, excluding the ones that
+   * need an identifier and the one being viewed's own children.
+   *
+   * This exists because a sidebar of thirteen top-level items and nothing else is not what
+   * a 137-screen application looks like, and more to the point it left 35 screens with no
+   * inbound anchor at all. A crawl could not reach them, which measured the lab's missing
+   * links rather than the crawler's ability to follow links. Real products have a second
+   * level; so does this one now.
+   *
+   * A routed domain emits buttons here exactly as its sidebar entry does, so its sub-screens
+   * stay reachable only by clicking.
+   */
+  function subNavFor(domain, currentPath) {
+    const shape = NAV_SHAPE[domain] ?? 'linked';
+    return registry
+      .filter(screen => screen.domain === domain && !screen.path.includes(':') && !screen.anonymous)
+      .map(screen => ({
+        key: screen.path.replace(/^\//, '').replace(/\//g, '-') || 'root',
+        label: screen.title,
+        href: screen.path,
+        routed: shape === 'routed',
+        current: screen.path === currentPath
+      }));
+  }
+
   function register(spec) {
     const shape = NAV_SHAPE[spec.domain] ?? 'linked';
     registry.push({
@@ -166,7 +192,8 @@ export function createCore({ app, sessions, faults, state }) {
         flash: takeFlash(ctx),
         // A routed screen boots the router so that a deep link renders client-side,
         // exactly as the real thing does. A linked screen does not carry the router at all.
-        routed: shape === 'routed'
+        routed: shape === 'routed',
+        subNav: spec.anonymous ? [] : subNavFor(spec.domain, ctx.url.pathname)
       }));
     });
 

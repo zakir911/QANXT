@@ -79,7 +79,8 @@ export function shell({
   actions = '',
   script = '',
   flash = null,
-  routed = false
+  routed = false,
+  subNav = []
 }) {
   return `<!doctype html>
 <html lang="en-GB">
@@ -107,6 +108,13 @@ export function shell({
       index === breadcrumbs.length - 1
         ? `<span aria-current="page">${escapeHtml(crumb.label)}</span>`
         : `<a href="${crumb.href}">${escapeHtml(crumb.label)}</a>`).join('<span class="crumb-sep">/</span>')}</nav>` : ''}
+    ${subNav.length ? `<nav class="subnav" aria-label="Section pages">${subNav.map(entry =>
+      entry.routed
+        ? `<button type="button" class="subnav-link${entry.current ? ' current' : ''}" role="link"
+            data-route="${entry.href}" data-testid="subnav-${escapeHtml(entry.key)}"${entry.current ? ' aria-current="page"' : ''}>${escapeHtml(entry.label)}</button>`
+        : `<a class="subnav-link${entry.current ? ' current' : ''}" href="${entry.href}"
+            data-testid="subnav-${escapeHtml(entry.key)}"${entry.current ? ' aria-current="page"' : ''}>${escapeHtml(entry.label)}</a>`
+      ).join('')}</nav>` : ''}
     <div class="page-head">
       <h1>${escapeHtml(title)}</h1>
       ${actions ? `<div class="page-actions">${actions}</div>` : ''}
@@ -136,7 +144,7 @@ export function shell({
 
 <script type="module">
 ${CHROME_SCRIPT}
-${routed ? ROUTER_SCRIPT : ''}
+${ROUTER_SCRIPT}
 ${script}
 </script>
 </body>
@@ -214,11 +222,19 @@ document.addEventListener('keydown', (event) => {
 `;
 
 /**
- * The client-side router.
+ * The client-side router, loaded on every page.
  *
  * Fetches a JSON view description and renders it, pushing the new URL. A deep link to a
  * routed path works because the server serves the shell and the router renders on load.
  * What does not exist, anywhere, is an anchor a crawler could follow to get there.
+ *
+ * It used to load only on routed pages, which was wrong in a way worth recording: the
+ * sidebar renders a routed domain as a `data-route` button on EVERY page, so on a linked
+ * page those buttons had no handler and clicking "Fleet" from the dashboard did nothing
+ * at all. A person could only reach those four domains by typing the URL. The first
+ * navigation-mode measurement scored 0 of 37 routed screens and the cause was this, not
+ * the crawler. A real half-migrated application loads its router in the shell, globally,
+ * which is what this now does.
  */
 const ROUTER_SCRIPT = `
 async function renderRoute(path, push) {
@@ -269,6 +285,10 @@ a{color:var(--accent)}
 .nav-icon{opacity:.6;width:14px;display:inline-block}
 .content{flex:1;padding:18px 24px 64px;max-width:1220px;min-width:0}
 .crumbs{font-size:13px;color:var(--muted);margin-bottom:8px}
+.subnav{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.subnav-link{font:inherit;font-size:13px;padding:4px 10px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink);text-decoration:none;cursor:pointer;white-space:nowrap}
+.subnav-link:hover{background:#eef2f9}
+.subnav-link.current{background:#e6edfb;border-color:#c5d4f6;color:var(--accent);font-weight:600}
 .crumbs a{color:var(--muted)}
 .crumb-sep{margin:0 6px;opacity:.6}
 .page-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
@@ -329,7 +349,12 @@ input[aria-invalid=true],select[aria-invalid=true],textarea[aria-invalid=true]{b
 .menu{position:fixed;top:44px;right:12px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 8px 24px rgba(16,36,63,.14);z-index:60;min-width:180px;padding:5px}
 .menu a,.menu button{display:block;width:100%;text-align:left;padding:8px 11px;border-radius:5px;color:var(--ink);text-decoration:none;font:inherit;font-size:13.5px;background:none;border:0;cursor:pointer}
 .menu a:hover,.menu button:hover{background:#eef2f9}
+/* [hidden] is display:none in the UA stylesheet, and a class setting display beats it on
+   specificity. Without the second rule every modal was a full-screen overlay sitting over
+   the page, swallowing clicks on the three detail screens that carry one — and the markup
+   said hidden, so an HTML-only check passed. */
 .modal{position:fixed;inset:0;background:rgba(16,36,63,.42);display:flex;align-items:center;justify-content:center;z-index:70;padding:20px}
+.modal[hidden]{display:none}
 .modal-card{background:#fff;border-radius:10px;padding:20px;max-width:560px;width:100%;max-height:88vh;overflow:auto}
 .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .modal-head h2{margin:0}

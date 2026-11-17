@@ -28,12 +28,22 @@ import { Crawler } from '../../apps/browser-worker/dist/discovery/crawler.js';
 import { Logger } from '../../apps/browser-worker/dist/util/logger.js';
 
 const BASE = process.env.LAB_URL ?? 'http://127.0.0.1:4400';
-const MODES = ['links', 'navigation', 'interactive'];
+const ONLY = process.argv[process.argv.indexOf('--mode') + 1];
+const MODES = ONLY && ONLY !== '--mode' ? [ONLY] : ['links', 'navigation', 'interactive'];
+const BUDGET_SECONDS = Number(process.argv[process.argv.indexOf('--budget') + 1]) || 600;
 
 const groundTruth = JSON.parse(await readFile(new URL('./ground-truth.json', import.meta.url), 'utf8'));
 
-/** Every path the application declares, normalised for comparison. */
-const declared = groundTruth.screens.list.map(screen => ({
+/**
+ * Every path the application declares.
+ *
+ * The three anonymous screens (/auth/mfa, /auth/forgot-password, /auth/reset-password) are
+ * held out of the denominator. A crawl authenticates first and then explores from the
+ * dashboard, so it never returns to the sign-in page; counting them as missed would
+ * measure the crawl's starting point rather than its reach, and they are reported
+ * separately instead.
+ */
+const allDeclared = groundTruth.screens.list.map(screen => ({
   path: screen.path,
   sample: screen.sample,
   domain: screen.domain,
@@ -41,6 +51,8 @@ const declared = groundTruth.screens.list.map(screen => ({
   kind: screen.kind,
   requiresSignIn: screen.requiresSignIn
 }));
+const declared = allDeclared.filter(screen => screen.requiresSignIn);
+const anonymousScreens = allDeclared.filter(screen => !screen.requiresSignIn);
 
 /**
  * A crawled URL matches a declared screen when it equals the sample, or when it fits the
@@ -54,6 +66,33 @@ const patternMatches = (pattern, path) => {
 };
 
 const logger = new Logger('error', {}, () => {});
+
+const outputPath = new URL('./discovery-measurement.json', import.meta.url);
+
+/** Everything measured so far, keyed by mode, merged with anything already on disk. */
+async function persist() {
+  let existing = { runs: [] };
+  try { existing = JSON.parse(await readFile(outputPath, 'utf8')); } catch { /* first write */ }
+  const merged = new Map((existing.runs ?? []).map(run => [run.mode, run]));
+  for (const run of runs) merged.set(run.mode, run);
+  await writeFile(outputPath, JSON.stringify({
+    measuredAt: new Date().toISOString(),
+    application: 'Meridian Freight',
+    baseUrl: BASE,
+    crawler: 'apps/browser-worker/src/discovery/crawler.ts (compiled to dist/)',
+    groundTruth: {
+      screens: groundTruth.screens.total,
+      byShape: groundTruth.screens.byShape,
+      enclosedSurfaces: groundTruth.enclosedSurfaces.length
+    },
+    denominator: {
+      signedInScreens: declared.length,
+      anonymousHeldOut: anonymousScreens.map(screen => screen.path),
+      enclosedSurfaces: groundTruth.enclosedSurfaces.length
+    },
+    runs: [...merged.values()]
+  }, null, 2) + '\n');
+}
 
 const runs = [];
 
@@ -92,7 +131,7 @@ for (const mode of MODES) {
         maxPages: 300,
         maxActions: 4000,
         maxInstancesPerRouteShape: 3,
-        timeoutSeconds: 900,
+        timeoutSeconds: BUDGET_SECONDS,
         allowPrivateNetworks: true,
         respectRobotsTxt: false,
         seedUrls: [],
@@ -101,7 +140,9 @@ for (const mode of MODES) {
         allowStateChangingClicks: false
       },
       onProgress: (message, visited, queued) => {
-        if (visited % 20 === 0) console.log(`  … ${visited} pages mapped, ${queued} queued`);
+        if (visited % 10 === 0) {
+          process.stdout.write(`  … ${visited} pages mapped, ${queued} queued (${Math.round((Date.now() - started) / 1000)}s)\n`);
+        }
       }
     }, logger);
 
@@ -166,6 +207,8 @@ for (const mode of MODES) {
   });
 
   await rm(artifactDir, { recursive: true, force: true });
+  await persist();
+  console.log(`\n  (written to discovery-measurement.json)`);
 }
 
 // ---------------------------------------------------------------------------
@@ -173,7 +216,10 @@ for (const mode of MODES) {
 console.log(`\n${'═'.repeat(72)}`);
 console.log('SUMMARY');
 console.log('═'.repeat(72));
-console.log(`\n  Ground truth: ${declared.length} screens (${groundTruth.screens.byShape.linked} linked, ${groundTruth.screens.byShape.routed} routed)`);
+const linkedTotal = declared.filter(s => s.shape === 'linked').length;
+const routedTotal = declared.filter(s => s.shape === 'routed').length;
+console.log(`\n  Ground truth: ${declared.length} screens behind the sign-in (${linkedTotal} linked, ${routedTotal} routed)`);
+console.log(`                plus ${anonymousScreens.length} anonymous screens, held out of the denominator`);
 console.log(`                plus ${groundTruth.enclosedSurfaces.length} enclosed surfaces with no URL at all\n`);
 console.log('  mode          reached   linked        routed        time');
 console.log('  ' + '-'.repeat(60));
@@ -184,18 +230,6 @@ for (const run of runs) {
     + `${run.elapsedSeconds}s`);
 }
 
-const outputPath = new URL('./discovery-measurement.json', import.meta.url);
-await writeFile(outputPath, JSON.stringify({
-  measuredAt: new Date().toISOString(),
-  application: 'Meridian Freight',
-  baseUrl: BASE,
-  crawler: 'apps/browser-worker/src/discovery/crawler.ts',
-  groundTruth: {
-    screens: groundTruth.screens.total,
-    byShape: groundTruth.screens.byShape,
-    enclosedSurfaces: groundTruth.enclosedSurfaces.length
-  },
-  runs
-}, null, 2) + '\n');
+await persist();
 
 console.log(`\n  Written to ${outputPath.pathname}\n`);
