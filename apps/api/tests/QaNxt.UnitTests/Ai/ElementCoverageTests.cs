@@ -353,6 +353,40 @@ public class ElementCoverageTests
             "the field has to be empty at the moment of submitting");
     }
 
+    /// <summary>
+    /// A file input cannot be filled, cleared, or validated by any step this planner emits.
+    ///
+    /// Playwright answers `locator.fill: Error: Input of type "file" cannot be filled`, and
+    /// locator.clear is fill("") so it refuses as well. Three failures in a measured run
+    /// were this, one per upload control, each reading as an application defect.
+    ///
+    /// Covering an upload properly needs the upload action and a fixture file to send, and
+    /// this planner has neither. So the control is left uncovered, which is a gap, and a
+    /// better thing to have than a test that can only fail.
+    /// </summary>
+    [Fact]
+    public void A_file_input_gets_no_test_that_tries_to_type_into_it()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/shipments/shp-0008/documents", "title": "Shipment documents",
+                "url": "https://admin.example.test/shipments/shp-0008/documents",
+                "elements": [
+                  { "kind": "fileInput", "accessibleName": "Attach a document", "label": "Attach a document",
+                    "testId": "attach", "type": "file", "isRequired": true },
+                  { "kind": "textInput", "accessibleName": "Reference", "label": "Reference",
+                    "testId": "reference", "type": "text", "isRequired": true },
+                  { "kind": "button", "accessibleName": "Upload", "ariaRole": "button",
+                    "testId": "upload-submit" } ] } ]
+            """;
+
+        var names = Names(Plan(Context(page)));
+
+        names.Should().NotContain(name => name.Contains("Attach a document"),
+            "every step this planner could aim at a file input is refused by the browser");
+        names.Should().Contain(name => name.Contains("Reference"),
+            "the text field beside it is still covered");
+    }
+
     /// <summary>Every value any step would type, so a test can assert on what the runner
     /// would actually be asked to do.</summary>
     private static List<string> AllStepValues(JsonElement plan)

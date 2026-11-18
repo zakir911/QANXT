@@ -264,8 +264,23 @@ internal static class LocalElementRules
     {
         var kind = (LocalJson.String(element, "kind") ?? string.Empty).ToLowerInvariant();
         var isField = kind is "textinput" or "passwordinput" or "numberinput" or "dateinput"
-                           or "textarea" or "fileinput";
+                           or "textarea";
         if (!isField) return false;
+
+        // A file input was on that list and cannot be driven by any of the steps this
+        // produces. Playwright answers
+        //
+        //     locator.fill: Error: Input of type "file" cannot be filled
+        //
+        // and locator.clear is fill("") so it refuses too. Three failures in a measured run
+        // were this, one per upload control, each reading as an application defect.
+        //
+        // Covering a file input properly needs the upload action and a fixture file to
+        // upload. This planner has neither, so the control is left alone rather than tested
+        // with steps that cannot run. That is a gap, and an uncovered control is a better
+        // thing to have than a test that always fails.
+        if ((LocalJson.String(element, "type") ?? string.Empty).ToLowerInvariant() == "file")
+            return false;
 
         // The comment above has always said a read-only control is not a validation
         // surface. The code did not check, so a readonly field got the full battery and
