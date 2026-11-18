@@ -81,6 +81,79 @@ public class DuplicateFindingFingerprintTests
             "collapsing duplicates must not collapse two genuinely different flaws");
     }
 
+    /// <summary>
+    /// The other half of the same bug, which the first fix left behind.
+    ///
+    /// Collapsing two reports of one flaw into a single finding row was the first fix. The
+    /// link row that records "this scan saw this finding" was still added once per report,
+    /// and the unique index on (scan, finding) refuses the second:
+    ///
+    ///   duplicate key value violates unique constraint
+    ///   "ix_security_scan_findings_security_scan_id_security_finding_id"
+    ///
+    /// Same consequence as before, which is why it is worth its own test: the completion
+    /// callback answers 500, every finding in the scan is discarded, the scan stays queued,
+    /// and the worker retries into the same failure until the stranded sweep abandons it an
+    /// hour later. A scan that ran for 144 seconds and found things reported nothing.
+    ///
+    /// Found by running a real scan against a thirteen-domain application, not by re-reading
+    /// the first fix. The in-memory provider does not enforce unique indexes, so this asserts
+    /// the intent directly — one sighting per flaw per scan — which is what the index exists
+    /// to guarantee and which fails against the bug by producing two.
+    /// </summary>
+    [Fact]
+    public async Task One_scan_records_one_sighting_per_flaw_however_many_checks_reported_it()
+    {
+        var (service, db, projectId) = Create();
+
+        var result = await service.RecordScanAsync(ReportWithDuplicate(projectId));
+        result.IsSuccess.Should().BeTrue(result.Error?.Message);
+
+        var sightings = await db.SecurityScanFindings.ToListAsync();
+
+        sightings.Should().HaveCount(1,
+            "two checks reporting the same flaw is one sighting of one flaw, and the unique "
+            + "index on (scan, finding) is what this protects");
+
+        sightings.Select(s => (s.SecurityScanId, s.SecurityFindingId))
+            .Should().OnlyHaveUniqueItems();
+    }
+
+    /// <summary>Merging must keep the worse of the two, not whichever arrived last. A flaw
+    /// one check calls Medium and another calls Critical is Critical.</summary>
+    [Fact]
+    public async Task A_merged_sighting_keeps_the_strongest_severity_and_confidence_reported()
+    {
+        var (service, db, projectId) = Create();
+
+        var result = await service.RecordScanAsync(ReportWithEscalatingDuplicate(projectId));
+        result.IsSuccess.Should().BeTrue(result.Error?.Message);
+
+        var sighting = await db.SecurityScanFindings.SingleAsync();
+        sighting.Severity.Should().Be(SecuritySeverity.Critical,
+            "the second check found it worse than the first, and taking the last reported "
+            + "value would quietly downgrade it");
+        sighting.Confidence.Should().Be(SecurityConfidence.High);
+    }
+
+    /// <summary>The same flaw reported at Medium then Critical by two checks in one scan.</summary>
+    private static RecordSecurityScanRequest ReportWithEscalatingDuplicate(Guid projectId) => new(
+        ApplicationId: AppId, ProjectId: projectId, EnvironmentId: null,
+        Profile: SecurityProfile.Standard,
+        RequestsIssued: 20, TestsExecuted: 4, TestsSkipped: 0, DurationMs: 5_000,
+        Findings: new[]
+        {
+            Header("passive.headers"),
+            Header("active.csp") with
+            {
+                Severity = SecuritySeverity.Critical, Confidence = SecurityConfidence.High
+            }
+        },
+        BlockedRequests: Array.Empty<RecordBlockedRequest>(),
+        ChecksConfigured: new[] { "passive.headers", "active.csp" },
+        ChecksExecuted: new[] { "passive.headers", "active.csp" },
+        UntestedAreas: Array.Empty<string>());
+
     // ---- harness ----------------------------------------------------------
 
     private static (SecurityScanService Service, QaNxtDbContext Db, Guid ProjectId) Create()

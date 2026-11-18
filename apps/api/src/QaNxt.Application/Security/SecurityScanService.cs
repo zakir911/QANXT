@@ -440,9 +440,43 @@ public sealed class SecurityScanService : ISecurityScanService
         // of what any one scan saw.
         var reportedByThisScan = new List<SecurityScanFinding>();
 
-        void RecordSighting(SecurityFinding finding, RecordFindingRequest reported,
-                            bool wasNew, bool wasRegression)
-            => reportedByThisScan.Add(new SecurityScanFinding
+        // One sighting per flaw per scan, keyed by fingerprint.
+        //
+        // A scan reporting the same flaw twice is ordinary: the same missing header on the
+        // same endpoint is found by a passive check and an active one, and two findings share
+        // a fingerprint whenever they share category, endpoint, parameter and observed role.
+        //
+        // Collapsing those into one finding row was fixed earlier on this branch. The fix was
+        // incomplete: the finding row was reused, correctly, and then a second link row was
+        // added pointing at it, which the unique index on (scan, finding) refuses —
+        //
+        //     duplicate key value violates unique constraint
+        //     "ix_security_scan_findings_security_scan_id_security_finding_id"
+        //
+        // The completion callback answered 500, every finding in the scan was discarded, the
+        // scan stayed queued, and the worker retried into the same failure until the stranded
+        // sweep abandoned it an hour later. A scan that ran for 144 seconds and found things
+        // reported nothing. Found by running a real scan, not by re-reading the earlier fix.
+        //
+        // The two reports are the same flaw, so they merge rather than collide: the severity
+        // and confidence taken are the strongest reported, because a flaw one check calls
+        // Medium and another calls Critical is Critical, and the flags are OR-ed, because a
+        // sighting that was a regression under either check was a regression.
+        var sightingsByFingerprint = new Dictionary<string, SecurityScanFinding>();
+
+        void RecordSighting(string fingerprint, SecurityFinding finding,
+                            RecordFindingRequest reported, bool wasNew, bool wasRegression)
+        {
+            if (sightingsByFingerprint.TryGetValue(fingerprint, out var already))
+            {
+                already.Severity = (SecuritySeverity)Math.Max((int)already.Severity, (int)reported.Severity);
+                already.Confidence = (SecurityConfidence)Math.Max((int)already.Confidence, (int)reported.Confidence);
+                already.WasNew |= wasNew;
+                already.WasRegression |= wasRegression;
+                return;
+            }
+
+            var sighting = new SecurityScanFinding
             {
                 OrganizationId = scan.OrganizationId,
                 SecurityScanId = scan.Id,
@@ -452,7 +486,10 @@ public sealed class SecurityScanService : ISecurityScanService
                 WasNew = wasNew,
                 WasRegression = wasRegression,
                 ReportedAt = now
-            });
+            };
+            sightingsByFingerprint[fingerprint] = sighting;
+            reportedByThisScan.Add(sighting);
+        }
 
         foreach (var reported in request.Findings)
         {
@@ -514,7 +551,7 @@ public sealed class SecurityScanService : ISecurityScanService
                     finding.DispositionNote = null;
                 }
 
-                RecordSighting(finding, reported, wasNew: false, wasRegression: wasResolved);
+                RecordSighting(fingerprint, finding, reported, wasNew: false, wasRegression: wasResolved);
                 summaries.Add(ToSummary(finding, isNew: false, isRegression: wasResolved));
                 continue;
             }
@@ -567,7 +604,7 @@ public sealed class SecurityScanService : ISecurityScanService
             // into the same failure. A scan that found real flaws reported none of them.
             existing[fingerprint] = created;
 
-            RecordSighting(created, reported, wasNew: true, wasRegression: false);
+            RecordSighting(fingerprint, created, reported, wasNew: true, wasRegression: false);
             summaries.Add(ToSummary(created, isNew: true, isRegression: false));
         }
 
