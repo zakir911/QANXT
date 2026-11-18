@@ -108,6 +108,63 @@ public class ElementCoverageTests
             ] } ]
         """;
 
+    /// <summary>
+    /// A long page title must not take the whole suite down with it.
+    ///
+    /// Found by pointing the platform at a 137-screen logistics application. Its dashboard
+    /// greets the signed-in user by name, an earlier run's tests had filled that field with
+    /// a 256-character boundary value, and the resulting &lt;title&gt; was 289 characters.
+    ///
+    /// The page's kind-specific generator produced nothing, so it fell back to the smoke
+    /// scenario — and that builder constructs its object literal directly instead of going
+    /// through Scenario(), which is where every other name gets bounded. The name came out
+    /// at 295 characters, the test_plan schema caps a name at 200, the whole plan failed
+    /// validation, and generation answered 503 with no tests for ANY page.
+    ///
+    /// The page here deliberately carries no usable control, because that is what sends it
+    /// down the smoke path. An earlier version of this test gave the page a text input,
+    /// which routed it through the truncating builder and passed against the bug.
+    /// </summary>
+    [Fact]
+    public void A_very_long_page_title_on_a_smoke_fallback_still_produces_a_valid_plan()
+    {
+        var longTitle = "Good morning, " + new string('A', 275);
+        var page = $$"""
+            [ { "kind": "unknown", "route": "/dashboard", "title": "{{longTitle}}",
+                "url": "https://admin.example.test/dashboard", "elements": [] } ]
+            """;
+
+        // Plan() validates against the real test_plan schema, so without the bound this
+        // throws rather than merely producing an ugly name.
+        var plan = Plan(Context(page));
+
+        Scenarios(plan).Should().NotBeEmpty("a long title is not a reason to generate nothing");
+        Names(plan).Should().OnlyContain(name => name.Length <= 200,
+            "the schema caps a scenario name at 200 characters");
+    }
+
+    /// <summary>The same page shape, with a control, so the truncating path is covered too
+    /// and the part of the name that says what the test does survives the trim.</summary>
+    [Fact]
+    public void A_very_long_page_title_keeps_what_the_test_does_in_the_name()
+    {
+        var longTitle = "Good morning, " + new string('A', 275);
+        var page = $$"""
+            [ { "kind": "form", "route": "/account/profile", "title": "{{longTitle}}",
+                "url": "https://admin.example.test/account/profile",
+                "elements": [
+                  { "kind": "textInput", "accessibleName": "Display name", "label": "Display name",
+                    "testId": "display-name", "type": "text", "isRequired": true }
+                ] } ]
+            """;
+
+        var names = Names(Plan(Context(page)));
+
+        names.Should().OnlyContain(name => name.Length <= 200);
+        names.Should().Contain(name => name.Contains("Display name"),
+            "trimming the title must not cut off what the scenario is for");
+    }
+
     [Fact]
     public void A_single_login_page_produces_far_more_than_a_load_check()
     {

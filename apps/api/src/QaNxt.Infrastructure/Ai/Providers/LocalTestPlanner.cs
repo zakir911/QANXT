@@ -36,7 +36,7 @@ internal static class LocalTestPlanner
         // suite a reviewer cannot act on. Where a title does not distinguish a page, the
         // route does.
         var titleCounts = pages
-            .GroupBy(page => LocalJson.String(page, "title") ?? LocalJson.String(page, "route") ?? "/")
+            .GroupBy(page => Shorten(LocalJson.String(page, "title") ?? LocalJson.String(page, "route") ?? "/", 90))
             .ToDictionary(group => group.Key, group => group.Count());
 
         // Whether the application needs a sign-in at all. Without it the smoke scenario
@@ -53,7 +53,15 @@ internal static class LocalTestPlanner
         {
             var kind = LocalJson.String(page, "kind") ?? "unknown";
             var route = LocalJson.String(page, "route") ?? "/";
-            var pageTitle = LocalJson.String(page, "title") ?? route;
+            // Bounded here, once, because every scenario name downstream is built by
+            // interpolating this into a sentence and the test_plan schema caps a name at
+            // 200 characters. An application with a long <title> — and they exist: an
+            // invoice page that names the customer and the overdue days, a dashboard that
+            // greets the signed-in user — produced a name over the cap, the whole plan
+            // failed validation, and generation answered 503 with no tests at all. One
+            // long title cost the entire suite, for every page, including the pages whose
+            // own names were fine.
+            var pageTitle = Shorten(LocalJson.String(page, "title") ?? route, 90);
             var title = titleCounts.TryGetValue(pageTitle, out var shared) && shared > 1
                 ? $"{pageTitle} {route}"
                 : pageTitle;
@@ -127,6 +135,26 @@ internal static class LocalTestPlanner
     }
 
     // ---- Login -------------------------------------------------------------
+
+    /// <summary>
+    /// Trims a page title to something a scenario name can be built from.
+    ///
+    /// The cap is on the title rather than on the finished name because truncating the
+    /// finished sentence cuts off the part that says what the test does — "Amount rejects
+    /// a negative value on …" is useful, "Amount rejects a negativ" is not. Ending on a
+    /// word boundary where there is one nearby keeps the result readable; the ellipsis
+    /// says the title was shortened so nobody reads a truncated title as the real one.
+    /// </summary>
+    private static string Shorten(string value, int limit)
+    {
+        var collapsed = System.Text.RegularExpressions.Regex.Replace(value.Trim(), @"\s+", " ");
+        if (collapsed.Length <= limit) return collapsed;
+
+        var cut = collapsed[..limit];
+        var lastSpace = cut.LastIndexOf(' ');
+        if (lastSpace > limit - 20) cut = cut[..lastSpace];
+        return cut.TrimEnd() + "…";
+    }
 
     private static IEnumerable<object> LoginScenarios(string url, string title, List<JsonElement> elements)
     {
@@ -503,12 +531,18 @@ internal static class LocalTestPlanner
                 Assertion("visible", Locator(anchor), description: $"{title} displays its expected content.")));
         }
 
+        // Truncated here because this builder does NOT go through Scenario(), which is
+        // where every other scenario gets its name bounded. That bypass is what took a
+        // whole generation down: a page whose kind-specific generator produced nothing
+        // fell back to this, the page's title was 289 characters, the name came out at
+        // 295, the test_plan schema caps a name at 200, and the entire plan was rejected
+        // with a 503 — no tests for any page, not just this one.
         return new
         {
-            name = $"{title} loads",
-            objective = requiresSignIn
+            name = Truncate($"{title} loads", 200),
+            objective = Truncate(requiresSignIn
                 ? $"{title} loads without error for a signed-in customer."
-                : $"{title} loads without error.",
+                : $"{title} loads without error.", 500),
             category = "positive",
             priority = priority.ToLowerInvariant(),
             risk = priority.ToLowerInvariant(),
