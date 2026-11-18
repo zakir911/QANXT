@@ -103,9 +103,10 @@ internal static class LocalRequirementScope
 
         // Discovery order, not score order: a suite that reads in the order a person walks
         // the application is easier to review than one ranked by a number they cannot see.
-        var keep = scored.Select(entry => entry.Page).ToList();
-        var byIndex = pages.Where(page => keep.Any(k => ReferenceEquals(k, page))
-                                       || keep.Any(k => Route(k) == Route(page))).ToList();
+        // By route, not by identity: a JsonElement is a struct, so comparing instances
+        // boxes them and compares nothing useful.
+        var keep = scored.Select(entry => Route(entry.Page)).ToHashSet(StringComparer.Ordinal);
+        var byIndex = pages.Where(page => keep.Contains(Route(page))).ToList();
 
         var hitTerms = scored.SelectMany(entry => entry.On).Distinct().OrderBy(t => t).ToList();
         var routes = string.Join(", ", byIndex.Select(Route).Take(10));
