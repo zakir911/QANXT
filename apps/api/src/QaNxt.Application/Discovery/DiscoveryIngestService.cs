@@ -121,8 +121,32 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
         var run = await _db.DiscoveryRuns.FirstOrDefaultAsync(r => r.Id == discoveryRunId, ct);
         if (run is null) return Result.Failure(Error.NotFound("The discovery run"));
 
-        run.PagesDiscovered = progress.PagesVisited;
-        run.ElementsDiscovered = progress.ElementsFound;
+        // A progress update never lowers the figures, and never reopens a finished run.
+        //
+        // The worker reports progress without waiting for the answer — the callback returns
+        // the promise and the crawler drops it — so dozens of these are in flight at once
+        // and they arrive in whatever order the network delivers them. An early update
+        // saying two pages could therefore land after a later one saying a hundred and fifty,
+        // and after the completion that ended the run. Measured on two consecutive runs of a
+        // 137-screen application: both reported 2 pages discovered while the stored model
+        // held 150 and the declared-screen count was right. The run summary is the first
+        // place anyone looks, and it said the crawl had found almost nothing.
+        //
+        // Guarded here rather than by making the worker wait, because ordering a
+        // best-effort progress feed over the network is not something the worker can
+        // promise, and the control plane is where the figure is kept.
+        if (run.CompletedAt is not null
+            || run.Status is DiscoveryStatus.Completed or DiscoveryStatus.PartiallyCompleted
+                          or DiscoveryStatus.Failed or DiscoveryStatus.Cancelled)
+        {
+            _logger.LogDebug(
+                "Ignoring a progress update for discovery run {RunId}, which already finished as {Status}",
+                run.Id, run.Status);
+            return Result.Success();
+        }
+
+        run.PagesDiscovered = Math.Max(run.PagesDiscovered, progress.PagesVisited);
+        run.ElementsDiscovered = Math.Max(run.ElementsDiscovered, progress.ElementsFound);
         var line = $"[{_clock.UtcNow:HH:mm:ss}] {_masker.MaskText(progress.Message)}";
         run.ProgressLog = Append(run.ProgressLog, line);
         await _db.SaveChangesAsync(ct);
@@ -154,8 +178,24 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
             run.StartedAt ??= completion.StartedAt;
             run.CompletedAt = completion.CompletedAt;
             run.WorkerId = completion.WorkerId;
-            run.PagesDiscovered = completion.Pages.Count;
-            run.ElementsDiscovered = completion.Pages.Sum(p => p.Elements.Count);
+            // Counted from what this run actually mapped, not from the payload that
+            // completed it.
+            //
+            // The worker streams pages in batches, so the completion carries the final batch
+            // and nothing else. Taking its length overwrote the accumulated figure with the
+            // size of the last batch: a run that mapped 150 pages across a 137-screen
+            // application reported 2, twice in a row, while the stored model and the
+            // declared-screen count were both right. Anyone reading the run summary — the
+            // place you look first — saw a crawl that had found almost nothing.
+            //
+            // Scoped by DiscoveryRunId, which UpsertPagesAsync stamps on every page it
+            // touches on both the insert and the update path, so a page this run re-saw
+            // counts for this run and not for the one that first found it.
+            run.PagesDiscovered = await _db.ApplicationPages
+                .CountAsync(p => p.ApplicationId == application.Id && p.DiscoveryRunId == run.Id, token);
+            run.ElementsDiscovered = await _db.ApplicationElements
+                .CountAsync(e => e.Page!.ApplicationId == application.Id
+                              && e.Page.DiscoveryRunId == run.Id, token);
             run.ApiEndpointsDiscovered = completion.ApiEndpoints.Count;
             run.ConsoleErrorCount = completion.ConsoleErrors.Count;
             run.PagesBlockedByPolicy = completion.PagesBlockedByPolicy;
