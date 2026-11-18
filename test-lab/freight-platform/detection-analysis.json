@@ -1,6 +1,6 @@
 {
-  "analysedAt": "2026-11-18T10:34:00.412Z",
-  "source": "evidence/run5-result.json",
+  "analysedAt": "2026-11-18T14:57:58.636Z",
+  "source": "pipeline-result.json",
   "note": "A failure is classified as a tool error or an application failure before it is matched to a defect. Only an application failure can evidence one: a Playwright timeout says nothing about whether the application is correct, whatever words happen to be in its message.",
   "run": {
     "discovery": {
@@ -9,15 +9,15 @@
       "total": 134
     },
     "generation": {
-      "generated": 1431,
-      "distinct": 733,
-      "copiesEach": 2,
+      "generated": 795,
+      "distinct": 561,
+      "copiesEach": 1.4,
       "requirementsIssued": 11,
       "identicalCountsPerRequirement": false
     },
     "execution": {
-      "passed": 654,
-      "failed": 79,
+      "passed": 547,
+      "failed": 14,
       "blocked": 0
     },
     "security": {
@@ -322,46 +322,12 @@
     }
   ],
   "failureAnalysis": {
-    "total": 79,
-    "applicationFailures": 5,
-    "toolErrors": 6,
-    "unreliableTests": 68,
+    "total": 14,
+    "applicationFailures": 14,
+    "toolErrors": 0,
+    "unreliableTests": 0,
     "unknown": 0,
-    "toolErrorBreakdown": {
-      "unrunnable-upload": {
-        "count": 6,
-        "explain": "typing into a file input, which Playwright refuses",
-        "examples": [
-          "File* does not accept whitespace alone on Documents — MF770325 · Meridian Freight",
-          "File* does not accept whitespace alone on Documents — MF770208 · Meridian Freight"
-        ]
-      }
-    },
-    "unreliableBreakdown": {
-      "boundary-value-the-application-may-accept": {
-        "count": 31,
-        "explain": "the assertion requires the form not to navigate, while its own objective allows the value to be accepted, which navigates",
-        "examples": [
-          "Town or city* handles 256 characters, past the length most columns allow on Edit Halvorsen Components · Meridian Freight",
-          "Address line 1* handles 256 characters, past the length most columns allow on Edit Halvorsen Components · Meridian Freight"
-        ]
-      },
-      "whitespace-the-application-may-trim": {
-        "count": 17,
-        "explain": "a field that trims whitespace to empty and then saves is behaving correctly",
-        "examples": [
-          "Notes does not accept whitespace alone on Cancel MF770208 · Meridian Freight",
-          "Notes does not accept whitespace alone on Cancel MF770325 · Meridian Freight"
-        ]
-      },
-      "required-field-on-a-prepopulated-form": {
-        "count": 20,
-        "explain": "the test never emptied the field, so the form was right to accept the submit",
-        "examples": [
-          "Address line 1* is required on Edit Halvorsen Components · Meridian Freight",
-          "Town or city* is required on Edit Halvorsen Components · Meridian Freight"
-        ]
-      }
-    }
+    "toolErrorBreakdown": {},
+    "unreliableBreakdown": {}
   }
 }

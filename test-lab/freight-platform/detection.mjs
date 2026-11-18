@@ -100,10 +100,18 @@ const UNRELIABLE_TEST_PATTERNS = [
     explain: 'the assertion requires the form not to navigate, while its own objective '
            + 'allows the value to be accepted, which navigates' },
 
-  { namePattern: /\bdoes not accept whitespace alone\b/i,
-    messagePattern: /^Expected the URL to contain/i,
-    kind: 'whitespace-the-application-may-trim',
-    explain: 'a field that trims whitespace to empty and then saves is behaving correctly' }
+  // A whitespace rule used to sit here, discounting "does not accept whitespace alone"
+  // failures on the grounds that a field which trims three spaces to empty and saves is
+  // behaving correctly. That was true while the generator emitted the test for optional
+  // fields as well. It is no longer: the scenario is now produced only where the field is
+  // required, and a required field that accepts three spaces as a town name has a real
+  // defect whichever way it behaves — it either stores whitespace as content, or trims to
+  // empty and saves a required field with nothing in it.
+  //
+  // Leaving the rule in place discounted 9 of 14 genuine findings in a measured run and
+  // reported 0 of 32 defects detected where the figure was 1. An error that understates
+  // what the platform found is as wrong as one that overstates it, and this one was mine:
+  // the generator was fixed and the thing that reads its output was not.
 ];
 
 export function classifyFailure(message, name) {

@@ -20,6 +20,7 @@
  * Writes pipeline-result.json. Run from the repository root.
  */
 import { readFile, writeFile } from 'node:fs/promises';
+import { detect } from './detection.mjs';
 import {
   request, newTenant, createProject, registerApplication, runDiscovery,
   applicationModel, generateTests, createSuite, startRun, waitForRun
@@ -437,113 +438,58 @@ if (!ranAnything) {
 }
 
 /**
- * A defect counts as found when a failure or a security finding names its screen and the
- * message is consistent with the defect's stated symptom.
+ * The verdict comes from detection.mjs, which is the only copy of this logic.
  *
- * Deliberately generous on the text and strict on the screen: the aim is not to score the
- * wording of a failure message, it is to ask whether anything at all pointed at the right
- * place for the right reason. Where that is ambiguous it is recorded as `possible` rather
- * than claimed, so the headline number stays defensible.
+ * This stage used to carry its own matcher: a second keyword table, a second screen match,
+ * and no classification of what a failure actually was. It drifted from the shared one, as a
+ * duplicate always does, and the copy that reported was the worse of the two. On a measured
+ * run it claimed FP_D32_PII_IN_QUERY_STRING found, with its evidence field null — a detection
+ * with nothing behind it, in a project whose first rule is that a pass means there is
+ * evidence. The shared matcher, given the same run, found none.
+ *
+ * It also lacked the two guards that exist because they were needed: a failure is classified
+ * as a tool error or an application failure before it can evidence anything, and keywords are
+ * matched as whole tokens — the substring "500" inside "Timeout 15000ms exceeded" once turned
+ * a Playwright timeout into a detected crash.
  */
-const haystackFor = (defect) => {
-  const screen = defect.screen.split('?')[0];
-  const screenTail = screen.replace(/\/:[A-Za-z0-9_]+/g, '').split('/').filter(Boolean).join('/');
-  return { screen, screenTail };
-};
-
-const signals = [
-  ...(result.stages.execution?.failures ?? []).map(failure => ({
-    kind: 'execution',
-    text: `${failure.name ?? ''} ${failure.message ?? ''} ${failure.category ?? ''}`.toLowerCase()
-  })),
-  ...((security.list ?? []).map(finding => ({
-    kind: 'security',
-    text: `${finding.title ?? ''} ${finding.evidence ?? ''} ${finding.url ?? ''}`.toLowerCase()
-  })))
-];
-
-const KEYWORDS = {
-  FP_D01_NEGATIVE_STOCK_ADJUSTMENT: ['negative', 'below zero', 'on hand'],
-  FP_D02_DELIVERY_BEFORE_COLLECTION: ['delivery date', 'before', 'collection'],
-  FP_D03_WEIGHT_UNIT_IGNORED: ['weight', 'unit', 'kg', 'lb'],
-  FP_D04_DUPLICATE_INVOICE_REFERENCE: ['duplicate', 'reference', 'unique'],
-  FP_D05_CREDIT_LIMIT_BYPASSED: ['credit', 'hold', 'limit'],
-  FP_D06_SURCHARGE_ON_GROSS: ['surcharge', 'fuel', 'gross', 'net'],
-  FP_D07_RATE_BAND_BOUNDARY: ['band', 'boundary', 'rate'],
-  FP_D08_DUTY_EXCLUDES_FREIGHT: ['duty', 'freight', 'cif'],
-  FP_D09_CREDIT_NOTE_EXCEEDS_INVOICE: ['credit note', 'exceed', 'invoice total'],
-  FP_D10_PAGINATION_COUNT_WRONG: ['count', 'pagination', 'filter'],
-  FP_D11_VIEWER_CAN_SETTLE_CLAIM: ['permission', 'authoriz', 'settle', 'viewer', 'forbidden'],
-  FP_D12_SHIPMENT_IDOR: ['idor', 'authoriz', 'object reference', 'access'],
-  FP_D13_LEGACY_API_KEY_FULL_SCOPE: ['api key', 'scope', 'expiry', 'never expires'],
-  FP_D14_CANCEL_ORPHANS_ROUTE_STOP: ['route', 'stop', 'cancel', 'orphan'],
-  FP_D15_WIZARD_BACK_LOSES_DATA: ['step', 'back', 'lost', 'cleared', 'wizard'],
-  FP_D16_DOUBLE_SUBMIT_BOOKS_TWICE: ['duplicate', 'twice', 'double', 'idempot'],
-  FP_D17_RELEASE_REJECTED_DECLARATION: ['rejected', 'release', 'status'],
-  FP_D18_LONG_SEARCH_CRASHES: ['500', 'internal server', 'stack', 'long'],
-  FP_D19_OVERSIZE_UPLOAD_CRASHES: ['500', 'upload', 'size', 'internal server'],
-  FP_D20_MISSING_REFERENCE_CRASHES: ['500', 'internal server', 'reference'],
-  FP_D21_UNLABELLED_ADJUSTMENT_FIELD: ['label', 'accessible name', 'aria', 'accessib'],
-  FP_D22_ERROR_NOT_ASSOCIATED: ['aria-describedby', 'associat', 'error message', 'accessib'],
-  FP_D23_STATUS_BY_COLOUR_ONLY: ['colour', 'color', 'contrast', 'accessib', 'text alternative'],
-  FP_D24_MODAL_NOT_ANNOUNCED: ['aria-modal', 'dialog', 'focus', 'accessib'],
-  FP_D25_RATE_TABLE_OVERFLOWS: ['overflow', 'horizontal', 'scroll', 'responsive', 'viewport'],
-  FP_D26_PLANNER_FIXED_WIDTH: ['overflow', 'horizontal', 'scroll', 'responsive', 'viewport'],
-  FP_D27_AUDIT_LOG_SLOW: ['slow', 'timeout', 'response time', 'performance', 'budget'],
-  FP_D28_REFLECTED_XSS_IN_SEARCH: ['xss', 'script', 'reflect', 'inject'],
-  FP_D29_NO_CSRF_ON_ADJUSTMENT: ['csrf', 'forgery', 'token'],
-  FP_D30_SESSION_COOKIE_FLAGS: ['httponly', 'cookie', 'secure'],
-  FP_D31_STACK_TRACE_LEAKED: ['stack', 'trace', 'disclos', 'leak', 'path'],
-  FP_D32_PII_IN_QUERY_STRING: ['query string', 'pii', 'email', 'url']
-};
-
-const verdicts = groundTruth.defects.list.map(defect => {
-  const { screen, screenTail } = haystackFor(defect);
-  const keywords = KEYWORDS[defect.id] ?? [];
-  const onScreen = signals.filter(signal =>
-    signal.text.includes(screen.toLowerCase()) ||
-    (screenTail && signal.text.includes(screenTail.toLowerCase())));
-  const matching = onScreen.filter(signal => keywords.some(word => signal.text.includes(word)));
-  const keywordOnly = signals.filter(signal => keywords.length >= 2
-    && keywords.filter(word => signal.text.includes(word)).length >= 2);
-
-  const screenWasDiscovered = discoveredPaths.some(path =>
-    path === screen || patternMatches(screen, path));
-
-  let verdict;
-  if (matching.length) verdict = 'found';
-  else if (keywordOnly.length) verdict = 'possible';
-  else if (!screenWasDiscovered) verdict = 'unreachable';
-  else verdict = 'missed';
-
-  return {
-    id: defect.id, severity: defect.severity, category: defect.category,
-    screen, screenWasDiscovered, verdict,
-    signalCount: matching.length || keywordOnly.length
-  };
+const analysis = detect({
+  defects: groundTruth.defects.list,
+  failures: result.stages.execution?.failures ?? [],
+  findings: security.list ?? [],
+  reachedPaths: result.stages.discovery?.discoveredPaths ?? discoveredPaths ?? []
 });
 
-const counts = { found: 0, possible: 0, missed: 0, unreachable: 0 };
-for (const verdict of verdicts) counts[verdict.verdict] += 1;
+const counts = analysis.counts;
+const fa = analysis.failureAnalysis;
 
-log(`  found       ${String(counts.found).padStart(2)}  — a failure or finding named the screen and the symptom`);
-log(`  possible    ${String(counts.possible).padStart(2)}  — a signal matched the symptom but not the screen`);
+log(`\n  ${fa.total} failure(s) reported by the run:`);
+log(`    ${String(fa.applicationFailures).padStart(3)}  the application behaving wrongly`);
+log(`    ${String(fa.toolErrors).padStart(3)}  the test tool unable to drive the page`);
+log(`    ${String(fa.unreliableTests ?? 0).padStart(3)}  a test that could not tell a pass from a failure`);
+
+log(`\n  found       ${String(counts.found).padStart(2)}  — a failure or finding named the screen and the symptom`);
+log(`  possible    ${String(counts.possible).padStart(2)}  — two independent symptom keywords, screen not named`);
 log(`  missed      ${String(counts.missed).padStart(2)}  — the screen was discovered and nothing reported it`);
 log(`  unreachable ${String(counts.unreachable).padStart(2)}  — discovery never reached the screen`);
 
+for (const verdict of analysis.verdicts.filter(v => v.verdict === 'found' || v.verdict === 'possible')) {
+  log(`    ${verdict.verdict.toUpperCase()}  ${verdict.id}`);
+  log(`      evidence: ${verdict.evidence ?? '(none — which is why this is not a claim)'}`);
+}
+
 const byCategory = {};
-for (const verdict of verdicts) {
-  byCategory[verdict.category] ??= { total: 0, found: 0 };
+for (const verdict of analysis.verdicts) {
+  byCategory[verdict.category] ??= { total: 0, found: 0, reachable: 0 };
   byCategory[verdict.category].total += 1;
   if (verdict.verdict === 'found') byCategory[verdict.category].found += 1;
+  if (verdict.screenReached) byCategory[verdict.category].reachable += 1;
 }
-
-log('\n  by category:');
+log('\n  by category (found / on a reached screen / planted):');
 for (const [category, figures] of Object.entries(byCategory).sort()) {
-  log(`    ${category.padEnd(16)} ${figures.found}/${figures.total}`);
+  log(`    ${category.padEnd(16)} ${figures.found} / ${figures.reachable} / ${figures.total}`);
 }
 
-result.stages.detection = { counts, byCategory, verdicts };
+result.stages.detection = { ...analysis, failureAnalysis: fa };
 
 await writeFile(new URL('./pipeline-result.json', import.meta.url), JSON.stringify(result, null, 2) + '\n');
 log(`\nWritten to test-lab/freight-platform/pipeline-result.json\n`);
