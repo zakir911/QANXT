@@ -183,6 +183,71 @@ public class FormEngineTests
             + "guess dressed as a finding");
     }
 
+    /// <summary>A stock transfer: two selects over one list of sites, plus the product.</summary>
+    private static DiscoveredFormModel Transfer() => new()
+    {
+        Key = "new-transfer", Name = "New transfer", Action = "http://lab/warehouse/transfers/new",
+        Method = "post", HasCsrfToken = true, NoValidate = true, Locator = TestId("transfer-form"),
+        Fields = new()
+        {
+            SelectField("skuId", "Product", new[] { ("", "Choose a product"), ("sku-001", "MF-1000"), ("sku-002", "MF-1037") }),
+            SelectField("fromWarehouseId", "From site", new[] { ("", "Choose a site"), ("wh-fxt", "Felixstowe DC"), ("wh-mcr", "Manchester Hub") }),
+            SelectField("toWarehouseId", "To site", new[] { ("", "Choose a site"), ("wh-fxt", "Felixstowe DC"), ("wh-mcr", "Manchester Hub") })
+        },
+        Buttons = new() { new FormButtonModel { Label = "Raise transfer", Type = "submit", Role = "submit", Locator = TestId("transfer-submit") } }
+    };
+
+    /// <summary>A required select, built through the same Field helper the other fixtures
+    /// use so Key and Identity are derived the way the engine derives them.</summary>
+    private static FormFieldModel SelectField(string name, string label,
+        (string Value, string Label)[] options)
+        => Field(name, "select", required: true, label: label,
+            options: options.Select(o => new FormOptionModel { Value = o.Value, Label = o.Label }).ToList());
+
+    /// <summary>
+    /// Two selects over the same list must not both take its first option.
+    ///
+    /// Each select was filled independently, so a transfer form's "From site" and "To site" —
+    /// the same list of warehouses — both received the first one, and the application
+    /// correctly refused a transfer from Felixstowe to Felixstowe. The happy-path test then
+    /// reported that a valid submission had been rejected.
+    ///
+    /// Measured on a 137-screen freight application: this shape is on every transfer, every
+    /// origin-and-destination pair and every move-between form. Each chosen value was
+    /// individually valid, which is why nothing in the single-field synthesis could see it.
+    /// </summary>
+    [Fact]
+    public void Two_selects_over_the_same_list_are_given_different_options()
+    {
+        var happy = Design(Transfer()).Tests
+            .First(t => t.Name.Contains("accepts a complete valid submission"));
+
+        var chosen = happy.Steps
+            .Where(step => step.Action == BrowserActionType.Select)
+            .ToDictionary(step => step.Description, step => step.Value);
+
+        var sites = chosen.Where(pair => pair.Key.Contains("site")).Select(pair => pair.Value).ToList();
+        sites.Should().HaveCount(2);
+        sites.Should().OnlyHaveUniqueItems(
+            "a transfer from a site to itself is not a valid submission, so filling both "
+            + "with the first option tests the application's refusal rather than its "
+            + "acceptance");
+    }
+
+    /// <summary>Selects over different lists are untouched: the product and the site are not
+    /// in competition, and forcing them apart would be meaningless.</summary>
+    [Fact]
+    public void Selects_over_different_lists_still_take_their_first_option()
+    {
+        var happy = Design(Transfer()).Tests
+            .First(t => t.Name.Contains("accepts a complete valid submission"));
+
+        happy.Steps
+            .Where(step => step.Action == BrowserActionType.Select && step.Description.Contains("Product"))
+            .Select(step => step.Value)
+            .Should().Equal("sku-001");
+    }
+
     private static FormDesign Design(DiscoveredFormModel form, TestingProfile? profile = null, bool credentials = false)
         => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,
             "http://lab/registration", "/registration", form.Name, credentials, Array.Empty<CorrelatedEndpoint>(), profile ?? new TestingProfile()));

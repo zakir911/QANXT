@@ -436,8 +436,39 @@ public static class FormTestDesigner
                     var options = parent is not null
                         ? parent.OptionsOf[field.Identity].Where(o => !IsPlaceholderLabel(o)).ToList()
                         : field.Options.Where(o => !o.Disabled && o.Value.Length > 0).Select(o => o.Value).ToList();
-                    return options.Count > 0 ? ValueSynthesizer.Synthesis.Of(options[0])
-                        : ValueSynthesizer.Synthesis.Cannot("It has no option with a value to choose.");
+                    if (options.Count == 0)
+                        return ValueSynthesizer.Synthesis.Cannot("It has no option with a value to choose.");
+
+                    // Two selects drawn from the same list must not both take its first option.
+                    //
+                    // Each select was filled independently, so a transfer form's "From site"
+                    // and "To site" — the same list of warehouses — both received the first
+                    // one, and the application correctly refused a transfer from Felixstowe
+                    // to Felixstowe. The happy-path test then reported that a valid
+                    // submission was rejected.
+                    //
+                    // Measured on a 137-screen freight application: this shape appears on
+                    // every transfer, every origin-and-destination pair and every
+                    // move-between form, and the engine cannot fill any of them. The values
+                    // it chose were each individually valid, which is why nothing in the
+                    // single-field synthesis could see the problem.
+                    //
+                    // Where the list is too short to go round — three selects over two
+                    // options — the first option is taken again rather than giving up: a
+                    // duplicate is what the application has to cope with anyway, and no test
+                    // at all is worse than one that may be refused.
+                    var takenFromTheSameList = chosen
+                        .Select(entry => (Value: entry.Value,
+                            Other: _fields.FirstOrDefault(f => f.Identity == entry.Key)))
+                        .Where(pair => pair.Other is not null
+                                    && pair.Other.ControlType is "select" or "multiselect"
+                                    && DrawsFromTheSameList(pair.Other, field))
+                        .Select(pair => pair.Value)
+                        .ToHashSet(StringComparer.Ordinal);
+
+                    var pick = options.FirstOrDefault(option => !takenFromTheSameList.Contains(option))
+                               ?? options[0];
+                    return ValueSynthesizer.Synthesis.Of(pick);
                 }
                 case "radio":
                 {
@@ -454,6 +485,22 @@ public static class FormTestDesigner
                 default:
                     return ValueSynthesizer.Valid(field);
             }
+        }
+
+        /// <summary>
+        /// Whether two selects offer the same choices, so giving them the same value means
+        /// naming one thing twice.
+        ///
+        /// Compared by the option values rather than by field name, because a from/to pair
+        /// is only one of the shapes this takes: a swap between accounts, a reassignment
+        /// between users and a move between sites all read differently and behave the same.
+        /// </summary>
+        private static bool DrawsFromTheSameList(FormFieldModel a, FormFieldModel b)
+        {
+            var left = a.Options.Where(o => o.Value.Length > 0).Select(o => o.Value).ToHashSet(StringComparer.Ordinal);
+            if (left.Count == 0) return false;
+            var right = b.Options.Where(o => o.Value.Length > 0).Select(o => o.Value).ToHashSet(StringComparer.Ordinal);
+            return left.SetEquals(right);
         }
 
         private static bool IsPlaceholderLabel(string label)
