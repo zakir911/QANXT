@@ -999,7 +999,50 @@ public static class FormTestDesigner
                 if (first is not null) result.Add(new("equals", first, second, $"{second.DisplayName} must match {first.DisplayName}"));
             }
 
-            var pairs = new[] { ("start", "end"), ("from", "to"), ("begin", "finish"), ("min", "max"), ("first", "last"), ("checkin", "checkout"), ("departure", "return") };
+            // Orderings where the second value must not precede the first.
+            //
+            // This decides whether a form's date pair is cross-field tested at all, and it
+            // held seven pairs: start/end, from/to, begin/finish, min/max, first/last,
+            // checkin/checkout, departure/return. That is the vocabulary of a travel booking
+            // site and a generic numeric range, and it misses every domain vocabulary there
+            // is. Measured on a 137-screen freight application: 2,348 tests were designed
+            // across 20 categories and not one was cross-field, because its forms say
+            // "Collection date" and "Estimated delivery" — words no pair contained. A
+            // shipment that delivered before it was collected saved without complaint, and
+            // nothing had been written that would ask.
+            //
+            // So this is a vocabulary, and a vocabulary will always miss some. It is worth
+            // widening to the orderings that recur across industries rather than leaving it
+            // at the one it was written against. Every entry below holds whatever the
+            // application is: nothing is delivered before it is collected, expires before it
+            // takes effect, or is discharged before admission.
+            //
+            // Arrival and departure are deliberately absent. Which precedes which depends on
+            // whether the form describes a journey's own legs or a stay between them, and a
+            // pair that is wrong half the time generates failures on correct applications.
+            // departure/return stays, because a return follows a departure either way.
+            var pairs = new[]
+            {
+                // Generic ranges.
+                ("start", "end"), ("from", "to"), ("begin", "finish"), ("min", "max"),
+                ("first", "last"), ("earliest", "latest"), ("lower", "upper"),
+                ("open", "close"), ("opened", "closed"),
+                // Travel and hospitality.
+                ("checkin", "checkout"), ("departure", "return"),
+                // Logistics and freight.
+                ("collection", "delivery"), ("collected", "delivered"),
+                ("pickup", "dropoff"), ("pickup", "delivery"),
+                ("despatch", "delivery"), ("dispatch", "delivery"),
+                ("loaded", "unloaded"), ("shipped", "received"),
+                // Billing and contracts.
+                ("issue", "due"), ("issued", "due"), ("invoice", "due"),
+                ("effective", "expiry"), ("effective", "expiration"), ("valid", "expiry"),
+                ("commencement", "termination"),
+                // Employment, healthcare, case handling.
+                ("hire", "termination"), ("admission", "discharge"),
+                ("ordered", "completed"), ("created", "completed"),
+                ("submitted", "approved"), ("requested", "fulfilled")
+            };
             foreach (var (a, b) in pairs)
             {
                 var first = _fields.FirstOrDefault(f => Word(f, a) && (ValueSynthesizer.IsDateLike(f) || ValueSynthesizer.IsNumeric(f)));

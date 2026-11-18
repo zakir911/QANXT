@@ -100,6 +100,89 @@ public class FormEngineTests
             .Should().Contain(BrowserActionType.AssertFormAccepted);
     }
 
+    /// <summary>A freight booking form: two dates whose ordering matters, named the way the
+    /// industry names them rather than the way a travel site does.</summary>
+    private static DiscoveredFormModel Booking() => new()
+    {
+        Key = "book-shipment", Name = "Book a shipment", Action = "http://lab/shipments/new",
+        Method = "post", HasCsrfToken = true, NoValidate = true, Locator = TestId("book-form"),
+        Fields = new()
+        {
+            Field("collectionDate", "date", true, label: "Collection date"),
+            Field("estimatedDelivery", "date", true, label: "Estimated delivery"),
+            Field("grossWeight", "number", true, new() { ["min"] = "0.1", ["max"] = "30000" })
+        },
+        Buttons = new() { new FormButtonModel { Label = "Book", Type = "submit", Role = "submit", Locator = TestId("book-submit") } }
+    };
+
+    /// <summary>
+    /// A date pair is only cross-field tested if the detector knows the two words.
+    ///
+    /// The ordered-pair list held seven entries — start/end, from/to, begin/finish, min/max,
+    /// first/last, checkin/checkout, departure/return — which is the vocabulary of a travel
+    /// booking site. Measured on a 137-screen freight application: 2,348 tests were designed
+    /// across 20 categories and not one was cross-field, because its forms say "Collection
+    /// date" and "Estimated delivery". A shipment that delivered before it was collected
+    /// saved without complaint and nothing had been written that would ask.
+    /// </summary>
+    [Fact]
+    public void A_domain_named_date_pair_is_recognised_as_an_ordering()
+    {
+        var names = Design(Booking()).Tests.Select(t => t.Name).ToList();
+
+        names.Should().Contain(name => name.Contains("before"),
+            "delivery before collection is incoherent in any application, and the engine "
+            + "already knows how to test an ordering once it sees one");
+
+        Design(Booking()).Tests.Select(t => t.Category)
+            .Should().Contain(TestCategory.CrossField);
+    }
+
+    /// <summary>The pairs it already knew must keep working: widening a vocabulary is only
+    /// safe if it is additive.</summary>
+    [Theory]
+    [InlineData("startDate", "Start date", "endDate", "End date")]
+    [InlineData("checkinDate", "Check-in", "checkoutDate", "Check-out")]
+    [InlineData("validFrom", "Valid from", "validTo", "Valid to")]
+    public void The_pairs_it_already_knew_still_pair(string firstName, string firstLabel,
+        string secondName, string secondLabel)
+    {
+        var form = Booking() with
+        {
+            Fields = new()
+            {
+                Field(firstName, "date", true, label: firstLabel),
+                Field(secondName, "date", true, label: secondLabel)
+            }
+        };
+
+        Design(form).Tests.Select(t => t.Category).Should().Contain(TestCategory.CrossField);
+    }
+
+    /// <summary>
+    /// Arrival and departure are deliberately not a pair.
+    ///
+    /// Which precedes which depends on whether the form describes a journey's own legs or a
+    /// stay between them. A pair that is wrong half the time generates failures on correct
+    /// applications, and this engine has produced enough of those.
+    /// </summary>
+    [Fact]
+    public void Arrival_and_departure_are_not_treated_as_an_ordering()
+    {
+        var form = Booking() with
+        {
+            Fields = new()
+            {
+                Field("arrivalDate", "date", true, label: "Arrival date"),
+                Field("departureDate", "date", true, label: "Departure date")
+            }
+        };
+
+        Design(form).Tests.Select(t => t.Category).Should().NotContain(TestCategory.CrossField,
+            "the ordering depends on what the form is about, so asserting one would be a "
+            + "guess dressed as a finding");
+    }
+
     private static FormDesign Design(DiscoveredFormModel form, TestingProfile? profile = null, bool credentials = false)
         => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,
             "http://lab/registration", "/registration", form.Name, credentials, Array.Empty<CorrelatedEndpoint>(), profile ?? new TestingProfile()));
