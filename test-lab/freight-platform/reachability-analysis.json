@@ -1,0 +1,1213 @@
+{
+  "analysedAt": "2026-11-18T04:00:54.017Z",
+  "note": "A detection ceiling, not a detection rate. It says how many planted defects sit on screens discovery reached; whether the platform would then FIND them needs generation and execution, which this container cannot run.",
+  "defectsTotal": 32,
+  "runs": [
+    {
+      "mode": "links",
+      "screensReached": 90,
+      "screensTotal": 134,
+      "defectsOnReachedScreens": 25,
+      "defectsOnUnreachedScreens": 7,
+      "detectionCeilingPercent": 78.1,
+      "byCategory": {
+        "validation": {
+          "total": 3,
+          "reachable": 3
+        },
+        "crossField": {
+          "total": 1,
+          "reachable": 1
+        },
+        "businessRule": {
+          "total": 2,
+          "reachable": 2
+        },
+        "calculation": {
+          "total": 3,
+          "reachable": 3
+        },
+        "boundary": {
+          "total": 1,
+          "reachable": 1
+        },
+        "authorization": {
+          "total": 3,
+          "reachable": 1
+        },
+        "stateTransition": {
+          "total": 2,
+          "reachable": 2
+        },
+        "multiStep": {
+          "total": 1,
+          "reachable": 1
+        },
+        "reliability": {
+          "total": 1,
+          "reachable": 1
+        },
+        "errorHandling": {
+          "total": 3,
+          "reachable": 2
+        },
+        "accessibility": {
+          "total": 4,
+          "reachable": 3
+        },
+        "responsive": {
+          "total": 2,
+          "reachable": 1
+        },
+        "performance": {
+          "total": 1,
+          "reachable": 0
+        },
+        "security": {
+          "total": 5,
+          "reachable": 4
+        }
+      },
+      "bySeverity": {
+        "major": {
+          "total": 13,
+          "reachable": 13
+        },
+        "minor": {
+          "total": 11,
+          "reachable": 7
+        },
+        "security": {
+          "total": 8,
+          "reachable": 5
+        }
+      },
+      "rows": [
+        {
+          "id": "FP_D01_NEGATIVE_STOCK_ADJUSTMENT",
+          "title": "A stock adjustment accepts a quantity that drives on-hand below zero",
+          "domain": "warehouse",
+          "category": "validation",
+          "severity": "major",
+          "screen": "/warehouse/stock/:id/adjust",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D02_DELIVERY_BEFORE_COLLECTION",
+          "title": "A requested delivery date before the collection date is accepted",
+          "domain": "shipments",
+          "category": "crossField",
+          "severity": "major",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D03_WEIGHT_UNIT_IGNORED",
+          "title": "The weight unit selector is recorded but never applied",
+          "domain": "shipments",
+          "category": "validation",
+          "severity": "major",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D04_DUPLICATE_INVOICE_REFERENCE",
+          "title": "Two invoices can carry the same reference",
+          "domain": "billing",
+          "category": "validation",
+          "severity": "major",
+          "screen": "/billing/invoices/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D05_CREDIT_LIMIT_BYPASSED",
+          "title": "The credit limit is checked on the form but not in the handler",
+          "domain": "orders",
+          "category": "businessRule",
+          "severity": "major",
+          "screen": "/orders/sales/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D06_SURCHARGE_ON_GROSS",
+          "title": "The fuel surcharge is applied to the VAT-inclusive total",
+          "domain": "billing",
+          "category": "calculation",
+          "severity": "major",
+          "screen": "/billing/invoices/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D07_RATE_BAND_BOUNDARY",
+          "title": "A weight exactly on a rate band boundary falls into the cheaper band",
+          "domain": "carriers",
+          "category": "boundary",
+          "severity": "major",
+          "screen": "/carriers/:id/rates",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D08_DUTY_EXCLUDES_FREIGHT",
+          "title": "Duty on a CIF shipment is calculated without the freight cost",
+          "domain": "customs",
+          "category": "calculation",
+          "severity": "major",
+          "screen": "/customs/declarations/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D09_CREDIT_NOTE_EXCEEDS_INVOICE",
+          "title": "A credit note can be raised for more than the invoice it credits",
+          "domain": "billing",
+          "category": "businessRule",
+          "severity": "major",
+          "screen": "/billing/credit-notes/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D10_PAGINATION_COUNT_WRONG",
+          "title": "The result count is taken before the filter is applied",
+          "domain": "shipments",
+          "category": "calculation",
+          "severity": "minor",
+          "screen": "/shipments",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D11_VIEWER_CAN_SETTLE_CLAIM",
+          "title": "Claim settlement is hidden from a viewer but not refused",
+          "domain": "claims",
+          "category": "authorization",
+          "severity": "security",
+          "screen": "/claims/:id/settle",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D12_SHIPMENT_IDOR",
+          "title": "Any signed-in user can read any shipment by its identifier",
+          "domain": "shipments",
+          "category": "authorization",
+          "severity": "security",
+          "screen": "/shipments/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D13_LEGACY_API_KEY_FULL_SCOPE",
+          "title": "A legacy API key holds every scope and has no expiry",
+          "domain": "admin",
+          "category": "authorization",
+          "severity": "security",
+          "screen": "/admin/api-keys",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D14_CANCEL_ORPHANS_ROUTE_STOP",
+          "title": "Cancelling a shipment leaves its route stop active",
+          "domain": "shipments",
+          "category": "stateTransition",
+          "severity": "major",
+          "screen": "/shipments/:id/cancel",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D15_WIZARD_BACK_LOSES_DATA",
+          "title": "Going back from step 3 of the booking wizard empties step 2",
+          "domain": "shipments",
+          "category": "multiStep",
+          "severity": "minor",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D16_DOUBLE_SUBMIT_BOOKS_TWICE",
+          "title": "Submitting the booking form twice creates two shipments",
+          "domain": "shipments",
+          "category": "reliability",
+          "severity": "major",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D17_RELEASE_REJECTED_DECLARATION",
+          "title": "A rejected declaration can be released",
+          "domain": "customs",
+          "category": "stateTransition",
+          "severity": "major",
+          "screen": "/customs/declarations/:id/release",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D18_LONG_SEARCH_CRASHES",
+          "title": "A search term over 500 characters returns HTTP 500 with a stack trace",
+          "domain": "shipments",
+          "category": "errorHandling",
+          "severity": "major",
+          "screen": "/shipments",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D19_OVERSIZE_UPLOAD_CRASHES",
+          "title": "An oversize evidence upload crashes instead of being refused",
+          "domain": "claims",
+          "category": "errorHandling",
+          "severity": "minor",
+          "screen": "/claims/:id/evidence",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D20_MISSING_REFERENCE_CRASHES",
+          "title": "An invoice whose shipment has been removed crashes its detail page",
+          "domain": "billing",
+          "category": "errorHandling",
+          "severity": "minor",
+          "screen": "/billing/invoices/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D21_UNLABELLED_ADJUSTMENT_FIELD",
+          "title": "The adjustment quantity input has no label",
+          "domain": "warehouse",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/warehouse/stock/:id/adjust",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D22_ERROR_NOT_ASSOCIATED",
+          "title": "Claim form errors are not associated with their fields",
+          "domain": "claims",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/claims/new",
+          "shape": "routed",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D23_STATUS_BY_COLOUR_ONLY",
+          "title": "Vehicle availability is conveyed by colour alone",
+          "domain": "fleet",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/fleet/vehicles",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D24_MODAL_NOT_ANNOUNCED",
+          "title": "The approval modal is not announced and does not trap focus",
+          "domain": "orders",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/orders/sales/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D25_RATE_TABLE_OVERFLOWS",
+          "title": "The rate card table forces horizontal scrolling on a phone",
+          "domain": "carriers",
+          "category": "responsive",
+          "severity": "minor",
+          "screen": "/carriers/:id/rates",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D26_PLANNER_FIXED_WIDTH",
+          "title": "The route planner is fixed at 1100px",
+          "domain": "routes",
+          "category": "responsive",
+          "severity": "minor",
+          "screen": "/routes/planner",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D27_AUDIT_LOG_SLOW",
+          "title": "The audit log takes over three seconds to respond",
+          "domain": "admin",
+          "category": "performance",
+          "severity": "minor",
+          "screen": "/admin/audit",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D28_REFLECTED_XSS_IN_SEARCH",
+          "title": "The search term is written into the results page unescaped",
+          "domain": "shipments",
+          "category": "security",
+          "severity": "security",
+          "screen": "/shipments",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D29_NO_CSRF_ON_ADJUSTMENT",
+          "title": "The stock adjustment form carries no anti-forgery token",
+          "domain": "warehouse",
+          "category": "security",
+          "severity": "security",
+          "screen": "/warehouse/stock/:id/adjust",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D30_SESSION_COOKIE_FLAGS",
+          "title": "The \"remember me\" path reissues the session cookie without HttpOnly",
+          "domain": "auth",
+          "category": "security",
+          "severity": "security",
+          "screen": "/auth/sign-in",
+          "shape": "enclosed-or-api",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D31_STACK_TRACE_LEAKED",
+          "title": "API errors return the Node stack trace and absolute file paths",
+          "domain": "shipments",
+          "category": "security",
+          "severity": "security",
+          "screen": "/api/shipments/:id",
+          "shape": "enclosed-or-api",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D32_PII_IN_QUERY_STRING",
+          "title": "Customer contact email is passed in the query string",
+          "domain": "customers",
+          "category": "security",
+          "severity": "security",
+          "screen": "/customers",
+          "shape": "linked",
+          "screenReached": true
+        }
+      ]
+    },
+    {
+      "mode": "navigation",
+      "screensReached": 103,
+      "screensTotal": 134,
+      "defectsOnReachedScreens": 26,
+      "defectsOnUnreachedScreens": 6,
+      "detectionCeilingPercent": 81.3,
+      "byCategory": {
+        "validation": {
+          "total": 3,
+          "reachable": 3
+        },
+        "crossField": {
+          "total": 1,
+          "reachable": 1
+        },
+        "businessRule": {
+          "total": 2,
+          "reachable": 2
+        },
+        "calculation": {
+          "total": 3,
+          "reachable": 3
+        },
+        "boundary": {
+          "total": 1,
+          "reachable": 1
+        },
+        "authorization": {
+          "total": 3,
+          "reachable": 1
+        },
+        "stateTransition": {
+          "total": 2,
+          "reachable": 1
+        },
+        "multiStep": {
+          "total": 1,
+          "reachable": 1
+        },
+        "reliability": {
+          "total": 1,
+          "reachable": 1
+        },
+        "errorHandling": {
+          "total": 3,
+          "reachable": 2
+        },
+        "accessibility": {
+          "total": 4,
+          "reachable": 4
+        },
+        "responsive": {
+          "total": 2,
+          "reachable": 2
+        },
+        "performance": {
+          "total": 1,
+          "reachable": 0
+        },
+        "security": {
+          "total": 5,
+          "reachable": 4
+        }
+      },
+      "bySeverity": {
+        "major": {
+          "total": 13,
+          "reachable": 12
+        },
+        "minor": {
+          "total": 11,
+          "reachable": 9
+        },
+        "security": {
+          "total": 8,
+          "reachable": 5
+        }
+      },
+      "rows": [
+        {
+          "id": "FP_D01_NEGATIVE_STOCK_ADJUSTMENT",
+          "title": "A stock adjustment accepts a quantity that drives on-hand below zero",
+          "domain": "warehouse",
+          "category": "validation",
+          "severity": "major",
+          "screen": "/warehouse/stock/:id/adjust",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D02_DELIVERY_BEFORE_COLLECTION",
+          "title": "A requested delivery date before the collection date is accepted",
+          "domain": "shipments",
+          "category": "crossField",
+          "severity": "major",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D03_WEIGHT_UNIT_IGNORED",
+          "title": "The weight unit selector is recorded but never applied",
+          "domain": "shipments",
+          "category": "validation",
+          "severity": "major",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D04_DUPLICATE_INVOICE_REFERENCE",
+          "title": "Two invoices can carry the same reference",
+          "domain": "billing",
+          "category": "validation",
+          "severity": "major",
+          "screen": "/billing/invoices/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D05_CREDIT_LIMIT_BYPASSED",
+          "title": "The credit limit is checked on the form but not in the handler",
+          "domain": "orders",
+          "category": "businessRule",
+          "severity": "major",
+          "screen": "/orders/sales/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D06_SURCHARGE_ON_GROSS",
+          "title": "The fuel surcharge is applied to the VAT-inclusive total",
+          "domain": "billing",
+          "category": "calculation",
+          "severity": "major",
+          "screen": "/billing/invoices/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D07_RATE_BAND_BOUNDARY",
+          "title": "A weight exactly on a rate band boundary falls into the cheaper band",
+          "domain": "carriers",
+          "category": "boundary",
+          "severity": "major",
+          "screen": "/carriers/:id/rates",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D08_DUTY_EXCLUDES_FREIGHT",
+          "title": "Duty on a CIF shipment is calculated without the freight cost",
+          "domain": "customs",
+          "category": "calculation",
+          "severity": "major",
+          "screen": "/customs/declarations/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D09_CREDIT_NOTE_EXCEEDS_INVOICE",
+          "title": "A credit note can be raised for more than the invoice it credits",
+          "domain": "billing",
+          "category": "businessRule",
+          "severity": "major",
+          "screen": "/billing/credit-notes/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D10_PAGINATION_COUNT_WRONG",
+          "title": "The result count is taken before the filter is applied",
+          "domain": "shipments",
+          "category": "calculation",
+          "severity": "minor",
+          "screen": "/shipments",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D11_VIEWER_CAN_SETTLE_CLAIM",
+          "title": "Claim settlement is hidden from a viewer but not refused",
+          "domain": "claims",
+          "category": "authorization",
+          "severity": "security",
+          "screen": "/claims/:id/settle",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D12_SHIPMENT_IDOR",
+          "title": "Any signed-in user can read any shipment by its identifier",
+          "domain": "shipments",
+          "category": "authorization",
+          "severity": "security",
+          "screen": "/shipments/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D13_LEGACY_API_KEY_FULL_SCOPE",
+          "title": "A legacy API key holds every scope and has no expiry",
+          "domain": "admin",
+          "category": "authorization",
+          "severity": "security",
+          "screen": "/admin/api-keys",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D14_CANCEL_ORPHANS_ROUTE_STOP",
+          "title": "Cancelling a shipment leaves its route stop active",
+          "domain": "shipments",
+          "category": "stateTransition",
+          "severity": "major",
+          "screen": "/shipments/:id/cancel",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D15_WIZARD_BACK_LOSES_DATA",
+          "title": "Going back from step 3 of the booking wizard empties step 2",
+          "domain": "shipments",
+          "category": "multiStep",
+          "severity": "minor",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D16_DOUBLE_SUBMIT_BOOKS_TWICE",
+          "title": "Submitting the booking form twice creates two shipments",
+          "domain": "shipments",
+          "category": "reliability",
+          "severity": "major",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D17_RELEASE_REJECTED_DECLARATION",
+          "title": "A rejected declaration can be released",
+          "domain": "customs",
+          "category": "stateTransition",
+          "severity": "major",
+          "screen": "/customs/declarations/:id/release",
+          "shape": "linked",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D18_LONG_SEARCH_CRASHES",
+          "title": "A search term over 500 characters returns HTTP 500 with a stack trace",
+          "domain": "shipments",
+          "category": "errorHandling",
+          "severity": "major",
+          "screen": "/shipments",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D19_OVERSIZE_UPLOAD_CRASHES",
+          "title": "An oversize evidence upload crashes instead of being refused",
+          "domain": "claims",
+          "category": "errorHandling",
+          "severity": "minor",
+          "screen": "/claims/:id/evidence",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D20_MISSING_REFERENCE_CRASHES",
+          "title": "An invoice whose shipment has been removed crashes its detail page",
+          "domain": "billing",
+          "category": "errorHandling",
+          "severity": "minor",
+          "screen": "/billing/invoices/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D21_UNLABELLED_ADJUSTMENT_FIELD",
+          "title": "The adjustment quantity input has no label",
+          "domain": "warehouse",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/warehouse/stock/:id/adjust",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D22_ERROR_NOT_ASSOCIATED",
+          "title": "Claim form errors are not associated with their fields",
+          "domain": "claims",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/claims/new",
+          "shape": "routed",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D23_STATUS_BY_COLOUR_ONLY",
+          "title": "Vehicle availability is conveyed by colour alone",
+          "domain": "fleet",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/fleet/vehicles",
+          "shape": "routed",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D24_MODAL_NOT_ANNOUNCED",
+          "title": "The approval modal is not announced and does not trap focus",
+          "domain": "orders",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/orders/sales/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D25_RATE_TABLE_OVERFLOWS",
+          "title": "The rate card table forces horizontal scrolling on a phone",
+          "domain": "carriers",
+          "category": "responsive",
+          "severity": "minor",
+          "screen": "/carriers/:id/rates",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D26_PLANNER_FIXED_WIDTH",
+          "title": "The route planner is fixed at 1100px",
+          "domain": "routes",
+          "category": "responsive",
+          "severity": "minor",
+          "screen": "/routes/planner",
+          "shape": "routed",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D27_AUDIT_LOG_SLOW",
+          "title": "The audit log takes over three seconds to respond",
+          "domain": "admin",
+          "category": "performance",
+          "severity": "minor",
+          "screen": "/admin/audit",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D28_REFLECTED_XSS_IN_SEARCH",
+          "title": "The search term is written into the results page unescaped",
+          "domain": "shipments",
+          "category": "security",
+          "severity": "security",
+          "screen": "/shipments",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D29_NO_CSRF_ON_ADJUSTMENT",
+          "title": "The stock adjustment form carries no anti-forgery token",
+          "domain": "warehouse",
+          "category": "security",
+          "severity": "security",
+          "screen": "/warehouse/stock/:id/adjust",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D30_SESSION_COOKIE_FLAGS",
+          "title": "The \"remember me\" path reissues the session cookie without HttpOnly",
+          "domain": "auth",
+          "category": "security",
+          "severity": "security",
+          "screen": "/auth/sign-in",
+          "shape": "enclosed-or-api",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D31_STACK_TRACE_LEAKED",
+          "title": "API errors return the Node stack trace and absolute file paths",
+          "domain": "shipments",
+          "category": "security",
+          "severity": "security",
+          "screen": "/api/shipments/:id",
+          "shape": "enclosed-or-api",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D32_PII_IN_QUERY_STRING",
+          "title": "Customer contact email is passed in the query string",
+          "domain": "customers",
+          "category": "security",
+          "severity": "security",
+          "screen": "/customers",
+          "shape": "linked",
+          "screenReached": true
+        }
+      ]
+    },
+    {
+      "mode": "interactive",
+      "screensReached": 88,
+      "screensTotal": 134,
+      "defectsOnReachedScreens": 20,
+      "defectsOnUnreachedScreens": 12,
+      "detectionCeilingPercent": 62.5,
+      "byCategory": {
+        "validation": {
+          "total": 3,
+          "reachable": 2
+        },
+        "crossField": {
+          "total": 1,
+          "reachable": 1
+        },
+        "businessRule": {
+          "total": 2,
+          "reachable": 2
+        },
+        "calculation": {
+          "total": 3,
+          "reachable": 3
+        },
+        "boundary": {
+          "total": 1,
+          "reachable": 0
+        },
+        "authorization": {
+          "total": 3,
+          "reachable": 1
+        },
+        "stateTransition": {
+          "total": 2,
+          "reachable": 1
+        },
+        "multiStep": {
+          "total": 1,
+          "reachable": 1
+        },
+        "reliability": {
+          "total": 1,
+          "reachable": 1
+        },
+        "errorHandling": {
+          "total": 3,
+          "reachable": 2
+        },
+        "accessibility": {
+          "total": 4,
+          "reachable": 2
+        },
+        "responsive": {
+          "total": 2,
+          "reachable": 1
+        },
+        "performance": {
+          "total": 1,
+          "reachable": 0
+        },
+        "security": {
+          "total": 5,
+          "reachable": 3
+        }
+      },
+      "bySeverity": {
+        "major": {
+          "total": 13,
+          "reachable": 10
+        },
+        "minor": {
+          "total": 11,
+          "reachable": 6
+        },
+        "security": {
+          "total": 8,
+          "reachable": 4
+        }
+      },
+      "rows": [
+        {
+          "id": "FP_D01_NEGATIVE_STOCK_ADJUSTMENT",
+          "title": "A stock adjustment accepts a quantity that drives on-hand below zero",
+          "domain": "warehouse",
+          "category": "validation",
+          "severity": "major",
+          "screen": "/warehouse/stock/:id/adjust",
+          "shape": "linked",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D02_DELIVERY_BEFORE_COLLECTION",
+          "title": "A requested delivery date before the collection date is accepted",
+          "domain": "shipments",
+          "category": "crossField",
+          "severity": "major",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D03_WEIGHT_UNIT_IGNORED",
+          "title": "The weight unit selector is recorded but never applied",
+          "domain": "shipments",
+          "category": "validation",
+          "severity": "major",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D04_DUPLICATE_INVOICE_REFERENCE",
+          "title": "Two invoices can carry the same reference",
+          "domain": "billing",
+          "category": "validation",
+          "severity": "major",
+          "screen": "/billing/invoices/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D05_CREDIT_LIMIT_BYPASSED",
+          "title": "The credit limit is checked on the form but not in the handler",
+          "domain": "orders",
+          "category": "businessRule",
+          "severity": "major",
+          "screen": "/orders/sales/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D06_SURCHARGE_ON_GROSS",
+          "title": "The fuel surcharge is applied to the VAT-inclusive total",
+          "domain": "billing",
+          "category": "calculation",
+          "severity": "major",
+          "screen": "/billing/invoices/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D07_RATE_BAND_BOUNDARY",
+          "title": "A weight exactly on a rate band boundary falls into the cheaper band",
+          "domain": "carriers",
+          "category": "boundary",
+          "severity": "major",
+          "screen": "/carriers/:id/rates",
+          "shape": "linked",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D08_DUTY_EXCLUDES_FREIGHT",
+          "title": "Duty on a CIF shipment is calculated without the freight cost",
+          "domain": "customs",
+          "category": "calculation",
+          "severity": "major",
+          "screen": "/customs/declarations/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D09_CREDIT_NOTE_EXCEEDS_INVOICE",
+          "title": "A credit note can be raised for more than the invoice it credits",
+          "domain": "billing",
+          "category": "businessRule",
+          "severity": "major",
+          "screen": "/billing/credit-notes/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D10_PAGINATION_COUNT_WRONG",
+          "title": "The result count is taken before the filter is applied",
+          "domain": "shipments",
+          "category": "calculation",
+          "severity": "minor",
+          "screen": "/shipments",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D11_VIEWER_CAN_SETTLE_CLAIM",
+          "title": "Claim settlement is hidden from a viewer but not refused",
+          "domain": "claims",
+          "category": "authorization",
+          "severity": "security",
+          "screen": "/claims/:id/settle",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D12_SHIPMENT_IDOR",
+          "title": "Any signed-in user can read any shipment by its identifier",
+          "domain": "shipments",
+          "category": "authorization",
+          "severity": "security",
+          "screen": "/shipments/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D13_LEGACY_API_KEY_FULL_SCOPE",
+          "title": "A legacy API key holds every scope and has no expiry",
+          "domain": "admin",
+          "category": "authorization",
+          "severity": "security",
+          "screen": "/admin/api-keys",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D14_CANCEL_ORPHANS_ROUTE_STOP",
+          "title": "Cancelling a shipment leaves its route stop active",
+          "domain": "shipments",
+          "category": "stateTransition",
+          "severity": "major",
+          "screen": "/shipments/:id/cancel",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D15_WIZARD_BACK_LOSES_DATA",
+          "title": "Going back from step 3 of the booking wizard empties step 2",
+          "domain": "shipments",
+          "category": "multiStep",
+          "severity": "minor",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D16_DOUBLE_SUBMIT_BOOKS_TWICE",
+          "title": "Submitting the booking form twice creates two shipments",
+          "domain": "shipments",
+          "category": "reliability",
+          "severity": "major",
+          "screen": "/shipments/new",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D17_RELEASE_REJECTED_DECLARATION",
+          "title": "A rejected declaration can be released",
+          "domain": "customs",
+          "category": "stateTransition",
+          "severity": "major",
+          "screen": "/customs/declarations/:id/release",
+          "shape": "linked",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D18_LONG_SEARCH_CRASHES",
+          "title": "A search term over 500 characters returns HTTP 500 with a stack trace",
+          "domain": "shipments",
+          "category": "errorHandling",
+          "severity": "major",
+          "screen": "/shipments",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D19_OVERSIZE_UPLOAD_CRASHES",
+          "title": "An oversize evidence upload crashes instead of being refused",
+          "domain": "claims",
+          "category": "errorHandling",
+          "severity": "minor",
+          "screen": "/claims/:id/evidence",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D20_MISSING_REFERENCE_CRASHES",
+          "title": "An invoice whose shipment has been removed crashes its detail page",
+          "domain": "billing",
+          "category": "errorHandling",
+          "severity": "minor",
+          "screen": "/billing/invoices/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D21_UNLABELLED_ADJUSTMENT_FIELD",
+          "title": "The adjustment quantity input has no label",
+          "domain": "warehouse",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/warehouse/stock/:id/adjust",
+          "shape": "linked",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D22_ERROR_NOT_ASSOCIATED",
+          "title": "Claim form errors are not associated with their fields",
+          "domain": "claims",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/claims/new",
+          "shape": "routed",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D23_STATUS_BY_COLOUR_ONLY",
+          "title": "Vehicle availability is conveyed by colour alone",
+          "domain": "fleet",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/fleet/vehicles",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D24_MODAL_NOT_ANNOUNCED",
+          "title": "The approval modal is not announced and does not trap focus",
+          "domain": "orders",
+          "category": "accessibility",
+          "severity": "minor",
+          "screen": "/orders/sales/:id",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D25_RATE_TABLE_OVERFLOWS",
+          "title": "The rate card table forces horizontal scrolling on a phone",
+          "domain": "carriers",
+          "category": "responsive",
+          "severity": "minor",
+          "screen": "/carriers/:id/rates",
+          "shape": "linked",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D26_PLANNER_FIXED_WIDTH",
+          "title": "The route planner is fixed at 1100px",
+          "domain": "routes",
+          "category": "responsive",
+          "severity": "minor",
+          "screen": "/routes/planner",
+          "shape": "routed",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D27_AUDIT_LOG_SLOW",
+          "title": "The audit log takes over three seconds to respond",
+          "domain": "admin",
+          "category": "performance",
+          "severity": "minor",
+          "screen": "/admin/audit",
+          "shape": "routed",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D28_REFLECTED_XSS_IN_SEARCH",
+          "title": "The search term is written into the results page unescaped",
+          "domain": "shipments",
+          "category": "security",
+          "severity": "security",
+          "screen": "/shipments",
+          "shape": "linked",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D29_NO_CSRF_ON_ADJUSTMENT",
+          "title": "The stock adjustment form carries no anti-forgery token",
+          "domain": "warehouse",
+          "category": "security",
+          "severity": "security",
+          "screen": "/warehouse/stock/:id/adjust",
+          "shape": "linked",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D30_SESSION_COOKIE_FLAGS",
+          "title": "The \"remember me\" path reissues the session cookie without HttpOnly",
+          "domain": "auth",
+          "category": "security",
+          "severity": "security",
+          "screen": "/auth/sign-in",
+          "shape": "enclosed-or-api",
+          "screenReached": true
+        },
+        {
+          "id": "FP_D31_STACK_TRACE_LEAKED",
+          "title": "API errors return the Node stack trace and absolute file paths",
+          "domain": "shipments",
+          "category": "security",
+          "severity": "security",
+          "screen": "/api/shipments/:id",
+          "shape": "enclosed-or-api",
+          "screenReached": false
+        },
+        {
+          "id": "FP_D32_PII_IN_QUERY_STRING",
+          "title": "Customer contact email is passed in the query string",
+          "domain": "customers",
+          "category": "security",
+          "severity": "security",
+          "screen": "/customers",
+          "shape": "linked",
+          "screenReached": true
+        }
+      ]
+    }
+  ]
+}
