@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-11-18T05:39:59.063Z",
+  "ranAt": "2026-11-18T11:20:24.280Z",
   "labUrl": "http://127.0.0.1:4400",
   "groundTruth": {
     "screens": 137,
@@ -12,33 +12,33 @@
   },
   "stages": {
     "project": {
-      "id": "4cab2756-51d2-4e81-9109-f2206e808c00",
+      "id": "b762d586-a75a-4f52-9ad9-a9a445536c6a",
       "aiEnabled": false
     },
     "application": {
-      "id": "77632aaa-7b7f-4532-95d3-064b2e1dc0e4",
+      "id": "baf266e9-a544-44eb-aaf6-9774ad6bf300",
       "interactionMode": "navigation",
       "maxPages": 160,
-      "budgetSeconds": 600
+      "budgetSeconds": 900
     },
     "discovery": {
       "status": "partiallyCompleted",
-      "seconds": 248,
-      "modelPages": 35,
-      "modelElements": 1866,
+      "seconds": 910,
+      "modelPages": 150,
+      "modelElements": 7277,
       "apiEndpoints": 1,
-      "declaredReached": 31,
+      "declaredReached": 103,
       "declaredTotal": 134,
       "byShape": {
         "linked": {
           "total": 97,
-          "reached": 27,
-          "percent": 27.8
+          "reached": 85,
+          "percent": 87.6
         },
         "routed": {
           "total": 37,
-          "reached": 4,
-          "percent": 10.8
+          "reached": 18,
+          "percent": 48.6
         }
       },
       "discoveredPaths": [
@@ -48,813 +48,271 @@
         "/admin",
         "/auth/sign-in",
         "/billing",
+        "/billing/aging",
+        "/billing/credit-notes",
+        "/billing/credit-notes/new",
+        "/billing/disputes",
+        "/billing/invoices",
         "/billing/invoices/inv-0004",
         "/billing/invoices/inv-0010",
         "/billing/invoices/inv-0016",
+        "/billing/invoices/new",
+        "/billing/payments",
+        "/billing/reconciliation",
+        "/billing/surcharges",
         "/carriers",
+        "/carriers/car-001",
+        "/carriers/car-001/contracts",
+        "/carriers/car-001/quote",
+        "/carriers/car-001/rates",
+        "/carriers/car-002",
+        "/carriers/car-002/contracts",
+        "/carriers/car-002/quote",
+        "/carriers/car-002/rates",
+        "/carriers/car-003",
+        "/carriers/car-003/contracts",
+        "/carriers/car-003/quote",
+        "/carriers/car-003/rates",
+        "/carriers/new",
+        "/carriers/onboarding",
+        "/carriers/performance",
         "/claims",
+        "/claims/analysis",
+        "/claims/new",
+        "/claims/open",
         "/customers",
+        "/customers/cus-001",
+        "/customers/cus-001/credit",
+        "/customers/cus-001/edit",
+        "/customers/cus-002",
+        "/customers/cus-002/edit",
+        "/customers/cus-003",
+        "/customers/new",
         "/customs",
+        "/customs/compliance",
+        "/customs/declarations",
+        "/customs/declarations/dec-0005",
+        "/customs/declarations/dec-0016",
+        "/customs/declarations/dec-0026",
+        "/customs/declarations/new",
+        "/customs/duties",
+        "/customs/holds",
+        "/customs/hs-codes",
         "/dashboard",
         "/dashboard/capacity",
         "/dashboard/exceptions",
         "/dashboard/sla",
         "/dashboard/today",
         "/fleet",
+        "/fleet/compliance",
+        "/fleet/drivers",
+        "/fleet/inspections",
+        "/fleet/maintenance",
+        "/fleet/vehicles",
         "/orders",
+        "/orders/approvals",
         "/orders/backorders",
+        "/orders/purchase",
         "/orders/purchase/new",
+        "/orders/purchase/po-0001",
+        "/orders/purchase/po-0002",
+        "/orders/purchase/po-0003",
+        "/orders/sales",
         "/orders/sales/new",
+        "/orders/sales/so-0001",
+        "/orders/sales/so-0001/edit",
+        "/orders/sales/so-0001/lines",
+        "/orders/sales/so-0002",
+        "/orders/sales/so-0002/edit",
+        "/orders/sales/so-0002/lines",
+        "/orders/sales/so-0003",
+        "/orders/sales/so-0003/edit",
+        "/orders/sales/so-0003/lines",
         "/reports",
+        "/reports/builder",
+        "/reports/carrier-scorecard",
+        "/reports/exceptions",
+        "/reports/export",
+        "/reports/revenue",
+        "/reports/saved",
+        "/reports/scheduled",
+        "/reports/volume",
         "/routes",
+        "/routes/board",
+        "/routes/dispatch",
+        "/routes/history",
+        "/routes/planner",
         "/shipments",
         "/shipments/board",
         "/shipments/consolidate",
         "/shipments/exceptions",
         "/shipments/new",
         "/shipments/shp-0008",
+        "/shipments/shp-0008/cancel",
+        "/shipments/shp-0008/charges",
+        "/shipments/shp-0008/documents",
+        "/shipments/shp-0008/edit",
+        "/shipments/shp-0008/tracking",
         "/shipments/shp-0017",
+        "/shipments/shp-0017/cancel",
+        "/shipments/shp-0017/charges",
+        "/shipments/shp-0017/documents",
+        "/shipments/shp-0017/edit",
+        "/shipments/shp-0017/tracking",
         "/shipments/shp-0026",
-        "/warehouse"
+        "/shipments/shp-0026/cancel",
+        "/shipments/shp-0026/charges",
+        "/shipments/shp-0026/documents",
+        "/shipments/shp-0026/edit",
+        "/shipments/shp-0026/tracking",
+        "/warehouse",
+        "/warehouse/cycle-count",
+        "/warehouse/locations",
+        "/warehouse/locations/wh-dub",
+        "/warehouse/locations/wh-fxt",
+        "/warehouse/locations/wh-mcr",
+        "/warehouse/locations/wh-rtm",
+        "/warehouse/packing",
+        "/warehouse/picking",
+        "/warehouse/putaway",
+        "/warehouse/receiving",
+        "/warehouse/stock",
+        "/warehouse/stock/stk-dub-sku-010",
+        "/warehouse/stock/stk-dub-sku-010/adjust",
+        "/warehouse/stock/stk-fxt-sku-001",
+        "/warehouse/stock/stk-fxt-sku-001/adjust",
+        "/warehouse/stock/stk-fxt-sku-002",
+        "/warehouse/transfers",
+        "/warehouse/transfers/new",
+        "/warehouse/zones"
       ]
     },
     "generation": {
       "seconds": 4,
-      "totalCases": 2123,
-      "suiteId": "fcf68c8a-a660-430e-bba5-8eb833623aa5",
+      "totalCases": 0,
+      "suiteId": "499c505f-2c61-4089-921d-183c9cdc0882",
       "perDomain": [
         {
           "domain": "shipments",
-          "created": 193,
-          "steps": 547,
-          "provider": "local",
-          "isLocalProvider": true,
-          "planSummary": "Generated 203 scenarios covering \"An operator can book, track, amend and cancel a consignment, and record a delivery exception against it.\" from 35 discovered pages using QA NXT's built-in rules (no m",
-          "warnings": [
-            "Scenario 'View Shipment MF770325 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770091 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770208 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Fleet · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Reports · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Book a shipment · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Shipment board · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New sales order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New purchase order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Backorders · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully."
-          ]
+          "created": 0,
+          "refused": "503 {\"code\":\"ai_generation_failed\",\"title\":\"The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType. Path: $.scenarios[5].steps[2].assertions[0].type | LineNumber: 0 | BytePositionInLine: 6288.\",\"status\":503,\"correlationId\":\"0bb95d4000f34072a980ee2b0ccbb68f\"}"
         },
         {
           "domain": "orders",
-          "created": 193,
-          "steps": 547,
-          "provider": "local",
-          "isLocalProvider": true,
-          "planSummary": "Generated 203 scenarios covering \"An operator can raise a sales order, add lines, send it for approval and approve it, and raise a purchase order.\" from 35 discovered pages using QA NXT's built-in rul",
-          "warnings": [
-            "Scenario 'View Shipment MF770325 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770091 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770208 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Fleet · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Reports · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Book a shipment · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Shipment board · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New sales order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New purchase order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Backorders · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully."
-          ]
+          "created": 0,
+          "refused": "503 {\"code\":\"ai_generation_failed\",\"title\":\"The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType. Path: $.scenarios[1].steps[2].assertions[0].type | LineNumber: 0 | BytePositionInLine: 2976.\",\"status\":503,\"correlationId\":\"faaff432510b4a26ad02b57acfdecd06\"}"
         },
         {
           "domain": "warehouse",
-          "created": 193,
-          "steps": 547,
-          "provider": "local",
-          "isLocalProvider": true,
-          "planSummary": "Generated 203 scenarios covering \"A warehouse user can adjust stock, transfer it between sites, count a bin, and receive goods against a purchase order.\" from 35 discovered pages using QA NXT's built-",
-          "warnings": [
-            "Scenario 'View Shipment MF770325 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770091 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770208 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Fleet · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Reports · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Book a shipment · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Shipment board · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New sales order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New purchase order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Backorders · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully."
-          ]
+          "created": 0,
+          "refused": "503 {\"code\":\"ai_generation_failed\",\"title\":\"The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType. Path: $.scenarios[1].steps[2].assertions[0].type | LineNumber: 0 | BytePositionInLine: 3012.\",\"status\":503,\"correlationId\":\"d49be86256014c7797b8d6fa331993b9\"}"
         },
         {
           "domain": "billing",
-          "created": 193,
-          "steps": 547,
-          "provider": "local",
-          "isLocalProvider": true,
-          "planSummary": "Generated 203 scenarios covering \"Finance can raise an invoice, record a payment, raise a credit note and read the aged debt report.\" from 35 discovered pages using QA NXT's built-in rules (no model p",
-          "warnings": [
-            "Scenario 'View Shipment MF770325 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770091 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770208 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Fleet · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Reports · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Book a shipment · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Shipment board · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New sales order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New purchase order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Backorders · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully."
-          ]
+          "created": 0,
+          "refused": "503 {\"code\":\"ai_generation_failed\",\"title\":\"The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType. Path: $.scenarios[8].steps[2].assertions[0].type | LineNumber: 0 | BytePositionInLine: 8579.\",\"status\":503,\"correlationId\":\"20942968afc541468149e0f49754bc58\"}"
         },
         {
           "domain": "customs",
-          "created": 193,
-          "steps": 547,
-          "provider": "local",
-          "isLocalProvider": true,
-          "planSummary": "Generated 203 scenarios covering \"A customs user can create a declaration, attach documents and release a held consignment.\" from 35 discovered pages using QA NXT's built-in rules (no model provider c",
-          "warnings": [
-            "Scenario 'View Shipment MF770325 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770091 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770208 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Fleet · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Reports · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Book a shipment · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Shipment board · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New sales order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New purchase order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Backorders · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully."
-          ]
+          "created": 0,
+          "refused": "503 {\"code\":\"ai_generation_failed\",\"title\":\"The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType. Path: $.scenarios[4].steps[2].assertions[0].type | LineNumber: 0 | BytePositionInLine: 5271.\",\"status\":503,\"correlationId\":\"debbd1b8467744a0890cc558cd3e6aa9\"}"
         },
         {
           "domain": "carriers",
-          "created": 193,
-          "steps": 547,
-          "provider": "local",
-          "isLocalProvider": true,
-          "planSummary": "Generated 203 scenarios covering \"An operator can add a carrier, read its rate card, quote a rate by weight and complete its onboarding.\" from 35 discovered pages using QA NXT's built-in rules (no mod",
-          "warnings": [
-            "Scenario 'View Shipment MF770325 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770091 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770208 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Fleet · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Reports · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Book a shipment · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Shipment board · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New sales order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New purchase order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Backorders · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully."
-          ]
+          "created": 0,
+          "refused": "503 {\"code\":\"ai_generation_failed\",\"title\":\"The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType. Path: $.scenarios[1].steps[2].assertions[0].type | LineNumber: 0 | BytePositionInLine: 3086.\",\"status\":503,\"correlationId\":\"62152e86055c4a7b88430a18e0074abf\"}"
         },
         {
           "domain": "customers",
-          "created": 193,
-          "steps": 547,
-          "provider": "local",
-          "isLocalProvider": true,
-          "planSummary": "Generated 203 scenarios covering \"An operator can add a customer, maintain contacts and addresses, and change credit terms.\" from 35 discovered pages using QA NXT's built-in rules (no model provider c",
-          "warnings": [
-            "Scenario 'View Shipment MF770325 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770091 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770208 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Fleet · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Reports · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Book a shipment · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Shipment board · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New sales order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New purchase order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Backorders · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully."
-          ]
+          "created": 0,
+          "refused": "503 {\"code\":\"ai_generation_failed\",\"title\":\"The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType. Path: $.scenarios[4].steps[2].assertions[0].type | LineNumber: 0 | BytePositionInLine: 6440.\",\"status\":503,\"correlationId\":\"0733cd16346a4ea29906e971d5890710\"}"
         },
         {
           "domain": "claims",
-          "created": 193,
-          "steps": 547,
-          "provider": "local",
-          "isLocalProvider": true,
-          "planSummary": "Generated 203 scenarios covering \"An operator can raise a claim against a shipment, attach evidence, investigate it and settle it.\" from 35 discovered pages using QA NXT's built-in rules (no model pro",
-          "warnings": [
-            "Scenario 'View Shipment MF770325 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770091 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770208 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Fleet · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Reports · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Book a shipment · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Shipment board · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New sales order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New purchase order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Backorders · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully."
-          ]
+          "created": 0,
+          "refused": "503 {\"code\":\"ai_generation_failed\",\"title\":\"The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType. Path: $.scenarios[1].steps[2].assertions[0].type | LineNumber: 0 | BytePositionInLine: 2859.\",\"status\":503,\"correlationId\":\"44033dc09d2746f4a5d85b7a90c1c231\"}"
         },
         {
           "domain": "fleet",
-          "created": 193,
-          "steps": 547,
-          "provider": "local",
-          "isLocalProvider": true,
-          "planSummary": "Generated 203 scenarios covering \"A fleet user can add a vehicle and a driver, record a daily inspection and read the compliance report.\" from 35 discovered pages using QA NXT's built-in rules (no mod",
-          "warnings": [
-            "Scenario 'View Shipment MF770325 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770091 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770208 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Fleet · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Reports · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Book a shipment · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Shipment board · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New sales order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New purchase order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Backorders · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully."
-          ]
+          "created": 0,
+          "refused": "503 {\"code\":\"ai_generation_failed\",\"title\":\"The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType. Path: $.scenarios[7].steps[2].assertions[0].type | LineNumber: 0 | BytePositionInLine: 7586.\",\"status\":503,\"correlationId\":\"d1e3b95240e04bb3be3e0dcc6b563ba3\"}"
         },
         {
           "domain": "routes",
-          "created": 193,
-          "steps": 547,
-          "provider": "local",
-          "isLocalProvider": true,
-          "planSummary": "Generated 203 scenarios covering \"A planner can plan a route, optimise it, dispatch it and read the live board.\" from 35 discovered pages using QA NXT's built-in rules (no model provider configured).",
-          "warnings": [
-            "Scenario 'View Shipment MF770325 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770091 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770208 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Fleet · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Reports · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Book a shipment · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Shipment board · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New sales order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New purchase order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Backorders · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully."
-          ]
+          "created": 0,
+          "refused": "503 {\"code\":\"ai_generation_failed\",\"title\":\"The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType. Path: $.scenarios[5].steps[2].assertions[0].type | LineNumber: 0 | BytePositionInLine: 5929.\",\"status\":503,\"correlationId\":\"be1587143cbf4070826569774f29e4b1\"}"
         },
         {
           "domain": "admin",
-          "created": 193,
-          "steps": 547,
-          "provider": "local",
-          "isLocalProvider": true,
-          "planSummary": "Generated 203 scenarios covering \"An administrator can invite a user, change a role, edit settings and read the audit log.\" from 35 discovered pages using QA NXT's built-in rules (no model provider co",
-          "warnings": [
-            "Scenario 'View Shipment MF770325 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770091 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Shipment MF770208 · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'View Fleet · Meridian Freight' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Reports · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Book a shipment · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Shipment board · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New sales order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit New purchase order · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully.",
-            "Scenario 'Submit Backorders · Meridian Freight with valid values' was dropped: it asserts nothing, so it could not fail meaningfully."
-          ]
+          "created": 0,
+          "refused": "503 {\"code\":\"ai_generation_failed\",\"title\":\"The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType. Path: $.scenarios[1].steps[2].assertions[0].type | LineNumber: 0 | BytePositionInLine: 2608.\",\"status\":503,\"correlationId\":\"9a48e53198654928a384d811a9ba2c45\"}"
         }
       ],
-      "listed": 2123,
-      "providers": [
-        "local"
-      ],
+      "listed": 0,
+      "providers": [],
       "duplication": {
-        "generated": 2123,
-        "distinct": 186,
-        "copiesEach": 11.4,
+        "generated": 0,
+        "distinct": 0,
+        "copiesEach": null,
         "requirementsIssued": 11,
         "identicalCountsPerRequirement": true
-      }
-    },
-    "execution": {
-      "runId": "3b99ba8e-f887-43d7-9565-55187e91a427",
-      "status": "failed",
-      "seconds": 633,
-      "total": 186,
-      "passed": 158,
-      "failed": 28,
-      "blocked": 0,
-      "skipped": 0,
-      "failures": [
-        {
-          "testCaseId": "c403a53c-e541-4ecf-810c-c8b9db3038ce",
-          "name": "Carrier can be changed on Shipments · Meridian Freight /shipments",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "19c7bf5e-27af-4c99-b315-e2edae08956f",
-          "name": "Status can be changed on Shipments · Meridian Freight /shipments",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "be463442-edbb-4b0d-b793-6e3b44de7dba",
-          "name": "Tier can be changed on Customers · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "6a61fe8e-cdfd-42fc-b9ec-ad52bdfa5997",
-          "name": "Collection date* rejects a day that does not exist in that month on Book a shipment · Meridian Freight",
-          "message": "locator.fill: Error: Malformed value",
-          "category": "unknown"
-        },
-        {
-          "testCaseId": "b05f4db1-b829-4351-8c47-dd8f126ec7b8",
-          "name": "Collection date* rejects text in a date field on Book a shipment · Meridian Freight",
-          "message": "locator.fill: Error: Malformed value",
-          "category": "unknown"
-        },
-        {
-          "testCaseId": "7f60474a-f7cc-42a8-ba2b-4d6615ae529d",
-          "name": "Requested delivery date* rejects a day that does not exist in that month on Book a shipment · Meridian Freight",
-          "message": "locator.fill: Error: Malformed value",
-          "category": "unknown"
-        },
-        {
-          "testCaseId": "5dec3195-4f00-4a37-aec0-169a9569136c",
-          "name": "Requested delivery date* rejects text in a date field on Book a shipment · Meridian Freight",
-          "message": "locator.fill: Error: Malformed value",
-          "category": "unknown"
-        },
-        {
-          "testCaseId": "3350811c-564f-4a00-9dea-6a0d3e646f7c",
-          "name": "Customer* can be changed on Book a shipment · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "57a11f11-ff7b-446f-bc3a-2105774619f6",
-          "name": "Incoterm can be changed on Book a shipment · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "aa47b36a-2e70-4f79-8cc6-8bf0602f8d40",
-          "name": "Collect from* can be changed on Book a shipment · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "e79fcf60-f4da-4ad4-b705-a4221d992fbb",
-          "name": "Mode can be changed on Carriers · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "fa8aaa38-08e3-4a09-9212-4d32867722a6",
-          "name": "Table density can be changed on Preferences · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "16de3833-1066-47b5-9a69-7f708044a838",
-          "name": "Open this section when I sign in can be changed on Preferences · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "ce37fe90-5046-4890-9b86-7db514b0fbd5",
-          "name": "Show weights in can be changed on Preferences · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "119e6294-db58-4122-a88b-f70c7b07e43d",
-          "name": "Team handles 256 characters, past the length most columns allow on Your profile · Meridian Freight",
-          "message": "locator.fill: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "78ab98b5-4d01-4f43-a92d-5f812e56cdf8",
-          "name": "Team does not accept whitespace alone on Your profile · Meridian Freight",
-          "message": "locator.fill: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "a04778f4-14a1-41ff-9bf4-1a53d7510fd2",
-          "name": "Requested delivery date* rejects a day that does not exist in that month on New sales order · Meridian Freight",
-          "message": "locator.fill: Error: Malformed value",
-          "category": "unknown"
-        },
-        {
-          "testCaseId": "4ca286b4-81af-40d3-a82d-cab5ad3662b6",
-          "name": "Requested delivery date* rejects text in a date field on New sales order · Meridian Freight",
-          "message": "locator.fill: Error: Malformed value",
-          "category": "unknown"
-        },
-        {
-          "testCaseId": "f6a4896f-fe92-4710-a828-17886d79b3ee",
-          "name": "Quantity* rejects letters in a numeric field on New sales order · Meridian Freight",
-          "message": "locator.fill: Error: Cannot type text into input[type=number]",
-          "category": "unknown"
-        },
-        {
-          "testCaseId": "870f96d3-83bd-4b70-bf7b-d9202f8e9436",
-          "name": "Customer* can be changed on New sales order · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "22af44cf-2e88-46d5-9447-be14c3bd32d6",
-          "name": "Incoterm can be changed on New sales order · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "6e0904ab-bc30-4ee1-8e43-e4cb0a030558",
-          "name": "Service level can be changed on New sales order · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "7328dec5-28f0-4777-94c6-a261d4c58c6e",
-          "name": "Product* can be changed on New sales order · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "64ffd400-4560-486f-b170-00595d8420b7",
-          "name": "Expected date* rejects a day that does not exist in that month on New purchase order · Meridian Freight",
-          "message": "locator.fill: Error: Malformed value",
-          "category": "unknown"
-        },
-        {
-          "testCaseId": "fc6f1837-9b2c-4fbc-99cc-c3de32966736",
-          "name": "Expected date* rejects text in a date field on New purchase order · Meridian Freight",
-          "message": "locator.fill: Error: Malformed value",
-          "category": "unknown"
-        },
-        {
-          "testCaseId": "8701bb0d-6acf-4d91-8f54-7c792249f62b",
-          "name": "Quantity* rejects letters in a numeric field on New purchase order · Meridian Freight",
-          "message": "locator.fill: Error: Cannot type text into input[type=number]",
-          "category": "unknown"
-        },
-        {
-          "testCaseId": "58ab18b2-8a61-4e49-ba64-be51c304db57",
-          "name": "Product* can be changed on New purchase order · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        },
-        {
-          "testCaseId": "e4363b95-4d0e-4a2c-9291-cb15ad0baea4",
-          "name": "Deliver to warehouse* can be changed on New purchase order · Meridian Freight",
-          "message": "locator.selectOption: Timeout 15000ms exceeded.",
-          "category": "timingIssue"
-        }
-      ]
-    },
-    "security": {
-      "attempted": true,
-      "findings": 0,
-      "bySeverity": {},
-      "list": []
-    },
-    "detection": {
-      "counts": {
-        "found": 1,
-        "possible": 1,
-        "missed": 12,
-        "unreachable": 18
       },
-      "byCategory": {
-        "validation": {
-          "total": 3,
-          "found": 0
-        },
-        "crossField": {
-          "total": 1,
-          "found": 0
-        },
-        "businessRule": {
-          "total": 2,
-          "found": 0
-        },
-        "calculation": {
-          "total": 3,
-          "found": 0
-        },
-        "boundary": {
-          "total": 1,
-          "found": 0
-        },
-        "authorization": {
-          "total": 3,
-          "found": 0
-        },
-        "stateTransition": {
-          "total": 2,
-          "found": 0
-        },
-        "multiStep": {
-          "total": 1,
-          "found": 0
-        },
-        "reliability": {
-          "total": 1,
-          "found": 0
-        },
-        "errorHandling": {
-          "total": 3,
-          "found": 1
-        },
-        "accessibility": {
-          "total": 4,
-          "found": 0
-        },
-        "responsive": {
-          "total": 2,
-          "found": 0
-        },
-        "performance": {
-          "total": 1,
-          "found": 0
-        },
-        "security": {
-          "total": 5,
-          "found": 0
-        }
-      },
-      "verdicts": [
+      "distinctCaseNames": [],
+      "perRequirement": [
         {
-          "id": "FP_D01_NEGATIVE_STOCK_ADJUSTMENT",
-          "severity": "major",
-          "category": "validation",
-          "screen": "/warehouse/stock/:id/adjust",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
+          "domain": "shipments",
+          "created": 0,
+          "summary": null
         },
         {
-          "id": "FP_D02_DELIVERY_BEFORE_COLLECTION",
-          "severity": "major",
-          "category": "crossField",
-          "screen": "/shipments/new",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
+          "domain": "orders",
+          "created": 0,
+          "summary": null
         },
         {
-          "id": "FP_D03_WEIGHT_UNIT_IGNORED",
-          "severity": "major",
-          "category": "validation",
-          "screen": "/shipments/new",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
+          "domain": "warehouse",
+          "created": 0,
+          "summary": null
         },
         {
-          "id": "FP_D04_DUPLICATE_INVOICE_REFERENCE",
-          "severity": "major",
-          "category": "validation",
-          "screen": "/billing/invoices/new",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
+          "domain": "billing",
+          "created": 0,
+          "summary": null
         },
         {
-          "id": "FP_D05_CREDIT_LIMIT_BYPASSED",
-          "severity": "major",
-          "category": "businessRule",
-          "screen": "/orders/sales/new",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
+          "domain": "customs",
+          "created": 0,
+          "summary": null
         },
         {
-          "id": "FP_D06_SURCHARGE_ON_GROSS",
-          "severity": "major",
-          "category": "calculation",
-          "screen": "/billing/invoices/:id",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
+          "domain": "carriers",
+          "created": 0,
+          "summary": null
         },
         {
-          "id": "FP_D07_RATE_BAND_BOUNDARY",
-          "severity": "major",
-          "category": "boundary",
-          "screen": "/carriers/:id/rates",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
+          "domain": "customers",
+          "created": 0,
+          "summary": null
         },
         {
-          "id": "FP_D08_DUTY_EXCLUDES_FREIGHT",
-          "severity": "major",
-          "category": "calculation",
-          "screen": "/customs/declarations/:id",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
+          "domain": "claims",
+          "created": 0,
+          "summary": null
         },
         {
-          "id": "FP_D09_CREDIT_NOTE_EXCEEDS_INVOICE",
-          "severity": "major",
-          "category": "businessRule",
-          "screen": "/billing/credit-notes/new",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
+          "domain": "fleet",
+          "created": 0,
+          "summary": null
         },
         {
-          "id": "FP_D10_PAGINATION_COUNT_WRONG",
-          "severity": "minor",
-          "category": "calculation",
-          "screen": "/shipments",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
+          "domain": "routes",
+          "created": 0,
+          "summary": null
         },
         {
-          "id": "FP_D11_VIEWER_CAN_SETTLE_CLAIM",
-          "severity": "security",
-          "category": "authorization",
-          "screen": "/claims/:id/settle",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D12_SHIPMENT_IDOR",
-          "severity": "security",
-          "category": "authorization",
-          "screen": "/shipments/:id",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D13_LEGACY_API_KEY_FULL_SCOPE",
-          "severity": "security",
-          "category": "authorization",
-          "screen": "/admin/api-keys",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D14_CANCEL_ORPHANS_ROUTE_STOP",
-          "severity": "major",
-          "category": "stateTransition",
-          "screen": "/shipments/:id/cancel",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D15_WIZARD_BACK_LOSES_DATA",
-          "severity": "minor",
-          "category": "multiStep",
-          "screen": "/shipments/new",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D16_DOUBLE_SUBMIT_BOOKS_TWICE",
-          "severity": "major",
-          "category": "reliability",
-          "screen": "/shipments/new",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D17_RELEASE_REJECTED_DECLARATION",
-          "severity": "major",
-          "category": "stateTransition",
-          "screen": "/customs/declarations/:id/release",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D18_LONG_SEARCH_CRASHES",
-          "severity": "major",
-          "category": "errorHandling",
-          "screen": "/shipments",
-          "screenWasDiscovered": true,
-          "verdict": "found",
-          "signalCount": 2
-        },
-        {
-          "id": "FP_D19_OVERSIZE_UPLOAD_CRASHES",
-          "severity": "minor",
-          "category": "errorHandling",
-          "screen": "/claims/:id/evidence",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D20_MISSING_REFERENCE_CRASHES",
-          "severity": "minor",
-          "category": "errorHandling",
-          "screen": "/billing/invoices/:id",
-          "screenWasDiscovered": true,
-          "verdict": "possible",
-          "signalCount": 3
-        },
-        {
-          "id": "FP_D21_UNLABELLED_ADJUSTMENT_FIELD",
-          "severity": "minor",
-          "category": "accessibility",
-          "screen": "/warehouse/stock/:id/adjust",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D22_ERROR_NOT_ASSOCIATED",
-          "severity": "minor",
-          "category": "accessibility",
-          "screen": "/claims/new",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D23_STATUS_BY_COLOUR_ONLY",
-          "severity": "minor",
-          "category": "accessibility",
-          "screen": "/fleet/vehicles",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D24_MODAL_NOT_ANNOUNCED",
-          "severity": "minor",
-          "category": "accessibility",
-          "screen": "/orders/sales/:id",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D25_RATE_TABLE_OVERFLOWS",
-          "severity": "minor",
-          "category": "responsive",
-          "screen": "/carriers/:id/rates",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D26_PLANNER_FIXED_WIDTH",
-          "severity": "minor",
-          "category": "responsive",
-          "screen": "/routes/planner",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D27_AUDIT_LOG_SLOW",
-          "severity": "minor",
-          "category": "performance",
-          "screen": "/admin/audit",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D28_REFLECTED_XSS_IN_SEARCH",
-          "severity": "security",
-          "category": "security",
-          "screen": "/shipments",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D29_NO_CSRF_ON_ADJUSTMENT",
-          "severity": "security",
-          "category": "security",
-          "screen": "/warehouse/stock/:id/adjust",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D30_SESSION_COOKIE_FLAGS",
-          "severity": "security",
-          "category": "security",
-          "screen": "/auth/sign-in",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D31_STACK_TRACE_LEAKED",
-          "severity": "security",
-          "category": "security",
-          "screen": "/api/shipments/:id",
-          "screenWasDiscovered": false,
-          "verdict": "unreachable",
-          "signalCount": 0
-        },
-        {
-          "id": "FP_D32_PII_IN_QUERY_STRING",
-          "severity": "security",
-          "category": "security",
-          "screen": "/customers",
-          "screenWasDiscovered": true,
-          "verdict": "missed",
-          "signalCount": 0
+          "domain": "admin",
+          "created": 0,
+          "summary": null
         }
       ]
     }
