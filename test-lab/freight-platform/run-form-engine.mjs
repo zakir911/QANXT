@@ -127,7 +127,11 @@ section('6. Run the whole suite, security included');
 const started = await request(`/api/v1/applications/${application.id}/runs`, {
   token: tenant.token, method: 'POST',
   body: { mode: 'all', name: 'Meridian Freight — form level, all',
-          browser: 'chromium', headless: true, includeSecurity: true, securityProfile: 'standard' }
+          browser: 'chromium', headless: true, includeSecurity: true, securityProfile: 'standard',
+          // 75 forms design roughly 3,900 tests, which is hours at one at a time. The
+          // engine takes a parallelism, so the measurement uses it rather than cutting
+          // scope: a narrower suite would answer a different question.
+          parallelism: Number(arg('parallelism', 4)) }
 });
 if (!started.ok) {
   line(`  REFUSED ${started.status}: ${started.text.slice(0, 300)}`);
