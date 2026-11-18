@@ -27,8 +27,17 @@ internal static class LocalTestPlanner
 {
     public static string Generate(JsonElement context)
     {
-        var pages = LocalJson.Array(context, "pages").ToList();
+        var discovered = LocalJson.Array(context, "pages").ToList();
         var requirement = LocalJson.String(context, "requirement");
+
+        // A requirement narrows what is tested, or it is not a requirement. Eleven of them
+        // against one application used to return eleven identical suites because this
+        // planner read the requirement only to quote it in the summary. The scoping matches
+        // words rather than meaning — there is no model here — so it explains itself in the
+        // summary and falls back to a full sweep, loudly, when nothing matches.
+        var scope = LocalRequirementScope.Apply(requirement, discovered);
+        var pages = scope.Pages;
+
         var scenarios = new List<object>();
 
         // A single-page application serves one <title> for every route, so naming scenarios
@@ -116,8 +125,10 @@ internal static class LocalTestPlanner
         var ordered = scenarios;
 
         var summary = requirement is null
-            ? $"Generated {ordered.Count} scenarios from {pages.Count} discovered pages using QA NXT's built-in rules (no model provider configured)."
-            : $"Generated {ordered.Count} scenarios covering \"{Truncate(requirement, 200)}\" from {pages.Count} discovered pages using QA NXT's built-in rules (no model provider configured).";
+            ? $"Generated {ordered.Count} scenarios from {discovered.Count} discovered pages using QA NXT's built-in rules (no model provider configured)."
+            : $"Generated {ordered.Count} scenarios covering \"{Truncate(requirement, 200)}\" using QA NXT's built-in rules (no model provider configured).";
+
+        if (scope.Note is not null) summary += " " + scope.Note;
 
         // Said plainly rather than left to be inferred from thin scenarios. A page that only
         // got "it loads" has not been covered, and a reviewer deciding whether this suite
