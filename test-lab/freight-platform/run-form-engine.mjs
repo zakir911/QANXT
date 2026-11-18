@@ -166,6 +166,11 @@ result.stages.coverageBefore = await readCoverage('before the run');
 // ---- 6. run everything, security included ------------------------------------
 section('6. Run the whole suite, security included');
 const started = await request(`/api/v1/applications/${application.id}/runs`, {
+  // Starting a run creates one execution row per test, and a 137-screen application yields
+  // 5,832 of them. The 60s default aborted the request while the server was still inserting,
+  // so the driver reported "REFUSED 0: AbortError" and exited while the run it had just
+  // started carried on executing in the control plane. The run was fine; its report was lost.
+  timeoutMs: 10 * 60 * 1000,
   token: tenant.token, method: 'POST',
   body: { mode: 'all', name: 'Meridian Freight — form level, all',
           browser: 'chromium', headless: true, includeSecurity: true, securityProfile: 'standard',
