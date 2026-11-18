@@ -99,11 +99,13 @@ const patched = await request(`/api/v1/applications/${application.id}`, {
     interactionMode: 'navigation',
     maxPages: MAX_PAGES,
     maxCrawlDepth: 6,
-    maxActions: 4000,
-    explorationTimeoutSeconds: DISCOVERY_BUDGET,
-    // In navigation mode an action is spent per click, and the 400 default is the binding
-    // constraint on a large application long before the time budget is.
+    // In navigation mode an action is spent per click, and the 400 product default is the
+    // binding constraint on a large application long before the time budget is: a crawl
+    // that used the default stopped at 69 of 152 pages with 88 of its 900 seconds unspent.
+    // This driver already set 4000, which is why its runs reached 152; it is now settable
+    // because 4000 is itself a guess that happens to have been enough.
     maxActions: Number(arg('max-actions', 6000)),
+    explorationTimeoutSeconds: DISCOVERY_BUDGET,
     respectRobotsTxt: false,
     useSitemap: false,
     excludedPaths: '/auth/sign-out,/__faults'
