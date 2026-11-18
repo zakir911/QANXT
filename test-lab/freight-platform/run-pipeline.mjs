@@ -1,0 +1,501 @@
+/**
+ * Runs the whole QA NXT pipeline against Meridian Freight and reports what it found.
+ *
+ * This is the measurement the lab was built for. Not "did discovery reach the screens",
+ * which is a ceiling — this drives the product the way a team would:
+ *
+ *   1. sign up, create a project with AI switched off
+ *   2. register the application with credentials
+ *   3. run discovery
+ *   4. generate tests from the discovered model
+ *   5. execute them in a real browser
+ *   6. run a security scan against an authorized scope
+ *   7. join every failure and finding back to the 32 planted defects
+ *
+ * AI is off throughout, deliberately: the claim worth testing is the deterministic rules
+ * engine, and a hosted model would make the result unreproducible anyway.
+ *
+ *   node run-pipeline.mjs [--max-pages 160] [--budget 900]
+ *
+ * Writes pipeline-result.json. Run from the repository root.
+ */
+import { readFile, writeFile } from 'node:fs/promises';
+import {
+  request, newTenant, createProject, registerApplication, runDiscovery,
+  applicationModel, generateTests, createSuite, startRun, waitForRun
+} from '../../verification/golden-tests/platform.mjs';
+
+const arg = (name, fallback) => {
+  const index = process.argv.indexOf(`--${name}`);
+  return index === -1 ? fallback : process.argv[index + 1];
+};
+
+const LAB_URL = process.env.LAB_URL ?? 'http://127.0.0.1:4400';
+const MAX_PAGES = Number(arg('max-pages', 160));
+const DISCOVERY_BUDGET = Number(arg('budget', 900));
+
+const groundTruth = JSON.parse(await readFile(new URL('./ground-truth.json', import.meta.url), 'utf8'));
+
+const log = (message) => console.log(message);
+const section = (title) => { log(`\n${'─'.repeat(74)}`); log(title); log('─'.repeat(74)); };
+
+const result = {
+  ranAt: new Date().toISOString(),
+  labUrl: LAB_URL,
+  groundTruth: {
+    screens: groundTruth.screens.total,
+    byShape: groundTruth.screens.byShape,
+    defects: groundTruth.defects.total,
+    journeys: groundTruth.journeys.total
+  },
+  stages: {}
+};
+
+// ---------------------------------------------------------------------------
+
+const health = await fetch(`${LAB_URL}/health`).then(r => r.json()).catch(() => null);
+if (!health) {
+  console.error(`The lab is not running at ${LAB_URL}. Start it with:`);
+  console.error('  node test-lab/freight-platform/server.js');
+  process.exit(1);
+}
+const activeFaults = Object.entries(health.faults ?? {}).filter(([, on]) => on).length;
+log(`\nMeridian Freight at ${LAB_URL}: ${activeFaults} fault(s) active`);
+
+// ---- 1. tenant and project ------------------------------------------------
+
+section('1. Sign up and create a project, with AI switched off');
+const tenant = await newTenant('Freight');
+log(`  tenant ${tenant.organizationId ?? tenant.tenantId ?? '(created)'}`);
+
+const project = await createProject(tenant, 'Meridian Freight', {
+  aiEnabled: false,
+  aiProvider: 'local',
+  healingPolicy: 'suggest'
+});
+log(`  project ${project.id} — aiEnabled=false`);
+result.stages.project = { id: project.id, aiEnabled: false };
+
+// ---- 2. register the application -----------------------------------------
+
+section('2. Register the application');
+const application = await registerApplication(tenant, project.id, {
+  name: 'Meridian Freight',
+  baseUrl: `${LAB_URL}/dashboard`,
+  loginUrl: `${LAB_URL}/auth/sign-in`,
+  username: 'admin',
+  password: 'Freight!2026',
+  maxPages: MAX_PAGES
+});
+log(`  application ${application.id}`);
+
+// Navigation mode and a real budget: the earlier discovery measurement showed links-only
+// reaches 8% of the routed screens, and that navigation mode needs more than the default
+// budget on an application this size.
+const patched = await request(`/api/v1/applications/${application.id}`, {
+  token: tenant.token, method: 'PATCH',
+  body: {
+    interactionMode: 'navigation',
+    maxPages: MAX_PAGES,
+    maxCrawlDepth: 6,
+    maxActions: 4000,
+    explorationTimeoutSeconds: DISCOVERY_BUDGET,
+    respectRobotsTxt: false,
+    useSitemap: false,
+    excludedPaths: '/auth/sign-out,/__faults'
+  }
+});
+log(`  interactionMode=navigation, maxPages=${MAX_PAGES}, budget=${DISCOVERY_BUDGET}s `
+  + `(patch ${patched.status})`);
+result.stages.application = {
+  id: application.id, interactionMode: 'navigation',
+  maxPages: MAX_PAGES, budgetSeconds: DISCOVERY_BUDGET
+};
+
+// ---- 3. discovery ---------------------------------------------------------
+
+section('3. Discovery');
+const discoveryStarted = Date.now();
+const discovery = await runDiscovery(tenant, application.id, {
+  maxPages: MAX_PAGES, maxDepth: 6, timeoutMs: (DISCOVERY_BUDGET + 300) * 1000
+});
+const discoverySeconds = Math.round((Date.now() - discoveryStarted) / 1000);
+log(`  status ${discovery.status} in ${discoverySeconds}s`);
+log(`  pages ${discovery.pagesDiscovered ?? discovery.pageCount ?? '?'}`);
+
+const model = await applicationModel(tenant, application.id);
+const modelPages = model.pages ?? [];
+// applicationModel returns a FLAT elements array and an `endpoints` key, not elements
+// hanging off each page. Reading page.elements gave 0 and looked like a product fault.
+const modelElements = (model.elements ?? []).length;
+const modelEndpoints = (model.endpoints ?? []).length;
+log(`  model: ${modelPages.length} page(s), ${modelElements} element(s), ${modelEndpoints} endpoint(s)`);
+
+const patternMatches = (pattern, path) => {
+  const source = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/:[A-Za-z0-9_]+/g, '[^/]+');
+  return new RegExp(`^${source}$`).test(path);
+};
+const discoveredPaths = [...new Set(modelPages.map(page => {
+  try { return new URL(page.url ?? page.normalizedUrl).pathname; } catch { return page.route ?? ''; }
+}))].filter(Boolean);
+
+const signedInScreens = groundTruth.screens.list.filter(screen => screen.requiresSignIn);
+const reachedScreens = signedInScreens.filter(screen =>
+  discoveredPaths.some(path => path === screen.sample || patternMatches(screen.path, path)));
+const byShape = {};
+for (const shape of ['linked', 'routed']) {
+  const total = signedInScreens.filter(s => s.shape === shape).length;
+  const reached = reachedScreens.filter(s => s.shape === shape).length;
+  byShape[shape] = { total, reached, percent: total ? Math.round((reached / total) * 1000) / 10 : null };
+}
+log(`  declared screens reached: ${reachedScreens.length}/${signedInScreens.length} `
+  + `(linked ${byShape.linked.reached}/${byShape.linked.total}, routed ${byShape.routed.reached}/${byShape.routed.total})`);
+
+result.stages.discovery = {
+  status: discovery.status, seconds: discoverySeconds,
+  modelPages: modelPages.length, modelElements,
+  apiEndpoints: modelEndpoints,
+  declaredReached: reachedScreens.length, declaredTotal: signedInScreens.length,
+  byShape, discoveredPaths: discoveredPaths.sort()
+};
+
+if (modelPages.length === 0) {
+  log('\n  Discovery mapped nothing. Everything downstream works from the model, so the');
+  log('  pipeline stops here rather than reporting a generation figure of zero as a result.');
+  await writeFile(new URL('./pipeline-result.json', import.meta.url), JSON.stringify(result, null, 2) + '\n');
+  process.exit(1);
+}
+
+// ---- 4. generation --------------------------------------------------------
+
+section('4. Test generation from the discovered model');
+const suite = await createSuite(tenant, project.id, 'Meridian Freight regression');
+const generationStarted = Date.now();
+
+/**
+ * One generation call per domain, which is how a team would use it: a requirement in plain
+ * English per area of the application rather than one sentence for a whole platform.
+ */
+const REQUIREMENTS = [
+  ['shipments', 'An operator can book, track, amend and cancel a consignment, and record a delivery exception against it.'],
+  ['orders', 'An operator can raise a sales order, add lines, send it for approval and approve it, and raise a purchase order.'],
+  ['warehouse', 'A warehouse user can adjust stock, transfer it between sites, count a bin, and receive goods against a purchase order.'],
+  ['billing', 'Finance can raise an invoice, record a payment, raise a credit note and read the aged debt report.'],
+  ['customs', 'A customs user can create a declaration, attach documents and release a held consignment.'],
+  ['carriers', 'An operator can add a carrier, read its rate card, quote a rate by weight and complete its onboarding.'],
+  ['customers', 'An operator can add a customer, maintain contacts and addresses, and change credit terms.'],
+  ['claims', 'An operator can raise a claim against a shipment, attach evidence, investigate it and settle it.'],
+  ['fleet', 'A fleet user can add a vehicle and a driver, record a daily inspection and read the compliance report.'],
+  ['routes', 'A planner can plan a route, optimise it, dispatch it and read the live board.'],
+  ['admin', 'An administrator can invite a user, change a role, edit settings and read the audit log.']
+];
+
+const generations = [];
+for (const [domain, requirement] of REQUIREMENTS) {
+  try {
+    const response = await generateTests(tenant, {
+      applicationId: application.id,
+      requirement,
+      testSuiteId: suite.id,
+      maxScenarios: 0
+    });
+    if (!response.ok) {
+      log(`  ${domain.padEnd(11)} REFUSED ${response.status} — ${response.text.slice(0, 140)}`);
+      generations.push({ domain, created: 0, refused: `${response.status} ${response.text.slice(0, 400)}` });
+      continue;
+    }
+    // The helper hands back the whole envelope; the summary is on .json. Reading the
+    // envelope directly reported 0 cases for every domain and looked like a dead planner.
+    const summary = response.json ?? {};
+    const created = summary.casesCreated ?? 0;
+    const steps = summary.stepsCreated ?? 0;
+    log(`  ${domain.padEnd(11)} ${String(created).padStart(3)} case(s), ${String(steps).padStart(4)} step(s)`
+      + (summary.isLocalProvider === false ? '  [HOSTED MODEL]' : '')
+      + (summary.warnings?.length ? `  — ${summary.warnings[0].slice(0, 64)}` : ''));
+    generations.push({
+      domain, created, steps,
+      provider: summary.provider ?? null, isLocalProvider: summary.isLocalProvider ?? null,
+      planSummary: (summary.planSummary ?? '').slice(0, 200),
+      warnings: summary.warnings ?? []
+    });
+  } catch (error) {
+    log(`  ${domain.padEnd(11)} FAILED — ${String(error.message).slice(0, 110)}`);
+    generations.push({ domain, created: 0, dropped: 0, error: String(error.message).slice(0, 300) });
+  }
+}
+
+const generationSeconds = Math.round((Date.now() - generationStarted) / 1000);
+const totalCases = generations.reduce((sum, entry) => sum + entry.created, 0);
+log(`\n  ${totalCases} test case(s) generated in ${generationSeconds}s, AI disabled`);
+result.stages.generation = {
+  seconds: generationSeconds, totalCases, suiteId: suite.id, perDomain: generations
+};
+
+// What the cases actually contain, since a case that asserts nothing cannot find anything.
+const listed = await request(`/api/v1/testcases?projectId=${project.id}&pageSize=500`, { token: tenant.token });
+const cases = listed.json?.items ?? listed.json ?? [];
+log(`  listed ${cases.length} case(s) from the API`);
+const providers = [...new Set(generations.map(g => g.provider).filter(Boolean))];
+if (providers.length) log(`  provider(s): ${providers.join(', ')}`);
+
+/**
+ * The eleven requirements produce eleven identical suites.
+ *
+ * Each generation call returned the same count, the same step total and the same dropped
+ * scenario, and the names confirm it: 2189 cases carrying 192 distinct names, 11.4 copies
+ * of each. The requirement text is accepted, echoed in the plan summary, and has no effect
+ * on what is produced — generation plans from the discovered model alone.
+ *
+ * Executing all of them measures nothing extra. At the rate observed (21.8 executions a
+ * minute) the duplicates cost about 90 minutes for exactly the coverage of the 192. So the
+ * duplication is reported as a finding and the distinct set is what gets executed.
+ */
+const byName = new Map();
+for (const entry of cases) if (!byName.has(entry.name)) byName.set(entry.name, entry);
+const distinctCases = [...byName.values()];
+const duplication = {
+  generated: cases.length,
+  distinct: distinctCases.length,
+  copiesEach: cases.length && distinctCases.length
+    ? Math.round((cases.length / distinctCases.length) * 10) / 10 : null,
+  requirementsIssued: REQUIREMENTS.length,
+  identicalCountsPerRequirement: new Set(generations.map(g => g.created)).size === 1
+};
+log(`  ${duplication.distinct} DISTINCT case(s) — ${duplication.copiesEach} copies each, `
+  + `one per requirement; the requirement text changed nothing`);
+
+result.stages.generation.listed = cases.length;
+result.stages.generation.providers = providers;
+result.stages.generation.duplication = duplication;
+
+if (totalCases === 0) {
+  log('\n  Nothing was generated, so there is nothing to execute. Stopping here and');
+  log('  reporting that rather than an execution figure of zero.');
+  await writeFile(new URL('./pipeline-result.json', import.meta.url), JSON.stringify(result, null, 2) + '\n');
+  process.exit(1);
+}
+
+// ---- 5. execution ---------------------------------------------------------
+
+section('5. Execution in a real browser');
+const executionStarted = Date.now();
+const caseIds = distinctCases.map(entry => entry.id).filter(Boolean);
+const run = await startRun(tenant, {
+  projectId: project.id,
+  testCaseIds: caseIds,
+  name: 'Meridian Freight full regression',
+  browser: 'chromium',
+  headless: true,
+  maxRetries: 0
+});
+log(`  run ${run.id} with ${caseIds.length} distinct case(s) of ${cases.length} generated`);
+
+const finished = await waitForRun(tenant, run.id, 40 * 60 * 1000);
+const executionSeconds = Math.round((Date.now() - executionStarted) / 1000);
+log(`  status ${finished.status} in ${executionSeconds}s`);
+log(`  passed ${finished.passedCount ?? '?'}  failed ${finished.failedCount ?? '?'}  `
+  + `blocked ${finished.blockedCount ?? 0}  skipped ${finished.skippedCount ?? 0}`);
+
+const executions = await request(`/api/v1/testruns/${run.id}/executions?pageSize=1000`, { token: tenant.token });
+const executionRows = executions.json?.items ?? executions.json ?? [];
+const failures = executionRows.filter(row => String(row.status).toLowerCase() === 'failed');
+log(`  ${executionRows.length} execution record(s), ${failures.length} failure(s)`);
+
+result.stages.execution = {
+  runId: run.id, status: finished.status, seconds: executionSeconds,
+  total: executionRows.length,
+  passed: finished.passedCount ?? null, failed: finished.failedCount ?? null,
+  blocked: finished.blockedCount ?? null, skipped: finished.skippedCount ?? null,
+  failures: failures.map(row => ({
+    testCaseId: row.testCaseId,
+    name: row.testCaseName ?? row.name ?? null,
+    message: (row.failureMessage ?? row.errorMessage ?? '').slice(0, 400),
+    category: row.failureCategory ?? null
+  }))
+};
+
+// ---- 6. security scan -----------------------------------------------------
+
+section('6. Security scan');
+let security = { attempted: false };
+try {
+  const scope = await request('/api/v1/security/scopes', {
+    token: tenant.token, method: 'POST',
+    body: {
+      applicationId: application.id,
+      allowedHosts: '127.0.0.1',
+      isActive: true,
+      allowDestructive: false,
+      isProduction: false,
+      authorizationNote: 'Synthetic lab application owned by this project, authorized for '
+        + 'security testing as part of a platform measurement. Nothing here is a real system.',
+      authorizedByName: 'Pipeline measurement'
+    }
+  });
+  log(`  scope ${scope.status} ${scope.ok ? '' : scope.text.slice(0, 160)}`);
+
+  if (scope.ok) {
+    const scan = await request('/api/v1/security/scans', {
+      token: tenant.token, method: 'POST',
+      body: { applicationId: application.id, profile: 'standard', name: 'Meridian Freight scan' }
+    });
+    log(`  scan ${scan.status} ${scan.ok ? scan.json.id : scan.text.slice(0, 160)}`);
+
+    if (scan.ok) {
+      const deadline = Date.now() + 20 * 60 * 1000;
+      let last = scan.json;
+      const terminal = new Set(['completed', 'failed', 'cancelled', 'partiallycompleted', 'abandoned']);
+      while (Date.now() < deadline) {
+        const current = await request(`/api/v1/security/scans/${scan.json.id}`, { token: tenant.token });
+        last = current.json?.summary ?? current.json ?? last;
+        if (terminal.has(String(last.status).toLowerCase())) break;
+        await new Promise(resolve => setTimeout(resolve, 4000));
+      }
+      const findings = await request(`/api/v1/security/scans/${scan.json.id}/findings?pageSize=500`, { token: tenant.token });
+      const findingRows = findings.json?.items ?? findings.json ?? [];
+      log(`  status ${last.status}, ${findingRows.length} finding(s)`);
+      const bySeverity = {};
+      for (const finding of findingRows) {
+        const key = String(finding.severity ?? 'unknown').toLowerCase();
+        bySeverity[key] = (bySeverity[key] ?? 0) + 1;
+      }
+      if (findingRows.length) log(`  by severity: ${JSON.stringify(bySeverity)}`);
+      security = {
+        attempted: true, scanId: scan.json.id, status: last.status,
+        findings: findingRows.length, bySeverity,
+        list: findingRows.map(finding => ({
+          title: finding.title ?? finding.name ?? null,
+          severity: finding.severity ?? null,
+          cwe: finding.cweId ?? finding.cwe ?? null,
+          owasp: finding.owaspCategory ?? null,
+          url: finding.affectedUrl ?? finding.url ?? null,
+          evidence: (finding.evidenceSummary ?? finding.description ?? '').slice(0, 220)
+        }))
+      };
+    } else {
+      security = { attempted: true, refused: `${scan.status} ${scan.text.slice(0, 300)}` };
+    }
+  } else {
+    security = { attempted: true, scopeRefused: `${scope.status} ${scope.text.slice(0, 300)}` };
+  }
+} catch (error) {
+  log(`  security scan failed: ${String(error.message).slice(0, 200)}`);
+  security = { attempted: true, error: String(error.message).slice(0, 400) };
+}
+result.stages.security = security;
+
+// ---- 7. join back to the planted defects ---------------------------------
+
+section('7. What it found, against the 32 planted defects');
+
+/**
+ * A defect counts as found when a failure or a security finding names its screen and the
+ * message is consistent with the defect's stated symptom.
+ *
+ * Deliberately generous on the text and strict on the screen: the aim is not to score the
+ * wording of a failure message, it is to ask whether anything at all pointed at the right
+ * place for the right reason. Where that is ambiguous it is recorded as `possible` rather
+ * than claimed, so the headline number stays defensible.
+ */
+const haystackFor = (defect) => {
+  const screen = defect.screen.split('?')[0];
+  const screenTail = screen.replace(/\/:[A-Za-z0-9_]+/g, '').split('/').filter(Boolean).join('/');
+  return { screen, screenTail };
+};
+
+const signals = [
+  ...(result.stages.execution?.failures ?? []).map(failure => ({
+    kind: 'execution',
+    text: `${failure.name ?? ''} ${failure.message ?? ''} ${failure.category ?? ''}`.toLowerCase()
+  })),
+  ...((security.list ?? []).map(finding => ({
+    kind: 'security',
+    text: `${finding.title ?? ''} ${finding.evidence ?? ''} ${finding.url ?? ''}`.toLowerCase()
+  })))
+];
+
+const KEYWORDS = {
+  FP_D01_NEGATIVE_STOCK_ADJUSTMENT: ['negative', 'below zero', 'on hand'],
+  FP_D02_DELIVERY_BEFORE_COLLECTION: ['delivery date', 'before', 'collection'],
+  FP_D03_WEIGHT_UNIT_IGNORED: ['weight', 'unit', 'kg', 'lb'],
+  FP_D04_DUPLICATE_INVOICE_REFERENCE: ['duplicate', 'reference', 'unique'],
+  FP_D05_CREDIT_LIMIT_BYPASSED: ['credit', 'hold', 'limit'],
+  FP_D06_SURCHARGE_ON_GROSS: ['surcharge', 'fuel', 'gross', 'net'],
+  FP_D07_RATE_BAND_BOUNDARY: ['band', 'boundary', 'rate'],
+  FP_D08_DUTY_EXCLUDES_FREIGHT: ['duty', 'freight', 'cif'],
+  FP_D09_CREDIT_NOTE_EXCEEDS_INVOICE: ['credit note', 'exceed', 'invoice total'],
+  FP_D10_PAGINATION_COUNT_WRONG: ['count', 'pagination', 'filter'],
+  FP_D11_VIEWER_CAN_SETTLE_CLAIM: ['permission', 'authoriz', 'settle', 'viewer', 'forbidden'],
+  FP_D12_SHIPMENT_IDOR: ['idor', 'authoriz', 'object reference', 'access'],
+  FP_D13_LEGACY_API_KEY_FULL_SCOPE: ['api key', 'scope', 'expiry', 'never expires'],
+  FP_D14_CANCEL_ORPHANS_ROUTE_STOP: ['route', 'stop', 'cancel', 'orphan'],
+  FP_D15_WIZARD_BACK_LOSES_DATA: ['step', 'back', 'lost', 'cleared', 'wizard'],
+  FP_D16_DOUBLE_SUBMIT_BOOKS_TWICE: ['duplicate', 'twice', 'double', 'idempot'],
+  FP_D17_RELEASE_REJECTED_DECLARATION: ['rejected', 'release', 'status'],
+  FP_D18_LONG_SEARCH_CRASHES: ['500', 'internal server', 'stack', 'long'],
+  FP_D19_OVERSIZE_UPLOAD_CRASHES: ['500', 'upload', 'size', 'internal server'],
+  FP_D20_MISSING_REFERENCE_CRASHES: ['500', 'internal server', 'reference'],
+  FP_D21_UNLABELLED_ADJUSTMENT_FIELD: ['label', 'accessible name', 'aria', 'accessib'],
+  FP_D22_ERROR_NOT_ASSOCIATED: ['aria-describedby', 'associat', 'error message', 'accessib'],
+  FP_D23_STATUS_BY_COLOUR_ONLY: ['colour', 'color', 'contrast', 'accessib', 'text alternative'],
+  FP_D24_MODAL_NOT_ANNOUNCED: ['aria-modal', 'dialog', 'focus', 'accessib'],
+  FP_D25_RATE_TABLE_OVERFLOWS: ['overflow', 'horizontal', 'scroll', 'responsive', 'viewport'],
+  FP_D26_PLANNER_FIXED_WIDTH: ['overflow', 'horizontal', 'scroll', 'responsive', 'viewport'],
+  FP_D27_AUDIT_LOG_SLOW: ['slow', 'timeout', 'response time', 'performance', 'budget'],
+  FP_D28_REFLECTED_XSS_IN_SEARCH: ['xss', 'script', 'reflect', 'inject'],
+  FP_D29_NO_CSRF_ON_ADJUSTMENT: ['csrf', 'forgery', 'token'],
+  FP_D30_SESSION_COOKIE_FLAGS: ['httponly', 'cookie', 'secure'],
+  FP_D31_STACK_TRACE_LEAKED: ['stack', 'trace', 'disclos', 'leak', 'path'],
+  FP_D32_PII_IN_QUERY_STRING: ['query string', 'pii', 'email', 'url']
+};
+
+const verdicts = groundTruth.defects.list.map(defect => {
+  const { screen, screenTail } = haystackFor(defect);
+  const keywords = KEYWORDS[defect.id] ?? [];
+  const onScreen = signals.filter(signal =>
+    signal.text.includes(screen.toLowerCase()) ||
+    (screenTail && signal.text.includes(screenTail.toLowerCase())));
+  const matching = onScreen.filter(signal => keywords.some(word => signal.text.includes(word)));
+  const keywordOnly = signals.filter(signal => keywords.length >= 2
+    && keywords.filter(word => signal.text.includes(word)).length >= 2);
+
+  const screenWasDiscovered = discoveredPaths.some(path =>
+    path === screen || patternMatches(screen, path));
+
+  let verdict;
+  if (matching.length) verdict = 'found';
+  else if (keywordOnly.length) verdict = 'possible';
+  else if (!screenWasDiscovered) verdict = 'unreachable';
+  else verdict = 'missed';
+
+  return {
+    id: defect.id, severity: defect.severity, category: defect.category,
+    screen, screenWasDiscovered, verdict,
+    signalCount: matching.length || keywordOnly.length
+  };
+});
+
+const counts = { found: 0, possible: 0, missed: 0, unreachable: 0 };
+for (const verdict of verdicts) counts[verdict.verdict] += 1;
+
+log(`  found       ${String(counts.found).padStart(2)}  — a failure or finding named the screen and the symptom`);
+log(`  possible    ${String(counts.possible).padStart(2)}  — a signal matched the symptom but not the screen`);
+log(`  missed      ${String(counts.missed).padStart(2)}  — the screen was discovered and nothing reported it`);
+log(`  unreachable ${String(counts.unreachable).padStart(2)}  — discovery never reached the screen`);
+
+const byCategory = {};
+for (const verdict of verdicts) {
+  byCategory[verdict.category] ??= { total: 0, found: 0 };
+  byCategory[verdict.category].total += 1;
+  if (verdict.verdict === 'found') byCategory[verdict.category].found += 1;
+}
+
+log('\n  by category:');
+for (const [category, figures] of Object.entries(byCategory).sort()) {
+  log(`    ${category.padEnd(16)} ${figures.found}/${figures.total}`);
+}
+
+result.stages.detection = { counts, byCategory, verdicts };
+
+await writeFile(new URL('./pipeline-result.json', import.meta.url), JSON.stringify(result, null, 2) + '\n');
+log(`\nWritten to test-lab/freight-platform/pipeline-result.json\n`);
