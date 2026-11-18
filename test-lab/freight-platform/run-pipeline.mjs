@@ -243,16 +243,17 @@ const providers = [...new Set(generations.map(g => g.provider).filter(Boolean))]
 if (providers.length) log(`  provider(s): ${providers.join(', ')}`);
 
 /**
- * The eleven requirements produce eleven identical suites.
+ * How much of what the eleven requirements produced is actually distinct.
  *
- * Each generation call returned the same count, the same step total and the same dropped
- * scenario, and the names confirm it: 2189 cases carrying 192 distinct names, 11.4 copies
- * of each. The requirement text is accepted, echoed in the plan summary, and has no effect
- * on what is produced — generation plans from the discovered model alone.
+ * On the run before requirement scoping landed this was the headline finding: 2189 cases
+ * carrying 192 distinct names, 11.4 copies of each. Every generation call returned the same
+ * count, the same step total and the same dropped scenario, because generation planned from
+ * the discovered model alone and the requirement text changed nothing.
  *
- * Executing all of them measures nothing extra. At the rate observed (21.8 executions a
- * minute) the duplicates cost about 90 minutes for exactly the coverage of the 192. So the
- * duplication is reported as a finding and the distinct set is what gets executed.
+ * It is still measured rather than asserted, because a measurement that reports its own
+ * conclusion cannot tell you when the conclusion stops being true. Whatever the ratio turns
+ * out to be, the distinct set is what gets executed: duplicates cost roughly 21.8
+ * executions a minute for coverage already counted.
  */
 const byName = new Map();
 for (const entry of cases) if (!byName.has(entry.name)) byName.set(entry.name, entry);
@@ -265,12 +266,24 @@ const duplication = {
   requirementsIssued: REQUIREMENTS.length,
   identicalCountsPerRequirement: new Set(generations.map(g => g.created)).size === 1
 };
-log(`  ${duplication.distinct} DISTINCT case(s) — ${duplication.copiesEach} copies each, `
-  + `one per requirement; the requirement text changed nothing`);
+log(`  ${duplication.distinct} DISTINCT case(s) — ${duplication.copiesEach} copies each `
+  + `across ${REQUIREMENTS.length} requirement(s)`);
+log(duplication.identicalCountsPerRequirement
+  ? `  every requirement produced the same number of cases, so the requirement text did `
+    + `not change what was generated`
+  : `  case counts differ per requirement (${generations.map(g => g.created).join(', ')}), `
+    + `so the requirement text did change what was generated`);
 
 result.stages.generation.listed = cases.length;
 result.stages.generation.providers = providers;
 result.stages.generation.duplication = duplication;
+// Kept so the question "which screens did this suite actually test?" can be answered from
+// the result file. Without it only the failures carry names, and a suite is judged on what
+// it covered, not only on what it reported.
+result.stages.generation.distinctCaseNames = distinctCases.map(entry => entry.name).sort();
+result.stages.generation.perRequirement = generations.map(entry => ({
+  domain: entry.domain ?? null, created: entry.created ?? null, summary: entry.summary ?? null
+}));
 
 if (totalCases === 0) {
   log('\n  Nothing was generated, so there is nothing to execute. Stopping here and');
