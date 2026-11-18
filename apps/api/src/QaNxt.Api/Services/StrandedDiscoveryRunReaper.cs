@@ -72,15 +72,40 @@ public sealed class StrandedDiscoveryRunReaper : BackgroundService
 
         var db = scope.ServiceProvider.GetRequiredService<IQaNxtDbContext>();
         var clock = scope.ServiceProvider.GetRequiredService<IClock>();
-        var cutoff = clock.UtcNow - grace;
-
+        // The grace period is counted on top of the run's OWN budget, not instead of it.
+        //
+        // This swept on a fixed fifteen minutes regardless of what the run was allowed to
+        // take. An application configured with a 900-second exploration budget — fifteen
+        // minutes, and the budget is settable up to two hours — therefore had its crawls
+        // marked Failed at the exact moment they were legitimately finishing. Observed on a
+        // 137-screen application: the crawl mapped 152 pages, uploaded its artifacts, and
+        // the completion callback then landed on a run the reaper had already declared
+        // stranded, with an error message telling the reader to go and look at a worker that
+        // had done nothing wrong.
+        //
+        // Three earlier runs with the same budget survived only because their completion
+        // beat the next one-minute sweep. A reaper whose verdict depends on who wins a race
+        // with the thing it is judging is not a reaper.
+        //
+        // The default budget is 600 seconds, under the default grace, which is why this sat
+        // here unnoticed: every untouched configuration hides it.
+        //
         // Queued is included deliberately. A run queued with no worker running at all never
         // gets a StartedAt, so keying only on StartedAt would leave it queued for ever. The
         // fallback to CreatedAt is what catches that case.
-        var stranded = await db.DiscoveryRuns
+        //
+        // The database filter uses the smallest threshold any run could have, so nothing
+        // stranded is missed; each candidate is then judged against its own budget. Done in
+        // two steps because the per-row arithmetic does not translate, and a coarse filter
+        // that over-selects is cheap where one that under-selects would leave runs stuck.
+        var coarseCutoff = clock.UtcNow - grace;
+
+        var candidates = await db.DiscoveryRuns
             .Where(r => (r.Status == DiscoveryStatus.Running || r.Status == DiscoveryStatus.Queued)
-                     && (r.StartedAt != null ? r.StartedAt < cutoff : r.CreatedAt < cutoff))
+                     && (r.StartedAt != null ? r.StartedAt < coarseCutoff : r.CreatedAt < coarseCutoff))
             .ToListAsync(ct);
+
+        var stranded = candidates.Where(r => r.IsStranded(clock.UtcNow, grace)).ToList();
 
         if (stranded.Count == 0) return;
 
@@ -92,7 +117,8 @@ public sealed class StrandedDiscoveryRunReaper : BackgroundService
             // Said plainly, and said to be a platform problem, because whoever reads it should
             // not go looking for a defect in the application they were crawling.
             run.ErrorMessage = started
-                ? $"No worker reported on this discovery run for over {grace.TotalMinutes:0} minutes. "
+                ? $"No worker reported on this discovery run for over {grace.TotalMinutes:0} minutes "
+                  + $"beyond its own {run.TimeoutSeconds}-second exploration budget. "
                   + "It was claimed by a worker that stopped responding, so the platform has ended it "
                   + "rather than leaving it reporting progress it is not making. This is a platform or "
                   + "infrastructure problem, not a failure of the application being crawled. The "
