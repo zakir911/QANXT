@@ -116,8 +116,12 @@ result.stages.application = {
 
 section('3. Discovery');
 const discoveryStarted = Date.now();
+// timeoutSeconds is the crawl budget; timeoutMs is only how long this script waits. Passing
+// the second alone is how a 900s budget became a 240s crawl: the helper had a hard-coded
+// default that overrode the application, and the run stopped at 37 of 137 screens.
 const discovery = await runDiscovery(tenant, application.id, {
-  maxPages: MAX_PAGES, maxDepth: 6, timeoutMs: (DISCOVERY_BUDGET + 300) * 1000
+  maxPages: MAX_PAGES, maxDepth: 6,
+  timeoutSeconds: DISCOVERY_BUDGET, timeoutMs: (DISCOVERY_BUDGET + 300) * 1000
 });
 const discoverySeconds = Math.round((Date.now() - discoveryStarted) / 1000);
 log(`  status ${discovery.status} in ${discoverySeconds}s`);

@@ -150,17 +150,64 @@ export async function registerApplication(tenant, projectId, { name, baseUrl, lo
 // Discovery
 // ---------------------------------------------------------------------------
 
-export async function runDiscovery(tenant, applicationId, { maxPages = 25, maxDepth = 3, timeoutMs = 300_000 } = {}) {
+/**
+ * Starts discovery and waits for it to finish.
+ *
+ * ## The hard-coded budget this used to send
+ *
+ * This helper sent `timeoutSeconds: 240` on every run, whatever the caller asked for and
+ * whatever the application was configured with. It cost a measurement: a 137-screen
+ * application configured with a 900s budget was crawled for 240s, reached 37 screens, and
+ * the run was read as the control plane discovering a quarter of what a direct crawl found.
+ * The platform had said so plainly in the run's own progress log —
+ *
+ *     Stopped: the 240s exploration budget was reached.
+ *
+ * — and the harness that set the 240 never read it back. The product was behaving correctly
+ * and disclosing exactly why; the harness was the defect.
+ *
+ * So the budget is now the caller's, and when the caller does not set one, nothing is sent
+ * and the application's own configured `explorationTimeoutSeconds` applies. There is no
+ * default here to drift out of step with the application's.
+ *
+ * @param {object} tenant
+ * @param {string} applicationId
+ * @param {object} [options]
+ * @param {number} [options.maxPages]        page budget for this run
+ * @param {number} [options.maxDepth]        link depth for this run
+ * @param {number} [options.timeoutSeconds]  crawl budget; omit to use the application's
+ * @param {number} [options.timeoutMs]       how long to WAIT for the run, not the crawl
+ *                                           budget. Defaults to the crawl budget plus a
+ *                                           margin, so a legitimately long crawl is not
+ *                                           reported as a timeout by the thing watching it.
+ */
+export async function runDiscovery(tenant, applicationId,
+  { maxPages = 25, maxDepth = 3, timeoutSeconds, timeoutMs } = {}) {
+  // A caller who said how long it will wait but not how long the crawl may take has stated
+  // a bound either way: waiting less than the crawl is allowed to take reports a healthy
+  // long crawl as a timeout. So the crawl is held just inside the wait, which is what these
+  // callers got before, rather than left free to outlast it.
+  const crawlSeconds = timeoutSeconds
+    ?? (timeoutMs === undefined ? undefined : Math.max(30, Math.floor(timeoutMs / 1000) - 30));
+
+  const body = { applicationId, maxPages, maxDepth };
+  // Only sent when asked for. Sending a default here is what overrode the application.
+  if (crawlSeconds !== undefined) body.timeoutSeconds = crawlSeconds;
+
   const started = await request('/api/v1/discovery/runs', {
-    token: tenant.token, method: 'POST',
-    body: { applicationId, maxPages, maxDepth, timeoutSeconds: 240 }
+    token: tenant.token, method: 'POST', body
   });
   if (!started.ok) throw new Error(`discovery refused: ${started.status} ${started.text.slice(0, 300)}`);
 
   // The detail endpoint answers { summary, pages, … }; the list endpoint answers the
   // summary directly. Unwrapping here keeps every caller working with one shape.
   const summaryOf = (payload) => payload?.summary ?? payload;
-  const deadline = Date.now() + timeoutMs;
+  // Waiting for less time than the crawl is allowed to take turns every long-but-healthy
+  // crawl into a "timeout" the caller then has to explain. 900 is the cap this helper
+  // assumes when the budget lives on the application and is therefore not known here; it
+  // bounds the wait only, and never shortens a run.
+  const waitMs = timeoutMs ?? ((crawlSeconds ?? 900) + 120) * 1000;
+  const deadline = Date.now() + waitMs;
   const terminal = new Set(['completed', 'failed', 'cancelled', 'partiallycompleted', 'partial', 'error']);
   let last = summaryOf(started.json);
   while (Date.now() < deadline) {
@@ -169,7 +216,9 @@ export async function runDiscovery(tenant, applicationId, { maxPages = 25, maxDe
     if (last && terminal.has(String(last.status).toLowerCase())) return { ...last, detail: current.json };
     await sleep(2500);
   }
-  return { ...last, status: 'timeout' };
+  // Said as the harness giving up rather than as a run status, because 'timeout' read as
+  // a verdict on the application once already.
+  return { ...last, status: 'timeout', stoppedWaitingAfterMs: waitMs, runStillInFlight: true };
 }
 
 export async function applicationModel(tenant, applicationId) {
