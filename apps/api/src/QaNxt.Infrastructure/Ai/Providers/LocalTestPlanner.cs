@@ -638,9 +638,28 @@ internal static class LocalTestPlanner
                     tags: new[] { "validation", "required", Slug(route) },
                     steps: Steps(
                         Step($"Open {title}", "navigate", url: url),
-                        // The field is simply never filled. "fill" with an empty value is
-                        // refused by the step validator, and not touching the control is a
-                        // truer test of required-ness than clearing it would be.
+                        // The field is emptied before submitting, and this is the whole
+                        // test.
+                        //
+                        // It used to be left untouched, on the reasoning that not filling a
+                        // control is a truer test of required-ness than clearing it. That
+                        // holds on a form for creating something, where the control arrives
+                        // empty. It is wrong on a form for editing something, where the
+                        // control arrives carrying the current value: "untouched" then means
+                        // "holding something valid", the submit is accepted exactly as it
+                        // should be, and the test reports that a required field is not
+                        // enforced.
+                        //
+                        // Measured against a 137-screen application: 20 of the 22 failures
+                        // in the first half of a run were this, every one a false report, on
+                        // customers, shipments and sales orders. They read as credible
+                        // application defects — more misleading than a Playwright timeout,
+                        // which at least looks like a tool error — and a team would spend a
+                        // morning on each.
+                        //
+                        // Clearing is harmless on a control that is already empty, so one
+                        // step makes the test correct on both kinds of form.
+                        Step($"Clear {label}", "clear", target: locator),
                         SubmitStep(submit),
                         StepWithAssertion("Confirm the value was refused", "assertUrl", null,
                             Assertion("urlContains", null, route,

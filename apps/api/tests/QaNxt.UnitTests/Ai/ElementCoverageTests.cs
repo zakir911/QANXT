@@ -59,17 +59,25 @@ public class ElementCoverageTests
         return JsonDocument.Parse(response.Content).RootElement.Clone();
     }
 
-    /// <summary>Actions the browser worker implements, from its action-runner switch.
+    /// <summary>Actions the planner is allowed to emit, each one implemented by the browser
+    /// worker's action-runner switch.
     ///
     /// Separate from the schema on purpose. The schema is what the orchestrator accepts and
     /// the runner is what can actually happen, and they had drifted: the schema allowed
     /// noConsoleErrors as an assertion the runner does not implement, and the runner
     /// implemented checkAccessibility which the schema did not allow. A step that validates
-    /// and cannot run produces a test that fails for ever on a working application.</summary>
+    /// and cannot run produces a test that fails for ever on a working application.
+    ///
+    /// This is a subset of the runner's switch rather than a copy of it. The runner also
+    /// implements reload, goBack, goForward, setViewport, clearCookies and setOffline, which
+    /// the planner has no reason to emit; listing them here would let it start doing so
+    /// unnoticed. So adding an entry means checking the runner implements it, not just that
+    /// the schema allows it — `clear` was added against action-runner.ts's `case 'clear'`,
+    /// which calls Playwright's locator.clear.</summary>
     private static readonly HashSet<string> ExecutableActions = new()
     {
-        "navigate", "click", "doubleClick", "fill", "select", "check", "uncheck", "hover",
-        "press", "upload", "download", "wait", "screenshot", "scroll",
+        "navigate", "click", "doubleClick", "fill", "clear", "select", "check", "uncheck",
+        "hover", "press", "upload", "download", "wait", "screenshot", "scroll",
         "checkAccessibility", "checkVisual", "executeScript",
         "assertUrl", "assertVisible", "assertHidden", "assertText", "assertValue",
         "assertCount", "assertAttribute", "assertEnabled", "assertDisabled"
@@ -301,6 +309,48 @@ public class ElementCoverageTests
         Names(Plan(Context(page))).Should().NotContain(name => name.Contains("Carrier can be changed"),
             "a test that guesses an option value fails for its own reasons, which reads as "
             + "an application defect");
+    }
+
+    /// <summary>
+    /// A required-field test has to empty the field, or it tests nothing.
+    ///
+    /// The scenario used to leave the control untouched, reasoning that not filling it is a
+    /// truer test of required-ness than clearing it. That holds on a form for creating
+    /// something. On a form for editing something the control arrives carrying the current
+    /// value, so "untouched" means "holding something valid", the submit is correctly
+    /// accepted, and the test reports that a required field is not enforced.
+    ///
+    /// Measured against a 137-screen application: 20 of the 22 failures in the first half of
+    /// a run were this, every one false, across customers, shipments and sales orders. They
+    /// read as credible application defects, which makes them more misleading than a
+    /// Playwright timeout — that at least looks like a tool error.
+    /// </summary>
+    [Fact]
+    public void A_required_field_test_empties_the_field_before_submitting()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/customers/cus-002/edit", "title": "Edit a customer",
+                "url": "https://admin.example.test/customers/cus-002/edit",
+                "elements": [
+                  { "kind": "textInput", "accessibleName": "Town or city", "label": "Town or city",
+                    "testId": "edit-city", "type": "text", "isRequired": true },
+                  { "kind": "button", "accessibleName": "Save changes", "ariaRole": "button",
+                    "testId": "edit-customer-save" } ] } ]
+            """;
+
+        var scenario = Scenarios(Plan(Context(page)))
+            .First(s => s.GetProperty("name").GetString()!.Contains("Town or city is required"));
+
+        var actions = scenario.GetProperty("steps").EnumerateArray()
+            .Select(step => step.GetProperty("action").GetString()).ToList();
+
+        actions.Should().Contain("clear",
+            "a form that arrives pre-populated accepts the submit, and rightly so, unless "
+            + "the field is emptied first");
+
+        // Order matters: clearing after the submit proves nothing.
+        actions.IndexOf("clear").Should().BeLessThan(actions.IndexOf("click"),
+            "the field has to be empty at the moment of submitting");
     }
 
     /// <summary>Every value any step would type, so a test can assert on what the runner
