@@ -448,21 +448,52 @@ export async function startRun(tenant, { projectId, testCaseIds, name, browser, 
 
 const TERMINAL = new Set(['passed', 'failed', 'error', 'cancelled', 'blocked']);
 
+/**
+ * Waits for a run to reach a terminal status.
+ *
+ * Returns the run, with `waitExpired: true` and the last status seen when the wait ran out
+ * before the run finished. It used to return null, and every caller then read `.status` off
+ * it and crashed:
+ *
+ *     TypeError: Cannot read properties of null (reading 'status')
+ *
+ * That cost a 75-minute run of 733 cases its report. The run had finished perfectly well —
+ * 654 passed, 79 failed — and the script watching it fell over at the moment it was asked
+ * what happened, after discovery, generation and execution had all succeeded, and before
+ * anything was written to disk. A watcher that gives up is ordinary; one that destroys the
+ * record of what it was watching is not.
+ *
+ * The run itself is never stopped by this returning: it carries on in the control plane,
+ * which is why the last status seen is worth handing back rather than discarding.
+ */
 export async function waitForRun(tenant, runId, timeoutMs = 240_000) {
   const deadline = Date.now() + timeoutMs;
+  let last = null;
   while (Date.now() < deadline) {
     const run = await request(`/api/v1/testruns/${runId}`, { token: tenant.token });
+    if (run.json) last = run.json;
     if (run.json && TERMINAL.has(String(run.json.status).toLowerCase())) return run.json;
     await sleep(2000);
   }
-  return null;
+  return {
+    ...(last ?? {}),
+    id: runId,
+    status: last?.status ?? 'unknown',
+    waitExpired: true,
+    waitedMs: timeoutMs,
+    runStillInFlight: true,
+    note: 'the wait ran out; the run was still going in the control plane and these are the '
+        + 'last figures seen, not final ones'
+  };
 }
 
 /** Runs a test case and returns the run, its executions and the first execution's detail. */
 export async function execute(tenant, { projectId, testCaseId, name, browser, maxRetries, timeoutMs, environmentId }) {
   const started = await startRun(tenant, { projectId, testCaseIds: [testCaseId], name, browser, maxRetries, environmentId });
   const run = await waitForRun(tenant, started.id, timeoutMs);
-  if (!run) return { run: null, executions: [], detail: null };
+  // An expired wait is not a finished run. Reported rather than returned as a null the
+  // caller has to guess the meaning of.
+  if (run.waitExpired) return { run: null, executions: [], detail: null, waitExpired: true };
 
   const executions = await request(`/api/v1/testruns/${run.id}/executions`, { token: tenant.token });
   const first = executions.json?.[0];

@@ -87,7 +87,10 @@ async function run(testCaseId, label) {
   });
   if (!started.ok) return { run: null, detail: `run refused: ${started.status} ${started.text.slice(0, 200)}` };
   const finished = await waitForRun(tenant.token, started.json.id);
-  if (!finished) return { run: null, detail: 'the run did not reach a verdict' };
+  if (finished.waitExpired) {
+    return { run: null, detail: `the run did not reach a verdict within the wait `
+      + `(last status ${finished.status}); it was still going in the control plane` };
+  }
 
   const executions = await request(`/api/v1/testruns/${finished.id}/executions`, { token: tenant.token });
   const execution = executions.json?.[0];

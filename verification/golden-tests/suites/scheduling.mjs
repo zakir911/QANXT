@@ -155,7 +155,10 @@ export default async function run() {
       const finished = await waitForRun(tenant, fired.lastRunId);
 
       return {
-        pass: finished !== null
+        // waitForRun returns the last status seen with waitExpired set when it gives
+        // up, rather than null, so an expired wait has to be checked for explicitly or
+        // this assertion passes on a run that never finished.
+        pass: finished.waitExpired !== true
           && finished.trigger === 'scheduled'
           && finished.totalCount === 1
           && finished.passedCount === 1,

@@ -262,7 +262,11 @@ await check('FLAKE-001', 'A genuinely unstable application produces unstable res
               name: `FLAKE ${attempt}`, headless: true }
     });
     const finished = started.ok ? await waitForRun(tenant.token, started.json.id, 180_000) : null;
-    results.push({ attempt, status: finished?.status ?? 'unresolved', durationMs: finished?.durationMs });
+    results.push({
+      attempt,
+      status: finished.waitExpired ? 'unresolved' : (finished.status ?? 'unresolved'),
+      durationMs: finished.durationMs
+    });
   }
   await resetScenario();
 
