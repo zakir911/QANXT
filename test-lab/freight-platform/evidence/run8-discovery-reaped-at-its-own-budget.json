@@ -1,0 +1,50 @@
+{
+  "ranAt": "2026-11-18T12:37:55.003Z",
+  "labUrl": "http://127.0.0.1:4400",
+  "groundTruth": {
+    "screens": 137,
+    "byShape": {
+      "linked": 100,
+      "routed": 37
+    },
+    "defects": 32,
+    "journeys": 6
+  },
+  "stages": {
+    "project": {
+      "id": "0ef7c891-c605-4260-8518-a50ee9dbc708",
+      "aiEnabled": false
+    },
+    "application": {
+      "id": "dc12d7bf-d18f-43db-8b95-b4a42f1bb3bb",
+      "interactionMode": "navigation",
+      "maxPages": 160,
+      "budgetSeconds": 900
+    },
+    "discovery": {
+      "status": "failed",
+      "seconds": 908,
+      "modelPages": 0,
+      "modelElements": 0,
+      "apiEndpoints": 0,
+      "declaredReached": 0,
+      "declaredTotal": 134,
+      "byShape": {
+        "linked": {
+          "total": 97,
+          "reached": 0,
+          "percent": 0
+        },
+        "routed": {
+          "total": 37,
+          "reached": 0,
+          "percent": 0
+        }
+      },
+      "discoveredPaths": []
+    }
+  },
+  "preservedBecause": "Run 8 stopped at discovery. The pipeline read status=failed and a model of 0 pages, so it refused to report a generation figure and exited. The crawl itself was correct: 152 pages stored against the run, 103 of 134 declared screens reached, no error from the worker. StrandedDiscoveryRunReaper marked the run Failed on a fixed 15-minute cutoff while the crawl was still inside its own 900-second budget and uploading artifacts. The run's error message then told the reader a worker had stopped responding and to read its log, naming a component that had done nothing wrong.",
+  "whyItMattersBeyondThisRun": "Runs 5, 6 and 7 used the same 900-second budget and survived only because each completion landed before the next one-minute sweep. The sweep's verdict depended on winning a race with the thing it was judging, and the one time it lost it blamed the working component. The default exploration budget is 600 seconds, inside the grace period, so every untouched configuration hides this; any budget above 15 minutes \u2014 settable up to 2 hours \u2014 was doomed.",
+  "alsoShows": "Two earlier fixes working. pageCount reports 152 where the previous two runs reported 2, which was the progress-ordering race. And the driver reported the failure instead of crashing on waitForRun returning null, which is what cost run 5 its report."
+}
