@@ -42,7 +42,7 @@ public static class AiSchemaCatalog
       "additionalProperties": false,
       "required": ["type", "description"],
       "properties": {
-        "type": { "type": "string", "enum": ["textEquals","textContains","visible","hidden","urlEquals","urlContains","valueEquals","countEquals","attributeEquals","enabled","disabled","httpStatusEquals","noConsoleErrors"] },
+        "type": { "type": "string", "enum": ["textEquals","textContains","visible","hidden","urlEquals","urlContains","valueEquals","countEquals","attributeEquals","enabled","disabled","httpStatusEquals","noConsoleErrors","noServerError"] },
         "target": LOCATOR,
         "expected": { "type": "string", "maxLength": 2000 },
         "attribute": { "type": "string", "maxLength": 100 },

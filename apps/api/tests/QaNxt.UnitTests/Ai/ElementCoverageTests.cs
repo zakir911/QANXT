@@ -88,7 +88,10 @@ public class ElementCoverageTests
     {
         "textEquals", "textContains", "visible", "hidden", "urlEquals", "urlContains",
         "valueEquals", "countEquals", "attributeEquals", "enabled", "disabled",
-        "httpStatusEquals"
+        "httpStatusEquals",
+        // Added against action-runner.ts's `case 'noServerError'`, which settles the network
+        // and then fails when any document, XHR or fetch response carried a 5xx.
+        "noServerError"
     };
 
     private static List<JsonElement> Scenarios(JsonElement plan)
@@ -385,6 +388,74 @@ public class ElementCoverageTests
             "every step this planner could aim at a file input is refused by the browser");
         names.Should().Contain(name => name.Contains("Reference"),
             "the text field beside it is still covered");
+    }
+
+    /// <summary>
+    /// A boundary test must not demand that the form refuse the value.
+    ///
+    /// The scenario's own objective is that the field "either accepts the value cleanly or
+    /// refuses it with a message. An unhandled error is a failure." Its assertion was
+    /// urlContains(route) — the URL is still the form's — which contradicts the first of
+    /// those: a form that accepts a value cleanly redirects to the record it saved. So the
+    /// test failed on every form that redirects on success, whatever the application did.
+    /// 31 of 79 failures in a measured run were this, every one false.
+    /// </summary>
+    [Fact]
+    public void A_boundary_test_asserts_the_application_did_not_error_not_that_it_refused()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/customers/cus-002/edit", "title": "Edit a customer",
+                "url": "https://admin.example.test/customers/cus-002/edit",
+                "elements": [
+                  { "kind": "textInput", "accessibleName": "Town or city", "label": "Town or city",
+                    "testId": "edit-city", "type": "text", "isRequired": true },
+                  { "kind": "button", "accessibleName": "Save changes", "ariaRole": "button",
+                    "testId": "edit-customer-save" } ] } ]
+            """;
+
+        var boundary = Scenarios(Plan(Context(page)))
+            .First(s => s.GetProperty("name").GetString()!.Contains("handles 256 characters"));
+
+        var assertions = boundary.GetProperty("steps").EnumerateArray()
+            .Where(step => step.TryGetProperty("assertions", out _))
+            .SelectMany(step => step.GetProperty("assertions").EnumerateArray())
+            .Select(a => a.GetProperty("type").GetString())
+            .ToList();
+
+        assertions.Should().Contain("noServerError");
+        assertions.Should().NotContain("urlContains",
+            "accepting the value is a permitted outcome, and accepting it navigates away");
+    }
+
+    /// <summary>
+    /// Whitespace is only a defect where the field is required.
+    ///
+    /// The scenario asserts the submit is refused. An optional notes field given three
+    /// spaces, trimmed to empty and saved, is an application behaving correctly, so
+    /// demanding a refusal there reports a defect that is not there. 17 of 79 failures in a
+    /// measured run were this, on optional notes and comment fields.
+    /// </summary>
+    [Fact]
+    public void Whitespace_is_only_tested_where_the_field_is_required()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/shipments/shp-0008/cancel", "title": "Cancel a shipment",
+                "url": "https://admin.example.test/shipments/shp-0008/cancel",
+                "elements": [
+                  { "kind": "textInput", "accessibleName": "Reason", "label": "Reason",
+                    "testId": "reason", "type": "text", "isRequired": true },
+                  { "kind": "textarea", "accessibleName": "Notes", "label": "Notes",
+                    "testId": "notes", "type": "textarea" },
+                  { "kind": "button", "accessibleName": "Confirm", "ariaRole": "button",
+                    "testId": "cancel-submit" } ] } ]
+            """;
+
+        var names = Names(Plan(Context(page)));
+
+        names.Should().Contain(name => name.Contains("Reason does not accept whitespace alone"),
+            "a required field given only spaces should be refused");
+        names.Should().NotContain(name => name.Contains("Notes does not accept whitespace alone"),
+            "an optional field that trims the spaces and saves is correct");
     }
 
     /// <summary>Every value any step would type, so a test can assert on what the runner

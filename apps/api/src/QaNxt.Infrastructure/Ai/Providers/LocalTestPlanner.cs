@@ -705,12 +705,24 @@ internal static class LocalTestPlanner
                     steps: Steps(
                         Step($"Open {title}", "navigate", url: url),
                         Step($"Enter {checking} into {label}", "fill", target: locator, value: value),
-                        SubmitStep(submit),
-                        StepWithAssertion("Confirm the application is still responding", "assertUrl", null,
-                            Assertion("urlContains", null, route,
-                                "The application handled the boundary value without navigating away "
-                                + "to an error page."),
-                            expected: route)));
+                        // The objective above allows two outcomes: the value is accepted
+                        // cleanly, or it is refused with a message. This used to assert
+                        // urlContains(route) — that the URL is still the form's — which
+                        // contradicts the first of them, because a form that accepts a value
+                        // cleanly redirects to the record it just saved. So the test failed
+                        // on every form that redirects on success, whatever the application
+                        // did. 31 of 79 failures in a measured run were this, every one
+                        // false, and the message read as a credible application defect.
+                        //
+                        // What it was reaching for is "the application did not blow up", and
+                        // noServerError says exactly that: no 5xx while handling the input.
+                        // Both permitted outcomes pass; the forbidden one fails. A 4xx is how
+                        // an application refuses a value, which the objective allows, so it
+                        // is not treated as a failure.
+                        SubmitStepAsserting(submit,
+                            Assertion("noServerError", null, null,
+                                "The application handled the boundary value without returning "
+                                + "a server error."))));
             }
 
             // Whitespace is its own case: a field that trims is correct, a field that
@@ -720,6 +732,13 @@ internal static class LocalTestPlanner
             // input refuses them before the application is involved, so the test could
             // only ever fail on a fill error.
             if (!LocalElementRules.BrowserWillAccept(LocalElementRules.HtmlTypeOf(field), "   ")) continue;
+
+            // Only where the field is required, because the assertion below is that the
+            // submit is refused. An optional field given three spaces, trimmed to empty and
+            // saved, is an application behaving correctly; demanding a refusal there reports
+            // a defect that is not present. 17 of 79 failures in a measured run were this,
+            // on optional notes and comment fields.
+            if (!required) continue;
 
             yield return Scenario(
                 name: $"{label} does not accept whitespace alone on {title}",
@@ -849,6 +868,33 @@ internal static class LocalTestPlanner
         => submit is null
             ? Step("Move focus away from the field to trigger validation", "press", value: "Tab")
             : Step("Submit", "click", target: Locator(submit.Value));
+
+    /// <summary>
+    /// A submit step that also carries an assertion about what the submit did.
+    ///
+    /// The only assertion-carrying step this planner had was assertUrl, and the step
+    /// validator requires an expected value on that action — rightly, since an assertUrl with
+    /// nothing to compare against asserts nothing. An assertion that is not about the URL
+    /// therefore has nowhere to live on an assertUrl step.
+    ///
+    /// Putting it on the submit is not a workaround for that; it is where it belongs. The
+    /// claim being made is about what happened when the form was submitted, and it reads the
+    /// way the test is meant to: click Save, and the application must not have returned a
+    /// server error.
+    /// </summary>
+    private static object SubmitStepAsserting(JsonElement? submit, object assertion)
+        => submit is null
+            ? (object)new
+            {
+                description = "Move focus away from the field to trigger validation",
+                action = "press", target = (object?)null, value = "Tab",
+                assertions = new[] { assertion }
+            }
+            : new
+            {
+                description = "Submit", action = "click", target = Locator(submit.Value),
+                value = (string?)null, assertions = new[] { assertion }
+            };
 
     private static object[] Steps(params object[] steps) => steps;
 
