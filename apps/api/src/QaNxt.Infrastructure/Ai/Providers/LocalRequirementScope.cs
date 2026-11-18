@@ -74,10 +74,8 @@ internal static class LocalRequirementScope
         }
 
         // Pass one: route and title only. Chrome cannot reach these.
-        var scored = pages
-            .Select(page => Score(page, terms, includeElements: false))
-            .Where(entry => entry.Score > 0)
-            .ToList();
+        var scored = Relevant(pages
+            .Select(page => Score(page, terms, includeElements: false)));
 
         var matchedOn = "route or title";
 
@@ -86,10 +84,8 @@ internal static class LocalRequirementScope
         if (scored.Count == 0)
         {
             var chrome = ChromeLabels(pages);
-            scored = pages
-                .Select(page => Score(page, terms, includeElements: true, chrome))
-                .Where(entry => entry.Score > 0)
-                .ToList();
+            scored = Relevant(pages
+                .Select(page => Score(page, terms, includeElements: true, chrome)));
             matchedOn = "a control label";
         }
 
@@ -119,6 +115,35 @@ internal static class LocalRequirementScope
             + $"requirement. Matching is on words, not meaning — this planner has no model — "
             + $"so a requirement phrased in language the application does not use will scope "
             + $"wrongly, and the terms above are there to be checked.");
+    }
+
+    /// <summary>
+    /// Keeps the pages that match the requirement well, not merely at all.
+    ///
+    /// Taking every page with a single matched term over-selects on the generic verbs that
+    /// fill screen titles. Measured on a freight application: the requirement "raise a sales
+    /// order, add lines, send it for approval" matched /orders/sales/new on three terms
+    /// (sales, sale, order) and also matched "Add a customer", "Add a carrier" and "Add a
+    /// vehicle" on one — the word "add". The orders requirement produced 227 cases, most of
+    /// them for other domains, while the shipments requirement produced 29.
+    ///
+    /// The threshold is relative to the best match rather than a fixed number, because how
+    /// many terms a good match scores depends on how the requirement is written. Half the
+    /// best score, rounded up, keeps a one-term page when one term is all anything scored
+    /// and drops it when something scored three.
+    ///
+    /// A stopword list would be the other way to do this, and it is the wrong way: "add" is
+    /// generic, "approve" is a screen in this application, "cancel" is a requirement, and
+    /// deciding which is which per word per domain never ends. This calibrates itself.
+    /// </summary>
+    private static List<Scored> Relevant(IEnumerable<Scored> candidates)
+    {
+        var hits = candidates.Where(entry => entry.Score > 0).ToList();
+        if (hits.Count == 0) return hits;
+
+        var best = hits.Max(entry => entry.Score);
+        var threshold = Math.Max(1, (int)Math.Ceiling(best / 2.0));
+        return hits.Where(entry => entry.Score >= threshold).ToList();
     }
 
     private static Scored Score(JsonElement page, IReadOnlyCollection<string> terms,

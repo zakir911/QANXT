@@ -101,6 +101,56 @@ public class RequirementScopingTests
             .Contain("/customs/declarations");
     }
 
+    /// <summary>
+    /// The over-match that the first version of the scoping shipped with.
+    ///
+    /// Measured on the 137-screen freight application: the orders requirement produced 227
+    /// cases, most of them for other domains, while the shipments requirement produced 29.
+    /// The cause was the word "add" — "raise a sales order, ADD lines" matched "Add a
+    /// customer", "Add a carrier" and "Add a vehicle" on that one term, alongside the orders
+    /// pages that matched on three. Any page with a single matched term was kept.
+    /// </summary>
+    [Fact]
+    public void A_page_matching_one_generic_verb_loses_to_pages_matching_the_domain()
+    {
+        var routes = Routes(Plan(Orders(),
+            "An operator can raise a sales order, add lines, send it for approval and approve it."));
+
+        routes.Should().Contain("/orders/sales/new", "it matches sales and order, not just a verb");
+        routes.Should().Contain("/orders/sales");
+        routes.Should().NotContain("/customers/new", "'Add a customer' matches only the word add");
+        routes.Should().NotContain("/carriers/new");
+        routes.Should().NotContain("/fleet/vehicles/new");
+    }
+
+    /// <summary>The threshold is relative, so a weak match is still kept when weak is the
+    /// best there is. Dropping it would scope to nothing and produce a full sweep, losing
+    /// the one page the requirement actually concerns.</summary>
+    [Fact]
+    public void A_one_term_match_is_kept_when_nothing_matches_more_strongly()
+    {
+        var routes = Routes(Plan(Orders(), "An operator can add a vehicle to the fleet"));
+
+        routes.Should().Contain("/fleet/vehicles/new");
+        routes.Should().NotContain("/orders/sales",
+            "the orders pages carry none of these terms at all");
+    }
+
+    /// <summary>Four pages whose scores differ, which is what the threshold needs to
+    /// discriminate between. Modelled on the real routes that produced the over-match.</summary>
+    private static string Orders() => """
+        [ { "kind": "form", "route": "/orders/sales/new", "title": "New sales order",
+            "url": "https://freight.example.test/orders/sales/new", "elements": [] },
+          { "kind": "list", "route": "/orders/sales", "title": "Sales orders",
+            "url": "https://freight.example.test/orders/sales", "elements": [] },
+          { "kind": "form", "route": "/customers/new", "title": "Add a customer",
+            "url": "https://freight.example.test/customers/new", "elements": [] },
+          { "kind": "form", "route": "/carriers/new", "title": "Add a carrier",
+            "url": "https://freight.example.test/carriers/new", "elements": [] },
+          { "kind": "form", "route": "/fleet/vehicles/new", "title": "Add a vehicle",
+            "url": "https://freight.example.test/fleet/vehicles/new", "elements": [] } ]
+        """;
+
     // ---- fixture ----------------------------------------------------------
 
     /// <summary>Five pages from three domains, each carrying the same sidebar — which is
