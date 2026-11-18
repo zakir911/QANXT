@@ -57,6 +57,16 @@ export interface DeadLetter {
   permanent: boolean;
 }
 
+/**
+ * Whether Redis is telling us the stream or the consumer group does not exist.
+ *
+ * Matched on the error code Redis sends rather than on the message text around it, which
+ * carries the key and group names and differs between versions.
+ */
+export function isMissingGroup(error: unknown): boolean {
+  return /\bNOGROUP\b/.test(String((error as { message?: string })?.message ?? error));
+}
+
 export class RedisStreamConsumer {
   private readonly redis: Redis;
   private readonly logger: Logger;
@@ -77,7 +87,24 @@ export class RedisStreamConsumer {
     this.redis.on('error', (error: unknown) => this.logger.warn('Redis connection error', { error: String(error) }));
   }
 
-  async ensureGroup(): Promise<void> {
+  /**
+   * Creates the consumer group if it is not there.
+   *
+   * `force` re-creates it after the stream has gone missing underneath a running worker.
+   * Without that, the first success latched for the life of the process: if Redis was
+   * restarted without persistence, failed over to a replica that never had the stream, or
+   * was flushed, every read answered
+   *
+   *     NOGROUP No such key 'qanxt:discovery' or consumer group 'qanxt-workers'
+   *
+   * for ever. Measured: 93 of them in forty seconds, no recovery, no job taken. The control
+   * plane meanwhile enqueues happily into the stream its own client re-creates, so work
+   * piles up, nothing runs, and the only symptom is a log line on a machine nobody is
+   * watching. A worker tier that stops for good and says nothing a user can see is worse
+   * than one that crashes.
+   */
+  async ensureGroup(force = false): Promise<void> {
+    if (force) this.groupReady = false;
     if (this.groupReady) return;
     try {
       // "0" rather than "$": a newly created group should pick up work already waiting,
@@ -94,6 +121,22 @@ export class RedisStreamConsumer {
   async read(count: number): Promise<QueuedJob[]> {
     await this.ensureGroup();
 
+    try {
+      return await this.readOnce(count);
+    } catch (error) {
+      if (!isMissingGroup(error)) throw error;
+
+      // The stream or the group went away under a running worker. Re-create and try again,
+      // once: a second NOGROUP is not a stale latch and belongs to the caller.
+      this.logger.warn('The consumer group is gone; re-creating it and reading again', {
+        queue: this.options.queue, group: this.options.group
+      });
+      await this.ensureGroup(true);
+      return await this.readOnce(count);
+    }
+  }
+
+  private async readOnce(count: number): Promise<QueuedJob[]> {
     const reclaimed = await this.reclaimStale(count);
     if (reclaimed.length > 0) return reclaimed;
 
@@ -184,6 +227,9 @@ export class RedisStreamConsumer {
 
       return this.parse([[this.options.queue, entries]], attempts);
     } catch (error) {
+      // A missing group is not a reclaim problem and must not be swallowed here: read()
+      // re-creates the group on it. Everything else is best-effort, as before.
+      if (isMissingGroup(error)) throw error;
       this.logger.debug('Could not reclaim stale jobs', { error: String(error) });
       return [];
     }
