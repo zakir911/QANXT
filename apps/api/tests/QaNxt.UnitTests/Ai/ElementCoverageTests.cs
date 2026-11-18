@@ -78,6 +78,11 @@ public class ElementCoverageTests
     {
         "navigate", "click", "doubleClick", "fill", "clear", "select", "check", "uncheck",
         "hover", "press", "upload", "download", "wait", "screenshot", "scroll",
+        // A form oracle: the step's own verb is the check. Added against
+        // action-runner.ts's `case 'assertNoServerError'`, which calls the oracle in
+        // form-oracles.ts — it settles, then fails on a 5xx, an uncaught script error, or a
+        // stack trace shown to the user.
+        "assertNoServerError",
         "checkAccessibility", "checkVisual", "executeScript",
         "assertUrl", "assertVisible", "assertHidden", "assertText", "assertValue",
         "assertCount", "assertAttribute", "assertEnabled", "assertDisabled"
@@ -88,10 +93,7 @@ public class ElementCoverageTests
     {
         "textEquals", "textContains", "visible", "hidden", "urlEquals", "urlContains",
         "valueEquals", "countEquals", "attributeEquals", "enabled", "disabled",
-        "httpStatusEquals",
-        // Added against action-runner.ts's `case 'noServerError'`, which settles the network
-        // and then fails when any document, XHR or fetch response carried a 5xx.
-        "noServerError"
+        "httpStatusEquals"
     };
 
     private static List<JsonElement> Scenarios(JsonElement plan)
@@ -416,13 +418,20 @@ public class ElementCoverageTests
         var boundary = Scenarios(Plan(Context(page)))
             .First(s => s.GetProperty("name").GetString()!.Contains("handles 256 characters"));
 
+        var actions = boundary.GetProperty("steps").EnumerateArray()
+            .Select(step => step.GetProperty("action").GetString())
+            .ToList();
+
+        actions.Should().Contain("assertNoServerError",
+            "the form oracle that already existed says exactly what the objective says: no "
+            + "5xx, no uncaught script error, no stack trace shown to the user");
+
         var assertions = boundary.GetProperty("steps").EnumerateArray()
-            .Where(step => step.TryGetProperty("assertions", out _))
+            .Where(step => step.TryGetProperty("assertions", out var a) && a.ValueKind == JsonValueKind.Array)
             .SelectMany(step => step.GetProperty("assertions").EnumerateArray())
             .Select(a => a.GetProperty("type").GetString())
             .ToList();
 
-        assertions.Should().Contain("noServerError");
         assertions.Should().NotContain("urlContains",
             "accepting the value is a permitted outcome, and accepting it navigates away");
     }
@@ -456,6 +465,92 @@ public class ElementCoverageTests
             "a required field given only spaces should be refused");
         names.Should().NotContain(name => name.Contains("Notes does not accept whitespace alone"),
             "an optional field that trims the spaces and saves is correct");
+    }
+
+    /// <summary>
+    /// Every assertion the planner emits has to survive being deserialised into the domain.
+    ///
+    /// There are three separate lists an assertion type has to appear in, and they drift.
+    /// The JSON schema is what the plan is validated against, ExecutableAssertions above is
+    /// what the worker can evaluate, and QaNxt.Domain.Enums.AssertionType is what the plan
+    /// is converted into before any of it is stored. A type can satisfy the first two and
+    /// fail the third.
+    ///
+    /// That is not hypothetical. noServerError was added to the schema, to the shared
+    /// TypeScript types, to the worker and to the list above, every test passed, and
+    /// generation then answered 503 on the first real call:
+    ///
+    ///     The JSON value could not be converted to QaNxt.Domain.Enums.AssertionType.
+    ///     Path: $.scenarios[5].steps[2].assertions[0].type
+    ///
+    /// Not one test in a suite of 1017 covered it, because the suite checked the schema and
+    /// the schema was right. Every requirement returned zero cases. This closes it.
+    /// </summary>
+    [Fact]
+    public void Every_assertion_the_planner_emits_deserialises_into_the_domain_enum()
+    {
+        var contexts = new[]
+        {
+            Context("""
+                [ { "kind": "form", "route": "/customers/cus-002/edit", "title": "Edit a customer",
+                    "url": "https://admin.example.test/customers/cus-002/edit",
+                    "elements": [
+                      { "kind": "textInput", "accessibleName": "Town or city", "label": "Town or city",
+                        "testId": "edit-city", "type": "text", "isRequired": true },
+                      { "kind": "numberInput", "accessibleName": "Credit limit", "label": "Credit limit",
+                        "testId": "edit-credit", "type": "number" },
+                      { "kind": "dateInput", "accessibleName": "Review date", "label": "Review date",
+                        "testId": "edit-review", "type": "date" },
+                      { "kind": "select", "accessibleName": "Tier", "label": "Tier", "testId": "edit-tier",
+                        "type": "select-one",
+                        "options": [ { "value": "", "label": "Choose" }, { "value": "gold", "label": "Gold" } ] },
+                      { "kind": "checkbox", "accessibleName": "On hold", "testId": "edit-hold" },
+                      { "kind": "button", "accessibleName": "Save changes", "ariaRole": "button",
+                        "testId": "edit-customer-save" } ] } ]
+                """),
+            Context("""
+                [ { "kind": "login", "route": "/auth/sign-in", "title": "Sign in",
+                    "url": "https://admin.example.test/auth/sign-in",
+                    "elements": [
+                      { "kind": "textInput", "accessibleName": "Username", "testId": "username", "type": "text", "isRequired": true },
+                      { "kind": "passwordInput", "accessibleName": "Password", "testId": "password", "type": "password", "isRequired": true },
+                      { "kind": "button", "accessibleName": "Sign in", "ariaRole": "button", "testId": "signin" } ] },
+                  { "kind": "list", "route": "/shipments", "title": "Shipments",
+                    "url": "https://admin.example.test/shipments", "elements": [] },
+                  { "kind": "dashboard", "route": "/", "title": "Overview",
+                    "url": "https://admin.example.test/", "elements": [] } ]
+                """)
+        };
+
+        var seen = new SortedSet<string>(StringComparer.Ordinal);
+
+        foreach (var context in contexts)
+        {
+            foreach (var scenario in Scenarios(Plan(context)))
+            {
+                foreach (var step in scenario.GetProperty("steps").EnumerateArray())
+                {
+                    if (!step.TryGetProperty("assertions", out var assertions)
+                        || assertions.ValueKind != JsonValueKind.Array) continue;
+
+                    foreach (var assertion in assertions.EnumerateArray())
+                    {
+                        var type = assertion.GetProperty("type").GetString()!;
+                        seen.Add(type);
+
+                        Enum.TryParse<QaNxt.Domain.Enums.AssertionType>(type, ignoreCase: true, out _)
+                            .Should().BeTrue(
+                                $"\"{type}\" is emitted by the planner in "
+                                + $"\"{scenario.GetProperty("name").GetString()}\" and the plan is "
+                                + "deserialised into AssertionType before it is stored, so a type "
+                                + "missing from that enum fails the whole generation call with a 503 "
+                                + "and no tests at all");
+                    }
+                }
+            }
+        }
+
+        seen.Should().NotBeEmpty("the fixtures above have to actually exercise assertions");
     }
 
     /// <summary>Every value any step would type, so a test can assert on what the runner
@@ -591,12 +686,14 @@ public class ElementCoverageTests
             steps.Should().Contain(s => s.GetProperty("action").GetString() == "navigate");
 
             // Either an explicit assertion, or an action that is itself the check:
-            // checkAccessibility and checkVisual fail the step when they find a problem,
-            // so they carry no separate assertion.
+            // checkAccessibility, checkVisual and the form oracles fail the step when they
+            // find a problem, so they carry no separate assertion. An oracle's verb IS the
+            // assertion, which is the whole point of the form-oracle design.
             var assertions = steps.Sum(s => s.TryGetProperty("assertions", out var a)
                 && a.ValueKind == JsonValueKind.Array ? a.GetArrayLength() : 0);
             var selfAsserting = steps.Any(s =>
-                s.GetProperty("action").GetString() is "checkAccessibility" or "checkVisual");
+                s.GetProperty("action").GetString() is "checkAccessibility" or "checkVisual"
+                or "assertNoServerError");
 
             (assertions > 0 || selfAsserting).Should().BeTrue(
                 $"\"{scenario.GetProperty("name").GetString()}\" checks nothing");

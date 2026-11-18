@@ -719,10 +719,19 @@ internal static class LocalTestPlanner
                         // Both permitted outcomes pass; the forbidden one fails. A 4xx is how
                         // an application refuses a value, which the objective allows, so it
                         // is not treated as a failure.
-                        SubmitStepAsserting(submit,
-                            Assertion("noServerError", null, null,
-                                "The application handled the boundary value without returning "
-                                + "a server error."))));
+                        SubmitStep(submit),
+                        // assertNoServerError is a form oracle that already existed: its own
+                        // verb is the check. It settles, then fails on a 5xx, an uncaught
+                        // script error, or a stack trace shown to the user — which is the
+                        // objective above, stated as an assertion.
+                        //
+                        // This replaced urlContains(route), which contradicted that
+                        // objective: a form that accepts the value cleanly redirects to the
+                        // record it saved, so the test failed on every form that redirects
+                        // on success whatever the application did. 31 of 79 failures in a
+                        // measured run were that, every one false.
+                        Step("Confirm the application handled the value without erroring",
+                            "assertNoServerError")));
             }
 
             // Whitespace is its own case: a field that trims is correct, a field that
@@ -868,33 +877,6 @@ internal static class LocalTestPlanner
         => submit is null
             ? Step("Move focus away from the field to trigger validation", "press", value: "Tab")
             : Step("Submit", "click", target: Locator(submit.Value));
-
-    /// <summary>
-    /// A submit step that also carries an assertion about what the submit did.
-    ///
-    /// The only assertion-carrying step this planner had was assertUrl, and the step
-    /// validator requires an expected value on that action — rightly, since an assertUrl with
-    /// nothing to compare against asserts nothing. An assertion that is not about the URL
-    /// therefore has nowhere to live on an assertUrl step.
-    ///
-    /// Putting it on the submit is not a workaround for that; it is where it belongs. The
-    /// claim being made is about what happened when the form was submitted, and it reads the
-    /// way the test is meant to: click Save, and the application must not have returned a
-    /// server error.
-    /// </summary>
-    private static object SubmitStepAsserting(JsonElement? submit, object assertion)
-        => submit is null
-            ? (object)new
-            {
-                description = "Move focus away from the field to trigger validation",
-                action = "press", target = (object?)null, value = "Tab",
-                assertions = new[] { assertion }
-            }
-            : new
-            {
-                description = "Submit", action = "click", target = Locator(submit.Value),
-                value = (string?)null, assertions = new[] { assertion }
-            };
 
     private static object[] Steps(params object[] steps) => steps;
 

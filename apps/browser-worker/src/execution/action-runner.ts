@@ -591,49 +591,6 @@ export async function evaluateAssertion(
         const locator = await locate(page, target, timeout);
         return await locator.isEnabled() ? 'The element was expected to be disabled but was enabled.' : null;
       }
-      /**
-       * Whether the application served an error rather than handling the input.
-       *
-       * This exists because the boundary scenario could not express its own objective. It
-       * states that a field "either accepts the value cleanly or refuses it with a message.
-       * An unhandled error is a failure", and it asserted urlContains(route) — the URL must
-       * still be the form's. Those are incompatible: a form that accepts the value cleanly
-       * redirects to the record it saved, which is the success path the objective allows. 31
-       * of 79 failures in a measured run were that, every one false.
-       *
-       * The assertion was reaching for "did not land on an error page" and expressing "did
-       * not navigate at all". This says the first thing directly: no document, XHR or fetch
-       * response in this execution carried a 5xx. Both outcomes the objective permits pass,
-       * and the one it forbids fails.
-       *
-       * 5xx only, deliberately. A 4xx is how a well-behaved application refuses a value,
-       * which the objective allows, so treating it as a failure would rebuild the same bug
-       * one status class along.
-       */
-      case 'noServerError': {
-        const observations = observationsOf(context);
-        // Settle first. Assertions run immediately after their action, and a submit's
-        // response has usually not been recorded yet at that moment, so reading the network
-        // log straight away reports no server error on a request that has not come back.
-        // That is a false PASS, which is the direction that matters: a missed 500 is a
-        // defect shipped, where a spurious one is only a wasted morning.
-        await observations.settle();
-        // A status code is optional on the report: a request that never got a response —
-        // aborted, or the server dying mid-request — has none. Those are not counted. A
-        // server that died is arguably exactly what this assertion is for, but so is a
-        // navigation the browser cancelled, and the two are indistinguishable here. The
-        // assertion claims what its name says, no more: a 5xx was served. A crash with no
-        // response is a gap, recorded rather than guessed at.
-        const failed = observations.network()
-          .filter(event => (event.statusCode ?? 0) >= 500);
-        if (failed.length === 0) return null;
-        const first = failed.slice(0, 3)
-          .map(event => `${event.statusCode} ${event.method} ${event.url}`)
-          .join('; ');
-        return `The application returned ${failed.length} server error(s) while handling `
-             + `this input: ${first}${failed.length > 3 ? '; …' : ''}.`;
-      }
-
       case 'stepVerdict':
         // The step's own verb was the check, and the step has already passed to get here.
         return null;

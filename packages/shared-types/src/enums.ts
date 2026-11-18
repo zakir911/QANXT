@@ -77,7 +77,7 @@ export type RiskLevel = 'critical' | 'high' | 'medium' | 'low';
 export const ASSERTION_TYPES = [
   'textEquals', 'textContains', 'visible', 'hidden', 'urlEquals', 'urlContains',
   'valueEquals', 'countEquals', 'attributeEquals', 'enabled', 'disabled',
-  'httpStatusEquals', 'noConsoleErrors', 'noServerError',
+  'httpStatusEquals', 'noConsoleErrors',
   'responseStatusIn', 'responseTimeUnderMs', 'responseBodyContains',
   'responseJsonPathEquals', 'responseJsonPathExists', 'responseJsonPathMatches',
   'responseHeaderEquals', 'responseSchemaMatches', 'stepVerdict'
