@@ -319,25 +319,35 @@ result.stages.execution = {
 section('6. Security scan');
 let security = { attempted: false };
 try {
-  const scope = await request('/api/v1/security/scopes', {
-    token: tenant.token, method: 'POST',
+  // PUT /applications/{id}/scope, not POST /scopes — the scope belongs to the application
+  // rather than being a collection of its own.
+  const scope = await request(`/api/v1/security/applications/${application.id}/scope`, {
+    token: tenant.token, method: 'PUT',
     body: {
-      applicationId: application.id,
-      allowedHosts: '127.0.0.1',
-      isActive: true,
-      allowDestructive: false,
-      isProduction: false,
-      authorizationNote: 'Synthetic lab application owned by this project, authorized for '
-        + 'security testing as part of a platform measurement. Nothing here is a real system.',
-      authorizedByName: 'Pipeline measurement'
+      enabled: true,
+      authorizationNote: 'Synthetic lab application owned by this project and running on '
+        + 'loopback, authorized for security testing as part of a platform measurement. '
+        + 'Nothing here is a real system and no real data is involved.',
+      allowedDomains: '127.0.0.1',
+      allowedApiDomains: '127.0.0.1',
+      allowedPaths: '',
+      blockedPaths: '/auth/sign-out,/__faults',
+      environmentId: null,
+      maxRequestsPerSecond: 20,
+      maxConcurrentRequests: 4,
+      maxScanDurationMinutes: 15,
+      allowActiveTesting: true,
+      allowDestructiveTesting: false,
+      allowProduction: false
     }
   });
   log(`  scope ${scope.status} ${scope.ok ? '' : scope.text.slice(0, 160)}`);
 
   if (scope.ok) {
-    const scan = await request('/api/v1/security/scans', {
+    // scans/start queues a real scan; POST /scans only records one that already ran.
+    const scan = await request('/api/v1/security/scans/start', {
       token: tenant.token, method: 'POST',
-      body: { applicationId: application.id, profile: 'standard', name: 'Meridian Freight scan' }
+      body: { applicationId: application.id, profile: 'Standard' }
     });
     log(`  scan ${scan.status} ${scan.ok ? scan.json.id : scan.text.slice(0, 160)}`);
 
@@ -346,12 +356,12 @@ try {
       let last = scan.json;
       const terminal = new Set(['completed', 'failed', 'cancelled', 'partiallycompleted', 'abandoned']);
       while (Date.now() < deadline) {
-        const current = await request(`/api/v1/security/scans/${scan.json.id}`, { token: tenant.token });
+        const current = await request(`/api/v1/security/scans/${scan.json.id ?? scan.json.scanId}`, { token: tenant.token });
         last = current.json?.summary ?? current.json ?? last;
         if (terminal.has(String(last.status).toLowerCase())) break;
         await new Promise(resolve => setTimeout(resolve, 4000));
       }
-      const findings = await request(`/api/v1/security/scans/${scan.json.id}/findings?pageSize=500`, { token: tenant.token });
+      const findings = await request(`/api/v1/security/scans/${scan.json.id ?? scan.json.scanId}/findings?pageSize=500`, { token: tenant.token });
       const findingRows = findings.json?.items ?? findings.json ?? [];
       log(`  status ${last.status}, ${findingRows.length} finding(s)`);
       const bySeverity = {};
@@ -361,7 +371,7 @@ try {
       }
       if (findingRows.length) log(`  by severity: ${JSON.stringify(bySeverity)}`);
       security = {
-        attempted: true, scanId: scan.json.id, status: last.status,
+        attempted: true, scanId: scan.json.id ?? scan.json.scanId, status: last.status,
         findings: findingRows.length, bySeverity,
         list: findingRows.map(finding => ({
           title: finding.title ?? finding.name ?? null,
@@ -387,6 +397,20 @@ result.stages.security = security;
 // ---- 7. join back to the planted defects ---------------------------------
 
 section('7. What it found, against the 32 planted defects');
+
+const ranAnything = (result.stages.execution?.passed ?? 0) + (result.stages.execution?.failed ?? 0) > 0;
+if (!ranAnything) {
+  log('  NOT REPORTED. Every execution came back blocked, which means no test ran against');
+  log('  the application at all. A detection figure from that would read as "the platform');
+  log('  found nothing" when the truth is "the platform executed nothing", and those are');
+  log('  different facts. Fix the execution stage and run this again.');
+  log(`\n  blocked: ${result.stages.execution?.blocked ?? '?'} of ${result.stages.execution?.total ?? '?'}`);
+  const sample = (result.stages.execution?.failures ?? [])[0];
+  if (sample) log(`  first message: ${sample.message}`);
+  result.stages.detection = { reported: false, reason: 'every execution was blocked; nothing ran' };
+  await writeFile(new URL('./pipeline-result.json', import.meta.url), JSON.stringify(result, null, 2) + '\n');
+  process.exit(1);
+}
 
 /**
  * A defect counts as found when a failure or a security finding names its screen and the
