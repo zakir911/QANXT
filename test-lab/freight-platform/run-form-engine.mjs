@@ -65,7 +65,11 @@ const application = await registerApplication(tenant, project.id, {
 });
 await request(`/api/v1/applications/${application.id}`, {
   token: tenant.token, method: 'PATCH',
+  // maxActions as well as the time budget. In navigation mode the crawler spends an
+  // action per click, and the 400 default stopped a 137-screen crawl at 69 pages with 88 of
+  // its 900 seconds unspent — the time budget was never the constraint.
   body: { maxPages: MAX_PAGES, maxCrawlDepth: 6, explorationTimeoutSeconds: BUDGET,
+          maxActions: Number(arg('max-actions', 6000)),
           interactionMode: 'navigation', useSitemap: true }
 });
 line(`  application ${application.id}, budget ${BUDGET}s, maxPages ${MAX_PAGES}`);

@@ -1976,6 +1976,10 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("journeys_discovered");
 
+                    b.Property<int>("MaxActions")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_actions");
+
                     b.Property<int>("MaxDepth")
                         .HasColumnType("integer")
                         .HasColumnName("max_depth");

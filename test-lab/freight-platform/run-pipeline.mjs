@@ -101,6 +101,9 @@ const patched = await request(`/api/v1/applications/${application.id}`, {
     maxCrawlDepth: 6,
     maxActions: 4000,
     explorationTimeoutSeconds: DISCOVERY_BUDGET,
+    // In navigation mode an action is spent per click, and the 400 default is the binding
+    // constraint on a large application long before the time budget is.
+    maxActions: Number(arg('max-actions', 6000)),
     respectRobotsTxt: false,
     useSitemap: false,
     excludedPaths: '/auth/sign-out,/__faults'

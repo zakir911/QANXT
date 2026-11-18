@@ -19,6 +19,18 @@ public class DiscoveryRun : BaseEntity, ITenantOwned, IAuditable
     public int MaxDepth { get; set; }
     public int MaxPages { get; set; }
     public int TimeoutSeconds { get; set; }
+
+    /// <summary>
+    /// How many clicks the crawl was allowed, frozen like the other three.
+    ///
+    /// It was the one budget dimension read live from the application instead of recorded
+    /// here, and it is the one that binds in navigation mode: a crawl of a 137-screen
+    /// application stopped at 69 pages on "the 400-action budget was reached" with 88 of its
+    /// 900 seconds still unspent. Nothing on the run said what that budget had been, so the
+    /// run could not explain its own outcome — which is the thing freezing the budget exists
+    /// to prevent, and the comment saying so was already in DiscoveryService.
+    /// </summary>
+    public int MaxActions { get; set; }
     public BrowserType Browser { get; set; } = BrowserType.Chromium;
 
     public int PagesDiscovered { get; set; }

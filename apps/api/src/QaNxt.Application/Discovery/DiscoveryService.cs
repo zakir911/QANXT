@@ -9,7 +9,8 @@ using Microsoft.Extensions.Logging;
 
 namespace QaNxt.Application.Discovery;
 
-public sealed record StartDiscoveryRequest(Guid ApplicationId, BrowserType? Browser, int? MaxDepth, int? MaxPages, int? TimeoutSeconds);
+public sealed record StartDiscoveryRequest(Guid ApplicationId, BrowserType? Browser,
+    int? MaxDepth, int? MaxPages, int? TimeoutSeconds, int? MaxActions = null);
 
 public sealed record DiscoveryRunSummary(
     Guid Id, Guid ApplicationId, string ApplicationName, DiscoveryStatus Status,
@@ -17,7 +18,10 @@ public sealed record DiscoveryRunSummary(
     int PagesDiscovered, int ElementsDiscovered, int ApiEndpointsDiscovered,
     int ConsoleErrorCount, int PagesBlockedByPolicy, string? ErrorMessage, string? WorkerId);
 
-public sealed record DiscoveryRunDetail(DiscoveryRunSummary Summary, string? ProgressLog, int MaxDepth, int MaxPages, int TimeoutSeconds);
+/// <summary>A run and the budget it ran under. MaxActions is here because a crawl that
+/// stops on its action budget cannot otherwise be explained from its own record.</summary>
+public sealed record DiscoveryRunDetail(DiscoveryRunSummary Summary, string? ProgressLog,
+    int MaxDepth, int MaxPages, int TimeoutSeconds, int MaxActions);
 
 public interface IDiscoveryService
 {
@@ -102,6 +106,7 @@ public sealed class DiscoveryService : IDiscoveryService
             MaxDepth = Math.Clamp(request.MaxDepth ?? application.MaxCrawlDepth, 1, 10),
             MaxPages = Math.Clamp(request.MaxPages ?? application.MaxPages, 1, 1000),
             TimeoutSeconds = Math.Clamp(request.TimeoutSeconds ?? application.ExplorationTimeoutSeconds, 30, 7200),
+            MaxActions = Math.Clamp(request.MaxActions ?? application.MaxActions, 1, 100_000),
             Browser = request.Browser ?? BrowserType.Chromium,
             CreatedByUserId = _currentUser.UserId,
             CreatedAt = _clock.UtcNow
@@ -162,7 +167,7 @@ public sealed class DiscoveryService : IDiscoveryService
 
         return Result<DiscoveryRunDetail>.Success(new DiscoveryRunDetail(
             await MapAsync(run, run.Application?.Name ?? string.Empty),
-            run.ProgressLog, run.MaxDepth, run.MaxPages, run.TimeoutSeconds));
+            run.ProgressLog, run.MaxDepth, run.MaxPages, run.TimeoutSeconds, run.MaxActions));
     }
 
     /// <summary>A run is treated as abandoned once it has had no update for longer than its
@@ -210,7 +215,11 @@ public sealed class DiscoveryService : IDiscoveryService
                     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
                 MaxDepth = run.MaxDepth,
                 MaxPages = run.MaxPages,
-                MaxActions = application.MaxActions,
+                // A run predating the frozen budget, whose application has since been
+                // deleted, carries 0. Sending that would stop the crawl before its first
+                // click, so the application's own setting stands in — which is what every
+                // run did before the budget was frozen.
+                MaxActions = run.MaxActions > 0 ? run.MaxActions : application.MaxActions,
                 TimeoutSeconds = run.TimeoutSeconds,
                 AllowPrivateNetworks = _targetPolicy.AllowPrivateNetworks,
                 RespectRobotsTxt = application.RespectRobotsTxt,
