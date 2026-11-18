@@ -554,6 +554,19 @@ public sealed class SecurityScanService : ISecurityScanService
                 CreatedByUserId = _user.UserId
             };
             _db.SecurityFindings.Add(created);
+
+            // Added to the lookup, not just to the context. `existing` was loaded from the
+            // database once, before the loop, so without this a second finding in the SAME
+            // scan carrying the same fingerprint missed the update branch, inserted a
+            // second row, and violated the unique index on (application, fingerprint).
+            //
+            // That is not hypothetical. A scan of a thirteen-domain application reported
+            // two findings for one category, endpoint, parameter and role; SaveChanges
+            // threw, the worker's completion callback answered 500, every finding in the
+            // scan was discarded, the scan stayed queued for ever, and the worker retried
+            // into the same failure. A scan that found real flaws reported none of them.
+            existing[fingerprint] = created;
+
             RecordSighting(created, reported, wasNew: true, wasRegression: false);
             summaries.Add(ToSummary(created, isNew: true, isRegression: false));
         }

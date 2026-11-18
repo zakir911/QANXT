@@ -1,0 +1,364 @@
+{
+  "analysedAt": "2026-11-18T06:18:02.681Z",
+  "source": "pipeline-result.json",
+  "note": "A failure is classified as a tool error or an application failure before it is matched to a defect. Only an application failure can evidence one: a Playwright timeout says nothing about whether the application is correct, whatever words happen to be in its message.",
+  "run": {
+    "discovery": {
+      "status": "partiallyCompleted",
+      "reached": 31,
+      "total": 134
+    },
+    "generation": {
+      "generated": 2123,
+      "distinct": 186,
+      "copiesEach": 11.4,
+      "requirementsIssued": 11,
+      "identicalCountsPerRequirement": true
+    },
+    "execution": {
+      "passed": 158,
+      "failed": 28,
+      "blocked": 0
+    },
+    "security": {
+      "findings": 0,
+      "status": null
+    }
+  },
+  "counts": {
+    "found": 0,
+    "possible": 0,
+    "missed": 14,
+    "unreachable": 18
+  },
+  "verdicts": [
+    {
+      "id": "FP_D01_NEGATIVE_STOCK_ADJUSTMENT",
+      "severity": "major",
+      "category": "validation",
+      "screen": "/warehouse/stock/:id/adjust",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D02_DELIVERY_BEFORE_COLLECTION",
+      "severity": "major",
+      "category": "crossField",
+      "screen": "/shipments/new",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D03_WEIGHT_UNIT_IGNORED",
+      "severity": "major",
+      "category": "validation",
+      "screen": "/shipments/new",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D04_DUPLICATE_INVOICE_REFERENCE",
+      "severity": "major",
+      "category": "validation",
+      "screen": "/billing/invoices/new",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D05_CREDIT_LIMIT_BYPASSED",
+      "severity": "major",
+      "category": "businessRule",
+      "screen": "/orders/sales/new",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D06_SURCHARGE_ON_GROSS",
+      "severity": "major",
+      "category": "calculation",
+      "screen": "/billing/invoices/:id",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D07_RATE_BAND_BOUNDARY",
+      "severity": "major",
+      "category": "boundary",
+      "screen": "/carriers/:id/rates",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D08_DUTY_EXCLUDES_FREIGHT",
+      "severity": "major",
+      "category": "calculation",
+      "screen": "/customs/declarations/:id",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D09_CREDIT_NOTE_EXCEEDS_INVOICE",
+      "severity": "major",
+      "category": "businessRule",
+      "screen": "/billing/credit-notes/new",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D10_PAGINATION_COUNT_WRONG",
+      "severity": "minor",
+      "category": "calculation",
+      "screen": "/shipments",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D11_VIEWER_CAN_SETTLE_CLAIM",
+      "severity": "security",
+      "category": "authorization",
+      "screen": "/claims/:id/settle",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D12_SHIPMENT_IDOR",
+      "severity": "security",
+      "category": "authorization",
+      "screen": "/shipments/:id",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D13_LEGACY_API_KEY_FULL_SCOPE",
+      "severity": "security",
+      "category": "authorization",
+      "screen": "/admin/api-keys",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D14_CANCEL_ORPHANS_ROUTE_STOP",
+      "severity": "major",
+      "category": "stateTransition",
+      "screen": "/shipments/:id/cancel",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D15_WIZARD_BACK_LOSES_DATA",
+      "severity": "minor",
+      "category": "multiStep",
+      "screen": "/shipments/new",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D16_DOUBLE_SUBMIT_BOOKS_TWICE",
+      "severity": "major",
+      "category": "reliability",
+      "screen": "/shipments/new",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D17_RELEASE_REJECTED_DECLARATION",
+      "severity": "major",
+      "category": "stateTransition",
+      "screen": "/customs/declarations/:id/release",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D18_LONG_SEARCH_CRASHES",
+      "severity": "major",
+      "category": "errorHandling",
+      "screen": "/shipments",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D19_OVERSIZE_UPLOAD_CRASHES",
+      "severity": "minor",
+      "category": "errorHandling",
+      "screen": "/claims/:id/evidence",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D20_MISSING_REFERENCE_CRASHES",
+      "severity": "minor",
+      "category": "errorHandling",
+      "screen": "/billing/invoices/:id",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D21_UNLABELLED_ADJUSTMENT_FIELD",
+      "severity": "minor",
+      "category": "accessibility",
+      "screen": "/warehouse/stock/:id/adjust",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D22_ERROR_NOT_ASSOCIATED",
+      "severity": "minor",
+      "category": "accessibility",
+      "screen": "/claims/new",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D23_STATUS_BY_COLOUR_ONLY",
+      "severity": "minor",
+      "category": "accessibility",
+      "screen": "/fleet/vehicles",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D24_MODAL_NOT_ANNOUNCED",
+      "severity": "minor",
+      "category": "accessibility",
+      "screen": "/orders/sales/:id",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D25_RATE_TABLE_OVERFLOWS",
+      "severity": "minor",
+      "category": "responsive",
+      "screen": "/carriers/:id/rates",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D26_PLANNER_FIXED_WIDTH",
+      "severity": "minor",
+      "category": "responsive",
+      "screen": "/routes/planner",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D27_AUDIT_LOG_SLOW",
+      "severity": "minor",
+      "category": "performance",
+      "screen": "/admin/audit",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D28_REFLECTED_XSS_IN_SEARCH",
+      "severity": "security",
+      "category": "security",
+      "screen": "/shipments",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D29_NO_CSRF_ON_ADJUSTMENT",
+      "severity": "security",
+      "category": "security",
+      "screen": "/warehouse/stock/:id/adjust",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D30_SESSION_COOKIE_FLAGS",
+      "severity": "security",
+      "category": "security",
+      "screen": "/auth/sign-in",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    },
+    {
+      "id": "FP_D31_STACK_TRACE_LEAKED",
+      "severity": "security",
+      "category": "security",
+      "screen": "/api/shipments/:id",
+      "screenReached": false,
+      "verdict": "unreachable",
+      "evidence": null
+    },
+    {
+      "id": "FP_D32_PII_IN_QUERY_STRING",
+      "severity": "security",
+      "category": "security",
+      "screen": "/customers",
+      "screenReached": true,
+      "verdict": "missed",
+      "evidence": null
+    }
+  ],
+  "failureAnalysis": {
+    "total": 28,
+    "applicationFailures": 0,
+    "toolErrors": 28,
+    "unknown": 0,
+    "toolErrorBreakdown": {
+      "undrivable-select": {
+        "count": 16,
+        "explain": "a select the runner could not drive",
+        "examples": [
+          "Carrier can be changed on Shipments · Meridian Freight /shipments",
+          "Status can be changed on Shipments · Meridian Freight /shipments"
+        ]
+      },
+      "unrunnable-date": {
+        "count": 8,
+        "explain": "filling a date input with text the browser refuses",
+        "examples": [
+          "Collection date* rejects a day that does not exist in that month on Book a shipment · Meridian Freight",
+          "Collection date* rejects text in a date field on Book a shipment · Meridian Freight"
+        ]
+      },
+      "unfillable-field": {
+        "count": 2,
+        "explain": "a field that never accepted input (often readonly)",
+        "examples": [
+          "Team handles 256 characters, past the length most columns allow on Your profile · Meridian Freight",
+          "Team does not accept whitespace alone on Your profile · Meridian Freight"
+        ]
+      },
+      "unrunnable-number": {
+        "count": 2,
+        "explain": "typing letters into a number input the browser refuses",
+        "examples": [
+          "Quantity* rejects letters in a numeric field on New sales order · Meridian Freight",
+          "Quantity* rejects letters in a numeric field on New purchase order · Meridian Freight"
+        ]
+      }
+    }
+  }
+}
