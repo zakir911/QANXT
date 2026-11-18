@@ -555,7 +555,30 @@ public sealed class TestGenerationService : ITestGenerationService
         BrowserActionType.AssertAttribute => AssertionType.AttributeEquals,
         BrowserActionType.AssertEnabled => AssertionType.Enabled,
         BrowserActionType.AssertDisabled => AssertionType.Disabled,
-        _ => AssertionType.Visible
+
+        // Everything else that is an assertion verb is self-asserting: the step's own verb
+        // is the check, it fails the step when it finds a problem, and StepVerdict records
+        // that so a report can still count what the test asserted.
+        //
+        // This used to fall through to Visible. Visible needs a target locator, and a form
+        // oracle carries none, so every such step failed at execution with
+        //
+        //     This action requires a target locator but none was supplied.
+        //
+        // on an application that was behaving perfectly. Measured: 63 of the first 65
+        // failures in a 532-case run, once the boundary scenario started using
+        // assertNoServerError. All thirteen form oracles reach this arm —
+        // assertFormRejected, assertFieldInvalid, assertRequests and the rest — so any
+        // scenario built from one was unusable.
+        //
+        // FormTestingService.MapAssertionType already had this right. Two mappings for the
+        // same question disagreed, and the one the generator used was the wrong one.
+        //
+        // StepVerdict rather than another catch-all because a default that silently demands
+        // a locator the step does not have is how this happened. StepVerdict asserts
+        // exactly what the step did, which is true for any verb that reaches here.
+        _ when BrowserActionVerbs.IsAssertion(action) => AssertionType.StepVerdict,
+        _ => AssertionType.StepVerdict
     };
 
     private static string Truncate(string? value, int max)
