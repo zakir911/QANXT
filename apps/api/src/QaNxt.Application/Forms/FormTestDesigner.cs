@@ -307,7 +307,29 @@ public static class FormTestDesigner
         private DesignedStep SubmitStep(string? value = null) => new(BrowserActionType.Click,
             value is null ? $"Press \"{_submit!.Label}\"" : $"Press \"{_submit!.Label}\" repeatedly", _submit!.Locator, Value: value);
         private DesignedStep Rejected(string why) => new(BrowserActionType.AssertFormRejected, why, _form.Locator);
-        private DesignedStep Accepted(string why) => new(BrowserActionType.AssertFormAccepted, why, _form.Locator);
+        /// <summary>
+        /// What "the submission was accepted" means, which depends on what the form is for.
+        ///
+        /// AssertFormAccepted looks for a success message or for the form to be gone, and
+        /// neither happens on a search or filter box: it re-renders the same page with the
+        /// same controls, which is the correct behaviour and exactly what the oracle reads
+        /// as a silent refusal. Measured on a ten-page crawl of a freight application: 19 of
+        /// 26 failures were this, all of them on the four GET forms — "Customers accepts a
+        /// complete valid submission" failing on a list page's search box. Every application
+        /// has a search box on every list page, so this fires everywhere and buries the
+        /// findings that matter.
+        ///
+        /// _transactional already distinguishes the two, and already gates the reliability
+        /// and data-integrity tests. It was not applied here. For a form that changes
+        /// nothing, the honest claim is that the application handled the submission without
+        /// erroring — which is what AssertNoServerError establishes, along with no uncaught
+        /// script error and no stack trace shown to the user.
+        /// </summary>
+        private DesignedStep Accepted(string why) => _transactional
+            ? new(BrowserActionType.AssertFormAccepted, why, _form.Locator)
+            : new(BrowserActionType.AssertNoServerError,
+                $"{why} — a filter re-renders its own page, so acceptance here means the "
+                + "application handled it without erroring");
         private DesignedStep NoServerError() => new(BrowserActionType.AssertNoServerError, "Confirm the application handled it without a server error or leaked detail");
 
         private static bool Mentions(FormFieldModel field, params string[] terms)

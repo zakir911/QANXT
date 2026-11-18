@@ -47,6 +47,59 @@ public class FormEngineTests
         Buttons = new() { new FormButtonModel { Label = "Create account", Type = "submit", Role = "submit", Locator = TestId("registration-submit") } }
     };
 
+    /// <summary>A list page's search box: a GET form with an action, which changes nothing
+    /// and re-renders its own page.</summary>
+    private static DiscoveredFormModel SearchBox() => new()
+    {
+        Key = "customer-search", Name = "Customers", Action = "http://lab/customers", Method = "get",
+        HasCsrfToken = false, NoValidate = false, Locator = TestId("customer-search-form"),
+        Fields = new() { Field("q", "search"), Field("tier", "text") },
+        Buttons = new() { new FormButtonModel { Label = "Search", Type = "submit", Role = "submit", Locator = TestId("customer-search-submit") } }
+    };
+
+    /// <summary>
+    /// A filter box is not a transaction, so "accepted" cannot mean what it means on a form
+    /// that saves something.
+    ///
+    /// AssertFormAccepted looks for a success message or for the form to be gone. A search
+    /// re-renders the same page with the same controls, which is correct behaviour and
+    /// exactly what that oracle reads as a silent refusal — "the form is still shown; no
+    /// field is marked invalid; no error message is shown".
+    ///
+    /// Measured on a ten-page crawl of a freight application: 19 of 26 failures were this,
+    /// every one on one of the four GET forms. Every application has a search box on every
+    /// list page, so it fires everywhere and buries the findings that matter.
+    ///
+    /// _transactional already told the designer the difference and already gated the
+    /// reliability and data-integrity tests. It was simply not applied to this step.
+    /// </summary>
+    [Fact]
+    public void A_filter_form_does_not_assert_acceptance_the_way_a_saving_form_does()
+    {
+        var steps = Design(SearchBox()).Tests
+            .SelectMany(test => test.Steps)
+            .Select(step => step.Action)
+            .ToList();
+
+        steps.Should().NotContain(BrowserActionType.AssertFormAccepted,
+            "a GET filter re-renders its own page, so a success message or a vanished form "
+            + "is not what acceptance looks like here");
+        steps.Should().Contain(BrowserActionType.AssertNoServerError,
+            "what is true and worth asserting is that the application handled the "
+            + "submission without erroring");
+    }
+
+    [Fact]
+    public void A_saving_form_still_asserts_acceptance_properly()
+    {
+        // Guarding the filter case must not weaken the case it was written for: a form that
+        // creates something should still be required to say it succeeded.
+        Design(Registration()).Tests
+            .SelectMany(test => test.Steps)
+            .Select(step => step.Action)
+            .Should().Contain(BrowserActionType.AssertFormAccepted);
+    }
+
     private static FormDesign Design(DiscoveredFormModel form, TestingProfile? profile = null, bool credentials = false)
         => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,
             "http://lab/registration", "/registration", form.Name, credentials, Array.Empty<CorrelatedEndpoint>(), profile ?? new TestingProfile()));
