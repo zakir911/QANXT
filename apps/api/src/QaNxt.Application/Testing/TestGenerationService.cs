@@ -209,6 +209,24 @@ public sealed class TestGenerationService : ITestGenerationService
             .ToListAsync(ct);
 
         var pageIds = pages.Select(p => p.Id).ToList();
+
+        // The form extractor already recorded every form's locator, method and action during
+        // the same crawl. The planner had no access to it, so its "was this refused?" check
+        // was a guess about the URL — which is wrong on any form that redirects on success
+        // and wrong again on any filter that does not. Reading the same record the
+        // form-level engine reads makes the two paths agree about what a form is.
+        var formRows = await _db.ApplicationForms
+            .Where(f => f.ApplicationId == request.ApplicationId && f.IsPresent
+                     && pageIds.Contains(f.ApplicationPageId))
+            .Select(f => new { f.ApplicationPageId, f.ModelJson, f.Method, f.Action, f.HasFormElement, f.FieldCount })
+            .ToListAsync(ct);
+
+        // One form per page: the richest, since a page with a search box and a real form
+        // should be tested through the one that does something.
+        var formByPage = formRows
+            .GroupBy(f => f.ApplicationPageId)
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(f => f.FieldCount).First());
+
         var elements = await _db.ApplicationElements
             .Where(e => pageIds.Contains(e.ApplicationPageId) && e.IsVisible)
             .Select(e => new
@@ -234,8 +252,43 @@ public sealed class TestGenerationService : ITestGenerationService
                     _masker.MaskText(e.AccessibleName ?? string.Empty) is { Length: > 0 } name ? name : null,
                     e.Label, e.Placeholder, e.TestId, e.Name, e.Type, e.IsRequired, e.CssSelector,
                     e.IsReadOnly, ParseOptions(e.OptionsJson)))
-                .ToList()))
+                .ToList(),
+            formByPage.TryGetValue(page.Id, out var form) ? ToFormTarget(form.ModelJson,
+                form.Method, form.Action, form.HasFormElement) : null))
             .ToList();
+    }
+
+    /// <summary>
+    /// The form's locator, read from the model the extractor stored.
+    ///
+    /// Transactional mirrors FormTestDesigner's own test: a GET form with a form element and
+    /// an action changes nothing, so it is a filter, and "refused" and "accepted" do not
+    /// mean on it what they mean on a form that saves something. Computed here rather than
+    /// imported so the two paths cannot disagree silently; the rule is stated in both.
+    /// </summary>
+    private static FormTarget? ToFormTarget(string? modelJson, string? method, string? action,
+        bool hasFormElement)
+    {
+        if (string.IsNullOrWhiteSpace(modelJson)) return null;
+        try
+        {
+            using var document = JsonDocument.Parse(modelJson);
+            if (!document.RootElement.TryGetProperty("locator", out var locator)) return null;
+            var value = locator.TryGetProperty("value", out var v) ? v.GetString() : null;
+            if (string.IsNullOrWhiteSpace(value)) return null;
+            var strategy = locator.TryGetProperty("strategy", out var st) ? st.GetString() : "css";
+
+            var transactional = !string.Equals(method, "get", StringComparison.OrdinalIgnoreCase)
+                             || !hasFormElement
+                             || string.IsNullOrWhiteSpace(action);
+
+            return new FormTarget(strategy ?? "css", value!, transactional);
+        }
+        catch (JsonException)
+        {
+            // A malformed model costs this page its oracle, not the whole generation call.
+            return null;
+        }
     }
 
     /// <summary>A select's stored options, or null. A malformed value is treated as no
@@ -586,7 +639,16 @@ public sealed class TestGenerationService : ITestGenerationService
 
     private sealed record PageContext(
         string Route, string Url, string Title, string Kind, int Depth,
-        bool RequiresAuthentication, int ElementCount, List<ElementContext> Elements);
+        bool RequiresAuthentication, int ElementCount, List<ElementContext> Elements,
+        // The page's form, as the form extractor recorded it, so the planner can ask the
+        // refusal oracle whether a submission was refused instead of inferring it from the
+        // URL. Null where no form was extracted, and the planner falls back to the URL
+        // check rather than skipping the test.
+        FormTarget? Form);
+
+    /// <summary>A form's locator and whether it changes anything, which is the difference
+    /// between "was this refused" and "did this error".</summary>
+    private sealed record FormTarget(string Strategy, string Value, bool Transactional);
 
     private sealed record ElementContext(
         string Kind, string TagName, string? AriaRole, string? AccessibleName, string? Label,

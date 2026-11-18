@@ -105,7 +105,8 @@ internal static class LocalTestPlanner
             // where most of the coverage comes from: the kind-specific generators above
             // only recognise three page shapes, and every control on every other page used
             // to contribute nothing.
-            var fromElements = ElementScenarios(url, title, route, elements, requiresSignIn).ToList();
+            var fromElements = ElementScenarios(url, title, route, elements, requiresSignIn,
+                LocalJson.Object(page, "form")).ToList();
             scenarios.AddRange(fromElements);
 
             // Every page now gets an accessibility check and a console check, so no page
@@ -611,7 +612,8 @@ internal static class LocalTestPlanner
     /// behaviour, and a reviewer can tighten it afterwards.
     /// </summary>
     private static IEnumerable<object> ElementScenarios(
-        string url, string title, string route, List<JsonElement> elements, bool requiresSignIn)
+        string url, string title, string route, List<JsonElement> elements, bool requiresSignIn,
+        JsonElement? form)
     {
         var fields = elements.Where(LocalElementRules.IsValidationSurface).ToList();
         var submit = Find(elements, e => IsButton(e) && Mentions(e, "submit", "save", "continue", "next", "sign in", "log in", "search", "apply"))
@@ -661,10 +663,8 @@ internal static class LocalTestPlanner
                         // step makes the test correct on both kinds of form.
                         Step($"Clear {label}", "clear", target: locator),
                         SubmitStep(submit),
-                        StepWithAssertion("Confirm the value was refused", "assertUrl", null,
-                            Assertion("urlContains", null, route,
-                                $"The user stays on {title} because {label} was not supplied."),
-                            expected: route)));
+                        RefusalStep(form, route,
+                            $"The user stays on {title} because {label} was not supplied.")));
             }
 
             foreach (var (value, checking) in LocalElementRules.InvalidValuesFor(field))
@@ -683,10 +683,8 @@ internal static class LocalTestPlanner
                         Step($"Open {title}", "navigate", url: url),
                         Step($"Enter {checking} into {label}", "fill", target: locator, value: value),
                         SubmitStep(submit),
-                        StepWithAssertion("Confirm the value was refused", "assertUrl", null,
-                            Assertion("urlContains", null, route,
-                                $"The user stays on {title} because {label} was invalid."),
-                            expected: route)));
+                        RefusalStep(form, route,
+                            $"The user stays on {title} because {label} was invalid.")));
             }
 
             foreach (var (value, checking) in LocalElementRules.BoundaryValuesFor(field))
@@ -762,10 +760,8 @@ internal static class LocalTestPlanner
                     Step($"Open {title}", "navigate", url: url),
                     Step($"Enter three spaces into {label}", "fill", target: locator, value: "   "),
                     SubmitStep(submit),
-                    StepWithAssertion("Confirm the value was refused", "assertUrl", null,
-                        Assertion("urlContains", null, route,
-                            $"The user stays on {title} because {label} held no real content."),
-                        expected: route)));
+                    RefusalStep(form, route,
+                        $"The user stays on {title} because {label} held no real content.")));
         }
 
         // Selects: the default, and each option, because an option that errors when chosen
@@ -873,12 +869,65 @@ internal static class LocalTestPlanner
     /// Tab rather than a "blur" action: blur is not in the step vocabulary the schema
     /// allows or the executor implements, and a step the runner rejects is worse than no
     /// step at all.</summary>
+    /// <summary>
+    /// The step that establishes a submission was refused.
+    ///
+    /// Three scenarios needed this — required field, invalid value, whitespace only — and all
+    /// three asserted that the URL still contained the form's route. That is a guess, and it
+    /// is wrong in both directions. A form that redirects on success makes the guess fail
+    /// when the application was right to accept (20 of 22 failures in one measured run); a
+    /// filter that re-renders its own page makes it pass when nothing was validated at all.
+    ///
+    /// assertFormRejected asks the question directly: is the form still there, is a field
+    /// marked invalid, is an error shown. It needs the form as its target, which the form
+    /// extractor has recorded on every crawl since form-level testing was added and which
+    /// this planner simply never received.
+    ///
+    /// Where no form was extracted the URL check stands, because a weaker test on a page the
+    /// extractor could not read is better than no test; and on a filter form the refusal
+    /// question is meaningless, so nothing is asserted about refusal at all.
+    /// </summary>
+    private static object? RefusalStep(JsonElement? form, string route, string why)
+    {
+        if (form is null)
+        {
+            return StepWithAssertion("Confirm the value was refused", "assertUrl", null,
+                Assertion("urlContains", null, route, why), expected: route);
+        }
+
+        // A filter changes nothing, so there is nothing for it to refuse.
+        if (LocalJson.Has(form.Value, "transactional") && !LocalJson.Bool(form.Value, "transactional"))
+            return null;
+
+        return new
+        {
+            description = "Confirm the submission was refused",
+            action = "assertFormRejected",
+            // Shaped like every other locator this planner emits: strategy and value only.
+            // An empty fallbacks array is refused by the plan schema.
+            target = new
+            {
+                strategy = LocalJson.String(form.Value, "strategy") ?? "css",
+                value = LocalJson.String(form.Value, "value") ?? "form"
+            },
+            value = (string?)null
+        };
+    }
+
     private static object SubmitStep(JsonElement? submit)
         => submit is null
             ? Step("Move focus away from the field to trigger validation", "press", value: "Tab")
             : Step("Submit", "click", target: Locator(submit.Value));
 
-    private static object[] Steps(params object[] steps) => steps;
+    /// <summary>
+    /// The steps of a scenario, with any that do not apply left out.
+    ///
+    /// Nulls are dropped so a step builder can decline: the refusal oracle has nothing to
+    /// assert on a filter form, and returning null there reads better at the call site than
+    /// branching around the whole scenario.
+    /// </summary>
+    private static object[] Steps(params object?[] steps)
+        => steps.Where(step => step is not null).Select(step => step!).ToArray();
 
     /// <summary>One scenario, in the shape the test_plan schema expects.</summary>
     private static object Scenario(

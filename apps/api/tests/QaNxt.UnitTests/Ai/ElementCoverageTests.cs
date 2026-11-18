@@ -553,6 +553,95 @@ public class ElementCoverageTests
         seen.Should().NotBeEmpty("the fixtures above have to actually exercise assertions");
     }
 
+    /// <summary>
+    /// Where discovery recorded the form, "was this refused?" is asked rather than guessed.
+    ///
+    /// All three refusal scenarios — required field, invalid value, whitespace only —
+    /// asserted that the URL still contained the form's route. That is a guess and it is
+    /// wrong in both directions. A form that redirects on success makes it fail when the
+    /// application was right to accept: 20 of 22 failures in one measured run. A filter that
+    /// re-renders its own page makes it pass when nothing was validated at all.
+    ///
+    /// assertFormRejected asks directly: is the form still there, is a field marked invalid,
+    /// is an error shown. It needs the form as its target, which the form extractor has
+    /// recorded on every crawl since form-level testing shipped and which this planner was
+    /// never given.
+    /// </summary>
+    [Fact]
+    public void A_refusal_is_asserted_with_the_oracle_when_the_form_is_known()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/customers/new", "title": "Add a customer",
+                "url": "https://admin.example.test/customers/new",
+                "form": { "strategy": "testId", "value": "add-customer-form", "transactional": true },
+                "elements": [
+                  { "kind": "textInput", "accessibleName": "Trading name", "label": "Trading name",
+                    "testId": "name", "type": "text", "isRequired": true },
+                  { "kind": "button", "accessibleName": "Save", "ariaRole": "button", "testId": "save" } ] } ]
+            """;
+
+        var scenario = Scenarios(Plan(Context(page)))
+            .First(s => s.GetProperty("name").GetString()!.Contains("Trading name is required"));
+
+        var steps = scenario.GetProperty("steps").EnumerateArray().ToList();
+        steps.Select(s => s.GetProperty("action").GetString())
+            .Should().Contain("assertFormRejected");
+        steps.Select(s => s.GetProperty("action").GetString())
+            .Should().NotContain("assertUrl",
+                "the URL is a guess about refusal, and the oracle is an answer");
+
+        var oracle = steps.First(s => s.GetProperty("action").GetString() == "assertFormRejected");
+        oracle.GetProperty("target").GetProperty("value").GetString().Should().Be("add-customer-form",
+            "the oracle reads the form's own fields and errors, so it has to be given the form");
+    }
+
+    /// <summary>Without a form, the weaker check stands. A page the extractor could not read
+    /// is better off with a guess than with no test.</summary>
+    [Fact]
+    public void A_refusal_falls_back_to_the_url_check_when_no_form_was_extracted()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/customers/new", "title": "Add a customer",
+                "url": "https://admin.example.test/customers/new",
+                "elements": [
+                  { "kind": "textInput", "accessibleName": "Trading name", "label": "Trading name",
+                    "testId": "name", "type": "text", "isRequired": true },
+                  { "kind": "button", "accessibleName": "Save", "ariaRole": "button", "testId": "save" } ] } ]
+            """;
+
+        Scenarios(Plan(Context(page)))
+            .First(s => s.GetProperty("name").GetString()!.Contains("Trading name is required"))
+            .GetProperty("steps").EnumerateArray()
+            .Select(s => s.GetProperty("action").GetString())
+            .Should().Contain("assertUrl");
+    }
+
+    /// <summary>A filter refuses nothing, so nothing is asserted about refusal on one.</summary>
+    [Fact]
+    public void A_filter_form_gets_no_refusal_assertion_at_all()
+    {
+        var page = """
+            [ { "kind": "list", "route": "/customers", "title": "Customers",
+                "url": "https://admin.example.test/customers",
+                "form": { "strategy": "testId", "value": "customer-search-form", "transactional": false },
+                "elements": [
+                  { "kind": "textInput", "accessibleName": "Search", "label": "Search",
+                    "testId": "q", "type": "text", "isRequired": true },
+                  { "kind": "button", "accessibleName": "Search", "ariaRole": "button", "testId": "go" } ] } ]
+            """;
+
+        var steps = Scenarios(Plan(Context(page)))
+            .Where(s => s.GetProperty("name").GetString()!.Contains("is required"))
+            .SelectMany(s => s.GetProperty("steps").EnumerateArray())
+            .Select(s => s.GetProperty("action").GetString())
+            .ToList();
+
+        steps.Should().NotContain("assertFormRejected");
+        steps.Should().NotContain("assertUrl",
+            "a search box that re-renders its own page neither accepts nor refuses, so "
+            + "claiming either would be inventing a verdict");
+    }
+
     /// <summary>Every value any step would type, so a test can assert on what the runner
     /// would actually be asked to do.</summary>
     private static List<string> AllStepValues(JsonElement plan)

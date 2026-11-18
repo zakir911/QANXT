@@ -121,6 +121,13 @@ internal static class LocalJson
     public static bool Has(JsonElement element, string property)
         => IsReadable(element) && element.TryGetProperty(property, out _);
 
+    /// <summary>A nested object, or null when the property is absent or not an object.</summary>
+    public static JsonElement? Object(JsonElement element, string property)
+        => element.ValueKind == JsonValueKind.Object
+           && element.TryGetProperty(property, out var value)
+           && value.ValueKind == JsonValueKind.Object
+            ? value : null;
+
     public static IEnumerable<JsonElement> Array(JsonElement element, string property)
         => IsReadable(element)
             && element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.Array
