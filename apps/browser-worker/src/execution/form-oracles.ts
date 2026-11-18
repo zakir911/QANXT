@@ -155,7 +155,22 @@ export async function assertFormRejected(page: Page, form: Locator, obs: Observa
 export async function assertFormAccepted(page: Page, form: Locator, obs: Observations, timeoutMs: number): Promise<void> {
   await settlePage(page);
   await obs.settle();
-  const accepted = (s: FormSignals) => (s.successTexts.length > 0 || !s.formPresent)
+  // Accepted when a confirmation is shown, or the form is no longer in front of the user.
+  //
+  // This tested !formPresent — the form removed from the DOM. A modal form that closes on
+  // success stays in the DOM and is hidden, which is the commonest acceptance pattern in a
+  // back-office application, and it was reported as a silent refusal: "the form is present
+  // but hidden; no field is marked invalid; no error message is shown". 30 of 275 failures
+  // in a measured run were that, on an application that had accepted every one of them.
+  //
+  // formVisible was already computed alongside formPresent and simply not used here. The
+  // guards that matter are unchanged: no invalid field and no error text, so a form hidden
+  // while an error is shown elsewhere is still not an acceptance.
+  //
+  // assertFormRejected keeps formPresent deliberately. It establishes a refusal from the
+  // error signals themselves, and a hidden form showing a visible error is still a refusal,
+  // so presence is the weaker condition there and visibility would not improve it.
+  const accepted = (s: FormSignals) => (s.successTexts.length > 0 || !s.formVisible)
     && s.invalidFields.length === 0 && s.errorTexts.length === 0;
   const result = await poll(timeoutMs, () => signals(page, form), accepted);
 
