@@ -35,14 +35,25 @@ if (!runId) {
   process.exit(2);
 }
 
-const env = await readFile(new URL('../../.env', import.meta.url), 'utf8');
-const password = /^DATABASE_URL=.*Password=([^;\n]*)/m.exec(env)?.[1] ?? '';
+/**
+ * The database password comes from PGPASSWORD in the environment, set by whatever started
+ * this script. It is deliberately not parsed out of .env here: a script that reads a
+ * credential out of a file is a script that can print it, log it, or put it in an error
+ * message, and none of that is needed to run a query. Export it before running:
+ *
+ *   set -a && . ./.env && set +a
+ *   export PGPASSWORD=$(echo "$DATABASE_URL" | tr ';' '\n' | grep -i '^Password=' | cut -d= -f2-)
+ */
+if (!process.env.PGPASSWORD) {
+  console.error('PGPASSWORD is not set. See the comment at the top of this file.');
+  process.exit(2);
+}
 
 /** One row per line, columns separated by a pipe. */
 async function query(sql) {
   const { stdout } = await run('psql',
     ['-h', 'localhost', '-p', '5432', '-U', 'qanxt', '-d', 'qanxt', '-At', '-F', '|', '-c', sql],
-    { env: { ...process.env, PGPASSWORD: password }, maxBuffer: 64 * 1024 * 1024 });
+    { env: process.env, maxBuffer: 64 * 1024 * 1024 });
   return stdout.split('\n').filter(Boolean).map(line => line.split('|'));
 }
 

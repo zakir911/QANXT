@@ -37,6 +37,8 @@
 const TOOL_ERROR_PATTERNS = [
   { pattern: /locator\.fill:\s*Error:\s*Malformed value/i,
     kind: 'unrunnable-date', explain: 'filling a date input with text the browser refuses' },
+  { pattern: /Input of type "file" cannot be filled/i,
+    kind: 'unrunnable-upload', explain: 'typing into a file input, which Playwright refuses' },
   { pattern: /Cannot type text into input\[type=number\]/i,
     kind: 'unrunnable-number', explain: 'typing letters into a number input the browser refuses' },
   { pattern: /locator\.selectOption:.*Timeout/i,
@@ -60,11 +62,62 @@ const TOOL_ERROR_PATTERNS = [
  * application failing, which is the cautious direction: a genuine defect misfiled as a
  * tool error would inflate the platform's score, and that is the error worth avoiding.
  */
-export function classifyFailure(message) {
+/**
+ * Tests whose result means nothing either way, because the test could not distinguish a
+ * pass from a failure on the page it was pointed at.
+ *
+ * The required-field scenario is the case that forced this third category. It opened a form,
+ * submitted it, and asserted the user stayed put because the field was not supplied. On a
+ * form for creating something that works: the field arrives empty. On a form for editing
+ * something the field arrives holding the current value, the submit is accepted exactly as
+ * it should be, and the test reports a validation defect that is not there. 42 of 79
+ * failures in the measured run were this shape.
+ *
+ * It is neither a tool error — the browser did everything it was asked — nor an application
+ * failure, and calling it either one is wrong in a direction that matters. Counting it as an
+ * application failure credits the platform with finding something. Counting it as a tool
+ * error implies the browser refused. It gets its own name.
+ *
+ * This cannot be decided from the message alone: "Expected the URL to contain X" is the same
+ * message a legitimate stays-on-its-route check produces. The test NAME is what separates
+ * them, so the name is matched too, and where the name is missing the failure stays
+ * unclassified rather than being guessed at.
+ */
+const UNRELIABLE_TEST_PATTERNS = [
+  { namePattern: /\bis required on\b/i,
+    messagePattern: /^Expected the URL to contain/i,
+    kind: 'required-field-on-a-prepopulated-form',
+    explain: 'the test never emptied the field, so the form was right to accept the submit' },
+
+  // The boundary scenario's own objective says the field should "either accept the value
+  // cleanly or refuse it with a message", and its assertion then requires the URL to stay on
+  // the form. Those are incompatible: a form that accepts the value cleanly redirects to the
+  // record it just saved, which is the success path the objective allows. The assertion is
+  // reaching for "did not land on an error page" and lands on "did not navigate at all".
+  { namePattern: /\bhandles\b.*\bon\b/i,
+    messagePattern: /^Expected the URL to contain/i,
+    kind: 'boundary-value-the-application-may-accept',
+    explain: 'the assertion requires the form not to navigate, while its own objective '
+           + 'allows the value to be accepted, which navigates' },
+
+  { namePattern: /\bdoes not accept whitespace alone\b/i,
+    messagePattern: /^Expected the URL to contain/i,
+    kind: 'whitespace-the-application-may-trim',
+    explain: 'a field that trims whitespace to empty and then saves is behaving correctly' }
+];
+
+export function classifyFailure(message, name) {
   const text = String(message ?? '');
+  const title = String(name ?? '');
+
   for (const entry of TOOL_ERROR_PATTERNS) {
     if (entry.pattern.test(text)) {
       return { kind: 'toolError', subkind: entry.kind, explain: entry.explain };
+    }
+  }
+  for (const entry of UNRELIABLE_TEST_PATTERNS) {
+    if (entry.namePattern.test(title) && entry.messagePattern.test(text)) {
+      return { kind: 'unreliableTest', subkind: entry.kind, explain: entry.explain };
     }
   }
   if (text.trim().length === 0) {
@@ -144,11 +197,22 @@ const patternMatches = (pattern, path) => {
 export function detect({ defects, failures = [], findings = [], reachedPaths = [] }) {
   const classified = failures.map(failure => ({
     ...failure,
-    classification: classifyFailure(failure.message)
+    classification: classifyFailure(failure.message, failure.name)
   }));
 
   const applicationFailures = classified.filter(f => f.classification.kind === 'applicationFailure');
   const toolErrors = classified.filter(f => f.classification.kind === 'toolError');
+  const unreliableTests = classified.filter(f => f.classification.kind === 'unreliableTest');
+
+  const unreliableBreakdown = {};
+  for (const failure of unreliableTests) {
+    unreliableBreakdown[failure.classification.subkind] ??=
+      { count: 0, explain: failure.classification.explain, examples: [] };
+    unreliableBreakdown[failure.classification.subkind].count += 1;
+    if (unreliableBreakdown[failure.classification.subkind].examples.length < 2) {
+      unreliableBreakdown[failure.classification.subkind].examples.push(failure.name ?? '(unnamed)');
+    }
+  }
 
   const toolErrorBreakdown = {};
   for (const failure of toolErrors) {
@@ -202,8 +266,11 @@ export function detect({ defects, failures = [], findings = [], reachedPaths = [
       total: classified.length,
       applicationFailures: applicationFailures.length,
       toolErrors: toolErrors.length,
-      unknown: classified.length - applicationFailures.length - toolErrors.length,
-      toolErrorBreakdown
+      unreliableTests: unreliableTests.length,
+      unknown: classified.length - applicationFailures.length - toolErrors.length
+             - unreliableTests.length,
+      toolErrorBreakdown,
+      unreliableBreakdown
     }
   };
 }

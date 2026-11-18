@@ -1,23 +1,23 @@
 {
-  "analysedAt": "2026-11-18T06:18:02.681Z",
-  "source": "pipeline-result.json",
+  "analysedAt": "2026-11-18T10:34:00.412Z",
+  "source": "evidence/run5-result.json",
   "note": "A failure is classified as a tool error or an application failure before it is matched to a defect. Only an application failure can evidence one: a Playwright timeout says nothing about whether the application is correct, whatever words happen to be in its message.",
   "run": {
     "discovery": {
       "status": "partiallyCompleted",
-      "reached": 31,
+      "reached": 103,
       "total": 134
     },
     "generation": {
-      "generated": 2123,
-      "distinct": 186,
-      "copiesEach": 11.4,
+      "generated": 1431,
+      "distinct": 733,
+      "copiesEach": 2,
       "requirementsIssued": 11,
-      "identicalCountsPerRequirement": true
+      "identicalCountsPerRequirement": false
     },
     "execution": {
-      "passed": 158,
-      "failed": 28,
+      "passed": 654,
+      "failed": 79,
       "blocked": 0
     },
     "security": {
@@ -28,8 +28,8 @@
   "counts": {
     "found": 0,
     "possible": 0,
-    "missed": 14,
-    "unreachable": 18
+    "missed": 26,
+    "unreachable": 6
   },
   "verdicts": [
     {
@@ -37,8 +37,8 @@
       "severity": "major",
       "category": "validation",
       "screen": "/warehouse/stock/:id/adjust",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -64,8 +64,8 @@
       "severity": "major",
       "category": "validation",
       "screen": "/billing/invoices/new",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -91,8 +91,8 @@
       "severity": "major",
       "category": "boundary",
       "screen": "/carriers/:id/rates",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -100,8 +100,8 @@
       "severity": "major",
       "category": "calculation",
       "screen": "/customs/declarations/:id",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -109,8 +109,8 @@
       "severity": "major",
       "category": "businessRule",
       "screen": "/billing/credit-notes/new",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -154,8 +154,8 @@
       "severity": "major",
       "category": "stateTransition",
       "screen": "/shipments/:id/cancel",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -217,8 +217,8 @@
       "severity": "minor",
       "category": "accessibility",
       "screen": "/warehouse/stock/:id/adjust",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -226,8 +226,8 @@
       "severity": "minor",
       "category": "accessibility",
       "screen": "/claims/new",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -235,8 +235,8 @@
       "severity": "minor",
       "category": "accessibility",
       "screen": "/fleet/vehicles",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -253,8 +253,8 @@
       "severity": "minor",
       "category": "responsive",
       "screen": "/carriers/:id/rates",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -262,8 +262,8 @@
       "severity": "minor",
       "category": "responsive",
       "screen": "/routes/planner",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -289,8 +289,8 @@
       "severity": "security",
       "category": "security",
       "screen": "/warehouse/stock/:id/adjust",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "evidence": null
     },
     {
@@ -322,41 +322,44 @@
     }
   ],
   "failureAnalysis": {
-    "total": 28,
-    "applicationFailures": 0,
-    "toolErrors": 28,
+    "total": 79,
+    "applicationFailures": 5,
+    "toolErrors": 6,
+    "unreliableTests": 68,
     "unknown": 0,
     "toolErrorBreakdown": {
-      "undrivable-select": {
-        "count": 16,
-        "explain": "a select the runner could not drive",
+      "unrunnable-upload": {
+        "count": 6,
+        "explain": "typing into a file input, which Playwright refuses",
         "examples": [
-          "Carrier can be changed on Shipments · Meridian Freight /shipments",
-          "Status can be changed on Shipments · Meridian Freight /shipments"
+          "File* does not accept whitespace alone on Documents — MF770325 · Meridian Freight",
+          "File* does not accept whitespace alone on Documents — MF770208 · Meridian Freight"
+        ]
+      }
+    },
+    "unreliableBreakdown": {
+      "boundary-value-the-application-may-accept": {
+        "count": 31,
+        "explain": "the assertion requires the form not to navigate, while its own objective allows the value to be accepted, which navigates",
+        "examples": [
+          "Town or city* handles 256 characters, past the length most columns allow on Edit Halvorsen Components · Meridian Freight",
+          "Address line 1* handles 256 characters, past the length most columns allow on Edit Halvorsen Components · Meridian Freight"
         ]
       },
-      "unrunnable-date": {
-        "count": 8,
-        "explain": "filling a date input with text the browser refuses",
+      "whitespace-the-application-may-trim": {
+        "count": 17,
+        "explain": "a field that trims whitespace to empty and then saves is behaving correctly",
         "examples": [
-          "Collection date* rejects a day that does not exist in that month on Book a shipment · Meridian Freight",
-          "Collection date* rejects text in a date field on Book a shipment · Meridian Freight"
+          "Notes does not accept whitespace alone on Cancel MF770208 · Meridian Freight",
+          "Notes does not accept whitespace alone on Cancel MF770325 · Meridian Freight"
         ]
       },
-      "unfillable-field": {
-        "count": 2,
-        "explain": "a field that never accepted input (often readonly)",
+      "required-field-on-a-prepopulated-form": {
+        "count": 20,
+        "explain": "the test never emptied the field, so the form was right to accept the submit",
         "examples": [
-          "Team handles 256 characters, past the length most columns allow on Your profile · Meridian Freight",
-          "Team does not accept whitespace alone on Your profile · Meridian Freight"
-        ]
-      },
-      "unrunnable-number": {
-        "count": 2,
-        "explain": "typing letters into a number input the browser refuses",
-        "examples": [
-          "Quantity* rejects letters in a numeric field on New sales order · Meridian Freight",
-          "Quantity* rejects letters in a numeric field on New purchase order · Meridian Freight"
+          "Address line 1* is required on Edit Halvorsen Components · Meridian Freight",
+          "Town or city* is required on Edit Halvorsen Components · Meridian Freight"
         ]
       }
     }

@@ -52,7 +52,20 @@ const fa = analysis.failureAnalysis;
 line(`\n  ${fa.total} failure(s) reported by the run:`);
 line(`    ${String(fa.applicationFailures).padStart(3)}  the application behaving wrongly`);
 line(`    ${String(fa.toolErrors).padStart(3)}  the test tool unable to drive the page`);
+line(`    ${String(fa.unreliableTests ?? 0).padStart(3)}  a test that could not tell a pass from a failure`);
 if (fa.unknown) line(`    ${String(fa.unknown).padStart(3)}  no message to classify`);
+
+if (fa.unreliableTests) {
+  line('\n  The unreliable tests, by cause:');
+  for (const [kind, entry] of Object.entries(fa.unreliableBreakdown ?? {})
+    .sort((a, b) => b[1].count - a[1].count)) {
+    line(`    ${String(entry.count).padStart(3)}  ${kind.padEnd(38)} ${entry.explain}`);
+    for (const example of entry.examples) line(`         e.g. ${example.slice(0, 68)}`);
+  }
+  line('\n  These say nothing about the application either way. Counting them as');
+  line('  application failures would credit the platform with finding something;');
+  line('  counting them as tool errors would imply the browser refused. Neither is true.');
+}
 
 if (fa.toolErrors) {
   line('\n  The tool errors, by cause:');
@@ -106,14 +119,22 @@ for (const [category, figures] of Object.entries(byCategory).sort()) {
 
 line('\n  The honest reading:');
 if (c.found === 0) {
-  line('    The platform generated tests, executed them, and detected none of the planted');
-  line('    defects. Not one of the 32. Every failure it reported was its own inability to');
-  line('    drive the page.');
+  line(`    The platform generated tests, executed them, and detected none of the`);
+  line(`    ${analysis.verdicts.length} planted defects.`);
 } else {
   line(`    ${c.found} of ${analysis.verdicts.length} planted defects were detected.`);
 }
 line(`    ${c.unreachable} of them sat on screens discovery never reached, so nothing downstream`);
 line('    could have found them whatever the generator did.');
+// Said from the figures rather than from what was true of an earlier run: a report that
+// hard-codes last run's conclusion cannot tell you when the conclusion has changed.
+if (fa.total > 0) {
+  const share = (n) => `${n} of ${fa.total}`;
+  line(`    Of the ${fa.total} failure(s) it did report: ${share(fa.toolErrors)} were the tool`);
+  line(`    unable to drive the page, ${share(fa.unreliableTests ?? 0)} were tests that could not`);
+  line(`    tell a pass from a failure, and ${share(fa.applicationFailures)} were the application`);
+  line('    behaving wrongly — none of which matched a planted defect.');
+}
 
 await writeFile(new URL('./detection-analysis.json', import.meta.url),
   JSON.stringify({
