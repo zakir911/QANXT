@@ -115,6 +115,12 @@ internal static class LocalJson
         => IsReadable(element)
             && element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.True;
 
+    /// <summary>Whether the property is present at all, which is different from being
+    /// false. An element captured before a field existed has no opinion about it, and
+    /// treating "absent" as "false" would exclude every element from an older crawl.</summary>
+    public static bool Has(JsonElement element, string property)
+        => IsReadable(element) && element.TryGetProperty(property, out _);
+
     public static IEnumerable<JsonElement> Array(JsonElement element, string property)
         => IsReadable(element)
             && element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.Array

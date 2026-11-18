@@ -129,6 +129,14 @@ public sealed record DiscoveredPagePayload
     [JsonPropertyName("forms")] public List<Forms.DiscoveredFormModel> Forms { get; init; } = new();
 }
 
+/// <summary>One option of a select, so a generated test can choose a real one rather than
+/// guess a value that matches nothing.</summary>
+public sealed record SelectOptionPayload
+{
+    [JsonPropertyName("value")] public string Value { get; init; } = string.Empty;
+    [JsonPropertyName("label")] public string Label { get; init; } = string.Empty;
+}
+
 public sealed record DiscoveredElementPayload
 {
     [JsonPropertyName("kind")] public ElementKind Kind { get; init; }
@@ -152,7 +160,9 @@ public sealed record DiscoveredElementPayload
     [JsonPropertyName("bounding")] public BoundingPayload Bounding { get; init; } = new(0, 0, 0, 0);
     [JsonPropertyName("isVisible")] public bool IsVisible { get; init; }
     [JsonPropertyName("isEnabled")] public bool IsEnabled { get; init; }
+    [JsonPropertyName("isReadOnly")] public bool IsReadOnly { get; init; }
     [JsonPropertyName("isRequired")] public bool IsRequired { get; init; }
+    [JsonPropertyName("options")] public SelectOptionPayload[]? Options { get; init; }
     [JsonPropertyName("attributes")] public Dictionary<string, string> Attributes { get; init; } = new();
     [JsonPropertyName("preferredLocator")] public Contracts.LocatorDescriptor PreferredLocator { get; init; } = new();
     [JsonPropertyName("stabilityScore")] public int StabilityScore { get; init; }

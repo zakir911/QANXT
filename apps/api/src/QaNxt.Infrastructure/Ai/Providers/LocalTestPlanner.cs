@@ -637,7 +637,7 @@ internal static class LocalTestPlanner
                             expected: route)));
             }
 
-            foreach (var (value, checking) in LocalElementRules.InvalidValuesFor(semantic))
+            foreach (var (value, checking) in LocalElementRules.InvalidValuesFor(field))
             {
                 yield return Scenario(
                     name: $"{label} rejects {checking} on {title}",
@@ -659,7 +659,7 @@ internal static class LocalTestPlanner
                             expected: route)));
             }
 
-            foreach (var (value, checking) in LocalElementRules.BoundaryValuesFor(semantic))
+            foreach (var (value, checking) in LocalElementRules.BoundaryValuesFor(field))
             {
                 yield return Scenario(
                     name: $"{label} handles {checking} on {title}",
@@ -685,6 +685,12 @@ internal static class LocalTestPlanner
 
             // Whitespace is its own case: a field that trims is correct, a field that
             // accepts "   " as a name is not, and the two are indistinguishable without it.
+            //
+            // Skipped where the browser will not hold spaces at all — a number or date
+            // input refuses them before the application is involved, so the test could
+            // only ever fail on a fill error.
+            if (!LocalElementRules.BrowserWillAccept(LocalElementRules.HtmlTypeOf(field), "   ")) continue;
+
             yield return Scenario(
                 name: $"{label} does not accept whitespace alone on {title}",
                 objective: $"{label} treats a value of only spaces as empty rather than as content.",
@@ -709,6 +715,18 @@ internal static class LocalTestPlanner
         foreach (var select in elements.Where(e => LocalJson.String(e, "kind") == "select"))
         {
             var label = LabelOf(select);
+
+            // A real option value, taken from what discovery captured. selectOption()
+            // matches by value or label, so the old hard-coded "1" matched nothing on a
+            // select whose options are identifiers or codes, and timed out. Sixteen of
+            // the 28 failures in the measured run were exactly this — every select on
+            // every page, reported as a product defect.
+            //
+            // Where discovery captured no options there is nothing to choose, and a test
+            // that guesses is a test that fails for its own reasons, so none is written.
+            var option = LocalElementRules.FirstRealOption(select);
+            if (option is null) continue;
+
             yield return Scenario(
                 name: $"{label} can be changed on {title}",
                 objective: $"Choosing a different option in {label} is accepted and reflected.",
@@ -720,10 +738,8 @@ internal static class LocalTestPlanner
                 tags: new[] { "ui", "select", Slug(route) },
                 steps: Steps(
                     Step($"Open {title}", "navigate", url: url),
-                    // select carries a value or the step validator refuses it. Index 1 is
-                    // the first option after the usual placeholder.
-                    Step($"Choose a different option in {label}", "select",
-                        target: Locator(select), value: "1"),
+                    Step($"Choose \"{option.Label}\" in {label}", "select",
+                        target: Locator(select), value: option.Value),
                     StepWithAssertion($"Confirm {label} still shows a value", "assertVisible", Locator(select),
                         Assertion("visible", Locator(select), null,
                             $"{label} is still present and usable after the choice."))));

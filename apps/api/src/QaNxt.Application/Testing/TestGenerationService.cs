@@ -215,6 +215,7 @@ public sealed class TestGenerationService : ITestGenerationService
             {
                 e.Id, e.ApplicationPageId, e.Kind, e.TagName, e.AriaRole, e.AccessibleName, e.Text,
                 e.Label, e.Placeholder, e.TestId, e.Name, e.Type, e.IsRequired, e.CssSelector,
+                e.IsReadOnly, e.OptionsJson,
                 e.StabilityScore
             })
             .ToListAsync(ct);
@@ -231,9 +232,27 @@ public sealed class TestGenerationService : ITestGenerationService
                 .Select(e => new ElementContext(
                     e.Kind.ToString().ToLowerInvariant(), e.TagName, e.AriaRole,
                     _masker.MaskText(e.AccessibleName ?? string.Empty) is { Length: > 0 } name ? name : null,
-                    e.Label, e.Placeholder, e.TestId, e.Name, e.Type, e.IsRequired, e.CssSelector))
+                    e.Label, e.Placeholder, e.TestId, e.Name, e.Type, e.IsRequired, e.CssSelector,
+                    e.IsReadOnly, ParseOptions(e.OptionsJson)))
                 .ToList()))
             .ToList();
+    }
+
+    /// <summary>A select's stored options, or null. A malformed value is treated as no
+    /// options rather than failing the whole generation: the worst case is one select
+    /// without a test, which is better than no tests at all.</summary>
+    private static IReadOnlyList<SelectOptionContext>? ParseOptions(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return null;
+        try
+        {
+            var parsed = JsonSerializer.Deserialize<List<SelectOptionContext>>(json, JsonDefaults.Options);
+            return parsed is { Count: > 0 } ? parsed : null;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     /// <summary>What a page's elements are worth to a test author, most first.
@@ -548,5 +567,13 @@ public sealed class TestGenerationService : ITestGenerationService
 
     private sealed record ElementContext(
         string Kind, string TagName, string? AriaRole, string? AccessibleName, string? Label,
-        string? Placeholder, string? TestId, string? Name, string? Type, bool IsRequired, string? CssSelector);
+        string? Placeholder, string? TestId, string? Name, string? Type, bool IsRequired,
+        string? CssSelector,
+        // Both of these exist so the planner can avoid writing a test that cannot run.
+        // Without IsReadOnly it generated the full validation battery against a read-only
+        // field and every test failed on a fill timeout; without Options it had nothing to
+        // pass to selectOption and used a hard-coded "1" that matched nothing.
+        bool IsReadOnly, IReadOnlyList<SelectOptionContext>? Options);
+
+    private sealed record SelectOptionContext(string Value, string Label);
 }

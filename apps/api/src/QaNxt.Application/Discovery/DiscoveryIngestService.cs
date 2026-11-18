@@ -300,7 +300,11 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
             element.BoundingHeight = payload.Bounding.Height;
             element.IsVisible = payload.IsVisible;
             element.IsEnabled = payload.IsEnabled;
+            element.IsReadOnly = payload.IsReadOnly;
             element.IsRequired = payload.IsRequired;
+            element.OptionsJson = payload.Options is { Length: > 0 }
+                ? JsonSerializer.Serialize(payload.Options, JsonDefaults.Options)
+                : null;
             element.AttributesJson = JsonSerializer.Serialize(payload.Attributes, JsonDefaults.Options);
             element.PreferredLocatorJson = payload.PreferredLocator.ToJson();
             element.StabilityScore = payload.StabilityScore;

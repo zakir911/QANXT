@@ -49,7 +49,11 @@ export interface DiscoveredElement {
   bounding: { x: number; y: number; width: number; height: number };
   isVisible: boolean;
   isEnabled: boolean;
+  /** A read-only control accepts nothing, so it is not a validation surface. */
+  isReadOnly?: boolean;
   isRequired: boolean;
+  /** A select's options, so a generated test can choose a real one rather than guess. */
+  options?: Array<{ value: string; label: string }>;
   attributes: Record<string, string>;
   preferredLocator: LocatorDescriptor;
   stabilityScore: number;

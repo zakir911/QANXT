@@ -165,6 +165,155 @@ public class ElementCoverageTests
             "trimming the title must not cut off what the scenario is for");
     }
 
+    /// <summary>
+    /// A generated test that the browser physically cannot perform is worse than no test.
+    ///
+    /// A run against a 137-screen application reported 28 failures. None of them was the
+    /// application misbehaving; every one was the runner unable to drive the page, and a
+    /// team reading that summary goes hunting for 28 defects that do not exist. Ten were
+    /// these two cases: filling a native date input with text, and a number input with
+    /// letters. Playwright refuses both before the application is ever involved.
+    /// </summary>
+    [Fact]
+    public void A_native_date_input_gets_no_test_that_types_text_into_it()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/shipments/new", "title": "Book a shipment",
+                "url": "https://admin.example.test/shipments/new",
+                "elements": [
+                  { "kind": "dateInput", "accessibleName": "Collection date", "label": "Collection date",
+                    "testId": "collection-date", "type": "date", "isRequired": true } ] } ]
+            """;
+
+        var steps = AllStepValues(Plan(Context(page)));
+
+        steps.Should().NotContain("not-a-date", "the browser refuses it, so the test could only fail on a fill error");
+        steps.Should().NotContain("31/02/2026", "a native date input cannot hold a slash-separated value");
+        steps.Should().NotContain("   ", "spaces are not a date either");
+        // What survives is still worth having: a well-formed date at the extremes.
+        steps.Should().Contain(value => value == "1900-01-01" || value == "2999-12-31",
+            "a date the browser accepts still tests the application's own range checking");
+    }
+
+    [Fact]
+    public void A_native_number_input_gets_no_test_that_types_letters_into_it()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/orders/sales/new", "title": "New sales order",
+                "url": "https://admin.example.test/orders/sales/new",
+                "elements": [
+                  { "kind": "numberInput", "accessibleName": "Quantity", "label": "Quantity",
+                    "testId": "quantity", "type": "number", "isRequired": true } ] } ]
+            """;
+
+        var steps = AllStepValues(Plan(Context(page)));
+
+        steps.Should().NotContain("abc", "Playwright cannot type text into input[type=number]");
+        steps.Should().NotContain("   ", "nor spaces");
+        steps.Should().Contain("-1", "a negative number IS typeable, and is a real test");
+    }
+
+    /// <summary>A text input that happens to hold a date keeps the format tests: there the
+    /// browser does not enforce anything, so what the application accepts is the question.</summary>
+    [Fact]
+    public void A_text_input_holding_a_date_still_gets_its_format_tests()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/legacy", "title": "Legacy form",
+                "url": "https://admin.example.test/legacy",
+                "elements": [
+                  { "kind": "textInput", "accessibleName": "Delivery date", "label": "Delivery date",
+                    "testId": "delivery-date", "type": "text", "isRequired": true } ] } ]
+            """;
+
+        AllStepValues(Plan(Context(page))).Should().Contain("not-a-date",
+            "a text input holds anything, so what the application rejects is worth testing");
+    }
+
+    /// <summary>
+    /// A read-only control accepts nothing, from a test or from a person.
+    ///
+    /// IsValidationSurface's comment had always said so; the code only checked the kind,
+    /// so a readonly field got the full battery and every test failed on a fill timeout.
+    /// </summary>
+    [Fact]
+    public void A_read_only_field_gets_no_validation_tests()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/account/profile", "title": "Your profile",
+                "url": "https://admin.example.test/account/profile",
+                "elements": [
+                  { "kind": "textInput", "accessibleName": "Team", "label": "Team",
+                    "testId": "team", "type": "text", "isReadOnly": true },
+                  { "kind": "textInput", "accessibleName": "Display name", "label": "Display name",
+                    "testId": "display-name", "type": "text", "isRequired": true } ] } ]
+            """;
+
+        var names = Names(Plan(Context(page)));
+
+        names.Should().NotContain(name => name.Contains("Team"),
+            "nothing can be typed into it, so there is nothing to validate");
+        names.Should().Contain(name => name.Contains("Display name"),
+            "the editable field beside it is still covered");
+    }
+
+    /// <summary>
+    /// Choosing an option means choosing one that exists.
+    ///
+    /// The planner passed a hard-coded "1" to selectOption, which matches by value or
+    /// label. On a select whose options are identifiers or codes that matches nothing and
+    /// times out. Sixteen of the 28 failures in the measured run were this, once for every
+    /// select on every page.
+    /// </summary>
+    [Fact]
+    public void A_select_is_tested_with_an_option_it_actually_has()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/shipments/new", "title": "Book a shipment",
+                "url": "https://admin.example.test/shipments/new",
+                "elements": [
+                  { "kind": "select", "accessibleName": "Customer", "label": "Customer",
+                    "testId": "customer", "type": "select-one",
+                    "options": [ { "value": "", "label": "Choose a customer" },
+                                 { "value": "cus-001", "label": "Halvorsen Components" } ] } ] } ]
+            """;
+
+        var plan = Plan(Context(page));
+
+        Names(plan).Should().Contain(name => name.Contains("Customer can be changed"));
+        AllStepValues(plan).Should().Contain("cus-001",
+            "the option the test chooses has to be one the select offers");
+        AllStepValues(plan).Should().NotContain("1",
+            "an index is not an option value and matches nothing");
+    }
+
+    [Fact]
+    public void A_select_whose_options_were_not_captured_gets_no_test()
+    {
+        var page = """
+            [ { "kind": "form", "route": "/shipments/new", "title": "Book a shipment",
+                "url": "https://admin.example.test/shipments/new",
+                "elements": [
+                  { "kind": "select", "accessibleName": "Carrier", "label": "Carrier",
+                    "testId": "carrier", "type": "select-one" } ] } ]
+            """;
+
+        Names(Plan(Context(page))).Should().NotContain(name => name.Contains("Carrier can be changed"),
+            "a test that guesses an option value fails for its own reasons, which reads as "
+            + "an application defect");
+    }
+
+    /// <summary>Every value any step would type, so a test can assert on what the runner
+    /// would actually be asked to do.</summary>
+    private static List<string> AllStepValues(JsonElement plan)
+        => Scenarios(plan)
+            .SelectMany(scenario => scenario.GetProperty("steps").EnumerateArray())
+            .Select(step => step.TryGetProperty("value", out var v) && v.ValueKind == JsonValueKind.String
+                ? v.GetString() : null)
+            .Where(value => value is not null)
+            .Select(value => value!)
+            .ToList();
+
     [Fact]
     public void A_single_login_page_produces_far_more_than_a_load_check()
     {
@@ -242,8 +391,16 @@ public class ElementCoverageTests
             """));
 
         var names = Names(plan);
-        names.Should().Contain(n => n.Contains("does not exist in that month"));
         names.Should().Contain(n => n.Contains("far in the past") || n.Contains("far in the future"));
+
+        // This test used to require a "31/02/2026 does not exist in that month" case here
+        // too, and the planner duly produced one. It could never run: a native date input
+        // holds a yyyy-mm-dd value and the browser refuses anything else before the
+        // application sees it, so the case failed on a fill error every time and read in
+        // the summary as an application defect. The impossible-date case is still generated
+        // for a text input holding a date, where it tests something — see
+        // A_text_input_holding_a_date_still_gets_its_format_tests.
+        names.Should().NotContain(n => n.Contains("does not exist in that month"));
     }
 
     [Fact]
@@ -253,7 +410,9 @@ public class ElementCoverageTests
             [ { "kind": "dashboard", "route": "/admin/settings", "title": "Settings",
                 "url": "https://admin.example.test/admin/settings",
                 "elements": [
-                  { "kind": "select", "accessibleName": "Region", "label": "Region", "testId": "region" },
+                  { "kind": "select", "accessibleName": "Region", "label": "Region", "testId": "region",
+                    "options": [ { "value": "", "label": "All regions" },
+                                 { "value": "emea", "label": "EMEA" } ] },
                   { "kind": "checkbox", "accessibleName": "Enable alerts", "label": "Enable alerts",
                     "testId": "alerts" }
                 ] } ]

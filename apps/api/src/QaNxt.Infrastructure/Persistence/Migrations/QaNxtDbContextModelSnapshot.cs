@@ -1559,6 +1559,10 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
 
+                    b.Property<bool>("IsReadOnly")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_read_only");
+
                     b.Property<bool>("IsRequired")
                         .HasColumnType("boolean")
                         .HasColumnName("is_required");
@@ -1589,6 +1593,10 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("neighbour_text");
+
+                    b.Property<string>("OptionsJson")
+                        .HasColumnType("text")
+                        .HasColumnName("options_json");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid")

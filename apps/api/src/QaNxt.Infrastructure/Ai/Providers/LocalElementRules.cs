@@ -156,6 +156,91 @@ internal static class LocalElementRules
             }
         };
 
+
+    /// <summary>
+    /// Whether the browser will let a test type this value into this control at all.
+    ///
+    /// A native constrained input does not hold arbitrary text. Playwright's fill() throws
+    /// on `<input type="date">` given "not-a-date" ("Malformed value") and on
+    /// `<input type="number">` given "abc" ("Cannot type text into input[type=number]").
+    /// Neither is a statement about the application: the browser refused before the
+    /// application ever saw the value.
+    ///
+    /// Generated tests that do this report as FAILURES, indistinguishable in a run summary
+    /// from a real defect. A run against a 137-screen application produced 28 failures, of
+    /// which 10 were exactly this — eight dates and two numbers — and a team reading that
+    /// summary goes looking for ten bugs that do not exist.
+    ///
+    /// So the value is checked against what the control can physically hold, and a value
+    /// the browser would refuse is never put in a test. Where that empties a set, the
+    /// honest outcome is fewer tests rather than tests that cannot run: a native date
+    /// input enforces its own format, so there is no format for the application to reject.
+    /// </summary>
+    public static bool BrowserWillAccept(string? htmlType, string value) =>
+        (htmlType ?? string.Empty).ToLowerInvariant() switch
+        {
+            "number" or "range" => System.Text.RegularExpressions.Regex.IsMatch(value, @"^-?\d+(\.\d+)?$"),
+            // The shape is not enough: 2026-02-31 is well-formed and still refused, because
+            // February has no 31st. Parsing it is the only honest check.
+            "date" => DateOnly.TryParseExact(value, "yyyy-MM-dd",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out _),
+            "datetime-local" => System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"),
+            "month" => System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d{4}-\d{2}$"),
+            "week" => System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d{4}-W\d{2}$"),
+            "time" => System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d{2}:\d{2}"),
+            "color" => System.Text.RegularExpressions.Regex.IsMatch(value, @"^#[0-9a-fA-F]{6}$"),
+            _ => true
+        };
+
+    /// <summary>The html type attribute, lowercased, or empty.</summary>
+    public static string HtmlTypeOf(JsonElement element)
+        => (LocalJson.String(element, "type") ?? string.Empty).ToLowerInvariant();
+
+    /// <summary>Invalid values this particular control can actually be given.</summary>
+    public static IReadOnlyList<(string Value, string Checking)> InvalidValuesFor(JsonElement element)
+    {
+        var htmlType = HtmlTypeOf(element);
+        return InvalidValuesFor(SemanticOf(element))
+            .Where(candidate => BrowserWillAccept(htmlType, candidate.Value))
+            .ToList();
+    }
+
+    /// <summary>Boundary values this particular control can actually be given.</summary>
+    public static IReadOnlyList<(string Value, string Checking)> BoundaryValuesFor(JsonElement element)
+    {
+        var htmlType = HtmlTypeOf(element);
+        return BoundaryValuesFor(SemanticOf(element))
+            .Where(candidate => BrowserWillAccept(htmlType, candidate.Value))
+            .ToList();
+    }
+
+    /// <summary>One option of a select, as discovery captured it.</summary>
+    public sealed record SelectOption(string Value, string Label);
+
+    /// <summary>
+    /// The first option worth choosing, skipping the placeholder.
+    ///
+    /// Almost every select in a real application opens with "Choose a customer" or an
+    /// empty value, and choosing that is choosing nothing. The first option carrying a
+    /// non-empty value is the first real choice.
+    ///
+    /// Returns null when discovery captured no options. A test that guesses an option
+    /// value fails for its own reasons, which is worse than not writing it: the run
+    /// reports a defect that is really the test tool missing information.
+    /// </summary>
+    public static SelectOption? FirstRealOption(JsonElement element)
+    {
+        foreach (var option in LocalJson.Array(element, "options"))
+        {
+            var value = LocalJson.String(option, "value");
+            if (string.IsNullOrWhiteSpace(value)) continue;
+            var label = LocalJson.String(option, "label");
+            return new SelectOption(value, string.IsNullOrWhiteSpace(label) ? value : label);
+        }
+        return null;
+    }
+
     /// <summary>A value that should be accepted, so a negative test has a positive control.</summary>
     public static string ValidValueFor(FieldSemantic semantic) => semantic switch
     {
@@ -178,8 +263,20 @@ internal static class LocalElementRules
     public static bool IsValidationSurface(JsonElement element)
     {
         var kind = (LocalJson.String(element, "kind") ?? string.Empty).ToLowerInvariant();
-        return kind is "textinput" or "passwordinput" or "numberinput" or "dateinput"
-                    or "textarea" or "fileinput";
+        var isField = kind is "textinput" or "passwordinput" or "numberinput" or "dateinput"
+                           or "textarea" or "fileinput";
+        if (!isField) return false;
+
+        // The comment above has always said a read-only control is not a validation
+        // surface. The code did not check, so a readonly field got the full battery and
+        // every one of those tests failed on a fill timeout — the control never accepts
+        // input, from a test or from a person. Two of the 28 failures in the measured run
+        // were one readonly field.
+        if (LocalJson.Bool(element, "isReadOnly")) return false;
+        // Likewise disabled: nothing can be typed into it, so nothing can be validated.
+        if (LocalJson.Has(element, "isEnabled") && !LocalJson.Bool(element, "isEnabled")) return false;
+
+        return true;
     }
 
     private static string Haystack(JsonElement element)

@@ -46,7 +46,17 @@ public class ApplicationElement : BaseEntity, ITenantOwned
 
     public bool IsVisible { get; set; } = true;
     public bool IsEnabled { get; set; } = true;
+
+    /// <summary>A read-only control accepts nothing, from a test or a person, so it is not
+    /// a validation surface. Without this the planner generated the full battery against
+    /// one and every test failed on a fill timeout, read as an application defect.</summary>
+    public bool IsReadOnly { get; set; }
+
     public bool IsRequired { get; set; }
+
+    /// <summary>A select's options as JSON, so a generated test can choose a real one.
+    /// Null for anything that is not a select.</summary>
+    public string? OptionsJson { get; set; }
     /// <summary>Stable-looking attributes (data-*, aria-*) serialized as JSON.</summary>
     public string? AttributesJson { get; set; }
     /// <summary>Preferred locator expressed in the platform's own locator grammar.</summary>

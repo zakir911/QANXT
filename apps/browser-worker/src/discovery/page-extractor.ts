@@ -29,7 +29,9 @@ export interface RawElement {
   bounding: { x: number; y: number; width: number; height: number };
   isVisible: boolean;
   isEnabled: boolean;
+  isReadOnly: boolean;
   isRequired: boolean;
+  options?: Array<{ value: string; label: string }>;
   attributes: Record<string, string>;
 }
 
@@ -324,7 +326,22 @@ export function extractPage(maxElements: number): RawPageCapture {
       },
       isVisible: visible,
       isEnabled: !(element as HTMLInputElement).disabled,
+      // Captured because a read-only control accepts nothing, from a test or a person, so
+      // generating validation tests for it produces tests that can only ever fail on a
+      // fill timeout and be read as application defects.
+      isReadOnly: (element as HTMLInputElement).readOnly === true
+        || element.getAttribute('aria-readonly') === 'true',
       isRequired: element.hasAttribute('required') || element.getAttribute('aria-required') === 'true',
+      // A select's options, so a generated test can choose a real one. Without them the
+      // planner had nothing to pass to selectOption and used a hard-coded "1", which
+      // matches by value or label and so matched nothing on a select of identifiers.
+      // Capped: a country list is 250 options and the first few are all a test needs.
+      options: element instanceof HTMLSelectElement
+        ? Array.from(element.options).slice(0, 12).map(option => ({
+            value: option.value,
+            label: (option.textContent ?? '').trim().slice(0, 80)
+          }))
+        : undefined,
       attributes: interestingAttributes(element)
     });
   }
