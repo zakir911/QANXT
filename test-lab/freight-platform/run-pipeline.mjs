@@ -307,7 +307,14 @@ const run = await startRun(tenant, {
 });
 log(`  run ${run.id} with ${caseIds.length} distinct case(s) of ${cases.length} generated`);
 
-const finished = await waitForRun(tenant, run.id, 40 * 60 * 1000);
+// A fixed forty minutes was too short the moment discovery started reaching the whole
+// application: 733 cases at the 9.4 executions a minute this run sustained needs 78. The
+// driver then reports a timeout while the run carries on in the control plane, and the
+// detection analysis is computed on a partial run. So the wait is derived from the work,
+// with 5/min as a deliberately pessimistic floor and a half-hour of margin on top.
+const executionWaitMs = Math.max(40 * 60 * 1000, (caseIds.length / 5 + 30) * 60 * 1000);
+log(`  waiting up to ${Math.round(executionWaitMs / 60000)} min for ${caseIds.length} case(s)`);
+const finished = await waitForRun(tenant, run.id, executionWaitMs);
 const executionSeconds = Math.round((Date.now() - executionStarted) / 1000);
 log(`  status ${finished.status} in ${executionSeconds}s`);
 log(`  passed ${finished.passedCount ?? '?'}  failed ${finished.failedCount ?? '?'}  `
