@@ -109,18 +109,55 @@ if (!generated.ok) {
   process.exit(1);
 }
 const design = generated.json ?? {};
-line(`  ${JSON.stringify(design).slice(0, 400)}`);
+line(`  suite "${design.testSuiteName ?? '?'}"`);
+line(`  ${design.testsCreated ?? '?'} test(s) created, ${design.testsUpdated ?? 0} updated, `
+  + `${design.testsUnchanged ?? 0} unchanged, ${design.testsDeprecated ?? 0} deprecated`);
+line(`  ${design.forms ?? '?'} form(s) designed from`);
+// The three figures that say what the engine knows it cannot do, which is the part worth
+// reading: a gap is coverage it could not reach, a human task is a question no machine can
+// answer, a finding is something wrong with the form itself rather than with a submission.
+line(`  ${design.gaps ?? 0} gap(s), ${design.humanTasks ?? 0} human task(s), `
+  + `${design.findings ?? 0} structural finding(s)`);
+line(`  usedAi: ${design.usedAi === true}`);
 result.stages.design = design;
 
-// ---- 5. coverage, before anything runs ---------------------------------------
-section('5. Coverage the engine claims, by category');
-const coverage = await request(`/api/v1/applications/${application.id}/coverage`, { token: tenant.token });
-const cov = coverage.json ?? {};
-for (const row of (cov.categories ?? cov.byCategory ?? []).slice(0, 30)) {
-  line(`    ${String(row.category ?? row.name).padEnd(18)} ${row.tests ?? row.count ?? '?'} test(s)`
-    + (row.gaps?.length ? `  — ${row.gaps.length} gap(s)` : ''));
+/**
+ * Coverage, which is read twice.
+ *
+ * Before the run it reports 0%, and says so in words: "260 test(s) exist for 5 form(s) and
+ * none has run yet, so coverage is 0%." A suite that exists is not coverage, and the engine
+ * refuses to count it as any. That is worth showing, because it is the distinction every
+ * coverage number in this exercise has turned on.
+ */
+async function readCoverage(label) {
+  const response = await request(`/api/v1/applications/${application.id}/coverage`,
+    { token: tenant.token });
+  const cov = response.json ?? {};
+  line(`\n  ${label}: ${cov.overallCoveragePercent ?? '?'}% overall`);
+  if (cov.statement) line(`  "${cov.statement}"`);
+  const s = cov.surface ?? {};
+  line(`  surface: ${s.discoveredPages ?? '?'} page(s), ${s.discoveredForms ?? '?'} form(s), `
+    + `${s.discoveredFields ?? '?'} field(s), ${s.discoveredEndpoints ?? '?'} endpoint(s)`);
+  line(`  tests: ${s.testableTests ?? '?'} testable, ${s.executedTests ?? 0} executed, `
+    + `${s.passedTests ?? 0} passed, ${s.failedTests ?? 0} failed`);
+  line('  by category (generated / executed / passed / failed / gaps):');
+  for (const row of (cov.categories ?? []).filter(r => (r.generated ?? 0) > 0)) {
+    line(`    ${String(row.category).padEnd(17)} ${String(row.generated).padStart(4)} / `
+      + `${String(row.executed ?? 0).padStart(4)} / ${String(row.passed ?? 0).padStart(4)} / `
+      + `${String(row.failed ?? 0).padStart(4)} / ${row.openGaps ?? 0}`
+      + `   ${row.coveragePercent ?? 0}%`);
+  }
+  if ((cov.gaps ?? []).length) {
+    line(`\n  ${cov.gaps.length} gap(s) the engine declares it has not covered:`);
+    for (const gap of cov.gaps.slice(0, 12)) {
+      line(`    ${(gap.reason ?? gap.description ?? JSON.stringify(gap)).slice(0, 96)}`);
+    }
+  }
+  return cov;
 }
-result.stages.coverage = cov;
+
+section('5. Coverage before anything has run');
+result.stages.coverageBefore = await readCoverage('before the run');
 
 // ---- 6. run everything, security included ------------------------------------
 section('6. Run the whole suite, security included');
@@ -169,15 +206,27 @@ result.stages.run = {
   }))
 };
 
+// ---- 6b. coverage, now that it means something -------------------------------
+section('6b. Coverage once the suite has run');
+result.stages.coverageAfter = await readCoverage('after the run');
+
 // ---- 7. the defects the engine correlated ------------------------------------
 section('7. Defects the engine correlated from those failures');
-const defects = await request(`/api/v1/defects?applicationId=${application.id}&pageSize=500`,
+// projectId is required on this endpoint, not optional. Passing only applicationId returned
+// nothing and the driver reported "0 defect(s)" while the engine had correlated 23.
+const defects = await request(
+  `/api/v1/defects?projectId=${project.id}&applicationId=${application.id}`,
   { token: tenant.token });
 const defectList = defects.json?.items ?? defects.json ?? [];
 line(`  ${defectList.length} defect(s)`);
-for (const d of defectList.slice(0, 40)) {
-  line(`    [${d.severity ?? '?'}] ${(d.title ?? '').slice(0, 88)}`);
-  if (d.where ?? d.location ?? d.route) line(`        at ${d.where ?? d.location ?? d.route}`);
+const bySeverity = {};
+for (const d of defectList) bySeverity[d.severity ?? '?'] = (bySeverity[d.severity ?? '?'] ?? 0) + 1;
+if (defectList.length) line(`  by severity: ${JSON.stringify(bySeverity)}`);
+for (const d of defectList.slice(0, 60)) {
+  line(`    [${d.severity ?? '?'}] ${(d.title ?? '').slice(0, 92)}`);
+  const where = d.where ?? d.location ?? d.route ?? d.applicationFormId;
+  if (where) line(`        at ${String(where).slice(0, 80)}`);
+  if (d.occurrenceCount > 1) line(`        seen ${d.occurrenceCount} time(s)`);
 }
 result.stages.defects = {
   count: defectList.length,
