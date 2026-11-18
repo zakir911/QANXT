@@ -169,6 +169,26 @@ public sealed class TestRunService : ITestRunService
         _db.TestExecutions.AddRange(executions);
         await _db.SaveChangesAsync(ct);
 
+        // From here the request's cancellation token is deliberately NOT used.
+        //
+        // The executions above are committed. Dispatching them is one enqueue per execution,
+        // and a large suite is a lot of them: a 137-screen application designed 5,832 tests,
+        // and inserting and queueing them took longer than the client's 60-second timeout.
+        // When the client gave up, ct was cancelled, the loop below stopped partway, and
+        // 3,756 executions were left Pending with no job ever queued for them.
+        //
+        // The run then reported 5,832 total and could never finish. Twenty minutes later the
+        // stranded sweep ended those executions with "No worker picked this test up" — which
+        // is true and blames the wrong component: no worker was ever told. A client that
+        // hangs up, or a user who closes a tab, silently truncated a test run and the
+        // platform attributed it to the worker.
+        //
+        // Cancelling a request must not abandon work the request already committed, so the
+        // dispatch runs to completion on its own token. The caller has already been given
+        // the run id; the right to stop a run belongs to the cancel endpoint, not to a
+        // dropped socket.
+        var dispatchCt = CancellationToken.None;
+
         var dispatched = 0;
         var dispatchErrors = new List<string>();
 
@@ -190,7 +210,7 @@ public sealed class TestRunService : ITestRunService
                 continue;
             }
 
-            var payload = await BuildPayloadAsync(run, execution, testCase, project, environment, ct);
+            var payload = await BuildPayloadAsync(run, execution, testCase, project, environment, dispatchCt);
 
             if (payload.IsFailure)
             {
@@ -203,7 +223,7 @@ public sealed class TestRunService : ITestRunService
 
             try
             {
-                await _queue.EnqueueAsync(QueueNames.Execution, "execution", payload.Value!, ct);
+                await _queue.EnqueueAsync(QueueNames.Execution, "execution", payload.Value!, dispatchCt);
                 dispatched++;
             }
             catch (Exception ex)
@@ -226,7 +246,9 @@ public sealed class TestRunService : ITestRunService
             run.CompletedAt = _clock.UtcNow;
         }
 
-        await _db.SaveChangesAsync(ct);
+        // Also on the dispatch token: a cancelled request must not lose the record of what
+        // it managed to queue.
+        await _db.SaveChangesAsync(dispatchCt);
 
         await _audit.LogAsync(AuditAction.TestRunStarted, nameof(TestRun), run.Id,
             $"Run '{run.Name}' started with {dispatched} of {cases.Count} execution(s) queued.",
