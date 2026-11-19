@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using QaNxt.Application.Contracts;
 using QaNxt.Domain.Enums;
@@ -22,6 +23,12 @@ public sealed record DesignedStep(
     AssertionType? ExtraAssertion = null,
     string? ExtraExpected = null,
     bool ExtraNegate = false);
+
+/// <summary>What an <see cref="BrowserActionType.AssertServerEnforces"/> step carries: the
+/// form to serialise off the live page, and what the browser objected to.</summary>
+public sealed record ServerEnforcementStep(
+    [property: JsonPropertyName("form")] LocatorDescriptor Form,
+    [property: JsonPropertyName("rule")] string? Rule);
 
 public sealed record DesignedTest
 {
@@ -340,15 +347,12 @@ public static class FormTestDesigner
             if (!_transactional || _form.Action is null) yield break;
             if (string.Equals(_form.Method, "get", StringComparison.OrdinalIgnoreCase)) yield break;
 
-            var payload = JsonSerializer.Serialize(new Dictionary<string, object?>
-            {
-                ["form"] = new Dictionary<string, string>
-                {
-                    ["strategy"] = _form.Locator.Strategy.ToString().ToLowerInvariant(),
-                    ["value"] = _form.Locator.Value
-                },
-                ["rule"] = rule
-            }, JsonDefaults.Options);
+            // The locator is serialised as itself, through the same options the rest of the
+            // wire uses. Hand-building it produced "testid" where the worker's grammar says
+            // "testId", which resolves to no strategy at all — and dropped the fallbacks,
+            // name and nth that make the locator work in the first place.
+            var payload = JsonSerializer.Serialize(new ServerEnforcementStep(_form.Locator, rule),
+                JsonDefaults.Options);
 
             yield return new DesignedStep(BrowserActionType.AssertServerEnforces,
                 "Confirm the server refuses it too, and not only the browser", Value: payload);

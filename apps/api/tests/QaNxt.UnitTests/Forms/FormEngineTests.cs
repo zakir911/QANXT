@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text;
+using System.Text.Json;
 using FluentAssertions;
 using QaNxt.Application.Contracts;
 using QaNxt.Application.Forms;
@@ -327,6 +328,22 @@ public class FormEngineTests
             var step = test.Steps.First(s => s.Action == BrowserActionType.AssertServerEnforces);
             step.Value.Should().NotBeNullOrWhiteSpace();
             step.Value.Should().Contain("registration-form");
+
+            // The strategy has to be spelled the way the worker's locator grammar spells
+            // it. Hand-building this JSON produced "testid", which matches no strategy at
+            // all: the oracle fell back to the first form on the page, so on any page with
+            // two forms it sent the wrong submission — and a wrong submission gets refused,
+            // which this check would have reported as the server enforcing the rule. 398
+            // steps in a measurement run were about to be exactly that.
+            using var payload = JsonDocument.Parse(step.Value!);
+            payload.RootElement.GetProperty("form").GetProperty("strategy").GetString()
+                .Should().Be("testId", "the wire spelling is camelCase, not lowercase");
+
+            // Read back through the same converter the worker uses. A strategy that does
+            // not round-trip is one the worker cannot resolve.
+            var decoded = JsonSerializer.Deserialize<ServerEnforcementStep>(step.Value!, JsonDefaults.Options);
+            decoded!.Form.Strategy.Should().Be(LocatorStrategy.TestId);
+            decoded.Form.Value.Should().Be("registration-form");
         }
 
         Design(SearchBox()).Tests

@@ -1,7 +1,8 @@
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Locator, Page } from 'playwright';
-import type { ConsoleEventReport, NetworkEventReport } from '@qa-nxt/shared-types';
+import type { ConsoleEventReport, LocatorDescriptor, NetworkEventReport } from '@qa-nxt/shared-types';
+import { buildLocator } from '../browser/locator-resolver.js';
 
 /**
  * The form oracles: how a test decides what an application did with a submission, without
@@ -465,7 +466,7 @@ export async function materialiseFixture(spec: string, workDir: string): Promise
 /** What `assertServerEnforces` is asked to send, and what counts as the server refusing. */
 interface ServerEnforcementCheck {
   /** The form to serialise and send. Its own action, method and enctype are used. */
-  form?: { strategy: string; value: string };
+  form?: LocatorDescriptor;
   /** Values forced on top of whatever the live form carries. */
   overrides?: Record<string, string>;
   /** What the browser objected to, quoted back in the failure so a reader can see it. */
@@ -518,8 +519,7 @@ export async function assertServerEnforces(page: Page, value: string | undefined
     throw new OracleError('assertServerEnforces needs a JSON description of the submission to send.');
   }
 
-  const selector = check.form?.strategy === 'css' ? check.form.value : undefined;
-  const serialised = await serialiseForm(page, selector);
+  const serialised = await serialiseForm(page, check.form);
   if (serialised === null) {
     throw new OracleError(
       'Could not read the form off the page to send it to the server. The form has to still '
@@ -597,9 +597,20 @@ export async function assertServerEnforces(page: Page, value: string | undefined
  * serialised from the DOM at all so its name is sent empty. Hidden inputs are included,
  * which is the whole reason for reading the live form.
  */
-async function serialiseForm(page: Page, selector: string | undefined): Promise<SerialisedForm | null> {
-  return await page.evaluate((css) => {
-    const form = (css ? document.querySelector(css) : document.querySelector('form')) as HTMLFormElement | null;
+async function serialiseForm(
+  page: Page,
+  descriptor: LocatorDescriptor | undefined
+): Promise<SerialisedForm | null> {
+  // Resolved through the platform's own locator grammar, not a raw CSS query. The designer
+  // emits whichever strategy discovery chose for the form, which is a test id far more
+  // often than a selector, and honouring only CSS meant silently serialising the first
+  // form on the page instead of the one named — so on any page with two forms the wrong
+  // submission was sent, and a wrong submission gets refused, which this check would have
+  // read as the server enforcing the rule.
+  const scope = descriptor === undefined ? page.locator('form').first() : buildLocator(page, descriptor);
+
+  return await scope.evaluate((node) => {
+    const form = node as HTMLFormElement;
     if (!form || form.tagName.toLowerCase() !== 'form') return null;
 
     const fields: Array<[string, string]> = [];
@@ -635,7 +646,7 @@ async function serialiseForm(page: Page, selector: string | undefined): Promise<
       enctype: form.getAttribute('enctype') || 'application/x-www-form-urlencoded',
       fields
     };
-  }, selector ?? null).catch(() => null);
+  }).catch(() => null);
 }
 
 /** Appends the fields as a query string, for a form whose method is GET. */

@@ -52,7 +52,13 @@ describe('a rule the browser enforces and the server does not', () => {
       if (request.method === 'GET' && request.url?.startsWith('/order')) {
         response.writeHead(200, { 'content-type': 'text/html' });
         response.end(`<!doctype html><html><body>
-          <form action="/order" method="post">
+          <!-- A search box, first in the document. Nearly every list page has one, so a
+               fallback to "the first form on the page" sends this instead. -->
+          <form action="/search" method="get" data-testid="search-form">
+            <input name="q" value="shipments" />
+            <button type="submit">Search</button>
+          </form>
+          <form action="/order" method="post" data-testid="order-form">
             <input type="hidden" name="__csrf" value="tok-abc123" />
             <input name="amount" type="number" max="100" value="5000" />
             <input name="customer" value="c-1" />
@@ -97,51 +103,51 @@ describe('a rule the browser enforces and the server does not', () => {
   test('fails, naming the rule, when the server accepts what the browser refused', async () => {
     answer = { status: 200, body: '<h1>Order placed</h1>' };
 
-    await expect(enforces({ form: { strategy: 'css', value: 'form' }, rule: 'amount exceeds its maximum of 100' }))
+    await expect(enforces({ form: { strategy: 'testId', value: 'order-form' }, rule: 'amount exceeds its maximum of 100' }))
       .rejects.toThrow(/accepted the submission/);
-    await expect(enforces({ form: { strategy: 'css', value: 'form' }, rule: 'amount exceeds its maximum of 100' }))
+    await expect(enforces({ form: { strategy: 'testId', value: 'order-form' }, rule: 'amount exceeds its maximum of 100' }))
       .rejects.toThrow(/enforced in the browser and not on the server/);
-    await expect(enforces({ form: { strategy: 'css', value: 'form' }, rule: 'amount exceeds its maximum of 100' }))
+    await expect(enforces({ form: { strategy: 'testId', value: 'order-form' }, rule: 'amount exceeds its maximum of 100' }))
       .rejects.toThrow(/amount exceeds its maximum of 100/);
   });
 
   test('passes when the server refuses with a 4xx', async () => {
     answer = { status: 422, body: 'Amount too large' };
-    await enforces({ form: { strategy: 'css', value: 'form' } });
+    await enforces({ form: { strategy: 'testId', value: 'order-form' } });
   });
 
   test('passes when the server answers 200 with a field-level complaint', async () => {
     // The common server-rendered shape: same page back, with the error filled in.
     answer = { status: 200, body: '<form><span class="field-error">Amount exceeds the limit</span></form>' };
-    await enforces({ form: { strategy: 'css', value: 'form' } });
+    await enforces({ form: { strategy: 'testId', value: 'order-form' } });
   });
 
   test('passes when the server answers 200 with a JSON error envelope', async () => {
     answer = { status: 200, body: JSON.stringify({ errors: { amount: 'too large' } }) };
-    await enforces({ form: { strategy: 'css', value: 'form' } });
+    await enforces({ form: { strategy: 'testId', value: 'order-form' } });
   });
 
   test('is not fooled by an empty error container', async () => {
     // Every healthy page has one of these. Reading it as a refusal would excuse the defect.
     answer = { status: 200, body: '<div class="error"></div><h1>Order placed</h1>' };
-    await expect(enforces({ form: { strategy: 'css', value: 'form' } }))
+    await expect(enforces({ form: { strategy: 'testId', value: 'order-form' } }))
       .rejects.toThrow(/accepted the submission/);
   });
 
   test('passes when a redirect goes back to the form', async () => {
     answer = { status: 302, headers: { location: '/order?error=amount' } };
-    await enforces({ form: { strategy: 'css', value: 'form' } });
+    await enforces({ form: { strategy: 'testId', value: 'order-form' } });
   });
 
   test('fails when a redirect goes somewhere else, which means it went through', async () => {
     answer = { status: 302, headers: { location: '/orders/9001/confirmed' } };
-    await expect(enforces({ form: { strategy: 'css', value: 'form' } }))
+    await expect(enforces({ form: { strategy: 'testId', value: 'order-form' } }))
       .rejects.toThrow(/accepted the submission.*redirected to \/orders\/9001\/confirmed/s);
   });
 
   test('reports a 5xx as its own defect rather than as a refusal', async () => {
     answer = { status: 500, body: 'TypeError: cannot read property of undefined' };
-    await expect(enforces({ form: { strategy: 'css', value: 'form' } }))
+    await expect(enforces({ form: { strategy: 'testId', value: 'order-form' } }))
       .rejects.toThrow(/answered 500 rather than refusing.*its own defect/s);
   });
 
@@ -149,7 +155,7 @@ describe('a rule the browser enforces and the server does not', () => {
     // Rebuilding the payload from the plan would omit this and the server would refuse for
     // the wrong reason — which this check would have read as a pass.
     answer = { status: 422 };
-    await enforces({ form: { strategy: 'css', value: 'form' } });
+    await enforces({ form: { strategy: 'testId', value: 'order-form' } });
 
     expect(received).toHaveLength(1);
     expect(received[0]!['__csrf']).toBe('tok-abc123');
@@ -157,7 +163,7 @@ describe('a rule the browser enforces and the server does not', () => {
 
   test('submits the form the way a browser would', async () => {
     answer = { status: 422 };
-    await enforces({ form: { strategy: 'css', value: 'form' } });
+    await enforces({ form: { strategy: 'testId', value: 'order-form' } });
 
     const sent = received[0]!;
     expect(sent['amount']).toBe('5000');          // the violating value, as the browser has it
@@ -169,7 +175,7 @@ describe('a rule the browser enforces and the server does not', () => {
 
   test('applies overrides on top of the live form', async () => {
     answer = { status: 422 };
-    await enforces({ form: { strategy: 'css', value: 'form' }, overrides: { amount: '999999' } });
+    await enforces({ form: { strategy: 'testId', value: 'order-form' }, overrides: { amount: '999999' } });
 
     expect(received[0]!['amount']).toBe('999999');
     expect(received[0]!['__csrf']).toBe('tok-abc123');
@@ -177,16 +183,46 @@ describe('a rule the browser enforces and the server does not', () => {
 
   test('honours an explicit list of statuses that count as a refusal', async () => {
     answer = { status: 200, body: '<h1>Order placed</h1>' };
-    await expect(enforces({ form: { strategy: 'css', value: 'form' }, refusedStatuses: [409] }))
+    await expect(enforces({ form: { strategy: 'testId', value: 'order-form' }, refusedStatuses: [409] }))
       .rejects.toThrow(/accepted the submission/);
 
     answer = { status: 409 };
-    await enforces({ form: { strategy: 'css', value: 'form' }, refusedStatuses: [409] });
+    await enforces({ form: { strategy: 'testId', value: 'order-form' }, refusedStatuses: [409] });
+  });
+
+  test('submits the form it was told to, not the first one on the page', async () => {
+    // The designer names the form with whatever strategy discovery chose, which is a test
+    // id far more often than a selector. Honouring only CSS meant silently serialising the
+    // first form on the page: on this page that is the search box, whose submission the
+    // server would refuse — and a refusal is what this check reads as the server enforcing
+    // the rule. 398 steps in a measurement run were about to be exactly that.
+    answer = { status: 422 };
+
+    await enforces({ form: { strategy: 'testId', value: 'order-form' } });
+
+    expect(received).toHaveLength(1);
+    expect(received[0]!['amount']).toBe('5000');
+    expect(received[0]!['__csrf']).toBe('tok-abc123');
+    expect(received[0]!).not.toHaveProperty('q');
+  });
+
+  test('resolves a form by role and accessible name as well as by test id', async () => {
+    answer = { status: 422 };
+
+    await enforces({ form: { strategy: 'css', value: 'form[action="/order"]' } });
+
+    expect(received[0]!['amount']).toBe('5000');
+    expect(received[0]!).not.toHaveProperty('q');
+  });
+
+  test('says so when the named form is not on the page', async () => {
+    await expect(enforces({ form: { strategy: 'testId', value: 'no-such-form' } }))
+      .rejects.toThrow(/Could not read the form off the page/);
   });
 
   test('says so when the form is no longer on the page', async () => {
     await page.setContent('<p>gone</p>');
-    await expect(enforces({ form: { strategy: 'css', value: 'form' } }))
+    await expect(enforces({ form: { strategy: 'testId', value: 'order-form' } }))
       .rejects.toThrow(/Could not read the form off the page/);
   });
 });
