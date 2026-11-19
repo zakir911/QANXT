@@ -25,7 +25,9 @@
  *
  *   node run-form-engine.mjs [--budget 900] [--max-pages 160]
  */
+import { execFileSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import {
   request, newTenant, createProject, registerApplication, runDiscovery, waitForRun
 } from '../../verification/golden-tests/platform.mjs';
@@ -162,6 +164,27 @@ async function readCoverage(label) {
 
 section('5. Coverage before anything has run');
 result.stages.coverageBefore = await readCoverage('before the run');
+
+// ---- 5b. is the suite runnable at all? --------------------------------------
+section('5b. Pre-flight: is this suite internally coherent?');
+// Added because the check caught something. A run's 398 server-enforcement steps named
+// locator strategy "testid" where the grammar says "testId", so each resolved to nothing,
+// the oracle fell back to the first form on the page, and every one of them would have
+// passed for the wrong reason. Three hours would have reported a capability the engine did
+// not have. A suite that fails this says nothing about the application, so the run stops
+// here rather than producing a number.
+try {
+  execFileSync('node', [fileURLToPath(new URL('./preflight-suite.mjs', import.meta.url)),
+                        '--app', application.id],
+               { stdio: 'inherit' });
+  result.stages.preflight = { passed: true };
+} catch {
+  result.stages.preflight = { passed: false };
+  await writeFile(new URL('./form-engine-result.json', import.meta.url),
+                  JSON.stringify(result, null, 2) + '\n');
+  line('\nStopping before execution. Fix the suite, then run again.');
+  process.exit(1);
+}
 
 // ---- 6. run everything, security included ------------------------------------
 section('6. Run the whole suite, security included');
