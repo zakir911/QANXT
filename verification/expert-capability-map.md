@@ -31,6 +31,7 @@ Status words, used strictly:
 | Cross-field rules | Dates out of order, mismatched confirmations | ~30 ordered-pair vocabulary, dependency probing | covered |
 | **Server-side enforcement** | **Submit past the browser with curl** | **`assertServerEnforces`** | **built, not yet measured** |
 | Accessibility | Keyboard, labels, error association, focus | axe-core plus `assertErrorAssociated`, `assertFocused` | partly covered |
+| **Colour as the only channel** | **Ask what the status column says in greyscale** | **`assertNotColourOnly`** | **built, not yet measured** |
 | Responsive | Resize and look for overflow | `assertNoHorizontalScroll` at 390px and 768px | covered |
 | Injection reflected in a page | Put a tag in a field and see if it renders | `assertNoMarkupInjection` | covered |
 | Error handling | Make it fail and watch what leaks | `assertNoServerError`, stack-trace detection | partly covered |
@@ -62,11 +63,21 @@ and FP_D28 was correctly ranked as the most severe of the four.
 | FP_D05 credit limit checked on the form, not in the handler | every test went through the DOM | `assertServerEnforces` |
 | FP_D17 a rejected declaration can be released | the UI does not offer the action, so nothing tried it | `assertServerEnforces` |
 | FP_D11 a viewer can settle a claim | hidden from the viewer, not refused | `assertServerEnforces`, and `authz.readonly` with an identity |
+| FP_D23 vehicle status conveyed by colour alone | axe checks contrast, not whether colour is the only channel | `assertNotColourOnly` |
 
 The oracle sends the submission the browser just refused straight to the form's action,
 with the session's own cookies, and asks for the refusal again. It is emitted only after a
 step has shown the browser refusing — on its own, a server accepting a value nothing
 objects to is an unconstrained field, not a defect.
+
+One caution about this table, learned the hard way. The first attempt to measure these
+generated 398 server-enforcement steps whose form locator named a strategy the worker's
+resolver does not know, so each resolved to nothing and the oracle fell back to the first
+form on the page. A wrong submission gets refused, and this oracle reads a refusal as the
+server enforcing the rule — so all 398 would have *passed*, and "built, not yet measured"
+would have become "covered" on the strength of a check that never ran. That is why
+`preflight-suite.mjs` now runs before execution and why nothing moves to **covered** here
+without a failure observed on the defect it is for.
 
 ### Needs an identity or a credential supplied
 
@@ -95,9 +106,7 @@ were a gap in *supply*. Nothing had given the scanner the three identities the l
    FP_D15.
 5. **Dialog behaviour** — role, focus moved in, Escape closes, focus returns. Catches
    FP_D24. axe does not check focus management.
-6. **Information conveyed by colour alone** — a status cell whose only content is a styled
-   span. Catches FP_D23. axe does not catch this either.
-7. **Cross-entity state after an action** — cancel a shipment, then look at the route it
+6. **Cross-entity state after an action** — cancel a shipment, then look at the route it
    was on. Catches FP_D14. The hardest of these: it needs to know the two screens are
    related, which the discovery graph may already be able to say.
 
