@@ -190,7 +190,12 @@ const SIGNATURES = {
   'assertNoHorizontalScroll: overflows a small screen': '%scrolled sideways%',
   'assertNoMarkupInjection: input came back as live markup': '%markup%',
   'assertErrorAssociated: error not tied to its field': '%not tied to%',
-  'select step: the option is not offered': '%that option is not offered%',
+  // Not an application defect: the engine invalidating its own test data. The designer
+  // captured an option value at discovery time and an earlier test in the same run
+  // removed it — the invoice selects list unpaid invoices and the suite pays some of
+  // them. Visible at all only because a failing select now names the options the control
+  // actually has; these were opaque "locator.selectOption: Timeout" failures before.
+  'stale test data: an option an earlier test in this run removed': '%that option is not offered%',
   'select step: the select has no selectable options': '%no selectable options%',
   'locator: matched more than one element': '%matched % elements%'
 };
