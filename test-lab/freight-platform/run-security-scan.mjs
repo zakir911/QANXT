@@ -161,9 +161,30 @@ for (const f of list) {
 }
 
 // What it says it did NOT establish, which is the half a scan usually leaves out.
-if ((scan?.untestedAreas ?? []).length) {
+//
+// The scan detail response carries no `untestedAreas` field: the per-check reasons are
+// stored on the scan and reach this endpoint only as prose appended to the gate's reason.
+// Reading only the structured field printed nothing after a scan that had recorded 204
+// reasons — including that 120 checks were refused outright — so a run that established
+// almost nothing read as a clean one. Fall back to the gate rather than print silence.
+const untested = (scan?.untestedAreas ?? []);
+const gateReason = scan?.gate?.reason ?? scan?.gate?.summary ?? '';
+
+if (untested.length || /untested/i.test(gateReason)) {
   section('5. What the scan says it did not establish');
-  for (const area of scan.untestedAreas) line(`  ${String(area).slice(0, 110)}`);
+  if (untested.length) {
+    for (const area of untested) line(`  ${String(area).slice(0, 110)}`);
+  } else {
+    line('  (no untestedAreas field on the scan; read from the gate\'s reason)');
+    for (const part of gateReason.split(/(?<=\.)\s+/)) {
+      if (part.trim()) line(`  ${part.trim().slice(0, 160)}`);
+    }
+  }
+} else if ((scan?.testsSkipped ?? 0) > 0) {
+  // Never let "N skipped" stand with no account of what N was.
+  section('5. What the scan says it did not establish');
+  line(`  ${scan.testsSkipped} check(s) did not run and this run could not learn why:`);
+  line('  the scan detail response carries no untestedAreas field and the gate said nothing.');
 }
 
 result.stages.scan = {
@@ -172,6 +193,7 @@ result.stages.scan = {
   testsExecuted: scan?.testsExecuted ?? null, testsSkipped: scan?.testsSkipped ?? null,
   checksConfigured: started.json?.checksConfigured ?? null,
   untestedAreas: scan?.untestedAreas ?? [],
+  gate: scan?.gate ?? null,
   findings: list.map(f => ({
     category: f.category, title: f.title, severity: f.severity, confidence: f.confidence,
     endpoint: f.endpoint, httpMethod: f.httpMethod, parameter: f.parameter,

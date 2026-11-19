@@ -4,7 +4,7 @@ Every entry here was found by pointing the product at a 150-page application and
 what happened, not by reading the code. Each one is recorded with the evidence that
 established it, because the diagnosis is usually not what the symptom suggested.
 
-The pattern worth noticing: of the eleven below, **six were found by a check that was
+The pattern worth noticing: of the twelve below, **six were found by a check that was
 itself new**. A better failure message, a pre-flight, a collector that refuses to report
 partial data — each immediately exposed something that had been invisible. The tooling that
 makes a tool honest is the tooling that makes it diagnosable.
@@ -14,6 +14,9 @@ job's credential had been stamped before its work was scheduled (10), and the gu
 to catch exactly that had never fired once, because it was tested against an imagined
 message rather than a real one (11). Neither is visible from the code. Both are obvious
 within a minute of watching a real run stop.
+
+The twelfth is the uncomfortable one: the analyser that scores all of this was itself
+over-crediting, and reported 3 detections where the evidence supported 2.
 
 ---
 
@@ -254,6 +257,46 @@ refusal the control plane can return rather than the three statuses someone thou
 
 **Status.** Fixed, with the real log line from this run as a test fixture and a test that
 the verdict does not depend on where the status code falls in the message.
+
+---
+
+## 12. The measurement credited one failure to several defects
+
+**Not a product defect — a defect in the thing measuring the product, which is worse.**
+
+**Symptom.** The detection analysis reported **3 of 32 planted defects detected**.
+
+**Diagnosis.** Two of the three shared their evidence with another defect. The line
+
+```
+Book a shipment — step 2: refuses Requested delivery date before Collection date
+  → Expected the submission to be refused, but it was accepted
+```
+
+was counted as finding both `FP_D02_DELIVERY_BEFORE_COLLECTION`, which it is, and
+`FP_D15_WIZARD_BACK_LOSES_DATA` ("going back from step 3 empties step 2"), which it plainly
+is not — the word "step" appeared in the test's name, and a signal naming the defect's
+screen needed only **one** keyword to count. The same colour-only finding was credited to
+both `FP_D23` and `FP_D21`.
+
+A measurement that flatters what it measures is worse than no measurement, and this one had
+**no tests at all**, which is how it stayed wrong while every other number was checked.
+
+**Fix.** One failure line is evidence of one defect. Each signal is awarded to the defect
+whose keywords it matches most specifically, and naming the defect's own screen outranks
+keyword count elsewhere — the colour finding on `/fleet/vehicles` is the colour defect's,
+not that of an unlabelled-field defect on another screen that shares vocabulary. Eight
+tests now cover the matcher, including that the result does not depend on the order the
+defects are listed in.
+
+**Corrected figure: 2 of 32**, reported below.
+
+**A second instance, same run.** The security harness printed nothing under "what the scan
+did not establish" after a scan that had recorded **204** reasons. It read only the
+structured `untestedAreas` field; the scan detail response has no such field, and the
+reasons reach it only as prose on the gate's reason. So a scan that was refused permission
+to run 120 of its checks read as a clean one. The harness now falls back to the gate, and
+refuses to print "17 skipped" with no account of what was skipped.
 
 ---
 

@@ -151,6 +151,37 @@ function mentions(text, token) {
 }
 
 /**
+ * How specifically a defect's keywords match a signal.
+ *
+ * Two numbers, because neither alone separates a real match from a coincidence: how many
+ * distinct keywords matched, and how much text those keywords account for. "delivery date"
+ * matching is worth more than "step" matching, and both matching is worth more than either.
+ */
+function specificity(keywords, text, onScreen) {
+  const hits = keywords.filter(word => mentions(text, word));
+  return {
+    onScreen,
+    matched: hits.length,
+    weight: hits.reduce((total, word) => total + word.length, 0)
+  };
+}
+
+/**
+ * Whether one match is more specific than another.
+ *
+ * Naming the screen comes first and is not tradeable against keyword count. Two generic
+ * keywords matching a failure on some other page is weaker evidence than one keyword
+ * matching a failure on the defect's own page, however the counts fall — the colour-only
+ * finding on /fleet/vehicles is FP_D23's, not FP_D21's, which is about a field on a stock
+ * adjustment screen and merely shares accessibility vocabulary.
+ */
+function beats(candidate, incumbent) {
+  if (candidate.onScreen !== incumbent.onScreen) return candidate.onScreen;
+  if (candidate.matched !== incumbent.matched) return candidate.matched > incumbent.matched;
+  return candidate.weight > incumbent.weight;
+}
+
+/**
  * Keywords per defect. Two or more must appear for a signal that does not already name the
  * screen, so a single common word cannot carry a claim on its own.
  */
@@ -239,28 +270,70 @@ export function detect({ defects, failures = [], findings = [], reachedPaths = [
     ...findings.map(f => ({ kind: 'security', text: `${f.title ?? ''} ${f.evidence ?? ''} ${f.url ?? ''}` }))
   ];
 
-  const verdicts = defects.map(defect => {
+  const claims = defects.map(defect => {
     const screen = defect.screen.split('?')[0];
     const keywords = DEFECT_KEYWORDS[defect.id] ?? [];
     const screenReached = reachedPaths.some(path => path === screen || patternMatches(screen, path));
 
     const namesScreen = signals.filter(signal => signal.text.includes(screen));
-    const onScreenAndSymptom = namesScreen.filter(signal =>
-      keywords.some(word => mentions(signal.text, word)));
+    const onScreenAndSymptom = namesScreen
+      .map(signal => ({ signal, specificity: specificity(keywords, signal.text, true) }))
+      .filter(candidate => candidate.specificity.matched > 0);
     // Away from the screen, two independent keywords are required.
-    const symptomOnly = signals.filter(signal =>
-      keywords.filter(word => mentions(signal.text, word)).length >= 2);
+    const symptomOnly = signals
+      .filter(signal => !namesScreen.includes(signal))
+      .map(signal => ({ signal, specificity: specificity(keywords, signal.text, false) }))
+      .filter(candidate => candidate.specificity.matched >= 2);
+
+    return { defect, screen, keywords, screenReached, onScreenAndSymptom, symptomOnly };
+  });
+
+  // One failure line is evidence of one defect.
+  //
+  // Without this, a single failure is credited to every planted defect whose screen it
+  // names and one of whose keywords it happens to contain. On run accddf2b that counted
+  // "Book a shipment: refuses Requested delivery date before Collection date" as finding
+  // both FP_D02, which it is, and FP_D15 "going back from step 3 empties step 2", which it
+  // is not: the word "step" appeared in the test's name. The same colour-only finding was
+  // credited to both FP_D23 and FP_D21. Reported detection was 3 of 32 when the evidence
+  // supported 2 — a measurement that flatters the thing it measures, which is worse than
+  // no measurement.
+  //
+  // So each signal is awarded to the defect whose keywords it matches most specifically,
+  // and the others must find their own evidence or go unfound.
+  const owner = new Map();
+  for (const claim of claims) {
+    for (const candidate of [...claim.onScreenAndSymptom, ...claim.symptomOnly]) {
+      const best = owner.get(candidate.signal);
+      if (best === undefined || beats(candidate.specificity, best.specificity)) {
+        owner.set(candidate.signal, { id: claim.defect.id, specificity: candidate.specificity });
+      }
+    }
+  }
+
+  const verdicts = claims.map(claim => {
+    const mine = (candidates) =>
+      candidates.filter(candidate => owner.get(candidate.signal)?.id === claim.defect.id);
+
+    const onScreenAndSymptom = mine(claim.onScreenAndSymptom);
+    const symptomOnly = mine(claim.symptomOnly);
+
+    // Evidence that exists but belongs to a better match. Recorded rather than dropped:
+    // "another defect explains this line" is a different state from "nothing matched".
+    const contested = claim.onScreenAndSymptom.length + claim.symptomOnly.length
+      - onScreenAndSymptom.length - symptomOnly.length;
 
     let verdict;
     if (onScreenAndSymptom.length) verdict = 'found';
     else if (symptomOnly.length) verdict = 'possible';
-    else if (!screenReached) verdict = 'unreachable';
+    else if (!claim.screenReached) verdict = 'unreachable';
     else verdict = 'missed';
 
     return {
-      id: defect.id, severity: defect.severity, category: defect.category,
-      screen, screenReached, verdict,
-      evidence: (onScreenAndSymptom[0] ?? symptomOnly[0])?.text?.slice(0, 180) ?? null
+      id: claim.defect.id, severity: claim.defect.severity, category: claim.defect.category,
+      screen: claim.screen, screenReached: claim.screenReached, verdict,
+      contestedEvidence: contested,
+      evidence: (onScreenAndSymptom[0] ?? symptomOnly[0])?.signal.text?.slice(0, 180) ?? null
     };
   });
 
