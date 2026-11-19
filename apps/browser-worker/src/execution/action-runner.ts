@@ -161,7 +161,16 @@ export async function runAction(
 
     case 'select': {
       const value = context.resolveValue(action.value) ?? '';
-      await locate(page, target, timeout).then(l => l.selectOption(value, { timeout }));
+      const select = await locate(page, target, timeout);
+      try {
+        await select.selectOption(value, { timeout });
+      } catch (error) {
+        // Playwright waits the full timeout for an option that will never arrive and then
+        // reports only that it waited. A run against a 152-page application produced 29
+        // such failures, every one indistinguishable from a slow page. What the select
+        // actually offers is the whole diagnosis, so say it.
+        throw await explainSelectFailure(select, value, error);
+      }
       return;
     }
 
@@ -667,4 +676,83 @@ async function waitForValue<T>(
   }
 
   return { satisfied: satisfied(actual), actual, waitedMs: Date.now() - started };
+}
+
+
+/**
+ * Turns an opaque `selectOption` timeout into a statement of fact.
+ *
+ * Reads the options the select actually carries and names them. Three causes look
+ * identical from a bare timeout and are told apart here: the option genuinely is not
+ * offered, the select is empty because it depends on a field that has not been set yet,
+ * and the select is present but disabled. The original error is kept as the cause so
+ * nothing is lost.
+ */
+async function explainSelectFailure(
+  select: Locator,
+  wanted: string,
+  original: unknown
+): Promise<Error> {
+  const message = original instanceof Error ? original.message : String(original);
+
+  let observed: { options: Array<{ value: string; label: string }>; disabled: boolean } | null;
+  try {
+    observed = await select.evaluate(node => {
+      const element = node as HTMLSelectElement;
+      if (typeof element.options === 'undefined') return null;
+      return {
+        options: Array.from(element.options).map(option => ({
+          value: option.value,
+          label: (option.textContent ?? '').trim()
+        })),
+        disabled: element.disabled
+      };
+    });
+  } catch {
+    // The select went away while we asked. The original error is still the best answer.
+    return original instanceof Error ? original : new Error(message);
+  }
+
+  if (observed === null) {
+    return new Error(
+      `Cannot select "${wanted}": the target is not a <select>. ${message}`,
+      { cause: original }
+    );
+  }
+
+  const { options, disabled } = observed;
+
+  if (disabled) {
+    return new Error(
+      `Cannot select "${wanted}": the select is disabled. A disabled control usually means `
+      + `a field it depends on has not been set. ${message}`,
+      { cause: original }
+    );
+  }
+
+  const selectable = options.filter(option => option.value !== '');
+
+  if (selectable.length === 0) {
+    const placeholder = options.length === 1 ? ` Its only option is the empty placeholder `
+      + `"${options[0]!.label}".` : '';
+    return new Error(
+      `Cannot select "${wanted}": the select has no selectable options.${placeholder} `
+      + `An empty select is usually populated by another field, so this step needs that `
+      + `field set first. ${message}`,
+      { cause: original }
+    );
+  }
+
+  const shown = selectable.slice(0, 12)
+    .map(option => option.label && option.label !== option.value
+      ? `"${option.value}" (${option.label})`
+      : `"${option.value}"`)
+    .join(', ');
+  const more = selectable.length > 12 ? `, and ${selectable.length - 12} more` : '';
+
+  return new Error(
+    `Cannot select "${wanted}": that option is not offered. The select has `
+    + `${selectable.length} option(s): ${shown}${more}. ${message}`,
+    { cause: original }
+  );
 }

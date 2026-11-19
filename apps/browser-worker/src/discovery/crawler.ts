@@ -499,7 +499,7 @@ export class Crawler {
       screenshotKey,
       domKey,
       accessibilityKey,
-      elements: capture.elements.map(element => this.toDiscoveredElement(element)),
+      elements: capture.elements.map(element => this.toDiscoveredElement(element, capture.elements)),
       forms,
       links: capture.links
     };
@@ -812,8 +812,9 @@ export class Crawler {
     return out;
   }
 
-  private toDiscoveredElement(element: RawElement): DiscoveredElement {
-    const built = buildLocatorFor(element);
+  private toDiscoveredElement(element: RawElement, page: readonly RawElement[]): DiscoveredElement {
+    // The whole page is passed so the locator can be checked for uniqueness, not just built.
+    const built = buildLocatorFor(element, page);
     return {
       kind: element.kind as DiscoveredElement['kind'],
       tagName: element.tagName,
