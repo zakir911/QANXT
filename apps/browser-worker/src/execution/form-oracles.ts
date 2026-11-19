@@ -698,3 +698,104 @@ function sameRoute(location: string, target: string): boolean {
 function collapse(text: string): string {
   return text.replace(/\s+/g, ' ').trim();
 }
+
+/**
+ * Looks for information carried by colour alone.
+ *
+ * axe-core does not report this. It checks that colours have enough contrast, which is a
+ * different question from whether a colour is the only thing saying what a row is. A table
+ * whose status column is a green, amber or red square with no text passes every contrast
+ * rule and is unreadable to anyone who cannot distinguish them — about one man in twelve.
+ *
+ * The test that makes this reliable is variation down a column. A cell with no text and one
+ * coloured mark could be a spacer, a bullet or a rule, and flagging it would bury the real
+ * findings. The same column carrying two or more different colours across its rows is not
+ * decoration: something is being said, and only the colour is saying it. So a column is
+ * only reported when its no-text cells disagree about colour.
+ *
+ * A mark that carries its meaning in text as well is not reported, whether that text is an
+ * accessible name, a title, alternative text, an SVG title or visually-hidden content —
+ * those are the correct ways to do this and the check must not argue with them.
+ */
+export async function assertNotColourOnly(page: Page): Promise<void> {
+  const findings = await page.evaluate(() => {
+    /** Anything that conveys the mark's meaning other than its colour. */
+    const hasTextualMeaning = (element: Element): boolean => {
+      if ((element.textContent ?? '').trim() !== '') return true;
+      for (const node of [element, ...Array.from(element.querySelectorAll('*'))]) {
+        const name = node.getAttribute('aria-label') ?? node.getAttribute('title')
+          ?? node.getAttribute('alt') ?? node.getAttribute('aria-labelledby');
+        if (name && name.trim() !== '') return true;
+        if (node.tagName.toLowerCase() === 'svg' && node.querySelector('title')) return true;
+      }
+      return false;
+    };
+
+    /** The colour a mark is drawn in, ignoring anything fully transparent. */
+    const markColour = (element: Element): string | null => {
+      for (const node of [element, ...Array.from(element.querySelectorAll('*'))]) {
+        const style = window.getComputedStyle(node);
+        for (const value of [style.backgroundColor, style.borderTopColor, style.color]) {
+          if (!value) continue;
+          if (value === 'transparent' || /rgba\(\s*0,\s*0,\s*0,\s*0\s*\)/.test(value)) continue;
+          // A background the page already uses everywhere is not a mark.
+          if (value === 'rgba(0, 0, 0, 0)') continue;
+          if (style.backgroundColor === value) return value;
+        }
+      }
+      return null;
+    };
+
+    const reports: Array<{ table: string; column: number; colours: string[]; header: string }> = [];
+
+    document.querySelectorAll('table').forEach((table, tableIndex) => {
+      const rows = Array.from(table.querySelectorAll('tbody tr, tr'));
+      /** Column index → the distinct colours its text-free cells are drawn in. */
+      const byColumn = new Map<number, Set<string>>();
+
+      for (const row of rows) {
+        Array.from(row.children).forEach((cell, column) => {
+          const tag = cell.tagName.toLowerCase();
+          if (tag !== 'td' && cell.getAttribute('role') !== 'cell'
+            && cell.getAttribute('role') !== 'gridcell') return;
+          if (hasTextualMeaning(cell)) return;
+          if (cell.children.length === 0) return;   // a genuinely empty cell says nothing
+
+          const colour = markColour(cell);
+          if (colour === null) return;
+          if (!byColumn.has(column)) byColumn.set(column, new Set());
+          byColumn.get(column)!.add(colour);
+        });
+      }
+
+      const headers = Array.from(table.querySelectorAll('thead th, tr:first-child th'))
+        .map(cell => (cell.textContent ?? '').trim());
+
+      for (const [column, colours] of byColumn) {
+        // One colour is decoration. Two or more is data.
+        if (colours.size < 2) continue;
+        reports.push({
+          table: table.getAttribute('id') ?? table.getAttribute('data-testid') ?? `table ${tableIndex + 1}`,
+          column: column + 1,
+          colours: Array.from(colours),
+          header: headers[column] ?? ''
+        });
+      }
+    });
+
+    return reports;
+  });
+
+  if (findings.length === 0) return;
+
+  const described = findings.map(finding =>
+    `${finding.table}, column ${finding.column}${finding.header ? ` ("${finding.header}")` : ''} `
+    + `uses ${finding.colours.length} colours (${finding.colours.join(', ')}) with no text in any of those cells`
+  );
+
+  throw new OracleError(
+    `Information is carried by colour alone: ${described.join('; ')}. The cells differ only `
+    + 'in colour, so what they say is unavailable to anyone who cannot tell those colours '
+    + 'apart. Add text, an aria-label, a title or visually-hidden content to each mark.'
+  );
+}

@@ -241,7 +241,8 @@ public static class FormTestDesigner
 
                 var pageLevel = step.Action is BrowserActionType.SetViewport or BrowserActionType.AssertLoadTimeUnder
                     or BrowserActionType.AssertNoHorizontalScroll or BrowserActionType.ClearCookies or BrowserActionType.SetOffline
-                    or BrowserActionType.AssertNoServerError or BrowserActionType.AssertRequests;
+                    or BrowserActionType.AssertNoServerError or BrowserActionType.AssertRequests
+                    or BrowserActionType.AssertNotColourOnly;
                 if (pending && !pageLevel)
                 {
                     result.Add(new DesignedStep(BrowserActionType.Click, $"Press \"{_form.Opener!.Label}\" to open the form", _form.Opener.Locator));

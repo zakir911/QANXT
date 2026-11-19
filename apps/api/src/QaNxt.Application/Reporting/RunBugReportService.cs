@@ -677,6 +677,10 @@ public sealed class RunBugReportService : IRunBugReportService
                     + "browser can ignore the rule: a script, a replayed request, an older client. Move the check into "
                     + "the handler, keeping the client-side one for the message it gives. Where the answer was a 5xx "
                     + "instead, the handler reaches the value and then breaks on it, so validate before use.",
+                BrowserActionType.AssertNotColourOnly => "A column distinguishes its rows by colour and nothing else, "
+                    + "so what it says is unavailable to anyone who cannot tell those colours apart — about one man in "
+                    + "twelve. Contrast tools do not catch this, because the colours may well contrast perfectly. Add "
+                    + "text beside the mark, or an aria-label, title or visually-hidden label on it.",
                 BrowserActionType.AssertNoHorizontalScroll => "An element is wider than the viewport. Look for fixed widths (width or min-width in px), and images or tables without max-width: 100%.",
                 BrowserActionType.AssertPresent when (testCase.Technique ?? string.Empty).Contains("csrf", StringComparison.OrdinalIgnoreCase) || testCase.Name.Contains("forgery", StringComparison.OrdinalIgnoreCase) =>
                     "The form carries no anti-forgery token. Add a per-session token as a hidden field and verify it on the server (CWE-352).",

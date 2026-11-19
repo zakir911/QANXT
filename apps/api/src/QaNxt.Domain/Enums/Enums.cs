@@ -138,6 +138,13 @@ public enum BrowserActionType
     /// nothing else objects to is not a defect. Its configuration travels as JSON in the
     /// step's value.</summary>
     AssertServerEnforces = 63,
+    /// <summary>Looks for information a page carries by colour alone.
+    ///
+    /// axe-core does not report this: it checks colour contrast, which is a different
+    /// question from whether a colour is the only thing saying what a row is. Reported only
+    /// where a column's text-free cells disagree about colour, because one colour is
+    /// decoration and two or more is data.</summary>
+    AssertNotColourOnly = 64,
     /// <summary>Only permitted when the project explicitly allows scripting AND the caller
     /// holds the execution:script permission. Rejected by default.</summary>
     ExecuteScript = 90

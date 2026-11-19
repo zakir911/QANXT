@@ -162,6 +162,20 @@ public static class PageTestDesigner
                 TestPriority.Medium, $"{signedIn}{name} exists at {page.Route}.", "Navigation timing."));
         }
 
+        if (profile.Includes(TestCategory.Accessibility))
+        {
+            // axe-core runs separately and does not ask this. It checks that colours
+            // contrast well enough, which is a different question from whether a colour is
+            // the only thing saying what a row is: a status column of green, amber and red
+            // squares passes every contrast rule and says nothing without colour vision.
+            tests.Add(Test(TestCategory.Accessibility, "colour-only", "does not say anything with colour alone",
+                "Nothing on the page is distinguished only by colour.",
+                "Every mark that distinguishes one row from another also carries text, a label or a title.",
+                new List<DesignedStep> { open, new(BrowserActionType.AssertNotColourOnly, "Confirm nothing is distinguished by colour alone") },
+                TestPriority.Medium, $"{signedIn}{name} exists at {page.Route}.",
+                "DOM snapshot on failure, screenshot on failure."));
+        }
+
         if (profile.Includes(TestCategory.Responsive))
         {
             foreach (var viewport in profile.Viewports.Skip(1))
