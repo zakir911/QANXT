@@ -34,7 +34,9 @@ export async function handleExecutionJob(
   const client = new ControlPlaneClient({
     baseUrl: job.callbackBaseUrl,
     token: job.callbackToken,
-    logger
+    logger,
+    job: { id: job.executionId, scope: 'execution' },
+    workerSecret: config.workerToken
   });
 
   const artifactRoot = await mkdtemp(join(tmpdir(), `qanxt-exec-${job.executionId}-`));

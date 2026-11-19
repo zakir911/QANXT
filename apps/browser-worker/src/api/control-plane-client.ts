@@ -21,6 +21,13 @@ export interface ControlPlaneClientOptions {
   token: string;
   logger: Logger;
   maxAttempts?: number;
+  /**
+   * What this client may ask for a fresh token for, when the one it was handed has
+   * expired. Both are needed, plus the fleet's shared secret; without them the client
+   * simply cannot renew, and a refusal stays a refusal.
+   */
+  job?: { id: string; scope: 'execution' | 'discovery' | 'security' };
+  workerSecret?: string;
 }
 
 export class ControlPlaneError extends Error {
@@ -32,15 +39,31 @@ export class ControlPlaneError extends Error {
 
 export class ControlPlaneClient {
   private readonly baseUrl: string;
-  private readonly token: string;
   private readonly logger: Logger;
   private readonly maxAttempts: number;
+  private readonly job: ControlPlaneClientOptions['job'];
+  private readonly workerSecret: string | undefined;
+
+  /**
+   * Mutable, because a job's callback token can expire before the job is ever picked up.
+   * A run that designs more tests than the fleet can finish inside one token's life used
+   * to be unfinishable: the credential was stamped when the job was queued, and queue time
+   * depends on the size of the suite and the size of the fleet, neither of which the
+   * control plane knows when it stamps it. The client now replaces an expired token rather
+   * than carrying a dead one to the end of its retry budget.
+   */
+  private token: string;
+
+  /** One renewal per client, and a client serves one job. A second 401 is a real refusal. */
+  private renewalTried = false;
 
   constructor(options: ControlPlaneClientOptions) {
     this.baseUrl = options.baseUrl.replace(/\/+$/, '');
     this.token = options.token;
     this.logger = options.logger;
     this.maxAttempts = options.maxAttempts ?? 4;
+    this.job = options.job;
+    this.workerSecret = options.workerSecret;
   }
 
   // ---- Security ------------------------------------------------------------
@@ -254,6 +277,52 @@ export class ControlPlaneClient {
     });
   }
 
+  /**
+   * Exchanges the fleet's shared secret for a fresh token for this job.
+   *
+   * Returns false, quietly, whenever renewal is not possible: no secret configured, no job
+   * identified, the control plane unreachable, or — the case that matters — the job is no
+   * longer one that may report. A worker must not be able to talk its way back into a run
+   * that has finished, so a refusal here is final and the original 401 stands.
+   */
+  private async renewToken(): Promise<boolean> {
+    if (this.renewalTried) return false;
+    this.renewalTried = true;
+
+    if (!this.job || !this.workerSecret) {
+      this.logger.debug('A callback token expired and this client has no way to renew it');
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${this.baseUrl}/api/v1/worker/jobs/${this.job.id}/token`, {
+        method: 'POST',
+        headers: { 'x-worker-secret': this.workerSecret, 'content-type': 'application/json' },
+        body: JSON.stringify({ scope: this.job.scope })
+      });
+
+      if (!response.ok) {
+        this.logger.warn('The control plane would not renew this job\'s callback token', {
+          status: response.status, jobId: this.job.id
+        });
+        return false;
+      }
+
+      // Never logged, never stored anywhere but here.
+      const body = await response.json() as { token?: unknown };
+      if (typeof body?.token !== 'string' || body.token.length === 0) return false;
+
+      this.token = body.token;
+      this.logger.info('Renewed an expired callback token', { jobId: this.job.id });
+      return true;
+    } catch (error) {
+      this.logger.warn('Could not reach the control plane to renew a callback token', {
+        error: String(error)
+      });
+      return false;
+    }
+  }
+
   private async ensureOk(response: Response, what: string): Promise<void> {
     if (response.ok) return;
     const text = await response.text().catch(() => '');
@@ -272,6 +341,15 @@ export class ControlPlaneClient {
         return await operation();
       } catch (error) {
         lastError = error;
+
+        // A 401 means the token, not the request, was refused. Replace it and try the same
+        // call again without spending an attempt: the first try established that the
+        // control plane is reachable and that the only thing wrong was the credential.
+        if (error instanceof ControlPlaneError && error.status === 401 && await this.renewToken()) {
+          attempt--;
+          continue;
+        }
+
         const retryable = error instanceof ControlPlaneError ? error.retryable : true;
         if (!retryable || attempt === attempts) break;
 

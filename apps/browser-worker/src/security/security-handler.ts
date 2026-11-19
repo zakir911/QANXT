@@ -74,7 +74,9 @@ export async function handleSecurityScanJob(
   const client = new ControlPlaneClient({
     baseUrl: job.callbackBaseUrl || config.controlPlaneUrl,
     token: job.callbackToken,
-    logger: log
+    logger: log,
+    job: { id: job.securityScanId, scope: 'security' },
+    workerSecret: config.workerToken
   });
 
   log.info('Security scan starting', {

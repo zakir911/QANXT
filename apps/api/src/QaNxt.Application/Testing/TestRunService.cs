@@ -501,6 +501,13 @@ public sealed class TestRunService : ITestRunService
             AllowedHosts = allowlist.ToArray(),
             AllowPrivateNetworks = _targetPolicy.AllowPrivateNetworks,
             DefaultTimeoutMs = project.DefaultActionTimeoutMs,
+            // A head start, not the credential this job will necessarily use. Queue time is
+            // the suite's size over the fleet's size, and neither is known here: run
+            // accddf2b queued 5,887 executions, the fleet managed about forty a minute, and
+            // the 1,116 still waiting when this token expired could never report at all.
+            // A worker whose token has expired by the time it starts exchanges the fleet
+            // secret for a fresh one (WorkerTokenController), so this lifetime only decides
+            // how often that exchange happens, never whether the work can finish.
             CallbackToken = _tokens.IssueWorkerToken(run.OrganizationId, execution.Id, "execution", TimeSpan.FromHours(2)),
             CallbackBaseUrl = _urls.ApiBaseUrl,
             CorrelationId = _correlation.CorrelationId

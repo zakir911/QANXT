@@ -4,10 +4,16 @@ Every entry here was found by pointing the product at a 150-page application and
 what happened, not by reading the code. Each one is recorded with the evidence that
 established it, because the diagnosis is usually not what the symptom suggested.
 
-The pattern worth noticing: of the nine below, **six were found by a check that was itself
-new**. A better failure message, a pre-flight, a collector that refuses to report partial
-data — each immediately exposed something that had been invisible. The tooling that makes a
-tool honest is the tooling that makes it diagnosable.
+The pattern worth noticing: of the eleven below, **six were found by a check that was
+itself new**. A better failure message, a pre-flight, a collector that refuses to report
+partial data — each immediately exposed something that had been invisible. The tooling that
+makes a tool honest is the tooling that makes it diagnosable.
+
+The last two are the sharpest version of the same point. A run stalled at 81% because every
+job's credential had been stamped before its work was scheduled (10), and the guard written
+to catch exactly that had never fired once, because it was tested against an imagined
+message rather than a real one (11). Neither is visible from the code. Both are obvious
+within a minute of watching a real run stop.
 
 ---
 
@@ -164,6 +170,90 @@ defect. Counting it as one would be wrong in the most expensive direction: it in
 the tool appears to find while hiding a real weakness in how it chooses test data. The fix
 is for a test that selects from a data-dependent list to resolve its value at execution
 time, or to declare the dependency. Not yet done.
+
+---
+
+## 10. A run larger than two hours of work could never finish
+
+**Symptom.** Run `accddf2b` designed 5,887 tests. At 04:48 the fleet was completing about
+forty a minute and 1,116 executions were still queued. At 05:03 completions stopped dead.
+Load fell to 0.24, the worker process was alive and idle, and the Redis stream held 1,116
+entries, every one delivered to a consumer and never acknowledged.
+
+**Evidence.** The worker log, from 05:03 onward, 866 times:
+
+```
+/api/v1/worker/executions/3e080446-.../started failed with 401
+```
+
+The run started at 02:57:29. The first 401 was at 05:03. Two hours and six minutes.
+
+**Diagnosis.** `TestRunService` minted every execution's callback token when the execution
+was *queued*:
+
+```csharp
+CallbackToken = _tokens.IssueWorkerToken(run.OrganizationId, execution.Id, "execution", TimeSpan.FromHours(2)),
+```
+
+Queue time is the suite's size over the fleet's size. The control plane knows neither when
+it stamps the token. Those 1,116 executions were not slow or broken: their credential
+expired before their work was ever scheduled, and no retry could change that. The larger
+the suite, or the smaller the fleet, the more of the run is unreachable — a tool meant to
+test applications of any size could not finish testing a large one.
+
+**Why no constant fixes it.** Raising the lifetime moves the cliff; it does not remove it.
+A 12,000-test suite on this same fleet would cross any constant chosen today.
+
+**Fix.** `Security:WorkerToken` was already declared in this project's settings as "shared
+secret a worker presents to exchange for job-scoped tokens", and nothing read it: the
+exchange was specified and never built. It is built now
+(`WorkerTokenController`). A worker whose callback is refused with 401 presents the fleet
+secret once, receives a token for that job, and retries — without spending a retry attempt,
+since the first attempt already established that the control plane is reachable and only
+the credential was wrong. The embedded token stays as a fast path, so the exchange is only
+reached by jobs that waited.
+
+**What the exchange will not do.** Issue a token for a job that has finished. The check is
+on the job's state, not the clock, so a leaked secret cannot reopen a closed run. "No such
+job" and "that job has finished" return the same refusal, so the endpoint is not a way to
+discover which run ids exist.
+
+**Status.** Fixed. Seven integration tests and eight worker tests, including that a renewed
+token is scoped exactly as narrowly as the one it replaced.
+
+---
+
+## 11. The guard against exactly this had never once fired
+
+**Symptom.** The 1,116 refused jobs did not fail and stop. Each was released back to the
+queue with a 15-minute retry, reclaimed, and refused again, five times over. Those retries
+produced 1,110 further `429`s out of the control plane they were retrying against.
+
+**Diagnosis.** `permanent-failure.ts` exists precisely to stop this; its own doc comment
+describes the hot loop it was written to prevent. It carried a signature for a refused job:
+
+```js
+/\b(401|403|404)\b.*(discovery|execution|security|worker)|was not found\./i
+```
+
+It requires the status code to appear *before* the word. The real message is a URL and then
+a number, and the URL contains `executions`. It never matched once.
+
+```
+> re.test("/api/v1/worker/executions/3e080446/started failed with 401")
+false
+```
+
+A guard written against an imagined message and never run against a real one. Note that the
+failure is silent in both directions: nothing reports that a signature never matches.
+
+**Fix.** Stop re-deriving the verdict from the text. `ControlPlaneClient.ensureOk` already
+decides retryability when it reads the response — 408, 429 and 5xx retryable, everything
+else "a decision, not a blip". The classifier now honours that field. This also covers every
+refusal the control plane can return rather than the three statuses someone thought to list.
+
+**Status.** Fixed, with the real log line from this run as a test fixture and a test that
+the verdict does not depend on where the status code falls in the message.
 
 ---
 

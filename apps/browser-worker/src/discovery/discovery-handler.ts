@@ -39,7 +39,9 @@ export async function handleDiscoveryJob(
   const client = new ControlPlaneClient({
     baseUrl: job.callbackBaseUrl,
     token: job.callbackToken,
-    logger
+    logger,
+    job: { id: job.discoveryRunId, scope: 'discovery' },
+    workerSecret: config.workerToken
   });
 
   const artifactDir = await mkdtemp(join(tmpdir(), `qanxt-discovery-${job.discoveryRunId}-`));

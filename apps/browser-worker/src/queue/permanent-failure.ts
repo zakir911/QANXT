@@ -58,14 +58,35 @@ const PERMANENT: readonly Signature[] = [
       + 'Install them with "sudo ./node_modules/.bin/playwright install-deps chromium".'
   },
   {
-    // The control plane refused the job itself: a run that no longer exists, or a token
-    // that will not become valid by waiting.
-    test: /\b(401|403|404)\b.*(discovery|execution|security|worker)|was not found\./i,
-    remedy:
-      'The control plane refused this job. The run may have been deleted, or this worker\'s '
-      + 'token may be wrong or expired. Check WORKER_TOKEN and that the run still exists.'
+    // The control plane said the job's subject is gone, in the one shape that is not an
+    // HTTP status: a service answering in prose.
+    test: /was not found\./i,
+    remedy: 'The run or execution this job belongs to no longer exists.'
   }
 ];
+
+/**
+ * What to tell an operator about a refusal the control plane has already settled.
+ *
+ * Keyed on the status rather than on the message, because the message is a URL followed by
+ * a number and the URL contains words like "executions": a regex over it matched the path
+ * before it matched the code, and the signature written to catch an expired token never
+ * fired once. 1,116 executions hot-looped their whole retry budget instead, and the retries
+ * rate-limited the control plane they were retrying against.
+ */
+function refusalRemedy(status: number): string {
+  if (status === 401) {
+    return 'The control plane did not accept this job\'s callback token. It has expired or '
+      + 'was issued for another job, and waiting will not make it valid.';
+  }
+  if (status === 403) {
+    return 'This job\'s token is not allowed to do that. It names one job and one scope.';
+  }
+  if (status === 404) {
+    return 'The run or execution this job belongs to no longer exists.';
+  }
+  return 'The control plane refused this request and will refuse it again.';
+}
 
 /**
  * Classifies a thrown value. A `PermanentJobFailure` says so itself; anything else is
@@ -81,6 +102,13 @@ export function classifyFailure(error: unknown): FailureVerdict {
 
   const message = error instanceof Error ? error.message : String(error);
 
+  // A control-plane refusal has already been classified at the point it was read: `ensureOk`
+  // marks 408, 429 and 5xx retryable and everything else a decision. Honour that verdict
+  // rather than re-deriving it from the text, which is how it came to be ignored.
+  if (isSettledRefusal(error)) {
+    return { permanent: true, reason: `${firstLine(message)} ${refusalRemedy(error.status)}` };
+  }
+
   for (const signature of PERMANENT) {
     if (signature.test.test(message)) {
       return { permanent: true, reason: `${firstLine(message)} ${signature.remedy}` };
@@ -88,6 +116,19 @@ export function classifyFailure(error: unknown): FailureVerdict {
   }
 
   return { permanent: false, reason: firstLine(message) };
+}
+
+/**
+ * Whether a thrown value is a control-plane error that declared itself non-retryable.
+ *
+ * Structural rather than `instanceof`: this module is the queue's, not the API client's,
+ * and a shape check keeps the dependency pointing one way. The two fields it reads are the
+ * ones `ControlPlaneError` is defined by.
+ */
+function isSettledRefusal(error: unknown): error is { status: number; retryable: boolean } {
+  return typeof error === 'object' && error !== null
+    && 'status' in error && typeof (error as { status: unknown }).status === 'number'
+    && 'retryable' in error && (error as { retryable: unknown }).retryable === false;
 }
 
 /**
