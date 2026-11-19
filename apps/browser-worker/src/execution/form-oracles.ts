@@ -461,3 +461,240 @@ export async function materialiseFixture(spec: string, workDir: string): Promise
   await writeFile(path, Buffer.concat([header, body]).subarray(0, Math.max(size, header.length)));
   return path;
 }
+
+/** What `assertServerEnforces` is asked to send, and what counts as the server refusing. */
+interface ServerEnforcementCheck {
+  /** The form to serialise and send. Its own action, method and enctype are used. */
+  form?: { strategy: string; value: string };
+  /** Values forced on top of whatever the live form carries. */
+  overrides?: Record<string, string>;
+  /** What the browser objected to, quoted back in the failure so a reader can see it. */
+  rule?: string;
+  /** Status codes that mean the server refused. Defaults to the 4xx range. */
+  refusedStatuses?: number[];
+}
+
+interface SerialisedForm {
+  action: string;
+  method: string;
+  enctype: string;
+  fields: Array<[string, string]>;
+}
+
+/**
+ * Asks whether the server enforces the rule the browser enforces.
+ *
+ * This is the check that separates a form from the thing behind it. A rule implemented in
+ * the browser alone holds for exactly as long as everybody uses a browser, which is to say
+ * not at all: the endpoint is reachable with a terminal. So the same submission is sent
+ * straight to the form's action, carrying the session's own cookies and no DOM, and the
+ * only question asked is whether it was refused.
+ *
+ * The step is meaningless alone and the designer never emits it alone. It follows a step
+ * that has already shown the browser refusing these exact values, because a server that
+ * accepts a value nothing objects to is not a defect — it is an unconstrained field. Read
+ * the pair together and a failure here says precisely one thing: the rule is enforced in
+ * the browser and nowhere else.
+ *
+ * The submission is read off the live form rather than rebuilt from the plan, and that is
+ * not a detail. A form usually carries fields the planner never modelled — an anti-forgery
+ * token above all — and a request that omits one is refused for the wrong reason. That
+ * refusal would read here as the server enforcing the rule, turning a real defect into a
+ * pass, which is the one failure mode this check cannot be allowed to have. Serialising
+ * what the browser would actually send is what makes a refusal mean what it says.
+ *
+ * A 5xx is reported separately from acceptance. Crashing on a value is a different defect
+ * from storing it, and calling a crash "refused" would turn one bug into a pass.
+ *
+ * This step submits for real. On a form that changes data, an application that does have
+ * the defect will write the record — that is what finding it means, and it is the same
+ * exposure the engine's double-submit test already carries.
+ */
+export async function assertServerEnforces(page: Page, value: string | undefined): Promise<void> {
+  let check: ServerEnforcementCheck;
+  try {
+    check = JSON.parse(value ?? '{}') as ServerEnforcementCheck;
+  } catch {
+    throw new OracleError('assertServerEnforces needs a JSON description of the submission to send.');
+  }
+
+  const selector = check.form?.strategy === 'css' ? check.form.value : undefined;
+  const serialised = await serialiseForm(page, selector);
+  if (serialised === null) {
+    throw new OracleError(
+      'Could not read the form off the page to send it to the server. The form has to still '
+      + 'be present for this check, which is what the preceding rejection step establishes.'
+    );
+  }
+
+  const fields = new Map(serialised.fields);
+  for (const [name, forced] of Object.entries(check.overrides ?? {})) fields.set(name, forced);
+  if (fields.size === 0) {
+    throw new OracleError('The form carries no named fields, so there is no submission to send.');
+  }
+
+  const method = serialised.method.toUpperCase();
+  const target = new URL(serialised.action, page.url()).toString();
+  const rule = check.rule ? ` The browser refused it because ${check.rule}.` : '';
+  const payload = Object.fromEntries(fields);
+
+  // The context's cookies travel with this, so the request is made as the signed-in user
+  // and not as an anonymous one. Redirects are not followed: a 302 is part of the answer.
+  let response;
+  try {
+    response = method === 'GET'
+      ? await page.request.fetch(withQuery(target, payload), { method, maxRedirects: 0 })
+      : await page.request.fetch(target, {
+        method,
+        maxRedirects: 0,
+        ...(serialised.enctype === 'multipart/form-data' ? { multipart: payload } : { form: payload })
+      });
+  } catch (error) {
+    const why = error instanceof Error ? error.message : String(error);
+    throw new OracleError(
+      `Could not reach ${method} ${target} to see whether the server enforces the rule: ${why}`
+    );
+  }
+
+  const status = response.status();
+  const refused = check.refusedStatuses
+    ? check.refusedStatuses.includes(status)
+    : status >= 400 && status < 500;
+
+  if (refused) return;
+
+  if (status >= 500) {
+    const body = (await response.text().catch(() => '')).slice(0, 400);
+    throw new OracleError(
+      `${method} ${target} answered ${status} rather than refusing the submission.${rule} `
+      + 'The server did not accept the value, but it did not reject it either — it failed on '
+      + `it, which is its own defect.${body ? ` It replied: ${collapse(body)}` : ''}`
+    );
+  }
+
+  // 2xx and 3xx both need looking at: plenty of applications answer an invalid form with
+  // 200 and the form again, and a 302 back to the form itself is a refusal too.
+  const body = await response.text().catch(() => '');
+  const location = response.headers()['location'];
+
+  if (firstComplaint(body)) return;
+  if (location && sameRoute(location, target)) return;
+
+  throw new OracleError(
+    `${method} ${target} accepted the submission: it answered ${status}`
+    + `${location ? ` and redirected to ${location}` : ''} with nothing that reads as a `
+    + `rejection.${rule} The rule is enforced in the browser and not on the server, so `
+    + 'anything that is not a browser can ignore it.'
+  );
+}
+
+/**
+ * Reads a form off the page the way the browser would submit it.
+ *
+ * Follows the HTML form-submission rules that matter here: disabled controls and unnamed
+ * controls are not sent, an unchecked box is not sent, a checked box with no value is sent
+ * as "on", a multi-select sends one entry per selection, and a file input cannot be
+ * serialised from the DOM at all so its name is sent empty. Hidden inputs are included,
+ * which is the whole reason for reading the live form.
+ */
+async function serialiseForm(page: Page, selector: string | undefined): Promise<SerialisedForm | null> {
+  return await page.evaluate((css) => {
+    const form = (css ? document.querySelector(css) : document.querySelector('form')) as HTMLFormElement | null;
+    if (!form || form.tagName.toLowerCase() !== 'form') return null;
+
+    const fields: Array<[string, string]> = [];
+    for (const control of Array.from(form.elements)) {
+      const element = control as HTMLInputElement & { type: string; name: string; disabled: boolean };
+      if (!element.name || element.disabled) continue;
+
+      const type = (element.type ?? '').toLowerCase();
+      if (type === 'submit' || type === 'button' || type === 'reset' || type === 'image') continue;
+
+      if (type === 'checkbox' || type === 'radio') {
+        if (element.checked) fields.push([element.name, element.value || 'on']);
+        continue;
+      }
+      if (type === 'file') {
+        // The bytes are not reachable from the DOM; the name is still sent.
+        fields.push([element.name, '']);
+        continue;
+      }
+      if (element.tagName.toLowerCase() === 'select') {
+        const select = control as unknown as HTMLSelectElement;
+        for (const option of Array.from(select.selectedOptions)) {
+          fields.push([select.name, option.value]);
+        }
+        continue;
+      }
+      fields.push([element.name, element.value ?? '']);
+    }
+
+    return {
+      action: form.getAttribute('action') || window.location.href,
+      method: form.getAttribute('method') || 'post',
+      enctype: form.getAttribute('enctype') || 'application/x-www-form-urlencoded',
+      fields
+    };
+  }, selector ?? null).catch(() => null);
+}
+
+/** Appends the fields as a query string, for a form whose method is GET. */
+function withQuery(target: string, fields: Record<string, string>): string {
+  const url = new URL(target);
+  for (const [name, value] of Object.entries(fields)) url.searchParams.set(name, value);
+  return url.toString();
+}
+
+/**
+ * The first thing in a response body that reads as the server objecting.
+ *
+ * Deliberately narrow. A body is only read as a refusal on wording a server uses to say
+ * no, not on the mere presence of the word "error" somewhere in a page of markup — a page
+ * with an empty error container would otherwise excuse every acceptance.
+ */
+function firstComplaint(body: string): string | undefined {
+  if (!body) return undefined;
+
+  // A JSON error envelope: the shape most APIs answer a bad request with.
+  const trimmed = body.trimStart();
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(body) as Record<string, unknown>;
+      for (const key of ['errors', 'error', 'message', 'detail', 'title', 'validationErrors']) {
+        const found = parsed[key];
+        if (typeof found === 'string' && found.trim()) return found.trim().slice(0, 200);
+        if (found && typeof found === 'object' && Object.keys(found).length > 0) {
+          return JSON.stringify(found).slice(0, 200);
+        }
+      }
+    } catch {
+      // Not JSON after all; fall through to the markup rules.
+    }
+  }
+
+  // Markup: an element that carries a complaint, with text in it. The text requirement is
+  // the whole point — an empty <div class="error"> is what a healthy page also contains.
+  const patterns = [
+    /<[^>]*(?:class|id)="[^"]*(?:error|invalid|danger|alert)[^"]*"[^>]*>\s*([^<\s][^<]{2,200}?)\s*</i,
+    /<[^>]*role="alert"[^>]*>\s*([^<\s][^<]{2,200}?)\s*</i,
+    /\baria-invalid="true"/i
+  ];
+  for (const pattern of patterns) {
+    const match = pattern.exec(body);
+    if (match) return collapse(match[1] ?? 'a field marked invalid');
+  }
+  return undefined;
+}
+
+/** True when a redirect goes back where the submission came from, which is a refusal. */
+function sameRoute(location: string, target: string): boolean {
+  try {
+    return new URL(location, target).pathname === new URL(target).pathname;
+  } catch {
+    return false;
+  }
+}
+
+function collapse(text: string): string {
+  return text.replace(/\s+/g, ' ').trim();
+}

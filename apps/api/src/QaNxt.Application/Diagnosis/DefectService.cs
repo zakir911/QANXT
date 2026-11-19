@@ -207,6 +207,9 @@ public sealed class DefectService : IDefectService
                     ? "sends a submission more than once" : failure.RawMessage.Contains("within", StringComparison.Ordinal) ? "responds more slowly than its budget" : "sends the wrong requests",
                 BrowserActionType.AssertNoMarkupInjection => $"writes input from {testCase.FieldKey} back into the page as markup",
                 BrowserActionType.AssertNoHorizontalScroll => "overflows a small screen",
+                BrowserActionType.AssertServerEnforces => failure.RawMessage.Contains("its own defect", StringComparison.Ordinal)
+                    ? "fails on a value its own form refuses, instead of rejecting it"
+                    : "enforces a rule in the browser only, so the endpoint accepts what the form refuses",
                 BrowserActionType.AssertPresent => "lacks an element it should have",
                 BrowserActionType.AssertValue => $"loses the value of {testCase.FieldKey ?? "a field"}",
                 BrowserActionType.AssertNoServerError => "shows an error",

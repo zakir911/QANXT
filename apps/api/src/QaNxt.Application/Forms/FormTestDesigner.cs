@@ -307,6 +307,51 @@ public static class FormTestDesigner
         private DesignedStep SubmitStep(string? value = null) => new(BrowserActionType.Click,
             value is null ? $"Press \"{_submit!.Label}\"" : $"Press \"{_submit!.Label}\" repeatedly", _submit!.Locator, Value: value);
         private DesignedStep Rejected(string why) => new(BrowserActionType.AssertFormRejected, why, _form.Locator);
+
+        /// <summary>
+        /// A refusal, and then the question of whether the refusal is real.
+        ///
+        /// A rule enforced in the browser alone is not enforced. The form's own endpoint is
+        /// reachable without a browser, so after establishing that the page refused these
+        /// values, the same submission is sent straight to the action and the refusal is
+        /// asked for again. Three of the freight lab's planted defects are exactly this —
+        /// a credit limit checked on the form and not in the handler, a settlement hidden
+        /// from a viewer and not refused, a rejected declaration the UI will not offer to
+        /// release and the endpoint will — and the engine passed over all three, because
+        /// every test it wrote went through the DOM.
+        ///
+        /// Emitted only where it can mean something. A GET filter box enforces nothing, a
+        /// form whose action discovery never saw cannot be addressed, and the pair is only
+        /// legible when the browser-side refusal is checked first: on its own, a server
+        /// accepting a value nothing objects to is an unconstrained field, not a defect.
+        /// </summary>
+        private IEnumerable<DesignedStep> RefusedEverywhere(string why, string? rule = null)
+        {
+            yield return Rejected(why);
+            foreach (var step in ServerAlso(rule)) yield return step;
+        }
+
+        /// <summary>The server half of <see cref="RefusedEverywhere"/>, for a scenario that
+        /// already emits its own refusal step and only needs the endpoint asked too.</summary>
+        private IEnumerable<DesignedStep> ServerAlso(string? rule)
+        {
+
+            if (!_transactional || _form.Action is null) yield break;
+            if (string.Equals(_form.Method, "get", StringComparison.OrdinalIgnoreCase)) yield break;
+
+            var payload = JsonSerializer.Serialize(new Dictionary<string, object?>
+            {
+                ["form"] = new Dictionary<string, string>
+                {
+                    ["strategy"] = _form.Locator.Strategy.ToString().ToLowerInvariant(),
+                    ["value"] = _form.Locator.Value
+                },
+                ["rule"] = rule
+            }, JsonDefaults.Options);
+
+            yield return new DesignedStep(BrowserActionType.AssertServerEnforces,
+                "Confirm the server refuses it too, and not only the browser", Value: payload);
+        }
         /// <summary>
         /// What "the submission was accepted" means, which depends on what the form is for.
         ///
@@ -612,7 +657,7 @@ public static class FormTestDesigner
                 Add(Test(TestCategory.Negative, "required", $"refuses a submission without {field.DisplayName}",
                     $"{field.DisplayName} is required: leaving only it empty is refused.",
                     $"The form is not accepted and {field.DisplayName} is reported as missing.",
-                    fill.Steps.Append(Rejected($"Confirm the submission without {field.DisplayName} was refused")).ToList(),
+                    fill.Steps.Concat(RefusedEverywhere($"Confirm the submission without {field.DisplayName} was refused", $"{field.DisplayName} is required")).ToList(),
                     field.Identity, TestPriority.High, new[] { $"rule:{_ctx.FormId:N}/{field.Identity}/required" }, fill.Data));
 
                 if (ValueSynthesizer.IsTextLike(field) && field.ControlType != "password")
@@ -752,7 +797,7 @@ public static class FormTestDesigner
                     Add(Test(TestCategory.Validation, $"format-{index}", $"refuses {what} in {field.DisplayName}",
                         $"{field.DisplayName} refuses {what}.",
                         $"The form is not accepted and {field.DisplayName} is reported as invalid.",
-                        new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Append(Rejected($"Confirm {what} was refused")).ToList(),
+                        new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Concat(RefusedEverywhere($"Confirm {what} was refused", what)).ToList(),
                         field.Identity, TestPriority.High,
                         new[] { $"rule:{_ctx.FormId:N}/{field.Identity}/{rule}" },
                         fill.Data));
@@ -785,7 +830,8 @@ public static class FormTestDesigner
                 $"{field.DisplayName} {(accepted ? "accepts" : "refuses")} {what}.",
                 accepted ? "The form is accepted." : $"The form is not accepted and {field.DisplayName} is reported as invalid.",
                 new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep())
-                    .Append(accepted ? Accepted($"Confirm {what} was accepted") : Rejected($"Confirm {what} was refused")).ToList(),
+                    .Append(accepted ? Accepted($"Confirm {what} was accepted") : Rejected($"Confirm {what} was refused"))
+                    .Concat(accepted ? Array.Empty<DesignedStep>() : ServerAlso(what)).ToList(),
                 field.Identity, accepted ? TestPriority.Medium : TestPriority.High,
                 new[] { $"boundary:{_ctx.FormId:N}/{field.Identity}/{technique}" }, fill.Data));
         }
@@ -1122,7 +1168,7 @@ public static class FormTestDesigner
                     if (fill.Failure is not null) continue;
                     Add(Test(TestCategory.CrossField, technique, $"refuses {rel.Second.DisplayName} that does not match {rel.First.DisplayName}",
                         rel.Description + ".", $"The form is not accepted and the mismatch is reported.",
-                        new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Append(Rejected("Confirm the mismatch was refused")).ToList(),
+                        new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Concat(RefusedEverywhere("Confirm the mismatch was refused", "the two values do not match")).ToList(),
                         rel.Second.Identity, TestPriority.High, new[] { $"rule:{_ctx.FormId:N}/{rel.Second.Identity}/equals:{rel.First.Identity}" }, fill.Data));
                 }
                 else
@@ -1133,7 +1179,7 @@ public static class FormTestDesigner
                     if (reversed.Failure is null)
                         Add(Test(TestCategory.CrossField, technique + ":reversed", $"refuses {rel.Second.DisplayName} before {rel.First.DisplayName}",
                             rel.Description + ".", "The form is not accepted and the order is reported.",
-                            new List<DesignedStep> { Open() }.Concat(reversed.Steps).Append(SubmitStep()).Append(Rejected("Confirm the reversed range was refused")).ToList(),
+                            new List<DesignedStep> { Open() }.Concat(reversed.Steps).Append(SubmitStep()).Concat(RefusedEverywhere("Confirm the reversed range was refused", "the range runs backwards")).ToList(),
                             rel.Second.Identity, TestPriority.High, new[] { $"rule:{_ctx.FormId:N}/{rel.Second.Identity}/after:{rel.First.Identity}" }, reversed.Data));
                     var equal = FillValid(new Dictionary<string, string> { [rel.First.Identity] = early, [rel.Second.Identity] = early });
                     if (equal.Failure is null && CanSucceed)
@@ -1198,7 +1244,7 @@ public static class FormTestDesigner
                             Add(Test(TestCategory.Dynamic, technique + ":required-when-shown", $"requires {shown.DisplayName} once it is shown",
                                 $"{shown.DisplayName} is required when {trigger.DisplayName} is \"{dep.TriggerValue}\".",
                                 $"The form is not accepted while {shown.DisplayName} is empty.",
-                                new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Append(Rejected($"Confirm the empty {shown.DisplayName} was refused")).ToList(),
+                                new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Concat(RefusedEverywhere($"Confirm the empty {shown.DisplayName} was refused", $"{shown.DisplayName} became required")).ToList(),
                                 shownKey, TestPriority.High, new[] { $"rule:{_ctx.FormId:N}/{shownKey}/required-when:{dep.Trigger}" }, fill.Data));
                     }
                 }
@@ -1301,7 +1347,7 @@ public static class FormTestDesigner
                 if (fill.Failure is null)
                     Add(Test(TestCategory.MultiStep, "final-incomplete", "refuses the final submission with the last step incomplete",
                         "The last step's required fields are enforced at the end.", "The form is not accepted.",
-                        new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Append(Rejected("Confirm the incomplete submission was refused")).ToList(),
+                        new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Concat(RefusedEverywhere("Confirm the incomplete submission was refused", "the submission is incomplete")).ToList(),
                         null, TestPriority.High, new[] { "state:step-final-incomplete" }, fill.Data));
             }
 

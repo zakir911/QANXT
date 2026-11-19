@@ -56,7 +56,7 @@ public static class BrowserActionVerbs
         BrowserActionType.AssertNoServerError, BrowserActionType.AssertRequests,
         BrowserActionType.AssertLoadTimeUnder, BrowserActionType.AssertNoMarkupInjection,
         BrowserActionType.AssertPresent, BrowserActionType.AssertValueLength,
-        BrowserActionType.AssertNoHorizontalScroll
+        BrowserActionType.AssertNoHorizontalScroll, BrowserActionType.AssertServerEnforces
     };
 
     public static bool IsAssertion(BrowserActionType action) => Assertions.Contains(action);

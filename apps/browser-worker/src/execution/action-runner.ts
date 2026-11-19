@@ -10,8 +10,8 @@ import { isUrlAllowed } from '../security/url-guard.js';
 import {
   OracleError, assertErrorAssociated, assertFieldInvalid, assertFieldValid, assertFocused,
   assertFormAccepted, assertFormRejected, assertLoadTimeUnder, assertNoHorizontalScroll,
-  assertNoMarkupInjection, assertNoServerError, assertRequests, assertValueLength,
-  materialiseFixture, type Observations
+  assertNoMarkupInjection, assertNoServerError, assertRequests, assertServerEnforces,
+  assertValueLength, materialiseFixture, type Observations
 } from './form-oracles.js';
 
 /**
@@ -514,6 +514,8 @@ async function runFormOracle(
         return await assertValueLength(await locate(page, target, timeout), action.value);
       case 'assertNoHorizontalScroll':
         return await assertNoHorizontalScroll(page);
+      case 'assertServerEnforces':
+        return await assertServerEnforces(page, action.value);
       default:
         throw new ActionError(`Unsupported assertion: ${action.action}`, false);
     }

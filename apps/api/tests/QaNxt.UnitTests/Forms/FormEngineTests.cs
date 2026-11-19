@@ -286,8 +286,57 @@ public class FormEngineTests
 
         var below = design.Tests.Single(t => t.FieldKey == "age" && t.Technique == "min-1");
         below.Steps.Should().Contain(s => s.Action == BrowserActionType.Fill && s.Value == "17");
-        below.Steps.Last().Action.Should().Be(BrowserActionType.AssertFormRejected);
+        // A refusal is checked in the browser and then asked for again at the endpoint, in
+        // that order: the second step only means anything once the first has established
+        // that the page refuses these values.
+        below.Steps.Should().Contain(s => s.Action == BrowserActionType.AssertFormRejected);
+        below.Steps.Last().Action.Should().Be(BrowserActionType.AssertServerEnforces);
+        var verbs = below.Steps.Select(s => s.Action).ToList();
+        verbs.IndexOf(BrowserActionType.AssertFormRejected)
+            .Should().BeLessThan(verbs.IndexOf(BrowserActionType.AssertServerEnforces));
         design.Tests.Single(t => t.FieldKey == "age" && t.Technique == "max").Steps.Last().Action.Should().Be(BrowserActionType.AssertFormAccepted);
+    }
+
+    /// <summary>
+    /// A rule enforced in the browser alone is not enforced, so every refusal the engine
+    /// checks in the page is asked for again at the endpoint — but only where that question
+    /// has an answer. These are the cases where it does not, and asking anyway would
+    /// manufacture failures: a GET search box enforces nothing, and a form whose action
+    /// discovery never saw cannot be addressed at all.
+    /// </summary>
+    [Fact]
+    public void A_refusal_is_checked_at_the_endpoint_too_but_only_where_that_means_something()
+    {
+        var posts = Design(Registration());
+        posts.Tests.Should().Contain(t => t.Steps.Any(s => s.Action == BrowserActionType.AssertServerEnforces),
+            "a form that posts has an endpoint whose enforcement can be checked");
+
+        // Every server step names the form it is to serialise, and follows a browser-side
+        // refusal in the same test. One without the other says nothing.
+        foreach (var test in posts.Tests.Where(t => t.Steps.Any(s => s.Action == BrowserActionType.AssertServerEnforces)))
+        {
+            var verbs = test.Steps.Select(s => s.Action).ToList();
+            verbs.IndexOf(BrowserActionType.AssertFormRejected).Should().BeGreaterThanOrEqualTo(0,
+                $"{test.Technique} asks the endpoint without first establishing the browser refuses");
+            verbs.IndexOf(BrowserActionType.AssertFormRejected)
+                .Should().BeLessThan(verbs.IndexOf(BrowserActionType.AssertServerEnforces));
+
+            // The payload names the form to serialise off the live page. Without it the
+            // oracle would rebuild the submission from the plan and drop the anti-forgery
+            // token, and the refusal that follows would be read as the server enforcing.
+            var step = test.Steps.First(s => s.Action == BrowserActionType.AssertServerEnforces);
+            step.Value.Should().NotBeNullOrWhiteSpace();
+            step.Value.Should().Contain("registration-form");
+        }
+
+        Design(SearchBox()).Tests
+            .Should().NotContain(t => t.Steps.Any(s => s.Action == BrowserActionType.AssertServerEnforces),
+                "a GET search box enforces no rule, so there is nothing for the server to hold");
+
+        var noAction = Registration() with { Action = null };
+        Design(noAction).Tests
+            .Should().NotContain(t => t.Steps.Any(s => s.Action == BrowserActionType.AssertServerEnforces),
+                "a form whose action was never discovered cannot be submitted directly");
     }
 
     [Fact]

@@ -672,6 +672,11 @@ public sealed class RunBugReportService : IRunBugReportService
                     "The response took longer than its budget. The timing of each request is under API exchange; profile the server handler for the slowest one.",
                 BrowserActionType.AssertRequests => "The request the page should send was not sent, or did not carry what was typed. Check the form's submit handler and the field names it posts.",
                 BrowserActionType.AssertNoMarkupInjection => $"Input from {field} is written into the page as live HTML (reflected cross-site scripting, CWE-79). Encode output in the template, or set textContent rather than innerHTML.",
+                BrowserActionType.AssertServerEnforces => "The rule is checked in the browser and not behind it. "
+                    + "The endpoint accepted a submission the form itself refuses, which means anything that is not a "
+                    + "browser can ignore the rule: a script, a replayed request, an older client. Move the check into "
+                    + "the handler, keeping the client-side one for the message it gives. Where the answer was a 5xx "
+                    + "instead, the handler reaches the value and then breaks on it, so validate before use.",
                 BrowserActionType.AssertNoHorizontalScroll => "An element is wider than the viewport. Look for fixed widths (width or min-width in px), and images or tables without max-width: 100%.",
                 BrowserActionType.AssertPresent when (testCase.Technique ?? string.Empty).Contains("csrf", StringComparison.OrdinalIgnoreCase) || testCase.Name.Contains("forgery", StringComparison.OrdinalIgnoreCase) =>
                     "The form carries no anti-forgery token. Add a per-session token as a hidden field and verify it on the server (CWE-352).",

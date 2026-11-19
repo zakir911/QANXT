@@ -129,6 +129,15 @@ public enum BrowserActionType
     AssertErrorAssociated = 54, AssertFocused = 55, AssertNoServerError = 56, AssertRequests = 57,
     AssertLoadTimeUnder = 58, AssertNoMarkupInjection = 59, AssertPresent = 60, AssertValueLength = 61,
     AssertNoHorizontalScroll = 62,
+    /// <summary>Asks whether the server enforces the rule the browser enforces.
+    ///
+    /// Sends the same submission straight to the form's endpoint, with the session's own
+    /// cookies and without the DOM in the way, and reports whether it was refused. It is
+    /// only meaningful after a step has shown the browser refusing the same values, which
+    /// is why the designer always emits the pair: on its own, a server that accepts a value
+    /// nothing else objects to is not a defect. Its configuration travels as JSON in the
+    /// step's value.</summary>
+    AssertServerEnforces = 63,
     /// <summary>Only permitted when the project explicitly allows scripting AND the caller
     /// holds the execution:script permission. Rejected by default.</summary>
     ExecuteScript = 90

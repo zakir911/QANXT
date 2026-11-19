@@ -16,7 +16,7 @@ export const BROWSER_ACTION_TYPES = [
   'assertFormRejected', 'assertFormAccepted', 'assertFieldInvalid', 'assertFieldValid',
   'assertErrorAssociated', 'assertFocused', 'assertNoServerError', 'assertRequests',
   'assertLoadTimeUnder', 'assertNoMarkupInjection', 'assertPresent', 'assertValueLength',
-  'assertNoHorizontalScroll',
+  'assertNoHorizontalScroll', 'assertServerEnforces',
   'apiRequest',
   'checkAccessibility',
   'checkVisual',
@@ -31,7 +31,7 @@ export const ASSERTION_ACTIONS: readonly BrowserActionType[] = [
   'assertFormRejected', 'assertFormAccepted', 'assertFieldInvalid', 'assertFieldValid',
   'assertErrorAssociated', 'assertFocused', 'assertNoServerError', 'assertRequests',
   'assertLoadTimeUnder', 'assertNoMarkupInjection', 'assertPresent', 'assertValueLength',
-  'assertNoHorizontalScroll'
+  'assertNoHorizontalScroll', 'assertServerEnforces'
 ];
 
 export const LOCATOR_STRATEGIES = [
