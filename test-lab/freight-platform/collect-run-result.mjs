@@ -86,9 +86,23 @@ line(`\nCollecting ${RUNS.length > 1 ? `${RUNS.length} runs (${RUNS.join(', ')})
 // ---- execution verdicts -----------------------------------------------------
 // ExecutionStatus: Passed=10 Failed=11 Skipped=12 Blocked=13 Healed=14 Flaky=15
 // TimedOut=16 Cancelled=17 Error=18; anything under 10 has not finished.
+/**
+ * One verdict per test, not one row per attempt.
+ *
+ * A test re-run in a later run has two execution rows: the first run's, and the one that
+ * actually says what the application did. Counting both reported 7,346 executions for a
+ * suite of 6,354 and carried 992 phantom "blocked" results beside the real verdicts for
+ * the same tests — a suite looking 16% larger and considerably worse than it is. The most
+ * recent attempt per test case is the verdict; the earlier ones are history.
+ */
+const LATEST_PER_CASE = `
+  SELECT DISTINCT ON (e.test_case_id) e.*
+  FROM test_executions e
+  WHERE e.test_run_id IN (${RUN_SET})
+  ORDER BY e.test_case_id, e.created_at DESC, e.id DESC`;
+
 const verdicts = Object.fromEntries(query(`
-  SELECT e.status::text, count(*)::text FROM test_executions e
-  WHERE e.test_run_id IN (${RUN_SET}) GROUP BY e.status`));
+  SELECT e.status::text, count(*)::text FROM (${LATEST_PER_CASE}) e GROUP BY e.status`));
 const count = (status) => Number(verdicts[String(status)] ?? 0);
 
 const execution = {
@@ -113,7 +127,8 @@ const failures = query(`
          coalesce(tc.technique, ''),
          coalesce(tc.field_key, '')
   FROM test_executions e JOIN test_cases tc ON tc.id = e.test_case_id
-  WHERE e.test_run_id IN (${RUN_SET}) AND e.status IN (11, 16, 18)`)
+  WHERE e.test_run_id IN (${RUN_SET}) AND e.status IN (11, 16, 18)
+    AND e.id IN (SELECT id FROM (${LATEST_PER_CASE}) latest)`)
   .map(([testCaseId, name, message, category, technique, fieldKey]) =>
     ({ testCaseId, name, message, category, technique, fieldKey, title: name, url: '', evidence: '' }));
 
@@ -164,7 +179,7 @@ const oracleRuns = query(`
          count(*) FILTER (WHERE e.status IN (11, 16, 18))::text
   FROM test_steps s
   JOIN test_cases tc ON tc.id = s.test_case_id
-  JOIN test_executions e ON e.test_case_id = tc.id AND e.test_run_id IN (${RUN_SET})
+  JOIN (${LATEST_PER_CASE}) e ON e.test_case_id = tc.id
   WHERE tc.application_id = '${APP}' AND s.action >= 50
   GROUP BY s.action ORDER BY s.action`)
   .map(([action, passed, failed]) =>
@@ -234,6 +249,7 @@ const attribution = {};
 for (const [label, pattern] of Object.entries(SIGNATURES)) {
   const n = Number(one(`SELECT count(*) FROM test_executions e
     WHERE e.test_run_id IN (${RUN_SET}) AND e.status IN (11,16,18)
+      AND e.id IN (SELECT id FROM (${LATEST_PER_CASE}) latest)
       AND e.error_message LIKE '${pattern}'`)[0] ?? 0);
   if (n > 0) attribution[label] = n;
 }
