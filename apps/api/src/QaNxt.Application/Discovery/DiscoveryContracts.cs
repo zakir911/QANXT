@@ -17,6 +17,9 @@ public sealed record DiscoveryJobPayload
     [JsonPropertyName("headless")] public bool Headless { get; init; } = true;
     [JsonPropertyName("auth")] public AuthConfigPayload Auth { get; init; } = new();
     [JsonPropertyName("budget")] public CrawlBudgetPayload Budget { get; init; } = new();
+    /// <summary>When the run began, so the crawl measures its time budget from there
+    /// rather than from the moment a worker picks the job up.</summary>
+    [JsonPropertyName("runStartedAt")] public string? RunStartedAt { get; init; }
     [JsonPropertyName("callbackToken")] public string CallbackToken { get; init; } = string.Empty;
     [JsonPropertyName("callbackBaseUrl")] public string CallbackBaseUrl { get; init; } = string.Empty;
     [JsonPropertyName("correlationId")] public string CorrelationId { get; init; } = string.Empty;
@@ -92,6 +95,21 @@ public sealed record DiscoveryProgressPayload(
     [property: JsonPropertyName("elementsFound")] int ElementsFound,
     [property: JsonPropertyName("currentUrl")] string? CurrentUrl,
     [property: JsonPropertyName("message")] string Message);
+
+/// <summary>
+/// The control plane's answer to a progress report, which is how a crawl learns it should
+/// stop.
+///
+/// Cancelling a run had no way to reach the worker: the run row was marked cancelled and
+/// the crawl carried on opening and clicking pages until it ran out of budget. On a real
+/// application that means the tool keeps touching a system after being told to stop, which
+/// is the one thing this product promises it will not do. The progress feed is the only
+/// channel that already exists between a running crawl and the control plane, so the answer
+/// to it is where the instruction belongs.
+/// </summary>
+public sealed record DiscoveryProgressAck(
+    [property: JsonPropertyName("shouldStop")] bool ShouldStop,
+    [property: JsonPropertyName("reason")] string? Reason);
 
 public sealed record DiscoveryCompletionPayload
 {

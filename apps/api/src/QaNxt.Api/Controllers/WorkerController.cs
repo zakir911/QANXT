@@ -61,7 +61,9 @@ public sealed class WorkerController : ApiControllerBase
     public async Task<IActionResult> DiscoveryProgress(Guid runId, [FromBody] DiscoveryProgressPayload body, CancellationToken ct)
     {
         if (!Authorize(runId, "discovery", out var failure)) return failure!;
-        return FromResult(await _discoveryIngest.RecordProgressAsync(runId, body, ct), () => NoContent());
+        // Answered with a body, not NoContent: the answer is how a cancelled crawl is
+        // told to stop, which is the only channel that reaches a crawl already in flight.
+        return FromResult(await _discoveryIngest.RecordProgressAsync(runId, body, ct), Ok);
     }
 
     /// <summary>Delivers the finished crawl. Ingestion is idempotent, so a retried delivery

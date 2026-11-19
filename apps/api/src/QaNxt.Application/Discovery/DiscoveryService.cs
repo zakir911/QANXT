@@ -230,6 +230,10 @@ public sealed class DiscoveryService : IDiscoveryService
                 InteractionMode = application.InteractionMode,
                 AllowStateChangingClicks = application.AllowStateChangingClicks
             },
+            // The budget is measured from here. A job reclaimed after its worker died would
+            // otherwise begin a fresh full budget, so a run with a declared 15-minute budget
+            // could spend an hour exploring somebody's application.
+            RunStartedAt = (run.StartedAt ?? run.CreatedAt).UtcDateTime.ToString("O"),
             // Scoped to this run, and expiring with its budget plus a margin: a leaked
             // worker token is worth almost nothing.
             CallbackToken = _tokens.IssueWorkerToken(run.OrganizationId, run.Id, "discovery",

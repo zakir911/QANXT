@@ -109,6 +109,13 @@ export interface DiscoveryJob {
   headless: boolean;
   auth: AuthConfig;
   budget: CrawlBudget;
+  /**
+   * When the run began, ISO-8601, as the control plane recorded it.
+   *
+   * The crawl's time budget is measured from here rather than from the moment a worker
+   * picks the job up, so a reclaimed job does not start a fresh full budget.
+   */
+  runStartedAt?: string;
   /** Job-scoped token the worker uses to post results back. */
   callbackToken: string;
   callbackBaseUrl: string;

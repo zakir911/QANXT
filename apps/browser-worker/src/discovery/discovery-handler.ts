@@ -62,6 +62,9 @@ export async function handleDiscoveryJob(
         auth: job.auth,
         artifactDir,
         navigationTimeoutMs: config.navigationTimeoutMs,
+        ...(job.runStartedAt && !Number.isNaN(Date.parse(job.runStartedAt))
+          ? { runStartedAtMs: Date.parse(job.runStartedAt) }
+          : {}),
         onProgress: (message, visited, queued) => client.discoveryProgress(job.discoveryRunId, {
           pagesVisited: visited, pagesQueued: queued, elementsFound: 0, message
         })

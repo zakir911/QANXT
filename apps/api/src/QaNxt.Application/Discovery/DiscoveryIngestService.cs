@@ -19,7 +19,7 @@ namespace QaNxt.Application.Discovery;
 /// of crawl snapshots.</summary>
 public interface IDiscoveryIngestService
 {
-    Task<Result> RecordProgressAsync(Guid discoveryRunId, DiscoveryProgressPayload progress, CancellationToken ct = default);
+    Task<Result<DiscoveryProgressAck>> RecordProgressAsync(Guid discoveryRunId, DiscoveryProgressPayload progress, CancellationToken ct = default);
     Task<Result> CompleteAsync(Guid discoveryRunId, DiscoveryCompletionPayload completion, CancellationToken ct = default);
     Task<Result> MarkRunningAsync(Guid discoveryRunId, string workerId, CancellationToken ct = default);
 
@@ -116,10 +116,12 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
         return Result.Success();
     }
 
-    public async Task<Result> RecordProgressAsync(Guid discoveryRunId, DiscoveryProgressPayload progress, CancellationToken ct = default)
+    public async Task<Result<DiscoveryProgressAck>> RecordProgressAsync(Guid discoveryRunId, DiscoveryProgressPayload progress, CancellationToken ct = default)
     {
         var run = await _db.DiscoveryRuns.FirstOrDefaultAsync(r => r.Id == discoveryRunId, ct);
-        if (run is null) return Result.Failure(Error.NotFound("The discovery run"));
+        // A run the control plane has never heard of is one the crawler should not be
+        // running: say stop rather than leaving it to carry on unsupervised.
+        if (run is null) return Result<DiscoveryProgressAck>.Failure(Error.NotFound("The discovery run"));
 
         // A progress update never lowers the figures, and never reopens a finished run.
         //
@@ -142,7 +144,11 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
             _logger.LogDebug(
                 "Ignoring a progress update for discovery run {RunId}, which already finished as {Status}",
                 run.Id, run.Status);
-            return Result.Success();
+            // The figures are not touched, and the crawl is told to stop. A run that has
+            // been cancelled, or that something else already finished, has no business
+            // still opening pages of somebody's application.
+            return Result<DiscoveryProgressAck>.Success(new DiscoveryProgressAck(
+                true, $"the run is no longer in flight: it finished as {run.Status}"));
         }
 
         run.PagesDiscovered = Math.Max(run.PagesDiscovered, progress.PagesVisited);
@@ -156,7 +162,7 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
             new { progress.PagesVisited, progress.PagesQueued, progress.ElementsFound, progress.CurrentUrl, message = line },
             _clock.UtcNow), ct);
 
-        return Result.Success();
+        return Result<DiscoveryProgressAck>.Success(new DiscoveryProgressAck(false, null));
     }
 
     public async Task<Result> CompleteAsync(Guid discoveryRunId, DiscoveryCompletionPayload completion, CancellationToken ct = default)

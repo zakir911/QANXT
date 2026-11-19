@@ -46,7 +46,21 @@ export interface CrawlOptions {
   auth: AuthConfig;
   artifactDir: string;
   navigationTimeoutMs: number;
-  onProgress?: (message: string, visited: number, queued: number) => void | Promise<void>;
+  /**
+   * Reports progress and may answer with an instruction to stop, which is how a cancelled
+   * run reaches a crawl already in flight.
+   */
+  onProgress?: (message: string, visited: number, queued: number)
+    => void | Promise<void> | Promise<{ shouldStop: boolean; reason?: string }>;
+  /**
+   * When the run began, as the control plane recorded it.
+   *
+   * The time budget is measured from here, not from the moment this process picked the job
+   * up. A crawl whose worker died and whose job was reclaimed would otherwise start a fresh
+   * full budget, so a run with a declared 15-minute budget could spend an hour exploring
+   * somebody's application — measured at 20 minutes on a 900s budget after one restart.
+   */
+  runStartedAtMs?: number;
 }
 
 /** A mapped page plus the links found on it, which are crawl state rather than part of
@@ -102,7 +116,8 @@ export class Crawler {
 
   async run(discoveryRunId: string, workerId: string, signal?: AbortSignal): Promise<DiscoveryCompletionReport> {
     const startedAt = new Date().toISOString();
-    const deadline = Date.now() + this.options.budget.timeoutSeconds * 1000;
+    const deadline = crawlDeadline(
+      this.options.budget.timeoutSeconds, this.options.runStartedAtMs, Date.now());
     let status: DiscoveryCompletionReport['status'] = 'completed';
     let errorMessage: string | undefined;
 
@@ -232,9 +247,19 @@ export class Crawler {
         const discovered = await this.visit(page, entry, authenticated);
         if (!discovered) continue;
 
-        await this.options.onProgress?.(
+        // The answer to a progress report can say to stop. That is how cancelling a run
+        // reaches a crawl that is already running: before this, the run row was marked
+        // cancelled and the crawl carried on opening and clicking pages until its budget
+        // ran out, which on a real application means the tool keeps touching a system
+        // after being told to stop.
+        const ack = await this.options.onProgress?.(
           `Explored ${discovered.route || '/'} (${discovered.elements.length} elements)`,
           this.pages.size, queue.length);
+        if (ack && typeof ack === 'object' && ack.shouldStop) {
+          status = 'cancelled';
+          this.note(`Stopped: the control plane asked the crawl to stop — ${ack.reason ?? 'the run is no longer in flight'}.`);
+          break;
+        }
 
         if (entry.depth < this.options.budget.maxDepth) {
           for (const link of this.collectLinks(discovered, entry.depth)) {
@@ -1053,4 +1078,31 @@ function safeRoute(url: string): string {
 
 function fileSafe(value: string): string {
   return value.replace(/[^A-Za-z0-9._-]+/g, '_').slice(0, 120);
+}
+
+
+/**
+ * When a crawl must stop.
+ *
+ * Measured from when the run began, not from the moment a worker picked the job up. A
+ * crawl whose worker died and whose job was reclaimed would otherwise start a fresh full
+ * budget: measured on this project's own test lab, a run with a declared 900-second budget
+ * was still mapping pages twenty minutes in, because the reclaim had reset its clock. A
+ * budget that resets is not a budget.
+ *
+ * A reclaimed job whose budget has already gone is not given a deadline in the past. It
+ * gets a short window instead — long enough to finish the page it is on and report what it
+ * found, because a crawl that stops without reporting leaves the run looking stranded and
+ * throws away the pages it already has.
+ */
+export function crawlDeadline(
+  timeoutSeconds: number,
+  runStartedAtMs: number | undefined,
+  nowMs: number
+): number {
+  const budgetMs = Math.max(0, timeoutSeconds) * 1000;
+  if (runStartedAtMs === undefined) return nowMs + budgetMs;
+
+  const graceMs = Math.min(budgetMs, 30_000);
+  return Math.max(runStartedAtMs + budgetMs, nowMs + graceMs);
 }

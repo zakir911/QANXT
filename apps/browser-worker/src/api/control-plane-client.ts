@@ -63,15 +63,25 @@ export class ControlPlaneClient {
     await this.post(`/api/v1/worker/discovery/${runId}/started`, { workerId });
   }
 
+  /**
+   * Reports progress, and returns whatever the control plane says to do next.
+   *
+   * The figures are advisory and losing one must never interrupt a crawl, so any failure
+   * here answers "carry on". The answer itself is not advisory: it is how a cancelled run
+   * reaches a crawl that is already in flight, and the only such channel there is.
+   */
   async discoveryProgress(runId: string, progress: {
     pagesVisited: number; pagesQueued: number; elementsFound: number;
     currentUrl?: string; message: string;
-  }): Promise<void> {
-    // Progress is advisory. Losing one update must never interrupt a crawl.
+  }): Promise<{ shouldStop: boolean; reason?: string }> {
     try {
-      await this.post(`/api/v1/worker/discovery/${runId}/progress`, progress, { attempts: 1 });
+      const ack = await this.postForJson<{ shouldStop?: boolean; reason?: string }>(
+        `/api/v1/worker/discovery/${runId}/progress`, progress, { attempts: 1 });
+      return { shouldStop: ack?.shouldStop === true, ...(ack?.reason ? { reason: ack.reason } : {}) };
     } catch (error) {
+      // A blip in the progress feed is not an instruction to stop crawling.
       this.logger.debug('A discovery progress update could not be delivered', { error: String(error) });
+      return { shouldStop: false };
     }
   }
 
@@ -218,6 +228,29 @@ export class ControlPlaneClient {
       });
       await this.ensureOk(response, path);
       return undefined;
+    });
+  }
+
+  /**
+   * POSTs and reads the answer, for the one endpoint whose answer the worker acts on.
+   *
+   * Separate from `post` rather than making that generic: every other caller discards the
+   * body, and a response that will not parse is not a reason to fail a delivery that the
+   * server accepted.
+   */
+  private async postForJson<T>(path: string, body: unknown, options: { attempts?: number } = {}): Promise<T | undefined> {
+    const attempts = options.attempts ?? this.maxAttempts;
+    return await this.withRetry(`POST ${path}`, attempts, async () => {
+      const response = await fetch(`${this.baseUrl}${path}`, {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${this.token}`,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+      await this.ensureOk(response, path);
+      return await response.json().then(value => value as T).catch(() => undefined);
     });
   }
 
