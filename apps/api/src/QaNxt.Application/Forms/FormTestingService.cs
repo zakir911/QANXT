@@ -170,6 +170,27 @@ public sealed class FormTestingService : IFormTestingService
         var tasks = await _db.HumanVerificationTasks.Where(t => t.ApplicationId == application.Id && t.GenerationKey != null).ToListAsync(ct);
         var tasksByKey = tasks.ToDictionary(t => t.GenerationKey!, StringComparer.Ordinal);
 
+        // What each form's page says about the state of the record on it.
+        //
+        // Read from the short text discovery recorded — a status badge, a chip, a heading —
+        // because a state-transition test cannot be designed without knowing the state the
+        // record is actually in. Long text is not a state: a paragraph that happens to
+        // contain "cancelled" is prose, and designing a test from it would produce a check
+        // whose premise fails on every run.
+        var stateWordsByPage = (await _db.ApplicationElements.AsNoTracking()
+                .Where(e => pageIds.Contains(e.ApplicationPageId) && e.IsVisible
+                            && e.AccessibleName != null && e.AccessibleName != "")
+                .Select(e => new { e.ApplicationPageId, e.AccessibleName })
+                .ToListAsync(ct))
+            .Where(e => e.AccessibleName!.Length <= 24)
+            .GroupBy(e => e.ApplicationPageId)
+            .ToDictionary(
+                group => group.Key,
+                group => (IReadOnlyList<string>)group
+                    .Select(e => e.AccessibleName!.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList());
+
         int created = 0, updated = 0, unchanged = 0, deprecated = 0, leftAsEdited = 0, gapCount = 0, taskCount = 0, findingCount = 0;
         var perForm = new List<FormGenerationSummary>();
         var designedKeys = new HashSet<string>(StringComparer.Ordinal);
@@ -186,7 +207,8 @@ public sealed class FormTestingService : IFormTestingService
             var design = FormTestDesigner.Design(new FormDesignContext(
                 form.Id, model, form.PageUrl, form.Route, FormName(form, model), hasCredentials,
                 endpoints.Where(e => e.TriggeredByPageId == form.ApplicationPageId).Select(e => new CorrelatedEndpoint(e.Method, e.UrlTemplate)).ToList(),
-                profile));
+                profile,
+                stateWordsByPage.TryGetValue(form.ApplicationPageId, out var words) ? words : Array.Empty<string>()));
 
             var formTests = 0;
             foreach (var designed in design.Tests)

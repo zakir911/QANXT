@@ -14,6 +14,12 @@ import {
   assertServerEnforces,
   assertValueLength, materialiseFixture, type Observations
 } from './form-oracles.js';
+import {
+  assertDisplayedCountMatches, assertPercentageLineConsistent, assertTotalsAddUp
+} from './calculation-oracles.js';
+import {
+  assertHiddenMeansForbidden, assertStateForbidsAction
+} from './authorization-oracles.js';
 
 /**
  * Executes one validated action against a page.
@@ -519,6 +525,16 @@ async function runFormOracle(
         return await assertServerEnforces(page, action.value);
       case 'assertNotColourOnly':
         return await assertNotColourOnly(page);
+      case 'assertTotalsAddUp':
+        return await assertTotalsAddUp(page);
+      case 'assertDisplayedCountMatches':
+        return await assertDisplayedCountMatches(page);
+      case 'assertPercentageLineConsistent':
+        return await assertPercentageLineConsistent(page);
+      case 'assertHiddenMeansForbidden':
+        return await assertHiddenMeansForbidden(page, action.value);
+      case 'assertStateForbidsAction':
+        return await assertStateForbidsAction(page, action.value);
       default:
         throw new ActionError(`Unsupported assertion: ${action.action}`, false);
     }

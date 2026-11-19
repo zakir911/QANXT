@@ -145,6 +145,41 @@ public enum BrowserActionType
     /// where a column's text-free cells disagree about colour, because one colour is
     /// decoration and two or more is data.</summary>
     AssertNotColourOnly = 64,
+    /// <summary>Checks that a stated total equals the sum of the lines above it.
+    ///
+    /// The cheapest arithmetic question there is, and one almost no generated suite asks:
+    /// a table that shows its own total is asserting something checkable, and a total that
+    /// does not tie out is a defect whatever the business rules are.</summary>
+    AssertTotalsAddUp = 65,
+    /// <summary>Checks that a count a page states matches the rows it actually shows.
+    ///
+    /// "42 shipments" above three rows is either a wrong count or a wrong list, and the
+    /// usual cause is a count taken before the filter was applied. Paginated pages are read
+    /// through their own "showing X to Y of N" wording rather than guessed at.</summary>
+    AssertDisplayedCountMatches = 66,
+    /// <summary>Checks that an amount labelled with a percentage derives from a figure
+    /// stated before it.
+    ///
+    /// A line that says "VAT (20%)" or "Fuel surcharge (11.5%)" is claiming to be that
+    /// percentage of something. If it is that percentage of nothing on the page the
+    /// arithmetic does not tie out; if it is only that percentage of a figure printed
+    /// below it, it was computed from a total that did not exist yet.</summary>
+    AssertPercentageLineConsistent = 67,
+    /// <summary>Checks that a control this identity cannot see is also refused by the
+    /// server.
+    ///
+    /// The authorization counterpart of <see cref="AssertServerEnforces"/>. Hiding a button
+    /// is presentation; refusing the request is authorization, and an application that does
+    /// only the first is open to anyone who can use a terminal. Its configuration travels
+    /// as JSON in the step's value.</summary>
+    AssertHiddenMeansForbidden = 68,
+    /// <summary>Checks that an entity in a terminal state refuses an action that would
+    /// advance it.
+    ///
+    /// A cancelled order that can still be shipped, or a rejected declaration that can
+    /// still be released, is a state machine enforced only by which buttons are drawn. Its
+    /// configuration travels as JSON in the step's value.</summary>
+    AssertStateForbidsAction = 69,
     /// <summary>Only permitted when the project explicitly allows scripting AND the caller
     /// holds the execution:script permission. Rejected by default.</summary>
     ExecuteScript = 90

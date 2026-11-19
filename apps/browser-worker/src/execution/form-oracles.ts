@@ -475,7 +475,7 @@ interface ServerEnforcementCheck {
   refusedStatuses?: number[];
 }
 
-interface SerialisedForm {
+export interface SerialisedForm {
   action: string;
   method: string;
   enctype: string;
@@ -597,7 +597,7 @@ export async function assertServerEnforces(page: Page, value: string | undefined
  * serialised from the DOM at all so its name is sent empty. Hidden inputs are included,
  * which is the whole reason for reading the live form.
  */
-async function serialiseForm(
+export async function serialiseForm(
   page: Page,
   descriptor: LocatorDescriptor | undefined
 ): Promise<SerialisedForm | null> {
@@ -663,7 +663,7 @@ function withQuery(target: string, fields: Record<string, string>): string {
  * no, not on the mere presence of the word "error" somewhere in a page of markup — a page
  * with an empty error container would otherwise excuse every acceptance.
  */
-function firstComplaint(body: string): string | undefined {
+export function firstComplaint(body: string): string | undefined {
   if (!body) return undefined;
 
   // A JSON error envelope: the shape most APIs answer a bad request with.
@@ -698,7 +698,7 @@ function firstComplaint(body: string): string | undefined {
 }
 
 /** True when a redirect goes back where the submission came from, which is a refusal. */
-function sameRoute(location: string, target: string): boolean {
+export function sameRoute(location: string, target: string): boolean {
   try {
     return new URL(location, target).pathname === new URL(target).pathname;
   } catch {
@@ -706,7 +706,7 @@ function sameRoute(location: string, target: string): boolean {
   }
 }
 
-function collapse(text: string): string {
+export function collapse(text: string): string {
   return text.replace(/\s+/g, ' ').trim();
 }
 

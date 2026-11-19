@@ -52,7 +52,13 @@ public sealed record TestingProfile
     {
         TestCategory.Boundary, TestCategory.Validation, TestCategory.InputValidation, TestCategory.CrossField,
         TestCategory.Dynamic, TestCategory.MultiStep, TestCategory.ErrorHandling, TestCategory.Security,
-        TestCategory.Api, TestCategory.StateTransition, TestCategory.Recovery
+        TestCategory.Api, TestCategory.StateTransition, TestCategory.Recovery,
+        // Data integrity was left out of Standard while it was a human-only category: with
+        // no access to the application's database, whether the record stored is the record
+        // submitted is a person's check. Half of it stopped being human when the page's own
+        // arithmetic became checkable — a total that is not the sum of its lines, a count
+        // that does not match its rows — and that half is cheap enough to belong here.
+        TestCategory.DataIntegrity
     }).ToArray();
 
     /// <summary>The categories this profile actually generates.</summary>

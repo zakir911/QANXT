@@ -176,6 +176,36 @@ public static class PageTestDesigner
                 "DOM snapshot on failure, screenshot on failure."));
         }
 
+        // A page that prints a table is making arithmetic claims about its own contents, and
+        // those are checkable without knowing anything about the business. Emitted only
+        // where discovery recorded a table: on a page with none, these steps would pass
+        // because there was nothing to check, and a pass that means nothing is worse than
+        // an absent test — it reads as coverage.
+        if (profile.Includes(TestCategory.DataIntegrity)
+            && page.Elements.Any(element => element.Kind == ElementKind.Table))
+        {
+            tests.Add(Test(TestCategory.DataIntegrity, "totals-add-up", "totals the lines it shows",
+                "Every total the page prints equals the sum of the lines above it.",
+                "No total differs from the sum of its lines by more than per-line rounding.",
+                new List<DesignedStep> { open, new(BrowserActionType.AssertTotalsAddUp, "Confirm each total equals the sum of its lines") },
+                TestPriority.High, $"{signedIn}{name} exists at {page.Route} and shows a table.",
+                "The stated total, the computed sum and the difference; DOM snapshot on failure."));
+
+            tests.Add(Test(TestCategory.DataIntegrity, "count-matches", "counts the rows it shows",
+                "A count the page states matches the rows it renders.",
+                "The stated count equals the number of rows shown, or the page says which range it is showing.",
+                new List<DesignedStep> { open, new(BrowserActionType.AssertDisplayedCountMatches, "Confirm the stated count matches the rows shown") },
+                TestPriority.Medium, $"{signedIn}{name} exists at {page.Route} and shows a table.",
+                "The claim as written, the rows counted; DOM snapshot on failure."));
+
+            tests.Add(Test(TestCategory.DataIntegrity, "percentage-lines", "derives each percentage line from a figure above it",
+                "A line labelled with a percentage is that percentage of a figure the page has already stated.",
+                "Every percentage line matches its rate applied to a figure printed before it.",
+                new List<DesignedStep> { open, new(BrowserActionType.AssertPercentageLineConsistent, "Confirm each percentage line derives from a figure above it") },
+                TestPriority.High, $"{signedIn}{name} exists at {page.Route} and shows a table.",
+                "The line, its rate, the figure it does match and where that figure appears."));
+        }
+
         if (profile.Includes(TestCategory.Responsive))
         {
             foreach (var viewport in profile.Viewports.Skip(1))

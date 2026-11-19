@@ -115,4 +115,69 @@ public class PageTestDesignerTests
         Design(page).Tests.Select(t => t.Key).Should().Equal(Design(page).Tests.Select(t => t.Key));
         Design(page).Tests.Select(t => t.Key).Should().OnlyHaveUniqueItems().And.OnlyContain(k => k.StartsWith("page:"));
     }
+
+    [Fact]
+    public void A_page_that_prints_a_table_is_asked_whether_its_arithmetic_is_true()
+    {
+        // A table is a page making checkable claims about its own contents: this total is
+        // the sum of those lines, this heading counts those rows. No knowledge of the
+        // business is needed to ask, which is exactly why a generated suite can ask it.
+        var page = Page("/billing/invoices", "Invoices",
+            Element("Invoices", ElementKind.Heading), Element("Invoice lines", ElementKind.Table));
+
+        var techniques = Design(page).Tests.Select(t => t.Technique).ToList();
+
+        techniques.Should().Contain("totals-add-up");
+        techniques.Should().Contain("count-matches");
+        techniques.Should().Contain("percentage-lines");
+    }
+
+    [Fact]
+    public void A_page_with_no_table_is_asked_nothing_about_arithmetic()
+    {
+        // These steps pass on a page with no table because there is nothing to check, and a
+        // pass that means nothing is worse than an absent test: it reads as coverage. The
+        // emission is gated on what discovery saw rather than on hope.
+        var page = Page("/account/preferences", "Preferences",
+            Element("Preferences", ElementKind.Heading), Element("Save", ElementKind.Button));
+
+        var techniques = Design(page).Tests.Select(t => t.Technique).ToList();
+
+        techniques.Should().NotContain("totals-add-up");
+        techniques.Should().NotContain("count-matches");
+        techniques.Should().NotContain("percentage-lines");
+    }
+
+    [Fact]
+    public void Each_arithmetic_test_opens_the_page_before_asking()
+    {
+        var page = Page("/billing/invoices", "Invoices", Element("Invoice lines", ElementKind.Table));
+        var verbs = new[]
+        {
+            BrowserActionType.AssertTotalsAddUp,
+            BrowserActionType.AssertDisplayedCountMatches,
+            BrowserActionType.AssertPercentageLineConsistent
+        };
+
+        foreach (var verb in verbs)
+        {
+            var test = Design(page).Tests.Single(t => t.Steps.Any(s => s.Action == verb));
+            test.Steps.Select(s => s.Action).Should().ContainInOrder(BrowserActionType.Navigate, verb);
+            test.Category.Should().Be(TestCategory.DataIntegrity);
+        }
+    }
+
+    [Fact]
+    public void The_arithmetic_tests_follow_the_profile_like_every_other_category()
+    {
+        var page = Page("/billing/invoices", "Invoices", Element("Invoice lines", ElementKind.Table));
+        var withoutDataIntegrity = new TestingProfile
+        {
+            Mode = TestingMode.Custom,
+            Categories = new List<TestCategory> { TestCategory.Functional, TestCategory.Accessibility }
+        };
+
+        Design(page, profile: withoutDataIntegrity).Tests
+            .Should().NotContain(t => t.Technique == "totals-add-up");
+    }
 }

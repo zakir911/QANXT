@@ -79,7 +79,27 @@ public sealed record FormDesignContext(
     string FormName,
     bool HasCredentials,
     IReadOnlyList<CorrelatedEndpoint> Endpoints,
-    TestingProfile Profile);
+    TestingProfile Profile,
+    /// <summary>Words discovery saw on this form's page that name a state a record should
+    /// not be moved on from — cancelled, rejected, void. Empty on most pages, and the only
+    /// thing that lets a state-transition test be designed at all: without it the designer
+    /// would be emitting a question about a record whose state it does not know.</summary>
+    IReadOnlyList<string>? PageStateWords = null);
+
+/// <summary>What an <see cref="BrowserActionType.AssertHiddenMeansForbidden"/> step carries:
+/// the control this identity is not given, and the form to read the submission off.</summary>
+public sealed record HiddenControlStep(
+    [property: JsonPropertyName("control")] LocatorDescriptor Control,
+    [property: JsonPropertyName("form")] LocatorDescriptor Form,
+    [property: JsonPropertyName("capability")] string? Capability);
+
+/// <summary>What an <see cref="BrowserActionType.AssertStateForbidsAction"/> step carries:
+/// the state the record must be in for the question to mean anything, and the form whose
+/// submission should be refused while it is.</summary>
+public sealed record StateForbidsStep(
+    [property: JsonPropertyName("state")] string State,
+    [property: JsonPropertyName("form")] LocatorDescriptor Form,
+    [property: JsonPropertyName("action")] string? Action);
 
 /// <summary>Designs a form's test suite from what discovery observed about it.
 ///
@@ -201,6 +221,7 @@ public static class FormTestDesigner
             Visual();
             Exploratory();
             Usability();
+            HiddenRulesAndStates();
             DataIntegrityAndWorkflow();
         }
 
@@ -1941,6 +1962,95 @@ public static class FormTestDesigner
             Human(TestCategory.Usability, "review", "usability review",
                 "Clarity of labels and messages, field order and whether every field is needed are judgements, not checks.",
                 $"Complete {Title} as a first-time user, making one mistake.", "Labels, order, messages and the outcome are clear; no field feels unnecessary.");
+        }
+
+        /// <summary>States a record should not be moved on from.
+        ///
+        /// Deliberately short and unambiguous. Every word here names a state whose whole
+        /// meaning is that the record is finished with — a state machine that still accepts
+        /// a transition out of one of these is not enforcing anything. "Completed" and
+        /// "settled" are left out on purpose: plenty of workflows legitimately act on a
+        /// completed record, and a check that fires on them would be noise.</summary>
+        private static readonly string[] TerminalStates =
+        {
+            "cancelled", "canceled", "rejected", "declined", "void", "voided",
+            "revoked", "withdrawn", "expired", "archived", "terminated", "refunded"
+        };
+
+        /// <summary>The two questions a page answers by drawing nothing.
+        ///
+        /// Both ask whether a rule the page keeps is a rule the server keeps, which is the
+        /// same question <see cref="ServerAlso"/> asks about validation. They are separated
+        /// out because the evidence for them is an absence — a control that is not offered,
+        /// a transition that is not shown — and an absence is exactly what a suite built
+        /// from a page's controls can never notice.
+        ///
+        /// Each is emitted only where discovery established the premise: a control it saw
+        /// disabled or withheld, a state it saw on the page. A test that opens by asking a
+        /// question about a record whose state it had to guess is not worth the run.</summary>
+        private void HiddenRulesAndStates()
+        {
+            if (!_transactional || _form.Action is null) return;
+            if (string.Equals(_form.Method, "get", StringComparison.OrdinalIgnoreCase)) return;
+
+            if (Wanted(TestCategory.Security))
+            {
+                // A submit the page will not let this identity press. Discovery recorded it
+                // that way, so the permission or the rule behind it is real — and the only
+                // question left is whether anything but this page honours it.
+                var withheld = _form.Buttons.FirstOrDefault(b =>
+                    string.Equals(b.Role, "submit", StringComparison.OrdinalIgnoreCase) && (b.Disabled || !b.Visible));
+
+                if (withheld is not null)
+                {
+                    var payload = JsonSerializer.Serialize(
+                        new HiddenControlStep(withheld.Locator, _form.Locator,
+                            $"press \"{Truncate(withheld.Label, 60)}\""),
+                        JsonDefaults.Options);
+
+                    Add(Test(TestCategory.Security, "hidden-means-forbidden",
+                        $"refuses the submission \"{Truncate(withheld.Label, 40)}\" is withheld for",
+                        $"The rule that stops this identity pressing \"{withheld.Label}\" is enforced by the handler and not only by the page.",
+                        "The server refuses the submission, as the page does.",
+                        new List<DesignedStep>
+                        {
+                            Open(),
+                            new(BrowserActionType.AssertHiddenMeansForbidden,
+                                $"Confirm the server refuses what \"{Truncate(withheld.Label, 40)}\" will not send", Value: payload)
+                        },
+                        null, TestPriority.High,
+                        new[] { $"rule:{_ctx.FormId:N}/authorization/hidden-control" },
+                        null,
+                        "The request as sent, the status, the response body; DOM snapshot on failure."));
+                }
+            }
+
+            if (!Wanted(TestCategory.StateTransition)) return;
+
+            foreach (var state in (_ctx.PageStateWords ?? Array.Empty<string>())
+                         .Select(word => word.Trim().ToLowerInvariant())
+                         .Where(word => TerminalStates.Contains(word))
+                         .Distinct()
+                         .Take(2))
+            {
+                var payload = JsonSerializer.Serialize(
+                    new StateForbidsStep(state, _form.Locator, $"submit {Title}"), JsonDefaults.Options);
+
+                Add(Test(TestCategory.StateTransition, $"terminal-state:{state}",
+                    $"refuses this submission while the record is {state}",
+                    $"A record that is {state} is finished with, and the handler says so rather than leaving it to which controls the page draws.",
+                    $"The server refuses the submission while the record is {state}.",
+                    new List<DesignedStep>
+                    {
+                        Open(),
+                        new(BrowserActionType.AssertStateForbidsAction,
+                            $"Confirm the server refuses this while the record is {state}", Value: payload)
+                    },
+                    null, TestPriority.High,
+                    new[] { $"rule:{_ctx.FormId:N}/state/{state}" },
+                    null,
+                    "The request as sent, the status, the response body; DOM snapshot on failure."));
+            }
         }
 
         private void DataIntegrityAndWorkflow()

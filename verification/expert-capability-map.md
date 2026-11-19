@@ -60,9 +60,9 @@ and FP_D28 was correctly ranked as the most severe of the four.
 
 | Defect | Why it was missed | What now addresses it |
 | --- | --- | --- |
-| FP_D05 credit limit checked on the form, not in the handler | every test went through the DOM | `assertServerEnforces` |
-| FP_D17 a rejected declaration can be released | the UI does not offer the action, so nothing tried it | `assertServerEnforces` |
-| FP_D11 a viewer can settle a claim | hidden from the viewer, not refused | `assertServerEnforces`, and `authz.readonly` with an identity |
+| FP_D05 credit limit checked on the form, not in the handler | every test went through the DOM | `assertHiddenMeansForbidden` (the submit is disabled, the handler does not check) |
+| FP_D17 a rejected declaration can be released | the UI does not offer the action, so nothing tried it | `assertStateForbidsAction` |
+| FP_D11 a viewer can settle a claim | hidden from the viewer, not refused | `assertHiddenMeansForbidden`, and `authz.readonly` with an identity |
 | FP_D23 vehicle status conveyed by colour alone | axe checks contrast, not whether colour is the only channel | `assertNotColourOnly` |
 
 The oracle sends the submission the browser just refused straight to the form's action,
@@ -99,23 +99,54 @@ were a gap in *supply*. Nothing had given the scanner the three identities the l
 1. **Round-trip persistence** — what you entered is what is shown back. Catches FP_D03,
    where the weight unit selector is recorded and never applied. A human checks this every
    time they fill a form; the engine never reads the result page.
-2. **Displayed-count consistency** — a count label must equal the rows it counts. Catches
-   FP_D10, where the result count is taken before the filter.
-3. **Uniqueness** — submit the same reference twice. Catches FP_D04.
-4. **Multi-step state retention** — forward, then back, and the fields still hold. Catches
+2. **Uniqueness** — submit the same reference twice. Catches FP_D04.
+3. **Multi-step state retention** — forward, then back, and the fields still hold. Catches
    FP_D15.
-5. **Dialog behaviour** — role, focus moved in, Escape closes, focus returns. Catches
+4. **Dialog behaviour** — role, focus moved in, Escape closes, focus returns. Catches
    FP_D24. axe does not check focus management.
-6. **Cross-entity state after an action** — cancel a shipment, then look at the route it
+5. **Cross-entity state after an action** — cancel a shipment, then look at the route it
    was on. Catches FP_D14. The hardest of these: it needs to know the two screens are
    related, which the discovery graph may already be able to say.
+
+### Built since this was written
+
+Five oracles, in the three classes the measurement showed empty. All **built, not yet
+measured** against Meridian Freight.
+
+| Oracle | What it asks | Aimed at |
+| --- | --- | --- |
+| `assertTotalsAddUp` | a stated total equals the sum of the lines above it | any wrong total; emitted wherever discovery saw a table |
+| `assertDisplayedCountMatches` | a stated count equals the rows rendered | FP_D10, the count taken before the filter |
+| `assertPercentageLineConsistent` | an amount labelled with a rate derives from a figure stated *before* it | FP_D06 |
+| `assertHiddenMeansForbidden` | a control the page withholds is also refused by the server | FP_D05, FP_D11 |
+| `assertStateForbidsAction` | a record in a terminal state refuses a transition out of it | FP_D17 |
+
+Each is emitted only where discovery established its premise — a table on the page, a
+control recorded as disabled or withheld, a terminal state seen on the page — because a
+check that passes for want of anything to check reads as coverage and is worse than an
+absent test.
+
+### A correction to this document
+
+FP_D06 was listed below as out of reach, on the grounds that "the application is internally
+consistent; only a specification says 11.5% of the *freight* line". That was wrong, and the
+error is worth keeping visible because it is the kind that quietly caps a tool's ceiling.
+
+The page is not internally consistent. It states its figures in an order, and a line can
+only be derived from something already stated. A surcharge that equals 11.5% of a gross
+total printed three rows *below* it was computed from a figure that does not exist yet at
+that point in the document. That is an observable property of the page, not domain
+knowledge — and declaring it out of reach meant nobody looked for the observable.
+
+FP_D08 stays out of reach, and for the reason FP_D06 was wrongly given: CIF meaning "cost,
+insurance and freight" really is domain knowledge, and nothing about the ordering of the
+page says the freight figure belongs in the duty base.
 
 ### Out of reach, and why
 
 | Defect | Why |
 | --- | --- |
-| FP_D06 fuel surcharge applied to the VAT-inclusive total | the application is internally consistent; only a specification says 11.5% of the *freight* line |
-| FP_D08 duty excludes freight on a CIF shipment | same: CIF means freight is included, and that is domain knowledge, not an observable |
+| FP_D08 duty excludes freight on a CIF shipment | CIF means cost, insurance and freight are all in the customs value, and that is domain knowledge: nothing on the page says the freight figure belongs in the duty base |
 | FP_D07 rate band boundary does not step | the bands are stated on a card the engine cannot read as a rule |
 | FP_D09 credit note exceeds the invoice | needs the invoice total, which lives on another screen |
 | FP_D20 invoice whose shipment was removed crashes | needs a dangling reference to be created first |

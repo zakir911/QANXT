@@ -208,6 +208,11 @@ public sealed class DefectService : IDefectService
                 BrowserActionType.AssertNoMarkupInjection => $"writes input from {testCase.FieldKey} back into the page as markup",
                 BrowserActionType.AssertNoHorizontalScroll => "overflows a small screen",
                 BrowserActionType.AssertNotColourOnly => "says what a row is with colour and nothing else",
+                BrowserActionType.AssertTotalsAddUp => "shows a total that is not the sum of its lines",
+                BrowserActionType.AssertDisplayedCountMatches => "states a count that does not match the rows it shows",
+                BrowserActionType.AssertPercentageLineConsistent => "shows a percentage line that does not derive from any figure above it",
+                BrowserActionType.AssertHiddenMeansForbidden => "hides a control from this identity without refusing the request behind it",
+                BrowserActionType.AssertStateForbidsAction => "allows an action its current state should forbid",
                 BrowserActionType.AssertServerEnforces => failure.RawMessage.Contains("its own defect", StringComparison.Ordinal)
                     ? "fails on a value its own form refuses, instead of rejecting it"
                     : "enforces a rule in the browser only, so the endpoint accepts what the form refuses",

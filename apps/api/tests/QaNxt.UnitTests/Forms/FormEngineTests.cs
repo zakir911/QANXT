@@ -253,6 +253,125 @@ public class FormEngineTests
         => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,
             "http://lab/registration", "/registration", form.Name, credentials, Array.Empty<CorrelatedEndpoint>(), profile ?? new TestingProfile()));
 
+    /// <summary>The same design, told what discovery saw on the form's page.</summary>
+    private static FormDesign DesignOnPageShowing(DiscoveredFormModel form, params string[] stateWords)
+        => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,
+            "http://lab/registration", "/registration", form.Name, false, Array.Empty<CorrelatedEndpoint>(),
+            new TestingProfile(), stateWords));
+
+    /// <summary>The registration form with its submit withheld, as discovery records a
+    /// control a rule or a permission will not let this identity press.</summary>
+    private static DiscoveredFormModel WithWithheldSubmit(bool disabled = true, bool visible = true)
+    {
+        var form = Registration();
+        return form with
+        {
+            Buttons = new()
+            {
+                new FormButtonModel
+                {
+                    Label = "Create account", Type = "submit", Role = "submit",
+                    Locator = TestId("registration-submit"), Disabled = disabled, Visible = visible
+                }
+            }
+        };
+    }
+
+    [Fact]
+    public void A_control_the_page_withholds_is_asked_of_the_server_too()
+    {
+        // The authorization counterpart of the server-enforcement pair. A disabled submit
+        // is a rule the page keeps; whether anything else keeps it is a different question,
+        // and the only evidence for it is the control that is not there.
+        var step = Design(WithWithheldSubmit()).Tests
+            .SelectMany(t => t.Steps)
+            .Should().ContainSingle(s => s.Action == BrowserActionType.AssertHiddenMeansForbidden).Subject;
+
+        step.Value.Should().NotBeNullOrWhiteSpace();
+
+        // The same grammar trap the server-enforcement payload fell into: a strategy spelled
+        // the wrong way resolves to nothing, the oracle falls back to the first form on the
+        // page, and a wrong submission gets refused — which reads here as the permission
+        // being enforced. Both locators have to round-trip through the worker's converter.
+        var decoded = JsonSerializer.Deserialize<HiddenControlStep>(step.Value!, JsonDefaults.Options);
+        decoded!.Control.Strategy.Should().Be(LocatorStrategy.TestId);
+        decoded.Control.Value.Should().Be("registration-submit");
+        decoded.Form.Strategy.Should().Be(LocatorStrategy.TestId);
+        decoded.Form.Value.Should().Be("registration-form");
+        decoded.Capability.Should().Contain("Create account");
+    }
+
+    [Fact]
+    public void A_control_the_page_offers_raises_no_authorization_question()
+    {
+        // Nothing is being withheld, so there is no rule to check the server against. A
+        // step here would pass because there was nothing to find, which is worse than no
+        // step: it reads as coverage.
+        Design(Registration()).Tests
+            .Should().NotContain(t => t.Steps.Any(s => s.Action == BrowserActionType.AssertHiddenMeansForbidden));
+    }
+
+    [Fact]
+    public void A_submit_that_is_hidden_rather_than_disabled_counts_the_same()
+    {
+        Design(WithWithheldSubmit(disabled: false, visible: false)).Tests
+            .Should().Contain(t => t.Steps.Any(s => s.Action == BrowserActionType.AssertHiddenMeansForbidden));
+    }
+
+    [Fact]
+    public void A_filter_raises_no_authorization_question_whatever_its_controls_do()
+    {
+        // A GET form that changes nothing has no permission to enforce, so a refusal would
+        // mean nothing and an acceptance even less.
+        var filter = SearchBox();
+        var withheld = filter with
+        {
+            Buttons = new()
+            {
+                new FormButtonModel { Label = "Search", Type = "submit", Role = "submit", Disabled = true,
+                    Locator = TestId("customer-search-submit") }
+            }
+        };
+
+        Design(withheld).Tests
+            .Should().NotContain(t => t.Steps.Any(s => s.Action == BrowserActionType.AssertHiddenMeansForbidden));
+    }
+
+    [Fact]
+    public void A_record_in_a_terminal_state_is_asked_whether_the_server_will_move_it_on()
+    {
+        var step = DesignOnPageShowing(Registration(), "Rejected").Tests
+            .SelectMany(t => t.Steps)
+            .Should().ContainSingle(s => s.Action == BrowserActionType.AssertStateForbidsAction).Subject;
+
+        var decoded = JsonSerializer.Deserialize<StateForbidsStep>(step.Value!, JsonDefaults.Options);
+        decoded!.State.Should().Be("rejected");
+        decoded.Form.Strategy.Should().Be(LocatorStrategy.TestId);
+        decoded.Form.Value.Should().Be("registration-form");
+    }
+
+    [Fact]
+    public void A_state_the_page_does_not_show_designs_no_test()
+    {
+        // The premise has to be established by discovery, not guessed. A step that opens by
+        // asking about a state the record is not in would fail on every run for a reason
+        // that is the designer's fault.
+        DesignOnPageShowing(Registration()).Tests
+            .Should().NotContain(t => t.Steps.Any(s => s.Action == BrowserActionType.AssertStateForbidsAction));
+
+        DesignOnPageShowing(Registration(), "Active", "Pending").Tests
+            .Should().NotContain(t => t.Steps.Any(s => s.Action == BrowserActionType.AssertStateForbidsAction));
+    }
+
+    [Fact]
+    public void A_state_a_record_can_legitimately_be_acted_on_from_designs_no_test()
+    {
+        // "Completed" and "settled" are terminal without being closed: plenty of workflows
+        // act on a completed record, and a check that fired on them would be noise.
+        DesignOnPageShowing(Registration(), "Completed", "Settled").Tests
+            .Should().NotContain(t => t.Steps.Any(s => s.Action == BrowserActionType.AssertStateForbidsAction));
+    }
+
     [Fact]
     public void Every_generated_step_is_one_the_engine_accepts()
     {

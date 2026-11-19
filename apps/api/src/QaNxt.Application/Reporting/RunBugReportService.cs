@@ -681,6 +681,27 @@ public sealed class RunBugReportService : IRunBugReportService
                     + "so what it says is unavailable to anyone who cannot tell those colours apart — about one man in "
                     + "twelve. Contrast tools do not catch this, because the colours may well contrast perfectly. Add "
                     + "text beside the mark, or an aria-label, title or visually-hidden label on it.",
+                BrowserActionType.AssertTotalsAddUp => "A total the page prints is not the sum of the lines above it. "
+                    + "The usual causes are a total computed from a different collection than the one rendered, a "
+                    + "rounding step applied to the total rather than to each line, or a line excluded from the sum "
+                    + "but not from the table. Compute the total from the same rows the page shows.",
+                BrowserActionType.AssertDisplayedCountMatches => "The count the page states does not match the rows it "
+                    + "shows. The usual cause is counting before filtering: the heading and the pager are built from "
+                    + "the unfiltered collection while the rows come from the filtered one, so a filter that matches "
+                    + "three rows still advertises the whole set. Count the same collection you render.",
+                BrowserActionType.AssertPercentageLineConsistent => "A line labelled with a percentage is not that "
+                    + "percentage of any figure stated before it. Where it matches a figure printed below it instead, "
+                    + "the amount was derived from a total that does not exist yet at that point in the document — a "
+                    + "surcharge computed on the gross rather than the net is the common case, and it overcharges "
+                    + "every row. Derive each line from the subtotal above it.",
+                BrowserActionType.AssertHiddenMeansForbidden => "A control this identity cannot see is not refused by "
+                    + "the server when the request is made directly. Hiding a button is presentation; it stops nobody "
+                    + "who can use a terminal, replay a request or edit the DOM. Check the permission in the handler, "
+                    + "and keep hiding the control for the message it gives (CWE-285).",
+                BrowserActionType.AssertStateForbidsAction => "An action that should be impossible in this entity's "
+                    + "current state was accepted. The state machine is enforced by which buttons are drawn rather "
+                    + "than by the handler, so a cancelled, rejected or closed record can still be advanced by anyone "
+                    + "who sends the request. Check the current state in the handler before applying the transition.",
                 BrowserActionType.AssertNoHorizontalScroll => "An element is wider than the viewport. Look for fixed widths (width or min-width in px), and images or tables without max-width: 100%.",
                 BrowserActionType.AssertPresent when (testCase.Technique ?? string.Empty).Contains("csrf", StringComparison.OrdinalIgnoreCase) || testCase.Name.Contains("forgery", StringComparison.OrdinalIgnoreCase) =>
                     "The form carries no anti-forgery token. Add a per-session token as a hidden field and verify it on the server (CWE-352).",

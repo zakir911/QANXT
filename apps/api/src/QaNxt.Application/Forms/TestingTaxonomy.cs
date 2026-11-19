@@ -38,7 +38,7 @@ public static class TestingTaxonomy
         new(TestCategory.Compatibility, "Browser compatibility", "Non-functional", "A valid submission in each configured browser; a run in another browser skips the test rather than passing it.", "automated"),
         new(TestCategory.Visual, "Visual", "Non-functional", "The form, its error state and its mobile layout against approved baselines; a difference asks for review.", "automated"),
         new(TestCategory.Usability, "Usability", "Non-functional", "Heuristics read from the structure (placeholder labels, generic actions, missing autocomplete), reported separately from failures, plus a human review.", "partial"),
-        new(TestCategory.DataIntegrity, "Data integrity", "Non-functional", "Whether the record stored is the record submitted. QA NXT has no access to the application's database, so this is a person's check unless an API exposes it.", "human"),
+        new(TestCategory.DataIntegrity, "Data integrity", "Non-functional", "Two halves. Whether the record stored is the record submitted needs the application's database, so that stays a person's check unless an API exposes it. Whether the arithmetic a page prints about itself is true does not: a total that is not the sum of its lines, a count that does not match the rows, a percentage line that derives from no figure above it are all checked from the page.", "partial"),
         new(TestCategory.Regression, "Regression", "Lifecycle", "Tests made from confirmed defects, kept permanently, plus anything tagged regression.", "automated")
     };
 }
