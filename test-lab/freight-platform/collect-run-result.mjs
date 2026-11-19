@@ -162,14 +162,23 @@ const VERB = { 50: 'assertFormRejected', 51: 'assertFormAccepted', 52: 'assertFi
   53: 'assertFieldValid', 54: 'assertErrorAssociated', 55: 'assertFocused', 56: 'assertNoServerError',
   57: 'assertRequests', 58: 'assertLoadTimeUnder', 59: 'assertNoMarkupInjection', 60: 'assertPresent',
   61: 'assertValueLength', 62: 'assertNoHorizontalScroll', 63: 'assertServerEnforces',
-  64: 'assertNotColourOnly' };
+  64: 'assertNotColourOnly',
+  // Added with the calculation, authorization and state oracles. Their absence was not a
+  // cosmetic gap: `VERB[row.action] ?? row.action` fell back to the numeric id, numbers
+  // have no padEnd, and the collector threw at the first row carrying a new verb — after
+  // printing a partial table and before writing the result file. The run looked collected
+  // and the detection analysis then read the *previous* run's file, which is a stale
+  // number presented as a fresh one.
+  65: 'assertTotalsAddUp', 66: 'assertDisplayedCountMatches',
+  67: 'assertPercentageLineConsistent', 68: 'assertHiddenMeansForbidden',
+  69: 'assertStateForbidsAction' };
 // These count tests that CARRY the verb, not verdicts of the verb itself: a test with
 // both assertFormRejected and assertServerEnforces appears under each, and a failure may
 // have happened at an earlier step. Attribution to a particular oracle comes from the
 // failure message, below, which is the only place the acting oracle identifies itself.
 line('\n  Tests carrying each oracle (not per-oracle verdicts — see attribution below):');
 for (const row of oracleRuns) {
-  line(`    ${(VERB[row.action] ?? row.action).padEnd(26)} ${String(row.passed).padStart(5)} passed  `
+  line(`    ${String(VERB[row.action] ?? `action ${row.action}`).padEnd(26)} ${String(row.passed).padStart(5)} passed  `
     + `${String(row.failed).padStart(4)} failed`);
 }
 
@@ -181,6 +190,16 @@ const SIGNATURES = {
     '%enforced in the browser and not on the server%',
   'assertServerEnforces: the server answered 5xx instead of refusing':
     '%rather than refusing the submission%',
+  'assertPercentageLineConsistent: a percentage line derives from a figure below it':
+    '%derive from a figure above it%',
+  'assertTotalsAddUp: a total does not equal its lines':
+    '%does not equal the lines it totals%',
+  'assertDisplayedCountMatches: a stated count does not match the rows':
+    '%states a count it does not show%',
+  'assertHiddenMeansForbidden: a withheld control is not refused by the server':
+    '%enforced in the page and nowhere else%',
+  'assertStateForbidsAction: a terminal state does not stop the transition':
+    '%enforced by which controls the page draws%',
   'assertServerEnforces: could not read the form (tooling)':
     '%Could not read the form off the page%',
   'assertServerEnforces: could not reach the endpoint (tooling)':

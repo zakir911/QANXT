@@ -181,6 +181,14 @@ function beats(candidate, incumbent) {
   return candidate.weight > incumbent.weight;
 }
 
+/** The most specific of a defect's own candidates. */
+function best(candidates) {
+  return candidates.reduce(
+    (winner, candidate) =>
+      winner === undefined || beats(candidate.specificity, winner.specificity) ? candidate : winner,
+    undefined);
+}
+
 /**
  * Keywords per defect. Two or more must appear for a signal that does not already name the
  * screen, so a single common word cannot carry a claim on its own.
@@ -224,6 +232,54 @@ const patternMatches = (pattern, path) => {
   const source = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/:[A-Za-z0-9_]+/g, '[^/]+');
   return new RegExp(`^${source}$`).test(path);
 };
+
+/**
+ * Whether a signal's text places it on a defect's screen.
+ *
+ * Ground truth writes screens as route templates — `/billing/invoices/:id` — and a failure
+ * names the instance it happened on, `/billing/invoices/inv-0004`. A literal substring test
+ * can therefore never place a failure on a parameterised screen, so no defect on one could
+ * ever be scored "found" however precisely an oracle named it.
+ *
+ * That is not a theoretical gap. The percentage oracle reported, on three separate
+ * invoices, that the fuel surcharge was 11.5% of a total printed below it. The analyser
+ * could not join any of them to FP_D06 and instead matched a keyword against an unrelated
+ * failure on the surcharge *form*, scoring the defect "possible" on evidence that had
+ * nothing to do with it. The finding was right and the measurement could not see it.
+ *
+ * So the paths in the text are extracted and tested against the template.
+ */
+function textIsOnScreen(text, screen) {
+  if (text.includes(screen)) return true;
+  if (!screen.includes(':')) return false;
+
+  // Every path-looking run in the text, with any query or fragment trimmed off.
+  for (const found of text.matchAll(/\/[A-Za-z0-9._~\-/]*/g)) {
+    const path = found[0].replace(/[).,;'"]+$/, '');
+    if (patternMatches(screen, path) && !fillsParameterWithAnAction(screen, path)) return true;
+  }
+  return false;
+}
+
+/** Segments that are an action, never an identifier, however a template is written. */
+const ACTION_SEGMENT = /^(new|create|add|edit|update|delete|remove|search|export|import)$/i;
+
+/**
+ * Whether a path only matches a template because a parameter swallowed an action segment.
+ *
+ * `/billing/invoices/:id` matches `/billing/invoices/new` as a string pattern, and they are
+ * different pages: one shows an invoice, the other is the form that makes one. Allowing it
+ * put a failure from the create form under a defect planted on the detail page — the right
+ * screen by the regex and the wrong screen by every other measure.
+ */
+function fillsParameterWithAnAction(pattern, path) {
+  const templateParts = pattern.split('/');
+  const pathParts = path.split('/');
+  if (templateParts.length !== pathParts.length) return false;
+
+  return templateParts.some((part, index) =>
+    part.startsWith(':') && ACTION_SEGMENT.test(pathParts[index] ?? ''));
+}
 
 /**
  * Joins failures and security findings back to the planted defects.
@@ -275,7 +331,7 @@ export function detect({ defects, failures = [], findings = [], reachedPaths = [
     const keywords = DEFECT_KEYWORDS[defect.id] ?? [];
     const screenReached = reachedPaths.some(path => path === screen || patternMatches(screen, path));
 
-    const namesScreen = signals.filter(signal => signal.text.includes(screen));
+    const namesScreen = signals.filter(signal => textIsOnScreen(signal.text, screen));
     const onScreenAndSymptom = namesScreen
       .map(signal => ({ signal, specificity: specificity(keywords, signal.text, true) }))
       .filter(candidate => candidate.specificity.matched > 0);
@@ -333,7 +389,12 @@ export function detect({ defects, failures = [], findings = [], reachedPaths = [
       id: claim.defect.id, severity: claim.defect.severity, category: claim.defect.category,
       screen: claim.screen, screenReached: claim.screenReached, verdict,
       contestedEvidence: contested,
-      evidence: (onScreenAndSymptom[0] ?? symptomOnly[0])?.signal.text?.slice(0, 180) ?? null
+      // The most specific signal this defect owns, not the first one the run happened to
+      // produce. FP_D06 owned both a percentage-line finding naming the exact figures and
+      // an unrelated server-enforcement failure that merely redirected to the same screen;
+      // showing the latter made a correct detection read like a coincidence.
+      evidence: best(onScreenAndSymptom.length ? onScreenAndSymptom : symptomOnly)
+        ?.signal.text?.slice(0, 180) ?? null
     };
   });
 

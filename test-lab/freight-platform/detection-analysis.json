@@ -1,5 +1,5 @@
 {
-  "analysedAt": "2026-11-19T06:09:34.813Z",
+  "analysedAt": "2026-11-19T15:16:05.697Z",
   "source": "form-engine-result.json",
   "note": "A failure is classified as a tool error or an application failure before it is matched to a defect. Only an application failure can evidence one: a Playwright timeout says nothing about whether the application is correct, whatever words happen to be in its message.",
   "run": {
@@ -7,12 +7,12 @@
       "status": "cancelled"
     },
     "generation": {
-      "distinct": 5157
+      "distinct": 5749
     },
     "execution": {
-      "passed": 4718,
-      "failed": 1023,
-      "blocked": 14
+      "passed": 4201,
+      "failed": 985,
+      "blocked": 1034
     },
     "security": {
       "findings": 0,
@@ -20,10 +20,10 @@
     }
   },
   "counts": {
-    "found": 2,
-    "possible": 6,
-    "missed": 18,
-    "unreachable": 6
+    "found": 3,
+    "possible": 5,
+    "missed": 19,
+    "unreachable": 5
   },
   "verdicts": [
     {
@@ -74,7 +74,7 @@
       "screenReached": true,
       "verdict": "possible",
       "contestedEvidence": 0,
-      "evidence": "Account: refuses a value between two of its steps of 100 in Credit limit (GBP) POST http://127.0.0.1:4400/customers/new accepted the submission: it answered 302 and redirected to /"
+      "evidence": "Account: refuses a submission without Credit limit (GBP) POST http://127.0.0.1:4400/customers/new accepted the submission: it answered 302 and redirected to /customers/cus-016 with"
     },
     {
       "id": "FP_D06_SURCHARGE_ON_GROSS",
@@ -82,9 +82,9 @@
       "category": "calculation",
       "screen": "/billing/invoices/:id",
       "screenReached": true,
-      "verdict": "possible",
+      "verdict": "found",
       "contestedEvidence": 1,
-      "evidence": "Surcharges: accepts the form once Fuel surcharge (%) is corrected Expected the submission to be accepted, but the form is still shown; fields marked invalid: effectiveFrom; message"
+      "evidence": "Invoice INV-2026-5003 · Meridian Freight (/billing/invoices/inv-0004): derives each percentage line from a figure above it A percentage line does not derive from a figure above it:"
     },
     {
       "id": "FP_D07_RATE_BAND_BOUNDARY",
@@ -162,9 +162,9 @@
       "category": "stateTransition",
       "screen": "/shipments/:id/cancel",
       "screenReached": true,
-      "verdict": "possible",
+      "verdict": "missed",
       "contestedEvidence": 0,
-      "evidence": "Route planner: refuses a submission without Depot departure Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no error messa"
+      "evidence": null
     },
     {
       "id": "FP_D15_WIZARD_BACK_LOSES_DATA",
@@ -192,9 +192,9 @@
       "category": "stateTransition",
       "screen": "/customs/declarations/:id/release",
       "screenReached": false,
-      "verdict": "unreachable",
+      "verdict": "possible",
       "contestedEvidence": 0,
-      "evidence": null
+      "evidence": "Declarations: accepts \"rejected\" in Status page.goto: Page crashed"
     },
     {
       "id": "FP_D18_LONG_SEARCH_CRASHES",
@@ -314,7 +314,7 @@
       "screenReached": true,
       "verdict": "possible",
       "contestedEvidence": 0,
-      "evidence": "Adjust MF-1000: carries an anti-forgery token Expected the element to exist on the page, but it does not."
+      "evidence": "Adjust MF-1333: carries an anti-forgery token Expected the element to exist on the page, but it does not."
     },
     {
       "id": "FP_D30_SESSION_COOKIE_FLAGS",
@@ -348,42 +348,34 @@
     }
   ],
   "failureAnalysis": {
-    "total": 1023,
-    "applicationFailures": 980,
-    "toolErrors": 43,
+    "total": 985,
+    "applicationFailures": 969,
+    "toolErrors": 16,
     "unreliableTests": 0,
     "unknown": 0,
     "toolErrorBreakdown": {
-      "undrivable-select": {
-        "count": 29,
-        "explain": "a select the runner could not drive",
-        "examples": [
-          "Route planner: accepts \"Niamh Mendez — 36.7h this week\" in Driver",
-          "Route planner: accepts \"Dublin Satellite\" in Depot"
-        ]
-      },
       "unclickable-control": {
-        "count": 5,
+        "count": 3,
         "explain": "a control that never became clickable",
         "examples": [
-          "New sales order: accepts \"Orrin Automotive — ON CREDIT HOLD\" in Customer",
-          "Documents — MF770208 · Meridian Freight (/shipments/shp-0017/documents): is reached from Good morning, QA · Meridian Freight (/dashboard) through \"MF770208\" → \"Open\""
+          "Documents — MF770091 · Meridian Freight (/shipments/shp-0008/documents): is reached from Good morning, Rowan · Meridian Freight (/dashboard) through \"MF770091\" → \"Open\"",
+          "Documents — MF770208 · Meridian Freight (/shipments/shp-0017/documents): is reached from Good morning, Rowan · Meridian Freight (/dashboard) through \"MF770208\" → \"Open\""
+        ]
+      },
+      "target-unreachable": {
+        "count": 9,
+        "explain": "the application could not be reached",
+        "examples": [
+          "New purchase order: handles a malformed percent-encoding in Supplier",
+          "New purchase order: accepts \"MF-1185 — Liqueurs and cordials\" in Product"
         ]
       },
       "unfillable-field": {
         "count": 4,
         "explain": "a field that never accepted input (often readonly)",
         "examples": [
-          "Raise a credit note: accepts \"Rating error\" in Reason",
-          "Invoice INV-2026-5015: accepts the form once Amount received (GBP) is corrected"
-        ]
-      },
-      "target-unreachable": {
-        "count": 5,
-        "explain": "the application could not be reached",
-        "examples": [
-          "Raise a credit note: accepts \"INV-2026-5001 — £778.28\" in Invoice to credit",
-          "Raise a credit note: handles a tab character in Note"
+          "Invoice INV-2026-5009: accepts the form once Amount received (GBP) is corrected",
+          "Invoice INV-2026-5003: accepts the form once Amount received (GBP) is corrected"
         ]
       }
     },

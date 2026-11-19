@@ -141,3 +141,58 @@ test('a failure on the defect\'s own screen outranks keyword count elsewhere', (
     'one keyword on its own screen beats two keywords on somebody else\'s');
   assert.notEqual(verdictFor(result, 'FP_D21_UNLABELLED_ADJUSTMENT_FIELD').verdict, 'found');
 });
+
+test('a failure on an instance is placed on its parameterised screen', () => {
+  // Ground truth writes screens as templates and failures name instances. A literal
+  // substring test could never join the two, so no defect on a /:id route could be scored
+  // "found" however precisely an oracle named it — which is what happened to FP_D06.
+  const result = detect({
+    defects: [{
+      id: 'FP_D06_SURCHARGE_ON_GROSS', screen: '/billing/invoices/:id',
+      severity: 'major', category: 'calculation'
+    }],
+    failures: [{
+      name: 'Invoice INV-2026-5003 (/billing/invoices/inv-0004): derives each percentage line from a figure above it',
+      message: 'A percentage line does not derive from a figure above it: "Fuel surcharge 11.5%" '
+        + 'is 526.82, which is 11.5% of "Total" (4581.08) — a figure the page states after it.'
+    }],
+    reachedPaths: ['/billing/invoices/inv-0004']
+  });
+
+  assert.equal(result.verdicts[0].verdict, 'found');
+});
+
+test('a parameterised screen is not matched by an unrelated path', () => {
+  const result = detect({
+    defects: [{
+      id: 'FP_D06_SURCHARGE_ON_GROSS', screen: '/billing/invoices/:id',
+      severity: 'major', category: 'calculation'
+    }],
+    failures: [{
+      name: 'Surcharges (/billing/surcharges): accepts the form',
+      message: 'http://127.0.0.1:4400/billing/surcharges — the fuel surcharge field was rejected.'
+    }],
+    reachedPaths: ['/billing/surcharges']
+  });
+
+  assert.notEqual(result.verdicts[0].verdict, 'found');
+});
+
+test('a parameter does not swallow an action segment', () => {
+  // /billing/invoices/:id matches /billing/invoices/new as a pattern, and they are
+  // different pages: one shows an invoice, the other is the form that makes one.
+  const result = detect({
+    defects: [{
+      id: 'FP_D06_SURCHARGE_ON_GROSS', screen: '/billing/invoices/:id',
+      severity: 'major', category: 'calculation'
+    }],
+    failures: [{
+      name: 'Raise an invoice: refuses a value between two of its steps in Net amount',
+      message: 'POST http://127.0.0.1:4400/billing/invoices/new accepted the submission: '
+        + 'the fuel surcharge total was not checked.'
+    }],
+    reachedPaths: ['/billing/invoices/new']
+  });
+
+  assert.notEqual(result.verdicts[0].verdict, 'found');
+});
