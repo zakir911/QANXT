@@ -210,10 +210,28 @@ builder.Services.AddRateLimiter(options =>
         // callback. Sharing a tenant's user budget throttled the execution plane into
         // dropping evidence and stranding runs, so workers get their own, much larger
         // partition — still bounded, so a broken worker cannot hammer the API unchecked.
-        var isWorker = context.User.FindFirst(JwtTokenService.TokenKindClaim)?.Value == "worker";
+        // Read from the token itself, not only from the validated principal.
+        //
+        // An expired worker token authenticates to nothing, so `context.User` is empty and
+        // the request lands in the general per-address partition. The worker then gets a
+        // 429 where it should have got a 401 — and since it only knows to exchange its
+        // token for a fresh one on a 401, the rate limiter hides the very signal that would
+        // have fixed the problem. A run whose tokens aged out stopped dead: 992 executions
+        // retried into the limiter until the sweep ended them, and the renewal built for
+        // exactly this never fired once.
+        //
+        // Classification is not authorisation. Deciding which bucket traffic belongs in
+        // from an unvalidated claim is safe here because every bucket is bounded and the
+        // endpoints behind it still demand a valid token: a forged "worker" claim buys a
+        // different rate bucket and nothing else.
+        var claimed = WorkerClaims.ReadUnvalidated(context.Request.Headers.Authorization);
+        var isWorker = context.User.FindFirst(JwtTokenService.TokenKindClaim)?.Value == "worker"
+            || claimed.IsWorker;
         if (isWorker)
         {
-            var workerKey = $"worker:{context.User.FindFirst(JwtTokenService.OrganizationClaim)?.Value ?? "unknown"}";
+            var organization = context.User.FindFirst(JwtTokenService.OrganizationClaim)?.Value
+                ?? claimed.OrganizationId;
+            var workerKey = $"worker:{organization ?? "unknown"}";
             return RateLimitPartition.GetFixedWindowLimiter(workerKey, _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = workerPermitPerMinute,

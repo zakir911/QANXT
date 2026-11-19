@@ -70,18 +70,30 @@ if (!RUN) {
 }
 
 const line = (text = '') => console.log(text);
-line(`\nCollecting run ${RUN} for application ${APP}\n`);
+/**
+ * The runs this measurement is made of.
+ *
+ * Normally one. Run 3afa52d1 was cut short by a full disk, which left 992 tests with no
+ * verdict at all, and they were re-run as 40334771 rather than repeating all 6,354. A
+ * measurement spread over two runs is still one measurement, so every query below covers
+ * the set — reporting either half alone would be a partial picture presented as a whole.
+ */
+const RUNS = (arg('runs') ?? RUN).split(',').map(id => id.trim()).filter(Boolean);
+const RUN_SET = RUNS.map(id => `'${id}'`).join(',');
+
+line(`\nCollecting ${RUNS.length > 1 ? `${RUNS.length} runs (${RUNS.join(', ')})` : `run ${RUN}`} for application ${APP}\n`);
 
 // ---- execution verdicts -----------------------------------------------------
 // ExecutionStatus: Passed=10 Failed=11 Skipped=12 Blocked=13 Healed=14 Flaky=15
 // TimedOut=16 Cancelled=17 Error=18; anything under 10 has not finished.
 const verdicts = Object.fromEntries(query(`
   SELECT e.status::text, count(*)::text FROM test_executions e
-  WHERE e.test_run_id = '${RUN}' GROUP BY e.status`));
+  WHERE e.test_run_id IN (${RUN_SET}) GROUP BY e.status`));
 const count = (status) => Number(verdicts[String(status)] ?? 0);
 
 const execution = {
   runId: RUN,
+  runIds: RUNS,
   total: Object.values(verdicts).reduce((sum, n) => sum + Number(n), 0),
   passed: count(10) + count(14),
   failed: count(11) + count(16) + count(18),
@@ -101,7 +113,7 @@ const failures = query(`
          coalesce(tc.technique, ''),
          coalesce(tc.field_key, '')
   FROM test_executions e JOIN test_cases tc ON tc.id = e.test_case_id
-  WHERE e.test_run_id = '${RUN}' AND e.status IN (11, 16, 18)`)
+  WHERE e.test_run_id IN (${RUN_SET}) AND e.status IN (11, 16, 18)`)
   .map(([testCaseId, name, message, category, technique, fieldKey]) =>
     ({ testCaseId, name, message, category, technique, fieldKey, title: name, url: '', evidence: '' }));
 
@@ -152,7 +164,7 @@ const oracleRuns = query(`
          count(*) FILTER (WHERE e.status IN (11, 16, 18))::text
   FROM test_steps s
   JOIN test_cases tc ON tc.id = s.test_case_id
-  JOIN test_executions e ON e.test_case_id = tc.id AND e.test_run_id = '${RUN}'
+  JOIN test_executions e ON e.test_case_id = tc.id AND e.test_run_id IN (${RUN_SET})
   WHERE tc.application_id = '${APP}' AND s.action >= 50
   GROUP BY s.action ORDER BY s.action`)
   .map(([action, passed, failed]) =>
@@ -221,7 +233,7 @@ const SIGNATURES = {
 const attribution = {};
 for (const [label, pattern] of Object.entries(SIGNATURES)) {
   const n = Number(one(`SELECT count(*) FROM test_executions e
-    WHERE e.test_run_id = '${RUN}' AND e.status IN (11,16,18)
+    WHERE e.test_run_id IN (${RUN_SET}) AND e.status IN (11,16,18)
       AND e.error_message LIKE '${pattern}'`)[0] ?? 0);
   if (n > 0) attribution[label] = n;
 }
