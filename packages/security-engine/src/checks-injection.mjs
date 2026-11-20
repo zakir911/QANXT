@@ -21,6 +21,7 @@
  */
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
+import { at } from './target-url.mjs';
 
 /** Error signatures that indicate a query reached a database engine and broke. */
 const SQL_ERRORS = [
@@ -53,7 +54,7 @@ const countRows = body => {
  */
 export async function checkSqlInjection(scanner, { baseUrl, path, parameter, benign = 'Synthetic Widget', testId = 'SECA-SQLI' }) {
   const probe = async (value, id, note) => scanner.request({
-    url: `${baseUrl}${path}?${parameter}=${encodeURIComponent(value)}`,
+    url: at(baseUrl, `${path}?${parameter}=${encodeURIComponent(value)}`),
     risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${id}`, as: 'unauthenticated', note
   });
 
@@ -109,7 +110,7 @@ export async function checkSqlInjection(scanner, { baseUrl, path, parameter, ben
 /** NoSQL injection: an operator object accepted where a string belongs. */
 export async function checkNoSqlInjection(scanner, { baseUrl, path, field = 'password', companion = { username: 'alice' }, testId = 'SECA-NOSQLI' }) {
   const post = async (value, id, note) => scanner.request({
-    url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': 'application/json' }, body: { ...companion, [field]: value },
     as: 'unauthenticated', testId: `${testId}:${id}`, note
   });
@@ -165,7 +166,7 @@ export async function checkNoSqlInjection(scanner, { baseUrl, path, field = 'pas
  */
 export async function checkCommandInjection(scanner, { baseUrl, path, parameter, benign = 'localhost', testId = 'SECA-CMDI' }) {
   const probe = async (value, id, note) => scanner.request({
-    url: `${baseUrl}${path}?${parameter}=${encodeURIComponent(value)}`,
+    url: at(baseUrl, `${path}?${parameter}=${encodeURIComponent(value)}`),
     risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${id}`, as: 'unauthenticated', note
   });
 
@@ -213,7 +214,7 @@ export async function checkCommandInjection(scanner, { baseUrl, path, parameter,
  */
 export async function checkTemplateInjection(scanner, { baseUrl, path, parameter, testId = 'SECA-SSTI' }) {
   const probe = async (value, id, note) => scanner.request({
-    url: `${baseUrl}${path}?${parameter}=${encodeURIComponent(value)}`,
+    url: at(baseUrl, `${path}?${parameter}=${encodeURIComponent(value)}`),
     risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${id}`, as: 'unauthenticated', note
   });
 

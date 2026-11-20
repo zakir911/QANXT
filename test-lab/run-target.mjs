@@ -52,9 +52,39 @@ function matches(defect, evidence) {
   const routeHit = route !== '' && new RegExp(`^${pattern}$`).test(route.split('?')[0]);
   const keywordHits = defect.keywords.filter(k => text.includes(k.toLowerCase()));
   if (routeHit && keywordHits.length) return { strength: 'route and wording', keywordHits };
-  if (routeHit) return { strength: 'route only', keywordHits };
-  if (keywordHits.length >= 2) return { strength: 'wording only (weak)', keywordHits };
+  // Route alone is not a detection. On an application with two forms, every piece of
+  // evidence about either of them matches the route of whatever was planted there: the
+  // first run of this driver credited an unescaped-search-term defect to a finding that
+  // said "term has no label tied to it", which is true, is about the same form, and is
+  // not that defect.
+  if (routeHit) return { strength: 'same screen, different subject', keywordHits };
+  if (keywordHits.length >= 2) return { strength: 'wording only, no route', keywordHits };
   return null;
+}
+
+/**
+ * Which screen a piece of evidence is about.
+ *
+ * A test case is named "<form name>: <what it checks>" and a page test "Page <route>: ...",
+ * so the name carries the screen. That is a convention of the product's own naming rather
+ * than a field, which is worth saying plainly: when it changes, this stops working and the
+ * verdicts fall back to wording, which is visible in the report rather than silent.
+ */
+/** The path of an endpoint, however it was written down. */
+function pathOf(endpoint) {
+  if (!endpoint) return null;
+  const text = String(endpoint).replace(/^[A-Z]+\s+/, '');
+  try { return new URL(text).pathname; } catch { /* not absolute */ }
+  const path = text.split('?')[0];
+  return path.startsWith('/') ? path : null;
+}
+
+function routeFromName(name, forms) {
+  const subject = String(name ?? '').split(':')[0]?.trim() ?? '';
+  const page = /^Page\s+(\S+)/.exec(subject);
+  if (page) return page[1];
+  const form = forms.find(f => f.name === subject);
+  return form?.route ?? null;
 }
 
 async function runOne(key) {
@@ -162,13 +192,71 @@ async function runOne(key) {
     result.stages.design = design;
   }
 
+  // ---- authorize and run a security scan -----------------------------------
+  //
+  // `includeSecurity: true` on the run is not enough on its own, and the first pass of this
+  // driver reported "0 security finding(s)" on both targets because of it. The scan refuses
+  // every check against an application whose scope has not been authorized, and every
+  // authorization check reports inconclusive without two identities to compare. Both are
+  // the scanner behaving correctly; a driver that does not supply them is measuring nothing.
+  //
+  // Active testing is granted because these are synthetic applications on loopback holding
+  // no real data, built for this exercise. Destructive testing stays off: it is a separate
+  // decision and nothing here needs it.
+  const host = new URL(target.baseUrl).hostname;
+  const scope = await request(`/api/v1/security/applications/${application.id}/scope`, {
+    token: tenant.token, method: 'PUT',
+    body: {
+      enabled: true, allowedDomains: host, allowedApiDomains: host,
+      allowActiveTesting: true, allowDestructiveTesting: false,
+      authorizationNote: `Synthetic ${target.domain} application on loopback, built for this `
+        + 'exercise and authorized for active security testing, excluding destructive checks. '
+        + 'No real system and no real data is involved.'
+    }
+  });
+  line(`  security scope ${scope.status}${scope.ok ? '' : ` — ${scope.text.slice(0, 160)}`}`);
+
+  const scanStarted = await request('/api/v1/security/scans/start', {
+    token: tenant.token, method: 'POST',
+    body: { applicationId: application.id, profile: 'standard', identities: target.identities ?? [] }
+  });
+  let scan = null;
+  if (!scanStarted.ok) {
+    line(`  scan REFUSED ${scanStarted.status}: ${scanStarted.text.slice(0, 200)}`);
+    result.stages.scan = { ok: false, status: scanStarted.status, body: scanStarted.text.slice(0, 400) };
+  } else {
+    const scanId = scanStarted.json?.securityScanId ?? scanStarted.json?.id;
+    line(`  scan ${scanId}: ${scanStarted.json?.targets ?? '?'} target(s), `
+      + `${scanStarted.json?.checksToRun ?? '?'} of ${scanStarted.json?.checksConfigured ?? '?'} check(s) to run`);
+    const deadline = Date.now() + 15 * 60 * 1000;
+    while (Date.now() < deadline) {
+      const read = await request(`/api/v1/security/scans/${scanId}`, { token: tenant.token });
+      scan = read.json ?? null;
+      const status = String(scan?.status ?? '').toLowerCase();
+      if (['completed', 'failed', 'abandoned', 'cancelled'].includes(status)) break;
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+    const untested = scan?.untestedReasons ?? scan?.untested ?? null;
+    line(`  scan ${scan?.status ?? 'unknown'}: ${scan?.requestsSent ?? '?'} request(s), `
+      + `${(scan?.findings ?? []).length} finding(s)`
+      + (untested ? `, ${Array.isArray(untested) ? untested.length : Object.keys(untested).length} untested reason(s)` : ''));
+    result.stages.scan = {
+      ok: true, id: scanId, status: scan?.status ?? null,
+      requestsSent: scan?.requestsSent ?? null,
+      checksRun: scan?.checksRun ?? null,
+      untested
+    };
+  }
+
   // ---- run it --------------------------------------------------------------
   const started = await request(`/api/v1/applications/${application.id}/runs`, {
     timeoutMs: 5 * 60 * 1000,
     token: tenant.token, method: 'POST',
     body: {
       mode: 'all', name: `${target.name} — all`, browser: 'chromium', headless: true,
-      includeSecurity: true, securityProfile: 'standard',
+      // The scan above is the security measurement, with an authorized scope and
+      // identities; asking the run to scan again would only scan a second time without them.
+      includeSecurity: false,
       parallelism: Number(flag('parallelism', 4))
     }
   });
@@ -184,20 +272,7 @@ async function runOne(key) {
   const executions = await request(`/api/v1/testruns/${runId}/executions?pageSize=2000`,
     { token: tenant.token });
   const rows = executions.json?.items ?? executions.json ?? [];
-  // An execution row names its test case, not the form the case was designed against, so
-  // the route a failure is about has to be looked up. Without it every verdict fell back to
-  // keyword matching, which is how the first run reported 0 of 4 on a target where the
-  // engine had in fact caught one defect with hard evidence.
-  const cases = await request(`/api/v1/testcases?projectId=${project.id}&pageSize=2000`,
-    { token: tenant.token });
-  const caseRows = cases.json?.items ?? cases.json ?? [];
-  const routeOfForm = new Map((result.stages.forms.list ?? []).map(f => [f.route, f.route]));
-  const routeOfCase = new Map();
-  for (const row of caseRows) {
-    const form = (result.stages.forms.list ?? []).find(f => f.id && f.id === row.applicationFormId);
-    if (form) routeOfCase.set(row.id, form.route);
-  }
-  void routeOfForm;
+  const screens = result.stages.forms.list ?? [];
   const byStatus = {};
   for (const row of rows) {
     const status = String(row.status).toLowerCase();
@@ -210,7 +285,7 @@ async function runOne(key) {
     ok: true, runId, status: finished.status, executions: rows.length, byStatus,
     failures: failures.map(f => ({
       name: f.testCaseName ?? f.name,
-      route: routeOfCase.get(f.testCaseId) ?? null,
+      route: routeFromName(f.testCaseName ?? f.name, screens),
       // The executions API calls this errorMessage. Reading failureMessage gave every
       // failure an empty message and left the join nothing to read.
       message: (f.errorMessage ?? f.failureMessage ?? f.message ?? '').slice(0, 400)
@@ -236,12 +311,27 @@ async function runOne(key) {
   line(`  concluded: ${defectList.length} defect(s), ${findingList.length} structural finding(s), `
     + `${securityList.length} security finding(s)`);
   result.stages.conclusions = {
-    defects: defectList.map(d => ({ severity: d.severity, route: d.route ?? null,
-      message: (d.title ?? d.summary ?? d.message ?? '').slice(0, 300) })),
+    // A defect carries the form it was correlated to, which is the route it is about.
+    // Reading a `route` field it does not have left every defect routeless, and the two
+    // reflected-input defects the engine had correctly raised as critical went uncredited.
+    defects: defectList.map(d => ({
+      severity: d.severity,
+      route: screens.find(f => f.id === d.applicationFormId)?.route
+        ?? routeFromName(d.title, screens),
+      message: (d.title ?? d.summary ?? d.message ?? '').slice(0, 300)
+    })),
     structural: findingList.map(f => ({ code: f.code, severity: f.severity, route: f.route ?? null,
       message: (f.message ?? '').slice(0, 300) })),
-    security: securityList.map(s => ({ severity: s.severity, checkId: s.checkId ?? s.code,
-      route: s.route ?? s.url ?? null, message: (s.title ?? s.message ?? '').slice(0, 300) }))
+    // A security finding names its endpoint and the parameter it was found on; the route
+    // is the endpoint's path.
+    security: securityList.map(s => ({
+      severity: s.severity,
+      checkId: s.category ?? s.checkId ?? s.code,
+      route: pathOf(s.endpoint),
+      parameter: s.parameter ?? null,
+      message: [s.title, s.parameter ? `parameter "${s.parameter}"` : null, s.cwe]
+        .filter(Boolean).join(' — ').slice(0, 300)
+    }))
   };
 
   // ---- join back to what was planted --------------------------------------
@@ -255,7 +345,7 @@ async function runOne(key) {
     const hits = evidence
       .map(item => ({ item, match: matches(defect, item) }))
       .filter(entry => entry.match);
-    const strong = hits.filter(h => h.match.strength !== 'wording only (weak)');
+    const strong = hits.filter(h => h.match.strength === 'route and wording');
     const chosen = (strong[0] ?? hits[0]);
     return {
       id: defect.id, class: defect.class, severity: defect.severity, route: defect.route,
@@ -283,7 +373,8 @@ async function runOne(key) {
     if (v.evidence) line(`           via ${v.evidence.kind} (${v.evidence.strength}): ${v.evidence.message || '(no message)'}`);
   }
   line(`\n  ${result.detection.detected}/${verdicts.length} planted defect(s) detected on evidence`
-    + (result.detection.weakOnly ? `, ${result.detection.weakOnly} matched on wording alone and are not counted` : ''));
+    + (result.detection.weakOnly
+      ? `, ${result.detection.weakOnly} matched partially and are not counted` : ''));
 
   await writeFile(new URL(`./${key}/run-result.json`, import.meta.url), JSON.stringify(result, null, 2) + '\n');
   return result;

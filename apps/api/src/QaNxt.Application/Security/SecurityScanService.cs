@@ -102,7 +102,19 @@ public sealed record SecurityScanSummary(
     IReadOnlyList<SecurityFindingSummary> Findings,
     SecurityGateResult Gate,
     /// <summary>Why this scan has no result, when it has none. Null on a scan that reported.</summary>
-    string? ErrorMessage = null);
+    string? ErrorMessage = null,
+    /// <summary>What the scan could not test, and why — one line per check and target.
+    ///
+    /// This is the half of a scan that says what it does not know, and it was recorded in
+    /// the scope snapshot and never returned. A reader of a scan that reported fourteen
+    /// findings had no way to learn that twenty-three checks reported inconclusive for
+    /// want of an identity, which is the difference between "this application is clean"
+    /// and "most of this application was never examined".</summary>
+    IReadOnlyList<string>? UntestedAreas = null,
+    /// <summary>Which checks ran, by id.</summary>
+    IReadOnlyList<string>? ChecksExecuted = null,
+    /// <summary>Which checks the profile and scope selected, by id.</summary>
+    IReadOnlyList<string>? ChecksConfigured = null);
 
 public sealed record TriageFindingRequest(
     SecurityFindingStatus Status, string? Justification);
@@ -930,7 +942,8 @@ public sealed class SecurityScanService : ISecurityScanService
             scan.Id, scan.Reference, scan.ApplicationId, scan.ProjectId, scan.EnvironmentId,
             scan.Profile, scan.Status, scan.AuthorizationNote,
             scan.RequestsIssued, scan.RequestsBlocked, scan.TestsExecuted, scan.TestsSkipped,
-            scan.StartedAt, scan.CompletedAt, scan.DurationMs, summaries, gate, scan.ErrorMessage);
+            scan.StartedAt, scan.CompletedAt, scan.DurationMs, summaries, gate, scan.ErrorMessage,
+            snapshot.Untested, snapshot.Executed, snapshot.Configured);
     }
 
     private (string[] Configured, string[] Executed, string[] Untested) ReadSnapshot(string? json)

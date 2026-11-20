@@ -3,49 +3,40 @@
   "name": "Ashfield Building Control",
   "technology": "HTTP Basic authentication, no anti-forgery token, state changes through GET links, nested-table markup, sequential integer ids in the query string",
   "domain": "municipal building permits",
-  "ranAt": "2026-11-20T19:08:18.478Z",
+  "ranAt": "2026-11-20T19:29:00.227Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "0952efc2-0e8b-4282-9a86-8ec1e4e7ff1e",
+      "id": "343ac07e-3d29-44d5-8e98-5bd02f4d1f51",
       "authStrategy": "basicAuth",
       "budget": 240,
       "maxPages": 40
     },
     "discovery": {
       "status": "completed",
-      "pages": 7,
-      "elements": 61,
+      "pages": 4,
+      "elements": 38,
       "endpoints": 0,
       "byKind": {
-        "table": 13,
-        "link": 39,
-        "button": 2,
-        "form": 2,
-        "textInput": 5
+        "link": 26,
+        "table": 9,
+        "button": 1,
+        "form": 1,
+        "textInput": 1
       },
       "paths": [
-        "/approve.asp",
         "/default.asp",
         "/list.asp",
-        "/new.asp",
-        "/revoke.asp",
         "/search.asp",
         "/view.asp"
       ],
       "message": null
     },
     "forms": {
-      "count": 2,
+      "count": 1,
       "list": [
         {
-          "id": "08a15d31-523a-4fe9-9f15-8feefefb0fa7",
-          "route": "/new.asp",
-          "name": "New application",
-          "fields": 4
-        },
-        {
-          "id": "14ab704f-4c1a-4e9d-a5af-38029c9f4788",
+          "id": "2df5b155-5ec1-4d48-958d-2be56777566b",
           "route": "/search.asp",
           "name": "Search",
           "fields": 1
@@ -53,55 +44,22 @@
       ]
     },
     "design": {
-      "testSuiteId": "1b9f1201-9e92-4bf8-a4bc-367c65508112",
+      "testSuiteId": "07bc7457-8082-4ed5-b984-11fd26b53510",
       "testSuiteName": "Ashfield Building Control — form level",
-      "forms": 2,
-      "testsCreated": 202,
+      "forms": 1,
+      "testsCreated": 81,
       "testsUpdated": 0,
       "testsUnchanged": 0,
       "testsDeprecated": 0,
       "testsLeftAsEdited": 0,
-      "gaps": 20,
-      "humanTasks": 8,
-      "findings": 6,
+      "gaps": 9,
+      "humanTasks": 3,
+      "findings": 1,
       "usedAi": false,
       "engine": "QA NXT form and page test engine (deterministic)",
       "perForm": [
         {
-          "formId": "08a15d31-523a-4fe9-9f15-8feefefb0fa7",
-          "name": "New application",
-          "route": "/new.asp",
-          "fields": 4,
-          "tests": 85,
-          "gaps": 11,
-          "humanTasks": 5,
-          "findings": 5,
-          "testsByCategory": {
-            "smoke": 1,
-            "functional": 2,
-            "equivalence": 4,
-            "inputValidation": 52,
-            "reliability": 3,
-            "stateTransition": 2,
-            "security": 5,
-            "accessibility": 3,
-            "api": 1,
-            "performance": 2,
-            "responsive": 3,
-            "compatibility": 3,
-            "visual": 2,
-            "exploratory": 2
-          },
-          "notApplicable": [
-            "negative",
-            "crossField",
-            "dynamic",
-            "multiStep",
-            "regression"
-          ]
-        },
-        {
-          "formId": "14ab704f-4c1a-4e9d-a5af-38029c9f4788",
+          "formId": "2df5b155-5ec1-4d48-958d-2be56777566b",
           "name": "Search",
           "route": "/search.asp",
           "fields": 1,
@@ -137,11 +95,11 @@
         }
       ],
       "warnings": [],
-      "pages": 7,
-      "pageTests": 82,
+      "pages": 4,
+      "pageTests": 46,
       "perPage": [
         {
-          "pageId": "a1eff617-d2c1-485e-8108-54a5f20fb6e8",
+          "pageId": "4d9f56ff-45cc-41c9-947d-df84ad9b4eb5",
           "name": "Building Control (/default.asp)",
           "route": "/default.asp",
           "tests": 11,
@@ -156,7 +114,7 @@
           }
         },
         {
-          "pageId": "060408b7-909a-4584-8a8e-d98fa1e44285",
+          "pageId": "a8ebbce0-b694-4d27-b581-55334fcb4135",
           "name": "Permit register (/list.asp)",
           "route": "/list.asp",
           "tests": 11,
@@ -171,23 +129,7 @@
           }
         },
         {
-          "pageId": "2ae1db5f-3f35-4104-be1b-09c84377a088",
-          "name": "New application (/new.asp)",
-          "route": "/new.asp",
-          "tests": 12,
-          "reachedByClicking": true,
-          "testsByCategory": {
-            "smoke": 1,
-            "workflow": 1,
-            "security": 1,
-            "accessibility": 2,
-            "performance": 1,
-            "dataIntegrity": 3,
-            "responsive": 3
-          }
-        },
-        {
-          "pageId": "4aa831b9-515f-45a6-8a67-8c44aed8b8e2",
+          "pageId": "c4c85cfc-080f-4ae4-9414-645fcfc273ae",
           "name": "Search (/search.asp)",
           "route": "/search.asp",
           "tests": 12,
@@ -203,39 +145,7 @@
           }
         },
         {
-          "pageId": "250c8698-fa15-43b7-b062-774dbb234733",
-          "name": "Approved (/approve.asp)",
-          "route": "/approve.asp",
-          "tests": 12,
-          "reachedByClicking": true,
-          "testsByCategory": {
-            "smoke": 1,
-            "workflow": 1,
-            "security": 1,
-            "accessibility": 2,
-            "performance": 1,
-            "dataIntegrity": 3,
-            "responsive": 3
-          }
-        },
-        {
-          "pageId": "65dd6430-3a78-4ad9-ba02-e01cee0f65ab",
-          "name": "Not permitted (/revoke.asp)",
-          "route": "/revoke.asp",
-          "tests": 12,
-          "reachedByClicking": true,
-          "testsByCategory": {
-            "smoke": 1,
-            "workflow": 1,
-            "security": 1,
-            "accessibility": 2,
-            "performance": 1,
-            "dataIntegrity": 3,
-            "responsive": 3
-          }
-        },
-        {
-          "pageId": "82f3a813-10d8-45c1-9daa-b01ffbe8e699",
+          "pageId": "94199350-11d3-4adf-a795-7701ba352530",
           "name": "Permit BP-2026-0001 (/view.asp)",
           "route": "/view.asp",
           "tests": 12,
@@ -252,50 +162,38 @@
         }
       ]
     },
+    "scan": {
+      "ok": true,
+      "id": "740fc42c-cdc0-4711-9118-e057965693b6",
+      "status": "completed",
+      "requestsSent": null,
+      "checksRun": null,
+      "untested": null
+    },
     "run": {
       "ok": true,
-      "runId": "7d3f539b-e80e-47a0-b087-4d912a8f6302",
+      "runId": "20f5ece8-94a2-4733-bc06-818b56111645",
       "status": "failed",
-      "executions": 202,
+      "executions": 81,
       "byStatus": {
-        "passed": 168,
-        "failed": 30,
-        "skipped": 4
+        "passed": 65,
+        "failed": 14,
+        "skipped": 2
       },
       "failures": [
         {
-          "name": "New application: carries an anti-forgery token",
-          "route": null,
-          "message": "Expected the element to exist on the page, but it does not."
-        },
-        {
-          "name": "New application: has no serious automated accessibility violations",
-          "route": null,
-          "message": "2 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 critical, 1 serious. 2 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI; label (critical) Form elements must have labels at input[name=\"applicant\"] and 3 other element(s) — https://dequeuniversity.com/rules/axe/4.13/label?ap"
-        },
-        {
-          "name": "New application: sends a valid submission to POST /new.asp",
-          "route": null,
-          "message": "expected status 2xx/3xx but POST http://127.0.0.1:4700/new.asp returned 400."
-        },
-        {
-          "name": "New application: fits a mobile screen (390x844)",
-          "route": null,
-          "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
-        },
-        {
           "name": "Search: does not reflect markup typed into term",
-          "route": null,
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-b189fd11> element(s) exist. The application does not encode what it reflects."
+          "route": "/search.asp",
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-0fe534b9> element(s) exist. The application does not encode what it reflects."
         },
         {
           "name": "Search: has no serious automated accessibility violations",
-          "route": null,
+          "route": "/search.asp",
           "message": "2 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 critical, 1 serious. 2 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI; label (critical) Form elements must have labels at input[type=\"TEXT\"] — https://dequeuniversity.com/rules/axe/4.13/label?application=axeAPI."
         },
         {
           "name": "Search: fits a mobile screen (390x844)",
-          "route": null,
+          "route": "/search.asp",
           "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
         },
         {
@@ -314,37 +212,12 @@
           "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
         },
         {
-          "name": "Permit register (/list.asp): opens and shows its content",
-          "route": null,
-          "message": "role=link name=\"Revoke\" could not be used: role=link name=\"Revoke\" matched 2 elements. Narrow the locator, or set \"nth\" to choose one deliberately."
-        },
-        {
-          "name": "Permit register (/list.asp): is reached from Building Control (/default.asp) through \"Permit register\"",
-          "route": null,
-          "message": "role=link name=\"Revoke\" could not be used: role=link name=\"Revoke\" matched 2 elements. Narrow the locator, or set \"nth\" to choose one deliberately."
-        },
-        {
           "name": "Permit register (/list.asp): has no serious automated accessibility violations",
           "route": null,
           "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
         },
         {
           "name": "Permit register (/list.asp): fits a mobile screen (390x844)",
-          "route": null,
-          "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
-        },
-        {
-          "name": "New application (/new.asp): is not shown to a signed-out visitor",
-          "route": null,
-          "message": "The element was expected to be hidden but was visible."
-        },
-        {
-          "name": "New application (/new.asp): has no serious automated accessibility violations",
-          "route": null,
-          "message": "2 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 critical, 1 serious. 2 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI; label (critical) Form elements must have labels at input[name=\"applicant\"] and 3 other element(s) — https://dequeuniversity.com/rules/axe/4.13/label?ap"
-        },
-        {
-          "name": "New application (/new.asp): fits a mobile screen (390x844)",
           "route": null,
           "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
         },
@@ -360,41 +233,6 @@
         },
         {
           "name": "Search (/search.asp): fits a mobile screen (390x844)",
-          "route": null,
-          "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
-        },
-        {
-          "name": "Approved (/approve.asp): is not shown to a signed-out visitor",
-          "route": null,
-          "message": "The element was expected to be hidden but was visible."
-        },
-        {
-          "name": "Approved (/approve.asp): has no serious automated accessibility violations",
-          "route": null,
-          "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
-        },
-        {
-          "name": "Approved (/approve.asp): fits a mobile screen (390x844)",
-          "route": null,
-          "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
-        },
-        {
-          "name": "Not permitted (/revoke.asp): is reached from Building Control (/default.asp) through \"Permit register\" → \"Revoke\"",
-          "route": null,
-          "message": "role=link name=\"Revoke\" could not be used: role=link name=\"Revoke\" matched 3 elements. Narrow the locator, or set \"nth\" to choose one deliberately."
-        },
-        {
-          "name": "Not permitted (/revoke.asp): is not shown to a signed-out visitor",
-          "route": null,
-          "message": "The element was expected to be hidden but was visible."
-        },
-        {
-          "name": "Not permitted (/revoke.asp): has no serious automated accessibility violations",
-          "route": null,
-          "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
-        },
-        {
-          "name": "Not permitted (/revoke.asp): fits a mobile screen (390x844)",
           "route": null,
           "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
         },
@@ -419,52 +257,32 @@
       "defects": [
         {
           "severity": "critical",
-          "route": null,
+          "route": "/default.asp",
           "message": "Page /default.asp: The element was expected to be hidden but was visible"
         },
         {
           "severity": "critical",
-          "route": null,
+          "route": "/search.asp",
           "message": "Search: writes input from term back into the page as markup"
         },
         {
-          "severity": "critical",
-          "route": null,
-          "message": "New application: lacks an element it should have"
-        },
-        {
           "severity": "major",
-          "route": null,
+          "route": "/default.asp",
           "message": "Page /default.asp: breaks the accessibility rule html-has-lang"
         },
         {
           "severity": "major",
-          "route": null,
+          "route": "/default.asp",
           "message": "Page /default.asp: overflows a small screen"
         },
         {
           "severity": "major",
-          "route": null,
-          "message": "New application: breaks the accessibility rule html-has-lang on 4 elements"
-        },
-        {
-          "severity": "major",
-          "route": null,
-          "message": "New application: sends the wrong requests"
-        },
-        {
-          "severity": "major",
-          "route": null,
+          "route": "/search.asp",
           "message": "Search: breaks the accessibility rule html-has-lang"
         },
         {
           "severity": "major",
-          "route": null,
-          "message": "New application: overflows a small screen"
-        },
-        {
-          "severity": "major",
-          "route": null,
+          "route": "/search.asp",
           "message": "Search: overflows a small screen"
         }
       ],
@@ -472,47 +290,130 @@
         {
           "code": "no-label",
           "severity": "serious",
-          "route": "/new.asp",
-          "message": "address has no label tied to it."
-        },
-        {
-          "code": "no-label",
-          "severity": "serious",
-          "route": "/new.asp",
-          "message": "applicant has no label tied to it."
-        },
-        {
-          "code": "no-label",
-          "severity": "serious",
-          "route": "/new.asp",
-          "message": "cost has no label tied to it."
-        },
-        {
-          "code": "no-label",
-          "severity": "serious",
-          "route": "/new.asp",
-          "message": "ni has no label tied to it."
-        },
-        {
-          "code": "no-label",
-          "severity": "serious",
           "route": "/search.asp",
           "message": "term has no label tied to it."
-        },
-        {
-          "code": "no-autocomplete",
-          "severity": "info",
-          "route": "/new.asp",
-          "message": "address looks like personal data but does not declare autocomplete, so browsers cannot fill it."
         }
       ],
-      "security": []
+      "security": [
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/list.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/view.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/view.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/default.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/search.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/search.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/list.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/default.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/default.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/view.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/search.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/list.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/default.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/search.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/view.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/list.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        }
+      ]
     }
   },
   "detection": {
     "planted": 4,
     "detected": 1,
-    "weakOnly": 1,
+    "weakOnly": 0,
     "verdicts": [
       {
         "id": "PL_D01",
@@ -521,13 +422,8 @@
         "route": "/approve.asp",
         "statement": "Approving a permit is a GET any signed-in role may issue, with no token and no check.",
         "detected": false,
-        "weakOnly": true,
-        "evidence": {
-          "kind": "test failure",
-          "strength": "wording only (weak)",
-          "route": null,
-          "message": "Expected the element to exist on the page, but it does not."
-        }
+        "weakOnly": false,
+        "evidence": null
       },
       {
         "id": "PL_D02",
@@ -538,10 +434,10 @@
         "detected": true,
         "weakOnly": false,
         "evidence": {
-          "kind": "structural finding",
-          "strength": "route only",
+          "kind": "test failure",
+          "strength": "route and wording",
           "route": "/search.asp",
-          "message": "term has no label tied to it."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-0fe534b9> element(s) exist. The application does not encode what it reflects."
         }
       },
       {

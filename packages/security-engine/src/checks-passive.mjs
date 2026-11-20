@@ -18,6 +18,7 @@
  */
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
+import { at } from './target-url.mjs';
 
 /** Headers a browser-facing HTML response should carry, and what each one is for. */
 const EXPECTED_HEADERS = [
@@ -311,7 +312,7 @@ export async function checkMisconfiguration(scanner, baseUrl, testId = 'SECP-MIS
 
   for (const probe of probes) {
     const result = await scanner.request({
-      url: `${baseUrl}${probe.path}`, risk: SECURITY_RISK.PASSIVE, testId: `${testId}:${probe.path}`
+      url: at(baseUrl, `${probe.path}`), risk: SECURITY_RISK.PASSIVE, testId: `${testId}:${probe.path}`
     });
     if (!result.allowed) { observations.push({ path: probe.path, skipped: true, reason: result.decision.reason }); continue; }
 

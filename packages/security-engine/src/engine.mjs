@@ -15,6 +15,7 @@
  */
 import { credentialFrom } from './credentials.mjs';
 import { SECURITY_RISK, SECURITY_PROFILE, evaluateScope } from './scope-guard.mjs';
+import { at } from './target-url.mjs';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -235,7 +236,7 @@ export class SecurityScanner {
 
     for (const path of dedupe(paths)) {
       const page = await this.request({
-        url: `${baseUrl}${path}`, method: 'GET', risk: SECURITY_RISK.PASSIVE,
+        url: at(baseUrl, `${path}`), method: 'GET', risk: SECURITY_RISK.PASSIVE,
         as: 'unauthenticated', testId: 'sign-in-form'
       });
       if (!page.allowed || typeof page.responseText !== 'string') continue;
@@ -264,7 +265,7 @@ export class SecurityScanner {
       // The token is re-read each time: a one-shot token spent by the previous attempt
       // would make every later one a refusal rather than a failed sign-in.
       const fresh = await this.request({
-        url: `${baseUrl}${form.page}`, method: 'GET', risk: SECURITY_RISK.PASSIVE,
+        url: at(baseUrl, `${form.page}`), method: 'GET', risk: SECURITY_RISK.PASSIVE,
         as: as ?? 'unauthenticated', testId: testId ?? 'sign-in-form'
       });
       const current = typeof fresh.responseText === 'string'
@@ -277,7 +278,7 @@ export class SecurityScanner {
       }
       // The identity and password fields were filled by readSignInForm above.
       return await this.request({
-        url: new URL(current.action || form.page, `${baseUrl}${form.page}`).toString(),
+        url: new URL(current.action || form.page, at(baseUrl, `${form.page}`)).toString(),
         method: current.method,
         risk: SECURITY_RISK.ACTIVE,
         headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -287,13 +288,27 @@ export class SecurityScanner {
     }
 
     return await this.request({
-      url: `${baseUrl}/api/session`, method: 'POST', risk: SECURITY_RISK.ACTIVE,
+      url: at(baseUrl, `/api/session`), method: 'POST', risk: SECURITY_RISK.ACTIVE,
       headers: { 'content-type': 'application/json' },
       body: { username, password }, as: as ?? username, testId: testId ?? 'sign-in', note
     });
   }
 
   async signIn(baseUrl, username, password = 'lab-password', options = {}) {
+    // HTTP Basic first, because it is the one case where the application states the
+    // answer. A 401 carrying WWW-Authenticate: Basic is the server saying what it wants,
+    // and the same request with the header either succeeds or does not — there is nothing
+    // to infer and no form to parse.
+    //
+    // Without this the engine could not sign in to an application behind a Basic
+    // challenge at all: it looked for a sign-in form, found none on any of eight paths,
+    // posted JSON to seven endpoints that all answered 401, and returned null. A scan of
+    // such an application then reported every authorization and authentication check
+    // inconclusive for want of an identity, with the credentials sitting unused in its
+    // own configuration.
+    const basic = await this.signInWithBasic(baseUrl, username, password);
+    if (basic) return basic;
+
     const paths = [
       ...(options.signInPath ? [options.signInPath] : []),
       '/auth/sign-in', '/auth/login', '/login', '/sign-in', '/signin',
@@ -302,7 +317,7 @@ export class SecurityScanner {
 
     for (const path of dedupe(paths)) {
       const page = await this.request({
-        url: `${baseUrl}${path}`, method: 'GET', risk: SECURITY_RISK.PASSIVE,
+        url: at(baseUrl, `${path}`), method: 'GET', risk: SECURITY_RISK.PASSIVE,
         as: username, testId: 'sign-in'
       });
       if (!page.allowed || typeof page.responseBody !== 'string') continue;
@@ -311,7 +326,7 @@ export class SecurityScanner {
       if (form === null) continue;
 
       const submitted = await this.request({
-        url: new URL(form.action, `${baseUrl}${path}`).toString(),
+        url: new URL(form.action, at(baseUrl, `${path}`)).toString(),
         method: form.method,
         risk: SECURITY_RISK.STATE_CHANGING,
         headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -336,7 +351,7 @@ export class SecurityScanner {
     for (const endpoint of ['/api/session', '/api/auth/token', '/api/auth/login',
                             '/api/login', '/api/token', '/auth/token', '/oauth/token']) {
       const result = await this.request({
-        url: `${baseUrl}${endpoint}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+        url: at(baseUrl, `${endpoint}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
         headers: { 'content-type': 'application/json' },
         body: { username, password, email: username }, as: username, testId: 'sign-in'
       });
@@ -349,6 +364,41 @@ export class SecurityScanner {
       }
     }
     return null;
+  }
+
+  /**
+   * Signs in with HTTP Basic, when that is what the application asks for.
+   *
+   * The challenge is established first rather than assumed: a Basic header sent to an
+   * application that does not use Basic is ignored, and a 200 would then be read as a
+   * successful sign-in that authenticates nothing — an identity that is not an identity,
+   * which is worse than none, because every authorization comparison downstream would be
+   * comparing two anonymous requests and finding them identical.
+   *
+   * @returns {Promise<{cookie: null, headers: object, body: unknown, csrf: null}|null>}
+   */
+  async signInWithBasic(baseUrl, username, password) {
+    const challenge = await this.request({
+      url: at(baseUrl, '/'), method: 'GET', risk: SECURITY_RISK.PASSIVE,
+      as: username, testId: 'sign-in:basic-challenge'
+    });
+    if (!challenge.allowed) return null;
+
+    const asks = String(challenge.responseHeaders?.['www-authenticate'] ?? '');
+    if (challenge.status !== 401 || !/^\s*basic\b/i.test(asks)) return null;
+
+    const headers = {
+      authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`
+    };
+    const signedIn = await this.request({
+      url: at(baseUrl, '/'), method: 'GET', risk: SECURITY_RISK.PASSIVE,
+      headers, as: username, testId: 'sign-in:basic'
+    });
+    if (!signedIn.allowed || signedIn.status === 401 || signedIn.status >= 500) return null;
+
+    // Basic carries no CSRF token and no session: the header is the whole identity, and it
+    // is re-sent on every request rather than exchanged for one.
+    return { cookie: null, headers, body: signedIn.responseBody, csrf: null };
   }
 
   summary() {

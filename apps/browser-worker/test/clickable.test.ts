@@ -218,6 +218,25 @@ describe('linkLooksMutating', () => {
     expect(mutating('', 'http://host/view.asp?next=/approve.asp')).toBe(false);
   });
 
+  /**
+   * The regression the first version of this guard caused, kept as a test because it was
+   * worse than the bug: applying the whole word list to links stopped the crawl following
+   * "New application", so the form behind it was never discovered and that target's suite
+   * halved. A guard that hides half the application is not safe.
+   */
+  it('follows a link that opens a form rather than making the change', () => {
+    expect(mutating('New application', 'http://host/new.asp')).toBe(false);
+    expect(mutating('Add a customer', 'http://host/customers/new')).toBe(false);
+    expect(mutating('Create invoice', 'http://host/invoices/create')).toBe(false);
+    expect(mutating('Edit', 'http://host/permits/3/edit')).toBe(false);
+  });
+
+  it('still refuses a link that opens a form AND does something on the way', () => {
+    expect(mutating('Delete and create a replacement', 'http://host/x')).toBe(true);
+    expect(mutating('Add', 'http://host/cart/add-and-checkout')).toBe(true);
+    expect(mutating('Create', 'http://host/approve-then-create')).toBe(true);
+  });
+
   it('refuses a sign-out link, which ends the crawl rather than changing a record', () => {
     expect(mutating('Sign out', 'http://host/auth/sign-out')).toBe(true);
     expect(mutating('', 'http://host/logout')).toBe(true);

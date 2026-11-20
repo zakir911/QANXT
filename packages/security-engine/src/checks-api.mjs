@@ -21,6 +21,7 @@
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { authHeaders } from './credentials.mjs';
+import { at } from './target-url.mjs';
 
 /** Field names that a caller must never be able to set on themselves. */
 const PRIVILEGED_FIELDS = ['role', 'isAdmin', 'admin', 'permissions', 'scopes', 'tenantId', 'verified'];
@@ -39,7 +40,7 @@ const SECRET_FIELDS = [
  * returns the old value, and that is not a finding.
  */
 export async function checkMassAssignment(scanner, { baseUrl, path, actor, fields = PRIVILEGED_FIELDS, escalateTo = 'admin', testId = 'SECA-MASSASSIGN' }) {
-  const url = `${baseUrl}${path.replace('{id}', actor.resourceId)}`;
+  const url = at(baseUrl, `${path.replace('{id}', actor.resourceId)}`);
 
   const before = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:before`,
@@ -104,7 +105,7 @@ export async function checkMassAssignment(scanner, { baseUrl, path, actor, field
  * security test's clothes.
  */
 export async function checkInputValidation(scanner, { baseUrl, path, field, actor, maxLength = 5_000, testId = 'SECA-INPUT' }) {
-  const url = `${baseUrl}${path}`;
+  const url = at(baseUrl, `${path}`);
   const headers = { 'content-type': 'application/json', ...authHeaders(actor) };
 
   const probes = [
@@ -165,7 +166,7 @@ export async function checkInputValidation(scanner, { baseUrl, path, field, acto
  */
 export async function checkUnsafeMethods(scanner, { baseUrl, createPath, deletePath, field = 'title', actor, testId = 'SECA-METHOD' }) {
   const created = await scanner.request({
-    url: `${baseUrl}${createPath}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${createPath}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': 'application/json', ...authHeaders(actor) },
     body: { [field]: 'QA NXT security probe: this object exists only to be deleted by this check' },
     as: actor?.label ?? 'unauthenticated', testId: `${testId}:create`,
@@ -187,7 +188,7 @@ export async function checkUnsafeMethods(scanner, { baseUrl, createPath, deleteP
   }
 
   const attempt = await scanner.request({
-    url: `${baseUrl}${deletePath.replace('{id}', id)}`, method: 'DELETE',
+    url: at(baseUrl, `${deletePath.replace('{id}', id)}`), method: 'DELETE',
     risk: SECURITY_RISK.DESTRUCTIVE, testId: `${testId}:delete`,
     as: 'unauthenticated', note: 'deleting the scan\'s own object with no credentials'
   });
@@ -230,7 +231,7 @@ export async function checkRateLimit(scanner, { baseUrl, path, attempts = 15, ac
 
   for (let i = 1; i <= attempts; i++) {
     const result = await scanner.request({
-      url: `${baseUrl}${path}`, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${i}`,
+      url: at(baseUrl, `${path}`), risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${i}`,
       headers, as: actor?.label ?? 'unauthenticated', note: `bounded rate probe ${i} of ${attempts}`
     });
     if (!result.allowed) return { skipped: true, decision: result.decision, findings: [] };
@@ -273,7 +274,7 @@ export async function checkRateLimit(scanner, { baseUrl, path, attempts = 15, ac
  */
 export async function checkExcessiveData(scanner, { baseUrl, path, actor, testId = 'SECA-EXCESS' }) {
   const result = await scanner.request({
-    url: `${baseUrl}${path}`, risk: SECURITY_RISK.ACTIVE, testId,
+    url: at(baseUrl, `${path}`), risk: SECURITY_RISK.ACTIVE, testId,
     headers: authHeaders(actor), as: actor?.label ?? 'unauthenticated',
     note: 'reading a collection and inspecting the field names it returns'
   });

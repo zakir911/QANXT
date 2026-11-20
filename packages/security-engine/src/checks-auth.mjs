@@ -19,6 +19,7 @@
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { authHeaders, isSignedIn } from './credentials.mjs';
+import { at } from './target-url.mjs';
 
 /** A username that cannot exist, used to draw the comparison for enumeration. */
 const ABSENT_USER = 'qanxt-nonexistent-user-6f2a9c';
@@ -230,7 +231,7 @@ export async function checkSessionInvalidation(scanner, { baseUrl, signOutPath =
   }
 
   const before = await scanner.request({
-    url: `${baseUrl}${probePath}`, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:before`,
+    url: at(baseUrl, `${probePath}`), risk: SECURITY_RISK.ACTIVE, testId: `${testId}:before`,
     headers: authHeaders(signedIn), as: credentials.username, note: 'the session working, before sign-out'
   });
   if (!before.allowed) return { skipped: true, decision: before.decision, findings: [] };
@@ -240,14 +241,14 @@ export async function checkSessionInvalidation(scanner, { baseUrl, signOutPath =
   }
 
   const signOut = await scanner.request({
-    url: `${baseUrl}${signOutPath}`, method: 'DELETE', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${signOutPath}`), method: 'DELETE', risk: SECURITY_RISK.STATE_CHANGING,
     testId: `${testId}:signout`, headers: authHeaders(signedIn), as: credentials.username,
     note: 'signing the synthetic identity out'
   });
   if (!signOut.allowed) return { skipped: true, decision: signOut.decision, findings: [] };
 
   const after = await scanner.request({
-    url: `${baseUrl}${probePath}`, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:after`,
+    url: at(baseUrl, `${probePath}`), risk: SECURITY_RISK.ACTIVE, testId: `${testId}:after`,
     headers: authHeaders(signedIn), as: 'retained token',
     note: 'the same token, replayed after sign-out'
   });
@@ -288,7 +289,7 @@ export async function checkSessionInvalidation(scanner, { baseUrl, signOutPath =
  */
 export async function checkSessionLifetime(scanner, { baseUrl, credentials, maxSeconds = 86_400, testId = 'SECA-TTL' }) {
   const result = await scanner.request({
-    url: `${baseUrl}/api/session`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `/api/session`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': 'application/json' },
     body: { username: credentials.username, password: credentials.password ?? 'lab-password' },
     as: credentials.username, testId: `${testId}:signin`, note: 'reading the declared session lifetime'
@@ -336,7 +337,7 @@ export async function checkSessionLifetime(scanner, { baseUrl, credentials, maxS
 /** A password-reset token accepted more than once. */
 export async function checkResetTokenReuse(scanner, { baseUrl, requestPath = '/api/password-reset', confirmPath = '/api/password-reset/confirm', knownUser, testId = 'SECA-RESET' }) {
   const issued = await scanner.request({
-    url: `${baseUrl}${requestPath}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${requestPath}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': 'application/json' }, body: { username: knownUser },
     as: 'unauthenticated', testId: `${testId}:request`, note: 'requesting a reset for a synthetic account'
   });
@@ -351,7 +352,7 @@ export async function checkResetTokenReuse(scanner, { baseUrl, requestPath = '/a
   }
 
   const first = await scanner.request({
-    url: `${baseUrl}${confirmPath}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${confirmPath}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': 'application/json' }, body: { token },
     as: 'unauthenticated', testId: `${testId}:first`, note: 'using the reset token once'
   });
@@ -362,7 +363,7 @@ export async function checkResetTokenReuse(scanner, { baseUrl, requestPath = '/a
   }
 
   const second = await scanner.request({
-    url: `${baseUrl}${confirmPath}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${confirmPath}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': 'application/json' }, body: { token },
     as: 'unauthenticated', testId: `${testId}:second`, note: 'using the same token a second time'
   });

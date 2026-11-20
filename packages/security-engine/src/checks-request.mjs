@@ -25,6 +25,7 @@
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { authHeaders, isSignedIn } from './credentials.mjs';
+import { at } from './target-url.mjs';
 
 /** A host that exists to be recognised in a Location header and is never visited. */
 const EXTERNAL_MARKER_HOST = 'qanxt-redirect-probe.invalid';
@@ -43,7 +44,7 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
   }
 
   const withToken = await scanner.request({
-    url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: {
       'content-type': 'application/json', ...authHeaders(session),
       origin: baseUrl, ...(session.csrf ? { [tokenHeader]: session.csrf } : {})
@@ -59,7 +60,7 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
   }
 
   const withoutToken = await scanner.request({
-    url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': 'application/json', ...authHeaders(session), origin: baseUrl },
     body, as: 'a caller with no anti-CSRF token', testId: `${testId}:no-token`,
     note: 'the same request with the anti-CSRF token removed'
@@ -103,7 +104,7 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
   };
 
   const sameOrigin = await scanner.request({
-    url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { ...headers, origin: baseUrl }, body,
     as: 'same-origin', testId: `${testId}:control`, note: 'the request with the application\'s own origin'
   });
@@ -114,7 +115,7 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
   }
 
   const crossOrigin = await scanner.request({
-    url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { ...headers, origin: `https://${EXTERNAL_MARKER_HOST}` }, body,
     as: 'cross-origin', testId: `${testId}:cross`,
     note: `the same request claiming to come from ${EXTERNAL_MARKER_HOST}, a host that does not resolve`
@@ -164,7 +165,7 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
 export async function checkUploadRestrictions(scanner, { baseUrl, path, actor, declaredOversizeBytes = 50 * 1024 * 1024, testId = 'SECA-UPLOAD' }) {
   const headers = { 'content-type': 'application/json', ...authHeaders(actor) };
   const send = async (body, id, note) => scanner.request({
-    url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers, body, as: actor?.label ?? 'unauthenticated', testId: `${testId}:${id}`, note
   });
 
@@ -274,14 +275,14 @@ export async function checkOpenRedirect(scanner, { baseUrl, path, parameter = 'n
   const target = `https://${EXTERNAL_MARKER_HOST}/qanxt-probe`;
 
   const relative = await scanner.request({
-    url: `${baseUrl}${path}?${parameter}=${encodeURIComponent('/dashboard')}`,
+    url: at(baseUrl, `${path}?${parameter}=${encodeURIComponent('/dashboard')}`),
     risk: SECURITY_RISK.ACTIVE, testId: `${testId}:control`, as: 'unauthenticated',
     note: 'a relative destination, which the endpoint should accept'
   });
   if (!relative.allowed) return { skipped: true, decision: relative.decision, findings: [] };
 
   const external = await scanner.request({
-    url: `${baseUrl}${path}?${parameter}=${encodeURIComponent(target)}`,
+    url: at(baseUrl, `${path}?${parameter}=${encodeURIComponent(target)}`),
     risk: SECURITY_RISK.ACTIVE, testId: `${testId}:external`, as: 'unauthenticated',
     note: `an absolute destination on ${EXTERNAL_MARKER_HOST}, a host that does not resolve; the Location `
       + 'header is read and never followed'
@@ -350,7 +351,7 @@ export async function checkSsrf(scanner, { baseUrl, path, parameter = 'url', all
   }
 
   const external = await scanner.request({
-    url: `${baseUrl}${path}?${parameter}=${encodeURIComponent(`https://${EXTERNAL_MARKER_HOST}/`)}`,
+    url: at(baseUrl, `${path}?${parameter}=${encodeURIComponent(`https://${EXTERNAL_MARKER_HOST}/`)}`),
     risk: SECURITY_RISK.ACTIVE, testId: `${testId}:control`, as: 'unauthenticated',
     note: 'a destination outside the application, to establish what it does with one'
   });
@@ -360,7 +361,7 @@ export async function checkSsrf(scanner, { baseUrl, path, parameter = 'url', all
   const exchanges = [external];
   for (const probe of probes) {
     const result = await scanner.request({
-      url: `${baseUrl}${path}?${parameter}=${encodeURIComponent(probe.value)}`,
+      url: at(baseUrl, `${path}?${parameter}=${encodeURIComponent(probe.value)}`),
       risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${probe.id}`, as: 'unauthenticated',
       note: `SSRF probe: ${probe.describes}`
     });

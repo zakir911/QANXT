@@ -16,6 +16,7 @@
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { authHeaders } from './credentials.mjs';
+import { at } from './target-url.mjs';
 
 /** Statuses that count as a refusal. 404 is included: not telling a stranger a resource
  *  exists is a legitimate answer, and the brief names both. */
@@ -110,7 +111,7 @@ export async function checkBola(scanner, { baseUrl, path, owner, intruder, testI
     };
   }
 
-  const url = `${baseUrl}${path.replace('{id}', resourceId ?? '')}`;
+  const url = at(baseUrl, `${path.replace('{id}', resourceId ?? '')}`);
 
   const control = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:control`,
@@ -172,7 +173,7 @@ export async function checkBola(scanner, { baseUrl, path, owner, intruder, testI
 
 /** Broken function level authorization — a lesser role reaching a privileged route. */
 export async function checkVerticalEscalation(scanner, { baseUrl, path, privileged, lesser, testId = 'SECA-VERT' }) {
-  const url = `${baseUrl}${path}`;
+  const url = at(baseUrl, `${path}`);
 
   const control = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:control`,
@@ -219,7 +220,7 @@ export async function checkVerticalEscalation(scanner, { baseUrl, path, privileg
 
 /** A read-only role performing a write. */
 export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, readonly, body, testId = 'SECA-RO' }) {
-  const url = `${baseUrl}${path}`;
+  const url = at(baseUrl, `${path}`);
 
   const control = await scanner.request({
     url, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING, testId: `${testId}:control`,
@@ -266,7 +267,7 @@ export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, reado
 
 /** No authorization at all — an unauthenticated caller reaching protected data. */
 export async function checkMissingAuthorization(scanner, { baseUrl, path, owner, testId = 'SECA-NOAUTHZ' }) {
-  const url = `${baseUrl}${path.replace('{id}', owner.resourceId)}`;
+  const url = at(baseUrl, `${path.replace('{id}', owner.resourceId)}`);
 
   const control = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:control`,
@@ -311,7 +312,7 @@ export async function checkMissingAuthorization(scanner, { baseUrl, path, owner,
 
 /** A forged bearer token accepted because it merely looks like one. */
 export async function checkTokenVerification(scanner, { baseUrl, path, forgedToken, testId = 'SECA-TOKEN' }) {
-  const url = `${baseUrl}${path}`;
+  const url = at(baseUrl, `${path}`);
 
   const anonymous = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:anonymous`, as: 'unauthenticated'

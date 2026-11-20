@@ -102,7 +102,6 @@ export function looksMutating(accessibleName: string): boolean {
  * @param url the link's resolved absolute URL
  */
 export function linkLooksMutating(accessibleName: string, url: string): boolean {
-  if (looksMutating(accessibleName)) return true;
   let path: string;
   try {
     path = new URL(url).pathname;
@@ -111,7 +110,37 @@ export function linkLooksMutating(accessibleName: string, url: string): boolean 
   }
   // A path is one word to a reader and several to a matcher: /permits/approve-all, the
   // ASP /approve.asp and the REST /api/v1/permits/1/approve all have to read the same.
-  return looksMutating(path.replace(/[^a-z0-9]+/gi, ' '));
+  const words = `${accessibleName} ${path.replace(/[^a-z0-9]+/gi, ' ')}`;
+  return looksMutating(words) && !onlyOpensAForm(words);
+}
+
+/**
+ * Words that on a LINK name the record you are about to make or change, not a change
+ * being made. The change happens when the form they open is submitted, and that submit
+ * control is a button, which `decide` already refuses.
+ *
+ * Applying the full list to links cost real coverage the moment it landed: a permit
+ * register's "New application" link was not followed, the application form behind it was
+ * never discovered, and the suite for that target fell from two forms to one. A guard that
+ * stops the crawl reaching half the application is not a safe guard, it is a broken one.
+ *
+ * Only these four are forgiven, and only when nothing else on the link is mutating, so
+ * "Create" is followed and "Delete and create a replacement" is not.
+ */
+const OPENS_A_FORM = ['new', 'add', 'create', 'edit'];
+
+function onlyOpensAForm(words: string): boolean {
+  const remaining = MUTATING_WORDS.filter(word => !OPENS_A_FORM.includes(word));
+  return !looksMutating(stripExcept(words, remaining));
+}
+
+/** The words of `text` that appear in `allowed`, so looksMutating can be asked about those alone. */
+function stripExcept(text: string, allowed: readonly string[]): string {
+  const name = normalise(text);
+  return allowed.filter(word => {
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(^|[^a-z])${escaped}([^a-z]|$)`, 'i').test(name);
+  }).join(' ');
 }
 
 /**

@@ -24,6 +24,7 @@
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { authHeaders } from './credentials.mjs';
+import { at } from './target-url.mjs';
 
 /** A marker that is unmistakably ours and does nothing. */
 const MARKER = 'qanxt7x2';
@@ -94,7 +95,7 @@ export async function checkReflectedXss(
   const headers = authHeaders(identity);
 
   for (const payload of PAYLOADS) {
-    const url = `${baseUrl}${path}?${parameter}=${encodeURIComponent(payload.value)}`;
+    const url = at(baseUrl, `${path}?${parameter}=${encodeURIComponent(payload.value)}`);
     const result = await scanner.request({
       url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${payload.id}`,
       headers, as, note: `inert reflection marker (${payload.id})`
@@ -147,7 +148,7 @@ export async function checkStoredXss(scanner, { baseUrl, writePath, readPath, fi
   const payload = PAYLOADS[0];
 
   const write = await scanner.request({
-    url: `${baseUrl}${writePath}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+    url: at(baseUrl, `${writePath}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': 'application/json', ...authHeaders(actor) },
     body: { [field]: `${payload.value} stored by an QA NXT security test` },
     as: actor?.label ?? 'unauthenticated', testId: `${testId}:write`,
@@ -160,7 +161,7 @@ export async function checkStoredXss(scanner, { baseUrl, writePath, readPath, fi
   }
 
   const read = await scanner.request({
-    url: `${baseUrl}${readPath}`, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:read`,
+    url: at(baseUrl, `${readPath}`), risk: SECURITY_RISK.ACTIVE, testId: `${testId}:read`,
     headers: authHeaders(actor), as: 'unauthenticated',
     note: 'reading the page that renders the stored value'
   });
@@ -199,7 +200,7 @@ export async function checkStoredXss(scanner, { baseUrl, writePath, readPath, fi
  */
 export async function checkDomXss(scanner, { baseUrl, path, testId = 'SECA-XSS-D' }) {
   const result = await scanner.request({
-    url: `${baseUrl}${path}`, risk: SECURITY_RISK.PASSIVE, testId,
+    url: at(baseUrl, `${path}`), risk: SECURITY_RISK.PASSIVE, testId,
     as: 'unauthenticated', note: 'fetching the page to record which client-side sinks it contains'
   });
   if (!result.allowed) return { skipped: true, decision: result.decision, findings: [] };
