@@ -194,15 +194,67 @@ export class SecurityScanner {
   }
 
   /** Signs in as one of the lab's synthetic identities and returns a cookie header. */
-  async signIn(baseUrl, username, password = 'lab-password') {
+  /**
+   * Signs in as one identity, the way the application's own sign-in form says to.
+   *
+   * This used to POST JSON to a hard-coded `/api/session`, which meant identities could
+   * only be established against an application that happened to expose exactly that
+   * endpoint. Meridian Freight is an ordinary form-login application: the endpoint 404s,
+   * all three identities failed, and every authorization check reported "an owning
+   * identity is needed" — 66 of the 204 things that scan could not establish, including
+   * the two planted authorization defects. A scanner that can only sign in to one
+   * convention cannot test authorization on most web applications.
+   *
+   * So the form is read and submitted as written: its own action, its own method, its own
+   * field names, and its hidden fields carried through — an anti-forgery token above all,
+   * because a sign-in that omits one is refused and the refusal looks like bad
+   * credentials. The JSON endpoint is still tried, last, for applications that do offer
+   * it.
+   */
+  async signIn(baseUrl, username, password = 'lab-password', options = {}) {
+    const paths = [
+      ...(options.signInPath ? [options.signInPath] : []),
+      '/auth/sign-in', '/auth/login', '/login', '/sign-in', '/signin',
+      '/account/login', '/users/sign_in', '/session/new'
+    ];
+
+    for (const path of dedupe(paths)) {
+      const page = await this.request({
+        url: `${baseUrl}${path}`, method: 'GET', risk: SECURITY_RISK.PASSIVE,
+        as: username, testId: 'sign-in'
+      });
+      if (!page.allowed || typeof page.responseBody !== 'string') continue;
+
+      const form = readSignInForm(page.responseBody, username, password);
+      if (form === null) continue;
+
+      const submitted = await this.request({
+        url: new URL(form.action, `${baseUrl}${path}`).toString(),
+        method: form.method,
+        risk: SECURITY_RISK.STATE_CHANGING,
+        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(form.fields).toString(),
+        as: username, testId: 'sign-in'
+      });
+      if (!submitted.allowed) continue;
+
+      const cookie = firstCookie(submitted.headers);
+      // A sign-in that answers 2xx or a redirect and hands back a cookie worked. A form
+      // re-rendered with an error hands back no session, and that is a failure to report
+      // rather than an identity to pretend we have.
+      if (cookie && submitted.status < 400) {
+        return { cookie, body: submitted.responseBody, csrf: readCsrf(submitted.responseBody) };
+      }
+    }
+
+    // Applications that really do offer a JSON session endpoint.
     const result = await this.request({
       url: `${baseUrl}/api/session`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
       headers: { 'content-type': 'application/json' },
       body: { username, password }, as: username, testId: 'sign-in'
     });
     if (!result.allowed || result.status !== 200) return null;
-    const setCookie = result.headers?.getSetCookie?.() ?? [];
-    const cookie = setCookie[0]?.split(';')[0] ?? null;
+    const cookie = firstCookie(result.headers);
     return { cookie, body: result.responseBody, csrf: result.responseBody?.csrfToken ?? null };
   }
 
@@ -215,4 +267,78 @@ export class SecurityScanner {
       blocked: this.blocked
     };
   }
+}
+
+// ---------------------------------------------------------------------------
+// Reading an application's own sign-in form
+// ---------------------------------------------------------------------------
+
+const dedupe = (values) => [...new Set(values)];
+
+const firstCookie = (headers) =>
+  (headers?.getSetCookie?.() ?? [])[0]?.split(';')[0] ?? null;
+
+const readCsrf = (body) =>
+  (body && typeof body === 'object' && body.csrfToken) ? body.csrfToken : null;
+
+/**
+ * Finds the sign-in form in a page and fills it.
+ *
+ * A page is only treated as a sign-in page when it has a password input: that is what
+ * distinguishes one from the dozen other forms an application serves, and guessing from the
+ * URL alone put credentials into search boxes.
+ *
+ * Hidden fields are carried through unchanged. That is not a nicety — an application that
+ * verifies an anti-forgery token refuses a submission without one, and the refusal is
+ * indistinguishable from a wrong password, so the scan would report "could not sign in"
+ * for an application whose credentials were perfectly good.
+ */
+export function readSignInForm(html, username, password) {
+  for (const match of html.matchAll(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi)) {
+    const attributes = match[1] ?? '';
+    const inner = match[2] ?? '';
+
+    const controls = [...inner.matchAll(/<input\b([^>]*)>/gi)]
+      .map(input => attributesOf(input[1] ?? ''))
+      .filter(control => control.name);
+
+    const passwordField = controls.find(c => (c.type ?? '').toLowerCase() === 'password');
+    if (passwordField === undefined) continue;
+
+    // The identity field: whatever text-like input is not the password. Named candidates
+    // first, because a form may carry others.
+    const named = controls.find(c =>
+      /^(username|user|email|login|identifier|userid|user_name)$/i.test(c.name));
+    const textLike = controls.find(c =>
+      c !== passwordField && !['hidden', 'checkbox', 'radio', 'submit', 'button'].includes((c.type ?? 'text').toLowerCase()));
+    const identityField = named ?? textLike;
+    if (identityField === undefined) continue;
+
+    const fields = {};
+    for (const control of controls) {
+      const type = (control.type ?? 'text').toLowerCase();
+      if (type === 'submit' || type === 'button' || type === 'image' || type === 'reset') continue;
+      if (type === 'checkbox' || type === 'radio') continue;   // left as the form defaults
+      fields[control.name] = control.value ?? '';
+    }
+    fields[identityField.name] = username;
+    fields[passwordField.name] = password;
+
+    const form = attributesOf(attributes);
+    return {
+      action: form.action || '',
+      method: (form.method || 'post').toUpperCase() === 'GET' ? 'GET' : 'POST',
+      fields
+    };
+  }
+  return null;
+}
+
+/** The attributes of one tag, as a plain object. */
+function attributesOf(source) {
+  const found = {};
+  for (const pair of source.matchAll(/([a-zA-Z-]+)\s*=\s*("([^"]*)"|'([^']*)'|([^\s">]+))/g)) {
+    found[pair[1].toLowerCase()] = pair[3] ?? pair[4] ?? pair[5] ?? '';
+  }
+  return found;
 }

@@ -415,10 +415,16 @@ async function signIn(
 
 const owner = (context: ScanContext) => [...context.identities.values()][0];
 const intruder = (context: ScanContext) => [...context.identities.values()][1];
+// Role names are whatever the caller sent, so both spellings of each are honoured. The
+// launcher's own documentation says "privileged"; this looked only for "admin", so a scan
+// configured exactly as documented had no privileged identity and the checks needing one
+// reported inconclusive while the identity sat in the map.
 const privileged = (context: ScanContext) =>
-  [...context.identities.values()].find(i => i.role === 'admin');
+  [...context.identities.values()].find(i =>
+    i.role === 'privileged' || i.role === 'admin' || i.role === 'administrator');
 const readOnly = (context: ScanContext) =>
-  [...context.identities.values()].find(i => i.role === 'readonly');
+  [...context.identities.values()].find(i =>
+    i.role === 'readonly' || i.role === 'read-only' || i.role === 'viewer');
 
 const inconclusive = (reason: string): CheckResult => ({ findings: [], inconclusive: true, reason });
 

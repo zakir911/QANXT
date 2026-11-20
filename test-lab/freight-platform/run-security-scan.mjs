@@ -101,8 +101,20 @@ const scope = await request(`/api/v1/security/applications/${application.id}/sco
   token: tenant.token, method: 'PUT',
   body: {
     enabled: true, allowedDomains: '127.0.0.1',
+    // Without this the scan refuses every check that has to send a payload rather than
+    // read a response: 120 of the 204 recorded reasons on the previous run were
+    // "activeTestingNotAllowed", which is every reflected, stored and DOM XSS check and
+    // every injection probe. Leaving it off measured a passive scan and called it a scan.
+    //
+    // Granting it is the authorisation a real engagement grants, and this is the one
+    // target where it is unambiguously ours to grant: a synthetic application on loopback,
+    // built for this exercise, holding no real data. Destructive testing stays off — it is
+    // a separate decision and nothing here needs it.
+    allowActiveTesting: true,
+    allowDestructiveTesting: false,
     authorizationNote: 'Synthetic freight application on loopback, built for this exercise '
-      + 'and authorized for security testing. No real system and no real data is involved.'
+      + 'and authorized for active security testing, excluding destructive checks. No real '
+      + 'system and no real data is involved.'
   }
 });
 line(`  scope ${scope.status}`);
