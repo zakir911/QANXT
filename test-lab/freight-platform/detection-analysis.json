@@ -1,5 +1,5 @@
 {
-  "analysedAt": "2026-11-20T02:08:45.971Z",
+  "analysedAt": "2026-11-20T05:41:02.378Z",
   "source": "form-engine-result.json",
   "note": "A failure is classified as a tool error or an application failure before it is matched to a defect. Only an application failure can evidence one: a Playwright timeout says nothing about whether the application is correct, whatever words happen to be in its message.",
   "run": {
@@ -20,8 +20,8 @@
     }
   },
   "counts": {
-    "found": 8,
-    "possible": 3,
+    "found": 9,
+    "possible": 2,
     "missed": 16,
     "unreachable": 5
   },
@@ -34,6 +34,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -44,6 +45,7 @@
       "screenReached": true,
       "verdict": "found",
       "contestedEvidence": 0,
+      "evidenceKind": "execution",
       "evidence": "Book a shipment: refuses Requested delivery date before Collection date Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no"
     },
     {
@@ -54,6 +56,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -64,6 +67,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -74,6 +78,7 @@
       "screenReached": true,
       "verdict": "possible",
       "contestedEvidence": 0,
+      "evidenceKind": "execution",
       "evidence": "Account: refuses a submission without Credit limit (GBP) POST http://127.0.0.1:4400/customers/new accepted the submission: it answered 302 and redirected to /customers/cus-016 with"
     },
     {
@@ -84,6 +89,7 @@
       "screenReached": true,
       "verdict": "found",
       "contestedEvidence": 1,
+      "evidenceKind": "execution",
       "evidence": "Invoice INV-2026-5003 · Meridian Freight (/billing/invoices/inv-0004): derives each percentage line from a figure above it A percentage line does not derive from a figure above it:"
     },
     {
@@ -94,6 +100,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -104,6 +111,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -114,6 +122,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -124,6 +133,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -134,6 +144,7 @@
       "screenReached": false,
       "verdict": "unreachable",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -144,6 +155,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -154,6 +166,7 @@
       "screenReached": false,
       "verdict": "unreachable",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -164,6 +177,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -174,6 +188,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 1,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -184,6 +199,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -194,6 +210,7 @@
       "screenReached": false,
       "verdict": "possible",
       "contestedEvidence": 0,
+      "evidenceKind": "execution",
       "evidence": "Declarations: accepts \"rejected\" in Status page.goto: Page crashed"
     },
     {
@@ -204,6 +221,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -214,6 +232,7 @@
       "screenReached": false,
       "verdict": "unreachable",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -224,6 +243,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -232,9 +252,10 @@
       "category": "accessibility",
       "screen": "/warehouse/stock/:id/adjust",
       "screenReached": true,
-      "verdict": "possible",
+      "verdict": "found",
       "contestedEvidence": 1,
-      "evidence": "Fleet · Meridian Freight (/fleet): does not say anything with colour alone Information is carried by colour alone: fleet-vehicles-summary, column 4 (\"Status\") uses 3 colours (rgb(1"
+      "evidenceKind": "structural",
+      "evidence": "no-label Quantity to add or remove has no label tied to it; its placeholder is not a label. delta"
     },
     {
       "id": "FP_D22_ERROR_NOT_ASSOCIATED",
@@ -244,6 +265,7 @@
       "screenReached": true,
       "verdict": "found",
       "contestedEvidence": 0,
+      "evidenceKind": "execution",
       "evidence": "Raise a claim: announces the error for Shipment with the field Expected an error programmatically associated with this field, but there is none: no aria-invalid, no error reference"
     },
     {
@@ -254,6 +276,7 @@
       "screenReached": true,
       "verdict": "found",
       "contestedEvidence": 0,
+      "evidenceKind": "execution",
       "evidence": "Vehicles · Meridian Freight (/fleet/vehicles): does not say anything with colour alone Information is carried by colour alone: vehicles-table, column 8 (\"Status\") uses 3 colours (r"
     },
     {
@@ -264,6 +287,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -274,6 +298,7 @@
       "screenReached": true,
       "verdict": "found",
       "contestedEvidence": 5,
+      "evidenceKind": "execution",
       "evidence": "Rate card — Baltic Road · Meridian Freight (/carriers/car-003/rates): fits a tablet screen (768x1024) The page can be scrolled sideways by 244px in a 768px-wide window; the element"
     },
     {
@@ -284,6 +309,7 @@
       "screenReached": true,
       "verdict": "found",
       "contestedEvidence": 24,
+      "evidenceKind": "execution",
       "evidence": "Route planner · Meridian Freight (/routes/planner): fits a laptop screen (1280x800) The page can be scrolled sideways by 42px in a 1280px-wide window; the element reaching furthest"
     },
     {
@@ -294,6 +320,7 @@
       "screenReached": false,
       "verdict": "unreachable",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -304,6 +331,7 @@
       "screenReached": true,
       "verdict": "found",
       "contestedEvidence": 0,
+      "evidenceKind": "security",
       "evidence": "'q' is reflected into HTML without encoding q CWE-79 A03:2021 "
     },
     {
@@ -314,6 +342,7 @@
       "screenReached": true,
       "verdict": "found",
       "contestedEvidence": 0,
+      "evidenceKind": "execution",
       "evidence": "Adjust MF-1333: carries an anti-forgery token Expected the element to exist on the page, but it does not."
     },
     {
@@ -324,6 +353,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -334,6 +364,7 @@
       "screenReached": false,
       "verdict": "unreachable",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     },
     {
@@ -344,6 +375,7 @@
       "screenReached": true,
       "verdict": "missed",
       "contestedEvidence": 0,
+      "evidenceKind": null,
       "evidence": null
     }
   ],

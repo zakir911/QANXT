@@ -1,5 +1,5 @@
 {
-  "collectedAt": "2026-11-20T01:05:36.283Z",
+  "collectedAt": "2026-11-20T05:38:57.583Z",
   "collectedFrom": "the control plane database, because the run-start request outlived the client",
   "applicationId": "c66fe715-bb0b-4c59-a6ef-e4b8110adc9c",
   "stages": {
@@ -185,6 +185,239 @@
         "13": "42",
         "18": "10"
       },
+      "structuralFindings": [
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Contact telephone looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactPhone"
+        },
+        {
+          "route": "/customers/cus-001/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Trading name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/warehouse/stock/stk-fxt-sku-001/adjust",
+          "code": "no-label",
+          "severity": "serious",
+          "message": "Quantity to add or remove has no label tied to it; its placeholder is not a label.",
+          "fieldKey": "delta"
+        },
+        {
+          "route": "/customers/cus-001/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Postcode looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "postcode"
+        },
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Contact name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactName"
+        },
+        {
+          "route": "/customers/cus-002/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Postcode looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "postcode"
+        },
+        {
+          "route": "/carriers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Bookings email looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactEmail"
+        },
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Postcode looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "postcode"
+        },
+        {
+          "route": "/account/profile",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Display name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "displayName"
+        },
+        {
+          "route": "/account/preferences",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Email me when a shipment raises an exception looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "emailExceptions"
+        },
+        {
+          "route": "/warehouse/stock/stk-dub-sku-010/adjust",
+          "code": "no-label",
+          "severity": "serious",
+          "message": "Quantity to add or remove has no label tied to it; its placeholder is not a label.",
+          "fieldKey": "delta"
+        },
+        {
+          "route": "/customers/cus-002/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Trading name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/account/profile",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Mobile number looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "phone"
+        },
+        {
+          "route": "/shipments/shp-0008/cancel",
+          "code": "no-primary-action",
+          "severity": "warning",
+          "message": "No primary action was recognised for this form.",
+          "fieldKey": ""
+        },
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Contact email looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactEmail"
+        },
+        {
+          "route": "/customers/cus-001/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Address line 1 looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "line1"
+        },
+        {
+          "route": "/carriers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Carrier name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/shipments/shp-0026/cancel",
+          "code": "no-primary-action",
+          "severity": "warning",
+          "message": "No primary action was recognised for this form.",
+          "fieldKey": ""
+        },
+        {
+          "route": "/warehouse/stock/stk-dub-sku-010/adjust",
+          "code": "placeholder-as-label",
+          "severity": "warning",
+          "message": "Quantity to add or remove uses its placeholder as its only label; the hint vanishes as soon as typing starts.",
+          "fieldKey": "delta"
+        },
+        {
+          "route": "/reports/builder",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Report name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/shipments/shp-0017/cancel",
+          "code": "no-primary-action",
+          "severity": "warning",
+          "message": "No primary action was recognised for this form.",
+          "fieldKey": ""
+        },
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Address line 1 looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "line1"
+        },
+        {
+          "route": "/account/profile",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Email address looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "email"
+        },
+        {
+          "route": "/customers/cus-003/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Trading name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/customers/cus-003/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Address line 1 looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "line1"
+        },
+        {
+          "route": "/carriers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Bookings telephone looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactPhone"
+        },
+        {
+          "route": "/customers",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Find by contact email looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactEmail"
+        },
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Trading name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/customers/cus-003/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Postcode looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "postcode"
+        },
+        {
+          "route": "/customers/cus-002/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Address line 1 looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "line1"
+        },
+        {
+          "route": "/account/preferences",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Send me the daily summary looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "emailDigest"
+        },
+        {
+          "route": "/orders/purchase/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Supplier looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "supplierName"
+        },
+        {
+          "route": "/warehouse/stock/stk-fxt-sku-001/adjust",
+          "code": "placeholder-as-label",
+          "severity": "warning",
+          "message": "Quantity to add or remove uses its placeholder as its only label; the hint vanishes as soon as typing starts.",
+          "fieldKey": "delta"
+        }
+      ],
       "failures": [
         {
           "testCaseId": "ed5df292-23ce-40ed-9d75-8c03c3719ebd",
@@ -13864,6 +14097,239 @@
         "13": "42",
         "18": "10"
       },
+      "structuralFindings": [
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Contact telephone looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactPhone"
+        },
+        {
+          "route": "/customers/cus-001/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Trading name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/warehouse/stock/stk-fxt-sku-001/adjust",
+          "code": "no-label",
+          "severity": "serious",
+          "message": "Quantity to add or remove has no label tied to it; its placeholder is not a label.",
+          "fieldKey": "delta"
+        },
+        {
+          "route": "/customers/cus-001/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Postcode looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "postcode"
+        },
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Contact name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactName"
+        },
+        {
+          "route": "/customers/cus-002/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Postcode looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "postcode"
+        },
+        {
+          "route": "/carriers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Bookings email looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactEmail"
+        },
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Postcode looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "postcode"
+        },
+        {
+          "route": "/account/profile",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Display name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "displayName"
+        },
+        {
+          "route": "/account/preferences",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Email me when a shipment raises an exception looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "emailExceptions"
+        },
+        {
+          "route": "/warehouse/stock/stk-dub-sku-010/adjust",
+          "code": "no-label",
+          "severity": "serious",
+          "message": "Quantity to add or remove has no label tied to it; its placeholder is not a label.",
+          "fieldKey": "delta"
+        },
+        {
+          "route": "/customers/cus-002/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Trading name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/account/profile",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Mobile number looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "phone"
+        },
+        {
+          "route": "/shipments/shp-0008/cancel",
+          "code": "no-primary-action",
+          "severity": "warning",
+          "message": "No primary action was recognised for this form.",
+          "fieldKey": ""
+        },
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Contact email looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactEmail"
+        },
+        {
+          "route": "/customers/cus-001/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Address line 1 looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "line1"
+        },
+        {
+          "route": "/carriers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Carrier name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/shipments/shp-0026/cancel",
+          "code": "no-primary-action",
+          "severity": "warning",
+          "message": "No primary action was recognised for this form.",
+          "fieldKey": ""
+        },
+        {
+          "route": "/warehouse/stock/stk-dub-sku-010/adjust",
+          "code": "placeholder-as-label",
+          "severity": "warning",
+          "message": "Quantity to add or remove uses its placeholder as its only label; the hint vanishes as soon as typing starts.",
+          "fieldKey": "delta"
+        },
+        {
+          "route": "/reports/builder",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Report name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/shipments/shp-0017/cancel",
+          "code": "no-primary-action",
+          "severity": "warning",
+          "message": "No primary action was recognised for this form.",
+          "fieldKey": ""
+        },
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Address line 1 looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "line1"
+        },
+        {
+          "route": "/account/profile",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Email address looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "email"
+        },
+        {
+          "route": "/customers/cus-003/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Trading name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/customers/cus-003/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Address line 1 looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "line1"
+        },
+        {
+          "route": "/carriers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Bookings telephone looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactPhone"
+        },
+        {
+          "route": "/customers",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Find by contact email looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "contactEmail"
+        },
+        {
+          "route": "/customers/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Trading name looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "name"
+        },
+        {
+          "route": "/customers/cus-003/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Postcode looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "postcode"
+        },
+        {
+          "route": "/customers/cus-002/edit",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Address line 1 looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "line1"
+        },
+        {
+          "route": "/account/preferences",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Send me the daily summary looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "emailDigest"
+        },
+        {
+          "route": "/orders/purchase/new",
+          "code": "no-autocomplete",
+          "severity": "info",
+          "message": "Supplier looks like personal data but does not declare autocomplete, so browsers cannot fill it.",
+          "fieldKey": "supplierName"
+        },
+        {
+          "route": "/warehouse/stock/stk-fxt-sku-001/adjust",
+          "code": "placeholder-as-label",
+          "severity": "warning",
+          "message": "Quantity to add or remove uses its placeholder as its only label; the hint vanishes as soon as typing starts.",
+          "fieldKey": "delta"
+        }
+      ],
       "failures": [
         {
           "testCaseId": "ed5df292-23ce-40ed-9d75-8c03c3719ebd",

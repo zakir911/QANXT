@@ -58,6 +58,7 @@ const analysis = detect({
   defects: groundTruth.defects.list,
   failures: execution.failures ?? [],
   findings: securityFindings,
+  structural: execution.structuralFindings ?? [],
   reachedPaths: discovery.discoveredPaths ?? []
 });
 

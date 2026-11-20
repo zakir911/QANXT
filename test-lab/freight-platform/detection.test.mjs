@@ -310,3 +310,67 @@ test('a direction that cannot be read never excludes anything', () => {
 
   assert.equal(result.verdicts[0].verdict, 'found');
 });
+
+test('a structural heuristic evidences the defect it asserts', () => {
+  // The engine records "Quantity to add or remove has no label tied to it; its placeholder
+  // is not a label" on both adjustment pages. That is FP_D21 named exactly, and axe reports
+  // nothing on that page because the accessible-name computation accepts a placeholder as a
+  // name — so this heuristic is the only thing in the product that finds it.
+  const result = detect({
+    defects: [{
+      id: 'FP_D21_UNLABELLED_ADJUSTMENT_FIELD', screen: '/warehouse/stock/:id/adjust',
+      severity: 'minor', category: 'accessibility',
+      observable: 'The input has no label element, no aria-label and no aria-labelledby.'
+    }],
+    structural: [{
+      route: '/warehouse/stock/stk-dub-sku-010/adjust', code: 'no-label',
+      message: 'Quantity to add or remove has no label tied to it; its placeholder is not a label.',
+      fieldKey: 'delta'
+    }],
+    reachedPaths: ['/warehouse/stock/stk-dub-sku-010/adjust']
+  });
+
+  assert.equal(result.verdicts[0].verdict, 'found');
+  assert.equal(result.verdicts[0].evidenceKind, 'structural',
+    'a reader needs to know this rests on a heuristic, not on a run');
+});
+
+test('a heuristic does not evidence a defect its prose merely mentions', () => {
+  // "Find by contact email looks like personal data but does not declare autocomplete"
+  // contains "personal data", which credited it to FP_D32 — a defect about an email address
+  // appearing in a query string. The heuristic asserts no-autocomplete and nothing more.
+  const result = detect({
+    defects: [{
+      id: 'FP_D32_PII_IN_QUERY_STRING', screen: '/customers',
+      severity: 'security', category: 'security',
+      observable: 'The customer search puts the contact email in the query string.'
+    }],
+    structural: [{
+      route: '/customers', code: 'no-autocomplete',
+      message: 'Find by contact email looks like personal data but does not declare autocomplete.',
+      fieldKey: 'email'
+    }],
+    reachedPaths: ['/customers']
+  });
+
+  assert.equal(result.verdicts[0].verdict, 'missed');
+});
+
+test('an execution failure is still matched on its whole message', () => {
+  // The asserts-only rule must apply to heuristics alone: a test failure's message is the
+  // observation itself, not prose about one.
+  const result = detect({
+    defects: [{
+      id: 'FP_D23_STATUS_BY_COLOUR_ONLY', screen: '/fleet/vehicles',
+      severity: 'minor', category: 'accessibility'
+    }],
+    failures: [{
+      name: 'Vehicles (/fleet/vehicles): does not say anything with colour alone',
+      message: 'Information is carried by colour alone: column 8 uses 3 colours.'
+    }],
+    reachedPaths: ['/fleet/vehicles']
+  });
+
+  assert.equal(result.verdicts[0].verdict, 'found');
+  assert.equal(result.verdicts[0].evidenceKind, 'execution');
+});

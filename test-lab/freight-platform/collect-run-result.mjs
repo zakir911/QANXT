@@ -142,6 +142,32 @@ const failures = query(`
   .map(([testCaseId, name, message, category, technique, fieldKey, route]) =>
     ({ testCaseId, name, message, category, technique, fieldKey, route, title: name, url: '', evidence: '' }));
 
+// ---- the structural findings, which are a third stream of evidence --------
+//
+// The form engine reports heuristics read from a form's structure separately from test
+// failures: a control with no label, a placeholder standing in for one, a missing
+// autocomplete. They sit in their own table and nothing downstream read them, so the
+// engine's own detection of FP_D21 — "Quantity to add or remove has no label tied to it;
+// its placeholder is not a label", recorded twice — was invisible to every report.
+//
+// axe finds nothing on that page, because the accessible-name computation accepts a
+// placeholder. So this stream is not a duplicate of the accessibility check; it is the
+// only thing in the product that catches one of the commonest real accessibility defects.
+const structural = query(`
+  SELECT coalesce(af.route, ''),
+         coalesce(ff.code, ''),
+         coalesce(ff.severity::text, ''),
+         replace(replace(coalesce(left(ff.message, 400), ''), chr(10), ' '), chr(13), ' '),
+         coalesce(ff.field_key, '')
+  FROM form_findings ff
+  JOIN application_forms af ON af.id = ff.application_form_id
+  WHERE af.application_id = '${APP}'`)
+  .map(([route, code, severity, message, fieldKey]) =>
+    ({ route, code, severity, message, fieldKey }));
+
+execution.structuralFindings = structural;
+line(`  ${structural.length} structural finding(s) read from the form engine's heuristics`);
+
 execution.failures = failures;
 line(`  ${execution.total} execution(s): ${execution.passed} passed, ${execution.failed} failed, `
   + `${execution.blocked} blocked, ${execution.skipped} skipped`

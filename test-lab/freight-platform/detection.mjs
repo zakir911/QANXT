@@ -360,7 +360,7 @@ function fillsParameterWithAnAction(pattern, path) {
  * @param {object[]} findings     security findings, each { title, evidence, url }
  * @param {string[]} reachedPaths paths discovery actually mapped
  */
-export function detect({ defects, failures = [], findings = [], reachedPaths = [] }) {
+export function detect({ defects, failures = [], findings = [], structural = [], reachedPaths = [] }) {
   const classified = failures.map(failure => ({
     ...failure,
     classification: classifyFailure(failure.message, failure.name)
@@ -409,6 +409,27 @@ export function detect({ defects, failures = [], findings = [], reachedPaths = [
       kind: 'security',
       text: `${f.title ?? ''} ${f.evidence ?? ''} ${f.url ?? ''}`,
       route: typeof f.endpoint === 'string' && f.endpoint !== '' ? f.endpoint : undefined
+    })),
+    // The form engine's structural heuristics: a control with no label, a placeholder
+    // standing in for one, a missing autocomplete. Their own kind, because they are read
+    // from a form's shape rather than from running it, and a report should say which kind
+    // of evidence it rests on. Still evidence: the engine recorded "Quantity to add or
+    // remove has no label tied to it; its placeholder is not a label" on both adjustment
+    // pages, which is FP_D21 named exactly — and axe reports nothing there, because the
+    // accessible-name computation accepts a placeholder as a name.
+    ...structural.map(f => ({
+      kind: 'structural',
+      text: `${f.code ?? ''} ${f.message ?? ''} ${f.fieldKey ?? ''}`,
+      // What the heuristic actually asserts, as opposed to what its prose mentions.
+      //
+      // Matched on separately because the message is explanatory text that can name
+      // anything: "Find by contact email looks like personal data but does not declare
+      // autocomplete" contains "personal data", which credited it to FP_D32 — a defect
+      // about an email address appearing in a query string. The heuristic asserts
+      // "no-autocomplete" and nothing more. The code, with its hyphens opened out so a
+      // word in it reads as a word, is the claim.
+      asserts: String(f.code ?? '').replace(/[-_]+/g, ' '),
+      route: typeof f.route === 'string' && f.route !== '' ? f.route : undefined
     }))
   ];
 
@@ -420,12 +441,12 @@ export function detect({ defects, failures = [], findings = [], reachedPaths = [
     const namesScreen = signals.filter(signal =>
       onScreen(signal, screen) && !contradicts(signal, defect));
     const onScreenAndSymptom = namesScreen
-      .map(signal => ({ signal, specificity: specificity(keywords, signal.text, true) }))
+      .map(signal => ({ signal, specificity: specificity(keywords, signal.asserts ?? signal.text, true) }))
       .filter(candidate => candidate.specificity.matched > 0);
     // Away from the screen, two independent keywords are required.
     const symptomOnly = signals
       .filter(signal => !namesScreen.includes(signal) && !contradicts(signal, defect))
-      .map(signal => ({ signal, specificity: specificity(keywords, signal.text, false) }))
+      .map(signal => ({ signal, specificity: specificity(keywords, signal.asserts ?? signal.text, false) }))
       .filter(candidate => candidate.specificity.matched >= 2);
 
     return { defect, screen, keywords, screenReached, onScreenAndSymptom, symptomOnly };
@@ -490,6 +511,10 @@ export function detect({ defects, failures = [], findings = [], reachedPaths = [
       id: claim.defect.id, severity: claim.defect.severity, category: claim.defect.category,
       screen: claim.screen, screenReached: claim.screenReached, verdict,
       contestedEvidence: contested,
+      // Which stream the evidence came from: a test failure, a security finding, or a
+      // structural heuristic. A reader deciding how much to trust a detection needs it.
+      evidenceKind: best(onScreenAndSymptom.length ? onScreenAndSymptom : symptomOnly)
+        ?.signal.kind ?? null,
       // The most specific signal this defect owns, not the first one the run happened to
       // produce. FP_D06 owned both a percentage-line finding naming the exact figures and
       // an unrelated server-enforcement failure that merely redirected to the same screen;
