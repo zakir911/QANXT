@@ -12,18 +12,52 @@ import { detect, classifyFailure } from './detection.mjs';
 
 const which = process.argv.indexOf('--result');
 const resultFile = which === -1 ? 'pipeline-result.json' : process.argv[which + 1];
+const whichSecurity = process.argv.indexOf('--security');
+const securityFile = whichSecurity === -1 ? 'security-result.json' : process.argv[whichSecurity + 1];
 
 const groundTruth = JSON.parse(await readFile(new URL('./ground-truth.json', import.meta.url), 'utf8'));
 const result = JSON.parse(await readFile(new URL(`./${resultFile}`, import.meta.url), 'utf8'));
 
 const execution = result.stages?.execution ?? {};
-const security = result.stages?.security ?? {};
 const discovery = result.stages?.discovery ?? {};
+
+/**
+ * The security findings, from the security run's own file.
+ *
+ * This read `result.stages.security.list` out of the form-engine result, where the security
+ * driver writes nothing: it writes `stages.scan.findings` to security-result.json. So every
+ * security finding was invisible to the detection join — including the reflected XSS on
+ * /shipments?q=, which the scan had found and reported correctly. Five of the thirty-two
+ * planted defects are security defects and none of them could ever have been credited.
+ */
+const securityFindings = await readSecurityFindings();
+
+async function readSecurityFindings() {
+  // Either shape: the one this script used to look for, and the one actually written.
+  const inResult = result.stages?.security?.list;
+  if (Array.isArray(inResult) && inResult.length > 0) return inResult;
+
+  try {
+    const file = JSON.parse(await readFile(new URL(`./${securityFile}`, import.meta.url), 'utf8'));
+    const found = file.stages?.scan?.findings ?? file.stages?.security?.list ?? [];
+    if (!Array.isArray(found)) return [];
+    // `evidence` is what the matcher reads alongside the title; the scan calls it nothing,
+    // so the description-shaped fields are joined into it.
+    return found.map(f => ({ ...f, evidence: [f.parameter, f.cwe, f.owasp].filter(Boolean).join(' ') }));
+  } catch {
+    // Saying so beats silently reporting that nothing was found.
+    console.error(`  NOTE: no security findings read (${securityFile} missing or unreadable).`);
+    return [];
+  }
+}
+
+const security = { ...(result.stages?.security ?? {}), list: securityFindings,
+                   findings: securityFindings.length };
 
 const analysis = detect({
   defects: groundTruth.defects.list,
   failures: execution.failures ?? [],
-  findings: security.list ?? [],
+  findings: securityFindings,
   reachedPaths: discovery.discoveredPaths ?? []
 });
 

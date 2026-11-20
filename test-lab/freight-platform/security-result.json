@@ -1,5 +1,5 @@
 {
-  "startedAt": "2026-11-20T01:43:49.236Z",
+  "startedAt": "2026-11-20T01:57:07.540Z",
   "target": "http://127.0.0.1:4400",
   "profile": "standard",
   "stages": {
@@ -9,7 +9,7 @@
     },
     "scan": {
       "ok": true,
-      "scanId": "05219433-0d3d-4342-8645-b44c640f4ef0",
+      "scanId": "12896de2-6d90-4e20-ab5c-f1754fa83857",
       "status": "completed",
       "requestsIssued": 718,
       "testsExecuted": 11,
@@ -17,8 +17,8 @@
       "checksConfigured": 21,
       "untestedAreas": [],
       "gate": {
-        "outcome": "review",
-        "summary": "NEEDS REVIEW. 73 open finding(s) (73 Medium) from 11 of 21 configured check(s), 718 request(s) issued. Findings describe what these tests reached; areas they did not reach are untested, not clean. Untested: auth.session-lifetime on /account/sessions: Inconclusive: Sign-in failed (404).; auth.session-logout on /account/sessions: Inconclusive: The session did not authenticate even before sign-out (404).; xss.stored on /account/sessions: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; auth.session-lifetime on /auth/sign-in: Inconclusive: Sign-in failed (404).; auth.session-logout on /auth/sign-in: Inconclusive: The session did not authenticate even before sign-out (404).; xss.stored on /auth/sign-in: Inconclusive: The value could not be stored (403), so what happens on read is unknown.; xss.stored on /billing/invoices/inv-0004: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /billing/invoices/inv-0010: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /billing/invoices/inv-0016: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /carriers: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /customers: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales/so-0001: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales/so-0002: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales/so-0003: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments/shp-0008: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments/shp-0017: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments/shp-0026: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /warehouse/stock: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; api.excessive-data on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; api.rate-limit on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; authz.bola on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; authz.missing on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; authz.token on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; injection.command on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; injection.sql on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; injection.template on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; request.redirect on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; request.ssrf on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; xss.reflected on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed..",
+        "outcome": "fail",
+        "summary": "BLOCKED. 74 open finding(s) (1 High, 73 Medium) from 11 of 21 configured check(s), 718 request(s) issued. Findings describe what these tests reached; areas they did not reach are untested, not clean. Untested: auth.session-lifetime on /account/sessions: Inconclusive: Sign-in failed (404).; auth.session-logout on /account/sessions: Inconclusive: The session did not authenticate even before sign-out (404).; xss.stored on /account/sessions: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; auth.session-lifetime on /auth/sign-in: Inconclusive: Sign-in failed (404).; auth.session-logout on /auth/sign-in: Inconclusive: The session did not authenticate even before sign-out (404).; xss.stored on /auth/sign-in: Inconclusive: The value could not be stored (403), so what happens on read is unknown.; xss.stored on /billing/invoices/inv-0004: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /billing/invoices/inv-0010: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /billing/invoices/inv-0016: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /carriers: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /customers: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales/so-0001: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales/so-0002: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales/so-0003: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments/shp-0008: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments/shp-0017: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments/shp-0026: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /warehouse/stock: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; api.excessive-data on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; api.rate-limit on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; authz.bola on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; authz.missing on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; authz.token on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; injection.command on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; injection.sql on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; injection.template on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; request.redirect on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; request.ssrf on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; xss.reflected on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed..",
         "rules": [
           {
             "name": "A security scan ran",
@@ -58,9 +58,9 @@
           },
           {
             "name": "No new finding at or above High",
-            "passed": true,
+            "passed": false,
             "measured": true,
-            "explanation": "No new finding at or above High with better than low confidence."
+            "explanation": "ReflectedXSS (High, High)"
           },
           {
             "name": "No open finding at or above Critical",
@@ -70,17 +70,29 @@
           }
         ],
         "reasons": [
-          "Only 11 of 21 configured check(s) executed. A result from a partial scan describes the part that ran and nothing else."
+          "Only 11 of 21 configured check(s) executed. A result from a partial scan describes the part that ran and nothing else.",
+          "1 new finding(s) at or above High: ReflectedXSS."
         ],
-        "blocked": false
+        "blocked": true
       },
       "findings": [
         {
+          "category": "ReflectedXSS",
+          "title": "'q' is reflected into HTML without encoding",
+          "severity": "high",
+          "confidence": "high",
+          "endpoint": "/shipments",
+          "parameter": "q",
+          "observedAsRole": "unauthenticated",
+          "cwe": "CWE-79",
+          "owasp": "A03:2021"
+        },
+        {
           "category": "MissingSecurityHeader",
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/warehouse/receiving",
+          "endpoint": "/shipments/shp-0017",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -90,17 +102,7 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/fleet",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/routes",
+          "endpoint": "/orders/sales/so-0003",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -110,40 +112,10 @@
           "title": "6 consecutive failed sign-ins were never throttled",
           "severity": "medium",
           "confidence": "high",
-          "endpoint": "/account/sessions",
+          "endpoint": "/auth/sign-in",
           "observedAsRole": "unauthenticated",
           "cwe": "CWE-307",
           "owasp": "A07:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/orders",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-frame-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/auth/sign-in",
-          "parameter": "x-frame-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/warehouse/cycle-count",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
         },
         {
           "category": "MissingSecurityHeader",
@@ -160,417 +132,7 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/shipments/shp-0026",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/reports",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/warehouse/locations/wh-fxt",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/orders/sales/so-0001",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/dashboard/exceptions",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/warehouse",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/warehouse/locations/wh-mcr",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/dashboard/sla",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/shipments/board",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/warehouse/locations/wh-dub",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/admin",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/warehouse/stock/stk-dub-sku-010",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/orders/purchase/po-0001",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/claims",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/warehouse/locations",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/warehouse/transfers/new",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/customers/new",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/carriers/car-001",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/orders/sales/so-0002",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/auth/sign-in",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/billing/invoices/inv-0016",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/customers/cus-001",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/warehouse/locations/wh-rtm",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
           "endpoint": "/account/sessions",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/carriers/car-003",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/orders/backorders",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/orders/purchase/po-0003",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/customs",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/orders/purchase",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/carriers",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/carriers/car-002",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/shipments/exceptions",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/orders/sales/so-0003",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/warehouse/picking",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/billing",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/dashboard",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/orders/sales/new",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/orders/purchase/po-0002",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/carriers/onboarding",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/warehouse/stock/stk-fxt-sku-001",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/dashboard/today",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/customers/cus-002",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -590,7 +152,7 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/carriers/new",
+          "endpoint": "/carriers",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -600,7 +162,7 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/customers",
+          "endpoint": "/warehouse/locations/wh-dub",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -610,7 +172,7 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/account/profile",
+          "endpoint": "/shipments/new",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -620,7 +182,7 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/dashboard/capacity",
+          "endpoint": "/customers/cus-001",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -630,7 +192,7 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/billing/invoices/inv-0004",
+          "endpoint": "/carriers/performance",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -640,7 +202,7 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/warehouse/zones",
+          "endpoint": "/warehouse/packing",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -650,7 +212,7 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/shipments/shp-0017",
+          "endpoint": "/orders/backorders",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -660,7 +222,67 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/warehouse/transfers",
+          "endpoint": "/orders",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/admin",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse/locations/wh-mcr",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/dashboard/today",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/carriers/car-003",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "NoAccountLockout",
+          "title": "6 consecutive failed sign-ins were never throttled",
+          "severity": "medium",
+          "confidence": "high",
+          "endpoint": "/account/sessions",
+          "observedAsRole": "unauthenticated",
+          "cwe": "CWE-307",
+          "owasp": "A07:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse/locations/wh-rtm",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -680,27 +302,7 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/warehouse/packing",
-          "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "referrer-policy is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/auth/sign-in",
-          "parameter": "referrer-policy",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "x-content-type-options is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/shipments/new",
+          "endpoint": "/warehouse/zones",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -710,7 +312,7 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/orders/sales",
+          "endpoint": "/customs",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -720,18 +322,8 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/account/preferences",
+          "endpoint": "/orders/purchase/po-0001",
           "parameter": "x-content-type-options",
-          "cwe": "CWE-1021",
-          "owasp": "A05:2021"
-        },
-        {
-          "category": "MissingSecurityHeader",
-          "title": "content-security-policy is not set",
-          "severity": "medium",
-          "confidence": "low",
-          "endpoint": "/auth/sign-in",
-          "parameter": "content-security-policy",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
         },
@@ -740,7 +332,27 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/orders/purchase/new",
+          "endpoint": "/dashboard/capacity",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse/stock",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/orders/purchase/po-0002",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
@@ -760,20 +372,70 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/warehouse/stock",
+          "endpoint": "/reports",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"
         },
         {
-          "category": "NoAccountLockout",
-          "title": "6 consecutive failed sign-ins were never throttled",
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
           "severity": "medium",
-          "confidence": "high",
-          "endpoint": "/auth/sign-in",
-          "observedAsRole": "unauthenticated",
-          "cwe": "CWE-307",
-          "owasp": "A07:2021"
+          "confidence": "low",
+          "endpoint": "/carriers/onboarding",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse/receiving",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/dashboard",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/carriers/car-001",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/dashboard/exceptions",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/carriers/new",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
         },
         {
           "category": "MissingSecurityHeader",
@@ -790,7 +452,357 @@
           "title": "x-content-type-options is not set",
           "severity": "medium",
           "confidence": "low",
-          "endpoint": "/carriers/performance",
+          "endpoint": "/warehouse/stock/stk-dub-sku-010",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/shipments/shp-0026",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/auth/sign-in",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse/locations",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "referrer-policy is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/auth/sign-in",
+          "parameter": "referrer-policy",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/account/preferences",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/orders/sales/so-0002",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse/locations/wh-fxt",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/billing",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/dashboard/sla",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/orders/sales/so-0001",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/claims",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/customers/cus-002",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/customers/new",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse/stock/stk-fxt-sku-001",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/orders/sales/new",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/shipments/board",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/billing/invoices/inv-0004",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "content-security-policy is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/auth/sign-in",
+          "parameter": "content-security-policy",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/carriers/car-002",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/orders/sales",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/orders/purchase/new",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/fleet",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/billing/invoices/inv-0016",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/orders/purchase",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/account/profile",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/routes",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse/transfers",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse/picking",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/shipments/exceptions",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/orders/purchase/po-0003",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse/cycle-count",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/customers",
+          "parameter": "x-content-type-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-frame-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/auth/sign-in",
+          "parameter": "x-frame-options",
+          "cwe": "CWE-1021",
+          "owasp": "A05:2021"
+        },
+        {
+          "category": "MissingSecurityHeader",
+          "title": "x-content-type-options is not set",
+          "severity": "medium",
+          "confidence": "low",
+          "endpoint": "/warehouse/transfers/new",
           "parameter": "x-content-type-options",
           "cwe": "CWE-1021",
           "owasp": "A05:2021"

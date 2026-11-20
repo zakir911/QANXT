@@ -1,5 +1,5 @@
 {
-  "analysedAt": "2026-11-20T01:10:29.810Z",
+  "analysedAt": "2026-11-20T02:08:45.971Z",
   "source": "form-engine-result.json",
   "note": "A failure is classified as a tool error or an application failure before it is matched to a defect. Only an application failure can evidence one: a Playwright timeout says nothing about whether the application is correct, whatever words happen to be in its message.",
   "run": {
@@ -15,14 +15,14 @@
       "blocked": 42
     },
     "security": {
-      "findings": 0,
+      "findings": 74,
       "status": null
     }
   },
   "counts": {
-    "found": 7,
+    "found": 8,
     "possible": 3,
-    "missed": 17,
+    "missed": 16,
     "unreachable": 5
   },
   "verdicts": [
@@ -302,9 +302,9 @@
       "category": "security",
       "screen": "/shipments",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "found",
       "contestedEvidence": 0,
-      "evidence": null
+      "evidence": "'q' is reflected into HTML without encoding q CWE-79 A03:2021 "
     },
     {
       "id": "FP_D29_NO_CSRF_ON_ADJUSTMENT",
@@ -403,15 +403,6 @@
         "slow",
         "response time",
         "performance budget"
-      ]
-    },
-    {
-      "id": "FP_D28_REFLECTED_XSS_IN_SEARCH",
-      "keywords": [
-        "xss",
-        "script tag",
-        "reflected",
-        "injection"
       ]
     },
     {
