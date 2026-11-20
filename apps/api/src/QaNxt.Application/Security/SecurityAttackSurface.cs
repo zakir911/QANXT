@@ -116,7 +116,17 @@ public static class SecurityAttackSurfaceBuilder
         var inputs = page.Elements.Where(IsInput).ToList();
         var files = page.Elements.Any(e => e.Kind == ElementKind.FileInput
             || string.Equals(e.Type, "file", StringComparison.OrdinalIgnoreCase));
+        // A page's own query string is part of its input surface.
+        //
+        // This read only the page's form elements, and declared CarriesUrlParameter false
+        // for every page. So a search results page at /shipments?q=... was described as a
+        // page that takes no URL parameter, the reflected-XSS check was only ever pointed
+        // at API endpoints carrying a {v} placeholder, and a search term written into the
+        // results unescaped — among the commonest vulnerabilities there is — was invisible
+        // to the scan by construction.
+        var queryParameters = QueryParametersOf(page.NormalizedUrl);
         var parameters = inputs.Select(e => e.Name ?? e.Label ?? e.Type ?? "unnamed")
+            .Concat(queryParameters)
             .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().ToList();
 
         var checks = new SortedSet<string>
@@ -140,6 +150,14 @@ public static class SecurityAttackSurfaceBuilder
             checks.Add(SecurityChecks.ReflectedXss);
             checks.Add(SecurityChecks.StoredXss);
             reasons.Add($"{inputs.Count} input element(s)");
+        }
+        if (queryParameters.Count > 0)
+        {
+            // A value that arrives in the URL is reflected back by whatever renders the
+            // page, with no form involved at all.
+            checks.Add(SecurityChecks.ReflectedXss);
+            checks.Add(SecurityChecks.SqlInjection);
+            reasons.Add($"the query parameter(s) {string.Join(", ", queryParameters)}");
         }
         if (files)
         {
@@ -169,10 +187,34 @@ public static class SecurityAttackSurfaceBuilder
             AcceptsInput: inputs.Count > 0,
             AcceptsFileUpload: files,
             CarriesObjectIdentifier: HasPlaceholder(page.NormalizedUrl),
-            CarriesUrlParameter: false,
+            CarriesUrlParameter: queryParameters.Count > 0,
             Parameters: parameters,
             RelevantChecks: checks.ToList(),
             Why: string.Join("; ", reasons));
+    }
+
+    /// <summary>The query parameter names a discovered URL carries, if any.
+    ///
+    /// Read from the URL discovery recorded rather than inferred: a page reached as
+    /// <c>/shipments?q=exception&amp;status=open</c> takes two values through its address,
+    /// and those are as injectable as any form field.</summary>
+    private static List<string> QueryParametersOf(string? normalizedUrl)
+    {
+        if (string.IsNullOrWhiteSpace(normalizedUrl)) return new List<string>();
+
+        var question = normalizedUrl.IndexOf('?');
+        if (question < 0 || question == normalizedUrl.Length - 1) return new List<string>();
+
+        var names = new List<string>();
+        foreach (var pair in normalizedUrl[(question + 1)..].Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var name = pair.Split('=', 2)[0].Trim();
+            // A placeholder discovery substituted is a parameter name too, but an empty or
+            // absurd one is not worth sending payloads at.
+            if (name.Length is > 0 and <= 64 && !names.Contains(name, StringComparer.Ordinal))
+                names.Add(name);
+        }
+        return names;
     }
 
     private static SecuritySurfaceItem FromEndpoint(EndpointInput endpoint)

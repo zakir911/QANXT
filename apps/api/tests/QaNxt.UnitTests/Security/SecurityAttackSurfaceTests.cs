@@ -308,4 +308,76 @@ public class SecurityAttackSurfaceTests
 
         summary.Should().Contain("what discovery walked rather than the application");
     }
+
+    [Fact]
+    public void A_pages_query_string_is_part_of_its_input_surface()
+    {
+        // This read only a page's form elements and declared CarriesUrlParameter false for
+        // every page, so a search results page at /shipments?q=... was described as taking
+        // no URL parameter. The reflected-XSS check was therefore only ever pointed at API
+        // endpoints carrying a {v} placeholder, and a search term written into the results
+        // unescaped — among the commonest vulnerabilities there is — could not be found at
+        // all. FP_D28 sits on exactly that URL.
+        var page = new PageInput(Guid.NewGuid(), "/shipments",
+            "https://app.test/shipments?q=exception&status=open", PageKind.List, true, Seen,
+            Array.Empty<ElementInput>());
+
+        var item = Build(new[] { page })
+            .Items.Single(i => i.Kind == SecuritySurfaceKind.Page);
+
+        item.CarriesUrlParameter.Should().BeTrue();
+        item.Parameters.Should().Contain(new[] { "q", "status" });
+        item.RelevantChecks.Should().Contain(SecurityChecks.ReflectedXss,
+            "a value arriving in the URL is reflected by whatever renders the page");
+        item.Why.Should().Contain("query parameter");
+    }
+
+    [Fact]
+    public void A_page_with_no_query_string_still_carries_no_url_parameter()
+    {
+        var item = Build(new[] { Page("/dashboard") })
+            .Items.Single(i => i.Kind == SecuritySurfaceKind.Page);
+
+        item.CarriesUrlParameter.Should().BeFalse();
+    }
+
+    [Fact]
+    public void A_query_string_and_a_form_both_contribute_parameters()
+    {
+        var page = new PageInput(Guid.NewGuid(), "/shipments",
+            "https://app.test/shipments?q=exception", PageKind.List, true, Seen,
+            new[] { new ElementInput(ElementKind.TextInput, "reference", "text", "Reference") });
+
+        var item = Build(new[] { page })
+            .Items.Single(i => i.Kind == SecuritySurfaceKind.Page);
+
+        item.Parameters.Should().Contain("q");
+        item.Parameters.Should().Contain("reference");
+    }
+
+    [Fact]
+    public void A_malformed_query_string_does_not_produce_a_parameter()
+    {
+        // An empty name, or a trailing "?", is not something to send payloads at.
+        foreach (var url in new[] { "https://app.test/x?", "https://app.test/x?=1", "https://app.test/x?&&" })
+        {
+            var page = new PageInput(Guid.NewGuid(), "/x", url, PageKind.List, true, Seen,
+                Array.Empty<ElementInput>());
+
+            Build(new[] { page })
+                .Items.Single(i => i.Kind == SecuritySurfaceKind.Page)
+                .CarriesUrlParameter.Should().BeFalse($"\"{url}\" names no parameter");
+        }
+    }
+
+    [Fact]
+    public void A_repeated_query_parameter_is_listed_once()
+    {
+        var page = new PageInput(Guid.NewGuid(), "/x", "https://app.test/x?tag=a&tag=b",
+            PageKind.List, true, Seen, Array.Empty<ElementInput>());
+
+        Build(new[] { page })
+            .Items.Single(i => i.Kind == SecuritySurfaceKind.Page)
+            .Parameters.Where(p => p == "tag").Should().HaveCount(1);
+    }
 }

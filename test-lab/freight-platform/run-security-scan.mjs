@@ -101,6 +101,10 @@ const scope = await request(`/api/v1/security/applications/${application.id}/sco
   token: tenant.token, method: 'PUT',
   body: {
     enabled: true, allowedDomains: '127.0.0.1',
+    // The API allowlist is a separate list and it was empty, so every check on the one
+    // discovered API target was refused as "domainNotAllowed" — eleven of them, including
+    // the reflected-XSS and SQL-injection probes. Same host, same authorisation.
+    allowedApiDomains: '127.0.0.1',
     // Without this the scan refuses every check that has to send a payload rather than
     // read a response: 120 of the 204 recorded reasons on the previous run were
     // "activeTestingNotAllowed", which is every reflected, stored and DOM XSS check and
