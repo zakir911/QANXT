@@ -18,7 +18,75 @@ import { SeverityFactors, confidenceFrom } from './severity.mjs';
 
 /** Statuses that count as a refusal. 404 is included: not telling a stranger a resource
  *  exists is a legitimate answer, and the brief names both. */
-const REFUSED = new Set([401, 403, 404]);
+const REFUSED_STATUS = new Set([401, 403, 404]);
+
+/**
+ * Whether a response refused to hand over the resource.
+ *
+ * A status set of 401, 403 and 404 misses how most web applications actually protect a
+ * page: they redirect to the sign-in form. Meridian Freight answers 302 with an empty body
+ * for every protected route, and because 302 was not in the set, every one of those routes
+ * was reported as "protected data is served to an unauthenticated caller" — 67 Critical
+ * findings, all false, on an application that served nothing at all. That is worse than
+ * finding none: 67 phantom criticals bury whatever is real and teach a team to ignore the
+ * scanner.
+ *
+ * Three ways a response can refuse:
+ *
+ * A redirect serves no body, so nothing protected can have been disclosed by it. The one
+ * exception is a redirect to the same path, which is canonicalisation rather than a
+ * refusal, and that is reported as undecided rather than guessed at.
+ *
+ * A body that is a sign-in form is the application asking for credentials, whatever status
+ * it carries — plenty answer 200 and render the login page.
+ *
+ * And the statuses that say no in words.
+ */
+export function refusal(response, requestedPath = '') {
+  const status = Number(response?.status ?? 0);
+
+  if (REFUSED_STATUS.has(status)) return { refused: true, how: `answered ${status}` };
+
+  if (status >= 300 && status < 400) {
+    const location = headerOf(response, 'location') ?? '';
+    if (location !== '' && samePath(location, requestedPath)) {
+      return { refused: false, undecided: true, how: `redirected to itself (${location})` };
+    }
+    return {
+      refused: true,
+      how: /sign-?in|log-?in|auth|session/i.test(location)
+        ? `redirected to ${location}, which asks for credentials`
+        : `answered ${status} with no body, so nothing was served`
+    };
+  }
+
+  if (looksLikeSignInPage(response?.responseBody)) {
+    return { refused: true, how: `answered ${status} with a sign-in form rather than the resource` };
+  }
+
+  return { refused: false, how: `answered ${status}` };
+}
+
+function headerOf(response, name) {
+  const headers = response?.headers;
+  if (!headers) return null;
+  if (typeof headers.get === 'function') return headers.get(name);
+  return headers[name] ?? headers[name.toLowerCase()] ?? null;
+}
+
+function samePath(location, requestedPath) {
+  try {
+    return new URL(location, 'http://placeholder.invalid').pathname === requestedPath.split('?')[0];
+  } catch {
+    return false;
+  }
+}
+
+/** A body that is asking for credentials rather than answering the request. */
+function looksLikeSignInPage(body) {
+  if (typeof body !== 'string' || body === '') return false;
+  return /<input[^>]+type=["\']?password/i.test(body);
+}
 
 /**
  * Broken object level authorization — one user reading another's object by identifier.
@@ -53,7 +121,7 @@ export async function checkBola(scanner, { baseUrl, path, owner, intruder, testI
     };
   }
 
-  if (REFUSED.has(attempt.status)) {
+  if (refusal(attempt, path).refused) {
     return { skipped: false, findings: [], ok: true,
              detail: `owner ${control.status}, ${intruder.label} ${attempt.status}` };
   }
@@ -110,7 +178,7 @@ export async function checkVerticalEscalation(scanner, { baseUrl, path, privileg
              reason: `${privileged.label} could not reach ${path} either (${control.status}), so the route `
                + 'may simply be unavailable rather than protected.' };
   }
-  if (REFUSED.has(attempt.status)) {
+  if (refusal(attempt, path).refused) {
     return { skipped: false, findings: [], ok: true,
              detail: `${privileged.label} ${control.status}, ${lesser.label} ${attempt.status}` };
   }
@@ -157,7 +225,7 @@ export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, reado
              reason: `${writer.label} could not write either (${control.status}); the endpoint may reject `
                + 'this payload for unrelated reasons.' };
   }
-  if (REFUSED.has(attempt.status)) {
+  if (refusal(attempt, path).refused) {
     return { skipped: false, findings: [], ok: true,
              detail: `${writer.label} ${control.status}, ${readonly.label} ${attempt.status}` };
   }
@@ -202,7 +270,7 @@ export async function checkMissingAuthorization(scanner, { baseUrl, path, owner,
     return { skipped: false, findings: [], inconclusive: true,
              reason: `The owner could not read it either (${control.status}).` };
   }
-  if (REFUSED.has(anonymous.status)) {
+  if (refusal(anonymous, path).refused) {
     return { skipped: false, findings: [], ok: true,
              detail: `owner ${control.status}, unauthenticated ${anonymous.status}` };
   }
@@ -244,13 +312,13 @@ export async function checkTokenVerification(scanner, { baseUrl, path, forgedTok
 
   // The endpoint has to be protected for this to mean anything: if it answers 200 to nobody
   // in particular, the forged token proved nothing.
-  if (!REFUSED.has(anonymous.status)) {
+  if (!refusal(anonymous, path).refused) {
     return { skipped: false, findings: [], inconclusive: true,
              reason: `The endpoint answers ${anonymous.status} with no credentials at all, so accepting `
                + 'a forged token says nothing about token verification. It is a missing-authorization '
                + 'finding instead, which is reported separately.' };
   }
-  if (REFUSED.has(forged.status)) {
+  if (refusal(forged, path).refused) {
     return { skipped: false, findings: [], ok: true,
              detail: `anonymous ${anonymous.status}, forged token ${forged.status}` };
   }

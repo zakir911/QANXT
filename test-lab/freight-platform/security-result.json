@@ -1,21 +1,80 @@
 {
-  "startedAt": "2026-11-19T05:59:38.189Z",
+  "startedAt": "2026-11-20T01:15:36.633Z",
   "target": "http://127.0.0.1:4400",
   "profile": "standard",
   "stages": {
     "discovery": {
       "status": "partiallyCompleted",
-      "pages": 68
+      "pages": 69
     },
     "scan": {
       "ok": true,
-      "scanId": "a3acc373-a0cb-4ea2-97ef-6e4b4989a4a3",
+      "scanId": "d33db35b-065c-423d-8b32-8b0a1a145d91",
       "status": "completed",
-      "requestsIssued": 206,
-      "testsExecuted": 4,
-      "testsSkipped": 17,
+      "requestsIssued": 715,
+      "testsExecuted": 10,
+      "testsSkipped": 11,
       "checksConfigured": 21,
       "untestedAreas": [],
+      "gate": {
+        "outcome": "fail",
+        "summary": "BLOCKED. 140 open finding(s) (67 Critical, 73 Medium) from 10 of 21 configured check(s), 715 request(s) issued. Findings describe what these tests reached; areas they did not reach are untested, not clean. Untested: auth.session-lifetime on /account/sessions: Inconclusive: Sign-in failed (404).; auth.session-logout on /account/sessions: Inconclusive: The session did not authenticate even before sign-out (404).; xss.stored on /account/sessions: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; auth.session-lifetime on /auth/sign-in: Inconclusive: Sign-in failed (404).; auth.session-logout on /auth/sign-in: Inconclusive: The session did not authenticate even before sign-out (404).; xss.stored on /auth/sign-in: Inconclusive: The value could not be stored (403), so what happens on read is unknown.; xss.stored on /billing/invoices/inv-0004: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /billing/invoices/inv-0010: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /billing/invoices/inv-0016: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /carriers: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /customers: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales/so-0001: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales/so-0002: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /orders/sales/so-0003: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments/shp-0008: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments/shp-0017: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /shipments/shp-0026: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; xss.stored on /warehouse/stock: Inconclusive: The value could not be stored (404), so what happens on read is unknown.; api.excessive-data on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; api.rate-limit on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; authz.bola on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; authz.missing on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; authz.token on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; injection.command on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; injection.sql on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; injection.template on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; request.redirect on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; request.ssrf on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed.; xss.reflected on http://127.0.0.1:4400/api/view?path={v}: Refused by the scope guard: domainNotAllowed..",
+        "rules": [
+          {
+            "name": "A security scan ran",
+            "passed": true,
+            "measured": true,
+            "explanation": "715 request(s) issued under the Standard profile."
+          },
+          {
+            "name": "Enough of the configured checks executed",
+            "passed": false,
+            "measured": true,
+            "explanation": "10 of 21 configured check(s) executed (48%; the policy requires 80%)."
+          },
+          {
+            "name": "The scan reached what it was aiming at",
+            "passed": true,
+            "measured": true,
+            "explanation": "11 of 726 request(s) were refused by the scope (2%)."
+          },
+          {
+            "name": "Every suppressed finding carries a written justification and a name",
+            "passed": true,
+            "measured": true,
+            "explanation": "No finding is suppressed without a reason."
+          },
+          {
+            "name": "Every finding carries evidence",
+            "passed": true,
+            "measured": true,
+            "explanation": "Every finding carries at least one request/response exchange."
+          },
+          {
+            "name": "No previously resolved finding has reappeared",
+            "passed": true,
+            "measured": true,
+            "explanation": "No regression."
+          },
+          {
+            "name": "No new finding at or above High",
+            "passed": false,
+            "measured": true,
+            "explanation": "MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium), MissingAuthorization (Critical, Medium)"
+          },
+          {
+            "name": "No open finding at or above Critical",
+            "passed": true,
+            "measured": true,
+            "explanation": "No pre-existing finding at or above Critical."
+          }
+        ],
+        "reasons": [
+          "Only 10 of 21 configured check(s) executed. A result from a partial scan describes the part that ran and nothing else.",
+          "67 new finding(s) at or above High: MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization, MissingAuthorization."
+        ],
+        "blocked": true
+      },
       "findings": []
     }
   }

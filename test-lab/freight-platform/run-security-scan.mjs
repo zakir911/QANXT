@@ -155,9 +155,25 @@ line(`  status ${scan?.status ?? 'unknown'} — ${scan?.requestsIssued ?? '?'} r
 
 // ---- 5. findings ----------------------------------------------------------------
 section('4. Findings');
+// The route is /security/findings?applicationId=..., not /security/applications/{id}/findings.
+// The wrong URL 404s, `?? []` turned that into an empty list, and the driver reported
+// "0 finding(s)" for a scan that had recorded 140 — a silent failure dressed as a clean
+// result. Every response this report depends on is now checked before it is read.
 const findings = await request(
-  `/api/v1/security/applications/${application.id}/findings?pageSize=500`, { token: tenant.token });
+  `/api/v1/security/findings?applicationId=${application.id}`, { token: tenant.token });
+if (!findings.ok) {
+  line(`\n  COULD NOT READ FINDINGS: ${findings.status} ${findings.text.slice(0, 200)}`);
+  line('  Refusing to report a finding count this driver could not obtain.');
+  result.stages.scan = { ok: false, scanId, readFindings: false, status: findings.status };
+  await writeFile(new URL('./security-result.json', import.meta.url),
+    JSON.stringify(result, null, 2) + '\n');
+  process.exit(1);
+}
 const list = findings.json?.items ?? findings.json ?? [];
+if (!Array.isArray(list)) {
+  line(`\n  FINDINGS RESPONSE WAS NOT A LIST: ${JSON.stringify(findings.json).slice(0, 200)}`);
+  process.exit(1);
+}
 line(`  ${list.length} finding(s)`);
 
 const bySeverity = {};
