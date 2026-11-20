@@ -87,6 +87,16 @@ public sealed class QualityEngineeringController : ApiControllerBase
     public async Task<IActionResult> Coverage(Guid applicationId, CancellationToken ct)
         => FromResult(await _coverage.ForApplicationAsync(applicationId, ct));
 
+    /// <summary>Every structural finding on this application, worst first.</summary>
+    /// <remarks>
+    /// Coverage reports how many findings each form has. This says what they are: which form,
+    /// which field, how serious, and in the engine's own words. Without it the only way to
+    /// read a finding was to query the database.
+    /// </remarks>
+    [HttpGet("~/api/v1/applications/{applicationId:guid}/form-findings")]
+    public async Task<IActionResult> FormFindings(Guid applicationId, CancellationToken ct)
+        => FromResult(await _coverage.FindingsAsync(applicationId, ct));
+
     // ---- Running a selection ------------------------------------------------------
 
     /// <summary>Run all, failed, impacted, the regression suite, or chosen categories and forms.</summary>

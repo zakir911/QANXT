@@ -13,7 +13,7 @@ import { isUrlAllowed, normalizeUrl } from '../security/url-guard.js';
 import { RobotsPolicy, requestContextFetcher } from '../security/robots.js';
 import type { Logger } from '../util/logger.js';
 import { classifyPage, inferRequiresAuthentication } from './classify.js';
-import { decide } from './clickable.js';
+import { decide, linkLooksMutating } from './clickable.js';
 import type { RawClickCandidate } from './page-extractor.js';
 
 /** Controls examined per page. Enough for a full sidebar, bounded so one dense page
@@ -90,6 +90,8 @@ export class Crawler {
   /** Pages visited per route shape, e.g. "/accounts/*" -> 3. Loop protection. */
   private readonly routeShapeCounts = new Map<string, number>();
   private blockedByPolicy = 0;
+  /** Links not followed because their own words say they change something. */
+  private mutatingLinksSkipped = 0;
   private actionsUsed = 0;
   /** Null when the application has asked for robots.txt to be ignored. */
   private robots: RobotsPolicy | null = null;
@@ -283,6 +285,17 @@ export class Crawler {
       if (this.signedIn) await performLogout(page).catch(() => false);
       await page.close().catch(() => undefined);
       this.leaveSession?.();
+    }
+
+    // Pages the crawl chose not to open, said once at the end as well as per link. A
+    // reader who sees "7 pages" and a map missing the approvals screen should not have to
+    // search the progress log to learn that it was deliberate.
+    if (this.mutatingLinksSkipped > 0) {
+      this.note(
+        `${this.mutatingLinksSkipped} link(s) were not followed because their own words say `
+        + 'they change something — approve, delete, cancel and the like. Mapping an '
+        + 'application must not alter it. Each one is named above. To map them anyway, turn '
+        + 'on state-changing interaction for this application.');
     }
 
     // A thin crawl has to account for itself. One page can mean the application has one
@@ -827,11 +840,24 @@ export class Crawler {
       seen.add(normalized);
 
       const anchor = page.elements.find(e => e.kind === 'link' && e.attributes['href'] && href.endsWith(e.attributes['href']!));
+      const name = anchor?.accessibleName ?? '';
+
+      // A link that says it changes something is not followed, and the crawl says so.
+      // Mapping an application must not alter it: a run against a permit register
+      // approved every permit in it through links exactly like this one.
+      if (!this.options.budget.allowStateChangingClicks && linkLooksMutating(name, href)) {
+        this.mutatingLinksSkipped++;
+        this.note(`Did not follow ${href}${name ? ` ("${name}")` : ''}: it looks like it changes `
+          + `something, and mapping an application must not alter it. Turn on state-changing `
+          + `interaction for this application to follow links like this.`);
+        continue;
+      }
+
       out.push({
         url: href,
         depth: depth + 1,
         parentNormalizedUrl: page.normalizedUrl,
-        viaAccessibleName: anchor?.accessibleName
+        viaAccessibleName: name || undefined
       });
     }
     return out;

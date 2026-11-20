@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decide, looksMutating, type ClickCandidate } from '../src/discovery/clickable.js';
+import { decide, linkLooksMutating, looksMutating, type ClickCandidate } from '../src/discovery/clickable.js';
 
 /**
  * The crawler cannot know what a button does before it presses it. These tests are the
@@ -172,5 +172,59 @@ describe('an unrecognised mode', () => {
   it('still clicks nothing on an unrecognised mode even with state changes permitted', () => {
     expect(decide(candidate({ accessibleName: 'Users', inNav: true }), '' as never, true).click)
       .toBe(false);
+  });
+});
+
+/**
+ * Following a link is not free of consequence on an application that changes state through
+ * links. A crawl of a permit register — mapping pages, following links, clicking nothing —
+ * approved all three permits in it. `decide` already knew the word "approve"; it handed
+ * anchors to link following, and link following tested nothing.
+ */
+describe('linkLooksMutating', () => {
+  const mutating = (name: string, url: string) => linkLooksMutating(name, url);
+
+  it('refuses the link that approved every permit in a register', () => {
+    expect(mutating('Approve', 'http://127.0.0.1:4700/approve.asp?id=1')).toBe(true);
+  });
+
+  it('reads the path when the link has no text of its own', () => {
+    expect(mutating('', 'http://host/permits/1/revoke')).toBe(true);
+    expect(mutating('', 'http://host/approve.asp?id=2')).toBe(true);
+    expect(mutating('', 'http://host/api/v1/orders/9/cancel')).toBe(true);
+  });
+
+  it('reads a hyphenated or dotted path as words', () => {
+    expect(mutating('', 'http://host/admin/delete-user')).toBe(true);
+    expect(mutating('', 'http://host/invoice.remove.do')).toBe(true);
+  });
+
+  it('follows an ordinary page whose path merely contains those letters', () => {
+    // The word-boundary rule in looksMutating is what makes these safe to follow, and it
+    // is the reason this is tested rather than assumed: "payments" contains "pay".
+    expect(mutating('Payments', 'http://host/payments')).toBe(false);
+    expect(mutating('Saved searches', 'http://host/saved-searches')).toBe(false);
+    expect(mutating('Address book', 'http://host/addresses')).toBe(false);
+    expect(mutating('Permit register', 'http://host/list.asp')).toBe(false);
+  });
+
+  /**
+   * A query string carries values, not intent. Refusing on it would stop the crawl reading
+   * a filtered list, which is a page like any other.
+   */
+  it('does not read intent out of a query string', () => {
+    expect(mutating('Cancelled orders', 'http://host/orders?status=cancelled')).toBe(false);
+    expect(mutating('Search', 'http://host/search.asp?term=delete')).toBe(false);
+    expect(mutating('', 'http://host/view.asp?next=/approve.asp')).toBe(false);
+  });
+
+  it('refuses a sign-out link, which ends the crawl rather than changing a record', () => {
+    expect(mutating('Sign out', 'http://host/auth/sign-out')).toBe(true);
+    expect(mutating('', 'http://host/logout')).toBe(true);
+  });
+
+  it('copes with a relative or malformed URL rather than throwing', () => {
+    expect(mutating('', '/permits/approve')).toBe(true);
+    expect(mutating('', 'not a url at all')).toBe(false);
   });
 });

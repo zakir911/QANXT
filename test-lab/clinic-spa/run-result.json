@@ -1,0 +1,548 @@
+{
+  "key": "clinic-spa",
+  "name": "Clinic Scheduler",
+  "technology": "Node HTTP server, no server-rendered markup; every screen built by client JavaScript; History API routing; JSON API",
+  "domain": "clinical appointment scheduling",
+  "ranAt": "2026-11-20T19:00:11.502Z",
+  "planted": 4,
+  "stages": {
+    "application": {
+      "id": "a2e95901-a949-4028-aafd-2e037967614a",
+      "authStrategy": "formLogin",
+      "budget": 240,
+      "maxPages": 40
+    },
+    "discovery": {
+      "status": "completed",
+      "pages": 3,
+      "elements": 55,
+      "endpoints": 4,
+      "byKind": {
+        "unknown": 3,
+        "button": 34,
+        "heading": 4,
+        "textInput": 3,
+        "form": 3,
+        "passwordInput": 1,
+        "link": 2,
+        "table": 2,
+        "navigation": 1,
+        "dateInput": 2
+      },
+      "paths": [
+        "/",
+        "/patients",
+        "/schedule"
+      ],
+      "message": null
+    },
+    "forms": {
+      "count": 3,
+      "list": [
+        {
+          "id": "51a5ba6e-85f2-493a-8414-99d3ed5429db",
+          "route": "/",
+          "name": "Clinic Scheduler",
+          "fields": 2
+        },
+        {
+          "id": "6c9044f7-f644-48c5-8533-3fca0f00c1de",
+          "route": "/patients",
+          "name": "Patients",
+          "fields": 1
+        },
+        {
+          "id": "a111a260-54fe-40aa-bc71-4c4e919a4437",
+          "route": "/schedule",
+          "name": "Schedule",
+          "fields": 3
+        }
+      ]
+    },
+    "design": {
+      "testSuiteId": "93d4a68e-0f44-4aba-b1a2-99355bae251e",
+      "testSuiteName": "Clinic Scheduler — form level",
+      "forms": 3,
+      "testsCreated": 158,
+      "testsUpdated": 0,
+      "testsUnchanged": 0,
+      "testsDeprecated": 0,
+      "testsLeftAsEdited": 0,
+      "gaps": 23,
+      "humanTasks": 16,
+      "findings": 1,
+      "usedAi": false,
+      "engine": "QA NXT form and page test engine (deterministic)",
+      "perForm": [
+        {
+          "formId": "51a5ba6e-85f2-493a-8414-99d3ed5429db",
+          "name": "Clinic Scheduler",
+          "route": "/",
+          "fields": 2,
+          "tests": 39,
+          "gaps": 7,
+          "humanTasks": 7,
+          "findings": 1,
+          "testsByCategory": {
+            "smoke": 1,
+            "functional": 2,
+            "inputValidation": 13,
+            "reliability": 3,
+            "errorHandling": 1,
+            "stateTransition": 2,
+            "security": 2,
+            "accessibility": 3,
+            "api": 1,
+            "performance": 2,
+            "responsive": 3,
+            "compatibility": 3,
+            "visual": 2,
+            "exploratory": 1
+          },
+          "notApplicable": [
+            "negative",
+            "crossField",
+            "dynamic",
+            "multiStep",
+            "regression"
+          ]
+        },
+        {
+          "formId": "6c9044f7-f644-48c5-8533-3fca0f00c1de",
+          "name": "Patients",
+          "route": "/patients",
+          "fields": 1,
+          "tests": 39,
+          "gaps": 6,
+          "humanTasks": 4,
+          "findings": 0,
+          "testsByCategory": {
+            "smoke": 1,
+            "functional": 2,
+            "equivalence": 1,
+            "inputValidation": 13,
+            "reliability": 3,
+            "errorHandling": 1,
+            "stateTransition": 2,
+            "security": 1,
+            "accessibility": 2,
+            "api": 1,
+            "performance": 2,
+            "responsive": 3,
+            "compatibility": 3,
+            "visual": 2,
+            "exploratory": 2
+          },
+          "notApplicable": [
+            "negative",
+            "crossField",
+            "dynamic",
+            "multiStep",
+            "workflow",
+            "regression"
+          ]
+        },
+        {
+          "formId": "a111a260-54fe-40aa-bc71-4c4e919a4437",
+          "name": "Schedule",
+          "route": "/schedule",
+          "fields": 3,
+          "tests": 57,
+          "gaps": 7,
+          "humanTasks": 5,
+          "findings": 0,
+          "testsByCategory": {
+            "smoke": 1,
+            "functional": 2,
+            "negative": 3,
+            "equivalence": 3,
+            "inputValidation": 13,
+            "crossField": 2,
+            "reliability": 3,
+            "errorHandling": 3,
+            "recovery": 1,
+            "stateTransition": 3,
+            "security": 1,
+            "accessibility": 5,
+            "api": 2,
+            "performance": 2,
+            "responsive": 3,
+            "compatibility": 3,
+            "visual": 3,
+            "exploratory": 4
+          },
+          "notApplicable": [
+            "dynamic",
+            "multiStep",
+            "regression"
+          ]
+        }
+      ],
+      "warnings": [],
+      "pages": 2,
+      "pageTests": 23,
+      "perPage": [
+        {
+          "pageId": "c8926df2-a428-4973-b479-1fee5fe65329",
+          "name": "Clinic Scheduler (/schedule)",
+          "route": "/schedule",
+          "tests": 11,
+          "reachedByClicking": false,
+          "testsByCategory": {
+            "smoke": 1,
+            "security": 1,
+            "accessibility": 2,
+            "performance": 1,
+            "dataIntegrity": 3,
+            "responsive": 3
+          }
+        },
+        {
+          "pageId": "87ed6686-44db-4c50-9b8b-fe2b113242cc",
+          "name": "Clinic Scheduler (/patients)",
+          "route": "/patients",
+          "tests": 12,
+          "reachedByClicking": true,
+          "testsByCategory": {
+            "smoke": 1,
+            "workflow": 1,
+            "security": 1,
+            "accessibility": 2,
+            "performance": 1,
+            "dataIntegrity": 3,
+            "responsive": 3
+          }
+        }
+      ]
+    },
+    "run": {
+      "ok": true,
+      "runId": "b50dfc74-a3bf-4b69-b307-8a3d4a10b76c",
+      "status": "failed",
+      "executions": 158,
+      "byStatus": {
+        "passed": 112,
+        "failed": 36,
+        "skipped": 6,
+        "blocked": 4
+      },
+      "failures": [
+        {
+          "name": "Clinic Scheduler: accepts a submission with only the required fields",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; messages: \"Those details were not recognised.\"; no confirmation is shown; the route did not change from /."
+        },
+        {
+          "name": "Clinic Scheduler: tells the user when the network is down",
+          "route": null,
+          "message": "Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown."
+        },
+        {
+          "name": "Clinic Scheduler: is usable again after a submission and going back",
+          "route": null,
+          "message": "css=form#signin could not be used: No element matched css=form#signin."
+        },
+        {
+          "name": "Clinic Scheduler: copes with leaving part way and coming back",
+          "route": null,
+          "message": "css=form#signin could not be used: No element matched css=form#signin."
+        },
+        {
+          "name": "Patients: tells the user when the network is down",
+          "route": null,
+          "message": "Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown."
+        },
+        {
+          "name": "Patients: does not reflect markup typed into Find a patient",
+          "route": null,
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-a30f63fa> element(s) exist. The application does not encode what it reflects."
+        },
+        {
+          "name": "Patients: sends a valid submission to POST its endpoint",
+          "route": null,
+          "message": "expected at least 1 POST request(s) but saw 0 (no submission was sent at all); expected a POST request(s) carrying \"QA NXT test\" but none did."
+        },
+        {
+          "name": "Patients: answers a submission within 2000 ms",
+          "route": null,
+          "message": "expected at least 1 POST request(s) but saw 0 (no submission was sent at all)."
+        },
+        {
+          "name": "Patients: copes with the session disappearing before submission",
+          "route": null,
+          "message": "Expected the application to handle this without an error, but uncaught script error: found.body.map is not a function."
+        },
+        {
+          "name": "Schedule: accepts a complete valid submission",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Schedule: accepts a submission with only the required fields",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Schedule: accepts a second representative valid value in Patient",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Schedule: accepts a second representative valid value in Start",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Schedule: accepts a second representative valid value in End",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Schedule: refuses End before Start",
+          "route": null,
+          "message": "Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown."
+        },
+        {
+          "name": "Schedule: accepts End equal to Start",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Schedule: does not submit again on the browser's back button",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Schedule: tells the user when the network is down",
+          "route": null,
+          "message": "Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown."
+        },
+        {
+          "name": "Schedule: accepts the form once Start is corrected",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Schedule: moves from empty to invalid to valid to submitted",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Schedule: is usable again after a submission and going back",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Schedule: announces the error for Start with the field",
+          "route": null,
+          "message": "The field shows an error, but assistive technology would not announce it with the field: no aria-invalid, no error referenced by aria-describedby, message beside it: \"patient, start and end are required\"."
+        },
+        {
+          "name": "Schedule: announces the error for End with the field",
+          "route": null,
+          "message": "The field shows an error, but assistive technology would not announce it with the field: no aria-invalid, no error referenced by aria-describedby, message beside it: \"patient, start and end are required\"."
+        },
+        {
+          "name": "Schedule: can be submitted with the keyboard alone",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Schedule: sends a valid submission to POST http://127.0.0.1:4600/api/session",
+          "route": null,
+          "message": "expected at least 1 POST request(s) to \"http://127.0.0.1:4600/api/session\" but saw 0 (sent instead: POST http://127.0.0.1:4600/api/appointments → 201); expected a POST request(s) to \"http://127.0.0.1:4600/api/session\" carrying \"QA NXT test\" but none did."
+        },
+        {
+          "name": "Schedule: is validated by the server, not only the browser",
+          "route": null,
+          "message": "expected at least 1 POST request(s) to \"http://127.0.0.1:4600/api/session\" but saw 0 (sent instead: POST http://127.0.0.1:4600/api/appointments → 400)."
+        },
+        {
+          "name": "Schedule: answers a submission within 2000 ms",
+          "route": null,
+          "message": "expected at least 1 POST request(s) to \"http://127.0.0.1:4600/api/session\" but saw 0 (sent instead: POST http://127.0.0.1:4600/api/appointments → 201)."
+        },
+        {
+          "name": "Schedule: fits a laptop screen (1280x800)",
+          "route": null,
+          "message": "The page can be scrolled sideways by 38073px in a 1280px-wide window; the element reaching furthest is table, whose right edge is at 39353px."
+        },
+        {
+          "name": "Schedule: fits a tablet screen (768x1024)",
+          "route": null,
+          "message": "The page can be scrolled sideways by 38585px in a 768px-wide window; the element reaching furthest is table, whose right edge is at 39353px."
+        },
+        {
+          "name": "Schedule: fits a mobile screen (390x844)",
+          "route": null,
+          "message": "The page can be scrolled sideways by 38963px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 39353px."
+        },
+        {
+          "name": "Schedule: accepts a valid submission in Chromium",
+          "route": null,
+          "message": "Expected the submission to be accepted, but the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown; the route did not change from /schedule."
+        },
+        {
+          "name": "Clinic Scheduler (/schedule): is not shown to a signed-out visitor",
+          "route": null,
+          "message": "The element was expected to be hidden but was visible."
+        },
+        {
+          "name": "Clinic Scheduler (/schedule): fits a laptop screen (1280x800)",
+          "route": null,
+          "message": "The page can be scrolled sideways by 38073px in a 1280px-wide window; the element reaching furthest is table, whose right edge is at 39353px."
+        },
+        {
+          "name": "Clinic Scheduler (/schedule): fits a tablet screen (768x1024)",
+          "route": null,
+          "message": "The page can be scrolled sideways by 38585px in a 768px-wide window; the element reaching furthest is table, whose right edge is at 39353px."
+        },
+        {
+          "name": "Clinic Scheduler (/schedule): fits a mobile screen (390x844)",
+          "route": null,
+          "message": "The page can be scrolled sideways by 38963px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 39353px."
+        },
+        {
+          "name": "Clinic Scheduler (/patients): is not shown to a signed-out visitor",
+          "route": null,
+          "message": "The element was expected to be hidden but was visible."
+        }
+      ]
+    },
+    "conclusions": {
+      "defects": [
+        {
+          "severity": "critical",
+          "route": null,
+          "message": "Schedule: refuses a valid submission"
+        },
+        {
+          "severity": "critical",
+          "route": null,
+          "message": "Patients: writes input from q back into the page as markup"
+        },
+        {
+          "severity": "major",
+          "route": null,
+          "message": "Schedule: sends the wrong requests"
+        },
+        {
+          "severity": "major",
+          "route": null,
+          "message": "Schedule: refuses a valid submission"
+        },
+        {
+          "severity": "major",
+          "route": null,
+          "message": "Schedule: refuses a valid submission"
+        },
+        {
+          "severity": "major",
+          "route": null,
+          "message": "Patients: sends the wrong requests"
+        },
+        {
+          "severity": "major",
+          "route": null,
+          "message": "Schedule: Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error mes"
+        },
+        {
+          "severity": "major",
+          "route": null,
+          "message": "Schedule: sends the wrong requests"
+        },
+        {
+          "severity": "major",
+          "route": null,
+          "message": "Patients: sends the wrong requests"
+        },
+        {
+          "severity": "major",
+          "route": null,
+          "message": "Schedule: does not tie the error to start"
+        },
+        {
+          "severity": "major",
+          "route": null,
+          "message": "Schedule: does not tie the error to end"
+        },
+        {
+          "severity": "minor",
+          "route": null,
+          "message": "Clinic Scheduler: css=form#signin could not be used: No element matched css=form#signin"
+        },
+        {
+          "severity": "minor",
+          "route": null,
+          "message": "Schedule: refuses a valid submission"
+        }
+      ],
+      "structural": [
+        {
+          "code": "no-autocomplete",
+          "severity": "info",
+          "route": "/",
+          "message": "Username looks like personal data but does not declare autocomplete, so browsers cannot fill it."
+        }
+      ],
+      "security": []
+    }
+  },
+  "detection": {
+    "planted": 4,
+    "detected": 0,
+    "weakOnly": 2,
+    "verdicts": [
+      {
+        "id": "CS_D01",
+        "class": "validation",
+        "severity": "high",
+        "route": "/api/appointments",
+        "statement": "Booking accepts an end time earlier than the start time.",
+        "detected": false,
+        "weakOnly": true,
+        "evidence": {
+          "kind": "test failure",
+          "strength": "wording only (weak)",
+          "route": null,
+          "message": "Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown."
+        }
+      },
+      {
+        "id": "CS_D02",
+        "class": "injection",
+        "severity": "critical",
+        "route": "/patients",
+        "statement": "The patient search term is written into the page as markup, not text.",
+        "detected": false,
+        "weakOnly": true,
+        "evidence": {
+          "kind": "test failure",
+          "strength": "wording only (weak)",
+          "route": null,
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-a30f63fa> element(s) exist. The application does not encode what it reflects."
+        }
+      },
+      {
+        "id": "CS_D03",
+        "class": "authorization",
+        "severity": "critical",
+        "route": "/api/patients/:id",
+        "statement": "A clinician can read a patient record belonging to another clinician.",
+        "detected": false,
+        "weakOnly": false,
+        "evidence": null
+      },
+      {
+        "id": "CS_D04",
+        "class": "authorization",
+        "severity": "high",
+        "route": "/api/appointments/:id/cancel",
+        "statement": "Cancel is hidden from a receptionist in the UI and permitted by the endpoint.",
+        "detected": false,
+        "weakOnly": false,
+        "evidence": null
+      }
+    ]
+  }
+}

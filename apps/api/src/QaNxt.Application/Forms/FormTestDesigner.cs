@@ -141,6 +141,7 @@ public static class FormTestDesigner
         private readonly FormButtonModel? _previous;
         private readonly bool _transactional;
         private readonly bool _credentialForm;
+        private readonly FormFieldModel? _usernameField;
 
         public Builder(FormDesignContext ctx)
         {
@@ -163,6 +164,36 @@ public static class FormTestDesigner
             var passwords = _fields.Count(f => f.ControlType == "password");
             _credentialForm = passwords == 1 && _fields.Count <= 3
                 && (_fields.Any(f => f.Autocomplete is "current-password") || _fields.Any(f => Mentions(f, "user", "login", "email")));
+            // Which field the configured username goes in, decided here rather than by
+            // whichever text field comes first.
+            //
+            // This was "the required text field", and a sign-in form that marks nothing
+            // required — the normal shape for an application that validates on the server
+            // — got the password from configuration and a synthesised string in the
+            // username. The sign-in was refused, correctly, and eleven tests on one
+            // application reported the refusal as a defect in a form that works.
+            //
+            // The field is identified by what it says it is, which is also how a person
+            // and a password manager find it, so a second text field beside it (an
+            // organization code, a tenant name) is left to synthesis instead of being
+            // given the username too.
+            _usernameField = !_credentialForm ? null
+                : _fields.FirstOrDefault(f => f.Autocomplete is "username" or "email")
+                  ?? _fields.FirstOrDefault(f => f.ControlType != "password"
+                        && ValueSynthesizer.IsTextLike(f) && Mentions(f, "user", "login", "email"))
+                  // A sign-in form whose single text field names itself nothing useful is
+                  // still a sign-in form: with one password and one text field there is no
+                  // ambiguity about where the username goes.
+                  ?? SoleTextField();
+        }
+
+        /// <summary>The one text-like field on the form, or null when there is not exactly one.</summary>
+        private FormFieldModel? SoleTextField()
+        {
+            var candidates = _fields
+                .Where(f => f.ControlType != "password" && ValueSynthesizer.IsTextLike(f) && !IsConditional(f))
+                .ToList();
+            return candidates.Count == 1 ? candidates[0] : null;
         }
 
         public FormDesign Result() => new(_tests, _gaps, _human, _findings, _applicable);
@@ -492,7 +523,7 @@ public static class FormTestDesigner
             // CanSucceed and are not generated.
             if (_credentialForm && field.ControlType == "password")
                 return ValueSynthesizer.Synthesis.Of(_ctx.HasCredentials ? "${secret:app_password}" : "Not-the-Passw0rd!");
-            if (_credentialForm && field.ControlType != "password" && field.Required && ValueSynthesizer.IsTextLike(field))
+            if (_credentialForm && _usernameField is not null && field.Identity == _usernameField.Identity)
                 return ValueSynthesizer.Synthesis.Of(_ctx.HasCredentials ? "${secret:app_username}" : "qa-nxt-unknown-user");
 
             switch (field.ControlType)
@@ -1394,10 +1425,32 @@ public static class FormTestDesigner
             return post?.Path;
         }
 
-        private string SubmitMethod()
+        /// <summary>Which verb the submission is expected to use, or null when it cannot be known.
+        ///
+        /// This used to ignore the form's own method unless the form also carried an action,
+        /// and fall back to any non-GET endpoint discovery had seen, else POST. A form
+        /// without an action submits to the current URL — that is HTML's default, not a sign
+        /// of scripting — so every action-less form was tested for a POST. A client-rendered
+        /// search form that fetches with GET failed two tests that way: "expected at least 1
+        /// POST request(s) but saw 0 (no submission was sent at all)", on a form that had
+        /// sent its submission and rendered the answer.
+        ///
+        /// Now a declared method is believed, and where nothing declares one — a form with
+        /// neither method nor action, or no form element at all — the answer is null and the
+        /// caller checks that the submission reached *something* instead of asserting a verb
+        /// it is guessing at. Null is reported as a gap, not passed over.</summary>
+        private string? SubmitMethod()
         {
+            // A method other than GET is a deliberate declaration whatever the action says.
+            if (_form.HasFormElement && !string.Equals(_form.Method, "get", StringComparison.OrdinalIgnoreCase))
+                return _form.Method.ToUpperInvariant();
+            // An explicit GET with somewhere to send it is a real GET.
             if (_form.HasFormElement && _form.Action is not null) return _form.Method.ToUpperInvariant();
-            return _ctx.Endpoints.FirstOrDefault(e => !string.Equals(e.Method, "GET", StringComparison.OrdinalIgnoreCase))?.Method.ToUpperInvariant() ?? "POST";
+            // No form element: a pseudo-form, certainly scripted. An endpoint discovery
+            // actually observed is evidence; "POST" would only have been a guess.
+            if (!_form.HasFormElement)
+                return _ctx.Endpoints.FirstOrDefault(e => !string.Equals(e.Method, "GET", StringComparison.OrdinalIgnoreCase))?.Method.ToUpperInvariant();
+            return null;
         }
 
         private void Reliability()
@@ -1407,20 +1460,32 @@ public static class FormTestDesigner
             if (fill.Failure is not null) { Gap(TestCategory.Reliability, null, "duplicate-submission tests", $"No valid submission could be produced ({fill.Failure}).", "Provide valid test data."); return; }
             var path = EndpointPath();
             var method = SubmitMethod();
+            // "At most one submission" needs to know which requests are submissions. With no
+            // declared verb and no observed endpoint, counting every request a client-rendered
+            // page makes would report the page's own data fetches as duplicate submissions.
+            if (method is null && path is null)
+            {
+                Gap(TestCategory.Reliability, null, "duplicate-submission tests",
+                    "This form declares neither a method nor an action and discovery observed no endpoint for it, "
+                    + "so a second submission cannot be told apart from the requests the page makes anyway.",
+                    "Discover the application again with interaction enabled, or add an API test that names the endpoint.",
+                    CoverageGapStatus.NotCovered);
+                return;
+            }
             var requests = JsonSerializer.Serialize(new { method, urlContains = path, maxCount = 1, countUnrefusedOnly = true }, JsonDefaults.Options);
 
             Add(Test(TestCategory.Reliability, "rapid-repeat-submit", "sends one submission when the submit control is pressed twice quickly",
                 "An impatient second press does not submit the form twice.",
                 "Exactly one submission reaches the server.",
                 new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep("repeat:2:120"))
-                    .Append(new(BrowserActionType.AssertRequests, $"Confirm at most one {method} was sent", Value: requests)).ToList(),
+                    .Append(new(BrowserActionType.AssertRequests, $"Confirm at most one {method ?? "submission"} was sent", Value: requests)).ToList(),
                 null, TestPriority.High, new[] { "state:duplicate-click" }, fill.Data));
 
             Add(Test(TestCategory.Reliability, "refresh-after-submit", "does not submit again when the result page is refreshed",
                 "Refreshing after a successful submission does not repeat it.",
                 "Only the original submission reaches the server.",
                 new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Append(Accepted("Confirm the submission was accepted"))
-                    .Append(new(BrowserActionType.Reload, "Refresh the page")).Append(new(BrowserActionType.AssertRequests, $"Confirm only one {method} was sent", Value: requests)).ToList(),
+                    .Append(new(BrowserActionType.Reload, "Refresh the page")).Append(new(BrowserActionType.AssertRequests, $"Confirm only one {method ?? "submission"} was sent", Value: requests)).ToList(),
                 null, TestPriority.High, new[] { "state:refresh-after-success" }, fill.Data));
 
             Add(Test(TestCategory.Reliability, "back-after-submit", "does not submit again on the browser's back button",
@@ -1428,7 +1493,7 @@ public static class FormTestDesigner
                 "Only the original submission reaches the server and nothing errors.",
                 new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Append(Accepted("Confirm the submission was accepted"))
                     .Append(new(BrowserActionType.GoBack, "Press the browser's back button")).Append(NoServerError())
-                    .Append(new(BrowserActionType.AssertRequests, $"Confirm only one {method} was sent", Value: requests)).ToList(),
+                    .Append(new(BrowserActionType.AssertRequests, $"Confirm only one {method ?? "submission"} was sent", Value: requests)).ToList(),
                 null, TestPriority.Medium, new[] { "state:back-after-success" }, fill.Data));
         }
 
@@ -1758,8 +1823,16 @@ public static class FormTestDesigner
                 Gap(TestCategory.Api, null, "the uploaded payload",
                     "The body of a file upload is not exposed to the browser's network log, so which values reached the endpoint cannot be read.",
                     "Check the stored record, or add an API test that posts the same fields.", CoverageGapStatus.PartiallyCovered);
-            var marker = method == "GET" || multipart ? null : _fields.Where(f => ValueSynthesizer.IsFreeText(f) && fill.Data.ContainsKey(f.Identity))
+            // An unknown verb may turn out to be a GET, which carries its values in the URL
+            // rather than a body, so a body marker cannot be required of it either.
+            var marker = method is null or "GET" || multipart ? null : _fields.Where(f => ValueSynthesizer.IsFreeText(f) && fill.Data.ContainsKey(f.Identity))
                 .Select(f => fill.Data[f.Identity]).FirstOrDefault(v => !v.StartsWith("${", StringComparison.Ordinal) && v.Length >= 3);
+            if (method is null)
+                Gap(TestCategory.Api, null, "the verb the form submits with",
+                    "This form declares neither a method nor an action, so which verb its submission uses cannot be read "
+                    + "from the page. The test checks that the submission reached the server and was accepted, without "
+                    + "asserting a verb.",
+                    "Declare the form's method, or add an API test that names the request.", CoverageGapStatus.PartiallyCovered);
             // A form that submits with script has no declared endpoint; discovery does not
             // submit forms, so it has not seen one either. The test then checks the one
             // request the submission makes, wherever it goes, and the report names it.
@@ -1768,10 +1841,11 @@ public static class FormTestDesigner
                     "This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes.",
                     "Discover with interaction, or name the endpoint in an API test.", CoverageGapStatus.PartiallyCovered);
             var request = JsonSerializer.Serialize(new { method, urlContains = path, minCount = 1, statusIn = new[] { "2xx", "3xx" }, bodyContains = marker }, JsonDefaults.Options);
-            Add(Test(TestCategory.Api, "valid-reaches-endpoint", $"sends a valid submission to {method} {path ?? "its endpoint"}",
+            var verb = method ?? "a request";
+            Add(Test(TestCategory.Api, "valid-reaches-endpoint", $"sends a valid submission to {verb} {path ?? "its endpoint"}",
                 "What is typed is what the endpoint receives, and the endpoint accepts it.",
-                $"One {method} to {path} succeeds{(marker is null ? string.Empty : ", carrying the value entered")}.",
-                new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Append(new(BrowserActionType.AssertRequests, $"Confirm {method} {path} received the submission", Value: request)).ToList(),
+                $"One {verb} to {path ?? "its endpoint"} succeeds{(marker is null ? string.Empty : ", carrying the value entered")}.",
+                new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep()).Append(new(BrowserActionType.AssertRequests, $"Confirm {verb} {path ?? "the endpoint"} received the submission", Value: request)).ToList(),
                 null, TestPriority.High, new[] { $"api:{method} {path ?? "(scripted)"}", $"api-mapping:{_ctx.FormId:N}" }, fill.Data,
                 "Network log with request and response bodies."));
 

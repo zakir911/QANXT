@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { BrowserContext, Page } from 'playwright';
-import type { BrowserAction, LocatorDescriptor } from '@qa-nxt/shared-types';
+import { ASSERTION_ACTIONS, type BrowserAction, type LocatorDescriptor } from '@qa-nxt/shared-types';
 import { BrowserPool } from '../src/browser/browser-pool.js';
 import { runAction, type ActionContext } from '../src/execution/action-runner.js';
 import { EvidenceCollector } from '../src/execution/evidence-collector.js';
@@ -45,12 +45,19 @@ describe('form oracles', () => {
     observations: {
       network: () => collector.getNetworkEvents(), console: () => collector.getConsoleEvents(),
       settle: () => collector.settle(), networkMarkAtLastNavigation: () => mark,
-      urlAtLastNavigation: () => undefined, workDir
+      urlAtLastNavigation: () => undefined, urlBeforeLastAction: () => urlBeforeLastAction, workDir
     }
   });
 
-  const run = (action: Partial<BrowserAction> & { action: BrowserAction['action'] }) =>
-    runAction(page, { description: action.action, ...action } as BrowserAction, actionContext());
+  // The harness tracks this the way the executor does — before any step that is not an
+  // assertion — so a test here exercises the same signal the product computes, not a
+  // convenience the product does not have.
+  let urlBeforeLastAction: string | undefined;
+
+  const run = async (action: Partial<BrowserAction> & { action: BrowserAction['action'] }) => {
+    if (!ASSERTION_ACTIONS.includes(action.action)) urlBeforeLastAction = page.url();
+    return runAction(page, { description: action.action, ...action } as BrowserAction, actionContext());
+  };
 
   const open = async (route: string) => {
     await collector.settle();
@@ -260,6 +267,35 @@ describe('form oracles', () => {
     await run({ action: 'upload', target: testId('file-upload-document'), value: 'fixture:exe:100' });
     await submit('file-upload');
     await run({ action: 'assertFormRejected', target: testId('file-upload-form') });
+  }, 30_000);
+
+  /**
+   * The two halves of the client-rendering fix, which only mean anything together.
+   *
+   * Half one: an application that answers a submission by changing its route and redrawing
+   * has accepted it, even with the same form still visible and nothing congratulating the
+   * user. Half two: an application that swallows the submission has not, and must still
+   * fail — otherwise the first half has simply made the oracle easier to satisfy.
+   */
+  test('a client-rendered search that changes the route and redraws is accepted', async () => {
+    await open('/client-search');
+    await fill('client-search-reference', 'CON-4471');
+    await submit('client-search');
+    await run({ action: 'assertFormAccepted', target: testId('client-search-form') });
+    // Nothing navigated, and the form is still on screen: the route is the only signal.
+    expect(page.url()).toContain('reference=CON-4471');
+    const stillThere = await page.locator('[data-testid="client-search-form"]').isVisible();
+    expect(stillThere).toBe(true);
+    await fails(run({ action: 'assertFormRejected', target: testId('client-search-form') }),
+      /refused/);
+  }, 30_000);
+
+  test('a form that swallows the submission is still not an acceptance (FL-D12)', async () => {
+    await open('/client-dead-end');
+    await fill('client-dead-end-preference', 'daily');
+    await submit('client-dead-end');
+    await fails(run({ action: 'assertFormAccepted', target: testId('client-dead-end-form') }),
+      /the route did not change/);
   }, 30_000);
 
   test('a form that submits with fetch is judged by what it renders in place', async () => {

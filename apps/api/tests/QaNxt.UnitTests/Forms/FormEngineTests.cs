@@ -21,6 +21,7 @@ public class FormEngineTests
     private static readonly BrowserActionPolicy Policy = new(false, true, (string _, out string reason) => { reason = string.Empty; return true; });
 
     private static LocatorDescriptor TestId(string id) => new() { Strategy = LocatorStrategy.TestId, Value = id };
+    private static LocatorDescriptor Css(string selector) => new() { Strategy = LocatorStrategy.Css, Value = selector };
 
     private static FormFieldModel Field(string name, string type, bool required = false, Dictionary<string, string>? constraints = null,
         List<FormOptionModel>? options = null, bool visible = true, int group = 0, string? label = null, string? autocomplete = null)
@@ -548,6 +549,61 @@ public class FormEngineTests
         var withCredentials = Design(login, credentials: true);
         withCredentials.Tests.Should().Contain(t => t.Technique == "happy-path"
             && t.Steps.Any(s => s.Value == "${secret:app_password}") && t.Steps.Any(s => s.Value == "${secret:app_username}"));
+    }
+
+    /// <summary>
+    /// The shape the previous rule missed: a sign-in form that marks nothing required and
+    /// declares no autocomplete, which is what an application validating on the server
+    /// produces. The password came from configuration and the username was synthesised, so
+    /// every test expecting a successful sign-in failed against a form that works.
+    /// </summary>
+    [Fact]
+    public void A_sign_in_form_that_marks_nothing_required_still_gets_the_configured_username()
+    {
+        var login = new DiscoveredFormModel
+        {
+            Key = "signin", Name = "Clinic Scheduler", Action = null, Method = "post", NoValidate = true,
+            Locator = Css("form#signin"),
+            Fields = new()
+            {
+                Field("username", "text", required: false, label: "Username"),
+                Field("password", "password", required: false, label: "Password")
+            },
+            Buttons = new() { new FormButtonModel { Label = "Sign in", Type = "submit", Role = "submit", Locator = TestId("signin-submit") } }
+        };
+
+        var design = Design(login, credentials: true);
+        var happy = design.Tests.Should().ContainSingle(t => t.Technique == "happy-path").Subject;
+        happy.Steps.Should().Contain(s => s.Value == "${secret:app_username}");
+        happy.Steps.Should().Contain(s => s.Value == "${secret:app_password}");
+        happy.Steps.Should().NotContain(s => s.Value != null && s.Value.Contains("QA NXT"));
+    }
+
+    /// <summary>
+    /// The other side of naming the username field: an extra text field on a sign-in form
+    /// is not the username and must not be given it.
+    /// </summary>
+    [Fact]
+    public void A_second_text_field_on_a_sign_in_form_is_not_given_the_username()
+    {
+        var login = new DiscoveredFormModel
+        {
+            Key = "signin", Name = "Sign in", Action = "http://lab/login", Method = "post", NoValidate = true,
+            Locator = TestId("signin-form"),
+            Fields = new()
+            {
+                Field("tenant", "text", label: "Organisation code"),
+                Field("email", "text", label: "Email"),
+                Field("password", "password", autocomplete: "current-password")
+            },
+            Buttons = new() { new FormButtonModel { Label = "Sign in", Type = "submit", Role = "submit", Locator = TestId("signin-submit") } }
+        };
+
+        var happy = Design(login, credentials: true).Tests
+            .Should().ContainSingle(t => t.Technique == "happy-path").Subject;
+        var username = happy.Steps.Where(s => s.Value == "${secret:app_username}").ToList();
+        username.Should().HaveCount(1, "only the field that names itself the user is the username");
+        username[0].Description.Should().Contain("Email");
     }
 
     [Fact]

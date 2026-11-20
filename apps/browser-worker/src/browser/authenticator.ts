@@ -736,3 +736,43 @@ function fail(message: string, actionsUsed: number): LoginResult {
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message.split('\n')[0] ?? error.message : String(error);
 }
+
+/**
+ * The part of a browser context that carries authentication, for the two strategies that
+ * are applied before the first request rather than driven through a page.
+ *
+ * `performLogin` answers "Using header-based authentication" for `basicAuth` and
+ * `bearerToken` because by the time it runs the context is expected to carry them already.
+ * Execution did that; discovery did not, and nothing noticed, because every target in the
+ * lab used a sign-in form. Pointed at an application behind an HTTP Basic challenge,
+ * discovery authenticated successfully according to its own log and then received 401 on
+ * every page it asked for.
+ *
+ * So the mapping lives here once, next to the claim that depends on it, and both callers
+ * use it. A strategy added later that needs context options and does not change this
+ * function will fail in both places at once rather than in one of them quietly.
+ */
+export function contextAuthOptions(auth: AuthConfig): {
+  extraHeaders?: Record<string, string>;
+  httpCredentials?: { username: string; password: string };
+  storageState?: unknown;
+} {
+  switch (auth.strategy) {
+    case 'bearerToken':
+      return auth.bearerToken ? { extraHeaders: { authorization: `Bearer ${auth.bearerToken}` } } : {};
+    case 'basicAuth':
+      return auth.username && auth.password
+        ? { httpCredentials: { username: auth.username, password: auth.password } }
+        : {};
+    case 'storageState':
+      return auth.storageStateJson ? { storageState: JSON.parse(auth.storageStateJson) } : {};
+    case 'none':
+    case 'formLogin':
+      return {};
+    default: {
+      const exhaustive: never = auth.strategy;
+      void exhaustive;
+      return {};
+    }
+  }
+}

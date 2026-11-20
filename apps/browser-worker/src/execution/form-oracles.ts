@@ -29,6 +29,18 @@ export interface Observations {
   networkMarkAtLastNavigation(): number;
   /** The URL the most recent navigate step landed on. */
   urlAtLastNavigation(): string | undefined;
+  /**
+   * The URL as it stood before the most recent step that was not an assertion — in
+   * practice, before the click or key press that submitted the form.
+   *
+   * An application that renders in the browser answers a submission by changing its route
+   * and redrawing, with no document navigation and no confirmation banner. Without this,
+   * the only acceptance signals were a confirmation text and the form going away, and a
+   * search form that renders its results in place matched neither: 23 of 43 failures in
+   * the first run against a client-rendered target were submissions the application had
+   * accepted and acted on.
+   */
+  urlBeforeLastAction(): string | undefined;
   /** Where generated upload files may be written. */
   workDir: string;
 }
@@ -171,7 +183,23 @@ export async function assertFormAccepted(page: Page, form: Locator, obs: Observa
   // assertFormRejected keeps formPresent deliberately. It establishes a refusal from the
   // error signals themselves, and a hidden form showing a visible error is still a refusal,
   // so presence is the weaker condition there and visibility would not improve it.
-  const accepted = (s: FormSignals) => (s.successTexts.length > 0 || !s.formVisible)
+  //
+  // A third acceptance signal, for an application that renders in the browser: the route
+  // changed. A search form that pushes `?q=...` and redraws its results in place has
+  // accepted the submission and acted on it, but the form it redraws is a new, identical,
+  // visible form and there is no confirmation banner, so neither signal above sees it.
+  //
+  // A route change is the same evidence as a document navigation, which `!formVisible`
+  // already accepts — the difference is only whether the browser fetched a new document.
+  // It is not "the server answered 200", which would be weaker: an application that
+  // answers a submission, discards it and redraws the same screen still fails here,
+  // because nothing about where the user is has changed.
+  //
+  // The guards are unchanged: an invalid field or a visible error message is a refusal
+  // whatever the route did.
+  const before = obs.urlBeforeLastAction();
+  const movedOn = () => before !== undefined && !sameScreen(before, page.url());
+  const accepted = (s: FormSignals) => (s.successTexts.length > 0 || !s.formVisible || movedOn())
     && s.invalidFields.length === 0 && s.errorTexts.length === 0;
   const result = await poll(timeoutMs, () => signals(page, form), accepted);
 
@@ -182,7 +210,32 @@ export async function assertFormAccepted(page: Page, form: Locator, obs: Observa
       + `${crashed[0]!.method} ${crashed[0]!.url} returned HTTP ${crashed[0]!.statusCode}.`);
   }
   if (accepted(result)) return;
-  throw new OracleError(`Expected the submission to be accepted, but ${describe(result)}.`);
+  throw new OracleError(`Expected the submission to be accepted, but ${describe(result)}`
+    + `${before === undefined ? '' : `; the route did not change from ${routeOf(before)}`}.`);
+}
+
+/**
+ * Is this the same screen, ignoring the parts of a URL that do not name one?
+ *
+ * The fragment is excluded because a hash is how one kind of client-side router names a
+ * screen and how another names a position on the current one; comparing the path and the
+ * query catches the first, and the second is not a submission being accepted. The query
+ * IS compared, because `?q=cardiology` is a different screen from `?q=` to every user who
+ * has ever used a search form.
+ */
+function sameScreen(a: string, b: string): boolean {
+  try {
+    const left = new URL(a);
+    const right = new URL(b);
+    return left.origin === right.origin && left.pathname === right.pathname
+      && left.search === right.search;
+  } catch {
+    return a === b;
+  }
+}
+
+function routeOf(url: string): string {
+  try { const parsed = new URL(url); return `${parsed.pathname}${parsed.search}`; } catch { return url; }
 }
 
 interface FieldState { found: boolean; indicated: boolean; associated: boolean; detail: string }

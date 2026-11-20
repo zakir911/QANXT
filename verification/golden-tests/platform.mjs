@@ -126,8 +126,18 @@ export async function createProject(tenant, name, overrides = {}) {
   return response.json;
 }
 
-export async function registerApplication(tenant, projectId, { name, baseUrl, loginUrl, username, password, maxPages = 25 }) {
+/**
+ * @param {object} options
+ * @param {string} [options.strategy]  'formLogin' | 'basicAuth' | 'bearerToken' | 'none'.
+ *   Omitted, a username implies a form login, which is what every caller here wanted
+ *   until the lab gained a target behind an HTTP Basic challenge. It is explicit now
+ *   because inferring it from the presence of a username cannot tell those two apart.
+ * @param {string} [options.bearerToken]
+ */
+export async function registerApplication(tenant, projectId,
+  { name, baseUrl, loginUrl, username, password, bearerToken, strategy, maxPages = 25 }) {
   const host = new URL(baseUrl).hostname;
+  const authStrategy = strategy ?? (username ? 'formLogin' : 'none');
   const response = await request('/api/v1/applications', {
     token: tenant.token, method: 'POST',
     body: {
@@ -137,9 +147,9 @@ export async function registerApplication(tenant, projectId, { name, baseUrl, lo
       maxPages,
       maxCrawlDepth: 3,
       explorationTimeoutSeconds: 180,
-      authStrategy: username ? 'formLogin' : 'none',
+      authStrategy,
       loginUrl: loginUrl ?? null,
-      credentials: username ? { username, password } : null
+      credentials: authStrategy === 'none' ? null : { username, password, bearerToken }
     }
   });
   if (!response.ok) throw new Error(`could not register ${name}: ${response.status} ${response.text.slice(0, 300)}`);

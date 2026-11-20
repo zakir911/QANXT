@@ -1,0 +1,60 @@
+{
+  "key": "clinic-spa",
+  "name": "Clinic Scheduler",
+  "technology": "Node HTTP server, no server-rendered markup; every screen built by client JavaScript; History API routing; JSON API",
+  "domain": "clinical appointment scheduling",
+  "baseUrl": "http://127.0.0.1:4600/schedule",
+  "healthUrl": "http://127.0.0.1:4600/api/me",
+  "start": "node test-lab/clinic-spa/server.js",
+  "auth": {
+    "strategy": "formLogin",
+    "loginUrl": "http://127.0.0.1:4600/",
+    "username": "dr.okafor",
+    "password": "Clinic!2026"
+  },
+  "identities": [
+    { "label": "clinician okafor", "username": "dr.okafor", "password": "Clinic!2026", "role": "owner" },
+    { "label": "clinician nilsen", "username": "dr.nilsen", "password": "Clinic!2026", "role": "privileged" },
+    { "label": "reception", "username": "reception", "password": "Clinic!2026", "role": "readonly" }
+  ],
+  "budgetSeconds": 240,
+  "maxPages": 40,
+  "requirements": [
+    ["schedule", "A clinician can book an appointment for a patient and cancel one."],
+    ["patients", "A user can search for a patient by name and read the result."]
+  ],
+  "defects": [
+    {
+      "id": "CS_D01",
+      "class": "validation",
+      "severity": "high",
+      "route": "/api/appointments",
+      "statement": "Booking accepts an end time earlier than the start time.",
+      "keywords": ["end", "start", "before", "range", "chronolog", "order"]
+    },
+    {
+      "id": "CS_D02",
+      "class": "injection",
+      "severity": "critical",
+      "route": "/patients",
+      "statement": "The patient search term is written into the page as markup, not text.",
+      "keywords": ["xss", "reflect", "script", "markup", "escap", "inject"]
+    },
+    {
+      "id": "CS_D03",
+      "class": "authorization",
+      "severity": "critical",
+      "route": "/api/patients/:id",
+      "statement": "A clinician can read a patient record belonging to another clinician.",
+      "keywords": ["authoriz", "object level", "bola", "idor", "owner", "another"]
+    },
+    {
+      "id": "CS_D04",
+      "class": "authorization",
+      "severity": "high",
+      "route": "/api/appointments/:id/cancel",
+      "statement": "Cancel is hidden from a receptionist in the UI and permitted by the endpoint.",
+      "keywords": ["hidden", "forbid", "permit", "receptionist", "vertical", "escalat"]
+    }
+  ]
+}

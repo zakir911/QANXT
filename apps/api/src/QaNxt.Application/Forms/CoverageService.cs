@@ -39,9 +39,23 @@ public sealed record ApplicationCoverage(
     IReadOnlyList<CategoryCoverage> Categories, IReadOnlyList<GapView> Gaps,
     IReadOnlyDictionary<string, int> HumanTasksByStatus, string Statement);
 
+/// <summary>One structural finding, as the engine recorded it.
+///
+/// A finding is what reading a form's structure said was wrong with it — a password field on
+/// a GET form, an input with no label, a field that reflects what is typed into it. Coverage
+/// counts them per form and until now that count was the only way to see them: the engine
+/// knew which form, which field, how serious and in what words, and a user could read the
+/// number 1. "Every decision auditable" is not satisfied by a count.</summary>
+public sealed record FormFindingView(
+    Guid Id, Guid FormId, string FormName, string Route, string Kind, string Code,
+    string? FieldKey, string Severity, string Message, DateTimeOffset DetectedAt);
+
 public interface ICoverageService
 {
     Task<Result<ApplicationCoverage>> ForApplicationAsync(Guid applicationId, CancellationToken ct = default);
+
+    /// <summary>Every structural finding on an application, worst first.</summary>
+    Task<Result<IReadOnlyList<FormFindingView>>> FindingsAsync(Guid applicationId, CancellationToken ct = default);
 }
 
 /// <summary>Measures coverage from what actually ran.
@@ -87,6 +101,40 @@ public sealed class CoverageService : ICoverageService
     private static bool Failed(TestRow t) => t.Status is ExecutionStatus.Failed or ExecutionStatus.Error or ExecutionStatus.TimedOut;
     private static bool Blocked(TestRow t) => t.Status is ExecutionStatus.Blocked;
     private static bool Uncovered(CoverageGapStatus s) => s is CoverageGapStatus.NotCovered or CoverageGapStatus.PartiallyCovered or CoverageGapStatus.Unknown;
+
+    /// <summary>Findings are ordered worst first, then by form and field, so that reading the
+    /// first few is reading the ones worth acting on.</summary>
+    private static int SeverityRank(string severity) => severity.ToLowerInvariant() switch
+    {
+        "serious" or "critical" => 0,
+        "warning" or "moderate" => 1,
+        _ => 2
+    };
+
+    public async Task<Result<IReadOnlyList<FormFindingView>>> FindingsAsync(Guid applicationId, CancellationToken ct = default)
+    {
+        if (!await _db.Applications.AnyAsync(a => a.Id == applicationId, ct)) return Error.NotFound("The application");
+
+        var forms = await _db.ApplicationForms.Where(f => f.ApplicationId == applicationId)
+            .Select(f => new { f.Id, f.Name, f.Route }).ToListAsync(ct);
+        var findings = await _db.FormFindings.Where(f => f.ApplicationId == applicationId).ToListAsync(ct);
+
+        var views = findings
+            .Select(f =>
+            {
+                var form = forms.FirstOrDefault(x => x.Id == f.ApplicationFormId);
+                return new FormFindingView(
+                    f.Id, f.ApplicationFormId, form?.Name ?? "(form no longer discovered)", form?.Route ?? string.Empty,
+                    f.Kind.ToString(), f.Code, f.FieldKey, f.Severity, f.Message, f.CreatedAt);
+            })
+            .OrderBy(v => SeverityRank(v.Severity))
+            .ThenBy(v => v.Route, StringComparer.Ordinal)
+            .ThenBy(v => v.FieldKey ?? string.Empty, StringComparer.Ordinal)
+            .ThenBy(v => v.Code, StringComparer.Ordinal)
+            .ToList();
+
+        return Result<IReadOnlyList<FormFindingView>>.Success(views);
+    }
 
     public async Task<Result<ApplicationCoverage>> ForApplicationAsync(Guid applicationId, CancellationToken ct = default)
     {

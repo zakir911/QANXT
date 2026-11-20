@@ -271,6 +271,33 @@ export const FORMS = [
     defects: []
   },
   {
+    id: 'client-search', route: '/client-search', title: 'Find a consignment',
+    purpose: 'A correct search form that changes the route and redraws its results in place, '
+      + 'the way an application rendered in the browser answers a submission: no navigation, '
+      + 'no confirmation banner, and the same form still on screen afterwards.',
+    clientRouted: true,
+    method: 'get',
+    fields: [
+      { name: 'reference', label: 'Reference', type: 'text', required: true, attrs: { maxlength: 24 } }
+    ],
+    submitLabel: 'Search',
+    defects: []
+  },
+  {
+    id: 'client-dead-end', route: '/client-dead-end', title: 'Save a preference',
+    purpose: 'A broken form that swallows the submission: it prevents the default, sends nothing, '
+      + 'changes no route and says nothing. It exists so that "the route changed" counts as '
+      + 'acceptance without "nothing happened" counting as acceptance too.',
+    clientDeadEnd: true,
+    fields: [
+      { name: 'preference', label: 'Preference', type: 'text', required: true, attrs: { maxlength: 24 } }
+    ],
+    submitLabel: 'Save',
+    defects: [
+      { id: 'FL-D12', description: 'The submission is swallowed: nothing is sent, nothing changes and nothing is said.', detectedBy: ['reliability'] }
+    ]
+  },
+  {
     id: 'contact-modal', route: '/contact-modal', title: 'Talk to sales',
     purpose: 'A contact form inside a dialog that opens from a "Contact us" button. Correct; it has to be opened before it can be used.',
     inDialog: { opener: 'Contact us' },

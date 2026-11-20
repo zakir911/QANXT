@@ -1,0 +1,59 @@
+{
+  "key": "permits-legacy",
+  "name": "Ashfield Building Control",
+  "technology": "HTTP Basic authentication, no anti-forgery token, state changes through GET links, nested-table markup, sequential integer ids in the query string",
+  "domain": "municipal building permits",
+  "baseUrl": "http://127.0.0.1:4700/default.asp",
+  "healthUrl": "http://127.0.0.1:4700/health",
+  "start": "node test-lab/permits-legacy/server.js",
+  "auth": {
+    "strategy": "basicAuth",
+    "username": "clerk",
+    "password": "Permit!2026"
+  },
+  "identities": [
+    { "label": "clerk", "username": "clerk", "password": "Permit!2026", "role": "owner" },
+    { "label": "inspector", "username": "inspector", "password": "Permit!2026", "role": "privileged" },
+    { "label": "viewer", "username": "viewer", "password": "Permit!2026", "role": "readonly" }
+  ],
+  "budgetSeconds": 240,
+  "maxPages": 40,
+  "requirements": [
+    ["permits", "A clerk can submit a building permit application and read the register."],
+    ["search", "A user can search the register by reference or applicant name."]
+  ],
+  "defects": [
+    {
+      "id": "PL_D01",
+      "class": "authorization",
+      "severity": "critical",
+      "route": "/approve.asp",
+      "statement": "Approving a permit is a GET any signed-in role may issue, with no token and no check.",
+      "keywords": ["csrf", "anti-forgery", "token", "get", "state", "authoriz", "role"]
+    },
+    {
+      "id": "PL_D02",
+      "class": "injection",
+      "severity": "critical",
+      "route": "/search.asp",
+      "statement": "The search term is echoed into the page unescaped.",
+      "keywords": ["xss", "reflect", "script", "escap", "inject"]
+    },
+    {
+      "id": "PL_D03",
+      "class": "calculation",
+      "severity": "high",
+      "route": "/view.asp",
+      "statement": "The fee total does not equal the sum of the fee lines.",
+      "keywords": ["total", "sum", "add up", "arithmetic", "calculat"]
+    },
+    {
+      "id": "PL_D04",
+      "class": "data-exposure",
+      "severity": "high",
+      "route": "/view.asp",
+      "statement": "An applicant's national insurance number is shown in full to every signed-in user.",
+      "keywords": ["sensitive", "personal", "national insurance", "exposure", "pii", "mask"]
+    }
+  ]
+}

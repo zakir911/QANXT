@@ -80,6 +80,41 @@ export function looksMutating(accessibleName: string): boolean {
 }
 
 /**
+ * Whether following this link would change the application.
+ *
+ * `decide` hands an anchor with a destination straight to link following —
+ * "it is an ordinary link and is already followed" — and link following applied no
+ * mutation test at all. On an application built the modern way that is harmless, because
+ * anything that writes is a form or a button and `decide` catches it. On an application
+ * built the old way it is not: a crawl of a permit register, mapping pages and following
+ * links, approved all three permits in it by way of
+ * `<a href="/approve.asp?id=1">Approve</a>`.
+ *
+ * So the same words are tested here, against the link's own text and against its path.
+ * The path matters as much as the text: an icon-only link has no accessible name, and a
+ * legacy application names its intent in the URL more reliably than in the markup.
+ *
+ * The query string is deliberately not searched. A real one carries values — a search
+ * term, a filter, a redirect target — and `?view=deleted` or `?q=cancelled+orders` is a
+ * page to read, not an action to take.
+ *
+ * @param accessibleName the link's text or accessible name, which may be empty
+ * @param url the link's resolved absolute URL
+ */
+export function linkLooksMutating(accessibleName: string, url: string): boolean {
+  if (looksMutating(accessibleName)) return true;
+  let path: string;
+  try {
+    path = new URL(url).pathname;
+  } catch {
+    path = url.split('?')[0] ?? url;
+  }
+  // A path is one word to a reader and several to a matcher: /permits/approve-all, the
+  // ASP /approve.asp and the REST /api/v1/permits/1/approve all have to read the same.
+  return looksMutating(path.replace(/[^a-z0-9]+/gi, ' '));
+}
+
+/**
  * Whether this control may be clicked under the given mode.
  *
  * `allowStateChanging` is the only thing that permits a control that looks like it writes,

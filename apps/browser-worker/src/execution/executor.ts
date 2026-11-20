@@ -6,9 +6,9 @@ import type {
   ActionResultReport, ExecutionCompletionReport, ExecutionJob, ExecutionStatus,
   ExecutionStepPlan, HealingEventReport, LocatorDescriptor
 } from '@qa-nxt/shared-types';
-import { describeLocator } from '@qa-nxt/shared-types';
+import { ASSERTION_ACTIONS, describeLocator } from '@qa-nxt/shared-types';
 import { buildLocator } from '../browser/locator-resolver.js';
-import { performLogin } from '../browser/authenticator.js';
+import { contextAuthOptions, performLogin } from '../browser/authenticator.js';
 import { CONCURRENT_SESSION, checkSessionSurvivesLoad, navigateInApp, performLogout, sessionGate, sessionKey } from '../browser/session.js';
 import type { BrowserPool } from '../browser/browser-pool.js';
 import { LocatorHealer } from '../healing/healer.js';
@@ -104,15 +104,7 @@ export class TestExecutor {
         defaultTimeoutMs: job.defaultTimeoutMs,
         navigationTimeoutMs: Math.max(job.defaultTimeoutMs, 30_000),
         videoDir: job.capture.video ? join(executionDir, 'video') : undefined,
-        extraHeaders: auth.strategy === 'bearerToken' && auth.bearerToken
-          ? { authorization: `Bearer ${auth.bearerToken}` }
-          : undefined,
-        httpCredentials: auth.strategy === 'basicAuth' && auth.username && auth.password
-          ? { username: auth.username, password: auth.password }
-          : undefined,
-        storageState: auth.strategy === 'storageState' && auth.storageStateJson
-          ? JSON.parse(auth.storageStateJson)
-          : undefined
+        ...contextAuthOptions(auth)
       });
 
       if (job.capture.trace) {
@@ -187,6 +179,10 @@ export class TestExecutor {
 
       let navigationMark = 0;
       let navigationUrl: string | undefined;
+      // Where the user was before the last thing the test actually did, as opposed to
+      // before the last thing it checked. A route change between the two is how a
+      // client-rendered application says a submission was accepted.
+      let urlBeforeLastAction: string | undefined;
       const actionContext: ActionContext = {
         navigateInApp: inApp ? async (p, url, timeoutMs) => { await navigateInApp(p, url, timeoutMs); } : undefined,
         defaultTimeoutMs: job.defaultTimeoutMs,
@@ -204,6 +200,7 @@ export class TestExecutor {
           settle: () => collector.settle(),
           networkMarkAtLastNavigation: () => navigationMark,
           urlAtLastNavigation: () => navigationUrl,
+          urlBeforeLastAction: () => urlBeforeLastAction,
           workDir: executionDir
         }
       };
@@ -223,6 +220,10 @@ export class TestExecutor {
         if (step.action.action === 'navigate') {
           await collector.settle();
           navigationMark = collector.getNetworkEvents().length;
+        }
+
+        if (page && !ASSERTION_ACTIONS.includes(step.action.action)) {
+          urlBeforeLastAction = page.url();
         }
 
         collector.setCurrentAction(step.order);

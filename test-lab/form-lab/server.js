@@ -322,6 +322,39 @@ ${lowContrast}`,
 function scriptFor(form) {
   const parts = [];
 
+  if (form.clientRouted) {
+    // The shape an oracle has to understand on any application rendered in the browser:
+    // the submission is answered by changing the route and redrawing, with no navigation,
+    // no banner, and a new copy of the same form still on screen.
+    parts.push(`
+      const searchForm = document.getElementById('${form.id}');
+      const results = document.createElement('table');
+      results.setAttribute('data-testid', '${form.id}-results');
+      searchForm.after(results);
+      const draw = () => {
+        const term = new URL(location.href).searchParams.get('reference') ?? '';
+        results.innerHTML = term
+          ? '<tbody><tr><td>' + term.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
+            + '</td><td>In transit</td></tr></tbody>'
+          : '';
+      };
+      searchForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const term = searchForm.elements.namedItem('reference').value;
+        history.pushState({}, '', '${form.route}?reference=' + encodeURIComponent(term));
+        draw();
+      });
+      window.addEventListener('popstate', draw);
+      draw();`);
+  }
+
+  if (form.clientDeadEnd) {
+    parts.push(`
+      document.getElementById('${form.id}').addEventListener('submit', event => {
+        event.preventDefault();
+      });`);
+  }
+
   if (form.inDialog) {
     parts.push(`
       document.querySelector('[data-testid="${form.id}-open"]').addEventListener('click', () => {

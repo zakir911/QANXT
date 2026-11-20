@@ -7,6 +7,7 @@ import type { BrowserPool } from '../browser/browser-pool.js';
 import type { WorkerConfig } from '../config.js';
 import type { Logger } from '../util/logger.js';
 import { classifyFailure } from '../queue/permanent-failure.js';
+import { contextAuthOptions } from '../browser/authenticator.js';
 import { Crawler } from './crawler.js';
 
 /**
@@ -50,10 +51,14 @@ export async function handleDiscoveryJob(
     await client.discoveryStarted(job.discoveryRunId, config.workerId);
     logger.info('Starting discovery', { baseUrl: job.baseUrl, maxPages: job.budget.maxPages });
 
+    // Basic and bearer credentials belong on the context, because there is no page to
+    // drive them through; without this a crawl behind an HTTP Basic challenge reported a
+    // successful login and then 401 on every page.
     const context = await pool.createContext(job.browser, {
       watch: job.headless === false,
       defaultTimeoutMs: config.actionTimeoutMs,
-      navigationTimeoutMs: config.navigationTimeoutMs
+      navigationTimeoutMs: config.navigationTimeoutMs,
+      ...contextAuthOptions(job.auth)
     });
 
     let report: DiscoveryCompletionReport;
