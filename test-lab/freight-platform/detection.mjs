@@ -249,6 +249,72 @@ const patternMatches = (pattern, path) => {
  *
  * So the paths in the text are extracted and tested against the template.
  */
+/**
+ * Which way a signal says the application was wrong.
+ *
+ * Being on the right screen with the right vocabulary is not enough to be the same defect.
+ * Every test of the credit-note form failed with "expected the submission to be accepted,
+ * but the form is still shown" — the form refuses everything, so it cannot be filled at
+ * all. FP_D09 is the opposite complaint: a credit note *above* the invoice total is
+ * accepted. Matching them credited a defect nobody had tested, on evidence that said the
+ * application was too strict, to a defect about it being too lax.
+ *
+ * So each signal is read for its direction, each defect for the direction its own recorded
+ * observation describes, and a contradiction rules the pair out. Only a contradiction: a
+ * signal or a defect whose direction cannot be read is never excluded on a guess.
+ */
+function directionOfSignal(text) {
+  if (/expected the submission to be refused, but it was accepted/i.test(text)
+    || /accepted the submission/i.test(text)
+    || /enforced in the browser and not on the server/i.test(text)
+    || /enforced in the page and nowhere else/i.test(text)) return 'tooPermissive';
+
+  if (/expected the submission to be accepted, but/i.test(text)
+    || /expected this field to be (valid|accepted)/i.test(text)) return 'tooStrict';
+
+  return 'either';
+}
+
+/** The direction a planted defect's own observation describes. */
+function directionOfDefect(defect) {
+  const observable = `${defect.observable ?? ''} ${defect.detail ?? ''}`;
+  if (/\bit (saves|is created|is accepted|succeeds)\b/i.test(observable)
+    || /\bis (created|accepted|settled|released|applied)\b/i.test(observable)
+    || /\baccepts\b/i.test(observable)) return 'tooPermissive';
+
+  if (/\bis (refused|rejected|blocked)\b/i.test(observable)
+    && !/\bnot (refused|rejected)\b/i.test(observable)) return 'tooStrict';
+
+  return 'either';
+}
+
+/** True when a signal's direction contradicts the defect's. */
+function contradicts(signal, defect) {
+  const a = directionOfSignal(signal.text);
+  const b = directionOfDefect(defect);
+  if (a === 'either' || b === 'either') return false;
+  return a !== b;
+}
+
+/**
+ * Whether a signal belongs to a defect's screen.
+ *
+ * The route, when the signal carries one, is the fact; the text is the fallback for signals
+ * that have no route recorded — a page-level failure that names its path in prose, or a
+ * security finding reported against a URL.
+ */
+function onScreen(signal, screen) {
+  if (signal.route !== undefined) {
+    const path = signal.route.split('?')[0];
+    if (path === screen) return true;
+    if (patternMatches(screen, path) && !fillsParameterWithAnAction(screen, path)) return true;
+    // A route that is a known instance of some other screen must not then be matched by
+    // text: that is how a failure on one screen was credited to a defect on another.
+    return false;
+  }
+  return textIsOnScreen(signal.text, screen);
+}
+
 function textIsOnScreen(text, screen) {
   if (text.includes(screen)) return true;
   if (!screen.includes(':')) return false;
@@ -321,9 +387,24 @@ export function detect({ defects, failures = [], findings = [], reachedPaths = [
 
   // Only an application failure or a security finding can evidence a defect. A tool error
   // evidences nothing about the application, whatever words happen to be in its message.
+  // A signal carries its route as a fact where one is known, and its text either way.
+  //
+  // A form test is named after its form, not its screen, so the screen a failure happened
+  // on is simply absent from its words. Placing failures by searching the prose therefore
+  // could not see any finding on a form at all: FP_D29 was detected by the test
+  // "Adjust MF-1333: carries an anti-forgery token" and scored "possible" on unrelated
+  // evidence, because the route that would have joined them was never carried.
   const signals = [
-    ...applicationFailures.map(f => ({ kind: 'execution', text: `${f.name ?? ''} ${f.message ?? ''}` })),
-    ...findings.map(f => ({ kind: 'security', text: `${f.title ?? ''} ${f.evidence ?? ''} ${f.url ?? ''}` }))
+    ...applicationFailures.map(f => ({
+      kind: 'execution',
+      text: `${f.name ?? ''} ${f.message ?? ''}`,
+      route: typeof f.route === 'string' && f.route !== '' ? f.route : undefined
+    })),
+    ...findings.map(f => ({
+      kind: 'security',
+      text: `${f.title ?? ''} ${f.evidence ?? ''} ${f.url ?? ''}`,
+      route: typeof f.endpoint === 'string' && f.endpoint !== '' ? f.endpoint : undefined
+    }))
   ];
 
   const claims = defects.map(defect => {
@@ -331,13 +412,14 @@ export function detect({ defects, failures = [], findings = [], reachedPaths = [
     const keywords = DEFECT_KEYWORDS[defect.id] ?? [];
     const screenReached = reachedPaths.some(path => path === screen || patternMatches(screen, path));
 
-    const namesScreen = signals.filter(signal => textIsOnScreen(signal.text, screen));
+    const namesScreen = signals.filter(signal =>
+      onScreen(signal, screen) && !contradicts(signal, defect));
     const onScreenAndSymptom = namesScreen
       .map(signal => ({ signal, specificity: specificity(keywords, signal.text, true) }))
       .filter(candidate => candidate.specificity.matched > 0);
     // Away from the screen, two independent keywords are required.
     const symptomOnly = signals
-      .filter(signal => !namesScreen.includes(signal))
+      .filter(signal => !namesScreen.includes(signal) && !contradicts(signal, defect))
       .map(signal => ({ signal, specificity: specificity(keywords, signal.text, false) }))
       .filter(candidate => candidate.specificity.matched >= 2);
 

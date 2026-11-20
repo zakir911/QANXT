@@ -119,18 +119,28 @@ const execution = {
 };
 
 // ---- the failures themselves ------------------------------------------------
+// The route is read from the database, not hoped for in the prose.
+//
+// A form test is named after its form — "Adjust MF-1333: carries an anti-forgery token" —
+// so the screen it ran on appears nowhere in its text. The detector could only place a
+// failure by finding the screen's path inside the message, which meant every finding on a
+// form was invisible to it. FP_D29 was detected by that exact test and scored "possible"
+// against unrelated evidence, because the one fact needed to join them was sitting in a
+// column nobody selected. 1,076 of 1,138 failures have a route; it travels with them now.
 const failures = query(`
   SELECT e.test_case_id::text,
          coalesce(tc.name, ''),
          replace(replace(coalesce(left(e.error_message, 400), ''), chr(10), ' '), chr(13), ' '),
          coalesce(tc.category::text, ''),
          coalesce(tc.technique, ''),
-         coalesce(tc.field_key, '')
+         coalesce(tc.field_key, ''),
+         coalesce(af.route, '')
   FROM test_executions e JOIN test_cases tc ON tc.id = e.test_case_id
+  LEFT JOIN application_forms af ON af.id = tc.application_form_id
   WHERE e.test_run_id IN (${RUN_SET}) AND e.status IN (11, 16, 18)
     AND e.id IN (SELECT id FROM (${LATEST_PER_CASE}) latest)`)
-  .map(([testCaseId, name, message, category, technique, fieldKey]) =>
-    ({ testCaseId, name, message, category, technique, fieldKey, title: name, url: '', evidence: '' }));
+  .map(([testCaseId, name, message, category, technique, fieldKey, route]) =>
+    ({ testCaseId, name, message, category, technique, fieldKey, route, title: name, url: '', evidence: '' }));
 
 execution.failures = failures;
 line(`  ${execution.total} execution(s): ${execution.passed} passed, ${execution.failed} failed, `

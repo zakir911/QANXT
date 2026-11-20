@@ -196,3 +196,117 @@ test('a parameter does not swallow an action segment', () => {
 
   assert.notEqual(result.verdicts[0].verdict, 'found');
 });
+
+test('a failure is placed by its route when the prose never names the screen', () => {
+  // The real shape: a form test is named after its form, so the screen appears nowhere in
+  // its words. FP_D29 was detected by exactly this test and could not be joined to it.
+  const result = detect({
+    defects: [{
+      id: 'FP_D29_NO_CSRF_ON_ADJUSTMENT', screen: '/warehouse/stock/:id/adjust',
+      severity: 'security', category: 'security'
+    }],
+    failures: [{
+      name: 'Adjust MF-1333: carries an anti-forgery token',
+      message: 'Expected the element to exist on the page, but it does not.',
+      route: '/warehouse/stock/stk-dub-sku-010/adjust'
+    }],
+    reachedPaths: ['/warehouse/stock/stk-dub-sku-010/adjust']
+  });
+
+  assert.equal(result.verdicts[0].verdict, 'found');
+});
+
+test('a route rules a signal out as well as in', () => {
+  // A failure whose route is a different screen must not then be matched on its words.
+  // That is how a failure on one screen was credited to a defect on another.
+  const result = detect({
+    defects: [{
+      id: 'FP_D29_NO_CSRF_ON_ADJUSTMENT', screen: '/warehouse/stock/:id/adjust',
+      severity: 'security', category: 'security'
+    }],
+    failures: [{
+      name: 'Raise an invoice: carries an anti-forgery token',
+      message: 'Expected the element to exist at /warehouse/stock/stk-1/adjust, but it does not.',
+      route: '/billing/invoices/new'
+    }],
+    reachedPaths: ['/billing/invoices/new', '/warehouse/stock/stk-1/adjust']
+  });
+
+  assert.notEqual(result.verdicts[0].verdict, 'found');
+});
+
+test('a signal with no route still falls back to its text', () => {
+  const result = detect({
+    defects: [{
+      id: 'FP_D23_STATUS_BY_COLOUR_ONLY', screen: '/fleet/vehicles',
+      severity: 'minor', category: 'accessibility'
+    }],
+    failures: [{
+      name: 'Vehicles (/fleet/vehicles): does not say anything with colour alone',
+      message: 'Information is carried by colour alone: column 8 ("Status") uses 3 colours.'
+    }],
+    reachedPaths: ['/fleet/vehicles']
+  });
+
+  assert.equal(result.verdicts[0].verdict, 'found');
+});
+
+test('a defect about over-acceptance is not evidenced by over-strictness', () => {
+  // Every test of the credit-note form failed because the form refuses everything, so it
+  // cannot be filled at all. FP_D09 is the opposite complaint — a credit note above the
+  // invoice total is accepted — and matching them credited a defect nobody had tested.
+  const result = detect({
+    defects: [{
+      id: 'FP_D09_CREDIT_NOTE_EXCEEDS_INVOICE', screen: '/billing/credit-notes/new',
+      severity: 'major', category: 'businessRule',
+      observable: 'Raise a credit note above the invoice total; it saves and the balance goes negative.'
+    }],
+    failures: [{
+      name: 'Raise a credit note: accepts "INV-2026-5003 — £4,581.08" in Invoice to credit',
+      message: 'Expected the submission to be accepted, but the form is still shown; '
+        + 'fields marked invalid: invoiceId, amount.',
+      route: '/billing/credit-notes/new'
+    }],
+    reachedPaths: ['/billing/credit-notes/new']
+  });
+
+  assert.equal(result.verdicts[0].verdict, 'missed');
+});
+
+test('the same defect is found when the application really is too permissive', () => {
+  const result = detect({
+    defects: [{
+      id: 'FP_D09_CREDIT_NOTE_EXCEEDS_INVOICE', screen: '/billing/credit-notes/new',
+      severity: 'major', category: 'businessRule',
+      observable: 'Raise a credit note above the invoice total; it saves.'
+    }],
+    failures: [{
+      name: 'Raise a credit note: refuses a credit note larger than the invoice',
+      message: 'Expected the submission to be refused, but it was accepted: the form is gone.',
+      route: '/billing/credit-notes/new'
+    }],
+    reachedPaths: ['/billing/credit-notes/new']
+  });
+
+  assert.equal(result.verdicts[0].verdict, 'found');
+});
+
+test('a direction that cannot be read never excludes anything', () => {
+  // Accessibility and arithmetic findings have no permissive/strict direction at all, and
+  // must not be filtered out by a rule that cannot see one.
+  const result = detect({
+    defects: [{
+      id: 'FP_D29_NO_CSRF_ON_ADJUSTMENT', screen: '/warehouse/stock/:id/adjust',
+      severity: 'security', category: 'security',
+      observable: 'The form has no hidden anti-forgery field.'
+    }],
+    failures: [{
+      name: 'Adjust MF-1333: carries an anti-forgery token',
+      message: 'Expected the element to exist on the page, but it does not.',
+      route: '/warehouse/stock/stk-1/adjust'
+    }],
+    reachedPaths: ['/warehouse/stock/stk-1/adjust']
+  });
+
+  assert.equal(result.verdicts[0].verdict, 'found');
+});
