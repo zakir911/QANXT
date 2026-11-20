@@ -15,6 +15,7 @@ import { LocatorHealer } from '../healing/healer.js';
 import { SecretMasker } from '../security/masker.js';
 import type { Logger } from '../util/logger.js';
 import { ActionError, evaluateAssertion, runAction, type ActionContext } from './action-runner.js';
+import { textDigest } from './form-oracles.js';
 import type { BaselineStore } from './visual-runner.js';
 import {
   ApiRequestSession, ApiStatusError, ApiTransportError, evaluateResponseAssertion,
@@ -183,6 +184,7 @@ export class TestExecutor {
       // before the last thing it checked. A route change between the two is how a
       // client-rendered application says a submission was accepted.
       let urlBeforeLastAction: string | undefined;
+      let textDigestBeforeLastAction: string | undefined;
       const actionContext: ActionContext = {
         navigateInApp: inApp ? async (p, url, timeoutMs) => { await navigateInApp(p, url, timeoutMs); } : undefined,
         defaultTimeoutMs: job.defaultTimeoutMs,
@@ -201,6 +203,7 @@ export class TestExecutor {
           networkMarkAtLastNavigation: () => navigationMark,
           urlAtLastNavigation: () => navigationUrl,
           urlBeforeLastAction: () => urlBeforeLastAction,
+          textDigestBeforeLastAction: () => textDigestBeforeLastAction,
           workDir: executionDir
         }
       };
@@ -224,6 +227,10 @@ export class TestExecutor {
 
         if (page && !ASSERTION_ACTIONS.includes(step.action.action)) {
           urlBeforeLastAction = page.url();
+          // One page evaluation per acting step, costing a millisecond or two. It is taken
+          // for every such step rather than only before a submit, because which step
+          // submits is not knowable here — a click, an Enter key and a form submit all do.
+          textDigestBeforeLastAction = await textDigest(page);
         }
 
         collector.setCurrentAction(step.order);

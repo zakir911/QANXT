@@ -157,6 +157,16 @@ const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://127.0.0.1:${PORT}`);
   const path = url.pathname;
 
+  // Returns the application to its seeded state. Present so that a test run starts from
+  // the same application every time rather than from whatever the last run left behind.
+  if (path === '/__reset' && req.method === 'POST') {
+    APPOINTMENTS.clear();
+    APPOINTMENTS.set('apt-1', { id: 'apt-1', patient: 'pat-1',
+      start: '2026-12-01T09:00', end: '2026-12-01T09:30', status: 'booked' });
+    SESSIONS.clear();
+    return json(res, 200, { ok: true, appointments: APPOINTMENTS.size });
+  }
+
   if (path === '/app.js') {
     res.writeHead(200, { 'content-type': 'application/javascript; charset=utf-8' });
     return res.end(APP_JS);

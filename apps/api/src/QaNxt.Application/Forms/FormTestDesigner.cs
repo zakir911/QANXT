@@ -1418,12 +1418,40 @@ public static class FormTestDesigner
 
         // ---- Buttons and duplicates ------------------------------------------------------
 
+        /// <summary>Where this form submits, or null when that is not known.
+        ///
+        /// The form's own action is the answer when it has one. Without one, discovery's
+        /// correlated endpoints are the only evidence, and this took the first non-GET one
+        /// among them — which is a guess the moment a page calls more than one.
+        ///
+        /// A client-rendered application does, always. The booking form on a clinical
+        /// scheduler was given /api/session, the sign-in, because that was the first
+        /// non-GET call the page made; three tests then failed with "expected at least 1
+        /// request to http://host/api/session but saw 0 (sent instead ...)", naming an
+        /// endpoint that form has nothing to do with.
+        ///
+        /// So one candidate is an answer and several are not. The caller treats null as
+        /// "check that the submission reached the server, without naming where", and
+        /// records the candidates as a gap rather than choosing between them.</summary>
         private string? EndpointPath()
         {
             if (_form.Action is { Length: > 0 } action && Uri.TryCreate(action, UriKind.Absolute, out var uri)) return uri.AbsolutePath;
-            var post = _ctx.Endpoints.FirstOrDefault(e => !string.Equals(e.Method, "GET", StringComparison.OrdinalIgnoreCase));
-            return post?.Path;
+            var writes = _ctx.Endpoints
+                .Where(e => !string.Equals(e.Method, "GET", StringComparison.OrdinalIgnoreCase))
+                .Select(e => e.Path)
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+            return writes.Count == 1 ? writes[0] : null;
         }
+
+        /// <summary>The write endpoints correlated to this form's page, for a gap that has to
+        /// say what the choice was between.</summary>
+        private IReadOnlyList<string> EndpointCandidates()
+            => _ctx.Endpoints
+                .Where(e => !string.Equals(e.Method, "GET", StringComparison.OrdinalIgnoreCase))
+                .Select(e => $"{e.Method} {e.Path}")
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
 
         /// <summary>Which verb the submission is expected to use, or null when it cannot be known.
         ///
@@ -1805,10 +1833,15 @@ public static class FormTestDesigner
             if (_submit is null || !Wanted(TestCategory.Api)) return;
             var path = EndpointPath();
             var scripted = !_form.HasFormElement || _form.Action is null;
+            var candidates = EndpointCandidates();
             if (path is null && !scripted)
             {
                 Gap(TestCategory.Api, null, "the endpoint the form submits to",
-                    "Neither the form's action nor any call observed during discovery tells where this form submits.",
+                    candidates.Count > 1
+                        ? $"This form declares no action and its page calls {candidates.Count} write endpoints "
+                          + $"({string.Join(", ", candidates)}), so which one the submission goes to was not observed. "
+                          + "Choosing one would name an endpoint this form may have nothing to do with."
+                        : "Neither the form's action nor any call observed during discovery tells where this form submits.",
                     "Discover the application again with interaction enabled, or add an API test.", CoverageGapStatus.NotCovered);
                 return;
             }
@@ -1838,7 +1871,12 @@ public static class FormTestDesigner
             // request the submission makes, wherever it goes, and the report names it.
             if (path is null)
                 Gap(TestCategory.Api, null, "the endpoint's address",
-                    "This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes.",
+                    candidates.Count > 1
+                        ? $"This form's page calls {candidates.Count} write endpoints ({string.Join(", ", candidates)}) "
+                          + "and the form declares no action, so which one it submits to was not observed. The test "
+                          + "checks whichever request the submission makes."
+                        : "This form submits with script and discovery never submits forms, so the endpoint was not "
+                          + "observed. The test checks whichever request the submission makes.",
                     "Discover with interaction, or name the endpoint in an API test.", CoverageGapStatus.PartiallyCovered);
             var request = JsonSerializer.Serialize(new { method, urlContains = path, minCount = 1, statusIn = new[] { "2xx", "3xx" }, bodyContains = marker }, JsonDefaults.Options);
             var verb = method ?? "a request";

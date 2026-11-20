@@ -39,7 +39,7 @@ const USERS = new Map([
 ]);
 
 /** Fee lines deliberately do not add to `total` on permit 2 — PL_D03. */
-const PERMITS = [
+const SEED = [
   { id: 1, ref: 'BP-2026-0001', applicant: 'H. Devi', ni: 'QQ 12 34 56 C',
     address: '14 Mill Lane', status: 'submitted',
     fees: [{ label: 'Application', amount: 145.00 }, { label: 'Inspection', amount: 80.00 }],
@@ -53,6 +53,9 @@ const PERMITS = [
     address: '77 Beacon Hill', status: 'approved',
     fees: [{ label: 'Application', amount: 145.00 }], total: 145.00 }
 ];
+
+/** The live register, restored from SEED by /__reset. */
+const PERMITS = SEED.map(permit => ({ ...permit, fees: permit.fees.map(f => ({ ...f })) }));
 
 const money = n => n.toFixed(2);
 
@@ -103,6 +106,16 @@ const body = (req) => new Promise(resolve => {
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://127.0.0.1:${PORT}`);
   const path = url.pathname.toLowerCase();
+
+  // Returns the register to its seeded state, for the same reason as the clinic target:
+  // a run must start from the same application every time. Unauthenticated on purpose,
+  // because it is lab scaffolding rather than part of the application being tested.
+  if (path === '/__reset' && req.method === 'POST') {
+    PERMITS.length = 0;
+    PERMITS.push(...SEED.map(permit => ({ ...permit, fees: permit.fees.map(f => ({ ...f })) })));
+    res.writeHead(200, { 'content-type': 'application/json' });
+    return res.end(JSON.stringify({ ok: true, permits: PERMITS.length }));
+  }
 
   if (path === '/health') {
     res.writeHead(200, { 'content-type': 'application/json' });

@@ -14,6 +14,7 @@ import { Logger } from '../src/util/logger.js';
 import { extractForms, type RawForm } from '../src/discovery/form-extractor.js';
 import { findOpener, formIsVisible } from '../src/discovery/form-probe.js';
 import { explainTimeout } from '../src/execution/executor.js';
+import { textDigest } from '../src/execution/form-oracles.js';
 
 /**
  * The form oracles against the golden form lab.
@@ -45,7 +46,8 @@ describe('form oracles', () => {
     observations: {
       network: () => collector.getNetworkEvents(), console: () => collector.getConsoleEvents(),
       settle: () => collector.settle(), networkMarkAtLastNavigation: () => mark,
-      urlAtLastNavigation: () => undefined, urlBeforeLastAction: () => urlBeforeLastAction, workDir
+      urlAtLastNavigation: () => undefined, urlBeforeLastAction: () => urlBeforeLastAction,
+      textDigestBeforeLastAction: () => textDigestBeforeLastAction, workDir
     }
   });
 
@@ -53,9 +55,13 @@ describe('form oracles', () => {
   // assertion — so a test here exercises the same signal the product computes, not a
   // convenience the product does not have.
   let urlBeforeLastAction: string | undefined;
+  let textDigestBeforeLastAction: string | undefined;
 
   const run = async (action: Partial<BrowserAction> & { action: BrowserAction['action'] }) => {
-    if (!ASSERTION_ACTIONS.includes(action.action)) urlBeforeLastAction = page.url();
+    if (!ASSERTION_ACTIONS.includes(action.action)) {
+      urlBeforeLastAction = page.url();
+      textDigestBeforeLastAction = await textDigest(page);
+    }
     return runAction(page, { description: action.action, ...action } as BrowserAction, actionContext());
   };
 
@@ -288,6 +294,36 @@ describe('form oracles', () => {
     expect(stillThere).toBe(true);
     await fails(run({ action: 'assertFormRejected', target: testId('client-search-form') }),
       /refused/);
+  }, 30_000);
+
+  /**
+   * The commonest shape in a client-rendered application, and the one with no strong
+   * signal at all: the submission is posted, answered, and the screen it is already on is
+   * redrawn. No navigation, no route change, no banner, the same form still there. Twenty
+   * of thirty-five failures against a client-rendered target were this.
+   */
+  test('a submission answered by redrawing the screen in place is accepted', async () => {
+    await open('/client-redraw');
+    await fill('client-redraw-who', 'Ada Lovelace');
+    await submit('client-redraw');
+    await run({ action: 'assertFormAccepted', target: testId('client-redraw-form') });
+    // Everything the oracle cannot use: same URL, same form, no confirmation.
+    expect(page.url()).toContain('/client-redraw');
+    expect(await page.locator('[data-testid="client-redraw-form"]').isVisible()).toBe(true);
+  }, 30_000);
+
+  /**
+   * Why the redraw is only ever read alongside a successful request, and never alone: an
+   * application that posts, is answered 201, throws the submission away and leaves the
+   * screen identical must still fail. Otherwise the signal above has made the oracle
+   * easier to satisfy rather than better at reading an answer.
+   */
+  test('a submission answered and then discarded is not an acceptance (FL-D14)', async () => {
+    await open('/client-silent-discard');
+    await fill('client-silent-discard-draft', 'a draft nobody keeps');
+    await submit('client-silent-discard');
+    await fails(run({ action: 'assertFormAccepted', target: testId('client-silent-discard-form') }),
+      /did not redraw in answer to it|route did not change/);
   }, 30_000);
 
   test('a form that swallows the submission is still not an acceptance (FL-D12)', async () => {

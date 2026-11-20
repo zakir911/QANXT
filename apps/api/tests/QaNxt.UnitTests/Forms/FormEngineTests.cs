@@ -250,9 +250,11 @@ public class FormEngineTests
             .Should().Equal("sku-001");
     }
 
-    private static FormDesign Design(DiscoveredFormModel form, TestingProfile? profile = null, bool credentials = false)
+    private static FormDesign Design(DiscoveredFormModel form, TestingProfile? profile = null, bool credentials = false,
+        IReadOnlyList<CorrelatedEndpoint>? endpoints = null)
         => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,
-            "http://lab/registration", "/registration", form.Name, credentials, Array.Empty<CorrelatedEndpoint>(), profile ?? new TestingProfile()));
+            "http://lab/registration", "/registration", form.Name, credentials,
+            endpoints ?? Array.Empty<CorrelatedEndpoint>(), profile ?? new TestingProfile()));
 
     /// <summary>The same design, told what discovery saw on the form's page.</summary>
     private static FormDesign DesignOnPageShowing(DiscoveredFormModel form, params string[] stateWords)
@@ -605,6 +607,47 @@ public class FormEngineTests
         username.Should().HaveCount(1, "only the field that names itself the user is the username");
         username[0].Description.Should().Contain("Email");
     }
+
+    /// <summary>
+    /// A form with no action, on a page that calls one write endpoint, is correlated to it.
+    /// On a page that calls several, it is not correlated to any: the booking form on a
+    /// client-rendered scheduler was given /api/session, the sign-in, because that was the
+    /// first non-GET call its page made, and three tests then asserted against an endpoint
+    /// the form has nothing to do with.
+    /// </summary>
+    [Fact]
+    public void One_write_endpoint_on_the_page_is_the_form_s_endpoint()
+    {
+        var form = ActionlessForm();
+        var design = Design(form, endpoints: new[] { new CorrelatedEndpoint("GET", "/api/me"), new CorrelatedEndpoint("POST", "/api/slots") });
+
+        var api = design.Tests.Should().ContainSingle(t => t.Technique == "valid-reaches-endpoint").Subject;
+        api.Name.Should().Contain("/api/slots");
+    }
+
+    [Fact]
+    public void Several_write_endpoints_on_the_page_name_none_of_them_and_say_why()
+    {
+        var form = ActionlessForm();
+        var design = Design(form, endpoints: new[]
+        {
+            new CorrelatedEndpoint("POST", "/api/session"),
+            new CorrelatedEndpoint("POST", "/api/appointments")
+        });
+
+        design.Tests.Should().NotContain(t => t.Name.Contains("/api/session"),
+            "naming one of two is a guess, and this one is the sign-in");
+        var gap = design.Gaps.Should().ContainSingle(g => g.Missing.Contains("endpoint")).Subject;
+        gap.Reason.Should().Contain("/api/session").And.Contain("/api/appointments");
+    }
+
+    private static DiscoveredFormModel ActionlessForm() => new()
+    {
+        Key = "book", Name = "Book", Action = null, Method = "post", NoValidate = true,
+        Locator = TestId("book-form"),
+        Fields = new() { Field("who", "text", required: true, label: "Name") },
+        Buttons = new() { new FormButtonModel { Label = "Book", Type = "submit", Role = "submit", Locator = TestId("book-submit") } }
+    };
 
     [Fact]
     public void A_value_for_a_conditional_field_first_reveals_it()

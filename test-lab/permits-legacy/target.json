@@ -12,48 +12,107 @@
     "password": "Permit!2026"
   },
   "identities": [
-    { "label": "clerk", "username": "clerk", "password": "Permit!2026", "role": "owner" },
-    { "label": "inspector", "username": "inspector", "password": "Permit!2026", "role": "privileged" },
-    { "label": "viewer", "username": "viewer", "password": "Permit!2026", "role": "readonly" }
+    {
+      "label": "clerk",
+      "username": "clerk",
+      "password": "Permit!2026",
+      "role": "owner"
+    },
+    {
+      "label": "inspector",
+      "username": "inspector",
+      "password": "Permit!2026",
+      "role": "privileged"
+    },
+    {
+      "label": "viewer",
+      "username": "viewer",
+      "password": "Permit!2026",
+      "role": "readonly"
+    }
   ],
   "budgetSeconds": 240,
   "maxPages": 40,
   "requirements": [
-    ["permits", "A clerk can submit a building permit application and read the register."],
-    ["search", "A user can search the register by reference or applicant name."]
+    [
+      "permits",
+      "A clerk can submit a building permit application and read the register."
+    ],
+    [
+      "search",
+      "A user can search the register by reference or applicant name."
+    ]
   ],
   "defects": [
     {
       "id": "PL_D01",
       "class": "authorization",
       "severity": "critical",
-      "route": "/approve.asp",
       "statement": "Approving a permit is a GET any signed-in role may issue, with no token and no check.",
-      "keywords": ["csrf", "anti-forgery", "token", "get", "state", "authoriz", "role"]
+      "keywords": [
+        "csrf",
+        "anti-forgery",
+        "token",
+        "get",
+        "state",
+        "authoriz",
+        "role"
+      ],
+      "routes": [
+        "/list.asp",
+        "/view.asp",
+        "/approve.asp"
+      ]
     },
     {
       "id": "PL_D02",
       "class": "injection",
       "severity": "critical",
-      "route": "/search.asp",
       "statement": "The search term is echoed into the page unescaped.",
-      "keywords": ["xss", "reflect", "script", "escap", "inject"]
+      "keywords": [
+        "xss",
+        "reflect",
+        "script",
+        "escap",
+        "inject"
+      ],
+      "routes": [
+        "/search.asp"
+      ]
     },
     {
       "id": "PL_D03",
       "class": "calculation",
       "severity": "high",
-      "route": "/view.asp",
       "statement": "The fee total does not equal the sum of the fee lines.",
-      "keywords": ["total", "sum", "add up", "arithmetic", "calculat"]
+      "keywords": [
+        "total",
+        "sum",
+        "add up",
+        "arithmetic",
+        "calculat"
+      ],
+      "routes": [
+        "/view.asp"
+      ]
     },
     {
       "id": "PL_D04",
       "class": "data-exposure",
       "severity": "high",
-      "route": "/view.asp",
       "statement": "An applicant's national insurance number is shown in full to every signed-in user.",
-      "keywords": ["sensitive", "personal", "national insurance", "exposure", "pii", "mask"]
+      "keywords": [
+        "sensitive",
+        "personal",
+        "national insurance",
+        "exposure",
+        "pii",
+        "mask"
+      ],
+      "routes": [
+        "/view.asp"
+      ]
     }
-  ]
+  ],
+  "resetUrl": "http://127.0.0.1:4700/__reset"
 }

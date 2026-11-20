@@ -47,9 +47,15 @@ function matches(defect, evidence) {
   const route = (evidence.route ?? '').toLowerCase();
   const text = [evidence.message, evidence.asserts, evidence.name, evidence.code, evidence.checkId]
     .filter(Boolean).join(' ').toLowerCase();
-  const pattern = defect.route.toLowerCase()
-    .replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/:[a-z0-9_]+/gi, '[^/]+');
-  const routeHit = route !== '' && new RegExp(`^${pattern}$`).test(route.split('?')[0]);
+  // A defect names every route its evidence can legitimately appear on: the screen a user
+  // meets it through as well as the endpoint behind it. Recording only the endpoint hid a
+  // true detection — "Schedule: refuses End before Start" is about /schedule, and the
+  // planted route said /api/appointments.
+  const routeHit = route !== '' && defect.routes.some(candidate => {
+    const pattern = candidate.toLowerCase()
+      .replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/:[a-z0-9_]+/gi, '[^/]+');
+    return new RegExp(`^${pattern}$`).test(route.split('?')[0]);
+  });
   const keywordHits = defect.keywords.filter(k => text.includes(k.toLowerCase()));
   if (routeHit && keywordHits.length) return { strength: 'route and wording', keywordHits };
   // Route alone is not a detection. On an application with two forms, every piece of
@@ -101,6 +107,16 @@ async function runOne(key) {
     key, name: target.name, technology: target.technology, domain: target.domain,
     ranAt: new Date().toISOString(), planted: target.defects.length, stages: {}
   };
+
+  // A target that keeps what earlier runs put into it is not the same target twice. The
+  // clinic application accumulated appointments across three runs: its buttons went from 34
+  // to 185, and a page-width check then reported 38,963px of sideways scroll, which was
+  // leftover test data rather than anything about the application. Where a target offers a
+  // reset, the run starts from the seeded state.
+  if (target.resetUrl) {
+    const reset = await fetch(target.resetUrl, { method: 'POST' }).then(r => r.status).catch(() => null);
+    line(`  reset ${target.resetUrl} → ${reset ?? 'not reachable'}`);
+  }
 
   const reachable = await fetch(target.healthUrl, {
     headers: target.auth.strategy === 'basicAuth'
@@ -348,7 +364,7 @@ async function runOne(key) {
     const strong = hits.filter(h => h.match.strength === 'route and wording');
     const chosen = (strong[0] ?? hits[0]);
     return {
-      id: defect.id, class: defect.class, severity: defect.severity, route: defect.route,
+      id: defect.id, class: defect.class, severity: defect.severity, routes: defect.routes,
       statement: defect.statement,
       detected: strong.length > 0,
       weakOnly: strong.length === 0 && hits.length > 0,

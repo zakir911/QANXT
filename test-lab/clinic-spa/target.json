@@ -13,48 +13,111 @@
     "password": "Clinic!2026"
   },
   "identities": [
-    { "label": "clinician okafor", "username": "dr.okafor", "password": "Clinic!2026", "role": "owner" },
-    { "label": "clinician nilsen", "username": "dr.nilsen", "password": "Clinic!2026", "role": "privileged" },
-    { "label": "reception", "username": "reception", "password": "Clinic!2026", "role": "readonly" }
+    {
+      "label": "clinician okafor",
+      "username": "dr.okafor",
+      "password": "Clinic!2026",
+      "role": "owner"
+    },
+    {
+      "label": "clinician nilsen",
+      "username": "dr.nilsen",
+      "password": "Clinic!2026",
+      "role": "owner"
+    },
+    {
+      "label": "reception",
+      "username": "reception",
+      "password": "Clinic!2026",
+      "role": "readonly"
+    }
   ],
   "budgetSeconds": 240,
   "maxPages": 40,
   "requirements": [
-    ["schedule", "A clinician can book an appointment for a patient and cancel one."],
-    ["patients", "A user can search for a patient by name and read the result."]
+    [
+      "schedule",
+      "A clinician can book an appointment for a patient and cancel one."
+    ],
+    [
+      "patients",
+      "A user can search for a patient by name and read the result."
+    ]
   ],
   "defects": [
     {
       "id": "CS_D01",
       "class": "validation",
       "severity": "high",
-      "route": "/api/appointments",
       "statement": "Booking accepts an end time earlier than the start time.",
-      "keywords": ["end", "start", "before", "range", "chronolog", "order"]
+      "keywords": [
+        "end",
+        "start",
+        "before",
+        "range",
+        "chronolog",
+        "order"
+      ],
+      "routes": [
+        "/schedule",
+        "/api/appointments"
+      ]
     },
     {
       "id": "CS_D02",
       "class": "injection",
       "severity": "critical",
-      "route": "/patients",
       "statement": "The patient search term is written into the page as markup, not text.",
-      "keywords": ["xss", "reflect", "script", "markup", "escap", "inject"]
+      "keywords": [
+        "xss",
+        "reflect",
+        "script",
+        "markup",
+        "escap",
+        "inject"
+      ],
+      "routes": [
+        "/patients",
+        "/api/patients"
+      ]
     },
     {
       "id": "CS_D03",
       "class": "authorization",
       "severity": "critical",
-      "route": "/api/patients/:id",
       "statement": "A clinician can read a patient record belonging to another clinician.",
-      "keywords": ["authoriz", "object level", "bola", "idor", "owner", "another"]
+      "keywords": [
+        "authoriz",
+        "object level",
+        "bola",
+        "idor",
+        "owner",
+        "another"
+      ],
+      "routes": [
+        "/patients",
+        "/api/patients/:id"
+      ]
     },
     {
       "id": "CS_D04",
       "class": "authorization",
       "severity": "high",
-      "route": "/api/appointments/:id/cancel",
       "statement": "Cancel is hidden from a receptionist in the UI and permitted by the endpoint.",
-      "keywords": ["hidden", "forbid", "permit", "receptionist", "vertical", "escalat"]
+      "keywords": [
+        "hidden",
+        "forbid",
+        "permit",
+        "receptionist",
+        "vertical",
+        "escalat"
+      ],
+      "routes": [
+        "/schedule",
+        "/api/appointments/:id/cancel"
+      ]
     }
-  ]
+  ],
+  "resetUrl": "http://127.0.0.1:4600/__reset",
+  "identityNote": "Two clinicians are peers, so neither is privileged and no vertical-escalation comparison is available on this application. Reception is readonly because the application does not draw the cancel control for it."
 }

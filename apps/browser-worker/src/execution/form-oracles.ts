@@ -41,6 +41,22 @@ export interface Observations {
    * accepted and acted on.
    */
   urlBeforeLastAction(): string | undefined;
+  /**
+   * A digest of the page's visible text as it stood before the most recent step that was
+   * not an assertion.
+   *
+   * The last acceptance signal, and the weakest, for the application that answers a
+   * submission by redrawing the screen it is already on: a booking form whose new row
+   * appears in the table above it, with no navigation, no route change and nothing
+   * congratulating the user. There is no stronger evidence available — a confirmation
+   * banner is not shown, the form comes back, and the URL is the same — and twenty of
+   * thirty-five failures against a client-rendered target were that.
+   *
+   * It is only ever used together with a successful request, because "the page changed"
+   * alone would accept a clock ticking. A submission the application silently discards
+   * changes nothing and still fails.
+   */
+  textDigestBeforeLastAction(): string | undefined;
   /** Where generated upload files may be written. */
   workDir: string;
 }
@@ -199,9 +215,32 @@ export async function assertFormAccepted(page: Page, form: Locator, obs: Observa
   // whatever the route did.
   const before = obs.urlBeforeLastAction();
   const movedOn = () => before !== undefined && !sameScreen(before, page.url());
-  const accepted = (s: FormSignals) => (s.successTexts.length > 0 || !s.formVisible || movedOn())
-    && s.invalidFields.length === 0 && s.errorTexts.length === 0;
-  const result = await poll(timeoutMs, () => signals(page, form), accepted);
+
+  // The submission's own request, and whether the application answered it without failing.
+  // This is never acceptance on its own: an application that answers 200, throws the
+  // submission away and redraws the same screen would pass on it, which is precisely the
+  // defect class a "silently discards" test exists to catch.
+  const since = obs.network().slice(obs.networkMarkAtLastNavigation());
+  const answered = since.filter(e =>
+    ['document', 'xhr', 'fetch'].includes(e.resourceType ?? 'document')
+    && e.statusCode !== undefined && e.statusCode >= 200 && e.statusCode < 400);
+  const textBefore = obs.textDigestBeforeLastAction();
+  const redrew = async () => {
+    if (answered.length === 0 || textBefore === undefined) return false;
+    const now = await textDigest(page);
+    return now !== undefined && now !== textBefore;
+  };
+
+  // Polled on the three signals the page itself carries; the redraw is asked about once,
+  // afterwards, because it costs a page evaluation and only matters when the others are silent.
+  const settled = (s: FormSignals) =>
+    s.invalidFields.length === 0 && s.errorTexts.length === 0
+    && (s.successTexts.length > 0 || !s.formVisible || movedOn());
+  const result = await poll(timeoutMs, () => signals(page, form), settled);
+  const drewSomethingNew = settled(result) ? false : await redrew();
+  const accepted = (s: FormSignals) =>
+    s.invalidFields.length === 0 && s.errorTexts.length === 0
+    && (s.successTexts.length > 0 || !s.formVisible || movedOn() || drewSomethingNew);
 
   await obs.settle();
   const crashed = serverErrorsSince(obs.network().slice(obs.networkMarkAtLastNavigation()));
@@ -211,7 +250,27 @@ export async function assertFormAccepted(page: Page, form: Locator, obs: Observa
   }
   if (accepted(result)) return;
   throw new OracleError(`Expected the submission to be accepted, but ${describe(result)}`
-    + `${before === undefined ? '' : `; the route did not change from ${routeOf(before)}`}.`);
+    + `${before === undefined ? '' : `; the route did not change from ${routeOf(before)}`}`
+    + `; ${answered.length === 0
+      ? 'no request the application answered left the page'
+      : 'the page did not redraw in answer to it'}.`);
+}
+
+/**
+ * A cheap stand-in for "what the page is showing".
+ *
+ * The visible text, not the markup: a re-render that produces identical text has shown the
+ * user nothing new, and an attribute changing under the hood is not feedback. Length and a
+ * rolling hash are enough to tell "changed" from "did not", which is the only question
+ * asked of it.
+ */
+export async function textDigest(page: Page): Promise<string | undefined> {
+  return page.evaluate(() => {
+    const text = document.body?.innerText ?? '';
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) | 0;
+    return `${text.length}:${hash}`;
+  }).catch(() => undefined);
 }
 
 /**

@@ -291,6 +291,30 @@ export async function checkMissingAuthorization(scanner, { baseUrl, path, owner,
              detail: `owner ${control.status}, unauthenticated ${anonymous.status}` };
   }
 
+  // A 200 is not an exposure. Data served to the anonymous caller is.
+  //
+  // This check asked only whether the anonymous request was refused, and read "not
+  // refused" as "the data leaked". On an application rendered in the browser, every route
+  // answers 200 with the same empty shell to everybody — the data arrives separately over
+  // the API, which does refuse. A scan of a three-screen clinical scheduler raised three
+  // criticals that way: "protected data is served to an unauthenticated caller" about a
+  // 244-byte document containing a script tag and nothing else. On a real application with
+  // fifty routes it would have raised fifty, and a tool that does that is not used twice.
+  //
+  // So the finding now requires something to have been served. Where nothing was, the
+  // answer is inconclusive with the reason stated, because this route genuinely cannot
+  // show an exposure either way — not a pass, which would read as "checked, and safe".
+  const carried = carriesData(anonymous);
+  if (!carried.hasData) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: `The route answered ${anonymous.status} to an anonymous caller, but with no data in `
+        + `it (${carried.why}). An application that renders in the browser serves the same shell on `
+        + `every route and fetches its data separately, so this route cannot show an exposure. `
+        + `Check the endpoints it calls.`
+    };
+  }
+
   return {
     skipped: false,
     findings: [{
@@ -298,7 +322,7 @@ export async function checkMissingAuthorization(scanner, { baseUrl, path, owner,
       title: 'Protected data is served to an unauthenticated caller',
       endpoint: path, httpMethod: 'GET', observedAsRole: 'unauthenticated',
       description: `A request with no credentials received ${anonymous.status} from ${path}, the same `
-        + `answer the owner received.`,
+        + `answer the owner received, and it carried data: ${carried.why}.`,
       impact: 'Anyone who can reach the endpoint can read the data behind it.',
       remediation: 'Require authentication and check ownership on this route.',
       cwe: 'CWE-862', cweConfidence: 'confirmed',
@@ -357,4 +381,61 @@ export async function checkTokenVerification(scanner, { baseUrl, path, forgedTok
       exchanges: [anonymous, forged]
     }]
   };
+}
+
+/**
+ * Did this response actually serve anything?
+ *
+ * The question an authorization finding depends on and that none of these checks used to
+ * ask. A status code says the request was allowed; only the body says whether data came
+ * back with it.
+ *
+ * Deliberately conservative about HTML. A document whose visible text is a handful of
+ * characters is a shell — the thing a client-rendered application serves on every route —
+ * and treating it as data is what produced three critical findings about an empty page.
+ * A document with paragraphs, table rows or a list in it has been rendered server-side and
+ * is data by any reading.
+ *
+ * @param {{responseBody?: unknown, responseText?: string, responseHeaders?: object}} response
+ * @returns {{hasData: boolean, why: string}}
+ */
+export function carriesData(response) {
+  const body = response?.responseBody;
+  if (body && typeof body === 'object') {
+    const count = Array.isArray(body) ? body.length : Object.keys(body).length;
+    // A JSON error envelope is not data, however many fields it has.
+    const looksLikeAComplaint = !Array.isArray(body)
+      && ['error', 'message', 'detail', 'title'].some(key => key in body)
+      && Object.keys(body).length <= 3;
+    if (looksLikeAComplaint) return { hasData: false, why: 'the body is a JSON error message' };
+    return count > 0
+      ? { hasData: true, why: `a JSON body with ${count} field(s) or item(s)` }
+      : { hasData: false, why: 'the JSON body is empty' };
+  }
+
+  const text = typeof response?.responseText === 'string'
+    ? response.responseText
+    : (typeof body === 'string' ? body : '');
+  if (text.trim() === '') return { hasData: false, why: 'the body is empty' };
+
+  const type = String(response?.responseHeaders?.['content-type'] ?? '');
+  if (!/html|xml/i.test(type) && !/^\s*</.test(text)) {
+    return { hasData: true, why: `a ${text.length}-byte body` };
+  }
+
+  // Script and style content is markup's plumbing, not what a reader sees.
+  const visible = text
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z]+;|&#\d+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // A <title> is served by a shell too, so the threshold is above a page title's worth.
+  const MINIMUM_VISIBLE_CHARACTERS = 60;
+  return visible.length >= MINIMUM_VISIBLE_CHARACTERS
+    ? { hasData: true, why: `${visible.length} characters of visible text` }
+    : { hasData: false, why: `only ${visible.length} characters of visible text — an application shell` };
 }

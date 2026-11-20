@@ -348,6 +348,41 @@ function scriptFor(form) {
       draw();`);
   }
 
+  if (form.clientRedraw) {
+    parts.push(`
+      const bookForm = document.getElementById('${form.id}');
+      const list = document.createElement('ul');
+      list.setAttribute('data-testid', '${form.id}-list');
+      bookForm.before(list);
+      bookForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        const who = bookForm.elements.namedItem('who').value;
+        const answer = await fetch('/api/slots', { method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ who }) });
+        if (!answer.ok) return;
+        const row = document.createElement('li');
+        row.textContent = who + ' — booked';
+        list.append(row);
+        bookForm.reset();
+      });`);
+  }
+
+  if (form.clientSilentDiscard) {
+    parts.push(`
+      const draftForm = document.getElementById('${form.id}');
+      draftForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        // A real submission, properly answered, and then thrown away: nothing on screen
+        // changes, the form keeps what was typed, and the user is told nothing.
+        // Answered 201 by an endpoint that exists, so the request is real and successful;
+        // what it carries is beside the point, because this form keeps nothing either way.
+        await fetch('/api/slots', { method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ who: draftForm.elements.namedItem('draft').value }) });
+      });`);
+  }
+
   if (form.clientDeadEnd) {
     parts.push(`
       document.getElementById('${form.id}').addEventListener('submit', event => {

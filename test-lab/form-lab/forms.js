@@ -284,6 +284,36 @@ export const FORMS = [
     defects: []
   },
   {
+    id: 'client-redraw', route: '/client-redraw', title: 'Book a slot',
+    purpose: 'A correct form that posts with fetch and answers by redrawing the list above it: '
+      + 'no navigation, no route change, no confirmation banner, and the same form still on '
+      + 'screen. The new row appearing is the only thing that tells the user it worked.',
+    clientRedraw: true,
+    api: '/api/slots',
+    fields: [
+      { name: 'who', label: 'Name', type: 'text', required: true, attrs: { maxlength: 40 } }
+    ],
+    submitLabel: 'Book',
+    defects: []
+  },
+  {
+    id: 'client-silent-discard', route: '/client-silent-discard', title: 'Save a draft',
+    purpose: 'A broken form that posts, is answered 200, and throws the submission away: the '
+      + 'screen is identical afterwards. It is the reason "the page redrew" is only ever '
+      + 'read alongside a successful request, and never on its own.',
+    // Deliberately no `api`: declaring one makes the lab attach its own fetch-and-render
+    // handler, which shows "Received. Reference ...". That is a confirmation, so the form
+    // would not be silent and would not test what it is here to test.
+    clientSilentDiscard: true,
+    fields: [
+      { name: 'draft', label: 'Draft', type: 'text', required: true, attrs: { maxlength: 40 } }
+    ],
+    submitLabel: 'Save',
+    defects: [
+      { id: 'FL-D14', description: 'The submission is answered 200 and discarded; the screen does not change.', detectedBy: ['reliability'] }
+    ]
+  },
+  {
     id: 'client-dead-end', route: '/client-dead-end', title: 'Save a preference',
     purpose: 'A broken form that swallows the submission: it prevents the default, sends nothing, '
       + 'changes no route and says nothing. It exists so that "the route changed" counts as '
