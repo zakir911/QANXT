@@ -76,19 +76,42 @@ function xssFinding({ category, title, endpoint, parameter, payload, verdictDeta
 }
 
 /** Reflected XSS: the payload comes back in the same response. */
-export async function checkReflectedXss(scanner, { baseUrl, path, parameter, testId = 'SECA-XSS-R' }) {
+export async function checkReflectedXss(
+  scanner, { baseUrl, path, parameter, identity, testId = 'SECA-XSS-R' }
+) {
   const exchanges = [];
   const verdicts = [];
+
+  // The probe carries an identity when one is available.
+  //
+  // It used to always be anonymous. Most business applications put their search and filter
+  // pages behind a login, so the probe received the sign-in redirect, found no reflection
+  // in an empty body, and reported "ok" — a clean verdict on a page it had never seen.
+  // Meridian Freight reflects `q` raw into its results page and this check passed it on
+  // every run. Most reflected XSS worth finding is behind authentication.
+  const as = identity?.label ?? 'unauthenticated';
+  const headers = identity?.cookie ? { cookie: identity.cookie } : {};
 
   for (const payload of PAYLOADS) {
     const url = `${baseUrl}${path}?${parameter}=${encodeURIComponent(payload.value)}`;
     const result = await scanner.request({
       url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${payload.id}`,
-      as: 'unauthenticated', note: `inert reflection marker (${payload.id})`
+      headers, as, note: `inert reflection marker (${payload.id})`
     });
     if (!result.allowed) return { skipped: true, decision: result.decision, findings: [] };
     exchanges.push(result);
     verdicts.push({ payload, verdict: reflectionVerdict(result, payload), status: result.status });
+  }
+
+  // A page that was never rendered cannot be reported clean. Saying "no reflection found"
+  // about a sign-in redirect is the false-clean this family exists to avoid.
+  const unreachable = verdicts.filter(v => v.status >= 300 && v.status < 400).length;
+  if (unreachable === verdicts.length) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: `The page redirected every probe (${verdicts[0]?.status}), so nothing was `
+        + `rendered to inspect.${identity ? '' : ' No identity was supplied to reach it.'}`
+    };
   }
 
   const unencoded = verdicts.filter(v => v.verdict === 'unencoded');

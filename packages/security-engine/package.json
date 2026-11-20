@@ -5,9 +5,17 @@
   "description": "QA NXT security scanning: the scope guard, the checks, the severity model, the gate and the regression comparison",
   "type": "module",
   "exports": {
-    ".": { "types": "./src/index.d.ts", "default": "./src/index.mjs" },
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.mjs"
+    },
     "./*": "./src/*"
   },
   "types": "./src/index.d.ts",
-  "files": ["src"]
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
 }

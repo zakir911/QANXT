@@ -559,8 +559,10 @@ const RUNNERS: Record<string, CheckRunner> = {
   'xss.reflected': async (scanner, target, context) => {
     const parameter = target.parameters[0];
     if (!parameter) return inconclusive('No parameter was discovered on this page to reflect.');
+    // With an identity where one is available: a search page behind a login answered the
+    // anonymous probe with a redirect, and a redirect reflects nothing.
     return xss.checkReflectedXss(scanner, {
-      baseUrl: context.baseUrl, path: target.identifier, parameter
+      baseUrl: context.baseUrl, path: target.identifier, parameter, identity: owner(context)
     });
   },
   'xss.stored': async (scanner, target, context) => {
