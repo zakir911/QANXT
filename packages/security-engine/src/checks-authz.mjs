@@ -15,6 +15,7 @@
  */
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
+import { authHeaders } from './credentials.mjs';
 
 /** Statuses that count as a refusal. 404 is included: not telling a stranger a resource
  *  exists is a legitimate answer, and the brief names both. */
@@ -95,18 +96,32 @@ function looksLikeSignInPage(body) {
  * @param intruder  { cookie, label }              who should not see it
  */
 export async function checkBola(scanner, { baseUrl, path, owner, intruder, testId = 'SECA-BOLA' }) {
-  const url = `${baseUrl}${path.replace('{id}', owner.resourceId)}`;
+  // The check compares what the owner can read against what a stranger can read, so it
+  // needs to know which resource is the owner's. Without one it used to interpolate
+  // `undefined` into the URL and then report that the stranger's response "did not contain
+  // undefined" — a verdict assembled from a missing input, in a sentence no reader could
+  // act on. A check that cannot do its job says so.
+  const resourceId = owner?.resourceId;
+  if (path.includes('{id}') && (resourceId === undefined || resourceId === null || resourceId === '')) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: 'No resource belonging to the owning identity was supplied, so there is nothing '
+        + 'for another identity to try to read. Give the identity a resourceId it owns.'
+    };
+  }
+
+  const url = `${baseUrl}${path.replace('{id}', resourceId ?? '')}`;
 
   const control = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:control`,
-    headers: owner.cookie ? { cookie: owner.cookie } : {}, as: owner.label,
+    headers: authHeaders(owner), as: owner.label,
     note: 'the owner reading their own resource'
   });
   if (!control.allowed) return { skipped: true, decision: control.decision, findings: [] };
 
   const attempt = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:attempt`,
-    headers: intruder.cookie ? { cookie: intruder.cookie } : {}, as: intruder.label,
+    headers: authHeaders(intruder), as: intruder.label,
     note: 'another user reading the same resource'
   });
   if (!attempt.allowed) return { skipped: true, decision: attempt.decision, findings: [] };
@@ -161,14 +176,14 @@ export async function checkVerticalEscalation(scanner, { baseUrl, path, privileg
 
   const control = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:control`,
-    headers: privileged.cookie ? { cookie: privileged.cookie } : {}, as: privileged.label,
+    headers: authHeaders(privileged), as: privileged.label,
     note: 'the privileged role reaching a privileged route'
   });
   if (!control.allowed) return { skipped: true, decision: control.decision, findings: [] };
 
   const attempt = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:attempt`,
-    headers: lesser.cookie ? { cookie: lesser.cookie } : {}, as: lesser.label,
+    headers: authHeaders(lesser), as: lesser.label,
     note: 'a lesser role reaching the same route'
   });
   if (!attempt.allowed) return { skipped: true, decision: attempt.decision, findings: [] };
@@ -208,14 +223,14 @@ export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, reado
 
   const control = await scanner.request({
     url, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING, testId: `${testId}:control`,
-    headers: { 'content-type': 'application/json', ...(writer.cookie ? { cookie: writer.cookie } : {}) },
+    headers: { 'content-type': 'application/json', ...authHeaders(writer) },
     body, as: writer.label, note: 'an account that should be able to write'
   });
   if (!control.allowed) return { skipped: true, decision: control.decision, findings: [] };
 
   const attempt = await scanner.request({
     url, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING, testId: `${testId}:attempt`,
-    headers: { 'content-type': 'application/json', ...(readonly.cookie ? { cookie: readonly.cookie } : {}) },
+    headers: { 'content-type': 'application/json', ...authHeaders(readonly) },
     body, as: readonly.label, note: 'a read-only account attempting the same write'
   });
   if (!attempt.allowed) return { skipped: true, decision: attempt.decision, findings: [] };
@@ -255,7 +270,7 @@ export async function checkMissingAuthorization(scanner, { baseUrl, path, owner,
 
   const control = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:control`,
-    headers: owner.cookie ? { cookie: owner.cookie } : {}, as: owner.label,
+    headers: authHeaders(owner), as: owner.label,
     note: 'the owner, who should be able to read it'
   });
   if (!control.allowed) return { skipped: true, decision: control.decision, findings: [] };

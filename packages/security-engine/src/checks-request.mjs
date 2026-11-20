@@ -24,6 +24,7 @@
  */
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
+import { authHeaders, isSignedIn } from './credentials.mjs';
 
 /** A host that exists to be recognised in a Location header and is never visited. */
 const EXTERNAL_MARKER_HOST = 'qanxt-redirect-probe.invalid';
@@ -35,7 +36,7 @@ const EXTERNAL_MARKER_HOST = 'qanxt-redirect-probe.invalid';
  * token as well proves nothing, and this reports inconclusive rather than calling it safe.
  */
 export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {}, tokenHeader = 'x-csrf-token', testId = 'SECA-CSRF' }) {
-  if (!session?.cookie) {
+  if (!isSignedIn(session)) {
     return { skipped: false, findings: [], inconclusive: true,
              reason: 'No authenticated session, so a cross-site request cannot be distinguished from an '
                + 'unauthenticated one.' };
@@ -44,7 +45,7 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
   const withToken = await scanner.request({
     url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: {
-      'content-type': 'application/json', cookie: session.cookie,
+      'content-type': 'application/json', ...authHeaders(session),
       origin: baseUrl, ...(session.csrf ? { [tokenHeader]: session.csrf } : {})
     },
     body, as: 'the legitimate caller', testId: `${testId}:control`,
@@ -59,7 +60,7 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
 
   const withoutToken = await scanner.request({
     url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
-    headers: { 'content-type': 'application/json', cookie: session.cookie, origin: baseUrl },
+    headers: { 'content-type': 'application/json', ...authHeaders(session), origin: baseUrl },
     body, as: 'a caller with no anti-CSRF token', testId: `${testId}:no-token`,
     note: 'the same request with the anti-CSRF token removed'
   });
@@ -92,12 +93,12 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
 
 /** Missing origin validation: a cross-origin Origin header is accepted. */
 export async function checkOriginValidation(scanner, { baseUrl, path, session, body = {}, tokenHeader = 'x-csrf-token', testId = 'SECA-ORIGIN' }) {
-  if (!session?.cookie) {
+  if (!isSignedIn(session)) {
     return { skipped: false, findings: [], inconclusive: true, reason: 'No authenticated session.' };
   }
 
   const headers = {
-    'content-type': 'application/json', cookie: session.cookie,
+    'content-type': 'application/json', ...authHeaders(session),
     ...(session.csrf ? { [tokenHeader]: session.csrf } : {})
   };
 
@@ -161,7 +162,7 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
  * becomes the incident it was meant to prevent.
  */
 export async function checkUploadRestrictions(scanner, { baseUrl, path, actor, declaredOversizeBytes = 50 * 1024 * 1024, testId = 'SECA-UPLOAD' }) {
-  const headers = { 'content-type': 'application/json', ...(actor?.cookie ? { cookie: actor.cookie } : {}) };
+  const headers = { 'content-type': 'application/json', ...authHeaders(actor) };
   const send = async (body, id, note) => scanner.request({
     url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers, body, as: actor?.label ?? 'unauthenticated', testId: `${testId}:${id}`, note

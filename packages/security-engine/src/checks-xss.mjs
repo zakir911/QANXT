@@ -23,6 +23,7 @@
  */
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
+import { authHeaders } from './credentials.mjs';
 
 /** A marker that is unmistakably ours and does nothing. */
 const MARKER = 'qanxt7x2';
@@ -90,7 +91,7 @@ export async function checkReflectedXss(
   // Meridian Freight reflects `q` raw into its results page and this check passed it on
   // every run. Most reflected XSS worth finding is behind authentication.
   const as = identity?.label ?? 'unauthenticated';
-  const headers = identity?.cookie ? { cookie: identity.cookie } : {};
+  const headers = authHeaders(identity);
 
   for (const payload of PAYLOADS) {
     const url = `${baseUrl}${path}?${parameter}=${encodeURIComponent(payload.value)}`;
@@ -147,7 +148,7 @@ export async function checkStoredXss(scanner, { baseUrl, writePath, readPath, fi
 
   const write = await scanner.request({
     url: `${baseUrl}${writePath}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
-    headers: { 'content-type': 'application/json', ...(actor?.cookie ? { cookie: actor.cookie } : {}) },
+    headers: { 'content-type': 'application/json', ...authHeaders(actor) },
     body: { [field]: `${payload.value} stored by an QA NXT security test` },
     as: actor?.label ?? 'unauthenticated', testId: `${testId}:write`,
     note: 'storing an inert marker'
@@ -160,7 +161,7 @@ export async function checkStoredXss(scanner, { baseUrl, writePath, readPath, fi
 
   const read = await scanner.request({
     url: `${baseUrl}${readPath}`, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:read`,
-    headers: actor?.cookie ? { cookie: actor.cookie } : {}, as: 'unauthenticated',
+    headers: authHeaders(actor), as: 'unauthenticated',
     note: 'reading the page that renders the stored value'
   });
   if (!read.allowed) return { skipped: true, decision: read.decision, findings: [] };

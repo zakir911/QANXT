@@ -20,6 +20,7 @@
  */
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
+import { authHeaders } from './credentials.mjs';
 
 /** Field names that a caller must never be able to set on themselves. */
 const PRIVILEGED_FIELDS = ['role', 'isAdmin', 'admin', 'permissions', 'scopes', 'tenantId', 'verified'];
@@ -42,7 +43,7 @@ export async function checkMassAssignment(scanner, { baseUrl, path, actor, field
 
   const before = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:before`,
-    headers: actor.cookie ? { cookie: actor.cookie } : {}, as: actor.label,
+    headers: authHeaders(actor), as: actor.label,
     note: 'reading the object before attempting to set a privileged field'
   });
   if (!before.allowed) return { skipped: true, decision: before.decision, findings: [] };
@@ -53,7 +54,7 @@ export async function checkMassAssignment(scanner, { baseUrl, path, actor, field
   for (const field of fields) {
     const attempt = await scanner.request({
       url, method: 'PATCH', risk: SECURITY_RISK.STATE_CHANGING, testId: `${testId}:${field}`,
-      headers: { 'content-type': 'application/json', ...(actor.cookie ? { cookie: actor.cookie } : {}) },
+      headers: { 'content-type': 'application/json', ...authHeaders(actor) },
       body: { [field]: escalateTo }, as: actor.label,
       note: `attempting to set '${field}' on the caller's own object`
     });
@@ -104,7 +105,7 @@ export async function checkMassAssignment(scanner, { baseUrl, path, actor, field
  */
 export async function checkInputValidation(scanner, { baseUrl, path, field, actor, maxLength = 5_000, testId = 'SECA-INPUT' }) {
   const url = `${baseUrl}${path}`;
-  const headers = { 'content-type': 'application/json', ...(actor?.cookie ? { cookie: actor.cookie } : {}) };
+  const headers = { 'content-type': 'application/json', ...authHeaders(actor) };
 
   const probes = [
     { id: 'wrong-type', value: 12345, describes: 'a number where a string belongs' },
@@ -165,7 +166,7 @@ export async function checkInputValidation(scanner, { baseUrl, path, field, acto
 export async function checkUnsafeMethods(scanner, { baseUrl, createPath, deletePath, field = 'title', actor, testId = 'SECA-METHOD' }) {
   const created = await scanner.request({
     url: `${baseUrl}${createPath}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
-    headers: { 'content-type': 'application/json', ...(actor?.cookie ? { cookie: actor.cookie } : {}) },
+    headers: { 'content-type': 'application/json', ...authHeaders(actor) },
     body: { [field]: 'QA NXT security probe: this object exists only to be deleted by this check' },
     as: actor?.label ?? 'unauthenticated', testId: `${testId}:create`,
     note: 'creating the object that the DELETE probe will target, so nothing pre-existing is at risk'
@@ -223,7 +224,7 @@ export async function checkUnsafeMethods(scanner, { baseUrl, createPath, deleteP
  * not answer "how much can this endpoint take", and the finding says so.
  */
 export async function checkRateLimit(scanner, { baseUrl, path, attempts = 15, actor, testId = 'SECA-RATE' }) {
-  const headers = actor?.cookie ? { cookie: actor.cookie } : {};
+  const headers = authHeaders(actor);
   const statuses = [];
   const exchanges = [];
 
@@ -273,7 +274,7 @@ export async function checkRateLimit(scanner, { baseUrl, path, attempts = 15, ac
 export async function checkExcessiveData(scanner, { baseUrl, path, actor, testId = 'SECA-EXCESS' }) {
   const result = await scanner.request({
     url: `${baseUrl}${path}`, risk: SECURITY_RISK.ACTIVE, testId,
-    headers: actor?.cookie ? { cookie: actor.cookie } : {}, as: actor?.label ?? 'unauthenticated',
+    headers: authHeaders(actor), as: actor?.label ?? 'unauthenticated',
     note: 'reading a collection and inspecting the field names it returns'
   });
   if (!result.allowed) return { skipped: true, decision: result.decision, findings: [] };

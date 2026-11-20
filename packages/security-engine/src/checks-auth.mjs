@@ -18,6 +18,7 @@
  */
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
+import { authHeaders, isSignedIn } from './credentials.mjs';
 
 /** A username that cannot exist, used to draw the comparison for enumeration. */
 const ABSENT_USER = 'qanxt-nonexistent-user-6f2a9c';
@@ -222,7 +223,7 @@ export async function checkAccountLockout(scanner, { baseUrl, path = '/api/sessi
 /** A session token that still authenticates after the user signed out. */
 export async function checkSessionInvalidation(scanner, { baseUrl, signOutPath = '/api/session', probePath = '/api/session', credentials, testId = 'SECA-LOGOUT' }) {
   const signedIn = await scanner.signIn(baseUrl, credentials.username, credentials.password);
-  if (!signedIn?.cookie) {
+  if (!isSignedIn(signedIn)) {
     return { skipped: false, findings: [], inconclusive: true,
              reason: 'Could not sign in with the supplied synthetic credentials, so session invalidation '
                + 'could not be observed.' };
@@ -230,7 +231,7 @@ export async function checkSessionInvalidation(scanner, { baseUrl, signOutPath =
 
   const before = await scanner.request({
     url: `${baseUrl}${probePath}`, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:before`,
-    headers: { cookie: signedIn.cookie }, as: credentials.username, note: 'the session working, before sign-out'
+    headers: authHeaders(signedIn), as: credentials.username, note: 'the session working, before sign-out'
   });
   if (!before.allowed) return { skipped: true, decision: before.decision, findings: [] };
   if (before.status !== 200) {
@@ -240,14 +241,14 @@ export async function checkSessionInvalidation(scanner, { baseUrl, signOutPath =
 
   const signOut = await scanner.request({
     url: `${baseUrl}${signOutPath}`, method: 'DELETE', risk: SECURITY_RISK.STATE_CHANGING,
-    testId: `${testId}:signout`, headers: { cookie: signedIn.cookie }, as: credentials.username,
+    testId: `${testId}:signout`, headers: authHeaders(signedIn), as: credentials.username,
     note: 'signing the synthetic identity out'
   });
   if (!signOut.allowed) return { skipped: true, decision: signOut.decision, findings: [] };
 
   const after = await scanner.request({
     url: `${baseUrl}${probePath}`, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:after`,
-    headers: { cookie: signedIn.cookie }, as: 'retained token',
+    headers: authHeaders(signedIn), as: 'retained token',
     note: 'the same token, replayed after sign-out'
   });
   if (!after.allowed) return { skipped: true, decision: after.decision, findings: [] };

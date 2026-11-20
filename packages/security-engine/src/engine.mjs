@@ -13,6 +13,7 @@
  * Rate limiting, concurrency and duration are enforced here rather than advised, because a
  * limit a caller can decline to observe is documentation.
  */
+import { credentialFrom } from './credentials.mjs';
 import { SECURITY_RISK, SECURITY_PROFILE, evaluateScope } from './scope-guard.mjs';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -319,24 +320,35 @@ export class SecurityScanner {
       });
       if (!submitted.allowed) continue;
 
-      const cookie = firstCookie(submitted.headers);
-      // A sign-in that answers 2xx or a redirect and hands back a cookie worked. A form
-      // re-rendered with an error hands back no session, and that is a failure to report
-      // rather than an identity to pretend we have.
-      if (cookie && submitted.status < 400) {
-        return { cookie, body: submitted.responseBody, csrf: readCsrf(submitted.responseBody) };
+      // Whatever credential came back: a Set-Cookie, or a token in the body. A sign-in
+      // that answers 2xx or a redirect and hands one back worked; a form re-rendered with
+      // an error hands back nothing, and that is a failure to report rather than an
+      // identity to pretend we have.
+      const credential = credentialFrom(submitted);
+      if (credential && submitted.status < 400) {
+        return { ...credential, body: submitted.responseBody, csrf: readCsrf(submitted.responseBody) };
       }
     }
 
-    // Applications that really do offer a JSON session endpoint.
-    const result = await this.request({
-      url: `${baseUrl}/api/session`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
-      headers: { 'content-type': 'application/json' },
-      body: { username, password }, as: username, testId: 'sign-in'
-    });
-    if (!result.allowed || result.status !== 200) return null;
-    const cookie = firstCookie(result.headers);
-    return { cookie, body: result.responseBody, csrf: result.responseBody?.csrfToken ?? null };
+    // Applications that answer a JSON sign-in rather than serving a form. The path is not
+    // one convention either: a token endpoint is spelled a dozen ways and guessing only
+    // /api/session is how the whole family of them went untested.
+    for (const endpoint of ['/api/session', '/api/auth/token', '/api/auth/login',
+                            '/api/login', '/api/token', '/auth/token', '/oauth/token']) {
+      const result = await this.request({
+        url: `${baseUrl}${endpoint}`, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+        headers: { 'content-type': 'application/json' },
+        body: { username, password, email: username }, as: username, testId: 'sign-in'
+      });
+      if (!result.allowed || result.status >= 400) continue;
+
+      const credential = credentialFrom(result);
+      if (credential) {
+        return { ...credential, body: result.responseBody,
+                 csrf: result.responseBody?.csrfToken ?? null };
+      }
+    }
+    return null;
   }
 
   summary() {
