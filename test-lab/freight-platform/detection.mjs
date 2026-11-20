@@ -218,8 +218,13 @@ export const DEFECT_KEYWORDS = {
   FP_D22_ERROR_NOT_ASSOCIATED: ['aria-describedby', 'associated', 'error message'],
   FP_D23_STATUS_BY_COLOUR_ONLY: ['colour', 'color', 'contrast', 'text alternative'],
   FP_D24_MODAL_NOT_ANNOUNCED: ['aria-modal', 'dialog', 'focus'],
-  FP_D25_RATE_TABLE_OVERFLOWS: ['overflow', 'horizontal scroll', 'viewport'],
-  FP_D26_PLANNER_FIXED_WIDTH: ['overflow', 'horizontal scroll', 'viewport'],
+  // Written against the oracle's actual message — "the page can be scrolled sideways by
+  // 42px in a 1280px-wide window; the element reaching furthest is div, whose right edge
+  // is at 1322px" — rather than against the words a reader of the defect would reach for.
+  // The previous list ('overflow', 'horizontal scroll', 'viewport') appears nowhere in it,
+  // so both defects read as missed while both were being found on every run.
+  FP_D25_RATE_TABLE_OVERFLOWS: ['scrolled sideways', 'right edge', 'reaching furthest', 'overflow'],
+  FP_D26_PLANNER_FIXED_WIDTH: ['scrolled sideways', 'right edge', 'reaching furthest', 'overflow'],
   FP_D27_AUDIT_LOG_SLOW: ['slow', 'response time', 'performance budget'],
   FP_D28_REFLECTED_XSS_IN_SEARCH: ['xss', 'script tag', 'reflected', 'injection'],
   FP_D29_NO_CSRF_ON_ADJUSTMENT: ['csrf', 'forgery', 'anti-forgery'],
@@ -449,6 +454,20 @@ export function detect({ defects, failures = [], findings = [], reachedPaths = [
     }
   }
 
+  // Keyword lists that match nothing anywhere.
+  //
+  // FP_D25 and FP_D26 were both detected — the rate card is a 980px table at a 390px
+  // viewport and the planner is the 1100px div the defect describes — and both scored
+  // "missed" because their keywords were 'overflow', 'horizontal scroll' and 'viewport'
+  // while the oracle says "the page can be scrolled sideways by 42px in a 1280px-wide
+  // window". Three words, none of them in the message, written against wording nobody
+  // checked. A list that matches nothing now says so instead of looking like an absence
+  // of findings.
+  const deadKeywords = claims
+    .filter(claim => claim.keywords.length > 0
+      && !signals.some(signal => claim.keywords.some(word => mentions(signal.text, word))))
+    .map(claim => ({ id: claim.defect.id, keywords: claim.keywords }));
+
   const verdicts = claims.map(claim => {
     const mine = (candidates) =>
       candidates.filter(candidate => owner.get(candidate.signal)?.id === claim.defect.id);
@@ -486,6 +505,7 @@ export function detect({ defects, failures = [], findings = [], reachedPaths = [
   return {
     counts,
     verdicts,
+    deadKeywords,
     failureAnalysis: {
       total: classified.length,
       applicationFailures: applicationFailures.length,

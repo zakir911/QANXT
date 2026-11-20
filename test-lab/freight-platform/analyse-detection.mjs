@@ -153,4 +153,17 @@ await writeFile(new URL('./detection-analysis.json', import.meta.url),
     ...analysis
   }, null, 2) + '\n');
 
+if ((analysis.deadKeywords ?? []).length) {
+  line('\n────────────────────────────────────────────────────────────────────────────');
+  line('  Keyword lists that match nothing in this run');
+  line('────────────────────────────────────────────────────────────────────────────\n');
+  line('  These defects cannot be scored at all: whatever the run found, no signal');
+  line('  contains any of their words. Either the defect genuinely produced nothing, or');
+  line('  the list was written against wording the oracles do not use — which is how');
+  line('  FP_D25 and FP_D26 read as missed while both were being detected.\n');
+  for (const dead of analysis.deadKeywords) {
+    line(`    ${dead.id.padEnd(38)} ${dead.keywords.join(', ')}`);
+  }
+}
+
 line(`\n  Written to detection-analysis.json\n`);

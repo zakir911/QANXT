@@ -1,5 +1,5 @@
 {
-  "analysedAt": "2026-11-20T01:06:43.337Z",
+  "analysedAt": "2026-11-20T01:10:29.810Z",
   "source": "form-engine-result.json",
   "note": "A failure is classified as a tool error or an application failure before it is matched to a defect. Only an application failure can evidence one: a Playwright timeout says nothing about whether the application is correct, whatever words happen to be in its message.",
   "run": {
@@ -20,9 +20,9 @@
     }
   },
   "counts": {
-    "found": 5,
+    "found": 7,
     "possible": 3,
-    "missed": 19,
+    "missed": 17,
     "unreachable": 5
   },
   "verdicts": [
@@ -272,9 +272,9 @@
       "category": "responsive",
       "screen": "/carriers/:id/rates",
       "screenReached": true,
-      "verdict": "missed",
-      "contestedEvidence": 0,
-      "evidence": null
+      "verdict": "found",
+      "contestedEvidence": 5,
+      "evidence": "Rate card — Baltic Road · Meridian Freight (/carriers/car-003/rates): fits a tablet screen (768x1024) The page can be scrolled sideways by 244px in a 768px-wide window; the element"
     },
     {
       "id": "FP_D26_PLANNER_FIXED_WIDTH",
@@ -282,9 +282,9 @@
       "category": "responsive",
       "screen": "/routes/planner",
       "screenReached": true,
-      "verdict": "missed",
-      "contestedEvidence": 0,
-      "evidence": null
+      "verdict": "found",
+      "contestedEvidence": 24,
+      "evidence": "Route planner · Meridian Freight (/routes/planner): fits a laptop screen (1280x800) The page can be scrolled sideways by 42px in a 1280px-wide window; the element reaching furthest"
     },
     {
       "id": "FP_D27_AUDIT_LOG_SLOW",
@@ -345,6 +345,90 @@
       "verdict": "missed",
       "contestedEvidence": 0,
       "evidence": null
+    }
+  ],
+  "deadKeywords": [
+    {
+      "id": "FP_D07_RATE_BAND_BOUNDARY",
+      "keywords": [
+        "band",
+        "boundary",
+        "rate per kg"
+      ]
+    },
+    {
+      "id": "FP_D12_SHIPMENT_IDOR",
+      "keywords": [
+        "idor",
+        "authorization",
+        "object reference",
+        "access control"
+      ]
+    },
+    {
+      "id": "FP_D13_LEGACY_API_KEY_FULL_SCOPE",
+      "keywords": [
+        "api key",
+        "scope",
+        "expiry"
+      ]
+    },
+    {
+      "id": "FP_D18_LONG_SEARCH_CRASHES",
+      "keywords": [
+        "internal server error",
+        "stack trace",
+        "http 500"
+      ]
+    },
+    {
+      "id": "FP_D19_OVERSIZE_UPLOAD_CRASHES",
+      "keywords": [
+        "upload",
+        "file size",
+        "internal server error"
+      ]
+    },
+    {
+      "id": "FP_D24_MODAL_NOT_ANNOUNCED",
+      "keywords": [
+        "aria-modal",
+        "dialog",
+        "focus"
+      ]
+    },
+    {
+      "id": "FP_D27_AUDIT_LOG_SLOW",
+      "keywords": [
+        "slow",
+        "response time",
+        "performance budget"
+      ]
+    },
+    {
+      "id": "FP_D28_REFLECTED_XSS_IN_SEARCH",
+      "keywords": [
+        "xss",
+        "script tag",
+        "reflected",
+        "injection"
+      ]
+    },
+    {
+      "id": "FP_D30_SESSION_COOKIE_FLAGS",
+      "keywords": [
+        "httponly",
+        "secure flag",
+        "cookie"
+      ]
+    },
+    {
+      "id": "FP_D31_STACK_TRACE_LEAKED",
+      "keywords": [
+        "stack trace",
+        "disclosure",
+        "information leak"
+      ]
     }
   ],
   "failureAnalysis": {
