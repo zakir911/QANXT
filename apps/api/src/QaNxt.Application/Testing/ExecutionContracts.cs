@@ -91,6 +91,16 @@ public sealed record CaptureSettingsPayload
     [JsonPropertyName("har")] public bool Har { get; init; }
     [JsonPropertyName("screenshotOnEveryAction")] public bool ScreenshotOnEveryAction { get; init; }
     [JsonPropertyName("domSnapshotOnFailure")] public bool DomSnapshotOnFailure { get; init; } = true;
+
+    /// <summary>Whether a trace and a video are kept for an execution that passed.
+    ///
+    /// <para>Off, and that default is the difference between a product that can run a real
+    /// suite and one that cannot. A 6,354-test run wrote 7.3GB of them, filled the disk,
+    /// took the database down twice and left 992 tests with no verdict. Nobody opens the
+    /// trace of a test that passed; a pass is evidenced by its step results and its final
+    /// screenshot, which are kept either way.</para></summary>
+    [JsonPropertyName("retainHeavyArtifactsOnPass")]
+    public bool RetainHeavyArtifactsOnPass { get; init; }
 }
 
 public sealed record HealingSettingsPayload

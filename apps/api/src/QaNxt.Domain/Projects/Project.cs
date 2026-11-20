@@ -19,6 +19,11 @@ public class Project : BaseEntity, ITenantOwned, IAuditable, ISoftDeletable
     public int DefaultActionTimeoutMs { get; set; } = 15000;
     public bool CaptureVideo { get; set; } = true;
     public bool CaptureTrace { get; set; } = true;
+
+    /// <summary>Keep a trace and a video for executions that passed, not only for the ones
+    /// somebody will investigate. Off: a 6,354-test run kept 7.3GB of them and filled the
+    /// disk, and none of the passing ones was ever opened.</summary>
+    public bool RetainHeavyArtifactsOnPass { get; set; }
     public bool CaptureHar { get; set; } = true;
 
     // ---- Self-healing policy ------------------------------------------------

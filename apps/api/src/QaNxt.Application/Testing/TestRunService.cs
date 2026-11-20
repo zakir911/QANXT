@@ -487,7 +487,8 @@ public sealed class TestRunService : ITestRunService
                 Trace = project.CaptureTrace,
                 Har = project.CaptureHar,
                 ScreenshotOnEveryAction = false,
-                DomSnapshotOnFailure = true
+                DomSnapshotOnFailure = true,
+                RetainHeavyArtifactsOnPass = project.RetainHeavyArtifactsOnPass
             },
             Healing = new HealingSettingsPayload
             {

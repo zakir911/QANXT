@@ -4024,6 +4024,10 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("organization_id");
 
+                    b.Property<bool>("RetainHeavyArtifactsOnPass")
+                        .HasColumnType("boolean")
+                        .HasColumnName("retain_heavy_artifacts_on_pass");
+
                     b.Property<int>("SelfHealingGatePolicy")
                         .HasColumnType("integer")
                         .HasColumnName("self_healing_gate_policy");

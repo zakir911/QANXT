@@ -265,11 +265,27 @@ export class TestExecutor {
       collector.setCurrentAction(undefined);
       await apiSession.dispose();
 
+      // A trace and a video are kept for an execution that failed, and for one that was
+      // healed or timed out, because somebody is going to open those. They are not kept for
+      // a pass.
+      //
+      // This is not tidiness. A 6,354-test run wrote 7.3GB of them, filled the disk, took
+      // the database down twice and left 992 tests with no verdict at all — and not one of
+      // the passing traces was ever opened. A pass is evidenced by its step results and its
+      // final screenshot, and both are kept either way.
+      const keepHeavy = shouldRetainHeavyArtifacts(status, job.capture);
+
       if (context && job.capture.trace) {
         try {
           tracePath = join(executionDir, 'trace.zip');
-          await context.tracing.stop({ path: tracePath });
-          await collector.registerExternal('trace', 'trace.zip', tracePath, 'application/zip');
+          // The trace has to be stopped whether or not it is kept: leaving tracing running
+          // leaks the context's buffer for the life of the worker.
+          await context.tracing.stop(keepHeavy ? { path: tracePath } : {});
+          if (keepHeavy) {
+            await collector.registerExternal('trace', 'trace.zip', tracePath, 'application/zip');
+          } else {
+            tracePath = undefined;
+          }
         } catch (error) {
           this.logger.warn('Trace capture failed', { error: String(error) });
         }
@@ -281,7 +297,7 @@ export class TestExecutor {
       let video: ReturnType<Page['video']> | null = null;
       if (page && !page.isClosed()) {
         await collector.screenshot(page, 'final').catch(() => undefined);
-        if (job.capture.video) video = page.video();
+        if (job.capture.video && keepHeavy) video = page.video();
         await page.close().catch(() => undefined);
       }
 
@@ -806,6 +822,29 @@ function safeUrl(page: Page): string | undefined {
 }
 
 /** Removes an execution's temporary artifact directory once the files are uploaded. */
+/**
+ * Whether this execution's trace and video are worth keeping.
+ *
+ * A trace and a video are kept for an execution that failed, was healed, timed out or
+ * errored, because somebody is going to open those. They are not kept for a pass.
+ *
+ * This is not tidiness. A 6,354-test run wrote 7.3GB of them - 4.4GB of traces and 2.7GB
+ * of video - filled the disk, took the database down twice, and left 992 tests with no
+ * verdict at all. Not one of the passing traces was ever opened. A pass is evidenced by its
+ * step results and its final screenshot, and both are kept either way.
+ *
+ * The setting exists for the person debugging a test that passes when it should not, who
+ * can turn it on knowing what it costs per execution.
+ */
+export function shouldRetainHeavyArtifacts(
+  status: string,
+  capture: { retainHeavyArtifactsOnPass?: boolean }
+): boolean {
+  if (capture.retainHeavyArtifactsOnPass === true) return true;
+  // Skipped and cancelled executions did not run, so there is nothing in a trace of one.
+  return status !== 'passed' && status !== 'skipped' && status !== 'cancelled';
+}
+
 export async function cleanupExecutionArtifacts(artifactRoot: string, executionId: string): Promise<void> {
   await rm(join(artifactRoot, executionId), { recursive: true, force: true });
 }

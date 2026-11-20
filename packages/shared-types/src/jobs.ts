@@ -257,6 +257,18 @@ export interface CaptureSettings {
   har: boolean;
   screenshotOnEveryAction: boolean;
   domSnapshotOnFailure: boolean;
+  /**
+   * Whether a trace and a video are kept for an execution that passed.
+   *
+   * Off by default, and that default is the difference between a product that can run a
+   * real suite and one that cannot. A 6,354-test run wrote 7.3GB — 4.4GB of traces and
+   * 2.7GB of video — filled the disk, killed the database twice and stranded 992 tests
+   * with no verdict. Nobody opens the trace of a test that passed; a pass is evidenced by
+   * its step results and its final screenshot, both of which are kept either way.
+   *
+   * Turn it on to debug a passing test, knowing what it costs per execution.
+   */
+  retainHeavyArtifactsOnPass?: boolean;
 }
 
 export interface HealingSettings {
