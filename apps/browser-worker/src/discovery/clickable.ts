@@ -101,37 +101,89 @@ export function looksMutating(accessibleName: string): boolean {
  * @param accessibleName the link's text or accessible name, which may be empty
  * @param url the link's resolved absolute URL
  */
-export function linkLooksMutating(accessibleName: string, url: string): boolean {
+export function linkLooksMutating(accessibleName: string, url: string, inNav = false): boolean {
   let path: string;
+  let search: string;
   try {
-    path = new URL(url).pathname;
+    const parsed = new URL(url);
+    path = parsed.pathname;
+    search = parsed.search;
   } catch {
-    path = url.split('?')[0] ?? url;
+    [path, search] = [url.split('?')[0] ?? url, url.includes('?') ? `?${url.split('?')[1]}` : ''];
   }
   // A path is one word to a reader and several to a matcher: /permits/approve-all, the
   // ASP /approve.asp and the REST /api/v1/permits/1/approve all have to read the same.
   const words = `${accessibleName} ${path.replace(/[^a-z0-9]+/gi, ' ')}`;
-  return looksMutating(words) && !onlyOpensAForm(words);
+  if (!looksMutating(words)) return false;
+
+  // Some words act the moment the link is opened and need nothing to act on: Delete all,
+  // Clear basket, Reset, Sign out. Those are refused wherever they appear, navigation
+  // included — signing out changes no record but ends the crawl's session, and everything
+  // mapped afterwards is a signed-out shell.
+  if (matchesAny(words, ACTS_ON_ARRIVAL)) return true;
+
+  // Everything else in the list is ambiguous on a link, because the list was written for
+  // buttons. "Save", "Transfer", "Checkout", "New" and "Upload" name the screen as often
+  // as the act, and three separate crawls lost real coverage to that: a permit register's
+  // application form, a banking application's transfer page, and five routes of the form
+  // lab, all refused on a word in a link that only ever opened a form.
+  //
+  // What separates the two is not vocabulary, it is whether the link addresses something.
+  // A link that performs an act acts on a record and carries its identifier —
+  // /approve.asp?id=1, /orders/99/cancel. A link that opens a screen carries none —
+  // /checkout, /new.asp, /app/transfer. That is structural, and it is the discriminator.
+  if (inNav) return false;
+  return addressesARecord(path, search);
 }
 
 /**
- * Words that on a LINK name the record you are about to make or change, not a change
- * being made. The change happens when the form they open is submitted, and that submit
- * control is a button, which `decide` already refuses.
+ * Words that complete an action on arrival, with or without a record to act on.
  *
- * Applying the full list to links cost real coverage the moment it landed: a permit
- * register's "New application" link was not followed, the application form behind it was
- * never discovered, and the suite for that target fell from two forms to one. A guard that
- * stops the crawl reaching half the application is not a safe guard, it is a broken one.
- *
- * Only these four are forgiven, and only when nothing else on the link is mutating, so
- * "Create" is followed and "Delete and create a replacement" is not.
+ * Narrow on purpose. Each one names an act that is irreversible or disruptive, and none of
+ * them is a common way to name a screen. The broader half of MUTATING_WORDS stays in force
+ * for buttons, where it belongs.
  */
-const OPENS_A_FORM = ['new', 'add', 'create', 'edit'];
+const ACTS_ON_ARRIVAL = [
+  'delete', 'remove', 'destroy', 'drop', 'erase', 'purge', 'clear',
+  'approve', 'reject', 'decline', 'revoke', 'cancel', 'reset', 'restore',
+  'disable', 'enable', 'archive', 'publish', 'deploy', 'release',
+  'refund', 'charge', 'withdraw', 'confirm',
+  'sign out', 'signout', 'log out', 'logout', 'unsubscribe'
+];
 
-function onlyOpensAForm(words: string): boolean {
-  const remaining = MUTATING_WORDS.filter(word => !OPENS_A_FORM.includes(word));
-  return !looksMutating(stripExcept(words, remaining));
+/** Query parameters that name which record, as opposed to which page or which filter. */
+const IDENTIFIER_PARAMETERS = [
+  'id', 'ids', 'key', 'ref', 'reference', 'no', 'num', 'number',
+  'uuid', 'guid', 'sku', 'code', 'pk', 'oid', 'uid'
+];
+
+/**
+ * Does this link address one particular record?
+ *
+ * An identifier in the path — a number, a GUID, an opaque token — or a query parameter
+ * named after one. `?page=2` and `?q=cardiology` are not identifiers: they say which part
+ * of a list or which filter, and a link carrying one is still a link to a screen.
+ */
+function addressesARecord(path: string, search: string): boolean {
+  const segments = path.split('/').filter(Boolean);
+  const identifiesInPath = segments.some(segment =>
+    /^\d+$/.test(segment)
+    || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)
+    || (segment.length >= 12 && /^[A-Za-z0-9_-]+$/.test(segment) && /\d/.test(segment) && /[A-Za-z]/.test(segment)));
+  if (identifiesInPath) return true;
+
+  if (search.length <= 1) return false;
+  return search.replace(/^\?/, '').split('&').filter(Boolean).some(pair => {
+    const [rawKey, rawValue = ''] = pair.split('=');
+    const key = (rawKey ?? '').toLowerCase();
+    return rawValue !== '' && IDENTIFIER_PARAMETERS.some(name => key === name || key.endsWith(`_${name}`)
+      || key.endsWith(name) && key.length <= name.length + 8);
+  });
+}
+
+/** True when any of `words` appears in `text` as a whole word. */
+function matchesAny(text: string, words: readonly string[]): boolean {
+  return looksMutating(stripExcept(text, words));
 }
 
 /** The words of `text` that appear in `allowed`, so looksMutating can be asked about those alone. */

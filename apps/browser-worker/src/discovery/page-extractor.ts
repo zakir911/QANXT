@@ -33,6 +33,15 @@ export interface RawElement {
   isRequired: boolean;
   options?: Array<{ value: string; label: string }>;
   attributes: Record<string, string>;
+  /**
+   * True when the element sits in a navigation region.
+   *
+   * Recorded because a word list cannot tell a link that performs an action from a link
+   * named after the screen it opens: "Fund transfer" and "Approve" read the same to a
+   * matcher, and refusing both cost a banking application its transfer screen. A region
+   * whose job is to move you around is structural evidence rather than a guess at wording.
+   */
+  inNav: boolean;
 }
 
 export interface RawPageCapture {
@@ -320,6 +329,9 @@ export function extractPage(maxElements: number): RawPageCapture {
       domPath: domPathOf(element),
       parentSignature: parentSignatureOf(element),
       neighbourText: neighbourTextOf(element),
+      // The same selector the click candidates use, so a link and a button in the same
+      // region are judged by the same rule.
+      inNav: element.closest('nav, [role="navigation"], [role="menubar"], [role="menu"]') !== null,
       bounding: {
         x: Math.round(rect.x), y: Math.round(rect.y),
         width: Math.round(rect.width), height: Math.round(rect.height)

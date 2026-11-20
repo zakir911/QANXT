@@ -9,7 +9,7 @@ import type {
 import { buildLocatorFor } from '../browser/locator-builder.js';
 import { buildLocator } from '../browser/locator-resolver.js';
 import { SecretMasker } from '../security/masker.js';
-import { isUrlAllowed, normalizeUrl } from '../security/url-guard.js';
+import { isUrlAllowed, normalizeUrl, visitKey } from '../security/url-guard.js';
 import { RobotsPolicy, requestContextFetcher } from '../security/robots.js';
 import type { Logger } from '../util/logger.js';
 import { classifyPage, inferRequiresAuthentication } from './classify.js';
@@ -70,6 +70,16 @@ const MAX_PROBE_INTERACTIONS_PER_PAGE = 60;
 
 interface CrawledPage extends DiscoveredPage {
   links: string[];
+  /**
+   * The hrefs of links this page carries inside a navigation region.
+   *
+   * Crawl state, like `links`, and stripped from the report for the same reason: it is how
+   * the crawler decides where to go next, not part of the map it hands back. It is kept
+   * because whether a link lives in a navigation region decides whether a mutating word in
+   * it names an action or the screen it opens, and `DiscoveredElement` is a shared contract
+   * that should not grow a field for a decision local to crawling.
+   */
+  navHrefs: string[];
 }
 
 interface QueueEntry {
@@ -167,20 +177,20 @@ export class Crawler {
       // and from there only to the public pages it links to.
       const start = authenticated && this.landingUrl && !this.isLoginPage(this.landingUrl) ? this.landingUrl : this.options.baseUrl;
       const queue: QueueEntry[] = [{ url: start, depth: 0 }];
-      if (normalizeUrl(start) !== normalizeUrl(this.options.baseUrl) && !(authenticated && this.isLoginPage(this.options.baseUrl))) {
+      if (visitKey(start) !== visitKey(this.options.baseUrl) && !(authenticated && this.isLoginPage(this.options.baseUrl))) {
         queue.push({ url: this.options.baseUrl, depth: 0 });
       }
 
       for (const seed of this.options.budget.seedUrls ?? []) {
         const resolved = this.resolveSeed(seed);
-        if (resolved && normalizeUrl(resolved) !== normalizeUrl(this.options.baseUrl)) {
+        if (resolved && visitKey(resolved) !== visitKey(this.options.baseUrl)) {
           queue.push({ url: resolved, depth: 0, viaAccessibleName: 'a route you listed' });
         }
       }
 
       if (this.options.budget.useSitemap) {
         for (const fromSitemap of await this.readSitemap(page)) {
-          if (!queue.some(entry => normalizeUrl(entry.url) === normalizeUrl(fromSitemap))) {
+          if (!queue.some(entry => visitKey(entry.url) === visitKey(fromSitemap))) {
             queue.push({ url: fromSitemap, depth: 0, viaAccessibleName: 'the sitemap' });
           }
         }
@@ -211,7 +221,7 @@ export class Crawler {
         }
 
         const entry = queue.shift()!;
-        const normalized = normalizeUrl(entry.url);
+        const normalized = visitKey(entry.url);
         if (this.visited.has(normalized)) continue;
         // The sign-in page was mapped before signing in; going back to it signed in would
         // at best show it again and at worst sign the crawl out.
@@ -265,13 +275,13 @@ export class Crawler {
 
         if (entry.depth < this.options.budget.maxDepth) {
           for (const link of this.collectLinks(discovered, entry.depth)) {
-            if (!this.visited.has(normalizeUrl(link.url))) queue.push(link);
+            if (!this.visited.has(visitKey(link.url))) queue.push(link);
           }
 
           // Clicking comes after link following so the cheap, certain route is exhausted
           // first and the budget is spent on pages nothing else would have reached.
           for (const clicked of await this.probeInteractions(page, entry, discovered)) {
-            if (!this.visited.has(normalizeUrl(clicked.url))) queue.push(clicked);
+            if (!this.visited.has(visitKey(clicked.url))) queue.push(clicked);
           }
         }
       }
@@ -324,7 +334,7 @@ export class Crawler {
       completedAt: new Date().toISOString(),
       workerId,
       // `links` is crawl state; the report carries only the page model.
-      pages: [...this.pages.values()].map(({ links, ...page }) => page),
+      pages: [...this.pages.values()].map(({ links, navHrefs, ...page }) => page),
       transitions: this.transitions,
       apiEndpoints: [...this.apiEndpoints.values()],
       consoleErrors: this.consoleErrors,
@@ -410,7 +420,7 @@ export class Crawler {
     }
 
     try {
-      const normalized = normalizeUrl(loginUrl);
+      const normalized = visitKey(loginUrl);
       this.visited.add(normalized);
       this.routeShapeCounts.set(routeShapeOf(loginUrl), 1);
       const captured = await this.visit(page, { url: loginUrl, depth: 0 }, false);
@@ -500,10 +510,10 @@ export class Crawler {
 
     const capture = await page.evaluate(extractPage, 400) as RawPageCapture;
     const loadTimeMs = Date.now() - started;
-    const normalized = normalizeUrl(capture.url);
+    const normalized = visitKey(capture.url);
 
     // A redirect may have landed us somewhere already mapped (typically the login page).
-    if (normalized !== normalizeUrl(entry.url) && this.pages.has(normalized)) {
+    if (normalized !== visitKey(entry.url) && this.pages.has(normalized)) {
       this.visited.add(normalized);
       return null;
     }
@@ -539,7 +549,10 @@ export class Crawler {
       accessibilityKey,
       elements: capture.elements.map(element => this.toDiscoveredElement(element, capture.elements)),
       forms,
-      links: capture.links
+      links: capture.links,
+      navHrefs: capture.elements
+        .filter(element => element.inNav && element.attributes['href'])
+        .map(element => element.attributes['href']!)
     };
 
     this.pages.set(normalized, discovered);
@@ -796,7 +809,7 @@ export class Crawler {
         await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => undefined);
 
         const after = page.url();
-        if (normalizeUrl(after) !== normalizeUrl(startUrl) && !this.visited.has(normalizeUrl(after))) {
+        if (visitKey(after) !== visitKey(startUrl) && !this.visited.has(visitKey(after))) {
           found.push({
             url: after,
             depth: entry.depth + 1,
@@ -811,7 +824,7 @@ export class Crawler {
       }
 
       // Back to where we started, whatever the click did.
-      if (normalizeUrl(page.url()) !== normalizeUrl(startUrl)) {
+      if (visitKey(page.url()) !== visitKey(startUrl)) {
         await this.reopen(page, startUrl);
         await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => undefined);
       } else {
@@ -835,17 +848,19 @@ export class Crawler {
     const seen = new Set<string>();
 
     for (const href of links) {
-      const normalized = normalizeUrl(href);
+      const normalized = visitKey(href);
       if (seen.has(normalized) || this.visited.has(normalized)) continue;
       seen.add(normalized);
 
       const anchor = page.elements.find(e => e.kind === 'link' && e.attributes['href'] && href.endsWith(e.attributes['href']!));
       const name = anchor?.accessibleName ?? '';
+      const inNav = page.navHrefs.some(nav => href.endsWith(nav) || nav.endsWith(href));
 
       // A link that says it changes something is not followed, and the crawl says so.
       // Mapping an application must not alter it: a run against a permit register
       // approved every permit in it through links exactly like this one.
-      if (!this.options.budget.allowStateChangingClicks && linkLooksMutating(name, href)) {
+      if (!this.options.budget.allowStateChangingClicks
+          && linkLooksMutating(name, href, inNav)) {
         this.mutatingLinksSkipped++;
         this.note(`Did not follow ${href}${name ? ` ("${name}")` : ''}: it looks like it changes `
           + `something, and mapping an application must not alter it. Turn on state-changing `
@@ -995,7 +1010,7 @@ export class Crawler {
       requestContentType: requestHeaders['content-type'],
       responseContentType: contentType || undefined,
       requiresAuthentication: Boolean(requestHeaders['authorization'] || requestHeaders['cookie']),
-      triggeredByNormalizedUrl: normalizeUrl(request.frame()?.url() ?? url),
+      triggeredByNormalizedUrl: visitKey(request.frame()?.url() ?? url),
       timesObserved: 1
     });
   }

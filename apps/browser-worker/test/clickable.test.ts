@@ -183,6 +183,7 @@ describe('an unrecognised mode', () => {
  */
 describe('linkLooksMutating', () => {
   const mutating = (name: string, url: string) => linkLooksMutating(name, url);
+  const inNav = (name: string, url: string) => linkLooksMutating(name, url, true);
 
   it('refuses the link that approved every permit in a register', () => {
     expect(mutating('Approve', 'http://127.0.0.1:4700/approve.asp?id=1')).toBe(true);
@@ -219,27 +220,90 @@ describe('linkLooksMutating', () => {
   });
 
   /**
-   * The regression the first version of this guard caused, kept as a test because it was
-   * worse than the bug: applying the whole word list to links stopped the crawl following
-   * "New application", so the form behind it was never discovered and that target's suite
-   * halved. A guard that hides half the application is not safe.
+   * The three regressions the word-list versions of this guard caused, kept as tests
+   * because each was worse than the bug: applying a button vocabulary to links refused a
+   * permit register's "New application", a banking application's "Fund transfer", and five
+   * form-lab routes named "Checkout", "Save a draft", "Save a preference", "Transfer
+   * money" and an upload. Every one of them only ever opened a form.
    */
-  it('follows a link that opens a form rather than making the change', () => {
+  it('follows a link that opens a screen rather than making the change', () => {
     expect(mutating('New application', 'http://host/new.asp')).toBe(false);
-    expect(mutating('Add a customer', 'http://host/customers/new')).toBe(false);
-    expect(mutating('Create invoice', 'http://host/invoices/create')).toBe(false);
-    expect(mutating('Edit', 'http://host/permits/3/edit')).toBe(false);
+    expect(mutating('Fund transfer', 'http://host/app/transfer')).toBe(false);
+    expect(mutating('Checkout', 'http://host/checkout')).toBe(false);
+    expect(mutating('Save a draft', 'http://host/client-silent-discard')).toBe(false);
+    expect(mutating('Transfer money', 'http://host/duplicate-submit')).toBe(false);
+    expect(mutating('Upload a document', 'http://host/file-upload')).toBe(false);
   });
 
-  it('still refuses a link that opens a form AND does something on the way', () => {
-    expect(mutating('Delete and create a replacement', 'http://host/x')).toBe(true);
-    expect(mutating('Add', 'http://host/cart/add-and-checkout')).toBe(true);
-    expect(mutating('Create', 'http://host/approve-then-create')).toBe(true);
+  /**
+   * What separates the two is not vocabulary, it is whether the link addresses something.
+   * A link that performs an act acts on a record and carries its identifier.
+   */
+  it('refuses the same words once the link names a record', () => {
+    expect(mutating('Pay', 'http://host/invoices/5/pay')).toBe(true);
+    expect(mutating('Submit', 'http://host/orders/99/submit')).toBe(true);
+    expect(mutating('Edit', 'http://host/profile/5/edit')).toBe(true);
+    expect(mutating('Upload', 'http://host/permits/upload?id=7')).toBe(true);
+  });
+
+  /**
+   * And some words complete the act on arrival with nothing to act on. Those are refused
+   * whatever the link addresses, because "Clear basket" and "Reset" do it to everything.
+   */
+  it('refuses a word that acts on arrival even with no record named', () => {
+    expect(mutating('Clear basket', 'http://host/cart/clear')).toBe(true);
+    expect(mutating('Reset', 'http://host/admin/reset')).toBe(true);
+    expect(mutating('Delete all', 'http://host/admin/delete-all')).toBe(true);
+    expect(mutating('Archive', 'http://host/mail/archive')).toBe(true);
+  });
+
+  it('does not read a page number or a filter as a record', () => {
+    expect(mutating('Save', 'http://host/drafts/save?page=2')).toBe(false);
+    expect(mutating('Export', 'http://host/reports/export?format=csv&from=2026-01-01')).toBe(false);
   });
 
   it('refuses a sign-out link, which ends the crawl rather than changing a record', () => {
     expect(mutating('Sign out', 'http://host/auth/sign-out')).toBe(true);
     expect(mutating('', 'http://host/logout')).toBe(true);
+  });
+
+  /**
+   * The second over-block, and the one that showed a word list cannot settle this: a
+   * banking application's navigation carried "Fund transfer", which reads exactly like
+   * "Approve" to a matcher and is the name of a screen. Refusing it took the transfer page
+   * and its four-field form out of the crawl entirely.
+   *
+   * A region whose job is to move you around is structural evidence, and it needs no
+   * vocabulary at all.
+   */
+  it('follows a mutating-sounding link that lives in a navigation region', () => {
+    // A region whose job is to move you around is a second, independent reason to follow,
+    // and it covers the case the structural rule alone does not: a navigation link that
+    // does name a record, such as "Edit profile" pointing at /profile/5/edit.
+    expect(mutating('Edit profile', 'http://host/profile/5/edit')).toBe(true);
+    expect(inNav('Edit profile', 'http://host/profile/5/edit')).toBe(false);
+    expect(inNav('Payments and transfers', 'http://host/app/payments')).toBe(false);
+  });
+
+  /**
+   * Except signing out, which is in navigation on almost every application. It changes no
+   * record; it ends the crawl's session, and everything mapped after it is a signed-out
+   * shell.
+   */
+  it('refuses an act-on-arrival link even in a navigation region', () => {
+    expect(inNav('Archive', 'http://host/mail/archive')).toBe(true);
+    expect(inNav('Clear', 'http://host/cart/clear')).toBe(true);
+  });
+
+  it('refuses a sign-out link even in a navigation region', () => {
+    expect(inNav('Sign out', 'http://host/auth/sign-out')).toBe(true);
+    expect(inNav('Log out', 'http://host/logout')).toBe(true);
+    expect(inNav('Unsubscribe', 'http://host/prefs/unsubscribe')).toBe(true);
+  });
+
+  it('still refuses a per-record action link outside a navigation region', () => {
+    expect(mutating('Approve', 'http://host/approve.asp?id=1')).toBe(true);
+    expect(mutating('Delete', 'http://host/permits/1/delete')).toBe(true);
   });
 
   it('copes with a relative or malformed URL rather than throwing', () => {

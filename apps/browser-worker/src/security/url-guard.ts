@@ -135,6 +135,51 @@ export function normalizeUrl(rawUrl: string): string {
   return `${url.protocol}//${url.hostname.toLowerCase()}${port}${path}${query}`;
 }
 
+/**
+ * The key that says whether this exact page has already been visited.
+ *
+ * `normalizeUrl` answers a different question — what route shape is this — and collapses
+ * `/view.asp?id=1`, `?id=2` and `?id=3` to one string, which is right for a shape and
+ * wrong for a visit. The crawler used it for both, so the second and third records of
+ * every route were skipped as already seen.
+ *
+ * The cost was not the page count. A page-level data check runs on the pages discovery
+ * recorded, so "every total equals the sum of its lines" ran against permit 1 — whose
+ * fees add up — and passed, while the mismatch planted in permit 2 was never opened. One
+ * record per route is one record per route however many the application holds, and that is
+ * how a data-integrity suite reports green on an application full of broken arithmetic.
+ *
+ * Identifiers are kept here, both in the path and in the query. Only what is incidental is
+ * normalised: host case, a default port, a trailing slash, and the order of query
+ * parameters, so `?b=2&a=1` and `?a=1&b=2` are one page rather than two.
+ *
+ * How many instances of a route get crawled stays bounded by the route-shape cap, which is
+ * what that cap is for.
+ */
+export function visitKey(rawUrl: string): string {
+  let url: URL;
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    return rawUrl;
+  }
+  // `javascript:void(0)` and `mailto:` parse, with no host. They are not pages, and
+  // rebuilding them as `javascript://void(0)` would make a href that goes nowhere look
+  // like a URL that could be compared with one.
+  if (url.hostname === '') return rawUrl;
+
+  let path = url.pathname;
+  if (path.length > 1 && path.endsWith('/')) path = path.slice(0, -1);
+
+  const pairs = [...url.searchParams.entries()]
+    .sort(([a], [b]) => a.toLowerCase().localeCompare(b.toLowerCase()) || a.localeCompare(b));
+  const query = pairs.length === 0 ? ''
+    : '?' + pairs.map(([key, value]) => `${key}=${value}`).join('&');
+
+  const port = url.port && url.port !== defaultPort(url.protocol) ? `:${url.port}` : '';
+  return `${url.protocol}//${url.hostname.toLowerCase()}${port}${path}${query}`;
+}
+
 function normalizeSegment(segment: string): string {
   if (segment.length === 0) return segment;
   if (/^\d+$/.test(segment)) return '{id}';

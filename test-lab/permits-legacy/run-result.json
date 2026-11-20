@@ -3,40 +3,47 @@
   "name": "Ashfield Building Control",
   "technology": "HTTP Basic authentication, no anti-forgery token, state changes through GET links, nested-table markup, sequential integer ids in the query string",
   "domain": "municipal building permits",
-  "ranAt": "2026-11-20T19:29:00.227Z",
+  "ranAt": "2026-11-20T19:56:07.309Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "343ac07e-3d29-44d5-8e98-5bd02f4d1f51",
+      "id": "bd2d3800-7fbb-4014-aca8-8fd643d462a1",
       "authStrategy": "basicAuth",
       "budget": 240,
       "maxPages": 40
     },
     "discovery": {
       "status": "completed",
-      "pages": 4,
-      "elements": 38,
+      "pages": 5,
+      "elements": 50,
       "endpoints": 0,
       "byKind": {
-        "link": 26,
-        "table": 9,
-        "button": 1,
-        "form": 1,
-        "textInput": 1
+        "link": 30,
+        "table": 11,
+        "form": 2,
+        "button": 2,
+        "textInput": 5
       },
       "paths": [
         "/default.asp",
         "/list.asp",
+        "/new.asp",
         "/search.asp",
         "/view.asp"
       ],
       "message": null
     },
     "forms": {
-      "count": 1,
+      "count": 2,
       "list": [
         {
-          "id": "2df5b155-5ec1-4d48-958d-2be56777566b",
+          "id": "bc2c01e6-9d00-48d5-a127-1142123eef48",
+          "route": "/new.asp",
+          "name": "New application",
+          "fields": 4
+        },
+        {
+          "id": "dba3a6cb-7bce-45ed-aca8-bb1b1f0fe36b",
           "route": "/search.asp",
           "name": "Search",
           "fields": 1
@@ -44,22 +51,55 @@
       ]
     },
     "design": {
-      "testSuiteId": "07bc7457-8082-4ed5-b984-11fd26b53510",
+      "testSuiteId": "268f8abe-2ea2-4feb-b492-8c7e276dbddb",
       "testSuiteName": "Ashfield Building Control — form level",
-      "forms": 1,
-      "testsCreated": 81,
+      "forms": 2,
+      "testsCreated": 178,
       "testsUpdated": 0,
       "testsUnchanged": 0,
       "testsDeprecated": 0,
       "testsLeftAsEdited": 0,
-      "gaps": 9,
-      "humanTasks": 3,
-      "findings": 1,
+      "gaps": 20,
+      "humanTasks": 8,
+      "findings": 6,
       "usedAi": false,
       "engine": "QA NXT form and page test engine (deterministic)",
       "perForm": [
         {
-          "formId": "2df5b155-5ec1-4d48-958d-2be56777566b",
+          "formId": "bc2c01e6-9d00-48d5-a127-1142123eef48",
+          "name": "New application",
+          "route": "/new.asp",
+          "fields": 4,
+          "tests": 85,
+          "gaps": 11,
+          "humanTasks": 5,
+          "findings": 5,
+          "testsByCategory": {
+            "smoke": 1,
+            "functional": 2,
+            "equivalence": 4,
+            "inputValidation": 52,
+            "reliability": 3,
+            "stateTransition": 2,
+            "security": 5,
+            "accessibility": 3,
+            "api": 1,
+            "performance": 2,
+            "responsive": 3,
+            "compatibility": 3,
+            "visual": 2,
+            "exploratory": 2
+          },
+          "notApplicable": [
+            "negative",
+            "crossField",
+            "dynamic",
+            "multiStep",
+            "regression"
+          ]
+        },
+        {
+          "formId": "dba3a6cb-7bce-45ed-aca8-bb1b1f0fe36b",
           "name": "Search",
           "route": "/search.asp",
           "fields": 1,
@@ -95,11 +135,11 @@
         }
       ],
       "warnings": [],
-      "pages": 4,
-      "pageTests": 46,
+      "pages": 5,
+      "pageTests": 58,
       "perPage": [
         {
-          "pageId": "4d9f56ff-45cc-41c9-947d-df84ad9b4eb5",
+          "pageId": "48513c6e-7fb1-4c50-8728-b62cd51a5471",
           "name": "Building Control (/default.asp)",
           "route": "/default.asp",
           "tests": 11,
@@ -114,7 +154,7 @@
           }
         },
         {
-          "pageId": "a8ebbce0-b694-4d27-b581-55334fcb4135",
+          "pageId": "65b6499f-5a0c-4900-b1a4-b1234eda13a8",
           "name": "Permit register (/list.asp)",
           "route": "/list.asp",
           "tests": 11,
@@ -129,7 +169,23 @@
           }
         },
         {
-          "pageId": "c4c85cfc-080f-4ae4-9414-645fcfc273ae",
+          "pageId": "fa46a197-d9ec-4fef-ba18-04cbff4e806e",
+          "name": "New application (/new.asp)",
+          "route": "/new.asp",
+          "tests": 12,
+          "reachedByClicking": true,
+          "testsByCategory": {
+            "smoke": 1,
+            "workflow": 1,
+            "security": 1,
+            "accessibility": 2,
+            "performance": 1,
+            "dataIntegrity": 3,
+            "responsive": 3
+          }
+        },
+        {
+          "pageId": "d5417e01-5410-4410-93bb-4fbcac509626",
           "name": "Search (/search.asp)",
           "route": "/search.asp",
           "tests": 12,
@@ -145,7 +201,7 @@
           }
         },
         {
-          "pageId": "94199350-11d3-4adf-a795-7701ba352530",
+          "pageId": "1ee063b0-b653-447a-ba2f-1e5486c2e669",
           "name": "Permit BP-2026-0001 (/view.asp)",
           "route": "/view.asp",
           "tests": 12,
@@ -164,7 +220,7 @@
     },
     "scan": {
       "ok": true,
-      "id": "740fc42c-cdc0-4711-9118-e057965693b6",
+      "id": "dce9ed85-38c6-47ea-8f90-73fb4418428a",
       "status": "completed",
       "requestsSent": null,
       "checksRun": null,
@@ -172,19 +228,39 @@
     },
     "run": {
       "ok": true,
-      "runId": "20f5ece8-94a2-4733-bc06-818b56111645",
+      "runId": "c2a9a58d-6c79-4de1-8b86-462952215305",
       "status": "failed",
-      "executions": 81,
+      "executions": 178,
       "byStatus": {
-        "passed": 65,
-        "failed": 14,
-        "skipped": 2
+        "passed": 153,
+        "failed": 21,
+        "skipped": 4
       },
       "failures": [
         {
+          "name": "New application: carries an anti-forgery token",
+          "route": "/new.asp",
+          "message": "Expected the element to exist on the page, but it does not."
+        },
+        {
+          "name": "New application: has no serious automated accessibility violations",
+          "route": "/new.asp",
+          "message": "2 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 critical, 1 serious. 2 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI; label (critical) Form elements must have labels at input[name=\"applicant\"] and 3 other element(s) — https://dequeuniversity.com/rules/axe/4.13/label?ap"
+        },
+        {
+          "name": "New application: sends a valid submission to POST /new.asp",
+          "route": "/new.asp",
+          "message": "expected status 2xx/3xx but POST http://127.0.0.1:4700/new.asp returned 400."
+        },
+        {
+          "name": "New application: fits a mobile screen (390x844)",
+          "route": "/new.asp",
+          "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+        },
+        {
           "name": "Search: does not reflect markup typed into term",
           "route": "/search.asp",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-0fe534b9> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-ceeceb04> element(s) exist. The application does not encode what it reflects."
         },
         {
           "name": "Search: has no serious automated accessibility violations",
@@ -218,6 +294,21 @@
         },
         {
           "name": "Permit register (/list.asp): fits a mobile screen (390x844)",
+          "route": null,
+          "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+        },
+        {
+          "name": "New application (/new.asp): is not shown to a signed-out visitor",
+          "route": null,
+          "message": "The element was expected to be hidden but was visible."
+        },
+        {
+          "name": "New application (/new.asp): has no serious automated accessibility violations",
+          "route": null,
+          "message": "2 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 critical, 1 serious. 2 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI; label (critical) Form elements must have labels at input[name=\"applicant\"] and 3 other element(s) — https://dequeuniversity.com/rules/axe/4.13/label?ap"
+        },
+        {
+          "name": "New application (/new.asp): fits a mobile screen (390x844)",
           "route": null,
           "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
         },
@@ -266,6 +357,11 @@
           "message": "Search: writes input from term back into the page as markup"
         },
         {
+          "severity": "critical",
+          "route": "/new.asp",
+          "message": "New application: lacks an element it should have"
+        },
+        {
           "severity": "major",
           "route": "/default.asp",
           "message": "Page /default.asp: breaks the accessibility rule html-has-lang"
@@ -277,8 +373,23 @@
         },
         {
           "severity": "major",
+          "route": "/new.asp",
+          "message": "New application: breaks the accessibility rule html-has-lang on 4 elements"
+        },
+        {
+          "severity": "major",
+          "route": "/new.asp",
+          "message": "New application: sends the wrong requests"
+        },
+        {
+          "severity": "major",
           "route": "/search.asp",
           "message": "Search: breaks the accessibility rule html-has-lang"
+        },
+        {
+          "severity": "major",
+          "route": "/new.asp",
+          "message": "New application: overflows a small screen"
         },
         {
           "severity": "major",
@@ -290,24 +401,47 @@
         {
           "code": "no-label",
           "severity": "serious",
+          "route": "/new.asp",
+          "message": "address has no label tied to it."
+        },
+        {
+          "code": "no-label",
+          "severity": "serious",
+          "route": "/new.asp",
+          "message": "applicant has no label tied to it."
+        },
+        {
+          "code": "no-label",
+          "severity": "serious",
+          "route": "/new.asp",
+          "message": "cost has no label tied to it."
+        },
+        {
+          "code": "no-label",
+          "severity": "serious",
+          "route": "/new.asp",
+          "message": "ni has no label tied to it."
+        },
+        {
+          "code": "no-label",
+          "severity": "serious",
           "route": "/search.asp",
           "message": "term has no label tied to it."
+        },
+        {
+          "code": "no-autocomplete",
+          "severity": "info",
+          "route": "/new.asp",
+          "message": "address looks like personal data but does not declare autocomplete, so browsers cannot fill it."
         }
       ],
       "security": [
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/default.asp/list.asp",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/default.asp/view.asp",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+          "route": "/default.asp/default.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -326,20 +460,6 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/default.asp/search.asp",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/default.asp/search.asp",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
           "route": "/default.asp/list.asp",
           "parameter": "x-content-type-options",
           "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
@@ -354,9 +474,65 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/view.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/list.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/search.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/search.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
           "route": "/default.asp/default.asp",
           "parameter": "x-frame-options",
           "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/list.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/new.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/search.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/new.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -375,6 +551,20 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/new.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp/view.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
           "route": "/default.asp/list.asp",
           "parameter": "x-frame-options",
           "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
@@ -382,30 +572,9 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/default.asp/default.asp",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/default.asp/search.asp",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/default.asp/view.asp",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/default.asp/list.asp",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+          "route": "/default.asp/new.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
         }
       ]
     }
@@ -413,23 +582,34 @@
   "detection": {
     "planted": 4,
     "detected": 1,
-    "weakOnly": 0,
+    "weakOnly": 1,
     "verdicts": [
       {
         "id": "PL_D01",
         "class": "authorization",
         "severity": "critical",
-        "route": "/approve.asp",
+        "routes": [
+          "/list.asp",
+          "/view.asp",
+          "/approve.asp"
+        ],
         "statement": "Approving a permit is a GET any signed-in role may issue, with no token and no check.",
         "detected": false,
-        "weakOnly": false,
-        "evidence": null
+        "weakOnly": true,
+        "evidence": {
+          "kind": "test failure",
+          "strength": "wording only, no route",
+          "route": "/new.asp",
+          "message": "Expected the element to exist on the page, but it does not."
+        }
       },
       {
         "id": "PL_D02",
         "class": "injection",
         "severity": "critical",
-        "route": "/search.asp",
+        "routes": [
+          "/search.asp"
+        ],
         "statement": "The search term is echoed into the page unescaped.",
         "detected": true,
         "weakOnly": false,
@@ -437,14 +617,16 @@
           "kind": "test failure",
           "strength": "route and wording",
           "route": "/search.asp",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-0fe534b9> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-ceeceb04> element(s) exist. The application does not encode what it reflects."
         }
       },
       {
         "id": "PL_D03",
         "class": "calculation",
         "severity": "high",
-        "route": "/view.asp",
+        "routes": [
+          "/view.asp"
+        ],
         "statement": "The fee total does not equal the sum of the fee lines.",
         "detected": false,
         "weakOnly": false,
@@ -454,7 +636,9 @@
         "id": "PL_D04",
         "class": "data-exposure",
         "severity": "high",
-        "route": "/view.asp",
+        "routes": [
+          "/view.asp"
+        ],
         "statement": "An applicant's national insurance number is shown in full to every signed-in user.",
         "detected": false,
         "weakOnly": false,
