@@ -88,12 +88,15 @@ export function responseShape(result, submittedUsername) {
  * are ever reported as confirmed, since timing alone on a local lab is noise.
  */
 export async function checkUserEnumeration(scanner, { baseUrl, path = '/api/session', knownUser, testId = 'SECA-ENUM' }) {
-  const attempt = async (username, label) => scanner.request({
-    url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${label}`,
-    headers: { 'content-type': 'application/json' },
-    body: { username, password: 'qanxt-deliberately-wrong-password' },
-    as: label, note: 'a deliberately failing sign-in, used only to compare the two answers'
-  });
+  // Submitted the way the application's own form does. A hand-rolled JSON POST to a
+  // guessed endpoint is refused by an anti-forgery guard before the sign-in logic sees it,
+  // and two identical refusals compare equal — which reads as "the application gives the
+  // same answer for both usernames", the opposite of a finding, for a reason that has
+  // nothing to do with enumeration.
+  const attempt = async (username, label) => scanner.submitSignIn(
+    baseUrl, username, 'qanxt-deliberately-wrong-password',
+    { as: label, testId: `${testId}:${label}`,
+      note: 'a deliberately failing sign-in, used only to compare the two answers' });
 
   const real = await attempt(knownUser, 'known-username');
   if (!real.allowed) return { skipped: true, decision: real.decision, findings: [] };
@@ -158,14 +161,33 @@ export async function checkUserEnumeration(scanner, { baseUrl, path = '/api/sess
 export async function checkAccountLockout(scanner, { baseUrl, path = '/api/session', knownUser, attempts = 6, testId = 'SECA-LOCKOUT' }) {
   const observed = [];
   for (let i = 1; i <= attempts; i++) {
-    const result = await scanner.request({
-      url: `${baseUrl}${path}`, method: 'POST', risk: SECURITY_RISK.ACTIVE, testId: `${testId}:${i}`,
-      headers: { 'content-type': 'application/json' },
-      body: { username: knownUser, password: `qanxt-wrong-${i}` },
-      as: 'unauthenticated', note: `bounded failed sign-in ${i} of ${attempts}`
-    });
+    // Through the application's own form. Posting JSON at a guessed endpoint was refused
+    // by the anti-forgery guard every time, and six refusals with no 429 among them read
+    // exactly like six un-throttled sign-in attempts. The verdict happened to be right on
+    // the application this was found on; the evidence was of a conversation that never
+    // took place, and that is not a thing to report as a finding.
+    const result = await scanner.submitSignIn(
+      baseUrl, knownUser, `qanxt-wrong-${i}`,
+      { as: 'unauthenticated', testId: `${testId}:${i}`,
+        note: `bounded failed sign-in ${i} of ${attempts}` });
     if (!result.allowed) return { skipped: true, decision: result.decision, findings: [] };
     observed.push(result);
+  }
+
+  // Did any of it reach the sign-in logic? An application that answers every attempt with
+  // the same refusal, and refuses an attempt carrying no credentials at all in the same
+  // way, is not failing to throttle: it is declining to talk.
+  const control = await scanner.submitSignIn(baseUrl, '', '', {
+    as: 'unauthenticated', testId: `${testId}:control`,
+    note: 'an empty submission, to tell a refusal apart from a failed sign-in'
+  });
+  if (control.allowed && observed.every(r => r.status === control.status)) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: `Every attempt and an empty submission all answered ${control.status}, so the `
+        + 'application refused these requests rather than evaluating them. Nothing can be '
+        + 'concluded about throttling from answers to a sign-in that never happened.'
+    };
   }
 
   const throttled = observed.find(r => r.status === 429 || r.status === 423);

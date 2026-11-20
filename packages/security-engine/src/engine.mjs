@@ -211,6 +211,87 @@ export class SecurityScanner {
    * credentials. The JSON endpoint is still tried, last, for applications that do offer
    * it.
    */
+  /**
+   * Finds the application's sign-in form once and remembers it.
+   *
+   * Every check that submits credentials needs the same thing, and each used to hand-roll
+   * a JSON POST to a guessed endpoint. Against a form-login application those requests are
+   * refused before the sign-in logic ever sees them — Meridian Freight answers 403 to all
+   * of them, from its anti-forgery guard — so a lockout check counted six refusals as six
+   * un-throttled sign-in attempts and reported no lockout. The conclusion happened to be
+   * right and the evidence was of a conversation that never took place.
+   */
+  async findSignInForm(baseUrl, options = {}) {
+    this._signInForms ??= new Map();
+    const cached = this._signInForms.get(baseUrl);
+    if (cached !== undefined) return cached;
+
+    const paths = [
+      ...(options.signInPath ? [options.signInPath] : []),
+      '/auth/sign-in', '/auth/login', '/login', '/sign-in', '/signin',
+      '/account/login', '/users/sign_in', '/session/new'
+    ];
+
+    for (const path of dedupe(paths)) {
+      const page = await this.request({
+        url: `${baseUrl}${path}`, method: 'GET', risk: SECURITY_RISK.PASSIVE,
+        as: 'unauthenticated', testId: 'sign-in-form'
+      });
+      if (!page.allowed || typeof page.responseText !== 'string') continue;
+
+      const form = readSignInForm(page.responseText, 'probe', 'probe');
+      if (form === null) continue;
+
+      const found = { ...form, page: path };
+      this._signInForms.set(baseUrl, found);
+      return found;
+    }
+
+    this._signInForms.set(baseUrl, null);
+    return null;
+  }
+
+  /**
+   * Submits credentials the way the application's own form does, so the request reaches
+   * the sign-in logic rather than an anti-forgery guard. Falls back to the JSON endpoint
+   * for applications that offer one.
+   */
+  async submitSignIn(baseUrl, username, password, { as, testId, note } = {}) {
+    const form = await this.findSignInForm(baseUrl);
+
+    if (form !== null) {
+      // The token is re-read each time: a one-shot token spent by the previous attempt
+      // would make every later one a refusal rather than a failed sign-in.
+      const fresh = await this.request({
+        url: `${baseUrl}${form.page}`, method: 'GET', risk: SECURITY_RISK.PASSIVE,
+        as: as ?? 'unauthenticated', testId: testId ?? 'sign-in-form'
+      });
+      const current = typeof fresh.responseText === 'string'
+        ? readSignInForm(fresh.responseText, username, password) ?? form
+        : form;
+      const fields = { ...current.fields };
+      for (const [name, value] of Object.entries(form.fields)) {
+        if (name in fields) continue;
+        fields[name] = value;
+      }
+      // The identity and password fields were filled by readSignInForm above.
+      return await this.request({
+        url: new URL(current.action || form.page, `${baseUrl}${form.page}`).toString(),
+        method: current.method,
+        risk: SECURITY_RISK.ACTIVE,
+        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(fields).toString(),
+        as: as ?? username, testId: testId ?? 'sign-in', note
+      });
+    }
+
+    return await this.request({
+      url: `${baseUrl}/api/session`, method: 'POST', risk: SECURITY_RISK.ACTIVE,
+      headers: { 'content-type': 'application/json' },
+      body: { username, password }, as: as ?? username, testId: testId ?? 'sign-in', note
+    });
+  }
+
   async signIn(baseUrl, username, password = 'lab-password', options = {}) {
     const paths = [
       ...(options.signInPath ? [options.signInPath] : []),
