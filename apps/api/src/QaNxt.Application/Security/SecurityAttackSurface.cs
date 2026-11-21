@@ -72,10 +72,24 @@ public static class SecurityAttackSurfaceBuilder
         { "login", "signin", "sign-in", "session", "auth", "token", "password", "reset", "forgot",
           "register", "signup", "sign-up", "mfa", "otp", "verify" };
 
+    /// <param name="Url">
+    /// The address the page was actually served at, query string and all.
+    ///
+    /// A page's route is its path — `/view.asp` — and a page reached by a query parameter is
+    /// only served at `/view.asp?id=1`. Pointing the scan at the route alone asked for a URL
+    /// the application does not serve: on a permit register, `/view.asp` answers "no such
+    /// permit", so the header checks measured that 404 and the personal-data check looked at
+    /// a page holding nothing. The same mistake as appending a path to a base URL that has
+    /// one, in a different place.
+    ///
+    /// Used as the target where the route alone cannot reach the page. Ordinary pages are
+    /// still named by their route, which is what a reader wants to see in a report.
+    /// </param>
     public sealed record PageInput(
         Guid Id, string Route, string NormalizedUrl, PageKind Kind,
         bool RequiresAuthentication, DateTimeOffset LastSeenAt,
-        IReadOnlyList<ElementInput> Elements);
+        IReadOnlyList<ElementInput> Elements,
+        string? Url = null);
 
     public sealed record ElementInput(ElementKind Kind, string? Name, string? Type, string? Label);
 
@@ -176,6 +190,15 @@ public static class SecurityAttackSurfaceBuilder
             form.LastSeenAt);
     }
 
+    /// <summary>Where to point a check at this page: an address that serves it.</summary>
+    private static string PageTarget(PageInput page, bool carriesQuery)
+    {
+        // A page the route alone cannot reach is named by the address it was served at.
+        if (carriesQuery && !string.IsNullOrWhiteSpace(page.Url)) return page.Url!;
+        if (!string.IsNullOrWhiteSpace(page.Route)) return page.Route;
+        return page.NormalizedUrl;
+    }
+
     private static string NormalizeTemplate(string template)
         => Uri.TryCreate(template, UriKind.Absolute, out var parsed)
             ? parsed.GetLeftPart(UriPartial.Path).TrimEnd('/')
@@ -252,7 +275,7 @@ public static class SecurityAttackSurfaceBuilder
 
         return new SecuritySurfaceItem(
             SecuritySurfaceKind.Page, page.Id,
-            string.IsNullOrWhiteSpace(page.Route) ? page.NormalizedUrl : page.Route,
+            PageTarget(page, queryParameters.Count > 0),
             HttpMethod: "GET",
             RequiresAuthentication: page.RequiresAuthentication,
             ChangesState: false,

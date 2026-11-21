@@ -32,7 +32,7 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
             .Where(p => p.ApplicationId == applicationId)
             .Select(p => new
             {
-                p.Id, p.Route, p.NormalizedUrl, p.Kind, p.RequiresAuthentication, p.LastSeenAt
+                p.Id, p.Route, p.NormalizedUrl, p.Kind, p.RequiresAuthentication, p.LastSeenAt, p.Url
             })
             .ToListAsync(ct);
 
@@ -71,7 +71,8 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
             p.Id, p.Route, p.NormalizedUrl, p.Kind, p.RequiresAuthentication, p.LastSeenAt,
             elementsByPage.TryGetValue(p.Id, out var found)
                 ? found
-                : Array.Empty<SecurityAttackSurfaceBuilder.ElementInput>())).ToList();
+                : Array.Empty<SecurityAttackSurfaceBuilder.ElementInput>(),
+            p.Url)).ToList();
 
         return Result<SecurityAttackSurface>.Success(
             SecurityAttackSurfaceBuilder.Build(applicationId, pageInputs, endpoints, forms));

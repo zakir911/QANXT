@@ -22,7 +22,45 @@ public class SecurityAttackSurfaceTests
     private static PageInput Page(
         string route = "/dashboard", PageKind kind = PageKind.Dashboard,
         bool authenticated = true, params ElementInput[] elements)
-        => new(Guid.NewGuid(), route, $"https://app.test{route}", kind, authenticated, Seen, elements);
+        => new(Guid.NewGuid(), route, $"https://app.test{route}", kind, authenticated, Seen, elements,
+               $"https://app.test{route}");
+
+    private static PageInput ParameterisedPage(string route, string url)
+        => new(Guid.NewGuid(), route, url.Replace("=1", "={v}"), PageKind.Detail, true, Seen,
+               Array.Empty<ElementInput>(), url);
+
+    /// <summary>
+    /// A page reached by a query parameter is only served at the address that carries it. The
+    /// route alone asked for a URL the application does not serve: on a permit register
+    /// `/view.asp` answers "no such permit", so the header checks measured that 404 and the
+    /// personal-data check read a page holding nothing.
+    /// </summary>
+    [Fact]
+    public void A_page_reached_by_a_query_parameter_is_targeted_at_an_address_that_serves_it()
+    {
+        var surface = Build(pages: new[] {
+            ParameterisedPage("/view.asp", "https://app.test/view.asp?id=1") });
+
+        surface.Items.Should().ContainSingle().Which.Identifier
+            .Should().Be("https://app.test/view.asp?id=1");
+    }
+
+    [Fact]
+    public void An_ordinary_page_is_still_named_by_its_route()
+    {
+        Build(pages: new[] { Page("/dashboard") }).Items.Should().ContainSingle()
+            .Which.Identifier.Should().Be("/dashboard");
+    }
+
+    [Fact]
+    public void A_parameterised_page_whose_address_was_not_recorded_falls_back_to_its_route()
+    {
+        var page = new PageInput(Guid.NewGuid(), "/view.asp", "https://app.test/view.asp?id={v}",
+            PageKind.Detail, true, Seen, Array.Empty<ElementInput>(), null);
+
+        Build(pages: new[] { page }).Items.Should().ContainSingle()
+            .Which.Identifier.Should().Be("/view.asp");
+    }
 
     private static EndpointInput Endpoint(
         string method = "GET", string template = "/api/accounts",

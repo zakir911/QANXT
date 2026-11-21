@@ -76,6 +76,12 @@ function matches(defect, evidence) {
  * than a field, which is worth saying plainly: when it changes, this stops working and the
  * verdicts fall back to wording, which is visible in the report rather than silent.
  */
+/** The first thing in `text` that looks like a path, without its query string. */
+function firstPathIn(text) {
+  const match = /(\/[A-Za-z0-9._~\-/]*)/.exec(String(text ?? ''));
+  return match ? match[1] : null;
+}
+
 /** The path of an endpoint, however it was written down. */
 function pathOf(endpoint) {
   if (!endpoint) return null;
@@ -321,7 +327,14 @@ async function runOne(key) {
   const security = await request(
     `/api/v1/security/findings?applicationId=${application.id}`, { token: tenant.token });
   const securityList = security.json?.items ?? security.json ?? [];
-  for (const [label, response] of [['defects', defects], ['form findings', findings], ['security findings', security]]) {
+  // Coverage, for the gaps. A gap is not a detection and is never counted as one, but it is
+  // not a miss either: it is the product saying it saw something and could not judge it,
+  // which for a state-changing GET link is the honest answer and the useful one.
+  const coverage = await request(
+    `/api/v1/applications/${application.id}/coverage`, { token: tenant.token });
+  const gapList = coverage.json?.gaps ?? [];
+  for (const [label, response] of [['defects', defects], ['form findings', findings],
+                                   ['security findings', security], ['coverage', coverage]]) {
     if (!response.ok) line(`  (${label} could not be read: ${response.status} ${response.text.slice(0, 120)})`);
   }
   line(`  concluded: ${defectList.length} defect(s), ${findingList.length} structural finding(s), `
@@ -347,6 +360,13 @@ async function runOne(key) {
       parameter: s.parameter ?? null,
       message: [s.title, s.parameter ? `parameter "${s.parameter}"` : null, s.cwe]
         .filter(Boolean).join(' — ').slice(0, 300)
+    })),
+    gaps: gapList.map(g => ({
+      category: g.category, status: g.status,
+      // A gap names what is missing in prose, and a gap about a route carries the path in
+      // that prose rather than in a field of its own.
+      route: firstPathIn(g.missing) ?? firstPathIn(g.reason) ?? routeFromName(g.formName, screens),
+      message: [g.missing, g.reason].filter(Boolean).join(' — ').slice(0, 400)
     }))
   };
 
@@ -357,16 +377,25 @@ async function runOne(key) {
     ...result.stages.conclusions.structural.map(f => ({ ...f, kind: 'structural finding' })),
     ...result.stages.conclusions.security.map(s => ({ ...s, kind: 'security finding' }))
   ];
+  // Gaps are matched separately and never mixed in with evidence, so a gap can never be
+  // read as a detection by accident.
+  const gapEvidence = result.stages.conclusions.gaps.map(g => ({ ...g, kind: 'coverage gap' }));
   const verdicts = target.defects.map(defect => {
     const hits = evidence
       .map(item => ({ item, match: matches(defect, item) }))
       .filter(entry => entry.match);
     const strong = hits.filter(h => h.match.strength === 'route and wording');
     const chosen = (strong[0] ?? hits[0]);
+    const surfaced = strong.length > 0 ? null : gapEvidence
+      .map(item => ({ item, match: matches(defect, item) }))
+      .find(entry => entry.match?.strength === 'route and wording');
     return {
       id: defect.id, class: defect.class, severity: defect.severity, routes: defect.routes,
       statement: defect.statement,
       detected: strong.length > 0,
+      // Named by the product as something it saw and could not judge, with the reason.
+      surfacedAsGap: Boolean(surfaced),
+      gap: surfaced ? surfaced.item.message : null,
       weakOnly: strong.length === 0 && hits.length > 0,
       evidence: chosen ? {
         kind: chosen.item.kind, strength: chosen.match.strength,
@@ -378,17 +407,26 @@ async function runOne(key) {
   result.detection = {
     planted: verdicts.length,
     detected: verdicts.filter(v => v.detected).length,
+    surfacedAsGap: verdicts.filter(v => !v.detected && v.surfacedAsGap).length,
     weakOnly: verdicts.filter(v => v.weakOnly).length,
     verdicts
   };
 
   line();
   for (const v of verdicts) {
-    const mark = v.detected ? 'FOUND  ' : v.weakOnly ? 'weak?  ' : 'missed ';
+    const mark = v.detected ? 'FOUND  ' : v.surfacedAsGap ? 'gap    ' : v.weakOnly ? 'weak?  ' : 'missed ';
     line(`  ${mark} ${v.id}  ${v.class.padEnd(14)} ${v.statement}`);
-    if (v.evidence) line(`           via ${v.evidence.kind} (${v.evidence.strength}): ${v.evidence.message || '(no message)'}`);
+    if (v.detected && v.evidence) {
+      line(`           via ${v.evidence.kind} (${v.evidence.strength}): ${v.evidence.message || '(no message)'}`);
+    } else if (v.surfacedAsGap) {
+      line(`           surfaced as a gap, not tested: ${v.gap}`);
+    } else if (v.evidence) {
+      line(`           nearest evidence (${v.evidence.strength}): ${v.evidence.message || '(no message)'}`);
+    }
   }
   line(`\n  ${result.detection.detected}/${verdicts.length} planted defect(s) detected on evidence`
+    + (result.detection.surfacedAsGap
+      ? `, ${result.detection.surfacedAsGap} surfaced as a gap rather than tested` : '')
     + (result.detection.weakOnly
       ? `, ${result.detection.weakOnly} matched partially and are not counted` : ''));
 
