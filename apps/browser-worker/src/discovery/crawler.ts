@@ -80,6 +80,22 @@ interface CrawledPage extends DiscoveredPage {
    * that should not grow a field for a decision local to crawling.
    */
   navHrefs: string[];
+  /**
+   * URLs the crawler will try because a JSON collection named the records behind them.
+   *
+   * Crawl state like the two above. A JSON API's instance endpoints are linked from
+   * nothing: `/api/orders` answers with a list of orders carrying their ids, and
+   * `/api/orders/ord-1` exists but no document on the application points at it. Opening
+   * one is a hypothesis, tested by making the request and seeing what comes back, not an
+   * assumption: a 404 records nothing and says so in the log.
+   */
+  apiInstanceCandidates: ApiInstanceCandidate[];
+}
+
+/** A URL the crawler built from a record a collection named, with the identifier it used. */
+interface ApiInstanceCandidate {
+  url: string;
+  id: string;
 }
 
 interface QueueEntry {
@@ -87,6 +103,21 @@ interface QueueEntry {
   depth: number;
   parentNormalizedUrl?: string;
   viaAccessibleName?: string;
+  /**
+   * The record identifier this URL was built from, when the crawler built it.
+   *
+   * It is the difference between knowing and guessing. `normalizeUrl` turns a numeric path
+   * segment into `{id}` because a number in a path is almost always one; it leaves `ord-1`
+   * alone, correctly, because an opaque string there is as likely to be a route name. When
+   * the crawler made the URL by taking an id out of a collection, there is nothing to infer
+   * — the segment is an identifier because that is where it came from — and the endpoint is
+   * recorded as `/api/orders/{id}` rather than as one order's address.
+   *
+   * Which matters because the surface is what the security engine tests: every
+   * authorization check needs a path with a parameter in it to compare two identities
+   * against, and reported inconclusive without one.
+   */
+  apiInstanceId?: string;
 }
 
 export class Crawler {
@@ -280,6 +311,19 @@ export class Crawler {
             if (!this.visited.has(visitKey(link.url))) queue.push(link);
           }
 
+          // Records a JSON collection named. Queued before clicking, because a GET for a
+          // record the application just listed is as cheap and as certain as a link.
+          for (const candidate of discovered.apiInstanceCandidates) {
+            if (!this.visited.has(visitKey(candidate.url))) {
+              queue.push({
+                url: candidate.url, depth: entry.depth + 1,
+                parentNormalizedUrl: visitKey(discovered.url),
+                viaAccessibleName: 'a record this collection listed',
+                apiInstanceId: candidate.id
+              });
+            }
+          }
+
           // Clicking comes after link following so the cheap, certain route is exhausted
           // first and the budget is spent on pages nothing else would have reached.
           for (const clicked of await this.probeInteractions(page, entry, discovered)) {
@@ -336,7 +380,7 @@ export class Crawler {
       completedAt: new Date().toISOString(),
       workerId,
       // `links` is crawl state; the report carries only the page model.
-      pages: [...this.pages.values()].map(({ links, navHrefs, ...page }) => page),
+      pages: [...this.pages.values()].map(({ links, navHrefs, apiInstanceCandidates, ...page }) => page),
       transitions: this.transitions,
       apiEndpoints: [...this.apiEndpoints.values()],
       consoleErrors: this.consoleErrors,
@@ -482,6 +526,9 @@ export class Crawler {
 
     const started = Date.now();
     let httpStatus: number | undefined;
+    let documentContentType: string | undefined;
+    let documentBody: string | undefined;
+    let documentRequiresAuth = false;
 
     try {
       this.lastNavigationAt = started;
@@ -494,6 +541,18 @@ export class Crawler {
           timeout: this.options.navigationTimeoutMs
         });
         httpStatus = response?.status();
+        documentContentType = response?.headers()['content-type'];
+        if (response && isJsonContentType(documentContentType)) {
+          documentBody = await response.text().catch(() => undefined);
+          // Whether this request carried a session, read from the request itself rather
+          // than assumed. allHeaders() includes what the browser adds at the network layer
+          // — the cookie, and the Authorization header a token sign-in set on the context —
+          // which request.headers() does not. It decides whether the surface treats the
+          // endpoint as authenticated, and an authenticated endpoint taking an identifier
+          // is the shape that implies the object-authorization check.
+          const sent = await response.request().allHeaders().catch(() => ({} as Record<string, string>));
+          documentRequiresAuth = Boolean(sent['authorization'] || sent['cookie']);
+        }
       }
       this.actionsUsed++;
 
@@ -555,7 +614,10 @@ export class Crawler {
       links: capture.links,
       navHrefs: capture.elements
         .filter(element => element.inNav && element.attributes['href'])
-        .map(element => element.attributes['href']!)
+        .map(element => element.attributes['href']!),
+      apiInstanceCandidates: this.readJsonDocument(
+        capture.url, httpStatus, documentContentType, documentBody, entry.apiInstanceId,
+        documentRequiresAuth)
     };
 
     this.pages.set(normalized, discovered);
@@ -1027,6 +1089,86 @@ export class Crawler {
     });
   }
 
+  /**
+   * A page that is really a JSON body: recorded as the endpoint it is, and read for the
+   * records it names.
+   *
+   * Endpoints were only ever recorded from XHR and fetch traffic, which is how a browser
+   * application calls its API. Open the same URL in the address bar and the browser calls
+   * it a document, so a JSON API visited directly was filed as a page with no elements and
+   * no kind — and the attack surface, built from endpoints, had none. Measured on a
+   * token-authenticated order API: three pages, zero endpoints, and every authorization
+   * check inconclusive for want of a path to test.
+   *
+   * The second half is the identifiers. A collection answers with the records it holds and
+   * nothing on the application links to any of them: `/api/orders` lists orders carrying
+   * their ids, `/api/orders/ord-1` exists, and no document anywhere points at it. So the
+   * ids are read out and the instance URLs offered to the queue — as a hypothesis, tested
+   * by a GET. REST's shape is a convention, not a rule, so nothing is assumed: the request
+   * is made, and a 404 maps nothing and says so in the log like any other dead link.
+   *
+   * Bounded deliberately. At most a handful per collection, because the point is to put the
+   * shape of the endpoint on the surface, not to walk every record in the database — and
+   * the route-shape cap would stop it anyway, later and more expensively.
+   */
+  private readJsonDocument(
+    url: string,
+    status: number | undefined,
+    contentType: string | undefined,
+    body: string | undefined,
+    instanceId: string | undefined,
+    requiresAuthentication: boolean
+  ): ApiInstanceCandidate[] {
+    if (!isJsonContentType(contentType) || body === undefined) return [];
+
+    // The endpoint, whatever it answered: an API that 403s is still an API, and the surface
+    // wants to know it is there.
+    const template = instanceId === undefined
+      ? normalizeUrl(url)
+      : templateForInstance(url, instanceId) ?? normalizeUrl(url);
+    const key = `GET ${template}`;
+    if (!this.apiEndpoints.has(key)) {
+      this.apiEndpoints.set(key, {
+        method: 'GET',
+        urlTemplate: template,
+        sampleUrl: url.slice(0, 2000),
+        statusCode: status,
+        durationMs: 0,
+        responseSample: this.masker.maskJson(body).slice(0, 4000),
+        responseContentType: contentType,
+        requiresAuthentication,
+        triggeredByNormalizedUrl: visitKey(url),
+        timesObserved: 1
+      });
+      this.note(`${safeRoute(url)} answered JSON, so it is recorded as an endpoint rather than a page.`);
+    }
+
+    if (status === undefined || status < 200 || status >= 300) return [];
+
+    const ids = identifiersIn(body);
+    if (ids.length === 0) return [];
+
+    const candidates: ApiInstanceCandidate[] = [];
+    for (const id of ids.slice(0, MAX_API_INSTANCES_PER_COLLECTION)) {
+      try {
+        const instance = new URL(url);
+        instance.search = '';
+        instance.hash = '';
+        instance.pathname = `${instance.pathname.replace(/\/$/, '')}/${encodeURIComponent(id)}`;
+        candidates.push({ url: instance.toString(), id });
+      } catch {
+        // An id that cannot be put in a path is not a candidate. Nothing is reported: the
+        // collection is still recorded, and a record that cannot be addressed this way may
+        // simply not be addressable this way.
+      }
+    }
+    if (candidates.length > 0) {
+      this.note(`${safeRoute(url)} named ${ids.length} record(s); trying ${candidates.length} of them `
+        + 'as addresses under it, which the application may or may not serve.');
+    }
+    return candidates;
+  }
+
   private async captureScreenshot(page: Page, normalized: string): Promise<string | undefined> {
     try {
       const name = `${fileSafe(normalized)}.png`;
@@ -1159,3 +1301,70 @@ export function crawlDeadline(
   const graceMs = Math.min(budgetMs, 30_000);
   return Math.max(runStartedAtMs + budgetMs, nowMs + graceMs);
 }
+
+
+/** How many records of one collection are opened. Enough to put the instance endpoint on
+ *  the surface; not a walk through the database. */
+const MAX_API_INSTANCES_PER_COLLECTION = 3;
+
+/**
+ * The endpoint template for a URL the crawler built from a known identifier: that segment,
+ * and only that segment, becomes `{id}`.
+ *
+ * Matched on the value rather than on its position, so a collection that lives under a
+ * nested path is handled without counting segments, and an id that happens to equal a
+ * directory name earlier in the path cannot be the one replaced — the last occurrence is.
+ */
+export function templateForInstance(url: string, id: string): string | null {
+  let parsed: URL;
+  try { parsed = new URL(url); } catch { return null; }
+
+  const segments = parsed.pathname.split('/');
+  const encoded = encodeURIComponent(id);
+  for (let i = segments.length - 1; i >= 0; i--) {
+    if (segments[i] === id || segments[i] === encoded) {
+      segments[i] = '{id}';
+      return `${parsed.origin}${segments.join('/')}`;
+    }
+  }
+  return null;
+}
+
+export function isJsonContentType(contentType: string | undefined): boolean {
+  if (contentType === undefined) return false;
+  const value = contentType.toLowerCase();
+  // application/json, application/vnd.api+json, application/problem+json, text/json.
+  return value.includes('/json') || value.includes('+json');
+}
+
+/**
+ * The identifiers a JSON body names, in the order it names them.
+ *
+ * Only a string or a number directly under a record counts, and only under a field whose
+ * name says it is an identifier. A nested object's id is left alone: an order carrying a
+ * customer's id does not mean the collection serves customers.
+ */
+export function identifiersIn(body: string): string[] {
+  let parsed: unknown;
+  try { parsed = JSON.parse(body); } catch { return []; }
+
+  const records: unknown[] = Array.isArray(parsed) ? parsed
+    : parsed !== null && typeof parsed === 'object'
+      ? Object.values(parsed as Record<string, unknown>).find(Array.isArray) as unknown[] ?? []
+      : [];
+
+  const ids: string[] = [];
+  for (const record of records) {
+    if (record === null || typeof record !== 'object') continue;
+    for (const [field, value] of Object.entries(record as Record<string, unknown>)) {
+      if (!IDENTIFIER_FIELD.test(field)) continue;
+      if (typeof value === 'string' && value.trim() !== '' && value.length <= 128) { ids.push(value); break; }
+      if (typeof value === 'number' && Number.isFinite(value)) { ids.push(String(value)); break; }
+    }
+  }
+  return [...new Set(ids)];
+}
+
+/** id, orderId, order_id, uuid, reference, ref, key, slug, code — the names a record's own
+ *  identifier is given. Matched whole, so "paid" and "idle" are not identifiers. */
+const IDENTIFIER_FIELD = /^(id|_id|uuid|guid|key|slug|code|ref|reference|number|no|[a-z0-9]+(?:Id|_id|Uuid|_uuid|Key|_key|Ref|_ref))$/i;

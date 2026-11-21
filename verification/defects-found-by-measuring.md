@@ -736,6 +736,45 @@ fetch calls and the worker's API steps alike.
 "Signed in successfully", and `/api/orders`, which answers 403 to a caller with no token,
 came back 200.
 
+## 36. A JSON API was mapped as pages, so it had no attack surface
+
+**Symptom.** With the token sign-in working, the order API was still 1 of 4: three pages,
+**zero endpoints**, and the object-authorization check never selected. The planted defect is
+that any signed-in caller can read any order — the check written for exactly that, against
+identities configured with the orders they own.
+
+**Diagnosis.** Three links in one chain, each hiding the next.
+
+Endpoints were only ever recorded from XHR and fetch traffic, which is how a browser
+application calls its API. Open the same URL directly and the browser calls it a document, so
+`/api/orders` was filed as a page with no elements and no kind — and the attack surface, built
+from endpoints, had nothing on it.
+
+Then, with the endpoint recorded, there was still no path to test: the check needs a template
+carrying an identifier, and nothing on the application links to `/api/orders/ord-1`. A
+collection answers with the records it holds and points at none of them.
+
+Then, with the instance visited, `normalizeUrl` left `ord-1` alone — correctly, because an
+opaque string in a path is as likely to be a route name as an id, which is why the freight
+work made the visit key keep it. So the surface held one order's address, not `/api/orders/{id}`.
+
+And underneath all three, the flag that decides whether an endpoint is authenticated was
+hard-coded to false on the new path. An authenticated endpoint taking an identifier is the
+shape that implies the check; an anonymous one is not.
+
+**Fix.** A navigation that answers JSON is recorded as the endpoint it is. The identifiers in
+a collection become addresses the crawler tries — a hypothesis tested by a GET, bounded to a
+few per collection, with a 404 recording nothing and saying so, because REST's shape is a
+convention and not a rule. A URL the crawler built from a known identifier is templated on
+that identifier's own value rather than on what the segment looks like: there is nothing to
+infer when you put the id there yourself. And whether the request carried a session is read
+from the request's own headers, which include the cookie and the Authorization header a token
+sign-in set.
+
+**Measured.** 0 of 4 to 2 of 4 on this target, with the planted object-authorization defect
+found by the check meant for it: *"bob can read a resource owned by alice — parameter id —
+CWE-639"*.
+
 ---
 
 ## Two near misses worth recording
