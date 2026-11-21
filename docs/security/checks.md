@@ -96,6 +96,7 @@ an ordinary scope it is refused, and the refusal is recorded.
 | `checkUnsafeMethods` | an unauthenticated DELETE succeeds on an object the check created | CWE-650 |
 | `checkRateLimit` | fifteen requests, none refused | CWE-770 |
 | `checkExcessiveData` | a response field *named* like a secret | CWE-213 |
+| `checkErrorDisclosure` | an unparseable identifier answered with a 5xx or a stack frame | CWE-209 / CWE-20 |
 
 One accepted validation probe is not a finding — plenty of fields legitimately take an empty
 string or a number. All three together mean the field is not validated at all.
@@ -103,6 +104,14 @@ string or a number. All three together mean the field is not validated at all.
 `checkExcessiveData` matches on field names rather than values, because a value that looks
 like a secret usually is not one and a field called `passwordHash` always is. The values
 themselves never reach the finding.
+
+`checkErrorDisclosure` puts three shapes of unparseable identifier into an endpoint's `{id}` —
+a word, a negative number, three hundred characters — and reads what comes back. It reports on
+two separate grounds, because the remediations differ: the endpoint **failed** where it should
+have refused (a 5xx, CWE-20), and the endpoint **disclosed** its internals (a stack frame in the
+body, CWE-209). An application can do one without the other. Every probe is a GET and none of
+them is attack-shaped: this is error handling, and a probe that looked like an exploit attempt
+would be refused by the scope guard for the wrong reason.
 
 ## Cross-site scripting — `checks-xss.mjs`
 
@@ -169,6 +178,20 @@ signed-in user's data. Only the pair is a finding.
 
 A stack trace is its own finding class (`VerboseErrorDisclosure`, CWE-209) rather than generic
 sensitive data, because it has its own remediation and its own audience.
+
+### Stack traces
+
+One runtime's format is not the pattern. This matched `at Namespace.Method(args) in
+/path/File.cs:line 42` — .NET, and nothing else — so a Node application answering with
+`at handler (/srv/app.js:42:17)`, a Java one with `at com.acme.Orders.read(Orders.java:42)`, a
+Python traceback, a PHP frame list or a Ruby backtrace all passed unreported. Measured on two
+targets at once: an order API returning a Node stack to an unparseable id, and the same leak in
+a freight application's API.
+
+Each alternative is anchored on something only a frame has — a path with a line *and* a column,
+a file in parentheses with a line, the `Traceback` header — so prose that happens to contain the
+word "at" does not match. The pattern is exported, and the test imports it rather than
+declaring its own copy: a test carrying a copy would not have caught the original defect.
 
 ### Personal data
 

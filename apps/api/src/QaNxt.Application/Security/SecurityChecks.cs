@@ -36,6 +36,9 @@ public static class SecurityChecks
     public const string UnsafeMethod = "api.unsafe-method";
     public const string RateLimit = "api.rate-limit";
     public const string ExcessiveData = "api.excessive-data";
+    /// <summary>An identifier the endpoint cannot parse: refused cleanly, or answered with
+    /// the inside of the application.</summary>
+    public const string ErrorDisclosure = "api.error-disclosure";
 
     // Cross-site scripting
     public const string ReflectedXss = "xss.reflected";
@@ -66,7 +69,7 @@ public static class SecurityChecks
     {
         Bola, VerticalEscalation, ReadOnlyWrite, MissingAuthorization, TokenVerification,
         UserEnumeration, AccountLockout, SessionInvalidation, SessionLifetime, ResetTokenReuse,
-        MassAssignment, InputValidation, UnsafeMethod, RateLimit, ExcessiveData,
+        MassAssignment, InputValidation, UnsafeMethod, RateLimit, ExcessiveData, ErrorDisclosure,
         ReflectedXss, StoredXss, DomXss,
         SqlInjection, NoSqlInjection, CommandInjection, TemplateInjection,
         CsrfToken, OriginValidation, UploadRestrictions, OpenRedirect, Ssrf,

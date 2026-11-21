@@ -577,6 +577,16 @@ const RUNNERS: Record<string, CheckRunner> = {
       actor: a ? asActor(a) : undefined
     });
   },
+  'api.error-disclosure': async (scanner, target, context) => {
+    // With a session where one is available and without one where it is not: an endpoint
+    // behind a login answers an anonymous probe with a redirect, and a redirect discloses
+    // nothing. The check itself refuses a target with no identifier in it.
+    const a = owner(context);
+    return api.checkErrorDisclosure(scanner, {
+      baseUrl: context.baseUrl, path: target.identifier,
+      actor: a ? asActor(a) : undefined
+    });
+  },
   'api.excessive-data': async (scanner, target, context) => {
     const a = owner(context);
     return api.checkExcessiveData(scanner, {

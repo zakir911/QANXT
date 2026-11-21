@@ -327,6 +327,16 @@ public static class SecurityAttackSurfaceBuilder
         var checks = new SortedSet<string> { SecurityChecks.SensitiveData, SecurityChecks.Cors };
         var reasons = new List<string> { $"an API call discovery observed ({method})" };
 
+        // An endpoint that takes an identifier will be given one it cannot parse, by a
+        // client with a bug long before anyone malicious tries. Whether it refuses cleanly
+        // or answers with a stack trace is the cheapest question in security testing, and
+        // it does not depend on having a session: an anonymous caller can ask it too.
+        if (identifier)
+        {
+            checks.Add(SecurityChecks.ErrorDisclosure);
+            reasons.Add("it takes an identifier that can be made unparseable");
+        }
+
         if (endpoint.RequiresAuthentication)
         {
             checks.Add(SecurityChecks.MissingAuthorization);

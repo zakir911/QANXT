@@ -22,6 +22,7 @@ import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { authHeaders } from './credentials.mjs';
 import { at } from './target-url.mjs';
+import { STACK_TRACE_PATTERN } from './checks-passive.mjs';
 
 /** Field names that a caller must never be able to set on themselves. */
 const PRIVILEGED_FIELDS = ['role', 'isAdmin', 'admin', 'permissions', 'scopes', 'tenantId', 'verified'];
@@ -224,6 +225,110 @@ export async function checkUnsafeMethods(scanner, { baseUrl, createPath, deleteP
  * fifteen requests", which is a useful thing to know and an honest thing to claim. It does
  * not answer "how much can this endpoint take", and the finding says so.
  */
+/**
+ * An identifier the endpoint cannot parse must not answer with the inside of the application.
+ *
+ * The check a reviewer makes in the first minute: put something impossible in the id and see
+ * what comes back. A 404 or a 400 with a sentence is correct. A 500 carrying a stack trace,
+ * absolute paths and a framework version tells an attacker what the application is built from
+ * before they try anything against it, and it is one of the few findings that costs nothing to
+ * confirm — the request is a GET, it changes nothing, and the evidence is the response.
+ *
+ * Reported on either of two grounds, which are separate because the remediations are: the
+ * endpoint failed where it should have refused (a 5xx), and the endpoint disclosed its
+ * internals (a stack frame in the body). An application can do one without the other.
+ *
+ * The probes are shapes any API meets in production — a word where an identifier belongs, a
+ * number where one may not, something far too long — and not an attack. Nothing traversal-like
+ * or encoded is sent: this is an error-handling check, and a probe that looks like an exploit
+ * attempt would be refused by the scope guard for the wrong reason.
+ */
+export async function checkErrorDisclosure(scanner, { baseUrl, path, actor, testId = 'SECA-ERRDISC' }) {
+  if (!path.includes('{id}')) {
+    return { skipped: true, decision: 'This endpoint takes no identifier, so there is nothing to make unparseable.', findings: [] };
+  }
+
+  const probes = [
+    { id: 'not-an-identifier', value: 'not-an-identifier', describes: 'a word where an identifier belongs' },
+    { id: 'negative', value: '-1', describes: 'a negative number' },
+    { id: 'oversized', value: 'x'.repeat(300), describes: '300 characters' }
+  ];
+
+  const exchanges = [];
+  const failures = [];
+  const leaks = [];
+
+  for (const probe of probes) {
+    const result = await scanner.request({
+      url: at(baseUrl, `${path.replace('{id}', encodeURIComponent(probe.value))}`),
+      method: 'GET', risk: SECURITY_RISK.PASSIVE, testId: `${testId}:${probe.id}`,
+      headers: authHeaders(actor), as: actor?.label ?? 'unauthenticated',
+      note: `error-handling probe: ${probe.describes}`
+    });
+    if (!result.allowed) return { skipped: true, decision: result.decision, findings: [] };
+    exchanges.push(result);
+
+    const body = typeof result.responseBody === 'string'
+      ? result.responseBody
+      : JSON.stringify(result.responseBody ?? '');
+    if (result.status >= 500) failures.push(probe);
+    if (STACK_TRACE_PATTERN.test(body)) leaks.push(probe);
+  }
+
+  if (failures.length === 0 && leaks.length === 0) {
+    return { skipped: false, findings: [], ok: true,
+             detail: `${probes.length} unparseable identifier(s) were refused cleanly: `
+               + `${exchanges.map((e, i) => `${probes[i].id} ${e.status}`).join(', ')}` };
+  }
+
+  const findings = [];
+
+  if (leaks.length > 0) {
+    findings.push({
+      category: 'VerboseErrorDisclosure',
+      title: 'An unparseable identifier returns a stack trace',
+      endpoint: path, httpMethod: 'GET', parameter: 'id',
+      observedAsRole: actor?.label ?? 'unauthenticated',
+      description: `${leaks.length} of ${probes.length} probe(s) answered with a stack trace in the body: `
+        + `${leaks.map(p => p.describes).join(', ')}. The frames name source files and their paths.`,
+      impact: 'Source paths, framework versions and host details are disclosed, which tells an attacker '
+        + 'what the application is built from before they try anything against it.',
+      remediation: 'Catch the parse failure, answer 400 or 404 with a correlation id, and log the detail '
+        + 'server-side.',
+      cwe: 'CWE-209', cweConfidence: 'confirmed',
+      owaspApiCategory: 'API8:2023', owaspWebCategory: 'A05:2021',
+      severityFactors: new SeverityFactors('trivial', 'limited', 'none', 'nonSensitive', 'public'),
+      confidence: confidenceFrom({ reproduced: leaks.length > 1, corroborated: true, unambiguous: true }),
+      exchanges,
+      coverageNote: 'Three shapes of unparseable identifier were sent. No conclusion is drawn about '
+        + 'other inputs, and nothing resembling an attack was tried.'
+    });
+  }
+
+  if (failures.length > 0) {
+    findings.push({
+      category: 'UnhandledInput',
+      title: 'An unparseable identifier makes the endpoint fail rather than refuse',
+      endpoint: path, httpMethod: 'GET', parameter: 'id',
+      observedAsRole: actor?.label ?? 'unauthenticated',
+      description: `${failures.length} of ${probes.length} probe(s) answered 5xx: `
+        + `${failures.map((p, i) => `${p.describes} (${exchanges[probes.indexOf(p)].status})`).join(', ')}. `
+        + 'An identifier the endpoint cannot parse is a client error, not a server error.',
+      impact: 'A request a caller can make at will takes the handler down its failure path. Where that '
+        + 'path is not cheap, it is also a way to spend the server\'s time.',
+      remediation: 'Validate the identifier before using it and answer 400 or 404.',
+      cwe: 'CWE-20', cweConfidence: 'confirmed',
+      owaspApiCategory: 'API8:2023', owaspWebCategory: 'A04:2021',
+      severityFactors: new SeverityFactors('trivial', 'minimal', 'none', 'none', 'public'),
+      confidence: confidenceFrom({ reproduced: failures.length > 1, corroborated: true, unambiguous: true }),
+      exchanges,
+      coverageNote: 'Three shapes of unparseable identifier were sent, each once.'
+    });
+  }
+
+  return { skipped: false, findings };
+}
+
 export async function checkRateLimit(scanner, { baseUrl, path, attempts = 15, actor, testId = 'SECA-RATE' }) {
   const headers = authHeaders(actor);
   const statuses = [];

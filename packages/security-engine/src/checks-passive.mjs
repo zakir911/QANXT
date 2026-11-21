@@ -210,6 +210,35 @@ export async function checkCors(scanner, url, testId = 'SECP-CORS') {
   };
 }
 
+/**
+ * A stack frame, in the runtimes applications are written in.
+ *
+ * Exported so the test can hold the real pattern rather than a copy of it: the defect
+ * this replaces was a pattern that only knew .NET, and a test that declared its own would
+ * not have caught it.
+ *
+ * Each alternative is anchored on something only a frame has — a path with a line and a
+ * column, a file in parentheses with a line, the Traceback header — so prose containing
+ * the word "at" does not match.
+ */
+export const STACK_TRACE_PATTERN = new RegExp([
+      // .NET: at Namespace.Method(args) in /path/File.cs:line 42
+      String.raw`\bat [A-Z][A-Za-z0-9.]+\.[A-Za-z0-9]+\(.*\) in .*:line \d+`,
+      // Node and V8: at fn (/path/file.js:42:17), at /path/file.js:42:17, at async fn (…)
+      String.raw`\n\s*at (?:async )?(?:[\w$.<>\[\] ]+ )?\(?(?:[A-Za-z]:)?[\w./\\-]+\.(?:js|mjs|cjs|ts|tsx|jsx):\d+:\d+\)?`,
+      // Node internals, which appear even when the application's own frames are stripped
+      String.raw`\n\s*at [\w$.]+ \(node:[\w/]+:\d+:\d+\)`,
+      // Java and Kotlin: at com.acme.Orders.read(Orders.java:42)
+      String.raw`\bat [a-z][\w.$]+\.[\w$]+\([\w$]+\.(?:java|kt):\d+\)`,
+      // Python
+      String.raw`Traceback \(most recent call last\)`,
+      String.raw`\n\s*File "[^"]+", line \d+, in `,
+      // PHP: #0 /path/file.php(42): handler()
+      String.raw`\n#\d+ [\w./\\-]+\.php\(\d+\)`,
+      // Ruby: /path/file.rb:42:in `method'
+      '[\\w./-]+\\.rb:\\d+:in [`\']'
+].join('|'));
+
 /** Patterns that are worth looking at, with the reason attached rather than implied. */
 const SENSITIVE_PATTERNS = [
   { name: 'bcrypt password hash', pattern: /\$2[aby]\$\d{2}\$[A-Za-z0-9./]{20,}/, cwe: 'CWE-522', data: 'credentials' },
@@ -221,8 +250,18 @@ const SENSITIVE_PATTERNS = [
   // CWE, its own remediation and its own audience, and folding it into
   // SensitiveDataExposure meant a report could not tell "this endpoint returns a password
   // hash" from "this endpoint returns a stack trace".
-  { name: 'stack trace', pattern: /\bat [A-Z][A-Za-z.]+\.[A-Za-z]+\(.*\) in .*:line \d+/, cwe: 'CWE-209',
-    data: 'nonSensitive', category: 'VerboseErrorDisclosure',
+  // One runtime's format is not the pattern. This matched ".NET only": `at Ns.Method(...)
+  // in file:line 42`. A Node application answers with `at handler (/srv/app.js:42:17)`, a
+  // Java one with `at com.acme.Orders.read(Orders.java:42)`, Python prints a Traceback,
+  // PHP a numbered frame list, Ruby a path with `:in`. Measured: an order API that returns
+  // a Node stack with absolute paths to an unparseable id, and the same leak in a freight
+  // application's API, both invisible to this check while it knew one spelling.
+  //
+  // Each alternative is anchored on something only a stack frame has — a path with a line
+  // and a column, a file in parentheses with a line, the Traceback header — so prose that
+  // happens to contain the word "at" does not match.
+  { name: 'stack trace', cwe: 'CWE-209',
+    pattern: STACK_TRACE_PATTERN,    data: 'nonSensitive', category: 'VerboseErrorDisclosure',
     title: 'A stack trace is returned to the caller',
     impact: 'Source paths, framework versions and host names are disclosed, which tells an attacker '
       + 'what the application is built from before they try anything against it.',

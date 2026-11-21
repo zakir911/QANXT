@@ -321,6 +321,7 @@ export namespace api {
   const checkUnsafeMethods: Check;
   const checkRateLimit: Check;
   const checkExcessiveData: Check;
+  const checkErrorDisclosure: Check;
 }
 export namespace xss {
   const checkReflectedXss: Check;
