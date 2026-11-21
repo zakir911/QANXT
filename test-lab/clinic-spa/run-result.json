@@ -3,11 +3,11 @@
   "name": "Clinic Scheduler",
   "technology": "Node HTTP server, no server-rendered markup; every screen built by client JavaScript; History API routing; JSON API",
   "domain": "clinical appointment scheduling",
-  "ranAt": "2026-11-21T09:31:20.888Z",
+  "ranAt": "2026-11-21T12:51:46.773Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "753609b4-50fa-476f-a08d-a8e370570055",
+      "id": "67747e87-f1a5-4e71-9f1c-f389eb7ed5f4",
       "authStrategy": "formLogin",
       "budget": 240,
       "maxPages": 40
@@ -24,8 +24,8 @@
         "form": 3,
         "heading": 4,
         "passwordInput": 1,
-        "link": 2,
         "table": 2,
+        "link": 2,
         "navigation": 1,
         "dateInput": 2
       },
@@ -40,19 +40,19 @@
       "count": 3,
       "list": [
         {
-          "id": "24ab9e63-e660-4dac-82ce-87a536c5eec5",
+          "id": "3b5a59f9-f2bb-4a5c-81f5-beca2e2e5ab6",
           "route": "/",
           "name": "Clinic Scheduler",
           "fields": 2
         },
         {
-          "id": "1e87f675-65e8-4b41-a7a7-16a35b844ff9",
+          "id": "0de835a8-175c-4861-a48f-038859d5ea62",
           "route": "/patients",
           "name": "Patients",
           "fields": 1
         },
         {
-          "id": "03735b79-c9ea-4eac-94c5-e81a0942e8f1",
+          "id": "68e57a70-686e-46f0-b33a-c4779ad7b3e9",
           "route": "/schedule",
           "name": "Schedule",
           "fields": 3
@@ -60,7 +60,7 @@
       ]
     },
     "design": {
-      "testSuiteId": "42af1246-e936-44f7-9371-52e6df987b65",
+      "testSuiteId": "a2ed6253-f821-40d8-89d6-7a31ffc29dde",
       "testSuiteName": "Clinic Scheduler — form level",
       "forms": 3,
       "testsCreated": 151,
@@ -75,7 +75,7 @@
       "engine": "QA NXT form and page test engine (deterministic)",
       "perForm": [
         {
-          "formId": "24ab9e63-e660-4dac-82ce-87a536c5eec5",
+          "formId": "3b5a59f9-f2bb-4a5c-81f5-beca2e2e5ab6",
           "name": "Clinic Scheduler",
           "route": "/",
           "fields": 2,
@@ -107,7 +107,7 @@
           ]
         },
         {
-          "formId": "1e87f675-65e8-4b41-a7a7-16a35b844ff9",
+          "formId": "0de835a8-175c-4861-a48f-038859d5ea62",
           "name": "Patients",
           "route": "/patients",
           "fields": 1,
@@ -141,7 +141,7 @@
           ]
         },
         {
-          "formId": "03735b79-c9ea-4eac-94c5-e81a0942e8f1",
+          "formId": "68e57a70-686e-46f0-b33a-c4779ad7b3e9",
           "name": "Schedule",
           "route": "/schedule",
           "fields": 3,
@@ -181,7 +181,7 @@
       "pageTests": 23,
       "perPage": [
         {
-          "pageId": "d8280cf8-760d-4ec9-b84e-0a878cd56b8e",
+          "pageId": "798c1049-b288-42b5-8017-8d1fef769b0a",
           "name": "Clinic Scheduler (/schedule)",
           "route": "/schedule",
           "tests": 11,
@@ -196,7 +196,7 @@
           }
         },
         {
-          "pageId": "507200c6-acda-48ac-8553-93508c2256ce",
+          "pageId": "669283c5-11e2-4917-b6b7-d1909e3b1b6b",
           "name": "Clinic Scheduler (/patients)",
           "route": "/patients",
           "tests": 12,
@@ -215,7 +215,7 @@
     },
     "scan": {
       "ok": true,
-      "id": "b22d1d9d-db1e-4949-b794-d5a603c9d016",
+      "id": "c2c56074-6d5d-4d85-a597-187e5b62240b",
       "status": "completed",
       "requestsSent": null,
       "checksRun": null,
@@ -223,7 +223,7 @@
     },
     "run": {
       "ok": true,
-      "runId": "d3d78ce9-a7ed-4f32-b957-47836d797bf3",
+      "runId": "c2f6e2fb-e19f-47c8-8294-92472b5619d3",
       "status": "failed",
       "executions": 151,
       "byStatus": {
@@ -261,7 +261,7 @@
         {
           "name": "Patients: does not reflect markup typed into Find a patient",
           "route": "/patients",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-8c01fecf> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-05a4ecf9> element(s) exist. The application does not encode what it reflects."
         },
         {
           "name": "Patients: copes with the session disappearing before submission",
@@ -380,6 +380,48 @@
         },
         {
           "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/schedule",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/schedule",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/schedule",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
           "checkId": "NoRateLimit",
           "route": "/api/patients",
           "parameter": null,
@@ -388,42 +430,7 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/schedule",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
           "route": "/patients",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/patients",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/schedule",
           "parameter": "x-frame-options",
           "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
         },
@@ -437,21 +444,14 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+          "route": "/patients",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/schedule",
           "parameter": "x-content-type-options",
           "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         }
@@ -478,13 +478,13 @@
         {
           "category": "security",
           "status": "partially-covered",
-          "route": "/schedule",
+          "route": "/",
           "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
         },
         {
           "category": "security",
           "status": "partially-covered",
-          "route": "/",
+          "route": "/schedule",
           "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
         },
         {
@@ -496,7 +496,7 @@
         {
           "category": "api",
           "status": "partially-covered",
-          "route": "/schedule",
+          "route": "/",
           "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
         },
         {
@@ -508,20 +508,20 @@
         {
           "category": "api",
           "status": "partially-covered",
-          "route": "/",
-          "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
-        },
-        {
-          "category": "api",
-          "status": "partially-covered",
           "route": "/patients",
           "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
         },
         {
           "category": "api",
           "status": "partially-covered",
-          "route": "/",
+          "route": "/schedule",
           "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
+        },
+        {
+          "category": "api",
+          "status": "partially-covered",
+          "route": "/",
+          "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
         },
         {
           "category": "errorHandling",
@@ -544,13 +544,13 @@
         {
           "category": "reliability",
           "status": "not-covered",
-          "route": "/",
+          "route": "/patients",
           "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
         },
         {
           "category": "reliability",
           "status": "not-covered",
-          "route": "/patients",
+          "route": "/",
           "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
         },
         {
@@ -574,19 +574,19 @@
         {
           "category": "security",
           "status": "human-required",
-          "route": "/",
+          "route": "/schedule",
           "message": "an anti-forgery token — This form submits with script, so a token would travel in a header that the page does not declare."
         },
         {
           "category": "security",
           "status": "human-required",
-          "route": "/schedule",
+          "route": "/",
           "message": "an anti-forgery token — This form submits with script, so a token would travel in a header that the page does not declare."
         },
         {
           "category": "dataIntegrity",
           "status": "human-required",
-          "route": "/patients",
+          "route": "/schedule",
           "message": "the stored record — QA NXT has no access to the application's database, and a stored record is only observable where the application shows it back."
         },
         {
@@ -598,7 +598,7 @@
         {
           "category": "dataIntegrity",
           "status": "human-required",
-          "route": "/schedule",
+          "route": "/patients",
           "message": "the stored record — QA NXT has no access to the application's database, and a stored record is only observable where the application shows it back."
         },
         {
@@ -622,14 +622,14 @@
         {
           "category": "boundary",
           "status": "unknown",
-          "route": "/patients",
-          "message": "a length limit — Find a patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+          "route": "/schedule",
+          "message": "a length limit — Patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
         },
         {
           "category": "boundary",
           "status": "unknown",
-          "route": "/schedule",
-          "message": "a length limit — Patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+          "route": "/patients",
+          "message": "a length limit — Find a patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
         }
       ]
     }
@@ -677,7 +677,7 @@
           "kind": "test failure",
           "strength": "route and wording",
           "route": "/patients",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-8c01fecf> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-05a4ecf9> element(s) exist. The application does not encode what it reflects."
         }
       },
       {

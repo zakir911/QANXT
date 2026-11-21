@@ -11,6 +11,12 @@ worker, React console, PostgreSQL and Redis.
 | One area only | `make verify-security`, `make verify-continuous-quality`, `make verify-autonomous-qa` |
 | Form-level testing, AI disabled | `./scripts/verify-complete-manual-testing` (~30 min, writes `verification/manual-testing-coverage-report.md`) |
 | What each command does | `make help` |
+| One target, end to end | `node test-lab/run-target.mjs clinic-spa permits-legacy token-api` |
+
+`verification/multi-target-results.md` is what the product found on four applications of
+different shapes, with the two planted defects it did not find and why.
+`verification/defects-found-by-measuring.md` is the product's own defects, each with the
+evidence that established it.
 
 Read `docs/architecture.md` first, then `docs/user-manual.md` for what the product does from a
 user's side. `docs/agent.md` covers the autonomous agent specifically, and `docs/form-testing.md`
