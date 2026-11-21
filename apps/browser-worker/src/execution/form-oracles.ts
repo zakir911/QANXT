@@ -79,6 +79,26 @@ export class OracleError extends Error {
   }
 }
 
+/**
+ * The third verdict: the oracle ran and could not reach a conclusion.
+ *
+ * Some questions are only answerable when the application answers them. Whether a saved
+ * record reads back is one: if the application leaves the user on the form after saving,
+ * nothing on the page says where the record went, and neither "passed" nor "failed" is
+ * true. Reporting it as a pass is the worse lie of the two, because a pass is supposed to
+ * mean the expected behaviour was observed.
+ *
+ * A step that throws this is reported skipped, with the reason, and the execution is
+ * skipped unless something else in it failed. Coverage counts a skipped test as not run,
+ * which is what it is.
+ */
+export class InconclusiveError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InconclusiveError';
+  }
+}
+
 interface FormSignals {
   formPresent: boolean;
   formVisible: boolean;
@@ -940,4 +960,107 @@ export async function assertNotColourOnly(page: Page): Promise<void> {
     + 'in colour, so what they say is unavailable to anyone who cannot tell those colours '
     + 'apart. Add text, an aria-label, a title or visually-hidden content to each mark.'
   );
+}
+
+
+/** What the designer asks the read-back oracle to look for. */
+interface SavedValues {
+  /** The values the submission carried, with the field each came from. */
+  values: { label: string; value: string }[];
+}
+
+/**
+ * Does the saved record read back?
+ *
+ * The one thing a QA engineer always does after saving — go and look at the record — and
+ * the one thing this engine declared it could not do: "QA NXT has no access to the
+ * application's database, and a stored record is only observable where the application
+ * shows it back." That gap is right about the database and wrong about the page. An
+ * application that follows a save with a redirect is showing the record back, by its own
+ * choice, and the values it was given should be in what it shows.
+ *
+ * So: when the submission moved the user somewhere else, that somewhere else is opened
+ * again from its address — a fresh request, not the response that was already on screen,
+ * so a value echoed into a confirmation the server rendered once cannot stand in for a
+ * value that was stored. Every value the submission carried is then looked for in the
+ * page's text.
+ *
+ * When the submission did not move the user, the oracle says so and concludes nothing.
+ * Where the record can be read back is not something that page states, and guessing at a
+ * list page one directory up would report a paginated application for losing records it
+ * has.
+ *
+ * Values are compared with whitespace collapsed and letter case ignored, because an
+ * application is entitled to render "QA-NXT-7731" inside a table cell with padding around
+ * it. Nothing else is normalised: a value shown in a different unit, rounded, or
+ * reformatted is a different value, and the designer only sends values that should come
+ * back exactly as they went in.
+ */
+export async function assertSavedValuesReadBack(
+  page: Page,
+  value: string | undefined,
+  obs: Observations
+): Promise<void> {
+  let asked: SavedValues;
+  try { asked = JSON.parse(value ?? '{}') as SavedValues; }
+  catch { throw new OracleError('assertSavedValuesReadBack needs a JSON description of the values it should find.'); }
+
+  const wanted = (asked.values ?? []).filter(v => typeof v.value === 'string' && v.value.trim() !== '');
+  if (wanted.length === 0) {
+    throw new OracleError('assertSavedValuesReadBack was given no values to look for.');
+  }
+
+  const from = obs.urlBeforeLastAction();
+  const landed = page.url();
+  if (from === undefined) {
+    throw new InconclusiveError(
+      'Not evaluated: nothing recorded where the submission was made from, so whether the '
+      + 'application moved to the saved record could not be established.');
+  }
+  if (sameScreen(from, landed)) {
+    throw new InconclusiveError(
+      `Not evaluated: the application stayed on ${routeOf(landed)} after accepting the `
+      + 'submission, so where the saved record can be read back is not something the page '
+      + 'says. Open the record and check it by hand, or point an API test at the '
+      + "application's read endpoint.");
+  }
+
+  await page.goto(landed, { waitUntil: 'domcontentloaded' });
+  const shown = await page.evaluate(() => document.body?.innerText ?? '').catch(() => '');
+  const flat = foldForComparison(shown);
+
+  const missing = wanted.filter(v => !flat.includes(foldForComparison(v.value)));
+  if (missing.length === 0) return;
+
+  // Nothing submitted is on the page. That is what a confirmation page looks like —
+  // "Thank you, your reference is ABC-0001" — and a confirmation page is a correct way to
+  // answer a save. It is also what a page that lost the whole record looks like, and the
+  // two cannot be told apart from here, so nothing is claimed.
+  //
+  // This is the distinction the oracle turns on. Without it, every application that
+  // answers a save with a thank-you page would be reported for losing data, which is the
+  // single largest class of false finding this check could produce.
+  if (missing.length === wanted.length) {
+    throw new InconclusiveError(
+      `Not evaluated: the submission was accepted and the application moved to `
+      + `${routeOf(landed)}, which shows none of what was submitted — a confirmation page `
+      + `rather than the record. Whether the record holds what was sent cannot be `
+      + `established from it. Point an API test at the application's read endpoint, or `
+      + 'check the record by hand.');
+  }
+
+  // Part of the submission is on the page and part is not, so the page is showing the
+  // record back and the record is incomplete.
+  const named = missing.map(v => `${v.label} (${v.value})`).join(', ');
+  const found = wanted.filter(v => !missing.includes(v)).map(v => v.label).join(', ');
+  throw new OracleError(
+    `The submission was accepted and the application moved to ${routeOf(landed)}, which `
+    + `shows ${found} back but not ${named}. The page is showing the saved record, so a `
+    + `value missing from it was not saved.`);
+}
+
+/** Letter case ignored and runs of whitespace flattened, so a value in a padded table cell
+ *  still matches the value that was typed. Nothing else is normalised. */
+function foldForComparison(text: string): string {
+  return collapse(text).toLowerCase();
 }

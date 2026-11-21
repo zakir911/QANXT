@@ -299,6 +299,38 @@ export const FORMS = [
     defects: []
   },
   {
+    id: 'record-view', route: '/record-view', title: 'Register a consignment',
+    purpose: 'A correct form that saves and redirects to the record itself, showing every value '
+      + 'back. What an application that can be checked after saving looks like.',
+    showsRecord: true,
+    fields: [
+      { name: 'consignee', label: 'Consignee', type: 'text', required: true, attrs: { maxlength: 60 } },
+      { name: 'origin', label: 'Origin', type: 'text', required: true, attrs: { maxlength: 60 } },
+      { name: 'instructions', label: 'Handling instructions', type: 'text', attrs: { maxlength: 120 } }
+    ],
+    submitLabel: 'Register',
+    defects: []
+  },
+  {
+    id: 'record-loses-field', route: '/record-loses-field', title: 'Register a pallet',
+    purpose: 'A form that saves and redirects to the record, which shows two of the three values '
+      + 'it was given. The third was read from the request and never written.',
+    showsRecord: true,
+    // FL-D16 — the record page is built without this field, so a value a user typed and
+    // the application accepted is simply gone. The page shows the rest of the record, so
+    // this is the record being shown back incompletely rather than a confirmation page.
+    dropsField: 'instructions',
+    fields: [
+      { name: 'consignee', label: 'Consignee', type: 'text', required: true, attrs: { maxlength: 60 } },
+      { name: 'origin', label: 'Origin', type: 'text', required: true, attrs: { maxlength: 60 } },
+      { name: 'instructions', label: 'Handling instructions', type: 'text', attrs: { maxlength: 120 } }
+    ],
+    submitLabel: 'Register',
+    defects: [
+      { id: 'FL-D16', description: 'The record page never shows the handling instructions that were saved with it.', detectedBy: ['dataIntegrity'] }
+    ]
+  },
+  {
     id: 'client-silent-discard', route: '/client-silent-discard', title: 'Save a draft',
     purpose: 'A broken form that posts, is answered 200, and throws the submission away: the '
       + 'screen is identical afterwards. It is the reason "the page redrew" is only ever '

@@ -15,7 +15,7 @@ import { LocatorHealer } from '../healing/healer.js';
 import { SecretMasker } from '../security/masker.js';
 import type { Logger } from '../util/logger.js';
 import { ActionError, evaluateAssertion, runAction, type ActionContext } from './action-runner.js';
-import { textDigest } from './form-oracles.js';
+import { InconclusiveError, textDigest } from './form-oracles.js';
 import type { BaselineStore } from './visual-runner.js';
 import {
   ApiRequestSession, ApiStatusError, ApiTransportError, evaluateResponseAssertion,
@@ -83,6 +83,8 @@ export class TestExecutor {
     let errorStack: string | undefined;
     let stepsPassed = 0;
     let stepsFailed = 0;
+    let stepsSkipped = 0;
+    let skippedBecause: string | undefined;
     let stepsHealed = 0;
     let browserVersion = '';
     let tracePath: string | undefined;
@@ -176,6 +178,14 @@ export class TestExecutor {
           errorMessage = 'Not run: this test reloads the page, and this application signs the user out on any page load (its session lives only in the page), so what the test checks after the reload cannot be observed.';
           throw new PreconditionError(errorMessage);
         }
+        // Reading a saved record back means requesting its page again, which on this kind
+        // of application is a sign-out. The empty page that follows is not evidence that
+        // the record was lost.
+        if (job.steps.some(step => step.action.action === 'assertSavedValuesReadBack')) {
+          status = 'blocked';
+          errorMessage = 'Not run: this test reopens the page the application moved to, and this application signs the user out on any page load (its session lives only in the page), so what it shows afterwards says nothing about the saved record.';
+          throw new PreconditionError(errorMessage);
+        }
       }
 
       let navigationMark = 0;
@@ -248,6 +258,13 @@ export class TestExecutor {
 
         if (result.report.status === 'passed') stepsPassed++;
         else if (result.report.status === 'healed') { stepsPassed++; stepsHealed++; }
+        else if (result.report.status === 'skipped') {
+          // The step reached no conclusion. The rest of the test still runs — the steps
+          // after an inconclusive oracle are often the ones that can be concluded — and
+          // the execution ends up skipped unless something in it actually failed.
+          stepsSkipped++;
+          skippedBecause ??= result.report.errorMessage;
+        }
         else {
           stepsFailed++;
           if (step.action.critical !== false && !step.continueOnFailure) {
@@ -259,10 +276,15 @@ export class TestExecutor {
       }
 
       if (status === 'running') {
-        status = stepsFailed > 0 ? 'failed' : stepsHealed > 0 ? 'healed' : 'passed';
+        status = stepsFailed > 0 ? 'failed'
+          : stepsSkipped > 0 ? 'skipped'
+          : stepsHealed > 0 ? 'healed' : 'passed';
         if (stepsFailed > 0) {
           errorMessage ??= actions.find(a => a.status === 'failed')?.errorMessage;
         }
+        // A test whose verdict was never reached carries the reason, so the run report
+        // says why rather than leaving a blank skipped row.
+        if (status === 'skipped') errorMessage ??= skippedBecause;
       }
     } catch (error) {
       if (error instanceof PreconditionError) {
@@ -455,6 +477,20 @@ export class TestExecutor {
     try {
       await runAction(page, step.action, context);
     } catch (error) {
+      // An oracle that could not reach a conclusion is reported as neither passed nor
+      // failed. Calling it a pass would claim the expected behaviour was observed when
+      // nothing was; calling it a failure would blame the application for a question the
+      // page does not answer.
+      if (error instanceof InconclusiveError) {
+        return {
+          report: {
+            ...base,
+            status: 'skipped',
+            durationMs: Date.now() - started,
+            errorMessage: masker.maskText(error.message)
+          }
+        };
+      }
       const actionError = error instanceof ActionError ? error : undefined;
 
       if (actionError?.isLocatorFailure && step.action.target) {

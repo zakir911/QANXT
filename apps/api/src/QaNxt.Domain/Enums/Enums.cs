@@ -180,6 +180,16 @@ public enum BrowserActionType
     /// still be released, is a state machine enforced only by which buttons are drawn. Its
     /// configuration travels as JSON in the step's value.</summary>
     AssertStateForbidsAction = 69,
+    /// <summary>Checks that the values a submission carried are still there when the record
+    /// the application moved to is opened again.
+    ///
+    /// The thing a tester does after pressing Save. The engine used to declare it out of
+    /// reach — "a stored record is only observable where the application shows it back" —
+    /// which is true of the database and not of the page: an application that redirects
+    /// after a save is showing the record back by its own choice. Where the application
+    /// stays on the form instead, the oracle concludes nothing rather than guessing at
+    /// which page holds the record. The values travel as JSON in the step's value.</summary>
+    AssertSavedValuesReadBack = 70,
     /// <summary>Only permitted when the project explicitly allows scripting AND the caller
     /// holds the execution:script permission. Rejected by default.</summary>
     ExecuteScript = 90

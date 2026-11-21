@@ -106,8 +106,41 @@ serves it.
   navigation, after waiting for every request in flight to come back. Duplicate-submission
   checks count only submissions the server did not refuse.
 - **assertNoServerError** — no 5xx, no uncaught script error, no stack trace or SQL error on the page.
+- **assertSavedValuesReadBack** — after an accepted submission, the page the application
+  moved to is opened again from its address, and the values the submission carried are looked
+  for in it. A fresh request, not the response already on screen, so a value echoed into a
+  confirmation the server rendered once cannot stand in for a value that was stored.
+
+  Three outcomes, and the third is the point. All the values present: the record was kept.
+  Some present and some missing: the page is showing the record and part of it is gone, which
+  is a defect naming the field. **None** present: that is what a confirmation page looks like
+  — "Thank you, your reference is ABC-0001" — and a confirmation page is a correct way to
+  answer a save, indistinguishable from here from a page that lost the whole record. Nothing
+  is claimed, and the test reports **no verdict**. Without that rule, every application that
+  answers a save with a thank-you page would be reported for losing data.
+
+  Only free text is asked to read back. A number can come back rounded, a date reformatted, a
+  selection rendered as its label rather than its value, and an amount converted into another
+  unit — all correct, none of it a value that comes back as it went in. The values are
+  markers (`QANXT-` and eight hex characters of the form and field) so that a value found on
+  the page was put there by this test and not already showing, and so the same form always
+  produces the same suite. An application whose session does not survive a page load does not
+  get this test at all: reopening the page there is a sign-out, and the empty page that
+  follows is not evidence.
 - **assertNoMarkupInjection**, **assertLoadTimeUnder**, **assertNoHorizontalScroll**,
   **assertFocused**, **assertPresent**, **assertValueLength**.
+
+### The third verdict
+
+An oracle can reach no conclusion. Some questions are only answerable when the application
+answers them, and a pass is supposed to mean the expected behaviour was observed — so a step
+that could not be evaluated reports neither pass nor fail. It is reported **skipped**, with
+the reason, and the execution is skipped unless something else in it failed. Coverage counts
+a skipped test as not run, which is what it is.
+
+The same applies to a test that never started: **blocked** — a sign-in that failed, a reload
+on an application whose session lives only in the page — is counted and reported in its own
+column, and is not coverage.
 
 ## Values
 

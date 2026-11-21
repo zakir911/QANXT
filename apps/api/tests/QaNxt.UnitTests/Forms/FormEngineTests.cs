@@ -343,6 +343,66 @@ public class FormEngineTests
             .And.NotContain(description => description.Contains("fragile"));
     }
 
+    /// <summary>
+    /// Press Save, then go and look: the engine used to declare this out of reach.
+    ///
+    /// The gap it recorded said a stored record is only observable where the application
+    /// shows it back — true of the database, false of the page. An application that answers
+    /// a save with a redirect is showing the record, and the values it was given should be
+    /// in what it shows.
+    /// </summary>
+    [Fact]
+    public void A_saving_form_is_checked_by_opening_the_record_again()
+    {
+        var roundTrip = Design(Registration()).Tests
+            .Single(test => test.Technique == "round-trip");
+
+        roundTrip.Category.Should().Be(TestCategory.DataIntegrity);
+        roundTrip.Steps[^1].Action.Should().Be(BrowserActionType.AssertSavedValuesReadBack,
+            "the oracle navigates, so nothing after it would be looking at the page the rest "
+            + "of the test left behind");
+        roundTrip.Steps.Select(step => step.Action).Should().Contain(BrowserActionType.AssertFormAccepted,
+            "a record is only read back once the submission has been established as accepted");
+    }
+
+    /// <summary>Only free text carries a marker. A number can come back rounded, a date
+    /// reformatted, a selection rendered as its label and an amount converted into another
+    /// unit — all correct, and none of it a value that comes back as it went in.</summary>
+    [Fact]
+    public void Only_free_text_values_are_asked_to_read_back()
+    {
+        var roundTrip = Design(Registration()).Tests.Single(test => test.Technique == "round-trip");
+        var asked = roundTrip.Steps.Last(step => step.Action == BrowserActionType.AssertSavedValuesReadBack);
+
+        var payload = JsonSerializer.Deserialize<SavedValuesStep>(asked.Value!, JsonDefaults.Options)!;
+
+        payload.Values.Should().OnlyContain(v => v.Value.StartsWith("QANXT-", StringComparison.Ordinal),
+            "a value the application could already be showing proves nothing");
+        payload.Values.Select(v => v.Label).Should().BeEquivalentTo(new[] { "fullName", "bio" },
+            "the text field and the textarea; not the age, not the password, not the tick");
+    }
+
+    /// <summary>The same form always gives the same suite, markers included: a random one
+    /// would make two runs of the same application disagree about what was asked.</summary>
+    [Fact]
+    public void A_read_back_marker_is_the_same_every_time()
+    {
+        string Marker(FormDesign design) => JsonSerializer
+            .Deserialize<SavedValuesStep>(design.Tests.Single(t => t.Technique == "round-trip")
+                .Steps.Last(s => s.Action == BrowserActionType.AssertSavedValuesReadBack).Value!,
+                JsonDefaults.Options)!
+            .Values.First().Value;
+
+        Marker(Design(Registration())).Should().Be(Marker(Design(Registration())));
+    }
+
+    /// <summary>A filter box saves nothing, so there is no record to open again.</summary>
+    [Fact]
+    public void A_filter_form_is_not_asked_to_read_a_record_back()
+    {
+        Design(SearchBox()).Tests.Should().NotContain(test => test.Technique == "round-trip");
+    }
+
     private static FormDesign Design(DiscoveredFormModel form, TestingProfile? profile = null, bool credentials = false,
         IReadOnlyList<CorrelatedEndpoint>? endpoints = null)
         => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,

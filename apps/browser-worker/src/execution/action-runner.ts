@@ -11,8 +11,8 @@ import {
   OracleError, assertErrorAssociated, assertFieldInvalid, assertFieldValid, assertFocused,
   assertFormAccepted, assertFormRejected, assertLoadTimeUnder, assertNoHorizontalScroll,
   assertNoMarkupInjection, assertNoServerError, assertNotColourOnly, assertRequests,
-  assertServerEnforces,
-  assertValueLength, materialiseFixture, type Observations
+  assertSavedValuesReadBack, assertServerEnforces,
+  assertValueLength, materialiseFixture, InconclusiveError, type Observations
 } from './form-oracles.js';
 import {
   assertDisplayedCountMatches, assertPercentageLineConsistent, assertTotalsAddUp
@@ -523,6 +523,8 @@ async function runFormOracle(
         return await assertNoHorizontalScroll(page);
       case 'assertServerEnforces':
         return await assertServerEnforces(page, action.value);
+      case 'assertSavedValuesReadBack':
+        return await assertSavedValuesReadBack(page, action.value, observationsOf(context));
       case 'assertNotColourOnly':
         return await assertNotColourOnly(page);
       case 'assertTotalsAddUp':
@@ -539,6 +541,9 @@ async function runFormOracle(
         throw new ActionError(`Unsupported assertion: ${action.action}`, false);
     }
   } catch (error) {
+    // An oracle that reached no conclusion is neither a pass nor a failure, so it is not
+    // turned into one: the step reports it as skipped, with the reason.
+    if (error instanceof InconclusiveError) throw error;
     if (error instanceof OracleError) throw new ActionError(error.message, false);
     throw error;
   }

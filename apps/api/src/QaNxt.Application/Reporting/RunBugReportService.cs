@@ -681,6 +681,12 @@ public sealed class RunBugReportService : IRunBugReportService
                     + "so what it says is unavailable to anyone who cannot tell those colours apart — about one man in "
                     + "twelve. Contrast tools do not catch this, because the colours may well contrast perfectly. Add "
                     + "text beside the mark, or an aria-label, title or visually-hidden label on it.",
+                BrowserActionType.AssertSavedValuesReadBack => "The submission was accepted and the application "
+                    + "moved to a page of its own choosing, and opening that page again does not show the values that "
+                    + "were submitted. The usual causes are a field read from the request and never written, a write "
+                    + "that silently failed after the response had already been sent, and a read path that returns a "
+                    + "cached copy of the record from before the write. The page was re-requested rather than read "
+                    + "off the screen, so a value echoed into a confirmation does not count as stored.",
                 BrowserActionType.AssertTotalsAddUp => "A total the page prints is not the sum of the lines above it. "
                     + "The usual causes are a total computed from a different collection than the one rendered, a "
                     + "rounding step applied to the total rather than to each line, or a line excluded from the sum "

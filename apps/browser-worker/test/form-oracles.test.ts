@@ -14,7 +14,7 @@ import { Logger } from '../src/util/logger.js';
 import { extractForms, type RawForm } from '../src/discovery/form-extractor.js';
 import { findOpener, formIsVisible } from '../src/discovery/form-probe.js';
 import { explainTimeout } from '../src/execution/executor.js';
-import { textDigest } from '../src/execution/form-oracles.js';
+import { InconclusiveError, textDigest } from '../src/execution/form-oracles.js';
 
 /**
  * The form oracles against the golden form lab.
@@ -402,6 +402,68 @@ describe('form oracles', () => {
     await run({ action: 'clearCookies' });
     await submit('session-expiry');
     await fails(run({ action: 'assertNoServerError' }), /HTTP 500/);
+  }, 30_000);
+
+  // ---- Reading the saved record back -----------------------------------------------
+
+  const savedValues = (...values: { label: string; value: string }[]) => JSON.stringify({ values });
+
+  const inconclusive = async (promise: Promise<unknown>, pattern: RegExp) => {
+    await expect(promise).rejects.toThrow(InconclusiveError);
+    await expect(promise).rejects.toThrow(pattern);
+  };
+
+  test('a record the application shows back reads back', async () => {
+    await open('/record-view');
+    await fill('record-view-consignee', 'QANXT-11111111');
+    await fill('record-view-origin', 'QANXT-22222222');
+    await fill('record-view-instructions', 'QANXT-33333333');
+    await submit('record-view');
+    await run({ action: 'assertFormAccepted', target: testId('record-view-form') });
+    await run({ action: 'assertSavedValuesReadBack', value: savedValues(
+      { label: 'Consignee', value: 'QANXT-11111111' },
+      { label: 'Origin', value: 'QANXT-22222222' },
+      { label: 'Handling instructions', value: 'QANXT-33333333' }) });
+  }, 30_000);
+
+  test('a record shown back without one of its values fails, naming it (FL-D16)', async () => {
+    await open('/record-loses-field');
+    await fill('record-loses-field-consignee', 'QANXT-44444444');
+    await fill('record-loses-field-origin', 'QANXT-55555555');
+    await fill('record-loses-field-instructions', 'QANXT-66666666');
+    await submit('record-loses-field');
+    await run({ action: 'assertFormAccepted', target: testId('record-loses-field-form') });
+    await fails(run({ action: 'assertSavedValuesReadBack', value: savedValues(
+      { label: 'Consignee', value: 'QANXT-44444444' },
+      { label: 'Origin', value: 'QANXT-55555555' },
+      { label: 'Handling instructions', value: 'QANXT-66666666' }) }),
+      /shows Consignee, Origin back but not Handling instructions \(QANXT-66666666\)/);
+  }, 30_000);
+
+  /**
+   * The false finding this oracle would otherwise produce on most applications. A
+   * confirmation page is a correct way to answer a save and shows none of the submission,
+   * which is indistinguishable from a page that lost the whole record.
+   */
+  test('a confirmation page that shows nothing submitted reaches no verdict', async () => {
+    await open('/simple-form');
+    await fill('simple-form-name', 'QANXT-77777777');
+    await submit('simple-form');
+    await run({ action: 'assertFormAccepted', target: testId('simple-form-form') });
+    await inconclusive(run({ action: 'assertSavedValuesReadBack',
+      value: savedValues({ label: 'Your name', value: 'QANXT-77777777' }) }),
+      /a confirmation page rather than the record/);
+  }, 30_000);
+
+  /** An application that answers by redrawing the screen it is on has not said where the
+   *  record is, and guessing would report a paginated application for losing records. */
+  test('a form the application stays on reaches no verdict', async () => {
+    await open('/client-redraw');
+    await fill('client-redraw-who', 'QANXT-88888888');
+    await submit('client-redraw');
+    await inconclusive(run({ action: 'assertSavedValuesReadBack',
+      value: savedValues({ label: 'Name', value: 'QANXT-88888888' }) }),
+      /stayed on \/client-redraw after accepting the submission/);
   }, 30_000);
 
   test('a field keeps at most its declared length', async () => {

@@ -561,6 +561,25 @@ the user out on any page load". Both went into the numerator of the coverage per
 and in `notRun`, which is where a test that could not run belongs. Coverage is the share of
 tests that ran, and a blocked test did not run.
 
+## 29. A check the engine declared impossible was only unimplemented
+
+**Symptom.** Every saving form carried the gap "the stored record — QA NXT has no access to
+the application's database, and a stored record is only observable where the application shows
+it back", and a human task to go and look. The first thing any tester does after pressing Save
+was recorded as out of reach.
+
+**Diagnosis.** The sentence is true of the database and false of the page. An application that
+answers a save with a redirect has chosen to show the record back, and the values it was given
+should be in what it shows. Nothing was stopping the engine from reopening that page and
+looking; the gap had simply been written once and never re-read.
+
+**Fix.** `assertSavedValuesReadBack`, and a third verdict to make it honest. A redirect alone
+is not evidence that the destination shows the record — a thank-you page shows none of the
+submission — so a page showing nothing submitted produces no verdict rather than a finding,
+and only a page showing part of the record is a defect. Without that distinction the check
+would have reported every well-behaved post-redirect-get application for losing data, which
+would have been the largest class of false finding in the product.
+
 ---
 
 ## Two near misses worth recording

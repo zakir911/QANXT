@@ -30,6 +30,17 @@ public sealed record ServerEnforcementStep(
     [property: JsonPropertyName("form")] LocatorDescriptor Form,
     [property: JsonPropertyName("rule")] string? Rule);
 
+/// <summary>One value a submission carried, with the field it came from so a failure can
+/// name it.</summary>
+public sealed record SavedValue(
+    [property: JsonPropertyName("label")] string Label,
+    [property: JsonPropertyName("value")] string Value);
+
+/// <summary>What an <see cref="BrowserActionType.AssertSavedValuesReadBack"/> step carries:
+/// the values that should still be there when the record is opened again.</summary>
+public sealed record SavedValuesStep(
+    [property: JsonPropertyName("values")] IReadOnlyList<SavedValue> Values);
+
 public sealed record DesignedTest
 {
     public required string Key { get; init; }
@@ -2241,13 +2252,109 @@ public static class FormTestDesigner
             }
         }
 
+
+        /// <summary>
+        /// Press Save, then go and look at the record — the first thing any tester does, and
+        /// the one thing this engine declared out of reach.
+        ///
+        /// The gap it declared said a stored record is only observable where the application
+        /// shows it back. That is true of the database and false of the page: an application
+        /// that answers a save with a redirect has chosen to show the record, and the values
+        /// it was given should be in what it shows. So the test submits recognisable values,
+        /// lets the acceptance oracle establish that the submission was accepted, and then
+        /// has the worker reopen wherever the application went and look for them.
+        ///
+        /// Recognisable means a marker the application cannot already be showing: QANXT- and
+        /// eight hex characters of the form and field, so the same form always produces the
+        /// same suite and a value found on the page was put there by this test. Only free
+        /// text carries one. A number can come back rounded, a date reformatted, a selection
+        /// rendered as its label rather than its value, and an amount converted into another
+        /// unit — all correct, none of it a value that comes back as it went in.
+        ///
+        /// A field is skipped where the marker will not fit what it declares: a maximum
+        /// length below the marker, a minimum above it, or a pattern it does not match.
+        ///
+        /// The oracle is the last step on purpose: it navigates, so nothing after it would
+        /// be looking at the page the rest of the test left behind.
+        /// </summary>
+        private bool ReadBackAfterSaving()
+        {
+            if (_submit is null || !_transactional || !CanSucceed || _credentialForm) return false;
+            if (string.Equals(_form.Method, "get", StringComparison.OrdinalIgnoreCase)) return false;
+
+            var markers = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var field in _fields.Where(f => ValueSynthesizer.IsFreeText(f) && !IsConditional(f) && !IsStepHidden(f)))
+            {
+                var marker = $"QANXT-{ShortHash($"{_ctx.FormId:N}/{field.Identity}")}";
+                if (!ValueSynthesizer.Satisfies(field, marker)) continue;
+                markers[field.Identity] = marker;
+            }
+            if (markers.Count == 0)
+            {
+                Gap(TestCategory.DataIntegrity, null, "reading the saved record back",
+                    "No free-text field on this form can hold a value distinctive enough to recognise on the page "
+                    + "afterwards, so a value found there could have been there already. Numbers, dates and selections "
+                    + "are not read back, because an application may legitimately round, reformat or convert them.",
+                    "Check the stored record by hand, or add an API test against the application's read endpoint.",
+                    CoverageGapStatus.NotCovered);
+                return false;
+            }
+
+            var fill = FillValid(markers);
+            if (fill.Failure is not null)
+            {
+                FillGap(TestCategory.DataIntegrity, _fields.First(f => markers.ContainsKey(f.Identity)), fill.Failure);
+                return false;
+            }
+
+            var asked = new SavedValuesStep(markers
+                .Select(pair => new SavedValue(
+                    _fields.First(f => f.Identity == pair.Key).DisplayName, pair.Value))
+                .ToList());
+
+            var steps = new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep())
+                .Append(Accepted("Confirm the submission was accepted"))
+                .Append(new DesignedStep(BrowserActionType.AssertSavedValuesReadBack,
+                    "Reopen wherever the application went and confirm the saved values are there",
+                    Value: JsonSerializer.Serialize(asked, JsonDefaults.Options)))
+                .ToList();
+
+            // One marker can confirm a record and cannot refute one: a page showing nothing
+            // submitted is a confirmation page as often as it is a lost record, and with a
+            // single value there is no third value present to tell them apart.
+            if (markers.Count == 1)
+                Gap(TestCategory.DataIntegrity, null, "a record shown back incompletely",
+                    "This form has one field whose value can be recognised on a page afterwards. A page showing it "
+                    + "proves the record was kept; a page showing nothing cannot be told from a confirmation page, so "
+                    + "a lost value would not be reported.",
+                    "Check the record by hand, or add an API test against the application's read endpoint.",
+                    CoverageGapStatus.PartiallyCovered);
+
+            Add(Test(TestCategory.DataIntegrity, "round-trip", "shows what was saved when the record is opened again",
+                "The values a submission carried are still there when the page the application moved to is "
+                + "reopened from its address.",
+                "Every recognisable value submitted is on the page. If the application stays on the form instead, "
+                + "the test reaches no verdict and says so.",
+                steps, null, TestPriority.High,
+                new[] { $"data:{_ctx.FormId:N}/round-trip" }, fill.Data));
+            return true;
+        }
+
         private void DataIntegrityAndWorkflow()
         {
             if (_submit is not null && _transactional && Wanted(TestCategory.DataIntegrity))
             {
+                var readsBack = ReadBackAfterSaving();
                 Gap(TestCategory.DataIntegrity, null, "the stored record",
-                    "QA NXT has no access to the application's database, and a stored record is only observable where the application shows it back.",
-                    "Verify the stored record by hand, or add an API test against the application's read endpoint.", CoverageGapStatus.HumanRequired);
+                    readsBack
+                        ? "QA NXT has no access to the application's database. Where the application moves to a page "
+                          + "of its own after saving, that page is reopened and the values submitted are looked for "
+                          + "in it. A page that shows part of the record is a defect in the part it lost; a page that "
+                          + "shows none of it is a confirmation page, which is correct behaviour and tells the test "
+                          + "nothing, so the record behind it is still unverified."
+                        : "QA NXT has no access to the application's database, and a stored record is only observable where the application shows it back.",
+                    "Verify the stored record by hand, or add an API test against the application's read endpoint.",
+                    readsBack ? CoverageGapStatus.PartiallyCovered : CoverageGapStatus.HumanRequired);
                 Human(TestCategory.DataIntegrity, "record-stored", "store exactly what was submitted",
                     "The stored record is not visible to the browser.",
                     $"Submit {Title} with recognisable values, then find the record in the application or its database.",

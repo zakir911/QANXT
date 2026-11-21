@@ -213,6 +213,7 @@ public sealed class DefectService : IDefectService
                 BrowserActionType.AssertPercentageLineConsistent => "shows a percentage line that does not derive from any figure above it",
                 BrowserActionType.AssertHiddenMeansForbidden => "hides a control from this identity without refusing the request behind it",
                 BrowserActionType.AssertStateForbidsAction => "allows an action its current state should forbid",
+                BrowserActionType.AssertSavedValuesReadBack => "does not show what was saved when the record it moved to is opened again",
                 BrowserActionType.AssertServerEnforces => failure.RawMessage.Contains("its own defect", StringComparison.Ordinal)
                     ? "fails on a value its own form refuses, instead of rejecting it"
                     : "enforces a rule in the browser only, so the endpoint accepts what the form refuses",

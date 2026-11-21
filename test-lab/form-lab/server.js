@@ -53,7 +53,8 @@ const FIXES = {
   'FL-D04': { a11yBroken: false },
   'FL-D07': { slowMs: 0 },
   'FL-D10': { csrf: undefined },
-  'FL-D15': { fixedWidth: false }
+  'FL-D15': { fixedWidth: false },
+  'FL-D16': { dropsField: null }
 };
 
 /** The form as it currently behaves: fixed defects removed, changes applied. */
@@ -536,6 +537,33 @@ function renderDone(ctx, form) {
   }));
 }
 
+/**
+ * The saved record, shown back.
+ *
+ * The page a tester goes to after pressing Save. It reads the stored record rather than the
+ * submission, so a value the application never wrote is a value this page cannot show —
+ * which is the whole point of `dropsField`: the form accepts it, the record is created, and
+ * the field is gone.
+ */
+function renderRecord(ctx, form) {
+  const reference = ctx.query.ref ?? '';
+  const record = records.find(r => r.reference === reference && r.form === form.id);
+  if (!record) {
+    return ctx.html(404, layout({ title: 'No such record', application: APPLICATION, nav,
+      body: '<h1 data-testid="page-title">No such record</h1>' }));
+  }
+  const shown = form.fields.filter(field => field.name !== form.dropsField);
+  return ctx.html(200, layout({
+    title: `${form.title} ${reference}`, application: APPLICATION, nav,
+    body: `<h1 data-testid="page-title">${escapeHtml(form.title)} ${escapeHtml(reference)}</h1>
+<dl data-testid="${form.id}-record">
+${shown.map(field => `<dt>${escapeHtml(field.label)}</dt><dd data-testid="${form.id}-${field.name}-value">`
+  + `${escapeHtml(String(record.values[field.name] ?? ''))}</dd>`).join('\n')}
+</dl>
+<p><a href="${form.route}" data-testid="${form.id}-again">Register another</a></p>`
+  }));
+}
+
 function crash(ctx, where) {
   // FL-D05 / FL-D13: the kind of page a framework shows when nobody configured it not to.
   return ctx.html(500, `<!doctype html><html lang="en"><head><title>Internal Server Error</title></head><body>
@@ -568,6 +596,7 @@ for (const declared of FORMS) {
   });
   const form = declared;
   app.get(`${form.route}/done`, ctx => renderDone(ctx, form));
+  if (declared.showsRecord) app.get(`${form.route}/record`, ctx => renderRecord(ctx, live(declared)));
 
   if (form.api) continue;
   if (form.method === 'get') continue;
@@ -621,6 +650,7 @@ for (const declared of FORMS) {
         .filter(f => f.type !== 'password' && f.type !== 'file')
         .map(f => [f.name, body[f.name] ?? null]))
     });
+    if (form.showsRecord) return ctx.redirect(`${form.route}/record?ref=${reference}`, 303);
     return ctx.redirect(`${form.route}/done?ref=${reference}`, 303);
   });
 }
