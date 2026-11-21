@@ -7,6 +7,7 @@ using QaNxt.Application.Security;
 using QaNxt.Domain.Common;
 using QaNxt.Domain.Applications;
 using QaNxt.Domain.Enums;
+using QaNxt.Domain.Testing;
 using QaNxt.Infrastructure.Persistence;
 using Xunit;
 
@@ -88,6 +89,31 @@ public class StateChangingLinkGapTests
 
         var gap = db.CoverageGaps.Should().ContainSingle().Subject;
         gap.Reason.Should().StartWith("An unnamed link at /delete.asp?id=9");
+    }
+
+    /// <summary>
+    /// The form engine clears and rewrites its own gaps on every generation, and the clause
+    /// doing it took every gap on the application with no form attached — safe while that
+    /// engine was the only thing producing one. A link has no form either, so a design run
+    /// deleted every gap recorded here, silently, between the crawl that found them and the
+    /// report that should have shown them. Each gap now says what produced it.
+    /// </summary>
+    [Fact]
+    public async Task A_gap_from_discovery_says_so_and_is_not_the_form_engine_s_to_rebuild()
+    {
+        var (service, db, runId) = Create();
+
+        await service.CompleteAsync(runId, Completion(
+            Link("http://127.0.0.1:4700/approve.asp?id=1", "Approve", "http://127.0.0.1:4700/list.asp")));
+
+        var gap = db.CoverageGaps.Should().ContainSingle().Subject;
+        gap.Source.Should().Be(CoverageGapSources.Discovery);
+
+        // What the form engine's rebuild selects, with the clause it now uses.
+        var formEngineOwns = db.CoverageGaps
+            .Where(g => g.Source == CoverageGapSources.FormEngine && g.ApplicationFormId == null)
+            .ToList();
+        formEngineOwns.Should().BeEmpty("a design run must not sweep this up");
     }
 
     [Fact]

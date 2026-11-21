@@ -4925,6 +4925,14 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("recommended_action");
 
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasDefaultValue("form-engine")
+                        .HasColumnName("source");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer")
                         .HasColumnName("status");
@@ -4941,6 +4949,9 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ApplicationId")
                         .HasDatabaseName("ix_coverage_gaps_application_id");
+
+                    b.HasIndex("ApplicationId", "Source")
+                        .HasDatabaseName("ix_coverage_gaps_application_id_source");
 
                     b.ToTable("coverage_gaps", (string)null);
                 });

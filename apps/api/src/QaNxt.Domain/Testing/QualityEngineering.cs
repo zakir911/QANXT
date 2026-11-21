@@ -34,6 +34,15 @@ public class CoverageGap : BaseEntity, ITenantOwned
     public string Reason { get; set; } = string.Empty;
     public string RecommendedAction { get; set; } = string.Empty;
     public CoverageGapStatus Status { get; set; }
+    /// <summary>What produced this gap, so that whatever rebuilds its own gaps does not
+    /// delete somebody else's.
+    ///
+    /// The form engine clears and rewrites its gaps on every generation, and the clause
+    /// doing it took every gap on the application with no form attached — safe while the
+    /// form engine was the only thing that produced one. Discovery now records a gap per
+    /// state-changing link it refused to follow, which has no form either, and the next
+    /// design run deleted all of them.</summary>
+    public string Source { get; set; } = CoverageGapSources.FormEngine;
 }
 
 /// <summary>A check only a person can make: screen-reader experience, a business rule the
@@ -67,6 +76,16 @@ public class HumanVerificationTask : BaseEntity, ITenantOwned
     /// <summary>A generated task's stable identity, so regeneration does not duplicate it
     /// or reset a verdict somebody already gave.</summary>
     public string? GenerationKey { get; set; }
+}
+
+/// <summary>Who owns a coverage gap, and therefore who may rebuild it.</summary>
+public static class CoverageGapSources
+{
+    /// <summary>Designed by the form and page engines; rewritten on every generation.</summary>
+    public const string FormEngine = "form-engine";
+
+    /// <summary>Read from a crawl: something discovery saw and could not judge.</summary>
+    public const string Discovery = "discovery";
 }
 
 /// <summary>A finding read from a form's structure — a missing label, a password field on a

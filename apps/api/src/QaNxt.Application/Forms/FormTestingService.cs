@@ -164,7 +164,15 @@ public sealed class FormTestingService : IFormTestingService
         var formIds = forms.Select(f => f.Id).ToList();
 
         // Gaps and findings are derived state: rebuilt for the forms generated now.
+        //
+        // Scoped to the gaps this engine owns. The clause used to take every gap on the
+        // application with no form attached, which was safe while this engine was the only
+        // thing that produced one. Discovery now records a gap per state-changing link it
+        // refused to follow — no form, because a link has none — and a design run deleted
+        // every one of them, silently, between the crawl that found them and the report that
+        // should have shown them.
         _db.CoverageGaps.RemoveRange(await _db.CoverageGaps.Where(g => g.ApplicationId == application.Id
+            && g.Source == CoverageGapSources.FormEngine
             && (g.ApplicationFormId == null || formIds.Contains(g.ApplicationFormId.Value))).ToListAsync(ct));
         _db.FormFindings.RemoveRange(await _db.FormFindings.Where(f => formIds.Contains(f.ApplicationFormId)).ToListAsync(ct));
         var tasks = await _db.HumanVerificationTasks.Where(t => t.ApplicationId == application.Id && t.GenerationKey != null).ToListAsync(ct);

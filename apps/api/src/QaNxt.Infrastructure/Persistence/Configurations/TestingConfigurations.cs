@@ -93,8 +93,11 @@ public class CoverageGapConfiguration : IEntityTypeConfiguration<CoverageGap>
         b.Property(x => x.Missing).HasMaxLength(500);
         b.Property(x => x.Reason).HasMaxLength(2000);
         b.Property(x => x.RecommendedAction).HasMaxLength(1000);
+        b.Property(x => x.Source).HasMaxLength(40).HasDefaultValue(CoverageGapSources.FormEngine);
         b.HasIndex(x => x.ApplicationId);
         b.HasIndex(x => x.ApplicationFormId);
+        // Every rebuild reads by owner, so the owner is indexed with the application.
+        b.HasIndex(x => new { x.ApplicationId, x.Source });
     }
 }
 

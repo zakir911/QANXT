@@ -247,7 +247,7 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
 
         var existing = await _db.CoverageGaps
             .Where(g => g.ApplicationId == application.Id
-                     && g.Category == TestCategory.Security
+                     && g.Source == CoverageGapSources.Discovery
                      && g.Missing.StartsWith(StateChangeGapPrefix))
             .ToListAsync(ct);
 
@@ -267,6 +267,7 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
                 ProjectId = application.ProjectId,
                 ApplicationId = application.Id,
                 Category = TestCategory.Security,
+                Source = CoverageGapSources.Discovery,
                 Missing = missing,
                 Reason = $"{named} at {path}, on {PathOf(link.FoundOnUrl)}, says it changes something, "
                     + "and a GET that changes something can be triggered by anyone who gets a user to open "
