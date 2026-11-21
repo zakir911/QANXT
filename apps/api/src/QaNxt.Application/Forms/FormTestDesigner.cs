@@ -677,7 +677,23 @@ public static class FormTestDesigner
                 new List<DesignedStep> { Open() }.Concat(full.Steps).Append(SubmitStep()).Append(Accepted("Confirm the submission was accepted")).Append(NoServerError()).ToList(),
                 priority: priority, data: full.Data, coverage: _fields.Select(f => $"field:{_ctx.FormId:N}/{f.Identity}")));
 
-            if (_fields.Any(f => !f.Required && !IsConditional(f)))
+            // Not on a sign-in form whose credential fields are not marked required: the
+            // minimal submission is then an empty one, which every sign-in refuses and
+            // should. The test reported that correct refusal as a defect.
+            var optionalCredential = _credentialForm
+                && _fields.Any(f => !f.Required
+                    && (f.ControlType == "password"
+                        || (_usernameField is not null && f.Identity == _usernameField.Identity)));
+            if (optionalCredential)
+            {
+                Gap(TestCategory.Functional, null, "a submission with only the required fields",
+                    "This is a sign-in form and its credential fields are not marked required, so a "
+                    + "submission with only the required fields carries no credentials. Every sign-in "
+                    + "refuses that, correctly, so there is nothing for the test to establish.",
+                    "Mark the credential fields required if they are, or test this by hand.",
+                    CoverageGapStatus.Unsupported);
+            }
+            if (!optionalCredential && _fields.Any(f => !f.Required && !IsConditional(f)))
             {
                 var minimal = FillValid(includeOptional: false);
                 if (minimal.Failure is null)
@@ -1878,7 +1894,13 @@ public static class FormTestDesigner
                         : "This form submits with script and discovery never submits forms, so the endpoint was not "
                           + "observed. The test checks whichever request the submission makes.",
                     "Discover with interaction, or name the endpoint in an API test.", CoverageGapStatus.PartiallyCovered);
-            var request = JsonSerializer.Serialize(new { method, urlContains = path, minCount = 1, statusIn = new[] { "2xx", "3xx" }, bodyContains = marker }, JsonDefaults.Options);
+            // Scoped to the submission, not to the last navigation, where neither the verb nor
+            // the address narrows what is being counted. A check that names neither and
+            // counts from the page load judges the page's own traffic: on a client-rendered
+            // scheduler it read the `GET /api/me` the page fires while loading, found it
+            // answered 401, and reported the submission as having failed.
+            var scope = method is null && path is null ? "submission" : null;
+            var request = JsonSerializer.Serialize(new { method, urlContains = path, minCount = 1, statusIn = new[] { "2xx", "3xx" }, bodyContains = marker, scope }, JsonDefaults.Options);
             var verb = method ?? "a request";
             Add(Test(TestCategory.Api, "valid-reaches-endpoint", $"sends a valid submission to {verb} {path ?? "its endpoint"}",
                 "What is typed is what the endpoint receives, and the endpoint accepts it.",

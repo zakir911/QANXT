@@ -288,8 +288,10 @@ export const FORMS = [
     purpose: 'A correct form that posts with fetch and answers by redrawing the list above it: '
       + 'no navigation, no route change, no confirmation banner, and the same form still on '
       + 'screen. The new row appearing is the only thing that tells the user it worked.',
+    // No `api`: declaring one makes the lab attach its own fetch-and-render handler as
+    // well as this form's, so the submission went twice and showed a confirmation. The
+    // endpoint it posts to is a plain route on the lab instead.
     clientRedraw: true,
-    api: '/api/slots',
     fields: [
       { name: 'who', label: 'Name', type: 'text', required: true, attrs: { maxlength: 40 } }
     ],

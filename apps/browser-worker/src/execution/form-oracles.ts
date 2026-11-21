@@ -27,6 +27,17 @@ export interface Observations {
   settle(): Promise<void>;
   /** Index into network() at the test's most recent navigate step. */
   networkMarkAtLastNavigation(): number;
+  /**
+   * Index into network() before the most recent step that was not an assertion — in
+   * practice, before the click or key press that submitted the form.
+   *
+   * "What this submission sent" was measured from the last navigation, which includes
+   * everything the page fetched while loading. On an application rendered in the browser
+   * that is most of its traffic: a check on a submission that could name neither a verb nor
+   * an address judged the page's own `GET /api/me`, found it answered 401, and reported the
+   * submission as having failed.
+   */
+  networkMarkBeforeLastAction(): number;
   /** The URL the most recent navigate step landed on. */
   urlAtLastNavigation(): string | undefined;
   /**
@@ -403,8 +414,12 @@ interface RequestExpectation {
   statusIn?: (string | number)[];
   maxDurationMs?: number;
   bodyContains?: string;
-  /** "navigation" (default): since the test's last navigate step. "test": the whole test. */
-  scope?: 'navigation' | 'test';
+  /**
+   * Which requests to count. "navigation" (default): since the test's last navigate step.
+   * "test": the whole test. "submission": since the last step that acted, which is the only
+   * one of the three that means "what this submission sent".
+   */
+  scope?: 'navigation' | 'test' | 'submission';
   /** Count only requests the server did not refuse: no 4xx or 5xx answer. A request that
    *  never got an answer (aborted by a second submission) is counted, because the server may
    *  still have acted on it. Used for duplicate submission, where a second request the
@@ -435,7 +450,11 @@ export async function assertRequests(page: Page, value: string | undefined, obs:
   try { expectation = JSON.parse(value ?? '{}') as RequestExpectation; } catch { throw new OracleError('assertRequests needs a JSON description of the requests it expects.'); }
   await settlePage(page);
   await obs.settle();
-  const events = expectation.scope === 'test' ? obs.network() : obs.network().slice(obs.networkMarkAtLastNavigation());
+  const events = expectation.scope === 'test'
+    ? obs.network()
+    : obs.network().slice(expectation.scope === 'submission'
+        ? obs.networkMarkBeforeLastAction()
+        : obs.networkMarkAtLastNavigation());
   const matching = events.filter(e =>
     (!expectation.method || e.method.toUpperCase() === expectation.method.toUpperCase())
     && (!expectation.urlContains || urlMatches(e.url, expectation.urlContains))

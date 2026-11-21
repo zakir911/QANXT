@@ -47,7 +47,8 @@ describe('form oracles', () => {
       network: () => collector.getNetworkEvents(), console: () => collector.getConsoleEvents(),
       settle: () => collector.settle(), networkMarkAtLastNavigation: () => mark,
       urlAtLastNavigation: () => undefined, urlBeforeLastAction: () => urlBeforeLastAction,
-      textDigestBeforeLastAction: () => textDigestBeforeLastAction, workDir
+      textDigestBeforeLastAction: () => textDigestBeforeLastAction,
+      networkMarkBeforeLastAction: () => networkMarkBeforeLastAction, workDir
     }
   });
 
@@ -56,10 +57,13 @@ describe('form oracles', () => {
   // convenience the product does not have.
   let urlBeforeLastAction: string | undefined;
   let textDigestBeforeLastAction: string | undefined;
+  let networkMarkBeforeLastAction = 0;
 
   const run = async (action: Partial<BrowserAction> & { action: BrowserAction['action'] }) => {
     if (!ASSERTION_ACTIONS.includes(action.action)) {
       urlBeforeLastAction = page.url();
+      await collector.settle();
+      networkMarkBeforeLastAction = collector.getNetworkEvents().length;
       textDigestBeforeLastAction = await textDigest(page);
     }
     return runAction(page, { description: action.action, ...action } as BrowserAction, actionContext());
@@ -332,6 +336,30 @@ describe('form oracles', () => {
     await submit('client-dead-end');
     await fails(run({ action: 'assertFormAccepted', target: testId('client-dead-end-form') }),
       /the route did not change/);
+  }, 30_000);
+
+  /**
+   * "What this submission sent" has to mean what it says.
+   *
+   * Counted from the last navigation, it included everything the page fetched while
+   * loading. On a client-rendered application that is most of its traffic: a check that
+   * could name neither a verb nor an address read the page's own data fetch, found its
+   * status, and reported the submission accordingly. The client-redraw route loads nothing
+   * of its own, so this uses the one that does.
+   */
+  test('a submission-scoped request check ignores what the page fetched while loading', async () => {
+    await open('/client-redraw');
+    // The page's own load traffic is in the record by now; the submission's is not.
+    await fill('client-redraw-who', 'Ada Lovelace');
+    await submit('client-redraw');
+
+    // One POST, and only one request, is attributable to the submission.
+    await run({ action: 'assertRequests', value: JSON.stringify({
+      minCount: 1, maxCount: 1, statusIn: ['2xx', '3xx'], scope: 'submission' }) });
+
+    // The same expectation counted from the navigation sees the page load as well.
+    await fails(run({ action: 'assertRequests', value: JSON.stringify({
+      minCount: 1, maxCount: 1, scope: 'navigation' }) }), /request/);
   }, 30_000);
 
   test('a form that submits with fetch is judged by what it renders in place', async () => {

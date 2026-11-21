@@ -637,6 +637,21 @@ app.get('/search/results', ctx => {
   }));
 });
 
+/**
+ * An endpoint that accepts anything and answers 201, for the two client-rendered forms.
+ *
+ * Declared here rather than as a form's `api` so the lab does not also attach its own
+ * fetch-and-render handler to those forms: with both attached the submission went twice
+ * and a confirmation appeared, which is the opposite of what they exist to show.
+ */
+app.post('/api/slots', async (ctx) => {
+  const body = await ctx.body();
+  counter += 1;
+  records.push({ reference: `SLT-${String(counter).padStart(4, '0')}`, form: 'client-slots',
+                 receivedAt: new Date().toISOString(), values: body });
+  return ctx.json(201, { reference: `SLT-${String(counter).padStart(4, '0')}` });
+});
+
 for (const declaredApi of FORMS.filter(form => form.api)) {
   app.post(declaredApi.api, async (ctx) => {
     const apiForm = live(declaredApi);
