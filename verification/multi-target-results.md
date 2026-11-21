@@ -189,6 +189,51 @@ means pressing "Approve", which is a state-changing control that discovery corre
 presses — the same limit as PL_D01 above, and for the same reason. Authorizing destructive
 testing would reach it.
 
+## Six defects on screens the map never held
+
+Separate from the seven above, and a different kind of limit: these were never missed by an
+oracle, because no test was ever generated for them. The screens they live on are not in the
+model, so nothing downstream could have reached them. Established from run `475528a6` by
+reading the crawl's own log and querying the pages it recorded, rather than inferred from the
+score.
+
+The crawl mapped 150 pages and ended with `Stopped: the 900s exploration budget was reached`.
+
+| Defect | Screen | In the map? | Reason |
+| --- | --- | --- | --- |
+| FP_D13 | `/admin/api-keys` | no | budget — `/admin` was mapped, its children were not |
+| FP_D27 | `/admin/audit` | no | budget — same |
+| FP_D11 | `/claims/{id}/settle` | no | budget — `/claims` was mapped, no `/claims/{id}` at all |
+| FP_D19 | `/claims/{id}/evidence` | no | budget — same |
+| FP_D17 | `/customs/declarations/{id}/release` | no | the per-route cap, now fixed |
+| FP_D31 | `/api/shipments/{id}` | no | not linked from any document |
+
+**Four of the six are one cause: 900 seconds is not enough for 137 screens.** The crawl
+averaged six seconds a page and ran out of time with a deep queue. That is a configuration
+limit and not a defect, but it was reported as one line with no magnitude, so a 150-page map
+read the same whether it had left four pages behind or four hundred. Fixed as product defect
+38: every budget stop now reports the frontier it abandoned.
+
+**FP_D17 was the cap, not the budget, and that one was ours.** Three instances of
+`/customs/declarations/{id}` were opened, chosen by document order, and all three were in
+states the defect does not live in. The defect needs a rejected declaration, and the
+application draws the Release link only while a record is still releasable — so the page is
+linked from nowhere, and raising the budget would never have reached it. Fixed as product
+defect 39: the crawl now spreads its per-route allowance across the values a column takes.
+
+**FP_D31 is the honest remainder.** `/api/shipments/{id}` is a JSON endpoint no page links
+to. The machinery to reach it was built this session and proven on the token-api target —
+a JSON collection's identifiers become addresses the crawler tries — but it fires from a
+JSON collection the crawl has opened, and on freight the crawl never opened
+`/api/shipments`. Reaching it needs either the route listed on the application or the
+budget to get that far.
+
+**What this changes about the score.** Six of thirty-two planted defects were never in scope
+for the run that missed them, and that is a statement about the map and not about the
+oracles. A number quoted without it describes a different experiment from the one that was
+performed. The two fixes above are measured on the next full run; until then they are code
+with tests and not a result.
+
 Two of the five (FP_D01, FP_D14) want a declared business rule. Two (FP_D03, FP_D04) want a
 declared relationship between fields or records. One (FP_D24) wants permission to press a
 control that changes state. None of them wants a cleverer pattern match, and an oracle built
