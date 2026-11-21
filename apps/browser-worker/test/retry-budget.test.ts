@@ -117,6 +117,46 @@ describe.skipIf(!reachable)('the retry budget', () => {
     expect(await consumer.read(5)).toHaveLength(0);
   });
 
+  /**
+   * The defect this exists for, measured on a real crawl.
+   *
+   * A pending entry comes back when it has been idle longer than the visibility window, and
+   * idle is counted from its last delivery rather than from any sign of life. A discovery
+   * job with a 900-second exploration budget and a 900-second visibility window was
+   * therefore delivered a second time nine minutes into the first crawl, and a second
+   * browser began mapping the same application. Nothing in the worker said "still working".
+   */
+  it('a job still being worked on is not handed to anyone else', async () => {
+    const queue = unique('heartbeat');
+    const consumer = makeConsumer(queue, { visibilityMs: 40 });
+    await consumer.ensureGroup();
+    await probe.xadd(queue, '*', 'type', 'discovery', 'payload', JSON.stringify({ long: true }));
+
+    const first = await consumer.read(5);
+    expect(first).toHaveLength(1);
+    const jobId = first[0]!.id;
+
+    // Work that outlasts the window, saying so as it goes.
+    for (let i = 0; i < 4; i += 1) {
+      await new Promise(resolve => setTimeout(resolve, 25));
+      await consumer.touch(jobId);
+    }
+
+    // 100ms of work inside a 40ms window, and the job has not come back.
+    expect(await consumer.read(5)).toHaveLength(0);
+
+    // Renewing does not spend the retry budget: a long job must not dead-letter itself.
+    const pending = await probe.xpending(queue, 'test-group', 'IDLE', 0, '-', '+', 10) as
+      [string, string, number, number][];
+    expect(pending).toHaveLength(1);
+    expect(Number(pending[0]![3])).toBe(1);
+
+    // And once the work stops saying so, it is reclaimable again — the recovery this
+    // replaces must still work for a worker that actually died.
+    await new Promise(resolve => setTimeout(resolve, 90));
+    expect(await consumer.read(5)).toHaveLength(1);
+  });
+
   it('backs off: a job is not re-delivered the instant its visibility window passes', async () => {
     const queue = unique('backoff');
     // 200ms window. Attempt 2 waits 1x (200ms), attempt 3 waits 2x (400ms).

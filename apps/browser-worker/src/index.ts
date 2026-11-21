@@ -119,6 +119,14 @@ async function runJob(
   handle: (payload: unknown) => Promise<void>
 ): Promise<void> {
   const started = Date.now();
+  // Tell the queue this job is alive while it is being worked on. Renewed at a third of the
+  // visibility window so two renewals can be lost before the entry looks idle.
+  const heartbeat = setInterval(
+    () => void consumer.touch(job.id),
+    Math.max(10_000, Math.floor(config.jobVisibilityMs / 3)));
+  // Not a reason to keep the process alive: a shutdown waits on the work, not on the timer
+  // that tells the queue about it.
+  heartbeat.unref();
   try {
     await handle(job.payload);
     await consumer.acknowledge(job.id);
@@ -162,6 +170,8 @@ async function runJob(
       of: consumer.attemptLimit
     });
     await consumer.release(job.id, verdict.reason, job.deliveryCount);
+  } finally {
+    clearInterval(heartbeat);
   }
 }
 

@@ -328,6 +328,36 @@ export class RedisStreamConsumer {
     });
   }
 
+  /**
+   * Says a job is still being worked on, so the queue does not hand it to someone else.
+   *
+   * A pending entry comes back when it has sat idle longer than the visibility window, and
+   * "idle" is measured from its last delivery, not from any sign of life. So a job whose
+   * work legitimately outlasts that window is delivered again while the first worker is
+   * still inside it. Measured: a discovery crawl with a 900-second exploration budget and a
+   * 900-second visibility window was delivered a second time at 13:18:09, nine minutes into
+   * the first crawl, and a second browser started mapping the same application. Only the
+   * control plane refusing a crawl for a run that was no longer in flight stopped the two
+   * from running together — an accident of this run's timing, not a defence.
+   *
+   * XCLAIM with a minimum idle time of 0, back to this same consumer, resets that clock.
+   * JUSTID is what makes it safe to repeat: with it the delivery counter is not incremented,
+   * so keeping a long job alive does not spend its retry budget.
+   */
+  async touch(jobId: string): Promise<void> {
+    if (this.closing) return;
+    try {
+      await this.redis.xclaim(
+        this.options.queue, this.options.group, this.options.consumer,
+        0, jobId, 'JUSTID');
+    } catch (error) {
+      // Best effort. Failing to renew means the job may be delivered again, which the
+      // handler and the control plane already have to tolerate; throwing here would fail a
+      // job that is otherwise going fine.
+      this.logger.debug('Could not renew a job claim', { jobId, error: String(error) });
+    }
+  }
+
   async depth(): Promise<number> {
     try {
       return await this.redis.xlen(this.options.queue);

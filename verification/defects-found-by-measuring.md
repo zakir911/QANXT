@@ -599,6 +599,37 @@ discovery records. Where discovery did not record one there is nothing to point 
 the scenario asserts nothing and its stated expectation says so: asserting nothing is worse
 coverage and better information than asserting something that cannot fail.
 
+## 31. A long job was handed to a second worker while the first was still running it
+
+**Symptom.** In the discovery log of a 150-page crawl, two lines twelve seconds apart:
+
+```
+[13:18:07.102Z] Stopped: the 900s exploration budget was reached.
+[13:18:09.461Z] Starting from 2 URLs: the base URL plus 1 from your route list and the sitemap.
+[13:18:10.151Z] Mapped /dashboard — 61 elements, 30 links, kind=dashboard
+[13:18:19.388Z] Stopped: the control plane asked the crawl to stop — the run is no longer
+                in flight: it finished as PartiallyCompleted.
+```
+
+A second crawl of the same application started, mapped two pages, and was stopped.
+
+**Diagnosis.** A pending stream entry is re-delivered once it has been idle longer than the
+visibility window, and "idle" is counted from its last delivery rather than from any sign of
+life. The worker never sent one. The crawl's exploration budget was 900 seconds and the
+visibility window's default is 900 seconds, so the job was reclaimed at the moment the first
+attempt was finishing.
+
+What stopped the two crawls running together was the control plane refusing a crawl whose run
+was no longer in flight — an accident of this run's timing. A budget a little under the window
+would have had two browsers mapping one application at once, double-ingesting its pages, and,
+before the link guard, changing it twice.
+
+**Fix.** The worker renews its claim every third of the visibility window while a job is in
+flight: `XCLAIM` with a minimum idle time of zero, back to the same consumer, and `JUSTID` so
+the delivery counter is not incremented — keeping a long job alive must not spend its retry
+budget. The recovery this replaces still works: a worker that actually stops renewing has its
+job reclaimed, which the test asserts in the same breath as the renewal.
+
 ---
 
 ## Two near misses worth recording
