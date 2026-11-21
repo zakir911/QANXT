@@ -349,3 +349,30 @@ export namespace passive {
     options?: { headers?: Record<string, string> }) => Promise<CheckResult>;
   const checkMisconfiguration: (scanner: SecurityScanner, baseUrl: string, testId?: string) => Promise<CheckResult>;
 }
+
+/**
+ * Where a probe goes: an absolute path resolved against the base URL's origin, so a base
+ * URL with a path of its own does not have the probe's path appended to it.
+ */
+export function at(baseUrl: string, pathAndQuery: string): string;
+
+/** The path a finding should name, from whatever the check requested. */
+export function pathOf(url: string): string;
+
+/** The headers that make a request act as this identity: a cookie, a bearer token, Basic. */
+export function authHeaders(identity: { headers?: Record<string, string>; cookie?: string | null } | undefined | null): Record<string, string>;
+
+/** True when the identity can actually authenticate a request. */
+export function isSignedIn(identity: { headers?: Record<string, string>; cookie?: string | null } | undefined | null): boolean;
+
+/** Reads whatever credential a sign-in response handed back: a Set-Cookie or a token. */
+export function credentialFrom(response: unknown): { cookie: string | null; headers: Record<string, string> } | null;
+
+/** Personal data in a body, each entry recognised by its own check digits or issuing rules. */
+export function findPersonalData(text: string | null | undefined): Array<{
+  kind: string;
+  count: number;
+  distinct: number;
+  cwe: string;
+  sample: string;
+}>;

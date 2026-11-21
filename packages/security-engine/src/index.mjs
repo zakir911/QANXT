@@ -22,6 +22,12 @@ export {
   TRIAGE_STATUSES, compareToBaseline, fingerprint, suppressionApplies, triage
 } from './regression.mjs';
 
+// The URL rule every check uses, exported so a caller building a probe URL — the worker's
+// own scan handler does — resolves it the same way rather than concatenating a second time.
+export { at, pathOf } from './target-url.mjs';
+export { authHeaders, isSignedIn, credentialFrom } from './credentials.mjs';
+export { findPersonalData } from './personal-data.mjs';
+
 export * as authz from './checks-authz.mjs';
 export * as auth from './checks-auth.mjs';
 export * as api from './checks-api.mjs';

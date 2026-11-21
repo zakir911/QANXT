@@ -19,6 +19,7 @@
 import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { at } from './target-url.mjs';
+import { findPersonalData } from './personal-data.mjs';
 
 /** Headers a browser-facing HTML response should carry, and what each one is for. */
 const EXPECTED_HEADERS = [
@@ -280,6 +281,48 @@ export async function checkSensitiveData(scanner, url, testId = 'SECP-SENSITIVE'
       // like a secret is not a secret. Low is the honest label for it however alarming the
       // category reads, and the gate treats a new Low-confidence finding accordingly.
       confidence: confidenceFrom({ reproduced: false, corroborated: false, unambiguous: false }),
+      exchanges: [result]
+    });
+  }
+
+  // Personal data, which the patterns above do not cover and which no amount of credential
+  // detection substitutes for. A permit register printing every applicant's national
+  // insurance number in full to every signed-in user was clean by the credential rules.
+  //
+  // Reported at a confidence the other patterns are not given, because each of these was
+  // arithmetically checked rather than merely matched: Luhn for a card number, mod-97 for
+  // an IBAN, the issued ranges for the two national identifiers. A sixteen-digit invoice
+  // reference is not a card number and the check knows it.
+  for (const personal of findPersonalData(text)) {
+    observations.push({ pattern: personal.kind, matched: true, benign: false, count: personal.count });
+    findings.push({
+      category: 'PersonalDataExposure',
+      title: personal.distinct > 1
+        ? `${personal.distinct} ${personal.kind}s appear in one response`
+        : `A ${personal.kind} appears in the response`,
+      endpoint: new URL(url).pathname,
+      description: `The response body carries ${personal.distinct} distinct ${personal.kind}(s) `
+        + `(${personal.count} occurrence(s)), recognised by its own check digits or issuing rules `
+        + `rather than by shape alone. A sample is shown masked as ${personal.sample}; the values `
+        + 'are not reproduced here or in the evidence.',
+      impact: personal.distinct > 1
+        ? 'A response carrying many people\'s identifiers is a bulk disclosure: one request takes '
+          + 'the lot, and anyone who can reach the page can repeat it.'
+        : 'A national or financial identifier read from a page can be used to impersonate its '
+          + 'owner to a third party that treats it as proof of identity.',
+      remediation: 'Remove the identifier from the response, show only the last few characters, '
+        + 'or return it solely to the person it belongs to.',
+      cwe: personal.cwe, cweConfidence: 'confirmed',
+      owaspWebCategory: 'A02:2021', owaspApiCategory: 'API3:2023',
+      // How many people's data is in one response changes the impact, not the exposure:
+      // the page is reachable by the same callers either way.
+      severityFactors: new SeverityFactors(
+        'trivial',
+        personal.distinct > 1 ? 'severe' : 'serious',
+        'authenticatedUser', 'personalData', 'authenticatedUsers'),
+      // Unambiguous, because the value satisfies the issuer's own check. Not corroborated:
+      // whether this reader was entitled to see it is a question this check cannot answer.
+      confidence: confidenceFrom({ reproduced: false, corroborated: false, unambiguous: true }),
       exchanges: [result]
     });
   }

@@ -1,6 +1,6 @@
 import type { SecurityIdentity, SecurityScanJob, SecurityTarget } from '@qa-nxt/shared-types';
 import {
-  SEVERITY_ORDER, CONFIDENCE_ORDER, SecurityScanner,
+  SEVERITY_ORDER, CONFIDENCE_ORDER, SecurityScanner, at, authHeaders,
   api, auth, authz, injection, passive, request, xss
 } from '@qa-nxt/security-engine';
 import type { CheckResult, SecurityFinding, SecurityScanner as Scanner } from '@qa-nxt/security-engine';
@@ -669,8 +669,15 @@ const RUNNERS: Record<string, CheckRunner> = {
     passive.checkCookies(scanner, url(context.baseUrl, target.identifier), 'passive.cookies'),
   'passive.cors': async (scanner, target, context) =>
     passive.checkCors(scanner, url(context.baseUrl, target.identifier), 'passive.cors'),
-  'passive.sensitive-data': async (scanner, target, context) =>
-    passive.checkSensitiveData(scanner, url(context.baseUrl, target.identifier), 'passive.sensitive-data'),
+  // Read as a signed-in identity where the job carries one. Anonymously, this check
+  // examined whatever an application shows a stranger — on anything behind a sign-in, the
+  // sign-in page — and reported it clean. The data worth finding is the data a user sees.
+  'passive.sensitive-data': async (scanner, target, context) => {
+    const identity = owner(context);
+    return passive.checkSensitiveData(
+      scanner, url(context.baseUrl, target.identifier), 'passive.sensitive-data',
+      { headers: authHeaders(identity) });
+  },
   'passive.misconfiguration': async (scanner, _target, context) =>
     passive.checkMisconfiguration(scanner, context.baseUrl, 'passive.misconfiguration')
 };
@@ -680,8 +687,18 @@ const REDIRECTISH = new Set([
   'callback', 'dest', 'destination', 'target', 'link', 'fetch', 'image', 'src', 'path'
 ]);
 
+/**
+ * Where a check's probe goes, by the same rule every check in the engine uses.
+ *
+ * This concatenated the target's absolute path onto the base URL, which is right only
+ * while the base URL has no path of its own. Registered against
+ * `http://host/schedule` — an application whose landing screen is not `/` — it produced
+ * `http://host/schedule/patients`, and the twelve missing-header findings a scan of that
+ * target raised all named URLs that do not exist. The engine's own forty-three sites had
+ * the same fault and were fixed; this one is the worker's copy of it.
+ */
 const url = (baseUrl: string, path: string): string =>
-  path.startsWith('http') ? path : `${baseUrl.replace(/\/+$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
+  path.startsWith('http') ? path : at(baseUrl, path.startsWith('/') ? path : `/${path}`);
 
 /** The checks this worker can run, so the control plane never selects one it cannot. */
 export const RUNNABLE_CHECKS: string[] = Object.keys(RUNNERS);
