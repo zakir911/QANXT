@@ -30,24 +30,70 @@ lines in a handler no test could reach. They are listed in
 
 ## Measured
 
-| | clinic-spa | permits-legacy |
-| --- | --- | --- |
-| Pages discovered | 3 | 7 |
-| Forms extracted | 3 | 2 |
-| Tests designed and run | 151 | 202 |
-| Passed | 126 | 170 |
-| Failed | 16 | 28 |
-| Skipped / blocked | 6 / 3 | 4 / 0 |
-| Security checks run | 27 of 27 | 18 of 18 |
-| Security findings | 14 | 22 |
-| Defects correlated | 6 | 11 |
-| Structural findings | 1 | 6 |
-| Coverage gaps | 29 | 22 |
-| **Planted defects detected on evidence** | **3 of 4** | **3 of 4** |
+| | clinic-spa | permits-legacy | token-api |
+| --- | --- | --- | --- |
+| Pages discovered | 3 | 7 | 4 |
+| Forms extracted | 3 | 2 | 0 |
+| Tests designed and run | 153 | 203 | 32 |
+| Passed | 127 | 170 | 25 |
+| Failed | 15 | 28 | 7 |
+| Skipped / blocked | 6 / 5 | 5 / 0 | 0 / 0 |
+| Security checks run | 27 of 27 | 18 of 18 | 8 of 8 |
+| Security findings | 14 | 22 | 9 |
+| Defects correlated | 5 | 11 | 2 |
+| Structural findings | 1 | 6 | 0 |
+| Coverage gaps | 31 | 20 | 6 |
+| **Planted defects detected on evidence** | **3 of 4** | **3 of 4** | **2 of 4** |
 
 Discovery working at all on `clinic-spa` is the first result worth stating: the server sends
 no content, and the form extractor still found all three forms, because discovery drives a
 real browser rather than reading responses.
+
+**Which build each column came from.** The three columns were measured on different commits
+of the same day's work, and saying which matters more than tidiness. `token-api` is the most
+recent: it carries the token sign-in, the JSON-endpoint reading and the authenticated-endpoint
+flag, which is how it moved from 0 of 4 to 2 of 4. `clinic-spa` and `permits-legacy` were
+measured one commit earlier, before the error-disclosure check and the sign-in surface item
+existed; neither target has a JSON API or a token sign-in, so nothing in that work changes
+what they find, but their *checks run* counts would go up by one apiece and their numbers are
+therefore a floor rather than a final figure. They are re-run on the final build before the
+certification is written.
+
+The five blocked tests on `clinic-spa` are the new read-back oracle declining to run: its
+session lives in the page and does not survive a page load, so reopening the record is a
+sign-out and the empty page that follows is not evidence. Blocked is the honest verdict there,
+and blocked is not coverage.
+
+### token-api: what four links in one chain cost
+
+The fourth target was driven for the first time this round, and the first attempt measured
+nothing at all — a scan request for `//` crashed the lab server, and twenty-three tests then
+failed against a target that was no longer running. The product got that part right: all
+twenty-three were attributed to the environment and nothing was concluded about the
+application. The lab answers 400 now.
+
+What the attempt did expose was a shape the product could not test:
+
+| | before | after |
+| --- | --- | --- |
+| Signed in | no — only `bearerToken`, which needs a token already in hand | credentials exchanged for one at the endpoint |
+| Endpoints on the surface | 0 — a JSON navigation was filed as a page | 2, including `/api/orders/{id}` |
+| Authorization checks implied | none, for want of a path with an identifier | the object-authorization check ran |
+| Planted defects found | 0 of 4 | 2 of 4 |
+
+Each link hid the next: with no sign-in there was nothing behind the public pages; with the
+sign-in there was still no endpoint, because a JSON body opened directly is a document to a
+browser; with the endpoint there was still no identifier to compare two identities against,
+because a collection lists its records and links to none of them; and with the instance
+visited, the flag that says an endpoint needs a session was hard-coded false on the new path —
+and that flag is the one that implies the check.
+
+The two still missing are named rather than rounded. `TA_D03`, failed sign-ins never slowed,
+needed the sign-in endpoint to be on the surface at all, which it now is. `TA_D04`, a stack
+trace from an unparseable identifier, needed two things the product lacked: a check that
+provokes the error, and a stack-trace pattern that knows more than one runtime — the detector
+matched .NET's format only, so a Node application's stack was invisible to it. Both are built;
+neither is measured yet, because the build carrying them has not been run against this target.
 
 ## The control group: the application the engines were built against
 
