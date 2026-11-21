@@ -207,10 +207,23 @@ testing types, browsers, viewports, security controls, accessibility checks, sta
 
 `DefectService.CorrelateAsync` runs when a failure is recorded. Only failures the classifier
 attributes to the application, or failures of an oracle, propose a defect; locator, environment,
-network and authentication problems do not. The signature is the symptom and its place — the
-same 5xx from the same endpoint, the same accepted-invalid behaviour on the same field and rule
-— never the test, so many failing tests become one defect with every test attached. A proposed
-defect becomes a regression test only after a person confirms it.
+network, authentication and test-data problems do not. A dropdown option the test was built
+from and the page no longer offers is a test-data problem: records in a dropdown are created
+and consumed as the system is used, including by other tests in the same run.
+
+The signature is the symptom and its place — the same 5xx from the same endpoint, the same
+accepted-invalid behaviour on the same field and rule — never the test, so many failing tests
+become one defect with every test attached. A **refused submission** is keyed on the form and
+the refusal, not on the field a test happened to be varying: the form refuses it whatever a
+boundary test was doing to one field's length, so thirty tests with one cause between them are
+one defect. Two different refusals on one form are still two.
+
+A refusal whose message names a permission is titled for what it is. An application that tells
+you the account may not do this is working; the form is shown to an identity it will not accept
+a submission from, so nothing about its rules was tested. That is a coverage problem and a
+finding about the interface, not a defect in the form's validation.
+
+A proposed defect becomes a regression test only after a person confirms it.
 
 ## The bug report
 
