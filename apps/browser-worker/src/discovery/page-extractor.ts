@@ -26,6 +26,19 @@ export interface RawElement {
   domPath: string | null;
   parentSignature: string | null;
   neighbourText: string | null;
+  /**
+   * The cells of the row this element sits in, when it sits in one.
+   *
+   * A list page is the only place that says which of its records differ and how. A crawl
+   * that opens three records chosen by document order opens three rows of the same table,
+   * and a defect that only exists for a record in one state is behind whichever rows it
+   * did not pick. The cells are what lets the crawl spread its allowance across the values
+   * a column actually takes, without being told what the column means.
+   *
+   * Short values only, and at most a handful: a status, a date, a reference. A cell
+   * holding a paragraph is not a column worth spreading across.
+   */
+  rowCells: string[] | null;
   bounding: { x: number; y: number; width: number; height: number };
   isVisible: boolean;
   isEnabled: boolean;
@@ -276,6 +289,24 @@ export function extractPage(maxElements: number): RawPageCapture {
     return text ? text.slice(0, 300) : null;
   };
 
+  /**
+   * The row an element sits in, as its cells' short texts.
+   *
+   * Tables, ARIA grids and list items all count, because a record list is written all
+   * three ways. The element's own cell is kept in place rather than dropped, so a column
+   * index means the same thing for every row of the same table.
+   */
+  const rowCellsOf = (element: Element): string[] | null => {
+    const row = element.closest('tr, [role="row"], li, [role="listitem"]');
+    if (!row) return null;
+    const cells = Array.from(row.querySelectorAll('td, th, [role="cell"], [role="gridcell"]'));
+    // A list item has no cells; its own text is the one value it offers.
+    const values = (cells.length > 0 ? cells : [row])
+      .slice(0, 8)
+      .map(cell => textOf(cell).replace(/\s+/g, ' ').trim().slice(0, 40));
+    return values.some(Boolean) ? values : null;
+  };
+
   const interestingAttributes = (element: Element): Record<string, string> => {
     const out: Record<string, string> = {};
     for (const attribute of Array.from(element.attributes)) {
@@ -329,6 +360,7 @@ export function extractPage(maxElements: number): RawPageCapture {
       domPath: domPathOf(element),
       parentSignature: parentSignatureOf(element),
       neighbourText: neighbourTextOf(element),
+      rowCells: rowCellsOf(element),
       // The same selector the click candidates use, so a link and a button in the same
       // region are judged by the same rule.
       inNav: element.closest('nav, [role="navigation"], [role="menubar"], [role="menu"]') !== null,

@@ -856,6 +856,55 @@ ids, as a real application writes them, and it engaged.
 
 ---
 
+## 39. Three records of the same route, chosen by document order
+
+**Symptom.** The freight crawl mapped three declarations and the per-route cap stopped it
+there. All three were in states the planted defect does not live in, and the one it needs — a
+rejected declaration — was further down the list.
+
+**Why that was not recoverable later.** The defect is that a rejected declaration can still
+be released. The application draws the Release link only while the record is still
+releasable (`customs.js:206`), so a rejected declaration's release page is linked from
+nowhere: the only way to it is from the record itself, and the record was never opened. Zero
+release pages were mapped on a 150-page crawl. Raising the cap would help by accident;
+raising it enough to be sure would mean opening every record of every list.
+
+**The defect.** The cap's reasoning — one more `/accounts/{id}` teaches nothing the first few
+did not — is true of a column the records agree on and false of one they differ in. A
+declaration that is rejected and a declaration that is accepted are not the same page shown
+twice. The cap was right and the selection was arbitrary: whatever document order offered
+first.
+
+**Fix.** Where a list shows a column its records differ in by a few values, the crawl takes
+one record of each value before a second of any. The column is chosen by its shape, not by a
+vocabulary of status words: a column every row agrees on says nothing, a column where every
+row differs is a reference or a date and spreading across it reproduces the order it
+replaces, and a column taking a handful of values across many rows is the one a small
+allowance can cover. The run names the column and the values it took.
+
+The row values stay crawl state and never enter the map. A row on a customer list holds
+names, emails and amounts, and the only thing the crawler needs from them is which records
+differ; the values that reach the progress log are masked like any other content. A test
+asserts the field is absent from the report.
+
+**Measured.** On a six-record list with the interesting record last and an allowance of
+three, the crawl opens one record of each of the three states and reaches the record document
+order could not reach. Reverting the change fails exactly those tests. Fifteen tests, eleven
+of them on the two pure functions, because the choice of column is where this would quietly
+stop working in a refactor.
+
+**What it does not do.** It does not reach the five freight screens: four of those are the
+budget, and that is a configuration matter now that a partial map says how partial it is
+(#38). This closes the one of the five the budget was never going to reach.
+
+**Two of my own expectations were wrong before the code was.** A fixture using `rec-1`
+through `rec-6` produced no cap at all, because the crawler does not read a one-digit suffix
+as an identifier — correctly. And a two-row table was asserted to have a column worth
+spreading across, which is impossible: with two rows a column either agrees or has one value
+per row. The product was right both times.
+
+---
+
 ## Two near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;

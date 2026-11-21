@@ -279,6 +279,31 @@ Worth understanding here:
 
 Re-run discovery whenever the application changes shape. It does not overwrite your tests.
 
+### What a map leaves out, and how to tell
+
+A crawl stops when it runs out of budget, not when it runs out of application, and on a
+large application those are different moments. When a budget stops it, the run says how
+many URLs were still queued and names some of them, so a map of 150 pages that left four
+hundred behind does not read the same as one that left four. Raise the budget on the
+application, or list the routes that matter, and run it again.
+
+Discovery also opens only a few instances of each route: three `/orders/{id}` pages teach
+what one does, and without that cap a list of a thousand records becomes a thousand
+near-identical pages. The run reports how many pages that cap kept closed, per route.
+
+**Which instances it opens matters more than it sounds.** Where a list shows a column its
+records differ in by a few values — a status, a type, an owner — discovery takes one record
+of each value before a second of any, instead of the first three rows. This is why: a rule
+that only applies to a cancelled order can only be tested on a cancelled order, and an
+application usually stops linking to the very pages where such a rule lives. Taking the
+first three rows of a list tends to find three records in the same state. The run names the
+column it spread across and the values it took.
+
+Discovery works this out from the shape of the column and not from what it means: a column
+every row agrees on says nothing, a column where every row differs is a reference or a date,
+and a column taking a handful of values across many rows is the one worth covering —
+whatever your application calls it.
+
 ---
 
 ## 5. Getting tests

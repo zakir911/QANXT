@@ -90,6 +90,16 @@ interface CrawledPage extends DiscoveredPage {
    * assumption: a 404 records nothing and says so in the log.
    */
   apiInstanceCandidates: ApiInstanceCandidate[];
+  /**
+   * For each link on this page that sits in a row, that row's short cell values.
+   *
+   * Crawl state like the three above, and deliberately not part of the map: a row on a
+   * customer list holds names, emails and amounts, and the report has no use for them. The
+   * crawler uses them for one decision only — which instances of a route to spend its
+   * allowance on — and nothing derived from them is stored except the masked column values
+   * named in the progress log.
+   */
+  rowCellsByHref: Record<string, string[]>;
 }
 
 /** A URL the crawler built from a record a collection named, with the identifier it used. */
@@ -426,7 +436,8 @@ export class Crawler {
       completedAt: new Date().toISOString(),
       workerId,
       // `links` is crawl state; the report carries only the page model.
-      pages: [...this.pages.values()].map(({ links, navHrefs, apiInstanceCandidates, ...page }) => page),
+      pages: [...this.pages.values()]
+        .map(({ links, navHrefs, apiInstanceCandidates, rowCellsByHref, ...page }) => page),
       transitions: this.transitions,
       apiEndpoints: [...this.apiEndpoints.values()],
       consoleErrors: this.consoleErrors,
@@ -663,7 +674,10 @@ export class Crawler {
         .map(element => element.attributes['href']!),
       apiInstanceCandidates: this.readJsonDocument(
         capture.url, httpStatus, documentContentType, documentBody, entry.apiInstanceId,
-        documentRequiresAuth)
+        documentRequiresAuth),
+      rowCellsByHref: Object.fromEntries(capture.elements
+        .filter(element => element.attributes['href'] && element.rowCells)
+        .map(element => [element.attributes['href']!, element.rowCells!]))
     };
 
     this.pages.set(normalized, discovered);
@@ -995,8 +1009,68 @@ export class Crawler {
         viaAccessibleName: name || undefined
       });
     }
+    return this.spreadAcrossColumns(out, page);
+  }
+
+  /**
+   * Orders instances of the same route so the per-route allowance covers different records
+   * rather than three rows of the same table.
+   *
+   * The cap exists because one more /accounts/<id> teaches nothing the first few did not.
+   * That is true of a column the records agree on and false of one they differ in: a
+   * declaration that is rejected and a declaration that is accepted are not the same page
+   * shown twice, and on this project's own lab the difference is a planted defect that
+   * only exists for the rejected one. The crawl took the first three rows, which were all
+   * in states the defect does not live in, and the page that holds it is linked from
+   * nowhere because the application does not draw the link for a rejected record.
+   *
+   * What makes a column worth spreading across is its shape, not its meaning. A column
+   * every row agrees on says nothing. A column where every row differs is an identifier, a
+   * reference or a date, and spreading across it is the document order it replaces. A
+   * column taking a few values across many rows is a state, a type or an owner, whatever
+   * the application calls it — so the column chosen is the one with the fewest distinct
+   * values above one, and the order then takes one row per value before a second of any.
+   *
+   * Nothing here decides what to skip. The cap still does that, and raising it still
+   * reaches more; this only decides which instances the allowance is spent on, which is
+   * the part that was left to document order.
+   */
+  private spreadAcrossColumns(entries: QueueEntry[], page: CrawledPage): QueueEntry[] {
+    // Built once. A list page can offer hundreds of record links, and resolving each
+    // candidate's row against a freshly built index would be quadratic in that count.
+    const rows = Object.entries(page.rowCellsByHref);
+    const byShape = new Map<string, QueueEntry[]>();
+    for (const entry of entries) {
+      const shape = routeShapeOf(entry.url);
+      const group = byShape.get(shape) ?? [];
+      group.push(entry);
+      byShape.set(shape, group);
+    }
+
+    const out: QueueEntry[] = [];
+    for (const [shape, group] of byShape) {
+      // Below the cap nothing is skipped, so the order changes nothing and the work and
+      // the log line are not worth spending.
+      if (group.length <= this.options.budget.maxInstancesPerRouteShape) { out.push(...group); continue; }
+
+      const groupRows = group.map(entry => rowFor(entry.url, rows));
+      const column = chooseVaryingColumn(groupRows);
+      if (column === null) { out.push(...group); continue; }
+
+      const values = group.map((_, index) => (groupRows[index]?.[column] ?? '').toLowerCase());
+      const ordered = oneOfEachFirst(group, values);
+      const distinct = new Set(values.filter(Boolean));
+      this.note(
+        `${group.length} link(s) matching ${shape} differ in one column, which takes `
+        + `${distinct.size} value(s): ${[...distinct].slice(0, 6).map(value => this.masker.maskText(value)).join(', ')}. `
+        + `Taking one of each first, so the ${this.options.budget.maxInstancesPerRouteShape}-instance `
+        + 'allowance is not spent on one of them.');
+      out.push(...ordered);
+    }
     return out;
   }
+
+
 
   private toDiscoveredElement(element: RawElement, page: readonly RawElement[]): DiscoveredElement {
     // The whole page is passed so the locator can be checked for uniqueness, not just built.
@@ -1309,6 +1383,65 @@ export function tidyForLog(message: string): string {
  * /accounts/acc-1002 share the shape /accounts/*. Used only for loop protection, never
  * as a page's identity.
  */
+/**
+ * The column these rows differ in by a few values rather than by all of them.
+ *
+ * Returns null when no column qualifies — every row agreeing, or every row differing — in
+ * which case document order is as good an order as any and the caller leaves it alone.
+ */
+/** The row a link sits in, matched the way the crawler's anchor lookup matches hrefs. */
+function rowFor(url: string, rows: Array<[string, string[]]>): string[] | undefined {
+  for (const [href, cells] of rows) {
+    if (url.endsWith(href)) return cells;
+  }
+  return undefined;
+}
+
+export function chooseVaryingColumn(rows: Array<string[] | undefined>): number | null {
+  const present = rows.filter((row): row is string[] => Array.isArray(row));
+  if (present.length < 2) return null;
+
+  const width = Math.min(...present.map(row => row.length));
+  let best: { column: number; distinct: number } | null = null;
+
+  for (let column = 0; column < width; column++) {
+    const values = present.map(row => (row[column] ?? '').trim().toLowerCase());
+    // A column some rows leave empty is not a column these records differ in; it is a
+    // column the table does not always fill.
+    if (values.some(value => !value)) continue;
+    const distinct = new Set(values).size;
+    // One value says nothing. As many values as rows is an identifier or a date, and
+    // spreading across it reproduces the order it was meant to replace.
+    if (distinct < 2 || distinct >= present.length) continue;
+    if (best === null || distinct < best.distinct) best = { column, distinct };
+  }
+  return best?.column ?? null;
+}
+
+/**
+ * Reorders items so one of each value comes before a second of any, keeping the original
+ * order inside each value and across the values' first appearances. A stable round-robin:
+ * the first three of rejected/accepted/accepted/rejected/held are rejected, accepted, held.
+ */
+export function oneOfEachFirst<T>(items: T[], values: string[]): T[] {
+  const buckets = new Map<string, T[]>();
+  for (const [index, item] of items.entries()) {
+    const key = values[index] ?? '';
+    const bucket = buckets.get(key) ?? [];
+    bucket.push(item);
+    buckets.set(key, bucket);
+  }
+
+  const out: T[] = [];
+  while (out.length < items.length) {
+    for (const bucket of buckets.values()) {
+      const next = bucket.shift();
+      if (next !== undefined) out.push(next);
+    }
+  }
+  return out;
+}
+
 export function routeShapeOf(url: string): string {
   let path: string;
   try { path = new URL(url).pathname; } catch { return url; }
