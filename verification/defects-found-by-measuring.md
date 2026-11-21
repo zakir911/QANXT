@@ -580,6 +580,25 @@ and only a page showing part of the record is a defect. Without that distinction
 would have reported every well-behaved post-redirect-get application for losing data, which
 would have been the largest class of false finding in the product.
 
+## 30. Two validation tests that passed whatever the application did
+
+**Symptom.** The AI-fallback planner's "Submit with required fields empty" and "Reject an
+invalid amount" scenarios passed against every application they were pointed at.
+
+**Diagnosis.** Both closed by asserting the submit control was still visible. A submit
+control is on screen whether the application refused the submission, accepted it and redrew
+the form, or accepted it and did nothing at all. The same mistake was found and fixed on the
+planner's happy path — the code even carries the comment explaining why, naming BUG-0016 —
+and the two refusal scenarios beside it kept making it.
+
+The oracles that answer the question properly were already written, already shown failing
+against a lab of deliberate defects, and used by the deterministic engine only.
+
+**Fix.** `assertFormRejected` and `assertFormAccepted`, pointed at the form element
+discovery records. Where discovery did not record one there is nothing to point them at, so
+the scenario asserts nothing and its stated expectation says so: asserting nothing is worse
+coverage and better information than asserting something that cannot fail.
+
 ---
 
 ## Two near misses worth recording

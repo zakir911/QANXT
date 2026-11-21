@@ -155,6 +155,75 @@ public class RequirementScopingTests
 
     /// <summary>Five pages from three domains, each carrying the same sidebar — which is
     /// what a real back-office application looks like and what the naive scoping trips on.</summary>
+    /// <summary>One page, one form, with the form element discovery records for it.</summary>
+    private static string OneForm(bool withFormElement) => "[" + $$"""
+        { "kind": "form", "route": "/orders/new", "title": "Place an order",
+          "url": "https://freight.example.test/orders/new",
+          "elements": [
+            {{(withFormElement ? """{ "kind": "form", "accessibleName": "Place an order", "testId": "order-form" },""" : "")}}
+            { "kind": "textInput", "accessibleName": "Customer", "label": "Customer",
+              "testId": "customer", "type": "text", "isRequired": true },
+            { "kind": "numberInput", "accessibleName": "Quantity", "label": "Quantity",
+              "testId": "quantity", "type": "number", "isRequired": true },
+            { "kind": "button", "accessibleName": "Place order", "label": "Place order",
+              "testId": "order-submit", "ariaRole": "button" }
+          ] }
+        """ + "]";
+
+    private static List<string> Actions(JsonElement plan)
+        => plan.GetProperty("scenarios").EnumerateArray()
+            .SelectMany(scenario => scenario.GetProperty("steps").EnumerateArray())
+            .Select(step => step.GetProperty("action").GetString()!)
+            .ToList();
+
+    /// <summary>
+    /// The planner's validation scenarios closed by asserting the submit control was still
+    /// visible, which holds whether the application refused the submission, accepted it and
+    /// redrew the form, or accepted it and did nothing. Both of them passed against every
+    /// application regardless of behaviour.
+    ///
+    /// The form oracles were already written, already tested against a lab of deliberate
+    /// defects, and used by the deterministic engine alone.
+    /// </summary>
+    [Fact]
+    public void The_planner_closes_a_submission_with_the_form_oracles()
+    {
+        var actions = Actions(Plan(OneForm(withFormElement: true), requirement: null));
+
+        actions.Should().Contain("assertFormAccepted");
+        actions.Should().Contain("assertFormRejected");
+    }
+
+    [Fact]
+    public void The_planner_no_longer_judges_a_refusal_by_whether_the_button_is_still_there()
+    {
+        var plan = Plan(OneForm(withFormElement: true), requirement: null);
+
+        var visibilityChecks = plan.GetProperty("scenarios").EnumerateArray()
+            .SelectMany(scenario => scenario.GetProperty("steps").EnumerateArray())
+            .Where(step => step.GetProperty("action").GetString() == "assertVisible")
+            .Select(step => step.GetProperty("target").GetProperty("value").GetString())
+            .ToList();
+
+        visibilityChecks.Should().NotContain("order-submit",
+            "a submit control is on screen however the application behaved");
+    }
+
+    /// <summary>Where discovery did not record the form element there is nothing to point
+    /// the oracle at, and the scenario asserts nothing rather than asserting something that
+    /// cannot fail. The expectation says so.</summary>
+    [Fact]
+    public void Without_the_form_element_the_planner_asserts_nothing_and_says_why()
+    {
+        var plan = Plan(OneForm(withFormElement: false), requirement: null);
+
+        Actions(plan).Should().NotContain("assertFormRejected");
+        var validation = plan.GetProperty("scenarios").EnumerateArray()
+            .First(s => s.GetProperty("name").GetString()!.Contains("required fields empty"));
+        validation.GetProperty("expectedResults").GetString().Should()
+            .Contain("Discovery found no form element");
+    }
+
     private static string Freight()
     {
         string sidebar = """

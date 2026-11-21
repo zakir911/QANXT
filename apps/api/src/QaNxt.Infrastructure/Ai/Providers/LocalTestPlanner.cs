@@ -284,6 +284,13 @@ internal static class LocalTestPlanner
 
         var submitLocator = Locator(submit.Value);
 
+        // The form itself, which is what the acceptance and refusal oracles need. Without
+        // it these scenarios can only assert that a control is still on screen, which is
+        // true however the application behaved — the mistake recorded as BUG-0016 and
+        // fixed on the happy path while the two refusal scenarios kept making it.
+        var form = Find(elements, e => LocalJson.String(e, "kind") == "form");
+        var formLocator = form is null ? null : Locator(form.Value);
+
         var happyPath = new List<object> { Step($"Open {title}", "navigate", url: url) };
         foreach (var input in inputs.Take(6))
         {
@@ -301,6 +308,14 @@ internal static class LocalTestPlanner
         var successSignal = Find(elements, e =>
             LocalJson.String(e, "ariaRole") is "status"
             || Mentions(e, "success", "confirmation", "confirmed", "receipt", "thank", "complete"));
+        if (formLocator is not null)
+        {
+            // What the form-level engine uses: no field marked invalid, no error message, no
+            // server failure, and one of the four signs that the application took the
+            // submission. It holds for a form that navigates away and for one that redraws
+            // in place, neither of which a visibility assertion can judge.
+            happyPath.Add(Step("Confirm the submission was accepted", "assertFormAccepted", formLocator));
+        }
         if (successSignal is not null)
         {
             happyPath.Add(StepWithAssertion("Confirm the application reported success", "assertVisible",
@@ -317,10 +332,14 @@ internal static class LocalTestPlanner
             priority = "high",
             risk = "high",
             preconditions = SignedInPrecondition(requiresSignIn),
-            expectedResults = successSignal is not null
+            expectedResults = formLocator is not null
+                ? "The form is accepted: a confirmation is shown, the form gives way, the route changes, or the "
+                  + "page redraws in answer to a request the application answered."
+                : successSignal is not null
                 ? "The form is accepted and the application confirms the outcome."
-                : "The form is accepted. Discovery found no confirmation element on this page, so no success "
-                  + "assertion was generated — add the application's own success signal before relying on this test.",
+                : "The form is accepted. Discovery found neither the form element nor a confirmation element on "
+                  + "this page, so no acceptance assertion was generated — add the application's own success "
+                  + "signal before relying on this test.",
             tags = new[] { "form", Slug(route) },
             testData = inputs.Take(6).ToDictionary(i => FieldKey(i), SampleFor),
             steps = happyPath.ToArray()
@@ -337,16 +356,17 @@ internal static class LocalTestPlanner
                 priority = "medium",
                 risk = "medium",
                 preconditions = SignedInPrecondition(requiresSignIn),
-                expectedResults = "The form is refused and each missing field is reported.",
+                expectedResults = formLocator is not null
+                    ? "The form is refused and something says what was wrong: a field marked invalid or an error "
+                      + "message. A form that refuses silently fails this."
+                    : "The form is refused and each missing field is reported. Discovery found no form element on "
+                      + "this page, so nothing could be asserted about the refusal — a visibility check on the "
+                      + "submit control would hold however the application behaved.",
                 tags = new[] { "form", "validation", Slug(route) },
                 testData = new Dictionary<string, string>(),
-                steps = new object[]
-                {
+                steps = Refused(formLocator, "the submission is incomplete",
                     Step($"Open {title}", "navigate", url: url),
-                    Step("Submit the form without completing it", "click", submitLocator),
-                    StepWithAssertion("Confirm the form was not accepted", "assertVisible", submitLocator,
-                        Assertion("visible", submitLocator, description: "The form is still shown, so the submission was refused."))
-                }
+                    Step("Submit the form without completing it", "click", submitLocator))
             };
         }
 
@@ -362,17 +382,16 @@ internal static class LocalTestPlanner
                 priority = "medium",
                 risk = "medium",
                 preconditions = SignedInPrecondition(requiresSignIn),
-                expectedResults = "The submission is refused with a validation message.",
+                expectedResults = formLocator is not null
+                    ? "The submission is refused and something says what was wrong."
+                    : "The submission is refused with a validation message. Discovery found no form element on "
+                      + "this page, so nothing could be asserted about the refusal.",
                 tags = new[] { "form", "boundary", Slug(route) },
                 testData = new Dictionary<string, string> { ["amount"] = "-1" },
-                steps = new object[]
-                {
+                steps = Refused(formLocator, "the value is negative",
                     Step($"Open {title}", "navigate", url: url),
                     Step($"Enter a negative value in {LabelOf(numeric)}", "fill", Locator(numeric), value: "-1"),
-                    Step("Submit the form", "click", submitLocator),
-                    StepWithAssertion("Confirm the submission was refused", "assertVisible", submitLocator,
-                        Assertion("visible", submitLocator, description: "The form is still shown, so the value was refused."))
-                }
+                    Step("Submit the form", "click", submitLocator))
             };
         }
     }
@@ -948,6 +967,26 @@ internal static class LocalTestPlanner
         };
 
     // ---- Building blocks ----------------------------------------------------
+
+    /// <summary>
+    /// A refusal scenario, closed by the refusal oracle where the form is known and by
+    /// nothing where it is not.
+    ///
+    /// What it replaces: a visibility assertion on the submit control. That holds whether
+    /// the application refused the submission, accepted it and redrew the form, or accepted
+    /// it and did nothing at all, so the two validation scenarios this planner writes passed
+    /// against every application regardless of behaviour. Asserting nothing is worse
+    /// coverage and better information than asserting something that cannot fail, and where
+    /// the form is known the oracle asserts the real thing: the form is still there, a field
+    /// is marked invalid or an error is shown, and no confirmation appeared.
+    /// </summary>
+    private static object[] Refused(object? formLocator, string why, params object[] steps)
+    {
+        var all = new List<object>(steps);
+        if (formLocator is not null)
+            all.Add(Step($"Confirm the submission was refused because {why}", "assertFormRejected", formLocator));
+        return all.ToArray();
+    }
 
     private static object Step(string description, string action, object? target = null, string? value = null, string? url = null)
         => new { description, action, target, value, url, assertions = System.Array.Empty<object>() };
