@@ -199,7 +199,16 @@ public sealed class DefectService : IDefectService
         else if (action is not null)
         {
             var normalised = Regex.Replace(failure.RawMessage.ToLowerInvariant(), @"""[^""]*""|\d+", "#");
-            key = $"{action.Action}|{place}|{testCase.FieldKey}|{normalised[..Math.Min(normalised.Length, 200)]}";
+
+            // A form that refuses the valid submission refuses it whatever field a test was
+            // varying, so the field is not part of what makes this defect distinct. Keyed on
+            // the field, one credit-note form that the signed-in identity may not use
+            // produced twelve defects with one cause between them — the note's length, the
+            // amount's maximum, the keyboard route, the back button, each filed separately.
+            // The normalised message stays in the key, so two different refusals on one form
+            // are still two defects.
+            var fieldMatters = action.Action != BrowserActionType.AssertFormAccepted;
+            key = $"{action.Action}|{place}|{(fieldMatters ? testCase.FieldKey : null)}|{normalised[..Math.Min(normalised.Length, 200)]}";
             symptom = action.Action switch
             {
                 BrowserActionType.AssertErrorAssociated => $"does not tie the error to {testCase.FieldKey}",
@@ -221,7 +230,10 @@ public sealed class DefectService : IDefectService
                 BrowserActionType.AssertValue => $"loses the value of {testCase.FieldKey ?? "a field"}",
                 BrowserActionType.AssertNoServerError => "shows an error",
                 BrowserActionType.AssertLoadTimeUnder => "loads more slowly than its budget",
-                BrowserActionType.AssertFormAccepted => "refuses a valid submission",
+                BrowserActionType.AssertFormAccepted => RefusedForPermission(failure.RawMessage)
+                    ? "refuses every submission from this identity, and says so: the form is shown to an "
+                      + "account the application will not accept it from, so nothing about its rules could be tested"
+                    : "refuses a valid submission",
                 _ => FirstSentence(failure.RawMessage)
             };
         }
@@ -232,6 +244,32 @@ public sealed class DefectService : IDefectService
         }
         var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(key))).ToLowerInvariant();
         return (hash, symptom);
+    }
+
+    /// <summary>
+    /// Whether the application said the identity may not do this, rather than that the
+    /// values were wrong.
+    ///
+    /// The difference matters because the conclusions are opposite. "Refuses a valid
+    /// submission" is a defect in the form's validation; "you do not have permission to
+    /// raise credit notes" is the application working correctly and QA NXT being signed in
+    /// as the wrong account, which makes every rule on that form untested rather than
+    /// broken. One freight form produced twelve defects titled the wrong thing because the
+    /// distinction was not drawn.
+    ///
+    /// Matched on a deliberately narrow vocabulary. "Not allowed" is left out: an
+    /// application that says a date is not allowed is talking about the value.
+    /// </summary>
+    private static bool RefusedForPermission(string message)
+    {
+        var text = message.ToLowerInvariant();
+        return text.Contains("permission", StringComparison.Ordinal)
+            || text.Contains("not authorised", StringComparison.Ordinal)
+            || text.Contains("not authorized", StringComparison.Ordinal)
+            || text.Contains("unauthorised", StringComparison.Ordinal)
+            || text.Contains("unauthorized", StringComparison.Ordinal)
+            || text.Contains("forbidden", StringComparison.Ordinal)
+            || text.Contains("access denied", StringComparison.Ordinal);
     }
 
     private static string? RuleOf(TestCase testCase)

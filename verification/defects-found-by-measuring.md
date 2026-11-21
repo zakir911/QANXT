@@ -630,6 +630,33 @@ the delivery counter is not incremented — keeping a long job alive must not sp
 budget. The recovery this replaces still works: a worker that actually stops renewing has its
 job reclaimed, which the test asserts in the same breath as the renewal.
 
+## 32. Twelve defects for one form, titled the wrong thing
+
+**Symptom.** A 6,344-test run produced twelve defects on one credit-note form, every one
+titled "Raise a credit note: refuses a valid submission". Two other forms produced six each
+with the same title.
+
+**Diagnosis.** Two separate mistakes behind one number.
+
+The form is shown to an account that may not raise credit notes, and the application says so
+in the page. The oracle read it correctly and recorded it verbatim: *"Expected the submission
+to be accepted, but the form is still shown; fields marked invalid: invoiceId, amountGbp,
+reason; messages: "You do not have permission to raise credit notes."; no confirmation is
+shown; the route did not change."* Nothing downstream drew the distinction between an
+application refusing a value and an application refusing an account, so a correctly working
+permission check was filed as a validation defect.
+
+And the defect signature included the field each test happened to be varying. A refused
+submission is refused whatever a boundary test was doing to the note's length, so twelve
+tests with one cause between them became twelve defects.
+
+**Fix.** The field is no longer part of the signature for a refused submission; the refusal
+message still is, so two different refusals on one form remain two defects. And a refusal
+whose message names a permission is titled for what it is: the form is shown to an account
+the application will not accept it from, so nothing about its rules could be tested. The
+vocabulary is deliberately narrow — "not allowed" is excluded, because an application that
+says a date is not allowed is talking about the value.
+
 ---
 
 ## Two near misses worth recording
