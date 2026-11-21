@@ -403,6 +403,31 @@ public class FormEngineTests
         Design(SearchBox()).Tests.Should().NotContain(test => test.Technique == "round-trip");
     }
 
+    /// <summary>
+    /// A form built by client JavaScript carries HTML's default method of GET and posts with
+    /// fetch anyway. The clinical scheduler's booking form reads method=get, action=null, and
+    /// creates appointments; a check on the method threw it out, so the application where
+    /// reading the record back matters most got no round-trip test at all.
+    /// </summary>
+    [Fact]
+    public void A_client_rendered_form_that_declares_no_method_is_still_asked_to_read_back()
+    {
+        var booking = new DiscoveredFormModel
+        {
+            Key = "booking", Name = "Schedule", Action = null, Method = "get",
+            HasCsrfToken = false, NoValidate = false, Locator = TestId("booking-form"),
+            Fields = new()
+            {
+                Field("patient", "text", true, new() { ["maxlength"] = "60" }),
+                Field("start", "datetime", true),
+                Field("end", "datetime", true)
+            },
+            Buttons = new() { new FormButtonModel { Label = "Book", Type = "submit", Role = "submit", Locator = TestId("booking-submit") } }
+        };
+
+        Design(booking).Tests.Should().Contain(test => test.Technique == "round-trip");
+    }
+
     private static FormDesign Design(DiscoveredFormModel form, TestingProfile? profile = null, bool credentials = false,
         IReadOnlyList<CorrelatedEndpoint>? endpoints = null)
         => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,

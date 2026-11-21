@@ -2279,8 +2279,14 @@ public static class FormTestDesigner
         /// </summary>
         private bool ReadBackAfterSaving()
         {
+            // _transactional is the whole test of "this form changes something", and it
+            // already knows what a bare method attribute does not. A form built by client
+            // JavaScript carries HTML's default method of GET and posts with fetch anyway:
+            // the clinical scheduler's booking form reads method=get, action=null, and
+            // creates appointments. A separate check on the method threw that form out, so
+            // the one application in the set where reading the record back matters most got
+            // no round-trip test at all.
             if (_submit is null || !_transactional || !CanSucceed || _credentialForm) return false;
-            if (string.Equals(_form.Method, "get", StringComparison.OrdinalIgnoreCase)) return false;
 
             var markers = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (var field in _fields.Where(f => ValueSynthesizer.IsFreeText(f) && !IsConditional(f) && !IsStepHidden(f)))
