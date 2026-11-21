@@ -139,8 +139,27 @@ async function signals(page: Page, form: Locator | null): Promise<FormSignals> {
     const nativeValidation = Boolean(formEl && formEl.tagName === 'FORM' && !formEl.noValidate);
     const controls = connected ? Array.from(formEl!.querySelectorAll('input, select, textarea')) as HTMLInputElement[] : [];
     const invalidFields = controls
-      .filter(c => c.getAttribute('aria-invalid') === 'true'
-        || (nativeValidation && typeof c.checkValidity === 'function' && !c.validity.valid && visible(c)))
+      .filter(c => {
+        // The application saying so. Always counted, however the field got that way.
+        if (c.getAttribute('aria-invalid') === 'true') return true;
+        if (!nativeValidation || typeof c.checkValidity !== 'function') return false;
+        if (c.validity.valid || !visible(c)) return false;
+        // An empty required field is not the application reporting anything. It is the
+        // browser's static view of an empty box, and a form that re-renders empty after a
+        // successful save has a page full of them. Measured: an export form showing
+        // "Export of shipments queued. You will be emailed when it is ready." and a
+        // document upload showing "Document uploaded." were both reported as refusals,
+        // because their own cleared fields read as invalid beside the confirmation.
+        //
+        // :user-invalid is the distinction the platform draws: it matches only once the
+        // user has interacted with the field or tried to submit the form, so a blocked
+        // submission still counts and a freshly rendered empty form does not. Where the
+        // browser does not know the selector, the old reading stands.
+        if (c.validity.valueMissing) {
+          try { return c.matches(':user-invalid'); } catch { return true; }
+        }
+        return true;
+      })
       .map(c => c.name || c.id || c.type);
     const errorTexts = Array.from(document.querySelectorAll(errorSelector))
       .filter(el => visible(el) && text(el).length > 0)

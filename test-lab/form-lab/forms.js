@@ -299,6 +299,23 @@ export const FORMS = [
     defects: []
   },
   {
+    id: 'queue-export', route: '/queue-export', title: 'Queue an export',
+    purpose: 'A correct form that answers in place: it re-renders itself empty with a '
+      + 'confirmation above it, which leaves every required field reading as natively '
+      + 'invalid beside the message that says the submission worked.',
+    confirmsInPlace: true,
+    // Native validation on, which is what makes this fixture bite: with novalidate the
+    // browser reports nothing and an emptied required field is invisible to the oracle.
+    native: true,
+    fields: [
+      { name: 'dataset', label: 'Dataset', type: 'text', required: true, attrs: { maxlength: 40 } },
+      { name: 'dateFrom', label: 'From', type: 'date', required: true },
+      { name: 'dateTo', label: 'To', type: 'date', required: true }
+    ],
+    submitLabel: 'Queue export',
+    defects: []
+  },
+  {
     id: 'record-view', route: '/record-view', title: 'Register a consignment',
     purpose: 'A correct form that saves and redirects to the record itself, showing every value '
       + 'back. What an application that can be checked after saving looks like.',

@@ -404,6 +404,34 @@ describe('form oracles', () => {
     await fails(run({ action: 'assertNoServerError' }), /HTTP 500/);
   }, 30_000);
 
+  /**
+   * The false refusal this removes.
+   *
+   * A server-rendered form that answers in place re-renders itself empty with a
+   * confirmation above it. Every required field on it is then natively invalid, and the
+   * oracle read that as the application reporting a problem — so a freight export form
+   * showing "Export of shipments queued. You will be emailed when it is ready." and a
+   * document upload showing "Document uploaded." were both filed as refusals of a valid
+   * submission.
+   */
+  test('a form that confirms in place and clears itself is accepted, not refused', async () => {
+    await open('/queue-export');
+    await fill('queue-export-dataset', 'shipments');
+    await fill('queue-export-dateFrom', '2026-01-01');
+    await fill('queue-export-dateTo', '2026-02-01');
+    await submit('queue-export');
+    await run({ action: 'assertFormAccepted', target: testId('queue-export-form') });
+  }, 30_000);
+
+  /** And the refusal it must not remove: a submission the browser blocks still reports its
+   *  fields, because the user has tried to submit them. */
+  test('an empty submission the browser blocks still reports its fields', async () => {
+    await open('/queue-export');
+    await submit('queue-export');
+    await fails(run({ action: 'assertFormAccepted', target: testId('queue-export-form') }),
+      /fields marked invalid: dataset/);
+  }, 30_000);
+
   // ---- Reading the saved record back -----------------------------------------------
 
   const savedValues = (...values: { label: string; value: string }[]) => JSON.stringify({ values });

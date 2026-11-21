@@ -657,6 +657,29 @@ the application will not accept it from, so nothing about its rules could be tes
 vocabulary is deliberately narrow — "not allowed" is excluded, because an application that
 says a date is not allowed is talking about the value.
 
+## 33. A form that said the submission worked was filed as refusing it
+
+**Symptom.** From the same run, two failures with the application's own confirmation quoted
+inside them:
+
+> fields marked invalid: dataset, dateFrom, dateTo; no error message is shown; confirmation:
+> "Export of shipments queued. You will be emailed when it is ready."
+
+> fields marked invalid: file; no error message is shown; confirmation: "Document uploaded."
+
+**Diagnosis.** A server-rendered form that answers in place re-renders itself empty with a
+confirmation above it. Every required field on it is then natively invalid — `valueMissing`,
+because it is empty — and the oracle counted that as the application reporting a problem. So
+the acceptance check failed beside the message saying the submission had been accepted.
+
+**Fix.** An empty required field is not the application reporting anything; it is the
+browser's static view of an empty box. `:user-invalid` is the distinction the platform
+already draws: it matches only once the user has interacted with the field or tried to submit
+the form. A blocked submission still reports its fields, a freshly rendered empty form does
+not, and `aria-invalid` and every other kind of invalidity — a bad pattern, a number out of
+range — count as before. Both halves are tested, because removing the false refusal must not
+remove the real one.
+
 ---
 
 ## Two near misses worth recording

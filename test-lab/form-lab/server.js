@@ -256,7 +256,7 @@ function renderField(form, field, values, errors) {
   }
 }
 
-function renderForm(ctx, form, values = {}, errors = {}, status = 200) {
+function renderForm(ctx, form, values = {}, errors = {}, status = 200, confirmation = null) {
   const errorList = Object.entries(errors);
   const summary = errorList.length === 0 ? '' : form.a11yBroken
     ? `<div class="error-summary"><p>Please correct the form.</p></div>`
@@ -308,6 +308,7 @@ function renderForm(ctx, form, values = {}, errors = {}, status = 200) {
     head: `<style>${clip}.error{color:#b00020}.error-summary{border:2px solid #b00020;padding:8px;margin-bottom:12px}.field{margin:10px 0}.inline{display:inline-flex;gap:6px;align-items:center;margin-right:12px}fieldset{border:1px solid #ccc;padding:8px}</style>`,
     body: `<h1 data-testid="page-title">${escapeHtml(form.title)}</h1>
 <p class="muted">${escapeHtml(form.purpose)}</p>
+${confirmation ? `<p class="confirmation" role="status" data-testid="${form.id}-confirmation">${confirmation}</p>` : ''}
 ${decoration}
 ${formMarkup(`${summary}
 <form id="${form.id}" name="${form.id}" method="${method}"${action}${enctype}${novalidate}${width} data-testid="${form.id}-form" aria-label="${escapeHtml(form.title)}">
@@ -651,6 +652,13 @@ for (const declared of FORMS) {
         .map(f => [f.name, body[f.name] ?? null]))
     });
     if (form.showsRecord) return ctx.redirect(`${form.route}/record?ref=${reference}`, 303);
+    // Answered in place: the same form, empty again, with a confirmation above it. Every
+    // required field on it is now natively invalid, which is what an oracle reading native
+    // validity mistakes for a refusal.
+    if (form.confirmsInPlace) {
+      return renderForm(ctx, form, {}, {}, 200,
+        `Export of ${escapeHtml(String(body.dataset ?? 'records'))} queued. You will be emailed when it is ready.`);
+    }
     return ctx.redirect(`${form.route}/done?ref=${reference}`, 303);
   });
 }
