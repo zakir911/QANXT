@@ -777,6 +777,43 @@ CWE-639"*.
 
 ---
 
+## 37. Two oracles reported their own unmet premise as a defect in the application
+
+**Symptom.** None, in the ordinary sense. These two checks had never once fired against a
+real target, so nothing was wrong with any run — which is exactly why reading them was the
+only way to find this.
+
+**What they do.** `assertHiddenMeansForbidden` and `assertStateForbidsAction` are the only
+two steps in the engine that act on an absence: a control the page withholds, a transition
+the page does not offer. Both begin by confirming the premise on the page, because a
+question asked of the wrong record answers nothing. `assertHiddenMeansForbidden` checks the
+control is still missing or disabled; `assertStateForbidsAction` checks the page still says
+the record is cancelled, rejected, void.
+
+**The defect.** Both raised `OracleError` when the premise did not hold, and `OracleError`
+means the assertion failed — which the engine reports as a defect in the application under
+test. So a control that had become available, or a record that had moved on, would have been
+filed against the application as a broken permission or a broken state machine. The engine
+already has the right verdict for this and has had since the read-back oracle: an oracle
+that cannot be evaluated is `InconclusiveError`, the step is `skipped`, and it counts as no
+coverage. These two predate it and were never moved over.
+
+The two existing tests for these branches asserted the message and not the verdict, so they
+passed whichever of the two the oracle produced. That is the fourth time this session a test
+has been found asserting less than its name claims.
+
+**Fix.** Both premise branches raise `InconclusiveError`, with the reason kept. The tests now
+assert the verdict as well as the wording, and a third test asserts the counterpart — that an
+accepted request is still a failure — so making premises inconclusive cannot quietly soften
+the finding this family exists to report. Reverting the fix fails exactly those two tests.
+
+**Why it matters beyond the two steps.** A false premise could only produce a false defect,
+so the premise had to be kept narrow, and the narrow premise is part of why these checks
+never fire. Making an unconfirmed premise cost a skip instead of a false accusation is what
+makes a wider premise safe to supply.
+
+---
+
 ## Two near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;

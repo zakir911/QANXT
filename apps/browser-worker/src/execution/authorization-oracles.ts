@@ -1,7 +1,9 @@
 import type { Page } from 'playwright';
 import type { LocatorDescriptor } from '@qa-nxt/shared-types';
 import { buildLocator } from '../browser/locator-resolver.js';
-import { OracleError, collapse, firstComplaint, sameRoute, serialiseForm } from './form-oracles.js';
+import {
+  InconclusiveError, OracleError, collapse, firstComplaint, sameRoute, serialiseForm
+} from './form-oracles.js';
 
 /**
  * The authorization and state oracles: whether the rules a page draws are rules the server
@@ -211,11 +213,14 @@ export async function assertHiddenMeansForbidden(page: Page, value: string | und
       && await control.first().isEnabled().catch(() => false);
 
     if (available) {
-      throw new OracleError(
-        'This check asks whether a control this identity cannot use is also refused by the '
-        + 'server, but the control is visible and enabled on the page, so the premise no '
-        + 'longer holds. Either the permission has changed or the test is pointed at the '
-        + 'wrong identity; re-generate it rather than reading this as a result.'
+      // The premise is the absence, and the absence is gone. The application has not
+      // misbehaved — this step simply has nothing left to ask, so it reaches no conclusion
+      // rather than blaming the application for a question that no longer applies.
+      throw new InconclusiveError(
+        'Not evaluated: this check asks whether a control this identity cannot use is also '
+        + 'refused by the server, but the control is visible and enabled on the page, so the '
+        + 'premise no longer holds. Either the permission has changed or the test is pointed '
+        + 'at the wrong identity; re-generate it rather than reading this as a result.'
       );
     }
   }
@@ -252,11 +257,13 @@ export async function assertStateForbidsAction(page: Page, value: string | undef
   const shown = await scope.innerText({ timeout: 5_000 }).catch(() => '');
 
   if (!new RegExp(`\\b${escapeForRegExp(check.state)}\\b`, 'i').test(shown)) {
-    throw new OracleError(
-      `This check asks whether an action is refused while the record is ${check.state}, but `
-      + `the page does not say it is ${check.state}. The record has moved on, or the state `
-      + 'is shown somewhere this step does not look; either way the question this step asks '
-      + 'is not the one it would be answering.'
+    // Same reasoning as the withheld control above: an unconfirmed premise is not a defect.
+    // Reporting it as one would blame the application for the state of its own test data.
+    throw new InconclusiveError(
+      `Not evaluated: this check asks whether an action is refused while the record is `
+      + `${check.state}, but the page does not say it is ${check.state}. The record has moved `
+      + 'on, or the state is shown somewhere this step does not look; either way the question '
+      + 'this step asks is not the one it would be answering.'
     );
   }
 

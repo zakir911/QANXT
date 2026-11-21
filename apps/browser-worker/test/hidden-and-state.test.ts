@@ -107,6 +107,19 @@ describe('a rule the page keeps by drawing nothing', () => {
     })).rejects.toThrow(/enforced in the page and nowhere else/);
   });
 
+  test('an accepted request is still a failure, not an inconclusive one', async () => {
+    // The counterpart of the two premise tests above. Making unmet premises inconclusive
+    // must not quietly soften the finding this family exists to report.
+    await open();
+    answer = { status: 200, body: '<h1>Claim settled</h1>' };
+
+    const error = await run('assertHiddenMeansForbidden', { control: settleButton, form: settleForm })
+      .then(() => null, (thrown: unknown) => thrown);
+
+    expect((error as Error).message).toMatch(/enforced in the page and nowhere else/);
+    expect((error as Error).name).not.toBe('InconclusiveError');
+  });
+
   test('passes when the server refuses it', async () => {
     await open();
     answer = { status: 403, body: 'Forbidden' };
@@ -138,8 +151,14 @@ describe('a rule the page keeps by drawing nothing', () => {
     await open();
     answer = { status: 200, body: '<h1>Claim settled</h1>' };
 
-    await expect(run('assertHiddenMeansForbidden', { control: settleButton, form: settleForm }))
-      .rejects.toThrow(/premise no longer holds/);
+    // And it must reach no conclusion rather than fail: an unmet premise is this step's
+    // own problem, and reporting it as a failure blames the application for it. Asserting
+    // the message alone would pass whichever of the two it did.
+    const error = await run('assertHiddenMeansForbidden', { control: settleButton, form: settleForm })
+      .then(() => null, (thrown: unknown) => thrown);
+
+    expect((error as Error).message).toMatch(/premise no longer holds/);
+    expect((error as Error).name).toBe('InconclusiveError');
   });
 
   test('treats a hidden control the same as a disabled one', async () => {
@@ -203,9 +222,14 @@ describe('a rule the page keeps by drawing nothing', () => {
     await open();
     answer = { status: 200, body: '<h1>Settled</h1>' };
 
-    await expect(run('assertStateForbidsAction', {
+    // Inconclusive, not failed. The record's state is the lab's business, not a defect in
+    // the application under test, and a run of thousands cannot afford either confusion.
+    const error = await run('assertStateForbidsAction', {
       state: 'rejected', shownIn: { strategy: 'testId', value: 'status' }, form: settleForm
-    })).rejects.toThrow(/does not say it is rejected/);
+    }).then(() => null, (thrown: unknown) => thrown);
+
+    expect((error as Error).message).toMatch(/does not say it is rejected/);
+    expect((error as Error).name).toBe('InconclusiveError');
   });
 
   test('finds the state anywhere on the page when it is told no element', async () => {
