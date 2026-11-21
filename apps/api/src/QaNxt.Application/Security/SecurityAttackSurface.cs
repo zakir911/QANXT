@@ -118,11 +118,28 @@ public static class SecurityAttackSurfaceBuilder
         Guid Id, string Route, string? Action, string Method, string PageUrl,
         bool HasCsrfToken, bool RequiresAuthentication, DateTimeOffset LastSeenAt);
 
+    /// <summary>
+    /// Where the application signs in, as its owner configured it.
+    ///
+    /// A fourth source of surface, for the one endpoint a crawl structurally cannot find.
+    /// The sign-in is performed by the authenticator before the crawl starts, so it is never
+    /// an observed request; and an application whose sign-in is a JSON endpoint rather than a
+    /// page has no login page to classify either. Measured on an order API: the endpoint that
+    /// issues its tokens was on no surface, so every authentication check — user enumeration,
+    /// lockout, session lifetime — was unimplied, against the single most attacked address in
+    /// any application.
+    ///
+    /// It is a declaration, not a discovery: somebody typed it in, which is why it can be
+    /// trusted and why nothing is sent to find it.
+    /// </summary>
+    public sealed record SignInInput(string Endpoint, DateTimeOffset LastSeenAt);
+
     public static SecurityAttackSurface Build(
         Guid applicationId,
         IReadOnlyCollection<PageInput> pages,
         IReadOnlyCollection<EndpointInput> endpoints,
-        IReadOnlyCollection<FormInput>? forms = null)
+        IReadOnlyCollection<FormInput>? forms = null,
+        SignInInput? signIn = null)
     {
         var items = new List<SecuritySurfaceItem>();
 
@@ -144,20 +161,37 @@ public static class SecurityAttackSurfaceBuilder
             .ToList();
         foreach (var endpoint in declared) items.Add(FromEndpoint(endpoint));
 
+        // The sign-in, when its owner told us where it is and neither discovery nor a form
+        // already covers it. POST, because that is what a sign-in is, and that verb is what
+        // makes the write checks apply to it as well as the authentication ones.
+        var signInEndpoint = SignInEndpoint(signIn);
+        if (signInEndpoint is not null
+            && !endpoints.Concat(declared).Any(seen =>
+                string.Equals(NormalizeTemplate(seen.UrlTemplate), NormalizeTemplate(signInEndpoint.UrlTemplate),
+                    StringComparison.OrdinalIgnoreCase)))
+        {
+            items.Add(FromEndpoint(signInEndpoint));
+        }
+        else
+        {
+            signInEndpoint = null;
+        }
+
         var implied = items.SelectMany(i => i.RelevantChecks).Distinct().OrderBy(c => c).ToList();
         var lastSeen = pages.Select(p => p.LastSeenAt)
             .Concat(endpoints.Select(e => e.LastSeenAt))
             .Concat(declared.Select(e => e.LastSeenAt))
             .DefaultIfEmpty()
             .Max();
+        var extra = declared.Count + (signInEndpoint is null ? 0 : 1);
 
         var caveats = BuildCaveats(pages, endpoints, implied);
 
         return new SecurityAttackSurface(
-            applicationId, items, pages.Count, endpoints.Count + declared.Count,
+            applicationId, items, pages.Count, endpoints.Count + extra,
             lastSeen == default ? null : lastSeen,
             caveats, implied,
-            Summarise(items, pages.Count, endpoints.Count + declared.Count, implied.Count, caveats.Count));
+            Summarise(items, pages.Count, endpoints.Count + extra, implied.Count, caveats.Count));
     }
 
     /// <summary>
@@ -166,6 +200,23 @@ public static class SecurityAttackSurfaceBuilder
     /// A GET form is left out: it reads, and its page is already surface. A form with no
     /// action submits to the page it is on, which HTML says and this follows.
     /// </summary>
+    /// <summary>The configured sign-in as a surface endpoint, or null when there is none or
+    /// it is not an address this can reach.</summary>
+    private static EndpointInput? SignInEndpoint(SignInInput? signIn)
+    {
+        if (signIn is null || string.IsNullOrWhiteSpace(signIn.Endpoint)) return null;
+        if (!Uri.TryCreate(signIn.Endpoint, UriKind.Absolute, out var absolute)) return null;
+        if (absolute.Scheme != Uri.UriSchemeHttp && absolute.Scheme != Uri.UriSchemeHttps) return null;
+
+        return new EndpointInput(
+            Guid.Empty, "POST", absolute.GetLeftPart(UriPartial.Path), absolute.ToString(),
+            // Not authenticated: signing in is what a caller does before they have a session,
+            // and treating it as authenticated would imply the object-authorization shape on
+            // an endpoint that owns no objects.
+            RequiresAuthentication: false,
+            RequestContentType: null, RequestSampleJson: null, LastSeenAt: signIn.LastSeenAt);
+    }
+
     private static EndpointInput? DeclaredEndpoint(FormInput form)
     {
         if (!MutatingMethods.Contains(form.Method)) return null;

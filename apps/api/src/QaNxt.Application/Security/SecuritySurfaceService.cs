@@ -1,4 +1,5 @@
 using QaNxt.Application.Abstractions;
+using QaNxt.Application.Discovery;
 using QaNxt.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
@@ -74,7 +75,38 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
                 : Array.Empty<SecurityAttackSurfaceBuilder.ElementInput>(),
             p.Url)).ToList();
 
+        // Where the application signs in, from its own configuration: the login URL, or the
+        // token endpoint a JSON sign-in declares in its login flow. A crawl cannot find this
+        // — the authenticator uses it before the crawl starts, so it is never an observed
+        // request, and a JSON sign-in has no login page to classify either.
+        var signIn = SignInFrom(application);
+
         return Result<SecurityAttackSurface>.Success(
-            SecurityAttackSurfaceBuilder.Build(applicationId, pageInputs, endpoints, forms));
+            SecurityAttackSurfaceBuilder.Build(applicationId, pageInputs, endpoints, forms, signIn));
+    }
+
+    /// <summary>
+    /// The sign-in address the owner configured, preferring the token endpoint where the
+    /// application signs in with one.
+    ///
+    /// The login flow's tokenEndpoint comes first because for a token sign-in the login URL
+    /// may be a page a person visits while the endpoint is what receives the credentials, and
+    /// the endpoint is the one worth testing. Relative values are resolved against the base
+    /// URL; anything that is not an address is left out rather than guessed at.
+    /// </summary>
+    private static SecurityAttackSurfaceBuilder.SignInInput? SignInFrom(Domain.Applications.Application application)
+    {
+        var declared = LoginFlowHints.Read(application.LoginFlowJson, "tokenEndpoint")
+                       ?? application.LoginUrl;
+        if (string.IsNullOrWhiteSpace(declared)) return null;
+
+        if (!Uri.TryCreate(declared, UriKind.Absolute, out var absolute))
+        {
+            if (!Uri.TryCreate(application.BaseUrl, UriKind.Absolute, out var baseUri)) return null;
+            if (!Uri.TryCreate(baseUri, declared, out absolute)) return null;
+        }
+
+        return new SecurityAttackSurfaceBuilder.SignInInput(
+            absolute.ToString(), application.UpdatedAt ?? application.CreatedAt);
     }
 }

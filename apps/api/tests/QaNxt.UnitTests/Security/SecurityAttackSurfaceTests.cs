@@ -77,12 +77,78 @@ public class SecurityAttackSurfaceTests
 
     private static SecurityAttackSurface Build(
         IEnumerable<PageInput>? pages = null, IEnumerable<EndpointInput>? endpoints = null,
-        IEnumerable<FormInput>? forms = null)
+        IEnumerable<FormInput>? forms = null, SecurityAttackSurfaceBuilder.SignInInput? signIn = null)
         => SecurityAttackSurfaceBuilder.Build(
             Guid.NewGuid(),
             (pages ?? Array.Empty<PageInput>()).ToList(),
             (endpoints ?? Array.Empty<EndpointInput>()).ToList(),
-            (forms ?? Array.Empty<FormInput>()).ToList());
+            (forms ?? Array.Empty<FormInput>()).ToList(),
+            signIn);
+
+    private static SecurityAttackSurfaceBuilder.SignInInput SignIn(string endpoint)
+        => new(endpoint, Seen);
+
+    /// <summary>
+    /// The one endpoint a crawl structurally cannot find.
+    ///
+    /// The authenticator signs in before the crawl starts, so the sign-in is never an
+    /// observed request; and an application whose sign-in is a JSON endpoint rather than a
+    /// page has no login page to classify either. Measured on an order API: the endpoint
+    /// issuing its tokens was on no surface, so user enumeration, lockout and session
+    /// lifetime were all unimplied — against the most attacked address in any application.
+    /// </summary>
+    [Fact]
+    public void The_configured_sign_in_is_on_the_surface_even_though_no_crawl_sees_it()
+    {
+        var surface = Build(
+            pages: new[] { Page("/", PageKind.Detail) },
+            signIn: SignIn("http://api.test/api/auth/token"));
+
+        surface.Items.Should().Contain(item => item.Identifier.Contains("/api/auth/token"));
+        surface.ChecksImplied.Should().Contain(SecurityChecks.AccountLockout)
+            .And.Contain(SecurityChecks.UserEnumeration);
+    }
+
+    /// <summary>A sign-in is a write, so the checks about writes apply to it too.</summary>
+    [Fact]
+    public void The_sign_in_is_treated_as_a_write()
+    {
+        var surface = Build(signIn: SignIn("http://api.test/api/auth/token"));
+
+        surface.ChecksImplied.Should().Contain(SecurityChecks.CsrfToken)
+            .And.Contain(SecurityChecks.OriginValidation);
+    }
+
+    /// <summary>Signing in is what a caller does before they have a session, so it must not
+    /// read as an authenticated endpoint — which would imply the object-authorization shape
+    /// on an endpoint that owns no objects.</summary>
+    [Fact]
+    public void The_sign_in_is_not_treated_as_an_authenticated_endpoint()
+    {
+        var surface = Build(signIn: SignIn("http://api.test/api/auth/token"));
+
+        surface.ChecksImplied.Should().NotContain(SecurityChecks.Bola);
+    }
+
+    [Fact]
+    public void A_sign_in_discovery_already_found_is_not_added_twice()
+    {
+        var surface = Build(
+            endpoints: new[] { Endpoint("POST", "http://api.test/api/auth/token") },
+            signIn: SignIn("http://api.test/api/auth/token"));
+
+        surface.Items.Count(item => item.Identifier.Contains("/api/auth/token")).Should().Be(1);
+        surface.EndpointsInGraph.Should().Be(1);
+    }
+
+    [Fact]
+    public void A_sign_in_that_is_not_an_address_is_left_out_rather_than_guessed_at()
+    {
+        Build(signIn: SignIn("/api/auth/token")).Items.Should().BeEmpty(
+            "the service resolves a relative value against the base URL before this; anything "
+            + "still not absolute here is not an address");
+        Build(signIn: SignIn("javascript:void(0)")).Items.Should().BeEmpty();
+    }
 
     /// <summary>
     /// Discovery never submits a form, so the only requests it observes against an API are
