@@ -44,10 +44,17 @@ Playwright CDN, which is the same reason `EXEC-015` and `EXEC-016` report Firefo
 as **not verified** rather than passed.
 
 The browser skills work anyway, against the Chromium this container already ships
-(`/opt/pw-browsers`, Chromium 141). gstack's Playwright expects revision `1234` and the
-container has `1194`, so `1234` is a copy of `1194` carrying the directory and binary names
-the newer Playwright looks for. Verified working: `browse goto` reaches a page and `browse
-text` reads it back.
+(`/opt/pw-browsers`). The pinned Playwright asks for a revision the container does not have
+under that name, so the revision it asks for is made a view onto the one that is there,
+carrying the directory and binary names it looks for. Verified working: `browse goto`
+reaches a page and `browse text` reads it back.
+
+**Run `./scripts/shim-playwright` after a container restart.** The links live outside the
+repository and a restart loses them; without them discovery fails with "the browser
+Playwright needs is not installed on this worker", which reads like a product fault in the
+run's own report. The script reads the pinned revision from the worker's own dependency
+rather than hard-coding it, does nothing when the revision already matches, and is safe to
+run repeatedly.
 
 Treat that as a local accommodation rather than a supported configuration. It pairs a
 Playwright client with a Chromium about ten releases older than the one it pins, so a browser

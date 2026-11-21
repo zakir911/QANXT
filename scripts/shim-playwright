@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+#
+# Make the browser this container ships answer to the revision the worker's Playwright pins.
+#
+# `./setup` installs browsers from the Playwright CDN, which this environment's network
+# policy blocks — the same reason EXEC-015 and EXEC-016 report Firefox and WebKit as not
+# verified rather than passed. The container does ship a Chromium, under the revision
+# number of a newer Playwright than the worker pins, so the pinned client looks for a
+# directory that is not there and discovery fails with:
+#
+#   browserType.launch: Executable doesn't exist at
+#   /opt/pw-browsers/chromium_headless_shell-<pinned>/chrome-linux/headless_shell
+#
+# That reads like a product fault from the run's own report, which is why this is a script
+# and not a sequence of commands typed when it happens. A container restart loses the
+# links; running this again restores them.
+#
+# This is a local accommodation, not a supported configuration: it pairs a Playwright
+# client with a Chromium several releases from the one it pins, so a browser behaving oddly
+# is worth suspecting here before it is treated as a defect. The supported fix is a network
+# path to the Playwright CDN and a plain `./setup`.
+#
+#   scripts/shim-playwright [browsers-path]
+#
+set -euo pipefail
+
+# Resolved before anything changes directory.
+worker="$(cd "$(dirname "${BASH_SOURCE[0]}")/../apps/browser-worker" && pwd)"
+
+root="${1:-${PLAYWRIGHT_BROWSERS_PATH:-/opt/pw-browsers}}"
+[ -d "$root" ] || { echo "No browser directory at $root"; exit 1; }
+
+# What the worker's Playwright asks for, read from the worker rather than written down here,
+# so this cannot drift from the dependency.
+pinned="${PINNED:-$(cd "$worker" && node -e '
+  const { chromium } = require("playwright");
+  const found = /chromium[_a-z]*-(\d+)/.exec(chromium.executablePath());
+  process.stdout.write(found ? found[1] : "");
+' 2>/dev/null || true)}"
+
+cd "$root"
+
+if [ -z "$pinned" ]; then
+  echo "Could not read the pinned revision from the worker's Playwright."
+  echo "Install the worker's dependencies first, or pass the revision as PINNED=<n>."
+  exit 1
+fi
+
+# What the container actually has: the newest revision present for each flavour.
+present() { ls -d "${1}"-* 2>/dev/null | sed "s|.*${1}-||" | grep -E '^[0-9]+$' | sort -n | tail -1; }
+
+linked=0
+for flavour in chromium chromium_headless_shell; do
+  have=$(present "$flavour")
+  [ -n "$have" ] || continue
+  [ "$have" = "$pinned" ] && continue
+  ln -sfn "${flavour}-${have}" "${flavour}-${pinned}"
+  linked=$((linked + 1))
+
+  # The newer layout renames the directory and the binary inside it as well.
+  if [ "$flavour" = "chromium_headless_shell" ] \
+     && [ ! -e "${flavour}-${have}/chrome-linux/headless_shell" ] \
+     && [ -e "${flavour}-${have}/chrome-headless-shell-linux64/chrome-headless-shell" ]; then
+    mkdir -p "${flavour}-${have}/chrome-linux"
+    ln -sfn ../chrome-headless-shell-linux64/chrome-headless-shell \
+            "${flavour}-${have}/chrome-linux/headless_shell"
+  fi
+done
+
+if [ "$linked" -eq 0 ]; then
+  echo "Nothing to shim: revision $pinned is already what this container has."
+  exit 0
+fi
+
+echo "Playwright revision $pinned now resolves to:"
+status=0
+for path in \
+  "$root/chromium_headless_shell-${pinned}/chrome-linux/headless_shell" \
+  "$root/chromium-${pinned}/chrome-linux/chrome"
+do
+  if [ -x "$path" ]; then echo "  ok      $path"; else echo "  MISSING $path"; status=1; fi
+done
+exit $status
