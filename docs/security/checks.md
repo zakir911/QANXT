@@ -26,7 +26,7 @@ else fails.
 | Check | Control | Claim | CWE |
 | --- | --- | --- | --- |
 | `checkBola` | the owner reads their own object and gets 200 | a non-owner gets 200 *and the owner's identifier is in the body* | CWE-639 |
-| `checkVerticalEscalation` | the privileged role reaches the route | a lesser role reaches it too | CWE-285 |
+| `checkVerticalEscalation` | the privileged role reaches the route | a lesser role reaches it too, **and the route names itself administrative** | CWE-285 |
 | `checkReadOnlyWrite` | an account that should write, writes | a read-only account writes too | CWE-269 |
 | `checkMissingAuthorization` | the owner reads it | an unauthenticated caller reads it too **and something came back** | CWE-862 |
 | `checkTokenVerification` | the endpoint refuses an anonymous request | it accepts a bearer value it never issued | CWE-345 |
@@ -38,6 +38,21 @@ reader.
 `checkTokenVerification` reports inconclusive when the endpoint answers 200 to an anonymous
 request — accepting a forged token says nothing about token verification if nothing is
 verified at all. That is a missing-authorization finding instead, reported separately.
+
+`checkVerticalEscalation` reported on "both roles got 200" alone, which is what an
+authenticated collection looks like on every application: most routes are reachable by every
+role, so a scan raised one finding per collection, each titled "a route intended for the
+administrator" about a route intended for everybody. A permit register raised it on the form
+clerks use to file applications.
+
+The route's own name is the only evidence available without discovering the application
+separately as each role, which this engine does not do. So a route naming itself
+administrative — `/admin`, `/users`, `/settings`, `/audit-log` — still produces the finding,
+marked **likely** rather than confirmed because a naming convention is not proof. Anything
+else is inconclusive, saying that both roles reached it and that nothing about the route says
+it was meant to be restricted. The stronger version of this check is the application's own
+interface: a control the privileged user is shown and the lesser user is not is the
+application declaring the route restricted.
 
 `checkMissingAuthorization` requires that the anonymous caller **received data**, not merely a
 200. On an application rendered in the browser every route answers 200 with the same empty

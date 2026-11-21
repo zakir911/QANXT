@@ -199,20 +199,50 @@ export async function checkVerticalEscalation(scanner, { baseUrl, path, privileg
              detail: `${privileged.label} ${control.status}, ${lesser.label} ${attempt.status}` };
   }
 
+  // Both roles reached it. That is only a defect if the route was meant to be restricted,
+  // and nothing observed here says it was.
+  //
+  // This reported the finding on that evidence alone, at high severity with "confirmed" CWE
+  // confidence and both corroborated and unambiguous set. On any real application most
+  // authenticated collections are reachable by every role — that is what a collection is —
+  // so a scan would raise one of these per collection, titled "a route intended for the
+  // administrator" about a route intended for everybody. A permit register raised it on the
+  // form clerks use to file applications.
+  //
+  // The route's own name is the only evidence available without discovering the application
+  // separately as each role, which this engine does not do. So an administrative-looking
+  // route still produces the finding, with the confidence that evidence deserves rather than
+  // "unambiguous", and anything else is inconclusive with its reason stated. The stronger
+  // version of this check is the application's own interface: a control the privileged user
+  // is shown and the lesser user is not is the application declaring the route restricted.
+  if (!looksPrivileged(path)) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: `Both ${privileged.label} and ${lesser.label} reach ${path} (${control.status} and `
+        + `${attempt.status}), and nothing about the route says it was meant to be restricted — `
+        + 'most routes are reachable by every role. Compare what each role is shown in the '
+        + 'interface, or name the privileged routes, to judge this one.'
+    };
+  }
+
   return {
     skipped: false,
     findings: [{
       category: 'BrokenFunctionLevelAuthorization',
-      title: `${lesser.label} can reach a route intended for ${privileged.label}`,
+      title: `${lesser.label} reaches ${path}, which names itself administrative`,
       endpoint: path, httpMethod: 'GET', observedAsRole: lesser.label,
-      description: `${privileged.label} receives ${control.status} from ${path}, which is expected. `
-        + `${lesser.label} receives ${attempt.status} from the same route.`,
+      description: `${privileged.label} receives ${control.status} from ${path} and ${lesser.label} `
+        + `receives ${attempt.status} from the same route. The route's own name says it is `
+        + 'administrative, which is why this is reported; that naming is a convention rather '
+        + 'than proof, so confirm the route is meant to be restricted before acting.',
       impact: 'A lower-privileged account can perform or observe privileged functions.',
       remediation: 'Check the caller\'s role on the route, not only in the interface that links to it.',
-      cwe: 'CWE-285', cweConfidence: 'confirmed',
+      cwe: 'CWE-285', cweConfidence: 'likely',
       owaspApiCategory: 'API5:2023', owaspWebCategory: 'A01:2021',
       severityFactors: new SeverityFactors('trivial', 'serious', 'authenticatedUser', 'personalData', 'authenticatedUsers'),
-      confidence: confidenceFrom({ reproduced: false, corroborated: true, unambiguous: true }),
+      // Corroborated — two identities were compared and the comparison is real. Not
+      // unambiguous: whether the route is restricted is read from its name.
+      confidence: confidenceFrom({ reproduced: false, corroborated: true, unambiguous: false }),
       exchanges: [control, attempt]
     }]
   };
@@ -438,4 +468,42 @@ export function carriesData(response) {
   return visible.length >= MINIMUM_VISIBLE_CHARACTERS
     ? { hasData: true, why: `${visible.length} characters of visible text` }
     : { hasData: false, why: `only ${visible.length} characters of visible text — an application shell` };
+}
+
+/**
+ * Does this route's own name say it is administrative?
+ *
+ * The only evidence available to a check comparing two roles on one route, and it is weak:
+ * a convention, not proof, which is why a finding resting on it is reported as likely rather
+ * than confirmed. The alternative — concluding escalation from "both roles got 200" — raises
+ * one finding per authenticated collection on every application there is.
+ *
+ * Matched on whole path segments so `/users` counts and `/user-preferences` does not, and
+ * `/manage` counts while `/management-report` does not.
+ */
+export function looksPrivileged(path) {
+  // One word each. A hyphenated entry could never match, because the path is split on its
+  // separators before being compared — three of them were dead on arrival, and `/back-office`
+  // read as an ordinary route. The joined form of each segment pair is tested instead, so
+  // `/back-office` and `/backoffice` are the same route to this function.
+  const ADMINISTRATIVE = [
+    'admin', 'administration', 'administrator', 'superuser', 'root',
+    'manage', 'management', 'console', 'backoffice', 'internal',
+    'users', 'accounts', 'roles', 'permissions', 'members', 'staff',
+    'settings', 'configuration', 'config', 'system',
+    'audit', 'auditlog', 'logs', 'billing', 'invoices', 'reports'
+  ];
+  let pathname;
+  try {
+    pathname = new URL(path, 'http://placeholder.invalid').pathname;
+  } catch {
+    pathname = String(path ?? '').split('?')[0] ?? '';
+  }
+  const segments = pathname.toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+  if (segments.some(segment => ADMINISTRATIVE.includes(segment))) return true;
+  // `back-office`, `audit-log`: one word to a reader, two segments to a split.
+  return segments.slice(0, -1)
+    .some((segment, index) => ADMINISTRATIVE.includes(`${segment}${segments[index + 1]}`));
 }
