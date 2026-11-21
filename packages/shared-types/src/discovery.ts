@@ -92,6 +92,16 @@ export interface DiscoveryProgressReport {
   occurredAt: string;
 }
 
+/** A link whose words say it changes something, which the crawl therefore did not follow. */
+export interface StateChangingLink {
+  /** The absolute URL, as the page gave it. */
+  url: string;
+  /** The link's accessible name, where it had one. */
+  accessibleName?: string;
+  /** The page the link was found on. */
+  foundOnUrl: string;
+}
+
 export interface DiscoveryCompletionReport {
   discoveryRunId: string;
   status: 'completed' | 'failed' | 'partiallyCompleted' | 'cancelled';
@@ -103,6 +113,17 @@ export interface DiscoveryCompletionReport {
   apiEndpoints: DiscoveredApiEndpoint[];
   consoleErrors: { level: string; message: string; url?: string; occurredAt: string }[];
   pagesBlockedByPolicy: number;
+  /**
+   * Links the crawl refused to follow because their own words say they change something.
+   *
+   * Carried as data rather than only as lines in the progress log, because each one is
+   * worth a reader's attention in its own right: a GET that approves a permit is a
+   * cross-site request forgery waiting for someone to send the URL. Discovery cannot
+   * establish that it changes state without following it, which is the one thing it must
+   * not do, so the control plane records each as a gap for a human rather than a finding
+   * it has not earned.
+   */
+  stateChangingLinks?: StateChangingLink[];
   errorMessage?: string;
   progressLog: string;
 }

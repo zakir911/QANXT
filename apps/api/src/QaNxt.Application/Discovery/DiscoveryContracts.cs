@@ -122,8 +122,19 @@ public sealed record DiscoveryCompletionPayload
     [JsonPropertyName("apiEndpoints")] public List<DiscoveredApiEndpointPayload> ApiEndpoints { get; init; } = new();
     [JsonPropertyName("consoleErrors")] public List<ConsoleErrorPayload> ConsoleErrors { get; init; } = new();
     [JsonPropertyName("pagesBlockedByPolicy")] public int PagesBlockedByPolicy { get; init; }
+    /// <summary>Links the crawl refused to follow because their own words say they change
+    /// something. One per route shape, so a register of a thousand rows reports its approve
+    /// link once.</summary>
+    [JsonPropertyName("stateChangingLinks")] public List<StateChangingLinkPayload> StateChangingLinks { get; init; } = new();
     [JsonPropertyName("errorMessage")] public string? ErrorMessage { get; init; }
     [JsonPropertyName("progressLog")] public string ProgressLog { get; init; } = string.Empty;
+}
+
+public sealed record StateChangingLinkPayload
+{
+    [JsonPropertyName("url")] public string Url { get; init; } = string.Empty;
+    [JsonPropertyName("accessibleName")] public string? AccessibleName { get; init; }
+    [JsonPropertyName("foundOnUrl")] public string FoundOnUrl { get; init; } = string.Empty;
 }
 
 public sealed record DiscoveredPagePayload

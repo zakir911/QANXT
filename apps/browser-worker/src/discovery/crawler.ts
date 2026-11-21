@@ -4,7 +4,7 @@ import type { BrowserContext, ConsoleMessage, Page, Request, Response } from 'pl
 import type {
   DiscoveredForm,
   AuthConfig, CrawlBudget, DiscoveredApiEndpoint, DiscoveredElement, DiscoveredPage,
-  DiscoveredTransition, DiscoveryCompletionReport
+  DiscoveredTransition, DiscoveryCompletionReport, StateChangingLink
 } from '@qa-nxt/shared-types';
 import { buildLocatorFor } from '../browser/locator-builder.js';
 import { buildLocator } from '../browser/locator-resolver.js';
@@ -102,6 +102,8 @@ export class Crawler {
   private blockedByPolicy = 0;
   /** Links not followed because their own words say they change something. */
   private mutatingLinksSkipped = 0;
+  /** The same links, kept so the report can name them and not only count them. */
+  private readonly stateChangingLinks = new Map<string, StateChangingLink>();
   private actionsUsed = 0;
   /** Null when the application has asked for robots.txt to be ignored. */
   private robots: RobotsPolicy | null = null;
@@ -339,6 +341,7 @@ export class Crawler {
       apiEndpoints: [...this.apiEndpoints.values()],
       consoleErrors: this.consoleErrors,
       pagesBlockedByPolicy: this.blockedByPolicy,
+      stateChangingLinks: [...this.stateChangingLinks.values()],
       errorMessage,
       progressLog: this.progressLog.join('\n')
     };
@@ -862,6 +865,15 @@ export class Crawler {
       if (!this.options.budget.allowStateChangingClicks
           && linkLooksMutating(name, href, inNav)) {
         this.mutatingLinksSkipped++;
+        // Keyed by route shape: a register with a thousand rows offers a thousand approve
+        // links, and a reader needs to know the shape exists, once.
+        const shape = routeShapeOf(href);
+        if (!this.stateChangingLinks.has(shape)) {
+          this.stateChangingLinks.set(shape, {
+            url: href, foundOnUrl: page.url,
+            ...(name ? { accessibleName: name } : {})
+          });
+        }
         this.note(`Did not follow ${href}${name ? ` ("${name}")` : ''}: it looks like it changes `
           + `something, and mapping an application must not alter it. Turn on state-changing `
           + `interaction for this application to follow links like this.`);

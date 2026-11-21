@@ -6,6 +6,7 @@ using QaNxt.Domain.Applications;
 using QaNxt.Domain.Common;
 using QaNxt.Domain.Enums;
 using QaNxt.Domain.Evidence;
+using QaNxt.Domain.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -179,6 +180,7 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
             await UpsertTransitionsAsync(run, application.Id, completion, pageIdsByNormalizedUrl, token);
             await UpsertApiEndpointsAsync(run, application.Id, completion, pageIdsByNormalizedUrl, token);
             await RecordConsoleErrorsAsync(run, completion, token);
+            await RecordStateChangingLinksAsync(run, application, completion, token);
 
             run.Status = ParseStatus(completion.Status);
             run.StartedAt ??= completion.StartedAt;
@@ -223,6 +225,66 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
 
         return Result.Success();
     }
+
+    /// <summary>
+    /// Records each link the crawl refused to follow as a gap for a human to close.
+    ///
+    /// A GET that approves a permit is a cross-site request forgery waiting for somebody to
+    /// send the URL, and it is one of the commonest real findings on an application built
+    /// before anti-forgery tokens were normal. Discovery cannot establish that it changes
+    /// state without following it, which is the one thing it must not do — a crawl of a
+    /// permit register approved all three permits in it before that rule existed.
+    ///
+    /// So this is a gap and not a finding: the product says what it saw, says why it did not
+    /// test it, and says what would let it. Claiming the defect without having observed it
+    /// would be the thing the house rules forbid; saying nothing would hide it.
+    /// </summary>
+    private async Task RecordStateChangingLinksAsync(
+        DiscoveryRun run, Domain.Applications.Application application,
+        DiscoveryCompletionPayload completion, CancellationToken ct)
+    {
+        if (completion.StateChangingLinks.Count == 0) return;
+
+        var existing = await _db.CoverageGaps
+            .Where(g => g.ApplicationId == application.Id
+                     && g.Category == TestCategory.Security
+                     && g.Missing.StartsWith(StateChangeGapPrefix))
+            .ToListAsync(ct);
+
+        foreach (var link in completion.StateChangingLinks)
+        {
+            var path = PathOf(link.Url);
+            var missing = $"{StateChangeGapPrefix}{path}";
+            if (existing.Any(g => g.Missing == missing)) continue;
+
+            var named = string.IsNullOrWhiteSpace(link.AccessibleName)
+                ? "An unnamed link"
+                : $"The link \"{_masker.MaskText(link.AccessibleName!)}\"";
+
+            _db.CoverageGaps.Add(new CoverageGap
+            {
+                OrganizationId = run.OrganizationId,
+                ProjectId = application.ProjectId,
+                ApplicationId = application.Id,
+                Category = TestCategory.Security,
+                Missing = missing,
+                Reason = $"{named} at {path}, on {PathOf(link.FoundOnUrl)}, says it changes something, "
+                    + "and a GET that changes something can be triggered by anyone who gets a user to open "
+                    + "the URL. Discovery did not follow it: mapping an application must not alter it. "
+                    + "Whether it really changes state, and whether it checks an anti-forgery token, was "
+                    + "therefore not established.",
+                RecommendedAction = "Authorize destructive testing for this application so the scan may "
+                    + "follow it, or open it once by hand and check that the operation requires a POST and "
+                    + "an anti-forgery token.",
+                Status = CoverageGapStatus.HumanRequired
+            });
+        }
+    }
+
+    private const string StateChangeGapPrefix = "whether this link changes state: ";
+
+    private static string PathOf(string url)
+        => Uri.TryCreate(url, UriKind.Absolute, out var parsed) ? parsed.PathAndQuery : url;
 
     private async Task<Dictionary<string, Guid>> UpsertPagesAsync(
         DiscoveryRun run, Guid applicationId, DiscoveryCompletionPayload completion, CancellationToken ct)
