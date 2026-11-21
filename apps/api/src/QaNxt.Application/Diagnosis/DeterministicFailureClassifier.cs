@@ -275,6 +275,29 @@ public static class DeterministicFailureClassifier
                 IsLikelyApplicationDefect: false, IsHealable: false);
         }
 
+        // The worker refuses to invent a selection. An option the test was built from and the
+        // live page no longer offers is a test whose data has gone stale, not an application
+        // that has broken — in a system where tests create and consume records, the set of
+        // invoices in a dropdown is different by the time the suite reaches it. Measured: 26
+        // failures on one freight run, all of them on selects of invoices and stock items
+        // that other tests had moved on.
+        //
+        // Not an application defect on this evidence, and said with the reason so a real
+        // case — a select that genuinely lost its options — is still readable in the report.
+        if (lowered.Contains("that option is not offered"))
+        {
+            return new DeterministicVerdict(
+                FailureCategory.DataIssue, 80,
+                "The option this test selects is no longer offered.",
+                "The test was built from the options the page had when it was mapped, and the page now offers a "
+                + "different set. Records the application lists in a dropdown change as records are created and "
+                + "used, including by other tests in the same run.",
+                message,
+                "Generate again to pick up the current options, or give the field a fixed test-data value that the "
+                + "environment always has. If the options really have gone, report that by hand.",
+                IsLikelyApplicationDefect: false, IsHealable: false);
+        }
+
         if (IsLocatorMiss(lowered))
         {
             // Any 401s are still put in front of the reader. A session that really did

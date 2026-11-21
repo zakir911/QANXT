@@ -79,7 +79,12 @@ public sealed class DefectService : IDefectService
     private static readonly FailureCategory[] NotDefects =
     {
         FailureCategory.LocatorChange, FailureCategory.TestDefect, FailureCategory.EnvironmentDefect,
-        FailureCategory.NetworkIssue, FailureCategory.AuthenticationIssue, FailureCategory.ThirdPartyDependency
+        FailureCategory.NetworkIssue, FailureCategory.AuthenticationIssue, FailureCategory.ThirdPartyDependency,
+        // The test's own data no longer suits the environment. It was missing from this list
+        // while the classifier had no rule that produced it; a stale dropdown option made 26
+        // failures on one run, and every one of them would have been filed against the
+        // application.
+        FailureCategory.DataIssue
     };
 
     public async Task<Defect?> CorrelateAsync(Failure failure, CancellationToken ct = default)

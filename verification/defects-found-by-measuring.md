@@ -680,6 +680,28 @@ not, and `aria-invalid` and every other kind of invalidity — a bad pattern, a 
 range — count as before. Both halves are tested, because removing the false refusal must not
 remove the real one.
 
+## 34. A dropdown option that had moved on was filed against the application
+
+**Symptom.** Twenty-six failures on one run reading *"Cannot select "inv-0004": that option is
+not offered. The select has 25 option(s): ..."*, every one of them recorded as a defect in the
+application.
+
+**Diagnosis.** The worker is right to refuse: it will not invent a selection. The test was
+built from the options the page had when it was mapped, and by the time the suite reaches it
+the application lists a different set — because records in a dropdown are created and consumed
+as the system is used, including by other tests in the same run. Nothing classified that
+symptom, and an unclassified failure is treated as the application's fault.
+
+`DataIssue` existed as a category, was described in the bug report as "the test's data does not
+suit the environment", and was missing from the list of categories that are not product
+defects — which cost nothing while no rule produced it.
+
+**Fix.** A rule that recognises it, with the options the page does offer kept verbatim as the
+evidence, and `DataIssue` added to the two lists of categories that are not application
+defects. The suggested action is to generate again or pin the field to data the environment
+always has, and the report still carries it so a select that genuinely lost its options is
+readable rather than silent.
+
 ---
 
 ## Two near misses worth recording

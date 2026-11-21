@@ -26,6 +26,30 @@ public class DeterministicFailureClassifierTests
         => new(status, message, healingAttempted, healingConfidence,
             consoleErrors, serverErrors, authErrors, networkFailures, failingAction);
 
+    /// <summary>
+    /// A dropdown option the test was built from and the page no longer offers.
+    ///
+    /// Measured: 26 failures on one freight run, every one of them on a select of invoices or
+    /// stock items that other tests in the same run had created or consumed. Each was filed
+    /// against the application, because nothing classified the symptom and an unclassified
+    /// failure is treated as the application's fault.
+    /// </summary>
+    [Fact]
+    public void An_option_the_page_no_longer_offers_is_the_tests_data_not_the_application()
+    {
+        var verdict = DeterministicFailureClassifier.Classify(Input(
+            "Cannot select \"inv-0004\": that option is not offered. The select has 25 option(s): "
+            + "\"inv-0011\" (INV-2026-5003 — £4,581.08), \"inv-0012\" (INV-2026-5004 — £912.30)",
+            failingAction: "select"));
+
+        verdict.Category.Should().Be(FailureCategory.DataIssue);
+        verdict.IsLikelyApplicationDefect.Should().BeFalse();
+        verdict.IsHealable.Should().BeFalse("a different option is a different test, not a healed locator");
+        verdict.SuggestedAction.Should().Contain("Generate again");
+        verdict.Evidence.Should().Contain("not offered",
+            "the options the page does offer are the evidence, and they are kept verbatim");
+    }
+
     [Fact]
     public void A_missing_element_is_a_locator_change_even_when_the_signed_out_page_answered_401()
     {

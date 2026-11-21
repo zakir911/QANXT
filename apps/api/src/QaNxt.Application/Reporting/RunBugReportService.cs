@@ -37,7 +37,12 @@ public sealed class RunBugReportService : IRunBugReportService
     private static readonly FailureCategory[] NotProduct =
     {
         FailureCategory.LocatorChange, FailureCategory.TestDefect, FailureCategory.EnvironmentDefect,
-        FailureCategory.NetworkIssue, FailureCategory.AuthenticationIssue, FailureCategory.ThirdPartyDependency
+        FailureCategory.NetworkIssue, FailureCategory.AuthenticationIssue, FailureCategory.ThirdPartyDependency,
+        // The test's own data no longer suits the environment. It was missing from this list
+        // while the classifier had no rule that produced it; a stale dropdown option made 26
+        // failures on one run, and every one of them would have been filed against the
+        // application.
+        FailureCategory.DataIssue
     };
 
     private static readonly ExecutionStatus[] FailedStatuses =
