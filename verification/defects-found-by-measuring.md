@@ -814,6 +814,48 @@ makes a wider premise safe to supply.
 
 ---
 
+## 38. A map that stopped early said so, but not by how much
+
+**Symptom.** Five of freight's thirty-two planted defects sit on screens discovery never
+opened, and the run that missed them reported success with 150 pages and one line of
+explanation: *"Stopped: the 900s exploration budget was reached."*
+
+**The defect.** That line says the map is partial. It does not say whether the budget cut
+off four pages or four hundred, and a coverage figure computed over the pages that were
+opened reads exactly the same either way. The crawler already has two careful notes doing
+precisely this job elsewhere — one for links it would not follow because their own words say
+they change something, one for a crawl thin enough to need accounting for — and the comment
+above the second says why: *"a crawl that found nothing ends up looking like a crawl that
+found everything."* All three budget stops were the one case that did not account for itself,
+and the frontier is sitting in a local variable at the moment each of them breaks.
+
+The quieter half is the per-route cap. `maxInstancesPerRouteShape` is 3, instances are taken
+in crawl order, and each skip was logged one line at a time with no total. On freight that
+cap is the whole reason FP_D17 is unreachable: a declaration's release page is only linked
+while the record is still releasable, so three instances chosen by crawl order are three
+records in the wrong state, and the page where the defect lives is never linked from
+anywhere. Nothing in the report connected the cap to the missing screen.
+
+**Fix.** Every budget stop records what was still queued — deduplicated on the crawl's own
+visit key and filtered to what it had not already opened, so the number is pages the crawl
+would have gone to and not queue bookkeeping — and reports the count with examples and what
+to raise. The cap reports its own total per route shape, and says in the same breath that
+instances are taken in crawl order, so a defect that only shows on a record in another state
+will not be reached. Five tests in `partial-map-accounting.test.ts`, including one that the
+crawl finishing cleanly must not trip, and one fixing the count at the three distinct pages
+rather than the forty-five skip events that counting raw queue entries produced.
+
+**What this does not do.** It does not reach the five screens. It makes a partial map say how
+partial it is, which is what the house rule about evidence requires of it, and it names the
+cap as a cause so the next change has a target instead of a hunch.
+
+**A note on my own fixture.** The cap test first failed because its records were `rec-1`
+through `rec-6`, and the crawler does not read a one-digit suffix as an identifier — six
+pages, six route shapes, no cap. The product was right and the test was wrong; four-digit
+ids, as a real application writes them, and it engaged.
+
+---
+
 ## Two near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;

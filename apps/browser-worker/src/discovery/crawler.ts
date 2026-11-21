@@ -142,6 +142,16 @@ export class Crawler {
   /** Navigation-shaped controls not clicked because the crawl is in links-only mode.
    * Counted so a crawl that found one page can say why rather than looking complete. */
   private navigationNotFollowed = 0;
+  /** URLs still waiting when a budget stopped the crawl, so the map can say how much of
+   *  the application it never opened rather than only that it stopped early. */
+  private unexplored: string[] = [];
+  /** Pages skipped because their route shape had already been mapped to the cap, held per
+   *  shape as the set of distinct URLs rather than a count of events: every page that links
+   *  to a capped record raises the skip again, so counting events reports a number many
+   *  times the real one. A defect that only exists for a record in one state lives behind
+   *  this cap — three instances of /declarations/{id} chosen by crawl order will usually
+   *  all be in the wrong one — so the report says so rather than leaving it to be inferred. */
+  private readonly cappedByRouteShape = new Map<string, Set<string>>();
   /** The application signs out on a page load, so pages are opened from inside it. */
   private inApp = false;
   /** Where the sign-in landed: the first page of the signed-in application. */
@@ -240,16 +250,19 @@ export class Crawler {
         if (Date.now() > deadline) {
           status = 'partiallyCompleted';
           this.note(`Stopped: the ${this.options.budget.timeoutSeconds}s exploration budget was reached.`);
+          this.recordFrontier(queue);
           break;
         }
         if (this.pages.size >= this.options.budget.maxPages) {
           status = 'partiallyCompleted';
           this.note(`Stopped: the ${this.options.budget.maxPages}-page budget was reached.`);
+          this.recordFrontier(queue);
           break;
         }
         if (this.actionsUsed >= this.options.budget.maxActions) {
           status = 'partiallyCompleted';
           this.note(`Stopped: the ${this.options.budget.maxActions}-action budget was reached.`);
+          this.recordFrontier(queue);
           break;
         }
 
@@ -283,6 +296,9 @@ export class Crawler {
         if (shapeCount >= this.options.budget.maxInstancesPerRouteShape) {
           // One more /accounts/<id> teaches nothing the first few did not; without this
           // cap a list of a thousand records is a thousand near-identical page nodes.
+          const capped = this.cappedByRouteShape.get(shape) ?? new Set<string>();
+          capped.add(normalized);
+          this.cappedByRouteShape.set(shape, capped);
           this.note(`Skipped ${entry.url}: already mapped ${shapeCount} pages matching ${shape}.`);
           continue;
         }
@@ -352,6 +368,36 @@ export class Crawler {
         + 'they change something — approve, delete, cancel and the like. Mapping an '
         + 'application must not alter it. Each one is named above. To map them anyway, turn '
         + 'on state-changing interaction for this application.');
+    }
+
+    // A crawl stopped by a budget has to account for itself too, and this was the one
+    // stop that did not. "Stopped: the 900s exploration budget was reached" says the map is
+    // partial; it does not say whether one page was left or four hundred, and a coverage
+    // figure computed over the pages that were opened reads the same either way. The
+    // frontier is known at the moment of the stop, so it is reported.
+    if (this.unexplored.length > 0) {
+      const examples = this.unexplored.slice(0, 5).map(url => routeShapeOf(url));
+      this.note(
+        `${this.unexplored.length} URL(s) were still waiting to be opened when the budget `
+        + `stopped the crawl, so this map is partial by that much: ${examples.join(', ')}`
+        + `${this.unexplored.length > examples.length ? ', and others' : ''}. Raise the `
+        + 'budget on the application, or list the routes that matter, to reach them.');
+    }
+
+    // And the per-shape cap, which is the other way a map comes back missing something
+    // real. Three instances of a route chosen by crawl order are three records in whatever
+    // state the list happened to show first; a defect that only exists for a record in
+    // another state sits behind exactly this line, unreachable and unnamed.
+    if (this.cappedByRouteShape.size > 0) {
+      const total = [...this.cappedByRouteShape.values()].reduce((sum, urls) => sum + urls.size, 0);
+      const shapes = [...this.cappedByRouteShape.entries()]
+        .sort((a, b) => b[1].size - a[1].size).slice(0, 5)
+        .map(([shape, urls]) => `${shape} (${urls.size})`);
+      this.note(
+        `${total} page(s) were not opened because their route had already been mapped `
+        + `${this.options.budget.maxInstancesPerRouteShape} time(s): ${shapes.join(', ')}. `
+        + 'Instances are taken in crawl order, so a defect that only shows on a record in a '
+        + 'state none of those instances is in will not be reached.');
     }
 
     // A thin crawl has to account for itself. One page can mean the application has one
@@ -1210,6 +1256,24 @@ export class Crawler {
       this.logger.warn('Accessibility snapshot failed', { url: normalized, error: String(error) });
       return undefined;
     }
+  }
+
+  /**
+   * What was left in the queue when a budget stopped the crawl.
+   *
+   * Deduped on the same visit key the crawl uses and filtered to what it had not already
+   * opened, so the number is URLs the crawl would have gone to and not queue bookkeeping.
+   */
+  private recordFrontier(queue: { url: string }[]): void {
+    const seen = new Set<string>();
+    this.unexplored = queue
+      .map(entry => entry.url)
+      .filter(url => {
+        const key = visitKey(url);
+        if (this.visited.has(key) || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
   }
 
   private note(message: string): void {
