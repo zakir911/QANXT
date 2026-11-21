@@ -67,7 +67,17 @@ const readBody = (request) => new Promise(resolve => {
 });
 
 const server = createServer(async (request, response) => {
-  const url = new URL(request.url, `http://127.0.0.1:${PORT}`);
+  // A request line the URL parser will not take is answered, not thrown on. "//" is a
+  // protocol-relative URL with no host, and new URL("//", base) raises ERR_INVALID_URL —
+  // which, uncaught in a request handler, stops the process. A scan sent one, this server
+  // died, and the twenty-three tests that followed failed with ECONNREFUSED against a
+  // target that was no longer there. A real server answers 400.
+  let url;
+  try {
+    url = new URL(request.url, `http://127.0.0.1:${PORT}`);
+  } catch {
+    return json(response, 400, { error: 'bad_request', detail: 'The request path could not be parsed.' });
+  }
   const path = url.pathname;
 
   // ---- sign-in: JSON in, bearer token out -------------------------------

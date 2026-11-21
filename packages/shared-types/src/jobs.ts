@@ -37,6 +37,20 @@ export interface AuthConfig {
    */
   otpMode?: 'none' | 'fixed' | 'totp';
   otpValue?: string;
+  /**
+   * Token sign-in: where the credentials go, what comes back, and how it is sent after.
+   *
+   * Every field is optional. Unset means "try the usual spellings", which covers an API
+   * that follows the convention and leaves one that does not describable rather than
+   * unsupported.
+   */
+  tokenEndpoint?: string;
+  tokenField?: string;
+  tokenUsernameField?: string;
+  tokenPasswordField?: string;
+  tokenHeader?: string;
+  /** An empty string sends the token with no word before it. */
+  tokenPrefix?: string;
 }
 
 /** The crawl boundary. The worker refuses to leave it, whatever the page contains. */

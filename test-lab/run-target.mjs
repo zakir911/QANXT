@@ -152,7 +152,11 @@ async function runOne(key) {
     body: {
       maxPages, maxCrawlDepth: 6, explorationTimeoutSeconds: budget,
       maxActions: Number(flag('max-actions', 1500)),
-      interactionMode: 'navigation', respectRobotsTxt: false, useSitemap: false
+      interactionMode: 'navigation', respectRobotsTxt: false, useSitemap: false,
+      // How this application signs in, where the page alone cannot say: the endpoint that
+      // issues a token, the field it comes back in, and the header it goes out in. The
+      // same slot carries a form login's selectors.
+      ...(target.auth.loginFlow ? { loginFlowJson: JSON.stringify(target.auth.loginFlow) } : {})
     }
   });
   line(`  application ${application.id}, auth ${target.auth.strategy}, budget ${budget}s`);

@@ -427,7 +427,13 @@ public sealed class TestRunService : ITestRunService
                 SuccessUrlContains = ReadLoginFlowHint(application.LoginFlowJson, "successUrlContains"),
                 UsernameLocator = LoginFlowHints.CssLocator(application.LoginFlowJson, "usernameSelector"),
                 PasswordLocator = LoginFlowHints.CssLocator(application.LoginFlowJson, "passwordSelector"),
-                SubmitLocator = LoginFlowHints.CssLocator(application.LoginFlowJson, "submitSelector")
+                SubmitLocator = LoginFlowHints.CssLocator(application.LoginFlowJson, "submitSelector"),
+                TokenEndpoint = LoginFlowHints.Read(application.LoginFlowJson, "tokenEndpoint"),
+                TokenField = LoginFlowHints.Read(application.LoginFlowJson, "tokenField"),
+                TokenUsernameField = LoginFlowHints.Read(application.LoginFlowJson, "usernameField"),
+                TokenPasswordField = LoginFlowHints.Read(application.LoginFlowJson, "passwordField"),
+                TokenHeader = LoginFlowHints.Read(application.LoginFlowJson, "tokenHeader"),
+                TokenPrefix = LoginFlowHints.Read(application.LoginFlowJson, "tokenPrefix")
             },
             Steps = steps.Select(step => new ExecutionStepPayload
             {

@@ -75,7 +75,7 @@ export type PageKind = (typeof PAGE_KINDS)[number];
 
 export type BrowserName = 'chromium' | 'firefox' | 'webkit';
 export type HealingPolicy = 'never' | 'suggest' | 'auto';
-export type AuthenticationStrategy = 'none' | 'formLogin' | 'storageState' | 'bearerToken' | 'basicAuth';
+export type AuthenticationStrategy = 'none' | 'formLogin' | 'storageState' | 'bearerToken' | 'basicAuth' | 'tokenLogin';
 export type TestPriority = 'critical' | 'high' | 'medium' | 'low';
 export type RiskLevel = 'critical' | 'high' | 'medium' | 'low';
 export const ASSERTION_TYPES = [

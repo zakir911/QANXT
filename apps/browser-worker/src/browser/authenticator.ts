@@ -40,6 +40,9 @@ export async function performLogin(page: Page, auth: AuthConfig, options: LoginO
     case 'formLogin':
       return performFormLogin(page, auth, options);
 
+    case 'tokenLogin':
+      return performTokenLogin(page, auth, options);
+
     default: {
       const exhaustive: never = auth.strategy;
       return { succeeded: false, message: `Unsupported authentication strategy: ${String(exhaustive)}`, actionsUsed: 0 };
@@ -768,6 +771,9 @@ export function contextAuthOptions(auth: AuthConfig): {
       return auth.storageStateJson ? { storageState: JSON.parse(auth.storageStateJson) } : {};
     case 'none':
     case 'formLogin':
+    // The token is not known yet: it is obtained by performLogin, which sets the header on
+    // the context it is given. Nothing can be sent at context creation.
+    case 'tokenLogin':
       return {};
     default: {
       const exhaustive: never = auth.strategy;
@@ -775,4 +781,132 @@ export function contextAuthOptions(auth: AuthConfig): {
       return {};
     }
   }
+}
+
+
+/** The field names a token endpoint is likely to use, tried in order when nothing says. */
+const TOKEN_FIELDS = ['token', 'accessToken', 'access_token', 'idToken', 'id_token', 'jwt', 'authToken'];
+
+/**
+ * Credentials in, token out, and the token on every request afterwards.
+ *
+ * The ordinary shape of a JSON API, and until this existed the product could only visit
+ * one as an anonymous caller: the order-management target mapped three public pages and
+ * none of the screens behind them, then failed every test it had written.
+ *
+ * The exchange goes through the page's own request context, so it shares the cookie jar
+ * and the proxy settings of the browser the tests run in — an API that answers with a
+ * cookie as well as a token works without a second code path. The token is then set as a
+ * context-level header, which reaches the page's own fetch calls and the worker's API
+ * steps alike.
+ *
+ * Nothing here is guessed where it can be declared. The endpoint, the field the token
+ * comes back in, the fields the credentials go in and the header it is sent in are all
+ * read from the login flow; the fallbacks are the spellings in common use, tried in a
+ * fixed order so two runs agree. A token that cannot be found is a failure that says what
+ * the answer did contain, because "sign-in failed" with no detail is the single most
+ * expensive message a test tool can print.
+ */
+async function performTokenLogin(page: Page, auth: AuthConfig, options: LoginOptions): Promise<LoginResult> {
+  if (!auth.username) return fail('No username was supplied for token sign-in.', 0);
+  if (!auth.password) return fail('No password was supplied for token sign-in.', 0);
+
+  const where = auth.tokenEndpoint ?? auth.loginUrl;
+  if (!where) {
+    return fail('No token endpoint is configured for this application. Give the login flow a '
+      + 'tokenEndpoint, or set the login URL to the endpoint that issues the token.', 0);
+  }
+
+  let endpoint: string;
+  try {
+    endpoint = new URL(where, page.url() === 'about:blank' ? undefined : page.url()).toString();
+  } catch {
+    return fail(`The token endpoint "${where}" is not a URL this worker can reach.`, 0);
+  }
+
+  const usernameField = auth.tokenUsernameField ?? 'username';
+  const passwordField = auth.tokenPasswordField ?? 'password';
+  const payload: Record<string, string> = {
+    [usernameField]: auth.username,
+    [passwordField]: auth.password
+  };
+
+  let answer;
+  try {
+    answer = await page.request.post(endpoint, {
+      data: payload,
+      headers: { 'content-type': 'application/json' },
+      timeout: options.navigationTimeoutMs
+    });
+  } catch (error) {
+    return fail(`The token endpoint could not be reached: ${error instanceof Error ? error.message : String(error)}`, 1);
+  }
+
+  const status = answer.status();
+  const body = await answer.text().catch(() => '');
+  if (status < 200 || status >= 300) {
+    return fail(`The token endpoint answered HTTP ${status}${summarise(body)}. The credentials were `
+      + 'refused, or the endpoint expects a different shape of request.', 1);
+  }
+
+  let parsed: unknown;
+  try { parsed = JSON.parse(body); }
+  catch { return fail(`The token endpoint answered HTTP ${status} with something that is not JSON${summarise(body)}.`, 1); }
+
+  const token = findToken(parsed, auth.tokenField);
+  if (token === null) {
+    const fields = parsed !== null && typeof parsed === 'object' ? Object.keys(parsed as object) : [];
+    return fail(
+      auth.tokenField
+        ? `The token endpoint answered HTTP ${status} with no "${auth.tokenField}" in it. `
+          + `The answer carried: ${fields.length > 0 ? fields.join(', ') : 'nothing'}.`
+        : `The token endpoint answered HTTP ${status} and none of the usual token fields `
+          + `(${TOKEN_FIELDS.join(', ')}) was in it. The answer carried: `
+          + `${fields.length > 0 ? fields.join(', ') : 'nothing'}. Name the field in the login flow.`,
+      1);
+  }
+
+  const header = auth.tokenHeader ?? 'authorization';
+  const prefix = auth.tokenPrefix ?? 'Bearer';
+  const value = prefix === '' ? token : `${prefix} ${token}`;
+  await page.context().setExtraHTTPHeaders({ [header.toLowerCase()]: value });
+
+  return {
+    succeeded: true,
+    actionsUsed: 1,
+    message: `Signed in at ${endpoint}; the token is sent in ${header}.`
+  };
+}
+
+/** The token in the answer: the field that was named, or the first usual spelling found at
+ *  the top level or one level in (an API that wraps everything in "data" is common). */
+function findToken(parsed: unknown, named?: string): string | null {
+  const read = (source: unknown, field: string): string | null => {
+    if (source === null || typeof source !== 'object') return null;
+    const value = (source as Record<string, unknown>)[field];
+    return typeof value === 'string' && value.trim() !== '' ? value : null;
+  };
+
+  const containers = [parsed, read(parsed, 'data') === null ? (parsed as Record<string, unknown> | null)?.data : null]
+    .filter(container => container !== null && container !== undefined);
+
+  for (const container of containers) {
+    if (named) {
+      const found = read(container, named);
+      if (found !== null) return found;
+      continue;
+    }
+    for (const field of TOKEN_FIELDS) {
+      const found = read(container, field);
+      if (found !== null) return found;
+    }
+  }
+  return null;
+}
+
+/** A short, safe quote of a response body for a failure message. */
+function summarise(body: string): string {
+  const flat = body.replace(/\s+/g, ' ').trim();
+  if (flat === '') return '';
+  return `: ${flat.length > 200 ? `${flat.slice(0, 200)}…` : flat}`;
 }

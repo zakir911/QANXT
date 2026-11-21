@@ -3,23 +3,23 @@
   "name": "Northwind Orders API",
   "technology": "bearer-token sign-in answering JSON rather than a cookie; X-CSRF-Token header convention; one HTML page over a JSON API",
   "domain": "order management",
-  "ranAt": "2026-11-21T15:45:42.510Z",
+  "ranAt": "2026-11-21T18:23:38.831Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "5308f2fd-151b-4bd2-a805-1a7da44fa2e5",
-      "authStrategy": "none",
+      "id": "86e277a5-8cc0-4a14-aaa5-81be0e068987",
+      "authStrategy": "tokenLogin",
       "budget": 180,
       "maxPages": 20
     },
     "discovery": {
       "status": "completed",
       "pages": 3,
-      "elements": 3,
+      "elements": 4,
       "endpoints": 0,
       "byKind": {
         "link": 2,
-        "heading": 1
+        "heading": 2
       },
       "paths": [
         "/",
@@ -33,15 +33,15 @@
       "list": []
     },
     "design": {
-      "testSuiteId": "a757e01d-d19f-49d3-b814-4ae8c65cd9d3",
+      "testSuiteId": "d2a1d024-4a0c-4910-ba7e-338c431ca9f7",
       "testSuiteName": "Northwind Orders API — form level",
       "forms": 0,
-      "testsCreated": 23,
+      "testsCreated": 25,
       "testsUpdated": 0,
       "testsUnchanged": 0,
       "testsDeprecated": 0,
       "testsLeftAsEdited": 0,
-      "gaps": 5,
+      "gaps": 4,
       "humanTasks": 0,
       "findings": 0,
       "usedAi": false,
@@ -49,23 +49,24 @@
       "perForm": [],
       "warnings": [],
       "pages": 3,
-      "pageTests": 23,
+      "pageTests": 25,
       "perPage": [
         {
-          "pageId": "3c55fb33-e047-4738-865f-d59388648c5e",
+          "pageId": "2546bc48-923d-43d4-b828-d3a1b751e7ed",
           "name": "Token API (/)",
           "route": "/",
-          "tests": 7,
+          "tests": 8,
           "reachedByClicking": false,
           "testsByCategory": {
             "smoke": 1,
+            "security": 1,
             "accessibility": 2,
             "performance": 1,
             "responsive": 3
           }
         },
         {
-          "pageId": "7edde64e-01ed-48aa-ae1d-3fa7f721acc8",
+          "pageId": "70e7f380-29f4-47d3-b6c3-f942ded091b4",
           "name": "/api/orders",
           "route": "/api/orders",
           "tests": 8,
@@ -79,14 +80,15 @@
           }
         },
         {
-          "pageId": "ed5386da-cc1b-4076-9586-07ec82abbbbf",
-          "name": "/search",
+          "pageId": "cd22c2ee-41e7-43f6-abc0-51c4f981f27c",
+          "name": "Search (/search)",
           "route": "/search",
-          "tests": 8,
+          "tests": 9,
           "reachedByClicking": true,
           "testsByCategory": {
             "smoke": 1,
             "workflow": 1,
+            "security": 1,
             "accessibility": 2,
             "performance": 1,
             "responsive": 3
@@ -96,7 +98,7 @@
     },
     "scan": {
       "ok": true,
-      "id": "99d35b94-2f38-48a2-9377-6a135a708337",
+      "id": "8ce78bda-437c-4ce4-86b7-9bbaa47d1aa3",
       "status": "completed",
       "requestsSent": null,
       "checksRun": null,
@@ -104,134 +106,68 @@
     },
     "run": {
       "ok": true,
-      "runId": "a52ae73e-27ec-473c-8431-ad2643d901dd",
+      "runId": "fa6372b3-be39-4ff1-bfc2-8299e6bcdbc4",
       "status": "failed",
-      "executions": 23,
+      "executions": 25,
       "byStatus": {
-        "failed": 23
+        "passed": 19,
+        "failed": 6
       },
       "failures": [
         {
-          "name": "Token API (/): opens and shows its content",
+          "name": "Token API (/): is not shown to a signed-out visitor",
           "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/"
+          "message": "The element was expected to be hidden but was visible."
         },
         {
           "name": "Token API (/): has no serious automated accessibility violations",
           "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/"
-        },
-        {
-          "name": "Token API (/): loads within 3000 ms",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/"
-        },
-        {
-          "name": "Token API (/): does not say anything with colour alone",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/"
-        },
-        {
-          "name": "Token API (/): fits a laptop screen (1280x800)",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/"
-        },
-        {
-          "name": "Token API (/): fits a tablet screen (768x1024)",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/"
-        },
-        {
-          "name": "Token API (/): fits a mobile screen (390x844)",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/"
-        },
-        {
-          "name": "/api/orders: opens and shows its content",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/api/orders"
-        },
-        {
-          "name": "/api/orders: is reached from Token API (/) through \"Orders\"",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/"
+          "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
         },
         {
           "name": "/api/orders: has no serious automated accessibility violations",
           "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/api/orders"
+          "message": "2 violation(s) against wcag2a, wcag2aa, wcag21aa: 2 serious. 2 at serious or worse: document-title (serious) Documents must have <title> element to aid in navigation at html — https://dequeuniversity.com/rules/axe/4.13/document-title?application=axeAPI; html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=a"
         },
         {
-          "name": "/api/orders: loads within 3000 ms",
+          "name": "Search (/search): opens and shows its content",
           "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/api/orders"
+          "message": "role=heading name=\"Results\" could not be used: No element matched role=heading name=\"Results\" (or 2 declared fallback(s))."
         },
         {
-          "name": "/api/orders: does not say anything with colour alone",
+          "name": "Search (/search): is reached from Token API (/) through \"Search\"",
           "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/api/orders"
+          "message": "role=heading name=\"Results\" could not be used: No element matched role=heading name=\"Results\" (or 2 declared fallback(s))."
         },
         {
-          "name": "/api/orders: fits a laptop screen (1280x800)",
+          "name": "Search (/search): has no serious automated accessibility violations",
           "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/api/orders"
-        },
-        {
-          "name": "/api/orders: fits a tablet screen (768x1024)",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/api/orders"
-        },
-        {
-          "name": "/api/orders: fits a mobile screen (390x844)",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/api/orders"
-        },
-        {
-          "name": "/search: opens and shows its content",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/search?q=example"
-        },
-        {
-          "name": "/search: is reached from Token API (/) through \"Search\"",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/"
-        },
-        {
-          "name": "/search: has no serious automated accessibility violations",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/search?q=example"
-        },
-        {
-          "name": "/search: loads within 3000 ms",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/search?q=example"
-        },
-        {
-          "name": "/search: does not say anything with colour alone",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/search?q=example"
-        },
-        {
-          "name": "/search: fits a laptop screen (1280x800)",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/search?q=example"
-        },
-        {
-          "name": "/search: fits a tablet screen (768x1024)",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/search?q=example"
-        },
-        {
-          "name": "/search: fits a mobile screen (390x844)",
-          "route": null,
-          "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4500/search?q=example"
+          "message": "2 violation(s) against wcag2a, wcag2aa, wcag21aa: 2 serious. 2 at serious or worse: document-title (serious) Documents must have <title> element to aid in navigation at html — https://dequeuniversity.com/rules/axe/4.13/document-title?application=axeAPI; html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=a"
         }
       ]
     },
     "conclusions": {
-      "defects": [],
+      "defects": [
+        {
+          "severity": "critical",
+          "route": "/",
+          "message": "Page /: The element was expected to be hidden but was visible"
+        },
+        {
+          "severity": "major",
+          "route": "/",
+          "message": "Page /: breaks the accessibility rule html-has-lang"
+        }
+      ],
       "structural": [],
       "security": [
+        {
+          "severity": "high",
+          "checkId": "ReflectedXSS",
+          "route": "/search",
+          "parameter": "q",
+          "message": "'q' is reflected into HTML without encoding — parameter \"q\" — CWE-79"
+        },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
@@ -243,15 +179,15 @@
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -295,12 +231,6 @@
           "message": "/api/orders: content check — Discovery saw no stable heading or control on this page to look for, so the test checks only that it opens."
         },
         {
-          "category": "smoke",
-          "status": "partially-covered",
-          "route": "/search",
-          "message": "/search: content check — Discovery saw no stable heading or control on this page to look for, so the test checks only that it opens."
-        },
-        {
           "category": "performance",
           "status": "unsupported",
           "route": null,
@@ -311,9 +241,9 @@
   },
   "detection": {
     "planted": 4,
-    "detected": 0,
+    "detected": 1,
     "surfacedAsGap": 0,
-    "weakOnly": 3,
+    "weakOnly": 2,
     "verdicts": [
       {
         "id": "TA_D01",
@@ -343,15 +273,15 @@
           "/search"
         ],
         "statement": "The search term is written into the document unescaped.",
-        "detected": false,
+        "detected": true,
         "surfacedAsGap": false,
         "gap": null,
-        "weakOnly": true,
+        "weakOnly": false,
         "evidence": {
           "kind": "security finding",
-          "strength": "same screen, different subject",
+          "strength": "route and wording",
           "route": "/search",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+          "message": "'q' is reflected into HTML without encoding — parameter \"q\" — CWE-79"
         }
       },
       {

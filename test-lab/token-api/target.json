@@ -7,52 +7,123 @@
   "healthUrl": "http://127.0.0.1:4500/",
   "start": "node test-lab/token-api/server.js",
   "auth": {
-    "strategy": "none"
+    "strategy": "tokenLogin",
+    "username": "alice",
+    "password": "Token!2026",
+    "loginFlow": {
+      "tokenEndpoint": "http://127.0.0.1:4500/api/auth/token",
+      "tokenField": "token",
+      "usernameField": "username",
+      "passwordField": "password",
+      "tokenHeader": "Authorization",
+      "tokenPrefix": "Bearer"
+    }
   },
   "identityNote": "Two customers who own different orders, and an auditor who owns none. Alice and Bob are peers, so neither is privileged and no vertical-escalation comparison is available here; the auditor is readonly because the API has no write it is meant to reach.",
   "identities": [
-    { "label": "alice", "username": "alice", "password": "Token!2026", "role": "owner", "resourceId": "ord-1" },
-    { "label": "bob", "username": "bob", "password": "Token!2026", "role": "owner", "resourceId": "ord-2" },
-    { "label": "auditor", "username": "auditor", "password": "Token!2026", "role": "readonly" }
+    {
+      "label": "alice",
+      "username": "alice",
+      "password": "Token!2026",
+      "role": "owner",
+      "resourceId": "ord-1"
+    },
+    {
+      "label": "bob",
+      "username": "bob",
+      "password": "Token!2026",
+      "role": "owner",
+      "resourceId": "ord-2"
+    },
+    {
+      "label": "auditor",
+      "username": "auditor",
+      "password": "Token!2026",
+      "role": "readonly"
+    }
   ],
   "budgetSeconds": 180,
   "maxPages": 20,
   "requirements": [
-    ["orders", "A signed-in customer can read their own orders."],
-    ["search", "A visitor can search and read the result."]
+    [
+      "orders",
+      "A signed-in customer can read their own orders."
+    ],
+    [
+      "search",
+      "A visitor can search and read the result."
+    ]
   ],
   "defects": [
     {
       "id": "TA_D01",
       "class": "authorization",
       "severity": "critical",
-      "routes": ["/api/orders", "/api/orders/:id"],
+      "routes": [
+        "/api/orders",
+        "/api/orders/:id"
+      ],
       "statement": "Any signed-in caller can read any order, not only their own.",
-      "keywords": ["bola", "idor", "object level", "owned", "owner", "authoriz", "another"]
+      "keywords": [
+        "bola",
+        "idor",
+        "object level",
+        "owned",
+        "owner",
+        "authoriz",
+        "another"
+      ]
     },
     {
       "id": "TA_D02",
       "class": "injection",
       "severity": "critical",
-      "routes": ["/search"],
+      "routes": [
+        "/search"
+      ],
       "statement": "The search term is written into the document unescaped.",
-      "keywords": ["xss", "reflect", "script", "markup", "escap", "inject"]
+      "keywords": [
+        "xss",
+        "reflect",
+        "script",
+        "markup",
+        "escap",
+        "inject"
+      ]
     },
     {
       "id": "TA_D03",
       "class": "rate-limiting",
       "severity": "high",
-      "routes": ["/api/auth/token"],
+      "routes": [
+        "/api/auth/token"
+      ],
       "statement": "Failed sign-ins are never slowed or blocked.",
-      "keywords": ["rate", "throttl", "lockout", "lock out", "succession", "brute"]
+      "keywords": [
+        "rate",
+        "throttl",
+        "lockout",
+        "lock out",
+        "succession",
+        "brute"
+      ]
     },
     {
       "id": "TA_D04",
       "class": "error-handling",
       "severity": "medium",
-      "routes": ["/api/orders", "/api/orders/:id"],
+      "routes": [
+        "/api/orders",
+        "/api/orders/:id"
+      ],
       "statement": "An unparseable order id returns a stack trace and absolute paths.",
-      "keywords": ["stack trace", "stack", "verbose", "disclosure", "trace"]
+      "keywords": [
+        "stack trace",
+        "stack",
+        "verbose",
+        "disclosure",
+        "trace"
+      ]
     }
   ]
 }

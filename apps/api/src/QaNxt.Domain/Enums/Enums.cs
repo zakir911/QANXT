@@ -26,7 +26,21 @@ public enum AuthenticationStrategy
     /// <summary>A bearer token injected as an Authorization header.</summary>
     BearerToken = 3,
     /// <summary>HTTP basic authentication.</summary>
-    BasicAuth = 4
+    BasicAuth = 4,
+    /// <summary>
+    /// Credentials exchanged for a token, which is then sent as a header.
+    ///
+    /// What <see cref="BearerToken"/> is not: that one needs a token somebody has already
+    /// obtained and pasted in, which expires. The normal shape of a JSON API is an endpoint
+    /// that takes a username and password and answers with a token, and until this existed
+    /// an application built that way could only be mapped as an anonymous visitor — three
+    /// public pages of a system with none of its screens behind them.
+    ///
+    /// The endpoint, the field the token comes back in, and the header it goes out in are
+    /// described in the login flow rather than guessed, with the common spellings tried
+    /// when the description does not say.
+    /// </summary>
+    TokenLogin = 5
 }
 
 public enum DiscoveryStatus { Queued = 0, Running = 1, Completed = 2, Failed = 3, Cancelled = 4, PartiallyCompleted = 5 }

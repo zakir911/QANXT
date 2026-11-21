@@ -68,6 +68,27 @@ public sealed record AuthConfigPayload
     [JsonPropertyName("otpMode")] public string? OtpMode { get; init; }
     /// <summary>The fixed code, or the authenticator secret the worker makes a code from.</summary>
     [JsonPropertyName("otpValue")] public string? OtpValue { get; init; }
+
+    // ---- Token sign-in ---------------------------------------------------------------
+    // Where the credentials go, what comes back, and how it is sent afterwards. Every one is
+    // optional: an unset field means "try the usual spellings", which covers the APIs that
+    // follow the convention and leaves the ones that do not describable rather than
+    // unsupported.
+
+    /// <summary>The endpoint that exchanges credentials for a token, absolute or relative to
+    /// the base URL.</summary>
+    [JsonPropertyName("tokenEndpoint")] public string? TokenEndpoint { get; init; }
+    /// <summary>The field in the answer that holds the token.</summary>
+    [JsonPropertyName("tokenField")] public string? TokenField { get; init; }
+    /// <summary>The field the username is sent in.</summary>
+    [JsonPropertyName("tokenUsernameField")] public string? TokenUsernameField { get; init; }
+    /// <summary>The field the password is sent in.</summary>
+    [JsonPropertyName("tokenPasswordField")] public string? TokenPasswordField { get; init; }
+    /// <summary>The header the token is sent in afterwards. Authorization unless said.</summary>
+    [JsonPropertyName("tokenHeader")] public string? TokenHeader { get; init; }
+    /// <summary>The word before the token in that header. Bearer unless said; an empty
+    /// string sends the token alone, which is what an X-Api-Key style header wants.</summary>
+    [JsonPropertyName("tokenPrefix")] public string? TokenPrefix { get; init; }
 }
 
 public sealed record CrawlBudgetPayload

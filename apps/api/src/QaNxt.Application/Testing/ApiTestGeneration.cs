@@ -75,7 +75,7 @@ public sealed partial class ApiTestService
         // in, and saying so in the description keeps that visible to whoever reads the test.
         var inheritsSession = application.AuthStrategy is AuthenticationStrategy.FormLogin
             or AuthenticationStrategy.StorageState or AuthenticationStrategy.BearerToken
-            or AuthenticationStrategy.BasicAuth;
+            or AuthenticationStrategy.BasicAuth or AuthenticationStrategy.TokenLogin;
 
         var suiteName = request.SuiteName ?? $"{application.Name} — API (generated)";
 

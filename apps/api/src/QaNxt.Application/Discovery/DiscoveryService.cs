@@ -206,7 +206,13 @@ public sealed class DiscoveryService : IDiscoveryService
                 SuccessUrlContains = ExtractLoginFlowValue(application.LoginFlowJson, "successUrlContains"),
                 UsernameLocator = LoginFlowHints.CssLocator(application.LoginFlowJson, "usernameSelector"),
                 PasswordLocator = LoginFlowHints.CssLocator(application.LoginFlowJson, "passwordSelector"),
-                SubmitLocator = LoginFlowHints.CssLocator(application.LoginFlowJson, "submitSelector")
+                SubmitLocator = LoginFlowHints.CssLocator(application.LoginFlowJson, "submitSelector"),
+                TokenEndpoint = LoginFlowHints.Read(application.LoginFlowJson, "tokenEndpoint"),
+                TokenField = LoginFlowHints.Read(application.LoginFlowJson, "tokenField"),
+                TokenUsernameField = LoginFlowHints.Read(application.LoginFlowJson, "usernameField"),
+                TokenPasswordField = LoginFlowHints.Read(application.LoginFlowJson, "passwordField"),
+                TokenHeader = LoginFlowHints.Read(application.LoginFlowJson, "tokenHeader"),
+                TokenPrefix = LoginFlowHints.Read(application.LoginFlowJson, "tokenPrefix")
             },
             Budget = new CrawlBudgetPayload
             {

@@ -702,6 +702,40 @@ defects. The suggested action is to generate again or pin the field to data the 
 always has, and the report still carries it so a select that genuinely lost its options is
 readable rather than silent.
 
+## 35. A token-authenticated application could only be visited as a stranger
+
+**Symptom.** The fourth target — a JSON API with a bearer-token sign-in — was driven for the
+first time and mapped three public pages, no forms and no endpoints. Every test it wrote
+then failed.
+
+**Diagnosis.** Two separate things, and the first one hid the second.
+
+The lab server died mid-run. A scan sent a request for `//`, `new URL("//", base)` raises
+`ERR_INVALID_URL`, and uncaught in a request handler that stops the process — so twenty-three
+tests failed with `ECONNREFUSED` against a target that was no longer there. The product got
+that part right: the classifier attributed all twenty-three to the environment and concluded
+nothing about the application. The lab now answers 400, as a real server would.
+
+Underneath it, the real gap. `bearerToken` wants a token somebody has already obtained and
+pasted in. The ordinary shape of a JSON API is an endpoint that takes a username and a
+password and answers with a token, and there was no way to describe that — so an application
+built that way could only be mapped as an anonymous caller. The security engine had been
+doing this exchange for its own probes since the HTTP Basic work; the browser-side
+authenticator had never been taught it. The same pattern as nine of the entries above: a rule
+one half of the product knows and the other does not.
+
+**Fix.** A `tokenLogin` strategy. The endpoint, the field the token comes back in, the fields
+the credentials go out in and the header it is sent in are all declared in the login flow,
+with the common spellings tried when the description is silent. The exchange goes through the
+page's own request context, so it shares the cookie jar and the proxy with the browser the
+tests run in, and the token is set as a context-level header, which reaches the page's own
+fetch calls and the worker's API steps alike.
+
+**Measured.** 23 of 23 tests failing and 0 of 4 defects, to 25 tests with 19 passing and 1 of
+4 — the reflected XSS, now found. Discovery's own log is the proof the sign-in works: it reads
+"Signed in successfully", and `/api/orders`, which answers 403 to a caller with no token,
+came back 200.
+
 ---
 
 ## Two near misses worth recording
