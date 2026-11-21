@@ -18,6 +18,13 @@ within a minute of watching a real run stop.
 The twelfth is the uncomfortable one: the analyser that scores all of this was itself
 over-crediting, and reported 3 detections where the evidence supported 2.
 
+The first twelve came from one application. Entries 13 to 26 came from building three more
+of different shapes, and they carry a second pattern: **nine of those fourteen are the same
+mistake made in a second place** — a rule the engine learned and the worker did not, a URL
+joined correctly in one module and concatenated in forty-three sites of another, an identity
+model implemented carefully and then undone by two lines in a handler no test could reach.
+A second application finds what a second reading of the code does not.
+
 ---
 
 ## 1. Tests were authored with locators that address more than one element
@@ -297,6 +304,226 @@ structured `untestedAreas` field; the scan detail response has no such field, an
 reasons reach it only as prose on the gate's reason. So a scan that was refused permission
 to run 120 of its checks read as a clean one. The harness now falls back to the gate, and
 refuses to print "17 skipped" with no account of what was skipped.
+
+---
+
+# Found by pointing it at applications of a different shape
+
+Everything above came from one application: Meridian Freight, server-rendered, 137 screens.
+Three more targets were built because one application can only show the defects that
+application's conventions reach — a client-rendered scheduler whose server sends an empty
+shell, a 2004-style permit register behind an HTTP Basic challenge that changes state
+through links, and a token-authenticated API. Thirteen defects follow, and the pattern in
+them is sharper than the pattern above: **nine of the thirteen are the same mistake made in
+a second place.** A rule the engine learned and the worker did not; a URL joined correctly
+in one module and concatenated in another; an identity model implemented in the engine and
+undone by two lines in the handler.
+
+## 13. Discovery changed the application it was mapping
+
+**Symptom.** After a crawl of the permit register, all three permits read `approved`. They
+had been seeded as two submitted and one approved.
+
+**Diagnosis.** `decide` carries a careful list of words meaning a control writes —
+`approve` and `revoke` among them — and refuses to click any control whose name matches.
+It hands an anchor with a destination to link following with the reason "it is an ordinary
+link and is already followed", and link following tested nothing. Harmless where everything
+that writes is a button. Not harmless on an application built before anti-forgery tokens
+were normal, where `<a href="/approve.asp?id=1">Approve</a>` is how approving works.
+
+**Fix.** Link following applies the same test, and the crawl says what it refused. Getting
+the rule right took three attempts and the first two were worse than the bug: applying the
+button vocabulary to links refused `New application`, `Fund transfer`, `Checkout`, `Save a
+draft` and an upload — every one of which only opens a form — and a guard that hides half
+the application is not a safe guard. What separates them is not vocabulary but whether the
+link addresses a record: `/approve.asp?id=1` acts on something, `/checkout` opens a screen.
+A narrow set of words acts on arrival with nothing to act on (delete, clear, reset, revoke,
+sign out) and is refused anywhere.
+
+## 14. Discovery never applied basic or bearer credentials
+
+**Symptom.** A crawl of a Basic-protected application reported a successful sign-in and then
+mapped nothing.
+
+**Diagnosis.** `performLogin` answers "using header-based authentication" for `basicAuth`
+and `bearerToken`, on the understanding that the context already carries them. Execution did
+that. Discovery created its context with no credentials at all, so every page answered 401.
+Nothing noticed because every target in the lab used a sign-in form.
+
+**Fix.** One mapping from an auth config to context options, used by both callers.
+
+## 15. A sign-in form that marks nothing required got a synthesised username
+
+**Symptom.** Eleven failures on one application, all "the form is still shown; messages:
+'Those details were not recognised.'"
+
+**Diagnosis.** The password came from configuration and the username did not. The rule
+required the field to be marked `required`, and the form — the normal shape for an
+application that validates on the server — marks nothing required. Every test expecting a
+successful sign-in then failed, reporting a correct refusal as a defect.
+
+**Fix.** The username goes in the field that says it is the username, or the form's only
+text field. A second text field beside it is left to synthesis rather than given the
+username too.
+
+## 16. The acceptance oracle could not see a client-side re-render
+
+**Symptom.** 23 of 43 failures against the client-rendered target were submissions the
+application had accepted and acted on.
+
+**Diagnosis.** A submission counted as accepted when a confirmation appeared or the form
+gave way. An application rendered in the browser does neither: a search form pushes
+`?q=...` and redraws its results in place, leaving a new, identical, visible form and no
+banner.
+
+**Fix.** A route change counts, which is the same evidence as a navigation. And where even
+the route does not change — a booking form whose new row appears in the table above it — a
+redraw answering a request the application answered without failing counts. Only together:
+an application that posts, is answered 201 and throws the submission away leaves the screen
+identical and still fails, which is the defect class that pairing exists to protect.
+
+## 17. A form with no action was assumed to POST, and to an endpoint it never called
+
+**Symptom.** "expected at least 1 POST request(s) but saw 0 (no submission was sent at
+all)" on a form that had sent its submission and rendered the answer. And "expected at
+least 1 request to /api/session" on a booking form.
+
+**Diagnosis.** Two guesses. `SubmitMethod` ignored the form's own method unless the form
+also carried an action, so every action-less form was tested for a POST — a form without an
+action submits to the current URL, which is HTML's default and not a sign of scripting.
+`EndpointPath` took the first non-GET endpoint the form's page had called, which on a
+client-rendered page is whichever one came first: the booking form was assigned the sign-in.
+
+**Fix.** A declared method is believed. Where nothing declares one, the test checks that the
+submission reached the server without asserting a verb. One correlated write endpoint is an
+answer; several are a gap naming what the choice was between.
+
+## 18. Structural findings were only ever a count
+
+**Symptom.** A design run reported "6 structural finding(s)" and there was no way to read
+one.
+
+**Diagnosis.** The engine records a message, a code, a severity and a field for each. The
+coverage response exposed the count per form, and nothing else did anything. Reading one
+meant querying the database.
+
+**Fix.** `GET /api/v1/applications/{id}/form-findings`, worst first. "Every decision
+auditable" is not satisfied by the number 1.
+
+## 19. Forty-three probe URLs were built by concatenation
+
+**Symptom.** Twelve missing-header findings naming URLs like `/schedule/schedule` and
+`/default.asp/list.asp`.
+
+**Diagnosis.** Every check built its probe as `${baseUrl}${path}` with paths that are
+absolute. Correct only while the base URL has no path of its own, which every target
+happened to satisfy. Registered against `http://host/schedule`, a sign-in probe went to
+`http://host/schedule/api/session`.
+
+The consequences were not cosmetic. Those twelve findings described the 404 page rather than
+the application and named URLs that do not exist. Worse, sign-in failed for all three
+identities, so **twenty-three checks — every authorization and authentication check in the
+profile — reported inconclusive for want of an identity.** The scan said so plainly in its
+untested list; that was the honest report of a scan whose identities had been broken by URL
+arithmetic.
+
+**Fix.** An absolute path resolves against the origin: one helper, used everywhere, with
+those three URLs as its first test cases. The worker had its own copy of the same mistake,
+and a third lived in how a page was targeted (21).
+
+## 20. The engine could not sign in to an HTTP Basic application
+
+**Diagnosis.** It looked for a sign-in form on eight paths, posted JSON to seven endpoints,
+took 401 from all fifteen and returned null — with the credentials in its own
+configuration.
+
+**Fix.** Basic is tried first, because a 401 carrying `WWW-Authenticate` is the server
+stating the answer. The challenge is established before the header is sent: a Basic header
+to an application that does not use Basic is ignored, and reading the 200 that follows as a
+sign-in would hand every authorization comparison two anonymous requests to find identical.
+
+## 21. A page reached by a query parameter was scanned at a URL that does not serve it
+
+**Diagnosis.** A page's route is its path. A page reached by `?id=1` is only served at that
+address, and the scan was pointed at `/view.asp` where the application serves
+`/view.asp?id=1`. On the permit register `/view.asp` answers "no such permit", so the header
+checks measured that 404 and the personal-data check read a page holding nothing.
+
+**Fix.** A page the route alone cannot reach is named by the address it was served at.
+Ordinary pages keep their route, which is what a reader wants in a report.
+
+## 22. The worker discarded every identity that was not a cookie
+
+**Symptom.** A scan of the Basic-protected register reported every authorization check "an
+owning identity is needed", after the engine had been taught to sign in with Basic.
+
+**Diagnosis.** Two lines. `if (!session?.cookie) give up`, and then
+`{ ...identity, cookie: session.cookie }` — so a session with no Set-Cookie was thrown away,
+and what survived reached every check with its headers dropped. The engine's identity model
+was covered by tests; these two lines were not reachable from one.
+
+**Fix.** Any session that can authenticate counts, its headers travel through one mapper
+rather than ten literals, and the pair is exported so a test can reach it.
+
+## 23. Every record of a route after the first was skipped as already visited
+
+**Symptom.** "Every total equals the sum of its lines" passed on the permit register, where
+one permit's fees deliberately do not add up.
+
+**Diagnosis.** The key answering "have I visited this page" was the key answering "what
+route shape is this". `/view.asp?id=1`, `?id=2` and `?id=3` all collapse to
+`/view.asp?id={v}`, which is right for a shape and wrong for a visit. So the check ran
+against permit 1, whose fees add up, passed, and never opened permit 2. One record per route
+is how a data-integrity suite reports green on an application full of broken arithmetic.
+
+**Fix.** Two keys. The visit key keeps identifiers and normalises only what is incidental;
+the route shape is unchanged and still bounds how many instances get crawled.
+
+## 24. The sensitive-data check looked only for secrets
+
+**Diagnosis.** Password hashes, API keys, JWTs, private keys, connection strings — and
+nothing else. A register printing every applicant's national insurance number in full to
+every signed-in user was clean by that standard, and so would be a page listing customers'
+card numbers.
+
+**Fix.** Payment cards, IBANs and two national identifiers, each recognised by its own
+check digits or issuing rules rather than by shape: Luhn, mod-97, the issued ranges. That
+arithmetic is the whole reason the precision holds. Email addresses and telephone numbers
+are deliberately absent — a support address in a footer is not a leak, and a detector that
+reports one teaches its readers to skim. The check also ran anonymously, so behind a sign-in
+it examined the sign-in page; it reads as an identity now.
+
+## 25. A critical finding on every route of every client-rendered application
+
+**Symptom.** Three criticals on a three-screen application: "protected data is served to an
+unauthenticated caller", about a 244-byte document holding a script tag and nothing else.
+
+**Diagnosis.** `authz.missing` asked whether the anonymous request was refused and read
+"not refused" as "the data leaked". An application rendered in the browser answers 200 with
+the same empty shell on every route; the data arrives over an API, which does refuse. Fifty
+routes would have raised fifty.
+
+**Fix.** A finding requires that something was served — JSON with fields, or markup with
+more than a page title's worth of visible text. A JSON error envelope is not data; a shell
+shipping kilobytes of bundled script is still a shell. Where nothing was served the answer
+is inconclusive with the reason, not a pass, which would read as "checked, and safe".
+
+## 26. Privilege escalation reported on every authenticated collection
+
+**Symptom.** "clerk can reach a route intended for inspector", high severity, confirmed CWE
+confidence, about the form clerks use to file applications.
+
+**Diagnosis.** The check concluded a defect from "the privileged role got 200 and the lesser
+role also got 200". Nothing in that says the route was meant to be restricted, and on any
+real application most authenticated collections are reachable by every role — that is what a
+collection is.
+
+**Fix.** A route naming itself administrative still produces the finding, marked likely
+rather than confirmed and saying in the finding that the naming is a convention to confirm.
+Everything else is inconclusive, with the reason. The stronger check is the application's own
+interface — a control the privileged user is shown and the lesser user is not — which needs
+per-role discovery the engine does not have, and is named in the finding as the way to settle
+it.
 
 ---
 
