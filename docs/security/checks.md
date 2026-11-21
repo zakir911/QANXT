@@ -28,7 +28,7 @@ else fails.
 | `checkBola` | the owner reads their own object and gets 200 | a non-owner gets 200 *and the owner's identifier is in the body* | CWE-639 |
 | `checkVerticalEscalation` | the privileged role reaches the route | a lesser role reaches it too | CWE-285 |
 | `checkReadOnlyWrite` | an account that should write, writes | a read-only account writes too | CWE-269 |
-| `checkMissingAuthorization` | the owner reads it | an unauthenticated caller reads it too | CWE-862 |
+| `checkMissingAuthorization` | the owner reads it | an unauthenticated caller reads it too **and something came back** | CWE-862 |
 | `checkTokenVerification` | the endpoint refuses an anonymous request | it accepts a bearer value it never issued | CWE-345 |
 
 The BOLA check requires the owner's identifier to appear in the intruder's response body. A
@@ -38,6 +38,17 @@ reader.
 `checkTokenVerification` reports inconclusive when the endpoint answers 200 to an anonymous
 request — accepting a forged token says nothing about token verification if nothing is
 verified at all. That is a missing-authorization finding instead, reported separately.
+
+`checkMissingAuthorization` requires that the anonymous caller **received data**, not merely a
+200. On an application rendered in the browser every route answers 200 with the same empty
+shell to everybody, and the data arrives separately over an API, which does refuse. Reading the
+status alone, a scan of a three-screen application raised three criticals about a 244-byte
+document holding a script tag and nothing else; fifty routes would have raised fifty.
+
+A body counts as data when it is JSON with fields in it, or markup with more than a page
+title's worth of visible text. A JSON error envelope does not count, and a shell shipping
+kilobytes of bundled script is still a shell. Where nothing was served the answer is
+inconclusive with the reason given — not a pass, which would read as "checked, and safe".
 
 ## Authentication and session — `checks-auth.mjs`
 
@@ -134,7 +145,7 @@ Where the control fails, the result is inconclusive. An endpoint that refuses th
 | `checkSecurityHeaders` | missing CSP, HSTS, frame options, content-type options | headers that do not apply to the response type |
 | `checkCookies` | a *session* cookie missing HttpOnly / SameSite / Secure | a UI preference cookie missing them — that is how preferences work |
 | `checkCors` | an arbitrary origin reflected **while credentials are allowed** | a wildcard origin with no credentials, which is how a public API works |
-| `checkSensitiveData` | credentials, keys and stack traces by pattern, with context | `example@example.com`, `your-api-key`, anything already redacted |
+| `checkSensitiveData` | credentials, keys and stack traces by pattern, with context; **personal data** whose own check digits confirm it | `example@example.com`, `your-api-key`, anything already redacted; email addresses and telephone numbers |
 | `checkMisconfiguration` | `/debug`, `/files`, `/app.js.map`, `/.env` when reachable | anything that answered something other than 200 |
 
 The CORS line is the one the brief names explicitly: reflecting an arbitrary origin is
@@ -143,3 +154,24 @@ signed-in user's data. Only the pair is a finding.
 
 A stack trace is its own finding class (`VerboseErrorDisclosure`, CWE-209) rather than generic
 sensitive data, because it has its own remediation and its own audience.
+
+### Personal data
+
+`PersonalDataExposure` reports a payment card number, an IBAN, a UK national insurance number
+or a US social security number served in a response. Each is **checked, not matched**: Luhn for
+a card, mod-97 for an IBAN, the issuing rules for a national insurance number, the issued
+ranges for a social security number. That arithmetic is the whole reason the precision holds —
+a sixteen-digit invoice reference is not a card number and the check knows it.
+
+Email addresses and telephone numbers are deliberately absent. A support address in a footer is
+not a leak, and a detector that reports one teaches its readers to skim, which costs more than
+the finding is worth.
+
+Distinct values are counted as well as matched. One identifier on a page about one person may be
+that person's own record; eleven on one page is a register nobody meant to publish, and it is
+reported a band higher. No finding quotes the value: a sample is masked, because a report that
+reproduces the data copies the leak.
+
+This check reads the page **as a signed-in identity** where the scan was given one. Read
+anonymously it would examine whatever the application shows a stranger — on anything behind a
+sign-in, the sign-in page — and report it clean.

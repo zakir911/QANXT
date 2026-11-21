@@ -1,6 +1,6 @@
 import type { SecurityIdentity, SecurityScanJob, SecurityTarget } from '@qa-nxt/shared-types';
 import {
-  SEVERITY_ORDER, CONFIDENCE_ORDER, SecurityScanner, at, authHeaders,
+  SEVERITY_ORDER, CONFIDENCE_ORDER, SecurityScanner, at, authHeaders, isSignedIn,
   api, auth, authz, injection, passive, request, xss
 } from '@qa-nxt/security-engine';
 import type { CheckResult, SecurityFinding, SecurityScanner as Scanner } from '@qa-nxt/security-engine';
@@ -49,10 +49,33 @@ interface ScanContext {
   browser: BrowserContext | null;
 }
 
-interface SignedInIdentity extends SecurityIdentity {
+export interface SignedInIdentity extends SecurityIdentity {
+  /**
+   * The headers that make a request act as this identity.
+   *
+   * A cookie is one case of that, not the shape of the idea. The engine learned this and
+   * the worker did not: it discarded any session that came back without a Set-Cookie and
+   * passed only `{ cookie }` to every check, so an application authenticating with HTTP
+   * Basic or a bearer token produced no identity at all. A scan of a Basic-protected permit
+   * register reported every authorization check "an owning identity is needed" with the
+   * credentials sitting in its own configuration.
+   */
+  headers: Record<string, string>;
   cookie: string | null;
   csrf: string | null;
 }
+
+/**
+ * What a check needs to act as somebody: the headers, and who it is.
+ *
+ * Exported, with `signInIdentities`, because this pair is where the identity model is
+ * actually applied and nothing could reach it from a test. The engine's own identity rules
+ * were covered; the two lines here that discarded every non-cookie session were not, so a
+ * whole class of application — HTTP Basic, bearer tokens — produced no identity and every
+ * authorization check reported inconclusive.
+ */
+export const asActor = (identity: SignedInIdentity) =>
+  ({ headers: identity.headers, cookie: identity.cookie, label: identity.label });
 
 /** What one check did, whether or not it found anything. */
 interface CheckOutcome {
@@ -136,7 +159,7 @@ export async function handleSecurityScanJob(
 
   const context: ScanContext = {
     baseUrl: job.baseUrl,
-    identities: await signIn(scanner, job, log),
+    identities: await signInIdentities(scanner, job, log),
     logger: log,
     browser
   };
@@ -386,7 +409,7 @@ function confidenceNumber(level: string): number {
  * will report inconclusive, which is the truthful outcome, rather than the scan aborting and
  * reporting nothing at all.
  */
-async function signIn(
+export async function signInIdentities(
   scanner: Scanner, job: SecurityScanJob, logger: Logger
 ): Promise<Map<string, SignedInIdentity>> {
   const identities = new Map<string, SignedInIdentity>();
@@ -394,11 +417,17 @@ async function signIn(
   for (const identity of job.identities) {
     try {
       const session = await scanner.signIn(job.baseUrl, identity.username, identity.password);
-      if (!session?.cookie) {
+      // Whatever authenticates a request counts, not only a cookie.
+      if (!session || !isSignedIn(session)) {
         logger.warn(`Could not sign in as ${identity.label}; checks needing it will be inconclusive`);
         continue;
       }
-      identities.set(identity.label, { ...identity, cookie: session.cookie, csrf: session.csrf });
+      identities.set(identity.label, {
+        ...identity,
+        headers: authHeaders(session),
+        cookie: session.cookie ?? null,
+        csrf: session.csrf ?? null
+      });
     } catch (error) {
       logger.warn(`Signing in as ${identity.label} threw`, {
         reason: error instanceof Error ? error.message : String(error)
@@ -442,8 +471,8 @@ const RUNNERS: Record<string, CheckRunner> = {
     if (!a || !b) return inconclusive('Two signed-in identities are needed to compare access; fewer were available.');
     return authz.checkBola(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
-      owner: { cookie: a.cookie, label: a.label, resourceId: a.resourceId ?? '' },
-      intruder: { cookie: b.cookie, label: b.label }
+      owner: { ...asActor(a), resourceId: a.resourceId ?? '' },
+      intruder: asActor(b)
     });
   },
   'authz.vertical': async (scanner, target, context) => {
@@ -451,8 +480,8 @@ const RUNNERS: Record<string, CheckRunner> = {
     if (!admin || !lesser) return inconclusive('A privileged and a lesser identity are needed; both were not available.');
     return authz.checkVerticalEscalation(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
-      privileged: { cookie: admin.cookie, label: admin.label },
-      lesser: { cookie: lesser.cookie, label: lesser.label }
+      privileged: asActor(admin),
+      lesser: asActor(lesser)
     });
   },
   'authz.readonly': async (scanner, target, context) => {
@@ -460,8 +489,8 @@ const RUNNERS: Record<string, CheckRunner> = {
     if (!writer || !reader) return inconclusive('A writing and a read-only identity are needed; both were not available.');
     return authz.checkReadOnlyWrite(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
-      writer: { cookie: writer.cookie, label: writer.label },
-      readonly: { cookie: reader.cookie, label: reader.label },
+      writer: asActor(writer),
+      readonly: asActor(reader),
       body: {}
     });
   },
@@ -470,7 +499,7 @@ const RUNNERS: Record<string, CheckRunner> = {
     if (!a) return inconclusive('An owning identity is needed to establish the control.');
     return authz.checkMissingAuthorization(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
-      owner: { cookie: a.cookie, label: a.label, resourceId: a.resourceId ?? '' }
+      owner: { ...asActor(a), resourceId: a.resourceId ?? '' }
     });
   },
   'authz.token': async (scanner, target, context) => authz.checkTokenVerification(scanner, {
@@ -519,7 +548,7 @@ const RUNNERS: Record<string, CheckRunner> = {
     if (!a) return inconclusive('A signed-in identity owning an object is needed.');
     return api.checkMassAssignment(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
-      actor: { cookie: a.cookie, label: a.label, resourceId: a.resourceId ?? '' }
+      actor: { ...asActor(a), resourceId: a.resourceId ?? '' }
     });
   },
   'api.input-validation': async (scanner, target, context) => {
@@ -528,7 +557,7 @@ const RUNNERS: Record<string, CheckRunner> = {
     if (!field) return inconclusive('No parameter was discovered on this endpoint to probe.');
     return api.checkInputValidation(scanner, {
       baseUrl: context.baseUrl, path: target.identifier, field,
-      actor: a ? { cookie: a.cookie, label: a.label } : undefined
+      actor: a ? asActor(a) : undefined
     });
   },
   'api.unsafe-method': async (scanner, target, context) => {
@@ -538,21 +567,21 @@ const RUNNERS: Record<string, CheckRunner> = {
       // The object deleted is one the check creates first, never one it found.
       createPath: target.identifier.replace(/\/\{[^}]+\}$/, ''),
       deletePath: target.identifier,
-      actor: a ? { cookie: a.cookie, label: a.label } : undefined
+      actor: a ? asActor(a) : undefined
     });
   },
   'api.rate-limit': async (scanner, target, context) => {
     const a = owner(context);
     return api.checkRateLimit(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
-      actor: a ? { cookie: a.cookie, label: a.label } : undefined
+      actor: a ? asActor(a) : undefined
     });
   },
   'api.excessive-data': async (scanner, target, context) => {
     const a = owner(context);
     return api.checkExcessiveData(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
-      actor: a ? { cookie: a.cookie, label: a.label } : undefined
+      actor: a ? asActor(a) : undefined
     });
   },
 
@@ -571,7 +600,7 @@ const RUNNERS: Record<string, CheckRunner> = {
     if (!field) return inconclusive('No field was discovered on this page to store a marker in.');
     return xss.checkStoredXss(scanner, {
       baseUrl: context.baseUrl, writePath: target.identifier, readPath: target.identifier,
-      field, actor: a ? { cookie: a.cookie, label: a.label } : undefined
+      field, actor: a ? asActor(a) : undefined
     });
   },
   /**
@@ -641,7 +670,7 @@ const RUNNERS: Record<string, CheckRunner> = {
     const a = owner(context);
     return request.checkUploadRestrictions(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
-      actor: a ? { cookie: a.cookie, label: a.label } : undefined
+      actor: a ? asActor(a) : undefined
     });
   },
   'request.redirect': async (scanner, target, context) => {

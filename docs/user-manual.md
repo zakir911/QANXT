@@ -194,6 +194,35 @@ reporting "completed" and leaving you to guess. If it names navigation controls 
 follow, option 3 is your answer. If it found no links at all and no routes were listed,
 option 1 is.
 
+#### Mapping your application does not change it
+
+Discovery will not follow a link that performs an operation, not only decline to click a
+button that does. That matters on an application that changes state through links, which is
+normal in anything written before anti-forgery tokens were: a crawl of a permit register
+approved all three permits in it before this rule existed.
+
+A link is left alone when its own words say it acts **and** it names a particular record —
+`Approve` pointing at `/approve.asp?id=1`, `Cancel` pointing at `/orders/99/cancel`. A
+narrow set of words acts on arrival with nothing to act on at all — delete, clear, reset,
+revoke, sign out — and those are left alone wherever they appear.
+
+A link that opens a screen is followed, even when it reads like an act. `New application`,
+`Fund transfer`, `Checkout`, `Save a draft` and `Upload a document` all name where you are
+going; the change happens when you submit the form they open, and that submit control is a
+button, which was never clicked. A link inside a navigation region is followed for the same
+reason.
+
+Every link discovery declines is named in the exploration log, counted in a line at the end,
+and **recorded as a security gap on the application** — because a `GET` that approves
+something can be triggered by anyone who gets one of your users to open a URL, and that is
+worth your attention whether or not we tested it. The gap says plainly that discovery saw
+the link and did not establish what it does, and what would let it: authorize destructive
+testing for the application so the scan may follow it, or open it once by hand and check
+that the operation needs a `POST` and an anti-forgery token.
+
+To map those links anyway, turn on state-changing interaction for the application. Do that
+against a disposable environment, not one holding data you care about.
+
 #### Respect robots.txt
 
 Left on, discovery reads `robots.txt` from each host it crawls and will not open a path the

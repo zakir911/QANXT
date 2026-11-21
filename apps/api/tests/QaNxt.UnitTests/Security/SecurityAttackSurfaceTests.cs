@@ -8,6 +8,7 @@ namespace QaNxt.UnitTests.Security;
 using PageInput = SecurityAttackSurfaceBuilder.PageInput;
 using ElementInput = SecurityAttackSurfaceBuilder.ElementInput;
 using EndpointInput = SecurityAttackSurfaceBuilder.EndpointInput;
+using FormInput = SecurityAttackSurfaceBuilder.FormInput;
 
 /// <summary>The rules that decide where a security check gets pointed.
 ///
@@ -30,12 +31,85 @@ public class SecurityAttackSurfaceTests
         => new(Guid.NewGuid(), method, template, sampleUrl ?? $"https://app.test{template}",
                authenticated, contentType, body, Seen);
 
+    private static FormInput Form(
+        string method = "post", string? action = "/api/appointments",
+        string route = "/schedule", string pageUrl = "https://app.test/schedule",
+        bool csrf = false, bool authenticated = true)
+        => new(Guid.NewGuid(), route, action, method, pageUrl, csrf, authenticated, Seen);
+
     private static SecurityAttackSurface Build(
-        IEnumerable<PageInput>? pages = null, IEnumerable<EndpointInput>? endpoints = null)
+        IEnumerable<PageInput>? pages = null, IEnumerable<EndpointInput>? endpoints = null,
+        IEnumerable<FormInput>? forms = null)
         => SecurityAttackSurfaceBuilder.Build(
             Guid.NewGuid(),
             (pages ?? Array.Empty<PageInput>()).ToList(),
-            (endpoints ?? Array.Empty<EndpointInput>()).ToList());
+            (endpoints ?? Array.Empty<EndpointInput>()).ToList(),
+            (forms ?? Array.Empty<FormInput>()).ToList());
+
+    /// <summary>
+    /// Discovery never submits a form, so the only requests it observes against an API are
+    /// the reads. Every endpoint was therefore a GET, every GET is non-mutating, and every
+    /// check needing a write endpoint was skipped for the endpoints that write: CSRF, origin
+    /// validation, read-only enforcement, mass assignment, stored XSS. A scan of a clinical
+    /// scheduler ran read-only enforcement against its sign-in endpoint and nothing else.
+    /// </summary>
+    [Fact]
+    public void A_form_that_declares_a_post_puts_its_endpoint_on_the_surface()
+    {
+        var surface = Build(forms: new[] { Form(method: "post", action: "/api/appointments") });
+
+        var item = surface.Items.Should().ContainSingle().Subject;
+        item.Identifier.Should().Contain("/api/appointments");
+        item.RelevantChecks.Should().Contain(new[]
+        {
+            SecurityChecks.CsrfToken, SecurityChecks.OriginValidation,
+            SecurityChecks.ReadOnlyWrite, SecurityChecks.MassAssignment
+        });
+    }
+
+    [Fact]
+    public void A_get_form_declares_no_write_and_adds_nothing()
+    {
+        // Its page is already surface, and a GET form reads.
+        Build(forms: new[] { Form(method: "get", action: "/search") }).Items.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_form_with_no_action_submits_to_its_own_page()
+    {
+        var surface = Build(forms: new[] {
+            Form(method: "post", action: null, pageUrl: "https://app.test/new.asp") });
+
+        surface.Items.Should().ContainSingle().Which.Identifier.Should().Contain("/new.asp");
+    }
+
+    /// <summary>
+    /// An endpoint seen in flight carries a sample payload and a content type, which is
+    /// strictly more to work with than a declaration, so the declaration does not displace
+    /// it or sit beside it as a duplicate.
+    /// </summary>
+    [Fact]
+    public void A_declared_endpoint_an_observed_one_already_covers_is_not_added_twice()
+    {
+        var surface = Build(
+            endpoints: new[] { Endpoint("POST", "https://app.test/api/appointments") },
+            forms: new[] { Form(method: "post", action: "https://app.test/api/appointments") });
+
+        surface.Items.Should().ContainSingle();
+        surface.EndpointsInGraph.Should().Be(1);
+    }
+
+    [Fact]
+    public void Two_forms_posting_to_the_same_endpoint_are_one_item()
+    {
+        var surface = Build(forms: new[]
+        {
+            Form(method: "post", action: "/api/appointments", route: "/schedule"),
+            Form(method: "post", action: "/api/appointments", route: "/schedule/new")
+        });
+
+        surface.Items.Should().ContainSingle();
+    }
 
     [Fact]
     public void An_authenticated_endpoint_taking_an_object_identifier_implies_BOLA()

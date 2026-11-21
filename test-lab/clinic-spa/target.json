@@ -87,15 +87,17 @@
       "severity": "critical",
       "statement": "A clinician can read a patient record belonging to another clinician.",
       "keywords": [
-        "authoriz",
-        "object level",
         "bola",
         "idor",
+        "object level",
+        "owned",
         "owner",
+        "authoriz",
         "another"
       ],
       "routes": [
         "/patients",
+        "/api/patients",
         "/api/patients/:id"
       ]
     },
@@ -114,6 +116,7 @@
       ],
       "routes": [
         "/schedule",
+        "/api/appointments",
         "/api/appointments/:id/cancel"
       ]
     }

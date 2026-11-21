@@ -57,6 +57,16 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
                 e.RequestContentType, e.RequestSampleJson, e.LastSeenAt))
             .ToListAsync(ct);
 
+        // Forms, for the endpoints they declare they write to. Discovery never submits one, so
+        // without this an API's writes are never on the surface and every write check is
+        // skipped for the endpoints that actually write.
+        var forms = await _db.ApplicationForms.AsNoTracking()
+            .Where(f => f.ApplicationId == applicationId && f.IsPresent)
+            .Select(f => new SecurityAttackSurfaceBuilder.FormInput(
+                f.Id, f.Route, f.Action, f.Method, f.PageUrl, f.HasCsrfToken,
+                f.Page!.RequiresAuthentication, f.LastSeenAt))
+            .ToListAsync(ct);
+
         var pageInputs = pages.Select(p => new SecurityAttackSurfaceBuilder.PageInput(
             p.Id, p.Route, p.NormalizedUrl, p.Kind, p.RequiresAuthentication, p.LastSeenAt,
             elementsByPage.TryGetValue(p.Id, out var found)
@@ -64,6 +74,6 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
                 : Array.Empty<SecurityAttackSurfaceBuilder.ElementInput>())).ToList();
 
         return Result<SecurityAttackSurface>.Success(
-            SecurityAttackSurfaceBuilder.Build(applicationId, pageInputs, endpoints));
+            SecurityAttackSurfaceBuilder.Build(applicationId, pageInputs, endpoints, forms));
     }
 }

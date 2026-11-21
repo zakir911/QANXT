@@ -84,30 +84,102 @@ public static class SecurityAttackSurfaceBuilder
         bool RequiresAuthentication, string? RequestContentType, string? RequestSampleJson,
         DateTimeOffset LastSeenAt);
 
+    /// <summary>A form discovery found, as the application declares it submits.</summary>
+    /// <remarks>
+    /// A third source of surface, and for the write checks the only reliable one.
+    ///
+    /// Discovery never submits a form — it must not, because submitting one changes the
+    /// application — so the only requests it observes against an API are the reads. Every
+    /// endpoint was therefore recorded as a GET, every GET is non-mutating, and every check
+    /// that needs a write endpoint was skipped for the endpoints that actually write: CSRF,
+    /// origin validation, read-only enforcement, mass assignment and stored XSS. A scan of a
+    /// clinical scheduler ran read-only enforcement against its sign-in endpoint and nothing
+    /// else, on an application whose booking endpoint any signed-in role could post to.
+    ///
+    /// A form carrying `method="post" action="/api/appointments"` is the application stating
+    /// where it writes, which is better evidence than an observed request rather than worse.
+    /// Nothing is sent to find out: the declaration is read from the page.
+    /// </remarks>
+    public sealed record FormInput(
+        Guid Id, string Route, string? Action, string Method, string PageUrl,
+        bool HasCsrfToken, bool RequiresAuthentication, DateTimeOffset LastSeenAt);
+
     public static SecurityAttackSurface Build(
         Guid applicationId,
         IReadOnlyCollection<PageInput> pages,
-        IReadOnlyCollection<EndpointInput> endpoints)
+        IReadOnlyCollection<EndpointInput> endpoints,
+        IReadOnlyCollection<FormInput>? forms = null)
     {
         var items = new List<SecuritySurfaceItem>();
 
         foreach (var page in pages) items.Add(FromPage(page));
         foreach (var endpoint in endpoints) items.Add(FromEndpoint(endpoint));
 
+        // Only where the form declares a write, and only where no observed endpoint already
+        // covers the same verb and address: an endpoint seen in flight carries a sample
+        // payload and a content type, which is strictly more to work with.
+        var declared = (forms ?? Array.Empty<FormInput>())
+            .Select(DeclaredEndpoint)
+            .Where(e => e is not null)
+            .Select(e => e!)
+            .Where(e => !endpoints.Any(seen =>
+                string.Equals(seen.Method, e.Method, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(NormalizeTemplate(seen.UrlTemplate), NormalizeTemplate(e.UrlTemplate), StringComparison.OrdinalIgnoreCase)))
+            .GroupBy(e => $"{e.Method} {NormalizeTemplate(e.UrlTemplate)}", StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First())
+            .ToList();
+        foreach (var endpoint in declared) items.Add(FromEndpoint(endpoint));
+
         var implied = items.SelectMany(i => i.RelevantChecks).Distinct().OrderBy(c => c).ToList();
         var lastSeen = pages.Select(p => p.LastSeenAt)
             .Concat(endpoints.Select(e => e.LastSeenAt))
+            .Concat(declared.Select(e => e.LastSeenAt))
             .DefaultIfEmpty()
             .Max();
 
         var caveats = BuildCaveats(pages, endpoints, implied);
 
         return new SecurityAttackSurface(
-            applicationId, items, pages.Count, endpoints.Count,
+            applicationId, items, pages.Count, endpoints.Count + declared.Count,
             lastSeen == default ? null : lastSeen,
             caveats, implied,
-            Summarise(items, pages.Count, endpoints.Count, implied.Count, caveats.Count));
+            Summarise(items, pages.Count, endpoints.Count + declared.Count, implied.Count, caveats.Count));
     }
+
+    /// <summary>
+    /// The endpoint a form declares it submits to, or null when it declares no write.
+    ///
+    /// A GET form is left out: it reads, and its page is already surface. A form with no
+    /// action submits to the page it is on, which HTML says and this follows.
+    /// </summary>
+    private static EndpointInput? DeclaredEndpoint(FormInput form)
+    {
+        if (!MutatingMethods.Contains(form.Method)) return null;
+
+        var target = string.IsNullOrWhiteSpace(form.Action) ? form.PageUrl : form.Action!;
+        if (!Uri.TryCreate(target, UriKind.Absolute, out var absolute))
+        {
+            if (!Uri.TryCreate(form.PageUrl, UriKind.Absolute, out var page)) return null;
+            if (!Uri.TryCreate(page, target, out absolute)) return null;
+        }
+
+        return new EndpointInput(
+            form.Id,
+            form.Method.ToUpperInvariant(),
+            absolute.GetLeftPart(UriPartial.Path),
+            absolute.ToString(),
+            form.RequiresAuthentication,
+            // A form posts its fields as a URL-encoded body unless it says otherwise, and
+            // what they are called is the form model's business rather than this one's.
+            "application/x-www-form-urlencoded",
+            null,
+            form.LastSeenAt);
+    }
+
+    private static string NormalizeTemplate(string template)
+        => Uri.TryCreate(template, UriKind.Absolute, out var parsed)
+            ? parsed.GetLeftPart(UriPartial.Path).TrimEnd('/')
+            : template.TrimEnd('/');
 
     // -----------------------------------------------------------------------
 
