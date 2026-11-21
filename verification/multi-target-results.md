@@ -49,6 +49,30 @@ Discovery working at all on `clinic-spa` is the first result worth stating: the 
 no content, and the form extractor still found all three forms, because discovery drives a
 real browser rather than reading responses.
 
+## The control group: the application the engines were built against
+
+`freight-platform` was re-run after every change above, because a fix made for one shape of
+application is worth nothing if it costs another. Before and after:
+
+| | before this round | after |
+| --- | --- | --- |
+| Pages discovered | 152 | 150 |
+| Forms extracted | 73 | 72 |
+| Tests designed | 6,354 | 6,344 |
+| Stopped because | the 900s budget | the 900s budget |
+| Links discovery refused to follow | — | 0 |
+
+Unchanged, and the small differences are the budget boundary rather than capability: both
+runs stopped on the same 900-second exploration budget with pages still queued.
+
+Two details worth stating, because they say *why* nothing changed. The link guard refused
+nothing here: Meridian Freight changes state through POST forms and buttons, which were
+always left alone, so the rule that stopped a permit register being approved costs this
+application nothing. And its 150 pages carry 150 distinct route shapes — its identifiers are
+`SH-1001` and `inv-0004`, never a bare number — so the visit-key fix changes nothing here
+either. It only ever changes behaviour on an application that keys records by a numeric path
+segment or a query string, which is precisely the case it was built for.
+
 ## The two that were not detected
 
 Neither is counted, and neither is quietly dropped.
