@@ -83,10 +83,23 @@ public sealed class CoverageService : ICoverageService
         catch (System.Text.Json.JsonException) { return Array.Empty<string>(); }
     }
 
+    /// <summary>
+    /// The statuses that mean a test ran and the application answered.
+    ///
+    /// Blocked is not one of them, though it was. The executor sets it when a test never
+    /// started — a sign-in that failed, a reload on an application whose session does not
+    /// survive one — and says so in the message it stores: "Preconditions were not met",
+    /// "Not run". Counting those as executed put them in the numerator of the coverage
+    /// percentage, so an application QA NXT could not sign in to reported coverage for
+    /// tests that never opened a page. Blocked is still counted and reported in its own
+    /// column, which is where a test that could not run belongs.
+    ///
+    /// Skipped is excluded for the same reason and always was.
+    /// </summary>
     private static readonly ExecutionStatus[] Verdicts =
     {
         ExecutionStatus.Passed, ExecutionStatus.Healed, ExecutionStatus.Flaky, ExecutionStatus.Failed,
-        ExecutionStatus.Error, ExecutionStatus.TimedOut, ExecutionStatus.Blocked
+        ExecutionStatus.Error, ExecutionStatus.TimedOut
     };
 
     private readonly IQaNxtDbContext _db;

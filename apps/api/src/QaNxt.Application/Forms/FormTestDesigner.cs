@@ -1385,17 +1385,7 @@ public static class FormTestDesigner
                     new List<DesignedStep> { Open() }.Concat(advance.Steps).Append(new(BrowserActionType.AssertVisible, $"Confirm {secondVisible.DisplayName} is shown", secondVisible.Locator)).ToList(),
                     null, TestPriority.High, new[] { "state:step-advanced" }, advance.Data));
 
-                if (_previous is not null)
-                {
-                    var steps = new List<DesignedStep> { Open() }.Concat(advance.Steps)
-                        .Append(new(BrowserActionType.Click, $"Press \"{_previous.Label}\"", _previous.Locator)).ToList();
-                    foreach (var field in first.Where(f => ValueSynthesizer.IsTextLike(f) && advance.Data.ContainsKey(f.Identity) && f.ControlType != "password"))
-                        steps.Add(new(BrowserActionType.AssertValue, $"Confirm {field.DisplayName} still holds what was entered", field.Locator, Expected: advance.Data[field.Identity]));
-                    if (steps.Count > advance.Steps.Count + 2)
-                        Add(Test(TestCategory.MultiStep, "previous-keeps-answers", "keeps the first step's answers after going back",
-                            "Going back to an earlier step does not lose what was entered there.",
-                            "Every answer on the first step is still there.", steps, null, TestPriority.High, new[] { "state:step-returned" }, advance.Data));
-                }
+                if (_previous is not null) RetainsAnswersGoingBack(groups);
 
                 Add(Test(TestCategory.Recovery, "wizard-refresh", "survives a refresh part way through",
                     "Reloading the page in the middle of the wizard does not break it.",
@@ -1431,6 +1421,70 @@ public static class FormTestDesigner
                 "Whether an abandoned wizard can be resumed later depends on the product's intent, which the page does not state.",
                 $"Start {Title}, complete the first step, close the browser, return later.", "The product behaves as its requirements say: resumes or starts again cleanly.");
         }
+
+        /// <summary>
+        /// Going back must not empty the step you came from — checked for every step, not
+        /// only the first.
+        ///
+        /// This checked step one alone, and only its text fields. A wizard that re-renders a
+        /// later step from its defaults rather than from the draft loses exactly what step
+        /// one keeps, and the freight lab's booking wizard does: complete steps one to
+        /// three, press Back twice, and step two's dimensions and handling instructions are
+        /// blank. The test that would have seen it was never written, because the only step
+        /// it looked at was the one the bug spares.
+        ///
+        /// Numbers, dates and selects are read back too. <c>assertValue</c> reads them all
+        /// through the control's own value, and a wizard that forgets a quantity has lost as
+        /// much as one that forgets a name. Checkboxes, radios and passwords are left out:
+        /// a tick is not a value the control reports, and a password field is deliberately
+        /// not read back.
+        /// </summary>
+        private void RetainsAnswersGoingBack(List<int> groups)
+        {
+            if (_previous is null) return;
+
+            for (var index = 0; index < groups.Count - 1; index++)
+            {
+                var group = groups[index];
+                var reached = FillValid(throughGroup: group, clickNextAfterLastGroup: true);
+                if (reached.Failure is not null)
+                {
+                    Gap(TestCategory.MultiStep, null, $"what step {index + 1} keeps after going back",
+                        $"Step {index + 1} could not be completed to get past it: {reached.Failure}",
+                        "Add a valid test-data value for the field, or test this step by hand.",
+                        CoverageGapStatus.NotCovered);
+                    continue;
+                }
+
+                var fields = _fields
+                    .Where(f => f.Group == group && !IsConditional(f)
+                        && reached.Data.ContainsKey(f.Identity) && KeepsItsOwnValue(f))
+                    .ToList();
+                if (fields.Count == 0) continue;
+
+                var steps = new List<DesignedStep> { Open() }.Concat(reached.Steps)
+                    .Append(new(BrowserActionType.Click, $"Press \"{_previous.Label}\"", _previous.Locator)).ToList();
+                foreach (var field in fields)
+                    steps.Add(new(BrowserActionType.AssertValue,
+                        $"Confirm {field.DisplayName} still holds what was entered", field.Locator,
+                        Expected: reached.Data[field.Identity]));
+
+                var which = index == 0 ? "the first step" : $"step {index + 1}";
+                Add(Test(TestCategory.MultiStep,
+                    index == 0 ? "previous-keeps-answers" : $"previous-keeps-answers-{index + 1}",
+                    $"keeps {which}'s answers after going back",
+                    $"Going back to {which} does not lose what was entered there.",
+                    $"Every answer on {which} is still there.", steps, null, TestPriority.High,
+                    new[] { index == 0 ? "state:step-returned" : $"state:step-returned-{index + 1}" },
+                    reached.Data));
+            }
+        }
+
+        /// <summary>Whether the control reports what was entered, so that reading it back
+        /// means something. A checkbox's state is not its value, and a password field is not
+        /// read back on purpose.</summary>
+        private static bool KeepsItsOwnValue(FormFieldModel field) =>
+            field.ControlType is not ("password" or "file" or "checkbox" or "radio" or "switch" or "hidden");
 
         // ---- Buttons and duplicates ------------------------------------------------------
 

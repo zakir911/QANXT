@@ -250,6 +250,99 @@ public class FormEngineTests
             .Should().Equal("sku-001");
     }
 
+    /// <summary>A three-step booking wizard: one step of text, one of numbers and a
+    /// selector, one to confirm. The shape the freight lab's booking form has, and the
+    /// shape the retention check used to look straight past.</summary>
+    private static DiscoveredFormModel ThreeStepWizard() => new()
+    {
+        Key = "booking", Name = "Book a shipment", Action = "http://lab/shipments/new", Method = "post",
+        HasCsrfToken = true, NoValidate = true, Locator = TestId("booking-form"), IsMultiStep = true, VisibleGroup = 0,
+        Fields = new()
+        {
+            Field("reference", "text", true, new() { ["maxlength"] = "20" }, group: 0),
+            Field("customer", "text", true, group: 0),
+            Field("pieces", "number", true, new() { ["min"] = "1", ["max"] = "500", ["step"] = "1" }, visible: false, group: 1),
+            Field("weight", "number", true, new() { ["min"] = "0.1", ["max"] = "30000", ["step"] = "0.1" }, visible: false, group: 1),
+            Field("weightUnit", "select", options: new()
+            {
+                new FormOptionModel { Value = "kg", Label = "Kilograms" },
+                new FormOptionModel { Value = "lb", Label = "Pounds" }
+            }, visible: false, group: 1),
+            Field("notes", "textarea", visible: false, group: 2)
+        },
+        Buttons = new()
+        {
+            new FormButtonModel { Label = "Next", Type = "button", Role = "next", Locator = TestId("booking-next") },
+            new FormButtonModel { Label = "Back", Type = "button", Role = "previous", Locator = TestId("booking-previous") },
+            new FormButtonModel { Label = "Book", Type = "submit", Role = "submit", Locator = TestId("booking-submit") }
+        }
+    };
+
+    /// <summary>
+    /// Going back must not empty the step you came from, whichever step that is.
+    ///
+    /// The check existed and looked only at step one, and only at its text fields. A wizard
+    /// that re-renders a later step from its defaults rather than from the draft loses
+    /// exactly what step one keeps: the freight lab's booking wizard empties step two's
+    /// numbers when you step back from step three, and no test asked.
+    /// </summary>
+    [Fact]
+    public void Going_back_is_checked_for_every_step_not_only_the_first()
+    {
+        var retention = Design(ThreeStepWizard()).Tests
+            .Where(test => test.Technique.StartsWith("previous-keeps-answers", StringComparison.Ordinal))
+            .ToList();
+
+        retention.Should().HaveCount(2,
+            "a three-step wizard has two steps you can come back to, and both can lose what was typed");
+        retention.Select(test => test.Technique).Should()
+            .BeEquivalentTo(new[] { "previous-keeps-answers", "previous-keeps-answers-2" });
+    }
+
+    /// <summary>A quantity a wizard forgets is as lost as a name it forgets. assertValue
+    /// reads a number and a select through the control's own value, so there was no reason
+    /// to check only the text fields.</summary>
+    [Fact]
+    public void Going_back_reads_numbers_and_selects_back_not_only_text()
+    {
+        var second = Design(ThreeStepWizard()).Tests
+            .Single(test => test.Technique == "previous-keeps-answers-2");
+
+        var readBack = second.Steps
+            .Where(step => step.Action == BrowserActionType.AssertValue)
+            .Select(step => step.Description)
+            .ToList();
+
+        readBack.Should().HaveCount(3, "step two holds two numbers and a selector");
+        readBack.Should().Contain(description => description.Contains("pieces"));
+        readBack.Should().Contain(description => description.Contains("weight"));
+        readBack.Should().Contain(description => description.Contains("weightUnit"));
+    }
+
+    /// <summary>A password is deliberately not read back, and a tick is not a value the
+    /// control reports, so neither is asserted.</summary>
+    [Fact]
+    public void Going_back_does_not_read_a_password_or_a_tick_back()
+    {
+        var wizard = ThreeStepWizard();
+        var withSecrets = wizard with
+        {
+            Fields = wizard.Fields.Concat(new[]
+            {
+                Field("pin", "password", visible: false, group: 1),
+                Field("fragile", "checkbox", visible: false, group: 1)
+            }).ToList()
+        };
+
+        var second = Design(withSecrets).Tests
+            .Single(test => test.Technique == "previous-keeps-answers-2");
+
+        second.Steps.Where(step => step.Action == BrowserActionType.AssertValue)
+            .Select(step => step.Description)
+            .Should().NotContain(description => description.Contains("pin"))
+            .And.NotContain(description => description.Contains("fragile"));
+    }
+
     private static FormDesign Design(DiscoveredFormModel form, TestingProfile? profile = null, bool credentials = false,
         IReadOnlyList<CorrelatedEndpoint>? endpoints = null)
         => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,

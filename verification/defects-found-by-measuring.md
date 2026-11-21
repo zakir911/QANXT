@@ -25,6 +25,11 @@ joined correctly in one module and concatenated in forty-three sites of another,
 model implemented carefully and then undone by two lines in a handler no test could reach.
 A second application finds what a second reading of the code does not.
 
+Entries 27 and 28 came from a third pattern, and the cheapest one: **reading what a check
+actually asserts rather than what its name says it checks**. A retention test named after
+going back looked only at the step the bug spares, and a coverage figure counted tests whose
+own stored reason says they never ran. Neither needed a browser to find.
+
 ---
 
 ## 1. Tests were authored with locators that address more than one element
@@ -524,6 +529,37 @@ Everything else is inconclusive, with the reason. The stronger check is the appl
 interface — a control the privileged user is shown and the lesser user is not — which needs
 per-role discovery the engine does not have, and is named in the finding as the way to settle
 it.
+
+## 27. The wizard retention check looked only at the first step
+
+**Symptom.** A booking wizard that empties step two's fields when you step back from step
+three. 6,344 tests against the application, none of which asked.
+
+**Diagnosis.** The check existed, under the name `previous-keeps-answers`, and advanced
+through step one, pressed Back, and read step one's answers. Step one is the step the bug
+spares: a wizard that re-renders a later step from its defaults rather than from the draft
+loses step two and keeps step one, which is exactly the shape of the defect. The check also
+read only text-like fields, and step two of that wizard holds numbers and a selector, so
+even pointed at the right step it would have asserted nothing.
+
+**Fix.** Every step that can be returned to gets its own test, and numbers, dates and
+selects are read back alongside text — `assertValue` reads them all through the control's
+own value. Passwords, checkboxes and radios stay out: a tick is not a value the control
+reports, and a password field is deliberately not read back. A step that cannot be completed
+is recorded as a gap naming the field, not skipped silently.
+
+## 28. A test that never ran counted towards coverage
+
+**Symptom.** Coverage above zero for an application QA NXT could not sign in to.
+
+**Diagnosis.** `Blocked` was in the list of statuses that mean a test executed. The worker
+sets that status precisely when a test did not: it stores "Preconditions were not met — "
+with the sign-in failure, or "Not run: this test reloads the page, and this application signs
+the user out on any page load". Both went into the numerator of the coverage percentage.
+
+**Fix.** Blocked is not a verdict. It is still counted and still reported in its own column
+and in `notRun`, which is where a test that could not run belongs. Coverage is the share of
+tests that ran, and a blocked test did not run.
 
 ---
 
