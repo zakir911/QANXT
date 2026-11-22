@@ -1147,6 +1147,78 @@ would not move.
 
 ---
 
+## 47. A link discovery would not follow was a gap and never a target
+
+**Symptom.** Five planted defects on three different applications, all reported missed or
+partially matched, with no false finding and nothing in any run that looked broken:
+
+| Defect | Application | The control |
+| --- | --- | --- |
+| FP_D11 | freight | a claim a viewer may settle |
+| FP_D17 | freight | a rejected declaration anyone may release |
+| FP_D19 | freight | an evidence upload |
+| CS_D04 | clinic-spa | a cancel hidden from a receptionist and permitted by the endpoint |
+| PL_D01 | permits-legacy | a permit approval that is a GET any role may issue |
+
+**How they turned out to be one defect.** Each sits behind a control whose own words say it
+changes something, and discovery refuses to follow those — correctly, because mapping an
+application must not alter it — recording a gap that says so. The gap was the end of it. The
+address never reached the attack surface, so nothing probed it. The clinic log says it in its
+own words: *"Did not click 'Cancel' on /schedule: its label 'Cancel' reads like it changes
+data."*
+
+The authorized run is what made it unarguable. With state-changing interaction and
+destructive checks turned on, permits-legacy reached 10 pages instead of 7 and 11 scan
+targets instead of 8 — and `/approve.asp` collected four passive header findings and not one
+authorization check, because it had become a *page* and never an *endpoint*. Authorization
+alone was never going to be enough.
+
+And the instance-spread fix had already done its part: the freight crawl recorded
+`/customs/declarations/dec-0002/release` as a state-changing link, which means it had reached
+a releasable declaration and found the link. It then correctly declined to open it, and the
+address went into a gap rather than onto the surface.
+
+**Fix.** Those links go on the surface as the GET endpoints they are, deduplicated against
+anything already there, carrying the authorization checks and `api.unsafe-method`. That check
+is implied elsewhere for DELETE — *"it is a destructive verb"* — and this is its mirror image:
+a safe verb doing an unsafe thing, which is worse, because a browser, a crawler or a link
+preview will issue a GET unasked. Whether they are scanned remains the scope's decision, as
+it should; the surface's job was to stop hiding them.
+
+The gap prefix is now one shared constant. Two spellings of it would have made the new code
+find nothing and say nothing, which is the same failure in a new place.
+
+**What this does not claim.** It is committed, tested and unmeasured: the freight run in
+flight holds the API, and restarting it mid-measurement would throw the run away. Five
+defects are *in scope* that were not; whether the checks then catch them is the next run's
+answer, not this entry's.
+
+## 48. A run whose configuration was refused carried on and looked configured
+
+**Symptom.** None, which is the point. The freight pipeline printed `(patch 400)` and kept
+going.
+
+**The defect.** Every number the run is configured with — the page budget, the time budget,
+the action budget, the interaction mode, the routes to open — travels in one PATCH. The
+driver logged the status code and carried on regardless. A 400 left the application on its
+defaults: a 1800-second budget silently became 180, navigation mode became links, 10,000
+actions became 400, and the six listed routes were not listed at all.
+
+Caught by reading back what had actually been stored instead of trusting the log line. The
+run would have spent hours measuring something other than what it said it measured, and the
+only sign was four characters in a line nobody reads twice.
+
+**Fix.** A refused patch stops the run, with the API's own message. The cap it hit — ten
+thousand actions — and the message naming it were both right; the invocation asked for more
+than the product allows.
+
+**Why it belongs in this list.** It is not a product defect, it is a measurement defect, and
+this document exists because measurements are the only thing that has found any of the
+others. A harness that misreports its own configuration can invalidate every number in here,
+and that is worse than a bug in a check.
+
+---
+
 ## Two near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;
