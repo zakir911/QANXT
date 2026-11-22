@@ -119,6 +119,16 @@ const patched = await request(`/api/v1/applications/${application.id}`, {
 });
 log(`  interactionMode=navigation, maxPages=${MAX_PAGES}, budget=${DISCOVERY_BUDGET}s `
   + `(patch ${patched.status})`);
+// A rejected patch is not a warning. Every number this run is supposed to be configured
+// with lives in that request, so a 400 leaves the application on its defaults and the run
+// goes on looking configured: a 1800-second budget silently became 180, navigation mode
+// became links, and the listed routes were not listed at all. Measured once, which is
+// once more than a six-hour run can afford.
+if (!patched.ok) {
+  throw new Error(`The application patch was refused (${patched.status}): `
+    + `${String(patched.text ?? '').slice(0, 300)}. Nothing this run measures would mean `
+    + 'what it says, so it stops here rather than running on the defaults.');
+}
 if (SEED_URLS.length > 0) log(`  routes listed: ${SEED_URLS.join(', ')}`);
 result.stages.application = {
   id: application.id, interactionMode: 'navigation',
