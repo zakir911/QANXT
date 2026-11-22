@@ -299,6 +299,22 @@ export const FORMS = [
     defects: []
   },
   {
+    id: 'permission-wall', route: '/permission-wall', title: 'Raise a credit note',
+    purpose: 'A correct form the signed-in identity may not use. The submission is refused '
+      + 'on grounds of permission rather than validity, which is the application enforcing '
+      + 'a rule and not misbehaving — but it reads to an acceptance oracle exactly like a '
+      + 'valid submission the application would not take.',
+    refusesWithPermission: 'You do not have permission to raise credit notes.',
+    fields: [
+      { name: 'invoice', label: 'Invoice', type: 'text', required: true, attrs: { maxlength: 20 } },
+      { name: 'amount', label: 'Amount', type: 'number', required: true, attrs: { min: '1', max: '100000' } },
+      { name: 'reason', label: 'Reason', type: 'text', required: true, attrs: { maxlength: 120 } }
+    ],
+    // Nothing planted: the whole point is a form with no defect in it at all, refused for
+    // a reason that is not one.
+    defects: []
+  },
+  {
     id: 'queue-export', route: '/queue-export', title: 'Queue an export',
     purpose: 'A correct form that answers in place: it re-renders itself empty with a '
       + 'confirmation above it, which leaves every required field reading as natively '

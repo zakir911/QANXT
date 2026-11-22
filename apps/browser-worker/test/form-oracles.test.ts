@@ -116,6 +116,37 @@ describe('form oracles', () => {
     await fails(run({ action: 'assertFormAccepted', target: testId('simple-form-form') }), /accepted, but the form is still shown/);
   });
 
+  test('not evaluated: the application refuses because this identity may not do it', async () => {
+    // Measured on the freight lab: 258 of 971 reported failures were the application
+    // saying "You do not have permission", each read as it failing to accept a valid
+    // submission. The submission is fine; the identity is not permitted to make it, so
+    // whether a permitted one would be accepted is not something the run observed.
+    await open('/permission-wall');
+    await fill('permission-wall-invoice', 'INV-0042');
+    await fill('permission-wall-amount', '250');
+    await fill('permission-wall-reason', 'Goods returned');
+    await submit('permission-wall');
+
+    const error = await run({ action: 'assertFormAccepted', target: testId('permission-wall-form') })
+      .then(() => null, (thrown: unknown) => thrown);
+
+    expect((error as Error).name).toBe('InconclusiveError');
+    expect((error as Error).message).toMatch(/not permitted to make this submission/);
+    expect((error as Error).message).toMatch(/do not have permission to raise credit notes/);
+  }, 30_000);
+
+  test('and a refusal that is about the value is still a failure', async () => {
+    // The counterpart. Softening a permission wall must not soften a form the application
+    // would not take for a reason that is its own fault.
+    await open('/simple-form');
+    await submit('simple-form');
+
+    const error = await run({ action: 'assertFormAccepted', target: testId('simple-form-form') })
+      .then(() => null, (thrown: unknown) => thrown);
+
+    expect((error as Error).name).not.toBe('InconclusiveError');
+  }, 30_000);
+
   test('accepted: a valid registration, and a refused one the other way round', async () => {
     await open('/registration');
     await fill('registration-fullName', 'Ada Lovelace');

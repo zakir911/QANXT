@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { readsAsPermissionRefusal } from '../src/execution/form-oracles.js';
 
 /**
  * A form that is hidden has left the user's screen, whether or not it left the DOM.
@@ -56,5 +57,46 @@ describe('what counts as an accepted submission', () => {
 
   it('does not accept a hidden form while an error is shown elsewhere', () => {
     expect(accepted({ ...base, formVisible: false, errorTexts: ['Insufficient stock'] })).toBe(false);
+  });
+});
+
+/**
+ * Which messages read as "you may not do this".
+ *
+ * The vocabulary is the whole risk. Too narrow and a quarter of a run's failures stay
+ * misattributed; too wide and a real validation defect is reported as nothing at all. It is
+ * deliberately the same list the diagnosis layer uses, and deliberately excludes "not
+ * allowed": an application says "that is not allowed" about a value as readily as about a
+ * person.
+ */
+describe('reading a refusal as a permission wall', () => {
+  const refuses = (text: string) => readsAsPermissionRefusal(text);
+
+  it('reads the wordings an application actually uses', () => {
+    expect(refuses('You do not have permission to raise credit notes.')).toBe(true);
+    expect(refuses('Forbidden')).toBe(true);
+    expect(refuses('Access denied')).toBe(true);
+    expect(refuses('You are not authorised to approve this.')).toBe(true);
+    expect(refuses('Not authorized')).toBe(true);
+    expect(refuses('Unauthorised request')).toBe(true);
+  });
+
+  it('does not read a validation message as a permission wall', () => {
+    // Each of these is a real defect when the submission was valid. Reading one as a
+    // permission wall would turn it into a step that reports nothing.
+    expect(refuses('That is not allowed.')).toBe(false);
+    expect(refuses('Amount must be between 1 and 100,000.')).toBe(false);
+    expect(refuses('This field is required.')).toBe(false);
+    expect(refuses('Enter a valid email address.')).toBe(false);
+    expect(refuses('The reference is already in use.')).toBe(false);
+  });
+
+  it('is not fooled by a word that merely contains one of its own', () => {
+    expect(refuses('Permissible weights are shown in the table.')).toBe(false);
+  });
+
+  it('ignores letter case, as a page is written by a person', () => {
+    expect(refuses('PERMISSION REQUIRED')).toBe(true);
+    expect(refuses('access Denied')).toBe(true);
   });
 });

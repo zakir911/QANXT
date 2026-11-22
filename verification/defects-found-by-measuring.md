@@ -905,6 +905,95 @@ per row. The product was right both times.
 
 ---
 
+## 40. A quarter of a run's failures were the application enforcing a permission
+
+**Symptom.** The full freight run reported 971 failures. 258 of them — 27 per cent — read
+like this:
+
+> Expected the submission to be accepted, but the form is still shown; no field is marked
+> invalid; messages: "You do not have permission to raise credit notes."
+
+**The defect.** A test that asks *is a valid submission accepted?* has a premise: that the
+signed-in identity is allowed to make it. The application answering "you do not have
+permission" is that premise failing, and it is the application enforcing a rule — the
+opposite of misbehaving. Every one of those 258 was filed as the application failing to
+accept a valid submission.
+
+The diagnosis layer already knew. Product defect 32 taught it to recognise a permission
+refusal and stop titling these as twelve separate defects. What it did not do was change the
+*verdict*: the step still failed, the execution still failed, and the count still said 971.
+Correct diagnosis sitting on top of a wrong verdict.
+
+**Fix.** The acceptance oracle reads a permission refusal as its own premise failing and
+reports the third verdict — not evaluated — naming what to do about it, because the remedy is
+an identity that holds the permission and not a change to the application. The vocabulary is
+the same list the diagnosis layer uses and excludes "not allowed" for the same reason: an
+application says "that is not allowed" about a value as readily as about a person, and
+reading a validation message as a permission wall would turn a real validation defect into a
+step that reports nothing.
+
+Fifteen tests. Ten on the vocabulary, because that is where this goes wrong in both
+directions, and two against a new form-lab fixture — a form the identity may not use, refused
+with no field marked invalid — plus the counterpart asserting that a refusal about the
+*value* is still a failure.
+
+## 41. An option another test had consumed was filed against the application
+
+**Symptom.** 89 of the same 971, in two shapes: `that option is not offered` where the
+select was populated with other records, and `the select has no selectable options`.
+
+**The defect.** The first shape is a record another test in the same run has acted on — an
+invoice paid, a vehicle assigned. The engine cannot tell that from the application losing an
+option it should offer, and of the two readings only one can be stated as fact: this test did
+not run. It was reported as the application misbehaving. The run's own collector already
+labelled 59 of them *"stale test data: an option an earlier test in this run removed"* and
+they were counted as application failures anyway.
+
+**Fix.** The populated-but-not-this-value branch reaches no conclusion, with the reason. The
+empty-select branch stays a failure, because a required select with nothing in it is a
+problem whoever caused it — asserted explicitly, so softening the first case cannot soften
+the second with it.
+
+**Together with 40**: 347 of 971 reported failures, 36 per cent, were not the application
+behaving wrongly. The run's own summary said *"931 of 971 were the application behaving
+wrongly — none of which matched a planted defect"*, which is the sentence that should have
+been read twice the first time it was printed.
+
+## 42. Playwright's trace scratch is per browser, and the run never released it
+
+**Symptom.** Every browser-backed test began failing with `ERR_INSUFFICIENT_RESOURCES`. The
+disk was at 100 per cent with 4.5MB free — found while running the test suite for the two
+fixes above, which is how it was noticed at all.
+
+**What was on it.** 13GB in the product's own artifact store, and 13GB in 45
+`/tmp/playwright-artifacts-*` directories, one of them 11GB with 7GB of blobs.
+
+**The defect.** A trace's screenshots and DOM snapshots are written into a scratch directory
+that belongs to the *browser process* and is shared by every context on it. It is removed
+when the browser closes. The executor closes its context after every execution — correctly,
+for isolation — and that frees none of it. The pool launches one browser per engine and keeps
+it for the life of the worker, so one browser process accumulated the blobs of every
+discarded trace in the run.
+
+Product defect 27 stopped *saving* traces for passing tests, which was right and which this
+does not undo. It did not stop *recording* them, and the recording is what fills the disk.
+The comment that fix left behind — "a product that cannot finish a real suite is not a
+product" — turned out to be about a cost it had not found.
+
+**Fix.** A pooled browser is retired after a bounded number of contexts, 150 by default, and
+closed once its last context is gone — never before, because closing a browser closes the
+contexts of tests still running on it. A retired browser waiting on a context leaked by a
+crashed test is given up on after five minutes, and the pool closes any that remain on
+shutdown. The count is a constructor parameter: it trades launch time against disk, and a
+test should not have to create 150 contexts to show the trade is made. At a second a launch
+against a few seconds a test it amortises to under one per cent.
+
+**And the two fixes above cut the other half.** 347 executions that were failures are now
+skipped, and `shouldRetainHeavyArtifacts` already keeps nothing for a skip. A third of the
+run's kept artifacts were traces and videos of tests that had established nothing.
+
+---
+
 ## Two near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;

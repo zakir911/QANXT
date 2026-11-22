@@ -651,6 +651,14 @@ for (const declared of FORMS) {
         .filter(f => f.type !== 'password' && f.type !== 'file')
         .map(f => [f.name, body[f.name] ?? null]))
     });
+    // Refused because of who is asking, not because of what was sent. No field is marked
+    // invalid and nothing is wrong with the submission: the application simply will not let
+    // this identity make it.
+    if (form.refusesWithPermission) {
+      // Carried as a form-level message, so no field is marked invalid: nothing was wrong
+      // with what was sent. That is the shape that matters here.
+      return renderForm(ctx, form, body, { _form: form.refusesWithPermission }, 403);
+    }
     if (form.showsRecord) return ctx.redirect(`${form.route}/record?ref=${reference}`, 303);
     // Answered in place: the same form, empty again, with a confirmation above it. Every
     // required field on it is now natively invalid, which is what an oracle reading native

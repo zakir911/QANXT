@@ -196,6 +196,19 @@ async function poll<T>(timeoutMs: number, read: () => Promise<T>, done: (value: 
 const serverErrorsSince = (events: NetworkEventReport[]) =>
   events.filter(e => (e.statusCode ?? 0) >= 500 && ['document', 'xhr', 'fetch'].includes(e.resourceType ?? 'document'));
 
+/**
+ * Whether a message is the application saying this identity may not do this.
+ *
+ * Deliberately the same vocabulary the diagnosis layer uses, and deliberately without
+ * "not allowed": an application says "that is not allowed" about a value as readily as
+ * about a person, and reading a validation message as a permission wall would turn a real
+ * validation defect into a step that reports nothing.
+ */
+export function readsAsPermissionRefusal(text: string): boolean {
+  return /\b(permission|not authoris|not authoriz|unauthoris|unauthoriz|forbidden|access denied)/i
+    .test(text);
+}
+
 function describe(s: FormSignals): string {
   const parts = [
     s.formPresent ? (s.formVisible ? 'the form is still shown' : 'the form is present but hidden') : 'the form is gone',
@@ -299,6 +312,30 @@ export async function assertFormAccepted(page: Page, form: Locator, obs: Observa
       + `${crashed[0]!.method} ${crashed[0]!.url} returned HTTP ${crashed[0]!.statusCode}.`);
   }
   if (accepted(result)) return;
+
+  // The application refused because this identity may not do this at all.
+  //
+  // A test that asks "is a valid submission accepted?" has a premise: that the signed-in
+  // identity is allowed to make it. When the page answers that they are not, the premise
+  // fails and the question is unanswerable — the application is enforcing a permission,
+  // which is the opposite of misbehaving. Measured on this project's own freight lab: 258
+  // of 971 reported failures were this, a quarter of everything the run said was wrong,
+  // each one reading as the application failing to accept a valid submission.
+  //
+  // The diagnosis layer already knew these were not application defects and titled them
+  // accordingly; the verdict did not follow, so they were counted as failures anyway. The
+  // reason names what to do about it, because the fix is a more capable identity and not
+  // a change to the application.
+  const refusal = result.errorTexts.find(text => readsAsPermissionRefusal(text));
+  if (refusal !== undefined) {
+    throw new InconclusiveError(
+      'Not evaluated: this test asks whether a valid submission is accepted, and the '
+      + `application answered "${collapse(refusal.slice(0, 200))}" — the signed-in identity `
+      + 'is not permitted to make this submission, so whether a permitted one would be '
+      + 'accepted is not something this run observed. Sign in as an identity that holds the '
+      + 'permission, or scope generation to what this one can do.');
+  }
+
   throw new OracleError(`Expected the submission to be accepted, but ${describe(result)}`
     + `${before === undefined ? '' : `; the route did not change from ${routeOf(before)}`}`
     + `; ${answered.length === 0

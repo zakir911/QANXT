@@ -776,9 +776,22 @@ async function explainSelectFailure(
     .join(', ');
   const more = selectable.length > 12 ? `, and ${selectable.length - 12} more` : '';
 
-  return new Error(
-    `Cannot select "${wanted}": that option is not offered. The select has `
-    + `${selectable.length} option(s): ${shown}${more}. ${message}`,
-    { cause: original }
+  // The select is populated; it just does not offer this value.
+  //
+  // That is almost always a record another test in the same run has acted on — an invoice
+  // paid, a vehicle assigned — and never something the application did wrong. Measured on
+  // this project's own freight lab: 59 of 971 reported failures were an option an earlier
+  // test removed, each one filed against the application.
+  //
+  // So the step reaches no conclusion instead of failing. The engine genuinely cannot tell
+  // "another test consumed this" from "the application lost an option it should offer", and
+  // of the two readings only one can be stated as fact: this test did not run. The empty
+  // select above stays a failure, because a required select with nothing in it is a problem
+  // whoever caused it.
+  return new InconclusiveError(
+    `Not evaluated: cannot select "${wanted}" because that option is not offered. The select `
+    + `has ${selectable.length} option(s): ${shown}${more}. An option that was there when the `
+    + `test was designed and is not there now is usually a record another test in this run `
+    + `acted on; nothing here establishes anything about the application. ${message}`
   );
 }

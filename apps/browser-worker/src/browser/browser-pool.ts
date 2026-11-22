@@ -7,17 +7,45 @@ import type { Logger } from '../util/logger.js';
  * milliseconds, and a context is already a clean profile with its own cookies, storage
  * and cache. So browsers are pooled per engine and every job gets a fresh context —
  * isolation without paying the launch cost per test.
+ *
+ * A pooled browser is retired after a bounded number of contexts, which is not about
+ * memory. Playwright writes a trace's screenshots and DOM snapshots into a scratch
+ * directory that belongs to the browser process and is shared by all of its contexts, and
+ * that directory is removed when the *browser* closes — not when a context does. A trace
+ * that is discarded rather than saved still leaves its blobs there.
+ *
+ * Measured on this project's own lab: a 6,372-test run left 45 of those directories
+ * totalling 13GB, one of them 11GB with 7GB of blobs, on top of the 13GB of artifacts the
+ * run meant to keep. The disk filled and every browser-backed test then failed with
+ * ERR_INSUFFICIENT_RESOURCES. Closing the context per execution, which the executor
+ * already does, frees none of it.
  */
 export class BrowserPool {
   /** Keyed by engine and mode: a watched run gets its own windowed browser beside the headless one. */
   private readonly browsers = new Map<string, Browser>();
+  /** Contexts handed out by each pooled browser, against CONTEXTS_PER_BROWSER. */
+  private readonly served = new Map<string, number>();
+  /** Browsers taken out of the pool, closing as soon as their last context goes. */
+  private readonly retiring = new Set<Browser>();
   private closing = false;
   private warnedNoDisplay = false;
+
+  /**
+   * How many contexts a browser serves before it is replaced.
+   *
+   * Low enough that the scratch cannot grow unbounded, high enough that the launch cost is
+   * noise: at roughly a second a launch and a few seconds a test, 150 amortises to well
+   * under one percent. The cost of getting it wrong in the other direction is a run that
+   * cannot finish. Settable because it trades launch time against disk, and because a test
+   * should not have to create 150 contexts to show that the trade is made.
+   */
+  static readonly DEFAULT_CONTEXTS_PER_BROWSER = 150;
 
   constructor(
     private readonly headless: boolean,
     private readonly logger: Logger,
-    private readonly displayAvailable: () => boolean = hasDisplay
+    private readonly displayAvailable: () => boolean = hasDisplay,
+    private readonly contextsPerBrowser: number = BrowserPool.DEFAULT_CONTEXTS_PER_BROWSER
   ) {}
 
   /**
@@ -42,7 +70,18 @@ export class BrowserPool {
     const headless = this.resolveHeadless(watch);
     const key = `${name}:${headless ? 'headless' : 'headed'}`;
     const existing = this.browsers.get(key);
-    if (existing?.isConnected()) return existing;
+    if (existing?.isConnected() && (this.served.get(key) ?? 0) < this.contextsPerBrowser) {
+      return existing;
+    }
+
+    // Past its allowance: out of the pool, and closed once its last context is gone. It
+    // cannot be closed here — with more than one job in flight another context may still
+    // be mid-test on it, and closing a browser closes its contexts underneath them.
+    if (existing?.isConnected()) {
+      this.browsers.delete(key);
+      this.served.delete(key);
+      this.retire(existing, name);
+    }
 
     const engine = this.engineFor(name);
     this.logger.info('Launching browser', { browser: name, headless });
@@ -61,7 +100,42 @@ export class BrowserPool {
     });
 
     this.browsers.set(key, browser);
+    this.served.set(key, 0);
     return browser;
+  }
+
+  /**
+   * Drops a browser from the pool and closes it when it falls idle.
+   *
+   * `browser.contexts()` is the only thing that says whether a test is still running on
+   * it. Polling that is unlovely, and the alternative — reference counting every context
+   * the pool hands out — means the pool must also be told when each one closes, which it
+   * is not. The poll is cheap, bounded and does not hold a job up.
+   */
+  private retire(browser: Browser, name: BrowserName): void {
+    this.retiring.add(browser);
+    const started = Date.now();
+
+    const attempt = async (): Promise<void> => {
+      if (!browser.isConnected()) { this.retiring.delete(browser); return; }
+      // Given up on after five minutes: a context leaked by a crashed test must not keep
+      // a retired browser, and its scratch, alive for the life of the worker.
+      if (browser.contexts().length === 0 || Date.now() - started > 300_000) {
+        try {
+          await browser.close();
+          this.logger.info('Retired a browser so its trace scratch is released', {
+            browser: name, contextsServed: this.contextsPerBrowser
+          });
+        } catch (error) {
+          this.logger.warn('Failed to close a retired browser', { error: String(error) });
+        }
+        this.retiring.delete(browser);
+        return;
+      }
+      setTimeout(() => void attempt(), 2_000).unref();
+    };
+
+    void attempt();
   }
 
   /**
@@ -70,6 +144,8 @@ export class BrowserPool {
    */
   async createContext(name: BrowserName, options: ContextOptions): Promise<BrowserContext> {
     const browser = await this.acquire(name, options.watch);
+    const key = `${name}:${this.resolveHeadless(options.watch) ? 'headless' : 'headed'}`;
+    this.served.set(key, (this.served.get(key) ?? 0) + 1);
     const context = await browser.newContext({
       viewport: options.viewport ?? { width: 1440, height: 900 },
       ignoreHTTPSErrors: options.ignoreHttpsErrors ?? false,
@@ -94,6 +170,12 @@ export class BrowserPool {
 
   async close(): Promise<void> {
     this.closing = true;
+    // Retired browsers first: each one is holding a scratch directory, and on shutdown
+    // there is nothing left to wait for.
+    for (const browser of this.retiring) {
+      await browser.close().catch(() => undefined);
+    }
+    this.retiring.clear();
     for (const [name, browser] of this.browsers) {
       try {
         await browser.close();
@@ -103,6 +185,7 @@ export class BrowserPool {
       }
     }
     this.browsers.clear();
+    this.served.clear();
   }
 
   private engineFor(name: BrowserName): BrowserType {

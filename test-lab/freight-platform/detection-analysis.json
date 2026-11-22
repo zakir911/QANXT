@@ -1,18 +1,18 @@
 {
-  "analysedAt": "2026-11-20T05:41:02.378Z",
-  "source": "form-engine-result.json",
+  "analysedAt": "2026-11-22T02:16:08.797Z",
+  "source": "head-result.json",
   "note": "A failure is classified as a tool error or an application failure before it is matched to a defect. Only an application failure can evidence one: a Playwright timeout says nothing about whether the application is correct, whatever words happen to be in its message.",
   "run": {
     "discovery": {
-      "status": "cancelled"
+      "status": "partiallyCompleted"
     },
     "generation": {
-      "distinct": 5749
+      "distinct": 5404
     },
     "execution": {
-      "passed": 5040,
-      "failed": 1138,
-      "blocked": 42
+      "passed": 5190,
+      "failed": 971,
+      "blocked": 64
     },
     "security": {
       "findings": 74,
@@ -21,9 +21,9 @@
   },
   "counts": {
     "found": 9,
-    "possible": 2,
-    "missed": 16,
-    "unreachable": 5
+    "possible": 1,
+    "missed": 15,
+    "unreachable": 7
   },
   "verdicts": [
     {
@@ -79,7 +79,7 @@
       "verdict": "possible",
       "contestedEvidence": 0,
       "evidenceKind": "execution",
-      "evidence": "Account: refuses a submission without Credit limit (GBP) POST http://127.0.0.1:4400/customers/new accepted the submission: it answered 302 and redirected to /customers/cus-016 with"
+      "evidence": "Account: refuses a submission without Credit limit (GBP) POST http://127.0.0.1:4400/customers/new accepted the submission: it answered 302 and redirected to /customers/cus-015 with"
     },
     {
       "id": "FP_D06_SURCHARGE_ON_GROSS",
@@ -174,8 +174,8 @@
       "severity": "major",
       "category": "stateTransition",
       "screen": "/shipments/:id/cancel",
-      "screenReached": true,
-      "verdict": "missed",
+      "screenReached": false,
+      "verdict": "unreachable",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -208,10 +208,10 @@
       "category": "stateTransition",
       "screen": "/customs/declarations/:id/release",
       "screenReached": false,
-      "verdict": "possible",
+      "verdict": "unreachable",
       "contestedEvidence": 0,
-      "evidenceKind": "execution",
-      "evidence": "Declarations: accepts \"rejected\" in Status page.goto: Page crashed"
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D18_LONG_SEARCH_CRASHES",
@@ -255,7 +255,7 @@
       "verdict": "found",
       "contestedEvidence": 1,
       "evidenceKind": "structural",
-      "evidence": "no-label Quantity to add or remove has no label tied to it; its placeholder is not a label. delta"
+      "evidence": "placeholder-as-label Quantity to add or remove uses its placeholder as its only label; the hint vanishes as soon as typing starts. delta"
     },
     {
       "id": "FP_D22_ERROR_NOT_ASSOCIATED",
@@ -297,9 +297,9 @@
       "screen": "/carriers/:id/rates",
       "screenReached": true,
       "verdict": "found",
-      "contestedEvidence": 5,
+      "contestedEvidence": 6,
       "evidenceKind": "execution",
-      "evidence": "Rate card — Baltic Road · Meridian Freight (/carriers/car-003/rates): fits a tablet screen (768x1024) The page can be scrolled sideways by 244px in a 768px-wide window; the element"
+      "evidence": "Rate card — Tyne Haulage · Meridian Freight (/carriers/car-001/rates): fits a mobile screen (390x844) The page can be scrolled sideways by 622px in a 390px-wide window; the element"
     },
     {
       "id": "FP_D26_PLANNER_FIXED_WIDTH",
@@ -422,6 +422,14 @@
       ]
     },
     {
+      "id": "FP_D20_MISSING_REFERENCE_CRASHES",
+      "keywords": [
+        "internal server error",
+        "undefined",
+        "reference"
+      ]
+    },
+    {
       "id": "FP_D24_MODAL_NOT_ANNOUNCED",
       "keywords": [
         "aria-modal",
@@ -455,34 +463,42 @@
     }
   ],
   "failureAnalysis": {
-    "total": 1138,
-    "applicationFailures": 1120,
-    "toolErrors": 18,
+    "total": 971,
+    "applicationFailures": 931,
+    "toolErrors": 40,
     "unreliableTests": 0,
     "unknown": 0,
     "toolErrorBreakdown": {
+      "unfillable-field": {
+        "count": 3,
+        "explain": "a field that never accepted input (often readonly)",
+        "examples": [
+          "Invoice INV-2026-5003: accepts the form once Amount received (GBP) is corrected",
+          "Invoice INV-2026-5009: accepts the form once Amount received (GBP) is corrected"
+        ]
+      },
       "unclickable-control": {
         "count": 5,
         "explain": "a control that never became clickable",
         "examples": [
-          "Documents — MF770091 · Meridian Freight (/shipments/shp-0008/documents): is reached from Good morning, Rowan · Meridian Freight (/dashboard) through \"MF770091\" → \"Open\"",
-          "Documents — MF770208 · Meridian Freight (/shipments/shp-0017/documents): is reached from Good morning, Rowan · Meridian Freight (/dashboard) through \"MF770208\" → \"Open\""
+          "Documents — MF770208 · Meridian Freight (/shipments/shp-0017/documents): is reached from Good morning, Rowan · Meridian Freight (/dashboard) through \"MF770208\" → \"Open\"",
+          "New sales order: accepts \"Orrin Automotive — ON CREDIT HOLD\" in Customer"
+        ]
+      },
+      "undrivable-select": {
+        "count": 30,
+        "explain": "a select the runner could not drive",
+        "examples": [
+          "Route planner: accepts \"MF24 CAA — 4 pallets\" in Vehicle",
+          "Route planner: accepts \"Manchester Hub\" in Depot"
         ]
       },
       "target-unreachable": {
-        "count": 9,
+        "count": 2,
         "explain": "the application could not be reached",
         "examples": [
-          "New purchase order: handles a malformed percent-encoding in Supplier",
-          "New purchase order: accepts \"MF-1185 — Liqueurs and cordials\" in Product"
-        ]
-      },
-      "unfillable-field": {
-        "count": 4,
-        "explain": "a field that never accepted input (often readonly)",
-        "examples": [
-          "Invoice INV-2026-5009: accepts the form once Amount received (GBP) is corrected",
-          "Invoice INV-2026-5003: accepts the form once Amount received (GBP) is corrected"
+          "Adjust MF-1333: refuses the optional fields alone",
+          "Adjust MF-1333: copes with leaving part way and coming back"
         ]
       }
     },

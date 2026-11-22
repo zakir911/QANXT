@@ -60,10 +60,39 @@ describe('a select step that cannot be satisfied says why', () => {
       </select>`);
 
     await expect(select('wh-fxt')).rejects.toThrow(
-      /Cannot select "wh-fxt": that option is not offered\. The select has 2 option\(s\)/
+      /cannot select "wh-fxt" because that option is not offered\. The select has 2 option\(s\)/
     );
     await expect(select('wh-fxt')).rejects.toThrow(/"wh-ams" \(Amsterdam\)/);
     await expect(select('wh-fxt')).rejects.toThrow(/"wh-rtm" \(Rotterdam\)/);
+  });
+
+  test('reaches no conclusion when the select is populated without the wanted value', async () => {
+    // The contended-data shape: the plan names a record another test in the same run has
+    // acted on. Measured on the freight lab as 59 of 971 reported failures, every one
+    // filed against the application. The engine cannot tell that from the application
+    // losing an option, and only one of the two readings is a fact: this test did not run.
+    await page.setContent(`
+      <select name="invoice">
+        <option value="">Choose an invoice</option>
+        <option value="inv-0043">INV-0043</option>
+      </select>`);
+
+    const error = await select('inv-0042').then(() => null, (thrown: unknown) => thrown);
+
+    expect((error as Error).name).toBe('InconclusiveError');
+    expect((error as Error).message).toMatch(/a record another test in this run acted on/);
+  });
+
+  test('an empty select is still a failure, whoever emptied it', async () => {
+    // The counterpart. A required select with nothing in it is a problem to report, and
+    // softening the case above must not soften this one with it.
+    await page.setContent(`
+      <select name="toSite"><option value="">Choose an origin first</option></select>`);
+
+    const error = await select('wh-rtm').then(() => null, (thrown: unknown) => thrown);
+
+    expect((error as Error).name).not.toBe('InconclusiveError');
+    expect((error as Error).message).toMatch(/no selectable options/);
   });
 
   test('calls an empty select empty, and points at the field it depends on', async () => {

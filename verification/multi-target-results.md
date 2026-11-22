@@ -189,6 +189,38 @@ means pressing "Approve", which is a state-changing control that discovery corre
 presses — the same limit as PL_D01 above, and for the same reason. Authorizing destructive
 testing would reach it.
 
+## The full run on the big application: 9 of 32, and what the 971 failures were
+
+Run `475528a6`, 6,372 tests, finished 2026-11-22 02:15. 5,190 passed, 971 failed, 147
+skipped, 64 blocked, 2 errored. **9 of 32 planted defects detected — the same as the
+previous full run.** No regression, and no gain: the two fixes made the same evening
+(products 37 and 39) were not in the build this run executed, and the six defects in the
+section below were never in its scope.
+
+What the run is worth is not the 9. It is the 971.
+
+| What the failure was | Count | Is it the application? |
+| --- | --- | --- |
+| "You do not have permission to …" on a happy path | 258 | no — the application enforcing a rule |
+| An option another test in the run had consumed | 89 | no — contended test data |
+| `assertServerEnforces`: the endpoint took what the browser refused | 153 | yes, and this is the oracle working |
+| Overflows a small screen | 31 | yes |
+| Everything else | 440 | mixed; not yet classified one by one |
+
+The run's own summary read *"931 of 971 were the application behaving wrongly — none of
+which matched a planted defect"*. 347 of those 931 were not the application behaving wrongly
+at all, and both causes are now fixed as products 40 and 41: each one reports the third
+verdict rather than a failure. A tool whose failure list is a third noise is a tool nobody
+finishes reading, which is the difference between a score and a product.
+
+The same run filled the disk — 13GB of kept artifacts and 13GB of Playwright scratch that
+nothing released — and that is product 42. A third of the kept artifacts were traces and
+videos of the 347 executions that had established nothing, so 40 and 41 cut it from both
+ends.
+
+**None of the three is measured yet.** They are code with tests, and the next full run is
+what turns them into a result.
+
 ## Six defects on screens the map never held
 
 Separate from the seven above, and a different kind of limit: these were never missed by an
