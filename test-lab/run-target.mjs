@@ -32,6 +32,20 @@ const flag = (name, fallback) => {
 };
 const targetKeys = argv.filter(a => !a.startsWith('--') && argv[argv.indexOf(a) - 1]?.startsWith('--') !== true);
 
+/**
+ * Whether this run is authorized to change the application it is testing.
+ *
+ * Off by default and separately. A link whose own words say it approves or deletes
+ * something is not followed while mapping, and a scan will not issue a destructive
+ * request, because a tool that alters the system it is measuring is worse than no tool.
+ * The permits-legacy target plants a state-changing GET precisely to be refused that way,
+ * and the refusal is reported as a gap naming what to turn on.
+ *
+ * This turns it on, so the gated capability can be measured rather than only described.
+ * It belongs on a synthetic target on loopback and nowhere else.
+ */
+const DESTRUCTIVE = argv.includes('--destructive');
+
 const line = (text = '') => console.log(text);
 const section = (title) => { line(); line('─'.repeat(78)); line(`  ${title}`); line('─'.repeat(78)); };
 
@@ -153,13 +167,15 @@ async function runOne(key) {
       maxPages, maxCrawlDepth: 6, explorationTimeoutSeconds: budget,
       maxActions: Number(flag('max-actions', 1500)),
       interactionMode: 'navigation', respectRobotsTxt: false, useSitemap: false,
+      ...(DESTRUCTIVE ? { allowStateChangingClicks: true } : {}),
       // How this application signs in, where the page alone cannot say: the endpoint that
       // issues a token, the field it comes back in, and the header it goes out in. The
       // same slot carries a form login's selectors.
       ...(target.auth.loginFlow ? { loginFlowJson: JSON.stringify(target.auth.loginFlow) } : {})
     }
   });
-  line(`  application ${application.id}, auth ${target.auth.strategy}, budget ${budget}s`);
+  line(`  application ${application.id}, auth ${target.auth.strategy}, budget ${budget}s`
+    + `${DESTRUCTIVE ? ', state-changing interaction and destructive checks AUTHORIZED' : ''}`);
   result.stages.application = { id: application.id, authStrategy: target.auth.strategy, budget, maxPages };
 
   // ---- discovery -----------------------------------------------------------
@@ -234,9 +250,11 @@ async function runOne(key) {
     token: tenant.token, method: 'PUT',
     body: {
       enabled: true, allowedDomains: host, allowedApiDomains: host,
-      allowActiveTesting: true, allowDestructiveTesting: false,
+      allowActiveTesting: true, allowDestructiveTesting: DESTRUCTIVE,
       authorizationNote: `Synthetic ${target.domain} application on loopback, built for this `
-        + 'exercise and authorized for active security testing, excluding destructive checks. '
+        + `exercise and authorized for active security testing, ${DESTRUCTIVE
+          ? 'including destructive checks: this run may change the application'
+          : 'excluding destructive checks'}. `
         + 'No real system and no real data is involved.'
     }
   });
