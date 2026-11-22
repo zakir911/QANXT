@@ -984,11 +984,18 @@ export class Crawler {
       // A link that says it changes something is not followed, and the crawl says so.
       // Mapping an application must not alter it: a run against a permit register
       // approved every permit in it through links exactly like this one.
-      if (!this.options.budget.allowStateChangingClicks
-          && linkLooksMutating(name, href, inNav)) {
-        this.mutatingLinksSkipped++;
-        // Keyed by route shape: a register with a thousand rows offers a thousand approve
-        // links, and a reader needs to know the shape exists, once.
+      // A link whose own words say it changes something.
+      //
+      // Recorded whether or not it is followed, which it was not before: the record lived
+      // inside the refusal, so turning state-changing interaction *on* made the crawl
+      // forget these links entirely. The attack surface reads them to decide what to
+      // probe, so the two settings cancelled each other out — refuse and the address is
+      // known but the scan may not touch it, allow and the scan may touch it but the
+      // address is no longer known. The fact and the refusal are separate things.
+      //
+      // Keyed by route shape: a register with a thousand rows offers a thousand approve
+      // links, and a reader needs to know the shape exists, once.
+      if (linkLooksMutating(name, href, inNav)) {
         const shape = routeShapeOf(href);
         if (!this.stateChangingLinks.has(shape)) {
           this.stateChangingLinks.set(shape, {
@@ -996,6 +1003,11 @@ export class Crawler {
             ...(name ? { accessibleName: name } : {})
           });
         }
+      }
+
+      if (!this.options.budget.allowStateChangingClicks
+          && linkLooksMutating(name, href, inNav)) {
+        this.mutatingLinksSkipped++;
         this.note(`Did not follow ${href}${name ? ` ("${name}")` : ''}: it looks like it changes `
           + `something, and mapping an application must not alter it. Turn on state-changing `
           + `interaction for this application to follow links like this.`);

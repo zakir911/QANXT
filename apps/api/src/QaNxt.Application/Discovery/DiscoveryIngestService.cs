@@ -245,11 +245,50 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
     {
         if (completion.StateChangingLinks.Count == 0) return;
 
+        // The address, recorded as the endpoint it is.
+        //
+        // Separate from the gap below, and this is the point: the gap is the record of a
+        // refusal, and the endpoint is the record of a fact. Keyed off the gap, the security
+        // surface learned these addresses only when the crawl had declined to follow them —
+        // so turning state-changing interaction on, which is the one setting that lets a
+        // scan probe them, removed them from the surface. The two settings cancelled each
+        // other out and the measurement said 3 of 4 either way.
+        //
+        // GET, because that is what a link is, and an authenticated endpoint carrying an
+        // identifier is what makes the authorization checks apply to it.
+        foreach (var link in completion.StateChangingLinks)
+        {
+            if (!Uri.TryCreate(link.Url, UriKind.Absolute, out var absolute)) continue;
+            if (absolute.Scheme != Uri.UriSchemeHttp && absolute.Scheme != Uri.UriSchemeHttps) continue;
+
+            var template = absolute.GetLeftPart(UriPartial.Path);
+            if (await _db.ApiEndpoints.AnyAsync(e => e.ApplicationId == application.Id
+                     && e.Method == "GET" && e.UrlTemplate == template, ct))
+            {
+                continue;
+            }
+
+            _db.ApiEndpoints.Add(new Domain.Applications.ApiEndpoint
+            {
+                OrganizationId = run.OrganizationId,
+                ApplicationId = application.Id,
+                Method = "GET",
+                UrlTemplate = template,
+                SampleUrl = absolute.ToString(),
+                RequiresAuthentication = true,
+                LastSeenAt = run.CompletedAt ?? DateTimeOffset.UtcNow
+            });
+        }
+
         var existing = await _db.CoverageGaps
             .Where(g => g.ApplicationId == application.Id
                      && g.Source == CoverageGapSources.Discovery
                      && g.Missing.StartsWith(StateChangeGapPrefix))
             .ToListAsync(ct);
+
+        // And the gap only while the crawl is actually declining to follow them. Written
+        // where the links were followed, it would say a thing was not tested that was.
+        if (application.AllowStateChangingClicks) return;
 
         foreach (var link in completion.StateChangingLinks)
         {
