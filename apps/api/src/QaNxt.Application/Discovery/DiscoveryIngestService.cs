@@ -282,7 +282,10 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
         }
     }
 
-    private const string StateChangeGapPrefix = "whether this link changes state: ";
+    /// <summary>One spelling, shared with the security surface, which reads these gaps back
+    /// to put the addresses on the surface. Two copies of this string would make that find
+    /// nothing and say nothing.</summary>
+    private const string StateChangeGapPrefix = Security.SecuritySurfaceService.StateChangeGapPrefix;
 
     private static string PathOf(string url)
         => Uri.TryCreate(url, UriKind.Absolute, out var parsed) ? parsed.PathAndQuery : url;

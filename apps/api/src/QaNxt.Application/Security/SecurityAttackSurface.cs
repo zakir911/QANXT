@@ -139,12 +139,63 @@ public static class SecurityAttackSurfaceBuilder
         IReadOnlyCollection<PageInput> pages,
         IReadOnlyCollection<EndpointInput> endpoints,
         IReadOnlyCollection<FormInput>? forms = null,
-        SignInInput? signIn = null)
+        SignInInput? signIn = null,
+        IReadOnlyCollection<StateChangingLinkInput>? stateChangingLinks = null)
     {
         var items = new List<SecuritySurfaceItem>();
 
         foreach (var page in pages) items.Add(FromPage(page));
         foreach (var endpoint in endpoints) items.Add(FromEndpoint(endpoint));
+
+        // Links whose own words say they change something.
+        //
+        // Discovery finds these and refuses to follow them, because mapping an application
+        // must not alter it, and records each one as a gap saying so. The gap was the end of
+        // it: the address never reached the attack surface, so nothing probed it even when
+        // the owner had authorized destructive testing — and a GET that changes state is one
+        // of the oldest defects there is, triggerable by anyone who gets a signed-in user to
+        // open a URL.
+        //
+        // Measured across this project's own labs, this one omission accounts for five
+        // planted defects on three applications: a claim a viewer may settle, a rejected
+        // declaration anyone may release, an evidence upload, a cancel hidden from a
+        // receptionist and permitted by the endpoint, and a permit approval that is a GET any
+        // role may issue. Every one of them sits behind a control the crawl correctly would
+        // not press.
+        //
+        // Added as GET endpoints, which is what they are, and deduplicated against anything
+        // already on the surface. Whether they are *scanned* is the scan's decision: the
+        // checks they imply are the ones that issue the request, and the scope's destructive
+        // setting is what allows that. The surface's job is to stop hiding them.
+        foreach (var link in stateChangingLinks ?? Array.Empty<StateChangingLinkInput>())
+        {
+            var endpoint = StateChangingEndpoint(link);
+            if (endpoint is null) continue;
+            if (endpoints.Concat(items.Where(i => i.Kind == SecuritySurfaceKind.Endpoint)
+                    .Select(i => new EndpointInput(Guid.Empty, i.HttpMethod ?? "GET", i.Identifier,
+                        null, false, null, null, DateTimeOffset.MinValue)))
+                .Any(seen => string.Equals(seen.Method, endpoint.Method, StringComparison.OrdinalIgnoreCase)
+                          && string.Equals(NormalizeTemplate(seen.UrlTemplate),
+                                NormalizeTemplate(endpoint.UrlTemplate), StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+            var item = FromEndpoint(endpoint);
+            items.Add(item with
+            {
+                // Said plainly, because a reader seeing an authorization check against a
+                // plain-looking GET deserves to know why it is being probed at all.
+                ChangesState = true,
+                // The verb does not match the effect, which is what this check is about. It
+                // is implied elsewhere for DELETE — "it is a destructive verb" — and this is
+                // the mirror image: a safe verb doing an unsafe thing, which is worse,
+                // because a browser, a crawler or a link preview will issue a GET unasked.
+                RelevantChecks = item.RelevantChecks
+                    .Append(SecurityChecks.UnsafeMethod).Distinct().OrderBy(c => c).ToList(),
+                Why = $"{item.Why}; and its own words say it changes something, which discovery "
+                    + "would not follow"
+            });
+        }
 
         // Only where the form declares a write, and only where no observed endpoint already
         // covers the same verb and address: an endpoint seen in flight carries a sample
@@ -200,8 +251,30 @@ public static class SecurityAttackSurfaceBuilder
     /// A GET form is left out: it reads, and its page is already surface. A form with no
     /// action submits to the page it is on, which HTML says and this follows.
     /// </summary>
+    /// <summary>A link discovery would not follow because its words say it changes
+    /// something, as a surface endpoint.
+    ///
+    /// GET, because that is what a link is, and that verb is the whole point: the checks
+    /// worth running here are the ones that ask whether a state change should have needed a
+    /// POST, an anti-forgery token and a permission.</summary>
+    private static EndpointInput? StateChangingEndpoint(StateChangingLinkInput link)
+    {
+        if (string.IsNullOrWhiteSpace(link.Url)) return null;
+        if (!Uri.TryCreate(link.Url, UriKind.Absolute, out var absolute)) return null;
+        if (absolute.Scheme != Uri.UriSchemeHttp && absolute.Scheme != Uri.UriSchemeHttps) return null;
+
+        return new EndpointInput(
+            Guid.Empty, "GET", absolute.GetLeftPart(UriPartial.Path), absolute.ToString(),
+            // Found while signed in, which is the only way it was found at all.
+            RequiresAuthentication: true,
+            RequestContentType: null, RequestSampleJson: null, LastSeenAt: link.LastSeenAt);
+    }
+
     /// <summary>The configured sign-in as a surface endpoint, or null when there is none or
     /// it is not an address this can reach.</summary>
+    /// <summary>A link the crawl refused to follow, with where it was seen.</summary>
+    public sealed record StateChangingLinkInput(string Url, DateTimeOffset LastSeenAt);
+
     private static EndpointInput? SignInEndpoint(SignInInput? signIn)
     {
         if (signIn is null || string.IsNullOrWhiteSpace(signIn.Endpoint)) return null;

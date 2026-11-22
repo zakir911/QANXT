@@ -9,6 +9,7 @@ using PageInput = SecurityAttackSurfaceBuilder.PageInput;
 using ElementInput = SecurityAttackSurfaceBuilder.ElementInput;
 using EndpointInput = SecurityAttackSurfaceBuilder.EndpointInput;
 using FormInput = SecurityAttackSurfaceBuilder.FormInput;
+using StateChangingLinkInput = SecurityAttackSurfaceBuilder.StateChangingLinkInput;
 
 /// <summary>The rules that decide where a security check gets pointed.
 ///
@@ -28,6 +29,88 @@ public class SecurityAttackSurfaceTests
     private static PageInput ParameterisedPage(string route, string url)
         => new(Guid.NewGuid(), route, url.Replace("=1", "={v}"), PageKind.Detail, true, Seen,
                Array.Empty<ElementInput>(), url);
+
+    /// <summary>
+    /// A link discovery would not follow is still a thing to test.
+    ///
+    /// Discovery finds a link whose own words say it approves, deletes or cancels something,
+    /// refuses to follow it — mapping an application must not alter it — and records a gap
+    /// saying so. The gap was where it stopped: the address never reached the surface, so
+    /// nothing probed it even where the owner had authorized destructive testing.
+    ///
+    /// Measured across this project's own labs, that one omission accounts for five planted
+    /// defects on three applications: a claim a viewer may settle, a rejected declaration
+    /// anyone may release, an evidence upload, a cancel hidden from a receptionist and
+    /// permitted by the endpoint, and a permit approval that is a GET any role may issue.
+    /// </summary>
+    [Fact]
+    public void A_link_whose_words_say_it_changes_something_is_on_the_surface()
+    {
+        var surface = Build(
+            pages: new[] { Page("/list") },
+            stateChangingLinks: new[]
+            {
+                new StateChangingLinkInput("https://app.test/approve.asp?id=1", Seen)
+            });
+
+        var item = surface.Items.Should()
+            .ContainSingle(i => i.Identifier.Contains("/approve.asp")).Subject;
+        item.HttpMethod.Should().Be("GET");
+        item.ChangesState.Should().BeTrue();
+        item.Why.Should().Contain("its own words say it changes something");
+    }
+
+    [Fact]
+    public void It_implies_the_checks_that_ask_whether_a_state_change_was_guarded()
+    {
+        var surface = Build(
+            pages: new[] { Page("/list") },
+            stateChangingLinks: new[]
+            {
+                new StateChangingLinkInput("https://app.test/approve.asp?id=1", Seen)
+            });
+
+        var item = surface.Items.Single(i => i.Identifier.Contains("/approve.asp"));
+
+        // The point of putting it on the surface at all: who may issue it, and whether a
+        // state change should have needed more than a link.
+        item.RelevantChecks.Should().Contain(SecurityChecks.UnsafeMethod);
+    }
+
+    [Fact]
+    public void A_link_already_covered_by_an_observed_endpoint_is_not_added_twice()
+    {
+        // An endpoint seen in flight carries a method, a sample payload and a content type,
+        // which is strictly more to work with than a URL read off an anchor.
+        var surface = Build(
+            pages: new[] { Page("/list") },
+            endpoints: new[]
+            {
+                new EndpointInput(Guid.NewGuid(), "GET", "https://app.test/approve.asp",
+                    "https://app.test/approve.asp?id=1", true, null, null, Seen)
+            },
+            stateChangingLinks: new[]
+            {
+                new StateChangingLinkInput("https://app.test/approve.asp?id=1", Seen)
+            });
+
+        surface.Items.Count(i => i.Identifier.Contains("/approve.asp")).Should().Be(1);
+    }
+
+    [Fact]
+    public void A_link_that_is_not_an_address_is_left_out_rather_than_guessed_at()
+    {
+        var surface = Build(
+            pages: new[] { Page("/list") },
+            stateChangingLinks: new[]
+            {
+                new StateChangingLinkInput("javascript:cancel()", Seen),
+                new StateChangingLinkInput("", Seen),
+                new StateChangingLinkInput("mailto:ops@app.test", Seen)
+            });
+
+        surface.Items.Should().OnlyContain(i => i.Identifier.Contains("/list"));
+    }
 
     /// <summary>
     /// A page reached by a query parameter is only served at the address that carries it. The
@@ -77,13 +160,15 @@ public class SecurityAttackSurfaceTests
 
     private static SecurityAttackSurface Build(
         IEnumerable<PageInput>? pages = null, IEnumerable<EndpointInput>? endpoints = null,
-        IEnumerable<FormInput>? forms = null, SecurityAttackSurfaceBuilder.SignInInput? signIn = null)
+        IEnumerable<FormInput>? forms = null, SecurityAttackSurfaceBuilder.SignInInput? signIn = null,
+        IEnumerable<StateChangingLinkInput>? stateChangingLinks = null)
         => SecurityAttackSurfaceBuilder.Build(
             Guid.NewGuid(),
             (pages ?? Array.Empty<PageInput>()).ToList(),
             (endpoints ?? Array.Empty<EndpointInput>()).ToList(),
             (forms ?? Array.Empty<FormInput>()).ToList(),
-            signIn);
+            signIn,
+            (stateChangingLinks ?? Array.Empty<StateChangingLinkInput>()).ToList());
 
     private static SecurityAttackSurfaceBuilder.SignInInput SignIn(string endpoint)
         => new(endpoint, Seen);

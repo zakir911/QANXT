@@ -2,6 +2,7 @@ using QaNxt.Application.Abstractions;
 using QaNxt.Application.Discovery;
 using QaNxt.Domain.Common;
 using QaNxt.Domain.Enums;
+using QaNxt.Domain.Testing;
 using Microsoft.EntityFrameworkCore;
 
 namespace QaNxt.Application.Security;
@@ -69,6 +70,32 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
                 f.Page!.RequiresAuthentication, f.LastSeenAt))
             .ToListAsync(ct);
 
+        // The links discovery would not follow, recorded by the ingest as gaps because their
+        // own words say they change something. The gap is where this used to stop: the
+        // address never reached the surface, so nothing probed it even where destructive
+        // testing was authorized, and a GET that changes state went untested on every
+        // application that has one. The path is stored; the base URL makes it an address
+        // again.
+        var stateChangeGaps = await _db.CoverageGaps.AsNoTracking()
+            .Where(g => g.ApplicationId == applicationId
+                     && g.Source == CoverageGapSources.Discovery
+                     && g.Missing.StartsWith(StateChangeGapPrefix))
+            .Select(g => new { g.Missing, g.UpdatedAt, g.CreatedAt })
+            .ToListAsync(ct);
+
+        var stateChangingLinks = stateChangeGaps
+            .Select(g => g.Missing[StateChangeGapPrefix.Length..].Trim())
+            .Where(path => !string.IsNullOrWhiteSpace(path))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(path => Uri.TryCreate(application.BaseUrl, UriKind.Absolute, out var baseUri)
+                            && Uri.TryCreate(baseUri, path, out var absolute)
+                ? new SecurityAttackSurfaceBuilder.StateChangingLinkInput(
+                    absolute.ToString(), application.UpdatedAt ?? application.CreatedAt)
+                : null)
+            .Where(link => link is not null)
+            .Select(link => link!)
+            .ToList();
+
         var pageInputs = pages.Select(p => new SecurityAttackSurfaceBuilder.PageInput(
             p.Id, p.Route, p.NormalizedUrl, p.Kind, p.RequiresAuthentication, p.LastSeenAt,
             elementsByPage.TryGetValue(p.Id, out var found)
@@ -83,7 +110,8 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
         var signIn = SignInFrom(application);
 
         return Result<SecurityAttackSurface>.Success(
-            SecurityAttackSurfaceBuilder.Build(applicationId, pageInputs, endpoints, forms, signIn));
+            SecurityAttackSurfaceBuilder.Build(applicationId, pageInputs, endpoints, forms, signIn,
+                stateChangingLinks));
     }
 
     /// <summary>
@@ -95,6 +123,10 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
     /// the endpoint is the one worth testing. Relative values are resolved against the base
     /// URL; anything that is not an address is left out rather than guessed at.
     /// </summary>
+    /// <summary>The prefix the discovery ingest writes these gaps under. Shared rather than
+    /// repeated, because two spellings of it would make this silently find nothing.</summary>
+    internal const string StateChangeGapPrefix = "whether this link changes state: ";
+
     private static SecurityAttackSurfaceBuilder.SignInInput? SignInFrom(Domain.Applications.Application application)
     {
         var declared = DeclaredSignIn(application);
