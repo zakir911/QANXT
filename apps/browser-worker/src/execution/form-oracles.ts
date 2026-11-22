@@ -336,6 +336,38 @@ export async function assertFormAccepted(page: Page, form: Locator, obs: Observa
       + 'permission, or scope generation to what this one can do.');
   }
 
+  // The application refused and said why, and what it said is a rule this suite did not
+  // know about.
+  //
+  // The submission was built to satisfy every rule the form declares: required, type,
+  // length, range, step, pattern, the options a select offers. A refusal naming something
+  // else — a balance, a uniqueness, a workflow precondition, an ordering between two
+  // fields — is the application enforcing a rule that is nowhere in its markup, and the
+  // suite's own data not satisfying it. The application is behaving correctly.
+  //
+  // Measured on this project's own freight lab: 249 of 971 reported failures, a quarter of
+  // the run, every one of them the application being right. "The claim cannot exceed the
+  // declared value of £7,609.52." "Only 757 outstanding on PO-2026-801." "The code AB is
+  // already in use." "4 mandatory check(s) are not complete."
+  //
+  // So the step reaches no conclusion and quotes what the application said, because that
+  // sentence is the useful output: it is this form's unmodelled rule in the application's
+  // own words, which is a coverage gap worth reading and not a defect worth filing.
+  //
+  // A refusal with nothing said stays a failure, and that is the line. An application that
+  // discards a submission in silence, or redraws a dead end with no complaint, has a
+  // defect and nothing here softens it — in the measured run not one of the 249 was that
+  // shape, and the oracle's "silently discards" tests depend on it.
+  const stated = result.errorTexts.find(text => text.trim().length > 0);
+  if (stated !== undefined) {
+    throw new InconclusiveError(
+      'Not evaluated: this submission satisfied every rule the form declares, and the '
+      + `application refused it saying "${collapse(stated.slice(0, 200))}". That is a rule `
+      + 'this suite does not model — it is not in the markup — so the application enforcing '
+      + 'it is correct behaviour and nothing here establishes whether a submission that did '
+      + 'satisfy it would be accepted. Treat the quoted sentence as a rule worth covering.');
+  }
+
   throw new OracleError(`Expected the submission to be accepted, but ${describe(result)}`
     + `${before === undefined ? '' : `; the route did not change from ${routeOf(before)}`}`
     + `; ${answered.length === 0

@@ -994,6 +994,58 @@ run's kept artifacts were traces and videos of tests that had established nothin
 
 ---
 
+## 43. A quarter of the run was the application enforcing a rule its markup never declared
+
+**Symptom.** After 40 and 41 were fixed, 249 of the freight run's 971 failures remained in
+one shape, and reading four of them was enough:
+
+> messages: "The to date cannot be before the from date."
+> messages: "The claim cannot exceed the declared value of £7,609.52."
+> messages: "Only 757 outstanding on PO-2026-801."
+> messages: "The code AB is already in use."
+> messages: "4 mandatory check(s) are not complete."
+
+**The defect.** Every one of those is the application being right. The suite builds a
+submission that satisfies every rule the form declares — required, type, length, range,
+step, pattern, the options a select offers — and these refusals name something else
+entirely: a balance, a uniqueness, a workflow precondition, an ordering between two fields.
+None of it is in the markup. The application enforced a rule it knows and the form does not
+state, the suite's data did not satisfy it, and each one was filed as the application failing
+to accept a valid submission.
+
+These are the same ceilings this project has been documenting one at a time — FP_D01 wants a
+rule about a resulting balance, FP_D04 wants a uniqueness the page does not state. The engine
+was walking into them 249 times a run and calling each one a defect.
+
+**The line, and why it holds.** A refusal that names a rule is the suite's data not
+satisfying it. A refusal that names nothing is the application discarding a submission, and
+that stays a failure — the "silently discards" and "dead end" oracles depend on it. Of the
+249, **not one** had the silent shape: the query that separates them returned 249 and 0.
+
+**Checked before it was changed.** Softening an acceptance oracle could hide a planted
+defect, so the nine that were detected were read first. Exactly one is a submission the
+application wrongly accepted — FP_D02, delivery before collection — and its evidence is
+*"Expected the submission to be refused, but it was accepted"*. That is `assertFormRejected`,
+a different oracle, untouched. The other eight came from the calculation oracle, the
+structural pass, error association, colour, horizontal scroll, the security scan and a
+missing anti-forgery token. Nothing is hidden.
+
+**Fix.** The step reaches no conclusion and quotes what the application said, because that
+sentence is the output worth having: this form's unmodelled rule, in the application's own
+words. A list of those sentences is a coverage report — the rules the suite cannot yet
+design for — and it is strictly more useful than 249 defects that are not defects.
+
+**What 40, 41 and 43 come to together.** 596 of 971 reported failures, 61 per cent, were not
+the application behaving wrongly. The run's own summary said 931 of 971 were. The remaining
+375 include the 153 `assertServerEnforces` findings, which are the oracle doing exactly its
+job, and 40 the run already counted as the tool failing to drive the page.
+
+**Still owed.** The quoted rules should become coverage-gap rows rather than living only in a
+skipped step's reason. That is where this goes next; it is not built, and saying so is
+cheaper than implying the gap closes itself.
+
+---
+
 ## Two near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;

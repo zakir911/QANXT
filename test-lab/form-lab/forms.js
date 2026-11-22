@@ -299,7 +299,22 @@ export const FORMS = [
     defects: []
   },
   {
-    id: 'permission-wall', route: '/permission-wall', title: 'Raise a credit note',
+    id: 'unmodelled-rule', route: '/unmodelled-rule', title: 'Raise a claim',
+    purpose: 'A correct form with a rule that is nowhere in its markup: the amount may not '
+      + 'exceed a ceiling the form states in prose and does not declare as a max. A valid-'
+      + 'looking submission is refused, correctly, and the refusal names the rule — which '
+      + 'reads to an acceptance oracle exactly like a submission the application would not '
+      + 'take.',
+    refusesWithRule: 'The claim cannot exceed the declared value of £7,609.52.',
+    fields: [
+      { name: 'shipment', label: 'Shipment', type: 'text', required: true, attrs: { maxlength: 20 } },
+      { name: 'amount', label: 'Amount', type: 'number', required: true, attrs: { min: '1', max: '1000000' } },
+      { name: 'detail', label: 'What happened', type: 'text', required: true, attrs: { maxlength: 120 } }
+    ],
+    defects: []
+  },
+  {
+        id: 'permission-wall', route: '/permission-wall', title: 'Raise a credit note',
     purpose: 'A correct form the signed-in identity may not use. The submission is refused '
       + 'on grounds of permission rather than validity, which is the application enforcing '
       + 'a rule and not misbehaving — but it reads to an acceptance oracle exactly like a '

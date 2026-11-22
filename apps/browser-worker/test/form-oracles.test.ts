@@ -135,6 +135,27 @@ describe('form oracles', () => {
     expect((error as Error).message).toMatch(/do not have permission to raise credit notes/);
   }, 30_000);
 
+  test('not evaluated: the application refuses for a rule its markup does not declare', async () => {
+    // Measured on the freight lab: 249 of 971 reported failures, a quarter of the run, and
+    // every one of them the application being right. "The claim cannot exceed the declared
+    // value of £7,609.52." "Only 757 outstanding on PO-2026-801." A submission built to
+    // satisfy every declared constraint, refused for a rule that is nowhere in the markup.
+    await open('/unmodelled-rule');
+    await fill('unmodelled-rule-shipment', 'MF-1333');
+    await fill('unmodelled-rule-amount', '9000');
+    await fill('unmodelled-rule-detail', 'Pallet crushed in transit');
+    await submit('unmodelled-rule');
+
+    const error = await run({ action: 'assertFormAccepted', target: testId('unmodelled-rule-form') })
+      .then(() => null, (thrown: unknown) => thrown);
+
+    expect((error as Error).name).toBe('InconclusiveError');
+    expect((error as Error).message).toMatch(/a rule this suite does not model/);
+    // The application's own sentence is the useful output: this form's unmodelled rule in
+    // its own words. A reason that did not carry it would be worth nothing to a reader.
+    expect((error as Error).message).toMatch(/cannot exceed the declared value/);
+  }, 30_000);
+
   test('and a refusal that is about the value is still a failure', async () => {
     // The counterpart. Softening a permission wall must not soften a form the application
     // would not take for a reason that is its own fault.
@@ -357,6 +378,11 @@ describe('form oracles', () => {
     await open('/client-silent-discard');
     await fill('client-silent-discard-draft', 'a draft nobody keeps');
     await submit('client-silent-discard');
+    // Still a failure, and this is the line the change above draws: the application said
+    // nothing. A refusal that names a rule is the suite's data not satisfying it; a refusal
+    // that names nothing is the application discarding a submission, and softening the
+    // first must not soften this. In the measured freight run not one of the 249 was this
+    // shape, which is why the line holds.
     await fails(run({ action: 'assertFormAccepted', target: testId('client-silent-discard-form') }),
       /did not redraw in answer to it|route did not change/);
   }, 30_000);

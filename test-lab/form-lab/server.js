@@ -654,6 +654,12 @@ for (const declared of FORMS) {
     // Refused because of who is asking, not because of what was sent. No field is marked
     // invalid and nothing is wrong with the submission: the application simply will not let
     // this identity make it.
+    // Refused for a rule the markup does not declare. The submission is well formed and
+    // satisfies every constraint on the fields; the application knows something the form
+    // does not say.
+    if (form.refusesWithRule) {
+      return renderForm(ctx, form, body, { _form: form.refusesWithRule }, 422);
+    }
     if (form.refusesWithPermission) {
       // Carried as a form-level message, so no field is marked invalid: nothing was wrong
       // with what was sent. That is the shape that matters here.
