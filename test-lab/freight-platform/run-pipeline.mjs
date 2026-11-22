@@ -15,7 +15,7 @@
  * AI is off throughout, deliberately: the claim worth testing is the deterministic rules
  * engine, and a hosted model would make the result unreproducible anyway.
  *
- *   node run-pipeline.mjs [--max-pages 160] [--budget 900]
+ *   node run-pipeline.mjs [--max-pages 160] [--budget 900] [--seed-urls /a,/b]
  *
  * Writes pipeline-result.json. Run from the repository root.
  */
@@ -34,6 +34,11 @@ const arg = (name, fallback) => {
 const LAB_URL = process.env.LAB_URL ?? 'http://127.0.0.1:4400';
 const MAX_PAGES = Number(arg('max-pages', 160));
 const DISCOVERY_BUDGET = Number(arg('budget', 900));
+// Routes to open directly, as a user lists them on the application when a crawl reports
+// that its budget left URLs unopened. Not a way of cheating a score: a listed route is
+// opened and nothing more, and every test against it is designed from what is found there
+// like any other page.
+const SEED_URLS = String(arg('seed-urls', '')).split(',').map(s => s.trim()).filter(Boolean);
 
 const groundTruth = JSON.parse(await readFile(new URL('./ground-truth.json', import.meta.url), 'utf8'));
 
@@ -108,14 +113,16 @@ const patched = await request(`/api/v1/applications/${application.id}`, {
     explorationTimeoutSeconds: DISCOVERY_BUDGET,
     respectRobotsTxt: false,
     useSitemap: false,
-    excludedPaths: '/auth/sign-out,/__faults'
+    excludedPaths: '/auth/sign-out,/__faults',
+    ...(SEED_URLS.length > 0 ? { seedUrls: SEED_URLS.join(',') } : {})
   }
 });
 log(`  interactionMode=navigation, maxPages=${MAX_PAGES}, budget=${DISCOVERY_BUDGET}s `
   + `(patch ${patched.status})`);
+if (SEED_URLS.length > 0) log(`  routes listed: ${SEED_URLS.join(', ')}`);
 result.stages.application = {
   id: application.id, interactionMode: 'navigation',
-  maxPages: MAX_PAGES, budgetSeconds: DISCOVERY_BUDGET
+  maxPages: MAX_PAGES, budgetSeconds: DISCOVERY_BUDGET, seedUrls: SEED_URLS
 };
 
 // ---- 3. discovery ---------------------------------------------------------
@@ -127,6 +134,7 @@ const discoveryStarted = Date.now();
 // default that overrode the application, and the run stopped at 37 of 137 screens.
 const discovery = await runDiscovery(tenant, application.id, {
   maxPages: MAX_PAGES, maxDepth: 6,
+  ...(SEED_URLS.length > 0 ? { seedUrls: SEED_URLS } : {}),
   timeoutSeconds: DISCOVERY_BUDGET, timeoutMs: (DISCOVERY_BUDGET + 300) * 1000
 });
 const discoverySeconds = Math.round((Date.now() - discoveryStarted) / 1000);
