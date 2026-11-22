@@ -1,29 +1,35 @@
 {
-  "analysedAt": "2026-11-22T02:16:08.797Z",
-  "source": "head-result.json",
+  "analysedAt": "2026-11-22T11:27:31.064Z",
+  "source": "pipeline-result.json",
   "note": "A failure is classified as a tool error or an application failure before it is matched to a defect. Only an application failure can evidence one: a Playwright timeout says nothing about whether the application is correct, whatever words happen to be in its message.",
   "run": {
     "discovery": {
-      "status": "partiallyCompleted"
+      "status": "completed",
+      "reached": 111,
+      "total": 134
     },
     "generation": {
-      "distinct": 5404
+      "generated": 951,
+      "distinct": 625,
+      "copiesEach": 1.5,
+      "requirementsIssued": 11,
+      "identicalCountsPerRequirement": false
     },
     "execution": {
-      "passed": 5190,
-      "failed": 971,
-      "blocked": 64
+      "passed": 587,
+      "failed": 38,
+      "blocked": 0
     },
     "security": {
-      "findings": 74,
+      "findings": 176,
       "status": null
     }
   },
   "counts": {
-    "found": 9,
-    "possible": 1,
-    "missed": 15,
-    "unreachable": 7
+    "found": 2,
+    "possible": 0,
+    "missed": 26,
+    "unreachable": 4
   },
   "verdicts": [
     {
@@ -43,10 +49,10 @@
       "category": "crossField",
       "screen": "/shipments/new",
       "screenReached": true,
-      "verdict": "found",
+      "verdict": "missed",
       "contestedEvidence": 0,
-      "evidenceKind": "execution",
-      "evidence": "Book a shipment: refuses Requested delivery date before Collection date Expected the submission to be refused, but it was accepted: the form is gone; no field is marked invalid; no"
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D03_WEIGHT_UNIT_IGNORED",
@@ -76,10 +82,10 @@
       "category": "businessRule",
       "screen": "/orders/sales/new",
       "screenReached": true,
-      "verdict": "possible",
+      "verdict": "missed",
       "contestedEvidence": 0,
-      "evidenceKind": "execution",
-      "evidence": "Account: refuses a submission without Credit limit (GBP) POST http://127.0.0.1:4400/customers/new accepted the submission: it answered 302 and redirected to /customers/cus-015 with"
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D06_SURCHARGE_ON_GROSS",
@@ -87,10 +93,10 @@
       "category": "calculation",
       "screen": "/billing/invoices/:id",
       "screenReached": true,
-      "verdict": "found",
-      "contestedEvidence": 1,
-      "evidenceKind": "execution",
-      "evidence": "Invoice INV-2026-5003 · Meridian Freight (/billing/invoices/inv-0004): derives each percentage line from a figure above it A percentage line does not derive from a figure above it:"
+      "verdict": "missed",
+      "contestedEvidence": 0,
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D07_RATE_BAND_BOUNDARY",
@@ -163,8 +169,8 @@
       "severity": "security",
       "category": "authorization",
       "screen": "/admin/api-keys",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -187,7 +193,7 @@
       "screen": "/shipments/new",
       "screenReached": true,
       "verdict": "missed",
-      "contestedEvidence": 1,
+      "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
     },
@@ -219,10 +225,10 @@
       "category": "errorHandling",
       "screen": "/shipments",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "found",
       "contestedEvidence": 0,
-      "evidenceKind": null,
-      "evidence": null
+      "evidenceKind": "security",
+      "evidence": "A stack trace is returned to the caller CWE-209 A05:2021 /api/shipments/%7Bid%7D"
     },
     {
       "id": "FP_D19_OVERSIZE_UPLOAD_CRASHES",
@@ -252,10 +258,10 @@
       "category": "accessibility",
       "screen": "/warehouse/stock/:id/adjust",
       "screenReached": true,
-      "verdict": "found",
-      "contestedEvidence": 1,
-      "evidenceKind": "structural",
-      "evidence": "placeholder-as-label Quantity to add or remove uses its placeholder as its only label; the hint vanishes as soon as typing starts. delta"
+      "verdict": "missed",
+      "contestedEvidence": 0,
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D22_ERROR_NOT_ASSOCIATED",
@@ -266,7 +272,7 @@
       "verdict": "found",
       "contestedEvidence": 0,
       "evidenceKind": "execution",
-      "evidence": "Raise a claim: announces the error for Shipment with the field Expected an error programmatically associated with this field, but there is none: no aria-invalid, no error reference"
+      "evidence": "Submit Raise a claim · Meridian Freight /claims/new with valid values Expected the submission to be accepted, but the form is still shown; fields marked invalid: shipmentId, type, "
     },
     {
       "id": "FP_D23_STATUS_BY_COLOUR_ONLY",
@@ -274,10 +280,10 @@
       "category": "accessibility",
       "screen": "/fleet/vehicles",
       "screenReached": true,
-      "verdict": "found",
+      "verdict": "missed",
       "contestedEvidence": 0,
-      "evidenceKind": "execution",
-      "evidence": "Vehicles · Meridian Freight (/fleet/vehicles): does not say anything with colour alone Information is carried by colour alone: vehicles-table, column 8 (\"Status\") uses 3 colours (r"
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D24_MODAL_NOT_ANNOUNCED",
@@ -296,10 +302,10 @@
       "category": "responsive",
       "screen": "/carriers/:id/rates",
       "screenReached": true,
-      "verdict": "found",
-      "contestedEvidence": 6,
-      "evidenceKind": "execution",
-      "evidence": "Rate card — Tyne Haulage · Meridian Freight (/carriers/car-001/rates): fits a mobile screen (390x844) The page can be scrolled sideways by 622px in a 390px-wide window; the element"
+      "verdict": "missed",
+      "contestedEvidence": 0,
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D26_PLANNER_FIXED_WIDTH",
@@ -307,18 +313,18 @@
       "category": "responsive",
       "screen": "/routes/planner",
       "screenReached": true,
-      "verdict": "found",
-      "contestedEvidence": 24,
-      "evidenceKind": "execution",
-      "evidence": "Route planner · Meridian Freight (/routes/planner): fits a laptop screen (1280x800) The page can be scrolled sideways by 42px in a 1280px-wide window; the element reaching furthest"
+      "verdict": "missed",
+      "contestedEvidence": 0,
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D27_AUDIT_LOG_SLOW",
       "severity": "minor",
       "category": "performance",
       "screen": "/admin/audit",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -329,10 +335,10 @@
       "category": "security",
       "screen": "/shipments",
       "screenReached": true,
-      "verdict": "found",
+      "verdict": "missed",
       "contestedEvidence": 0,
-      "evidenceKind": "security",
-      "evidence": "'q' is reflected into HTML without encoding q CWE-79 A03:2021 "
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D29_NO_CSRF_ON_ADJUSTMENT",
@@ -340,10 +346,10 @@
       "category": "security",
       "screen": "/warehouse/stock/:id/adjust",
       "screenReached": true,
-      "verdict": "found",
+      "verdict": "missed",
       "contestedEvidence": 0,
-      "evidenceKind": "execution",
-      "evidence": "Adjust MF-1333: carries an anti-forgery token Expected the element to exist on the page, but it does not."
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D30_SESSION_COOKIE_FLAGS",
@@ -361,8 +367,8 @@
       "severity": "security",
       "category": "security",
       "screen": "/api/shipments/:id",
-      "screenReached": false,
-      "verdict": "unreachable",
+      "screenReached": true,
+      "verdict": "missed",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -381,11 +387,54 @@
   ],
   "deadKeywords": [
     {
+      "id": "FP_D02_DELIVERY_BEFORE_COLLECTION",
+      "keywords": [
+        "delivery date",
+        "collection date",
+        "before"
+      ]
+    },
+    {
+      "id": "FP_D03_WEIGHT_UNIT_IGNORED",
+      "keywords": [
+        "weight",
+        "unit",
+        "pounds",
+        "kilograms"
+      ]
+    },
+    {
+      "id": "FP_D04_DUPLICATE_INVOICE_REFERENCE",
+      "keywords": [
+        "duplicate",
+        "unique",
+        "already exists"
+      ]
+    },
+    {
+      "id": "FP_D06_SURCHARGE_ON_GROSS",
+      "keywords": [
+        "surcharge",
+        "fuel",
+        "gross",
+        "net"
+      ]
+    },
+    {
       "id": "FP_D07_RATE_BAND_BOUNDARY",
       "keywords": [
         "band",
         "boundary",
         "rate per kg"
+      ]
+    },
+    {
+      "id": "FP_D11_VIEWER_CAN_SETTLE_CLAIM",
+      "keywords": [
+        "permission",
+        "authorization",
+        "settle",
+        "forbidden"
       ]
     },
     {
@@ -406,11 +455,28 @@
       ]
     },
     {
-      "id": "FP_D18_LONG_SEARCH_CRASHES",
+      "id": "FP_D15_WIZARD_BACK_LOSES_DATA",
       "keywords": [
-        "internal server error",
-        "stack trace",
-        "http 500"
+        "step",
+        "back",
+        "cleared",
+        "wizard"
+      ]
+    },
+    {
+      "id": "FP_D16_DOUBLE_SUBMIT_BOOKS_TWICE",
+      "keywords": [
+        "duplicate",
+        "twice",
+        "idempotency"
+      ]
+    },
+    {
+      "id": "FP_D17_RELEASE_REJECTED_DECLARATION",
+      "keywords": [
+        "rejected",
+        "release",
+        "status"
       ]
     },
     {
@@ -430,11 +496,46 @@
       ]
     },
     {
+      "id": "FP_D21_UNLABELLED_ADJUSTMENT_FIELD",
+      "keywords": [
+        "label",
+        "accessible name",
+        "aria-label"
+      ]
+    },
+    {
+      "id": "FP_D23_STATUS_BY_COLOUR_ONLY",
+      "keywords": [
+        "colour",
+        "color",
+        "contrast",
+        "text alternative"
+      ]
+    },
+    {
       "id": "FP_D24_MODAL_NOT_ANNOUNCED",
       "keywords": [
         "aria-modal",
         "dialog",
         "focus"
+      ]
+    },
+    {
+      "id": "FP_D25_RATE_TABLE_OVERFLOWS",
+      "keywords": [
+        "scrolled sideways",
+        "right edge",
+        "reaching furthest",
+        "overflow"
+      ]
+    },
+    {
+      "id": "FP_D26_PLANNER_FIXED_WIDTH",
+      "keywords": [
+        "scrolled sideways",
+        "right edge",
+        "reaching furthest",
+        "overflow"
       ]
     },
     {
@@ -446,6 +547,23 @@
       ]
     },
     {
+      "id": "FP_D28_REFLECTED_XSS_IN_SEARCH",
+      "keywords": [
+        "xss",
+        "script tag",
+        "reflected",
+        "injection"
+      ]
+    },
+    {
+      "id": "FP_D29_NO_CSRF_ON_ADJUSTMENT",
+      "keywords": [
+        "csrf",
+        "forgery",
+        "anti-forgery"
+      ]
+    },
+    {
       "id": "FP_D30_SESSION_COOKIE_FLAGS",
       "keywords": [
         "httponly",
@@ -454,54 +572,21 @@
       ]
     },
     {
-      "id": "FP_D31_STACK_TRACE_LEAKED",
+      "id": "FP_D32_PII_IN_QUERY_STRING",
       "keywords": [
-        "stack trace",
-        "disclosure",
-        "information leak"
+        "query string",
+        "personal data",
+        "email address"
       ]
     }
   ],
   "failureAnalysis": {
-    "total": 971,
-    "applicationFailures": 931,
-    "toolErrors": 40,
+    "total": 38,
+    "applicationFailures": 38,
+    "toolErrors": 0,
     "unreliableTests": 0,
     "unknown": 0,
-    "toolErrorBreakdown": {
-      "unfillable-field": {
-        "count": 3,
-        "explain": "a field that never accepted input (often readonly)",
-        "examples": [
-          "Invoice INV-2026-5003: accepts the form once Amount received (GBP) is corrected",
-          "Invoice INV-2026-5009: accepts the form once Amount received (GBP) is corrected"
-        ]
-      },
-      "unclickable-control": {
-        "count": 5,
-        "explain": "a control that never became clickable",
-        "examples": [
-          "Documents — MF770208 · Meridian Freight (/shipments/shp-0017/documents): is reached from Good morning, Rowan · Meridian Freight (/dashboard) through \"MF770208\" → \"Open\"",
-          "New sales order: accepts \"Orrin Automotive — ON CREDIT HOLD\" in Customer"
-        ]
-      },
-      "undrivable-select": {
-        "count": 30,
-        "explain": "a select the runner could not drive",
-        "examples": [
-          "Route planner: accepts \"MF24 CAA — 4 pallets\" in Vehicle",
-          "Route planner: accepts \"Manchester Hub\" in Depot"
-        ]
-      },
-      "target-unreachable": {
-        "count": 2,
-        "explain": "the application could not be reached",
-        "examples": [
-          "Adjust MF-1333: refuses the optional fields alone",
-          "Adjust MF-1333: copes with leaving part way and coming back"
-        ]
-      }
-    },
+    "toolErrorBreakdown": {},
     "unreliableBreakdown": {}
   }
 }

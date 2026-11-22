@@ -364,6 +364,27 @@ result.stages.execution = {
 
 // ---- 6. security scan -----------------------------------------------------
 
+/**
+ * The scan's id, from whichever field the start endpoint used.
+ *
+ * It returns StartedSecurityScan(SecurityScanId, ...), so the field is `securityScanId`.
+ * This read `id ?? scanId` and got undefined for both, every time: the status poll and the
+ * findings fetch then went to /scans/undefined, the stage logged "0 finding(s)", and the
+ * detection join saw no security evidence at all. Measured on a run whose scan had found
+ * 176 findings, two of them naming a planted defect by route and symptom, while the report
+ * said security 0 of 5. It throws rather than defaulting, because a missing id here means
+ * the whole security half of the measurement is silently absent.
+ */
+const scanIdOf = (json) => {
+  const id = json?.securityScanId ?? json?.scanId ?? json?.id;
+  if (!id) {
+    throw new Error('The scan start response carried no scan id: '
+      + `${JSON.stringify(json).slice(0, 200)}. Without it nothing can be read back, and the `
+      + 'security half of this measurement would be reported as absent rather than as broken.');
+  }
+  return id;
+};
+
 section('6. Security scan');
 let security = { attempted: false };
 try {
@@ -397,19 +418,19 @@ try {
       token: tenant.token, method: 'POST',
       body: { applicationId: application.id, profile: 'Standard' }
     });
-    log(`  scan ${scan.status} ${scan.ok ? scan.json.id : scan.text.slice(0, 160)}`);
+    log(`  scan ${scan.status} ${scan.ok ? scanIdOf(scan.json) : scan.text.slice(0, 160)}`);
 
     if (scan.ok) {
       const deadline = Date.now() + 20 * 60 * 1000;
       let last = scan.json;
       const terminal = new Set(['completed', 'failed', 'cancelled', 'partiallycompleted', 'abandoned']);
       while (Date.now() < deadline) {
-        const current = await request(`/api/v1/security/scans/${scan.json.id ?? scan.json.scanId}`, { token: tenant.token });
+        const current = await request(`/api/v1/security/scans/${scanIdOf(scan.json)}`, { token: tenant.token });
         last = current.json?.summary ?? current.json ?? last;
         if (terminal.has(String(last.status).toLowerCase())) break;
         await new Promise(resolve => setTimeout(resolve, 4000));
       }
-      const findings = await request(`/api/v1/security/scans/${scan.json.id ?? scan.json.scanId}/findings?pageSize=500`, { token: tenant.token });
+      const findings = await request(`/api/v1/security/scans/${scanIdOf(scan.json)}/findings?pageSize=500`, { token: tenant.token });
       const findingRows = findings.json?.items ?? findings.json ?? [];
       log(`  status ${last.status}, ${findingRows.length} finding(s)`);
       const bySeverity = {};
@@ -419,7 +440,7 @@ try {
       }
       if (findingRows.length) log(`  by severity: ${JSON.stringify(bySeverity)}`);
       security = {
-        attempted: true, scanId: scan.json.id ?? scan.json.scanId, status: last.status,
+        attempted: true, scanId: scanIdOf(scan.json), status: last.status,
         findings: findingRows.length, bySeverity,
         list: findingRows.map(finding => ({
           title: finding.title ?? finding.name ?? null,
