@@ -43,7 +43,31 @@ lines in a handler no test could reach. They are listed in
 | Defects correlated | 5 | 11 | 2 |
 | Structural findings | 1 | 6 | 0 |
 | Coverage gaps | 31 | 20 | 6 |
-| **Planted defects detected on evidence** | **3 of 4** | **3 of 4** | **2 of 4** |
+| **Planted defects detected on evidence** | **3 of 4** | **3 of 4** | **4 of 4** |
+
+token-api moved 2 of 4 to 4 of 4 on 2026-11-22, measured on one build with the other two
+columns. The two that changed had both been built and neither had ever fired:
+
+- **TA_D04**, a stack trace from an unparseable order id, now found twice over — the
+  error-disclosure check reporting *"An unparseable identifier returns a stack trace"* and the
+  passive check reporting *"A stack trace is returned to the caller"*. It was invisible because
+  `JSON.stringify` writes a newline as two characters, so every frame of a trace in a JSON body
+  is separated by an escape sequence and the pattern was anchored on a real line break. Product
+  defect 44.
+- **TA_D03**, a sign-in that is never throttled, now found by `auth.lockout` reporting
+  *"6 consecutive failed sign-ins were never throttled"* against the real endpoint. Two things
+  were in the way: the probe was posted to a guessed `/api/session` while the application had
+  declared `/api/auth/token` all along (45), and the guard that stops six anti-forgery refusals
+  reading as six un-throttled attempts was suppressing the true finding, because this API answers
+  a wrong password and an empty submission identically (46).
+
+**What the one remaining miss on each of the other two is.** clinic-spa's CS_D04 and
+permits-legacy's PL_D01 are the same defect in two shapes — a cancel hidden from a receptionist
+and permitted by the endpoint, and an approve that is a GET any role may issue. Both sit behind a
+control the crawl will not press, and both now reach the attack surface as endpoints and are
+scanned, which they never were before. Neither is detected, because what they need is a check
+that issues the link and establishes by observation that state changed, and that check does not
+exist. Named and bounded in product defect 49 rather than left as a mystery.
 
 Discovery working at all on `clinic-spa` is the first result worth stating: the server sends
 no content, and the form extractor still found all three forms, because discovery drives a
