@@ -1092,6 +1092,61 @@ defect and a score that disagreed with what the check claimed to do.
 
 ---
 
+## 45. A failed sign-in was sent to a guessed address
+
+**Symptom.** `token-api` reported TA_D03 — *"Failed sign-ins are never slowed or blocked"* —
+as missed, with the lockout check reporting that it could conclude nothing.
+
+**The defect.** Every authentication check works by making a sign-in fail and reading the
+answer. With an HTML form the scanner finds and submits the real one. With no form, the whole
+of that path was `POST /api/session` with `{username, password}`: a guess at the address and
+a guess at the field names. token-api signs in at `POST /api/auth/token`, so six "failed
+sign-ins" were six 404s. The control probe correctly noticed that no sign-in had taken place
+and the check said so — honest, and about a conversation that never happened.
+
+This is the hard-coded-convention class that a whole earlier sweep went looking for, and it
+survived the sweep. The application had declared its endpoint, its field names and its token
+header since token sign-in was built. None of it was passed to the scan.
+
+**Fix.** The declared sign-in is resolved in one place in the API — the same place the attack
+surface already used to put the endpoint on the surface — and travels on the scan job to the
+engine, which uses it in preference to the guess. Field names are left unset rather than
+defaulted there, so the one place that knows the usual spellings stays the one place that
+tries them. An application that declared nothing is no worse off than before.
+
+## 46. The guard against a false finding was suppressing a true one
+
+**Symptom.** With the address fixed, TA_D03 was still missed.
+
+**The defect.** The lockout check has a control probe, added because an application that
+refuses every request before reading a password answers six failed sign-ins identically and
+that is not a throttling result. The control was an empty submission: if every attempt and an
+empty one answered the same, conclude nothing.
+
+token-api answers a wrong password `401 {"error":"invalid_credentials"}`. It answers a
+submission with no credentials at all **identically** — same status, same body. That is
+reasonable behaviour and completely indistinguishable to a negative control, so the guard
+fired and the planted defect went untested. The guard is right about the case it was built
+for and wrong about every API that behaves correctly, which is most of them.
+
+**Fix.** A positive control instead of a negative one: one sign-in known to be good. An
+endpoint that accepts a correct password is evaluating credentials, so identical refusals of
+wrong ones are failed sign-ins. It is sent first, so a threshold the failed attempts trip
+cannot block the control itself. An endpoint that refuses even a correct password still
+concludes nothing — the case the guard exists for — and with no password to hand the
+empty-submission control stays reachable rather than becoming a silent no-op.
+
+**Measured.** `auth.lockout` now reports *"6 consecutive failed sign-ins were never
+throttled"* against the real endpoint.
+
+**What these two have in common.** Both were a check that could not reach the thing it
+claimed to test, and both reported that honestly. Nothing in the run looked broken: no false
+finding, no crash, a scan that said it had concluded nothing and was telling the truth. The
+only thing that found them was a planted defect sitting behind the honesty, and a score that
+would not move.
+
+---
+
 ## Two near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;
