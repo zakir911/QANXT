@@ -1,16 +1,1667 @@
 {
-  "ranAt": "2026-11-21T18:36:05.510Z",
+  "ranAt": "2026-11-22T09:06:47.751Z",
   "results": [
+    {
+      "key": "clinic-spa",
+      "name": "Clinic Scheduler",
+      "technology": "Node HTTP server, no server-rendered markup; every screen built by client JavaScript; History API routing; JSON API",
+      "domain": "clinical appointment scheduling",
+      "ranAt": "2026-11-22T08:53:02.268Z",
+      "planted": 4,
+      "stages": {
+        "application": {
+          "id": "5ea827b4-ca29-473c-a233-37b71f7de444",
+          "authStrategy": "formLogin",
+          "budget": 240,
+          "maxPages": 40
+        },
+        "discovery": {
+          "status": "completed",
+          "pages": 3,
+          "elements": 32,
+          "endpoints": 4,
+          "byKind": {
+            "unknown": 3,
+            "button": 5,
+            "textInput": 3,
+            "heading": 5,
+            "form": 3,
+            "passwordInput": 1,
+            "link": 4,
+            "table": 2,
+            "navigation": 2,
+            "dateInput": 4
+          },
+          "paths": [
+            "/",
+            "/patients",
+            "/schedule"
+          ],
+          "message": null
+        },
+        "forms": {
+          "count": 3,
+          "list": [
+            {
+              "id": "1946198e-3166-454b-8081-d443cbcb23f7",
+              "route": "/",
+              "name": "Clinic Scheduler",
+              "fields": 2
+            },
+            {
+              "id": "dd3fa34f-4c1e-4de7-aecc-7e3cfe9edf3e",
+              "route": "/patients",
+              "name": "Patients",
+              "fields": 1
+            },
+            {
+              "id": "db73491c-846c-4e4d-a513-5800251c7ae2",
+              "route": "/schedule",
+              "name": "Schedule",
+              "fields": 3
+            }
+          ]
+        },
+        "design": {
+          "testSuiteId": "6b72a198-b275-47d1-ac3e-7e811bdcbf66",
+          "testSuiteName": "Clinic Scheduler — form level",
+          "forms": 3,
+          "testsCreated": 153,
+          "testsUpdated": 0,
+          "testsUnchanged": 0,
+          "testsDeprecated": 0,
+          "testsLeftAsEdited": 0,
+          "gaps": 31,
+          "humanTasks": 16,
+          "findings": 1,
+          "usedAi": false,
+          "engine": "QA NXT form and page test engine (deterministic)",
+          "perForm": [
+            {
+              "formId": "1946198e-3166-454b-8081-d443cbcb23f7",
+              "name": "Clinic Scheduler",
+              "route": "/",
+              "fields": 2,
+              "tests": 35,
+              "gaps": 10,
+              "humanTasks": 7,
+              "findings": 1,
+              "testsByCategory": {
+                "smoke": 1,
+                "functional": 1,
+                "inputValidation": 13,
+                "errorHandling": 1,
+                "stateTransition": 2,
+                "security": 2,
+                "accessibility": 3,
+                "api": 1,
+                "performance": 2,
+                "responsive": 3,
+                "compatibility": 3,
+                "visual": 2,
+                "exploratory": 1
+              },
+              "notApplicable": [
+                "negative",
+                "crossField",
+                "dynamic",
+                "multiStep",
+                "regression"
+              ]
+            },
+            {
+              "formId": "dd3fa34f-4c1e-4de7-aecc-7e3cfe9edf3e",
+              "name": "Patients",
+              "route": "/patients",
+              "fields": 1,
+              "tests": 37,
+              "gaps": 9,
+              "humanTasks": 4,
+              "findings": 0,
+              "testsByCategory": {
+                "smoke": 1,
+                "functional": 2,
+                "equivalence": 1,
+                "inputValidation": 13,
+                "errorHandling": 1,
+                "stateTransition": 2,
+                "security": 1,
+                "accessibility": 2,
+                "api": 1,
+                "performance": 2,
+                "responsive": 3,
+                "compatibility": 3,
+                "visual": 2,
+                "exploratory": 2,
+                "dataIntegrity": 1
+              },
+              "notApplicable": [
+                "negative",
+                "crossField",
+                "dynamic",
+                "multiStep",
+                "workflow",
+                "regression"
+              ]
+            },
+            {
+              "formId": "db73491c-846c-4e4d-a513-5800251c7ae2",
+              "name": "Schedule",
+              "route": "/schedule",
+              "fields": 3,
+              "tests": 58,
+              "gaps": 9,
+              "humanTasks": 5,
+              "findings": 0,
+              "testsByCategory": {
+                "smoke": 1,
+                "functional": 2,
+                "negative": 3,
+                "equivalence": 3,
+                "inputValidation": 13,
+                "crossField": 2,
+                "reliability": 3,
+                "errorHandling": 3,
+                "recovery": 1,
+                "stateTransition": 3,
+                "security": 1,
+                "accessibility": 5,
+                "api": 2,
+                "performance": 2,
+                "responsive": 3,
+                "compatibility": 3,
+                "visual": 3,
+                "exploratory": 4,
+                "dataIntegrity": 1
+              },
+              "notApplicable": [
+                "dynamic",
+                "multiStep",
+                "regression"
+              ]
+            }
+          ],
+          "warnings": [],
+          "pages": 2,
+          "pageTests": 23,
+          "perPage": [
+            {
+              "pageId": "3b3cf025-d274-4b70-93cf-7a1e0698b0b0",
+              "name": "Clinic Scheduler (/schedule)",
+              "route": "/schedule",
+              "tests": 11,
+              "reachedByClicking": false,
+              "testsByCategory": {
+                "smoke": 1,
+                "security": 1,
+                "accessibility": 2,
+                "performance": 1,
+                "dataIntegrity": 3,
+                "responsive": 3
+              }
+            },
+            {
+              "pageId": "63358ada-35bc-4234-bb17-19dc06cf347e",
+              "name": "Clinic Scheduler (/patients)",
+              "route": "/patients",
+              "tests": 12,
+              "reachedByClicking": true,
+              "testsByCategory": {
+                "smoke": 1,
+                "workflow": 1,
+                "security": 1,
+                "accessibility": 2,
+                "performance": 1,
+                "dataIntegrity": 3,
+                "responsive": 3
+              }
+            }
+          ]
+        },
+        "scan": {
+          "ok": true,
+          "id": "5a40023d-4f3f-4628-8fc6-d00f715f2a09",
+          "status": "completed",
+          "requestsSent": null,
+          "checksRun": null,
+          "untested": null
+        },
+        "run": {
+          "ok": true,
+          "runId": "df646f4a-0b46-4c29-9f32-de5e97ffce81",
+          "status": "failed",
+          "executions": 153,
+          "byStatus": {
+            "passed": 126,
+            "failed": 16,
+            "skipped": 6,
+            "blocked": 5
+          },
+          "failures": [
+            {
+              "name": "Clinic Scheduler: tells the user when the network is down",
+              "route": "/",
+              "message": "Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown."
+            },
+            {
+              "name": "Clinic Scheduler: is usable again after a submission and going back",
+              "route": "/",
+              "message": "css=form#signin could not be used: No element matched css=form#signin."
+            },
+            {
+              "name": "Clinic Scheduler: copes with leaving part way and coming back",
+              "route": "/",
+              "message": "css=form#signin could not be used: No element matched css=form#signin."
+            },
+            {
+              "name": "Patients: tells the user when the network is down",
+              "route": "/patients",
+              "message": "Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown."
+            },
+            {
+              "name": "Patients: does not reflect markup typed into Find a patient",
+              "route": "/patients",
+              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-9dfde09a> element(s) exist. The application does not encode what it reflects."
+            },
+            {
+              "name": "Patients: copes with the session disappearing before submission",
+              "route": "/patients",
+              "message": "Expected the application to handle this without an error, but uncaught script error: found.body.map is not a function."
+            },
+            {
+              "name": "Schedule: refuses End before Start",
+              "route": "/schedule",
+              "message": "Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown."
+            },
+            {
+              "name": "Schedule: tells the user when the network is down",
+              "route": "/schedule",
+              "message": "Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown."
+            },
+            {
+              "name": "Schedule: announces the error for Start with the field",
+              "route": "/schedule",
+              "message": "The field shows an error, but assistive technology would not announce it with the field: no aria-invalid, no error referenced by aria-describedby, message beside it: \"patient, start and end are required\"."
+            },
+            {
+              "name": "Schedule: announces the error for End with the field",
+              "route": "/schedule",
+              "message": "The field shows an error, but assistive technology would not announce it with the field: no aria-invalid, no error referenced by aria-describedby, message beside it: \"patient, start and end are required\"."
+            },
+            {
+              "name": "Schedule: sends a valid submission to a request http://127.0.0.1:4600/api/session",
+              "route": "/schedule",
+              "message": "expected at least 1 any request(s) to \"http://127.0.0.1:4600/api/session\" but saw 0 (sent instead: POST http://127.0.0.1:4600/api/appointments → 201)."
+            },
+            {
+              "name": "Schedule: is validated by the server, not only the browser",
+              "route": "/schedule",
+              "message": "expected at least 1 any request(s) to \"http://127.0.0.1:4600/api/session\" but saw 0 (sent instead: POST http://127.0.0.1:4600/api/appointments → 400)."
+            },
+            {
+              "name": "Schedule: answers a submission within 2000 ms",
+              "route": "/schedule",
+              "message": "expected at least 1 any request(s) to \"http://127.0.0.1:4600/api/session\" but saw 0 (sent instead: POST http://127.0.0.1:4600/api/appointments → 201)."
+            },
+            {
+              "name": "Clinic Scheduler (/schedule): is not shown to a signed-out visitor",
+              "route": null,
+              "message": "The element was expected to be hidden but was visible."
+            },
+            {
+              "name": "Clinic Scheduler (/patients): opens and shows its content",
+              "route": null,
+              "message": "role=navigation name=\"Schedule Patients\" could not be used: No element matched role=navigation name=\"Schedule Patients\" (or 2 declared fallback(s))."
+            },
+            {
+              "name": "Clinic Scheduler (/patients): is reached from Clinic Scheduler (/schedule) through \"Patients\"",
+              "route": null,
+              "message": "role=navigation name=\"Schedule Patients\" could not be used: No element matched role=navigation name=\"Schedule Patients\" (or 2 declared fallback(s))."
+            }
+          ]
+        },
+        "conclusions": {
+          "defects": [
+            {
+              "severity": "critical",
+              "route": "/patients",
+              "message": "Patients: writes input from q back into the page as markup"
+            },
+            {
+              "severity": "major",
+              "route": "/schedule",
+              "message": "Schedule: sends the wrong requests"
+            },
+            {
+              "severity": "major",
+              "route": "/schedule",
+              "message": "Schedule: Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error mes"
+            },
+            {
+              "severity": "major",
+              "route": "/patients",
+              "message": "Page /patients: role=navigation name=\"Schedule Patients\" could not be used: No element matched role=navigation name=\"Schedule Patients\" (or 2 declared fallback(s))"
+            },
+            {
+              "severity": "major",
+              "route": "/schedule",
+              "message": "Schedule: does not tie the error to start"
+            },
+            {
+              "severity": "major",
+              "route": "/schedule",
+              "message": "Schedule: does not tie the error to end"
+            }
+          ],
+          "structural": [
+            {
+              "code": "no-autocomplete",
+              "severity": "info",
+              "route": "/",
+              "message": "Username looks like personal data but does not declare autocomplete, so browsers cannot fill it."
+            }
+          ],
+          "security": [
+            {
+              "severity": "high",
+              "checkId": "BOLA",
+              "route": "/api/patients",
+              "parameter": "id",
+              "message": "clinician nilsen can read a resource owned by clinician okafor — parameter \"id\" — CWE-639"
+            },
+            {
+              "severity": "high",
+              "checkId": "PrivilegeEscalation",
+              "route": "/",
+              "parameter": null,
+              "message": "A read-only account can perform a write — CWE-269"
+            },
+            {
+              "severity": "high",
+              "checkId": "MissingCsrfToken",
+              "route": "/",
+              "parameter": null,
+              "message": "A state-changing request succeeds with no anti-CSRF token — CWE-352"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/",
+              "parameter": "content-security-policy",
+              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/schedule",
+              "parameter": "referrer-policy",
+              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/",
+              "parameter": "x-frame-options",
+              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/patients",
+              "parameter": "x-frame-options",
+              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingOriginValidation",
+              "route": "/",
+              "parameter": null,
+              "message": "A state-changing request is accepted from any origin — CWE-352"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/patients",
+              "parameter": "referrer-policy",
+              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/schedule",
+              "parameter": "content-security-policy",
+              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/patients",
+              "parameter": "content-security-policy",
+              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/schedule",
+              "parameter": "x-frame-options",
+              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/schedule",
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/",
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "NoRateLimit",
+              "route": "/api/patients",
+              "parameter": null,
+              "message": "15 requests in quick succession were never rate limited — CWE-770"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/patients",
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/",
+              "parameter": "referrer-policy",
+              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+            }
+          ],
+          "gaps": [
+            {
+              "category": "workflow",
+              "status": "partially-covered",
+              "route": "/schedule",
+              "message": "Clinic Scheduler (/schedule): navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
+            },
+            {
+              "category": "workflow",
+              "status": "partially-covered",
+              "route": null,
+              "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
+            },
+            {
+              "category": "accessibility",
+              "status": "partially-covered",
+              "route": "/schedule",
+              "message": "keyboard order through the whole form — The form starts with, or soon reaches, a control that handles Tab itself (a date, a radio group or a file input), so the order past it is not checked automatically."
+            },
+            {
+              "category": "security",
+              "status": "partially-covered",
+              "route": "/schedule",
+              "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
+            },
+            {
+              "category": "security",
+              "status": "partially-covered",
+              "route": "/",
+              "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
+            },
+            {
+              "category": "security",
+              "status": "partially-covered",
+              "route": "/patients",
+              "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
+            },
+            {
+              "category": "api",
+              "status": "partially-covered",
+              "route": "/patients",
+              "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
+            },
+            {
+              "category": "api",
+              "status": "partially-covered",
+              "route": "/",
+              "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
+            },
+            {
+              "category": "api",
+              "status": "partially-covered",
+              "route": "/patients",
+              "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
+            },
+            {
+              "category": "api",
+              "status": "partially-covered",
+              "route": "/schedule",
+              "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
+            },
+            {
+              "category": "api",
+              "status": "partially-covered",
+              "route": "/",
+              "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
+            },
+            {
+              "category": "dataIntegrity",
+              "status": "partially-covered",
+              "route": "/schedule",
+              "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
+            },
+            {
+              "category": "dataIntegrity",
+              "status": "partially-covered",
+              "route": "/patients",
+              "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
+            },
+            {
+              "category": "dataIntegrity",
+              "status": "partially-covered",
+              "route": "/schedule",
+              "message": "a record shown back incompletely — This form has one field whose value can be recognised on a page afterwards. A page showing it proves the record was kept; a page showing nothing cannot be told from a confirmation page, so a lost value would not be reported."
+            },
+            {
+              "category": "dataIntegrity",
+              "status": "partially-covered",
+              "route": "/patients",
+              "message": "a record shown back incompletely — This form has one field whose value can be recognised on a page afterwards. A page showing it proves the record was kept; a page showing nothing cannot be told from a confirmation page, so a lost value would not be reported."
+            },
+            {
+              "category": "errorHandling",
+              "status": "partially-covered",
+              "route": "/403",
+              "message": "server timeouts and authorization errors — A timeout or a 401/403 cannot be provoked from the page without changing the server."
+            },
+            {
+              "category": "errorHandling",
+              "status": "partially-covered",
+              "route": "/403",
+              "message": "server timeouts and authorization errors — A timeout or a 401/403 cannot be provoked from the page without changing the server."
+            },
+            {
+              "category": "errorHandling",
+              "status": "partially-covered",
+              "route": "/403",
+              "message": "server timeouts and authorization errors — A timeout or a 401/403 cannot be provoked from the page without changing the server."
+            },
+            {
+              "category": "reliability",
+              "status": "not-covered",
+              "route": "/patients",
+              "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
+            },
+            {
+              "category": "reliability",
+              "status": "not-covered",
+              "route": "/",
+              "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
+            },
+            {
+              "category": "workflow",
+              "status": "human-required",
+              "route": "/schedule",
+              "message": "business rules between fields beyond those named — Rules such as \"business accounts need a company number\" exist in requirements, not in the page; only rules visible in names or observed in behaviour were tested."
+            },
+            {
+              "category": "workflow",
+              "status": "human-required",
+              "route": "/",
+              "message": "business rules between fields beyond those named — Rules such as \"business accounts need a company number\" exist in requirements, not in the page; only rules visible in names or observed in behaviour were tested."
+            },
+            {
+              "category": "security",
+              "status": "human-required",
+              "route": "/patients",
+              "message": "an anti-forgery token — This form submits with script, so a token would travel in a header that the page does not declare."
+            },
+            {
+              "category": "security",
+              "status": "human-required",
+              "route": "/schedule",
+              "message": "an anti-forgery token — This form submits with script, so a token would travel in a header that the page does not declare."
+            },
+            {
+              "category": "security",
+              "status": "human-required",
+              "route": "/",
+              "message": "an anti-forgery token — This form submits with script, so a token would travel in a header that the page does not declare."
+            },
+            {
+              "category": "dataIntegrity",
+              "status": "human-required",
+              "route": "/",
+              "message": "the stored record — QA NXT has no access to the application's database, and a stored record is only observable where the application shows it back."
+            },
+            {
+              "category": "functional",
+              "status": "unsupported",
+              "route": "/",
+              "message": "a submission with only the required fields — This is a sign-in form and its credential fields are not marked required, so a submission with only the required fields carries no credentials. Every sign-in refuses that, correctly, so there is nothing for the test to establish."
+            },
+            {
+              "category": "performance",
+              "status": "unsupported",
+              "route": null,
+              "message": "load, stress, spike and endurance testing — These need many concurrent virtual users over time. The browser worker measures single-user response times; it is not a load generator."
+            },
+            {
+              "category": "boundary",
+              "status": "unknown",
+              "route": "/patients",
+              "message": "a length limit — Find a patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+            },
+            {
+              "category": "boundary",
+              "status": "unknown",
+              "route": "/schedule",
+              "message": "a length limit — Patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+            },
+            {
+              "category": "boundary",
+              "status": "unknown",
+              "route": "/",
+              "message": "a length limit — Username declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+            }
+          ]
+        }
+      },
+      "detection": {
+        "planted": 4,
+        "detected": 3,
+        "surfacedAsGap": 0,
+        "weakOnly": 1,
+        "verdicts": [
+          {
+            "id": "CS_D01",
+            "class": "validation",
+            "severity": "high",
+            "routes": [
+              "/schedule",
+              "/api/appointments"
+            ],
+            "statement": "Booking accepts an end time earlier than the start time.",
+            "detected": true,
+            "surfacedAsGap": false,
+            "gap": null,
+            "weakOnly": false,
+            "evidence": {
+              "kind": "test failure",
+              "strength": "route and wording",
+              "route": "/schedule",
+              "message": "Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown."
+            }
+          },
+          {
+            "id": "CS_D02",
+            "class": "injection",
+            "severity": "critical",
+            "routes": [
+              "/patients",
+              "/api/patients"
+            ],
+            "statement": "The patient search term is written into the page as markup, not text.",
+            "detected": true,
+            "surfacedAsGap": false,
+            "gap": null,
+            "weakOnly": false,
+            "evidence": {
+              "kind": "test failure",
+              "strength": "route and wording",
+              "route": "/patients",
+              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-9dfde09a> element(s) exist. The application does not encode what it reflects."
+            }
+          },
+          {
+            "id": "CS_D03",
+            "class": "authorization",
+            "severity": "critical",
+            "routes": [
+              "/patients",
+              "/api/patients",
+              "/api/patients/:id"
+            ],
+            "statement": "A clinician can read a patient record belonging to another clinician.",
+            "detected": true,
+            "surfacedAsGap": false,
+            "gap": null,
+            "weakOnly": false,
+            "evidence": {
+              "kind": "security finding",
+              "strength": "route and wording",
+              "route": "/api/patients",
+              "message": "clinician nilsen can read a resource owned by clinician okafor — parameter \"id\" — CWE-639"
+            }
+          },
+          {
+            "id": "CS_D04",
+            "class": "authorization",
+            "severity": "high",
+            "routes": [
+              "/schedule",
+              "/api/appointments",
+              "/api/appointments/:id/cancel"
+            ],
+            "statement": "Cancel is hidden from a receptionist in the UI and permitted by the endpoint.",
+            "detected": false,
+            "surfacedAsGap": false,
+            "gap": null,
+            "weakOnly": true,
+            "evidence": {
+              "kind": "test failure",
+              "strength": "same screen, different subject",
+              "route": "/schedule",
+              "message": "Expected the submission to be refused with a reason, but nothing told the user what was wrong: the form is still shown; no field is marked invalid; no error message is shown; no confirmation is shown."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "permits-legacy",
+      "name": "Ashfield Building Control",
+      "technology": "HTTP Basic authentication, no anti-forgery token, state changes through GET links, nested-table markup, sequential integer ids in the query string",
+      "domain": "municipal building permits",
+      "ranAt": "2026-11-22T09:01:42.955Z",
+      "planted": 4,
+      "stages": {
+        "application": {
+          "id": "af837041-e9bd-43c2-a71f-6ada8b86c6e9",
+          "authStrategy": "basicAuth",
+          "budget": 240,
+          "maxPages": 40
+        },
+        "discovery": {
+          "status": "completed",
+          "pages": 7,
+          "elements": 66,
+          "endpoints": 0,
+          "byKind": {
+            "table": 17,
+            "link": 40,
+            "form": 2,
+            "button": 2,
+            "textInput": 5
+          },
+          "paths": [
+            "/default.asp",
+            "/list.asp",
+            "/new.asp",
+            "/search.asp",
+            "/view.asp"
+          ],
+          "message": null
+        },
+        "forms": {
+          "count": 2,
+          "list": [
+            {
+              "id": "77e1c815-6770-4170-8ac3-82cb3587fa80",
+              "route": "/new.asp",
+              "name": "New application",
+              "fields": 4
+            },
+            {
+              "id": "e9e30b1b-aab3-4459-b6cc-5a7c3469ccea",
+              "route": "/search.asp",
+              "name": "Search",
+              "fields": 1
+            }
+          ]
+        },
+        "design": {
+          "testSuiteId": "4dcaa254-f6df-46fe-9079-caec9a097faf",
+          "testSuiteName": "Ashfield Building Control — form level",
+          "forms": 2,
+          "testsCreated": 203,
+          "testsUpdated": 0,
+          "testsUnchanged": 0,
+          "testsDeprecated": 0,
+          "testsLeftAsEdited": 0,
+          "gaps": 20,
+          "humanTasks": 8,
+          "findings": 6,
+          "usedAi": false,
+          "engine": "QA NXT form and page test engine (deterministic)",
+          "perForm": [
+            {
+              "formId": "77e1c815-6770-4170-8ac3-82cb3587fa80",
+              "name": "New application",
+              "route": "/new.asp",
+              "fields": 4,
+              "tests": 86,
+              "gaps": 11,
+              "humanTasks": 5,
+              "findings": 5,
+              "testsByCategory": {
+                "smoke": 1,
+                "functional": 2,
+                "equivalence": 4,
+                "inputValidation": 52,
+                "reliability": 3,
+                "stateTransition": 2,
+                "security": 5,
+                "accessibility": 3,
+                "api": 1,
+                "performance": 2,
+                "responsive": 3,
+                "compatibility": 3,
+                "visual": 2,
+                "exploratory": 2,
+                "dataIntegrity": 1
+              },
+              "notApplicable": [
+                "negative",
+                "crossField",
+                "dynamic",
+                "multiStep",
+                "regression"
+              ]
+            },
+            {
+              "formId": "e9e30b1b-aab3-4459-b6cc-5a7c3469ccea",
+              "name": "Search",
+              "route": "/search.asp",
+              "fields": 1,
+              "tests": 35,
+              "gaps": 6,
+              "humanTasks": 3,
+              "findings": 1,
+              "testsByCategory": {
+                "smoke": 1,
+                "functional": 2,
+                "equivalence": 1,
+                "inputValidation": 13,
+                "stateTransition": 2,
+                "security": 1,
+                "accessibility": 2,
+                "api": 1,
+                "performance": 2,
+                "responsive": 3,
+                "compatibility": 3,
+                "visual": 2,
+                "exploratory": 2
+              },
+              "notApplicable": [
+                "negative",
+                "crossField",
+                "dynamic",
+                "multiStep",
+                "workflow",
+                "regression",
+                "dataIntegrity",
+                "reliability"
+              ]
+            }
+          ],
+          "warnings": [],
+          "pages": 7,
+          "pageTests": 82,
+          "perPage": [
+            {
+              "pageId": "9d909242-5bae-46ca-9f8b-3b681458a5b9",
+              "name": "Building Control (/default.asp)",
+              "route": "/default.asp",
+              "tests": 11,
+              "reachedByClicking": false,
+              "testsByCategory": {
+                "smoke": 1,
+                "security": 1,
+                "accessibility": 2,
+                "performance": 1,
+                "dataIntegrity": 3,
+                "responsive": 3
+              }
+            },
+            {
+              "pageId": "6d33c6be-6a35-4deb-b4fe-884ebbf15e81",
+              "name": "Permit register (/list.asp)",
+              "route": "/list.asp",
+              "tests": 11,
+              "reachedByClicking": true,
+              "testsByCategory": {
+                "smoke": 1,
+                "workflow": 1,
+                "accessibility": 2,
+                "performance": 1,
+                "dataIntegrity": 3,
+                "responsive": 3
+              }
+            },
+            {
+              "pageId": "4c1a32a3-e7e2-4573-9a94-0d1485730c55",
+              "name": "New application (/new.asp)",
+              "route": "/new.asp",
+              "tests": 12,
+              "reachedByClicking": true,
+              "testsByCategory": {
+                "smoke": 1,
+                "workflow": 1,
+                "security": 1,
+                "accessibility": 2,
+                "performance": 1,
+                "dataIntegrity": 3,
+                "responsive": 3
+              }
+            },
+            {
+              "pageId": "3f5ccfd9-cef3-4072-a0dd-32d9e7e1f62b",
+              "name": "Search (/search.asp)",
+              "route": "/search.asp",
+              "tests": 12,
+              "reachedByClicking": true,
+              "testsByCategory": {
+                "smoke": 1,
+                "workflow": 1,
+                "security": 1,
+                "accessibility": 2,
+                "performance": 1,
+                "dataIntegrity": 3,
+                "responsive": 3
+              }
+            },
+            {
+              "pageId": "4d7bf6dd-2662-47cd-9711-4cc2c6e3ac97",
+              "name": "Permit BP-2026-0001 (/view.asp)",
+              "route": "/view.asp",
+              "tests": 12,
+              "reachedByClicking": true,
+              "testsByCategory": {
+                "smoke": 1,
+                "workflow": 1,
+                "security": 1,
+                "accessibility": 2,
+                "performance": 1,
+                "dataIntegrity": 3,
+                "responsive": 3
+              }
+            },
+            {
+              "pageId": "013cec4c-5771-4e55-b790-dded94514ed3",
+              "name": "Permit BP-2026-0002 (/view.asp)",
+              "route": "/view.asp",
+              "tests": 12,
+              "reachedByClicking": true,
+              "testsByCategory": {
+                "smoke": 1,
+                "workflow": 1,
+                "security": 1,
+                "accessibility": 2,
+                "performance": 1,
+                "dataIntegrity": 3,
+                "responsive": 3
+              }
+            },
+            {
+              "pageId": "0cdeecc4-f454-4fec-834a-993607ab0ef2",
+              "name": "Permit BP-2026-0003 (/view.asp)",
+              "route": "/view.asp",
+              "tests": 12,
+              "reachedByClicking": true,
+              "testsByCategory": {
+                "smoke": 1,
+                "workflow": 1,
+                "security": 1,
+                "accessibility": 2,
+                "performance": 1,
+                "dataIntegrity": 3,
+                "responsive": 3
+              }
+            }
+          ]
+        },
+        "scan": {
+          "ok": true,
+          "id": "d5362e37-f0c0-4926-a9df-3a13f68863fe",
+          "status": "completed",
+          "requestsSent": null,
+          "checksRun": null,
+          "untested": null
+        },
+        "run": {
+          "ok": true,
+          "runId": "0d4b0758-0661-43af-a027-eff5a9746f54",
+          "status": "failed",
+          "executions": 203,
+          "byStatus": {
+            "passed": 170,
+            "failed": 28,
+            "skipped": 5
+          },
+          "failures": [
+            {
+              "name": "New application: carries an anti-forgery token",
+              "route": "/new.asp",
+              "message": "Expected the element to exist on the page, but it does not."
+            },
+            {
+              "name": "New application: has no serious automated accessibility violations",
+              "route": "/new.asp",
+              "message": "2 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 critical, 1 serious. 2 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI; label (critical) Form elements must have labels at input[name=\"applicant\"] and 3 other element(s) — https://dequeuniversity.com/rules/axe/4.13/label?ap"
+            },
+            {
+              "name": "New application: sends a valid submission to POST /new.asp",
+              "route": "/new.asp",
+              "message": "expected status 2xx/3xx but POST http://127.0.0.1:4700/new.asp returned 400."
+            },
+            {
+              "name": "New application: fits a mobile screen (390x844)",
+              "route": "/new.asp",
+              "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+            },
+            {
+              "name": "Search: does not reflect markup typed into term",
+              "route": "/search.asp",
+              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-bf034e39> element(s) exist. The application does not encode what it reflects."
+            },
+            {
+              "name": "Search: has no serious automated accessibility violations",
+              "route": "/search.asp",
+              "message": "2 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 critical, 1 serious. 2 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI; label (critical) Form elements must have labels at input[type=\"TEXT\"] — https://dequeuniversity.com/rules/axe/4.13/label?application=axeAPI."
+            },
+            {
+              "name": "Search: fits a mobile screen (390x844)",
+              "route": "/search.asp",
+              "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+            },
+            {
+              "name": "Building Control (/default.asp): is not shown to a signed-out visitor",
+              "route": null,
+              "message": "The element was expected to be hidden but was visible."
+            },
+            {
+              "name": "Building Control (/default.asp): has no serious automated accessibility violations",
+              "route": null,
+              "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
+            },
+            {
+              "name": "Building Control (/default.asp): fits a mobile screen (390x844)",
+              "route": null,
+              "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+            },
+            {
+              "name": "Permit register (/list.asp): has no serious automated accessibility violations",
+              "route": null,
+              "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
+            },
+            {
+              "name": "Permit register (/list.asp): fits a mobile screen (390x844)",
+              "route": null,
+              "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+            },
+            {
+              "name": "New application (/new.asp): is not shown to a signed-out visitor",
+              "route": null,
+              "message": "The element was expected to be hidden but was visible."
+            },
+            {
+              "name": "New application (/new.asp): has no serious automated accessibility violations",
+              "route": null,
+              "message": "2 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 critical, 1 serious. 2 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI; label (critical) Form elements must have labels at input[name=\"applicant\"] and 3 other element(s) — https://dequeuniversity.com/rules/axe/4.13/label?ap"
+            },
+            {
+              "name": "New application (/new.asp): fits a mobile screen (390x844)",
+              "route": null,
+              "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+            },
+            {
+              "name": "Search (/search.asp): is not shown to a signed-out visitor",
+              "route": null,
+              "message": "The element was expected to be hidden but was visible."
+            },
+            {
+              "name": "Search (/search.asp): has no serious automated accessibility violations",
+              "route": null,
+              "message": "2 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 critical, 1 serious. 2 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI; label (critical) Form elements must have labels at input[type=\"TEXT\"] — https://dequeuniversity.com/rules/axe/4.13/label?application=axeAPI."
+            },
+            {
+              "name": "Search (/search.asp): fits a mobile screen (390x844)",
+              "route": null,
+              "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+            },
+            {
+              "name": "Permit BP-2026-0001 (/view.asp): is not shown to a signed-out visitor",
+              "route": null,
+              "message": "The element was expected to be hidden but was visible."
+            },
+            {
+              "name": "Permit BP-2026-0001 (/view.asp): has no serious automated accessibility violations",
+              "route": null,
+              "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
+            },
+            {
+              "name": "Permit BP-2026-0001 (/view.asp): fits a mobile screen (390x844)",
+              "route": null,
+              "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+            },
+            {
+              "name": "Permit BP-2026-0002 (/view.asp): is not shown to a signed-out visitor",
+              "route": null,
+              "message": "The element was expected to be hidden but was visible."
+            },
+            {
+              "name": "Permit BP-2026-0002 (/view.asp): has no serious automated accessibility violations",
+              "route": null,
+              "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
+            },
+            {
+              "name": "Permit BP-2026-0002 (/view.asp): totals the lines it shows",
+              "route": null,
+              "message": "A total does not equal the lines it totals: table 3, \"column 2\" shows 225 but its 3 lines add up to 445 (out by -220). The page is stating an equation about its own contents that does not hold, so either the total is computed from a different collection than the rows shown, or a line is left out of the sum but not out of the table."
+            },
+            {
+              "name": "Permit BP-2026-0002 (/view.asp): fits a mobile screen (390x844)",
+              "route": null,
+              "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+            },
+            {
+              "name": "Permit BP-2026-0003 (/view.asp): is not shown to a signed-out visitor",
+              "route": null,
+              "message": "The element was expected to be hidden but was visible."
+            },
+            {
+              "name": "Permit BP-2026-0003 (/view.asp): has no serious automated accessibility violations",
+              "route": null,
+              "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
+            },
+            {
+              "name": "Permit BP-2026-0003 (/view.asp): fits a mobile screen (390x844)",
+              "route": null,
+              "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+            }
+          ]
+        },
+        "conclusions": {
+          "defects": [
+            {
+              "severity": "critical",
+              "route": "/default.asp",
+              "message": "Page /default.asp: The element was expected to be hidden but was visible"
+            },
+            {
+              "severity": "critical",
+              "route": "/search.asp",
+              "message": "Search: writes input from term back into the page as markup"
+            },
+            {
+              "severity": "critical",
+              "route": "/new.asp",
+              "message": "New application: lacks an element it should have"
+            },
+            {
+              "severity": "major",
+              "route": "/default.asp",
+              "message": "Page /default.asp: breaks the accessibility rule html-has-lang"
+            },
+            {
+              "severity": "major",
+              "route": "/default.asp",
+              "message": "Page /default.asp: overflows a small screen"
+            },
+            {
+              "severity": "major",
+              "route": "/new.asp",
+              "message": "New application: breaks the accessibility rule html-has-lang on 4 elements"
+            },
+            {
+              "severity": "major",
+              "route": "/new.asp",
+              "message": "New application: sends the wrong requests"
+            },
+            {
+              "severity": "major",
+              "route": "/search.asp",
+              "message": "Search: breaks the accessibility rule html-has-lang"
+            },
+            {
+              "severity": "major",
+              "route": "/view.asp",
+              "message": "Page /view.asp: shows a total that is not the sum of its lines"
+            },
+            {
+              "severity": "major",
+              "route": "/new.asp",
+              "message": "New application: overflows a small screen"
+            },
+            {
+              "severity": "major",
+              "route": "/search.asp",
+              "message": "Search: overflows a small screen"
+            }
+          ],
+          "structural": [
+            {
+              "code": "no-label",
+              "severity": "serious",
+              "route": "/new.asp",
+              "message": "address has no label tied to it."
+            },
+            {
+              "code": "no-label",
+              "severity": "serious",
+              "route": "/new.asp",
+              "message": "applicant has no label tied to it."
+            },
+            {
+              "code": "no-label",
+              "severity": "serious",
+              "route": "/new.asp",
+              "message": "cost has no label tied to it."
+            },
+            {
+              "code": "no-label",
+              "severity": "serious",
+              "route": "/new.asp",
+              "message": "ni has no label tied to it."
+            },
+            {
+              "code": "no-label",
+              "severity": "serious",
+              "route": "/search.asp",
+              "message": "term has no label tied to it."
+            },
+            {
+              "code": "no-autocomplete",
+              "severity": "info",
+              "route": "/new.asp",
+              "message": "address looks like personal data but does not declare autocomplete, so browsers cannot fill it."
+            }
+          ],
+          "security": [
+            {
+              "severity": "high",
+              "checkId": "PersonalDataExposure",
+              "route": "/view.asp",
+              "parameter": null,
+              "message": "A national insurance number appears in the response — CWE-359"
+            },
+            {
+              "severity": "high",
+              "checkId": "ReflectedXSS",
+              "route": "/search.asp",
+              "parameter": "term",
+              "message": "'term' is reflected into HTML without encoding — parameter \"term\" — CWE-79"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/list.asp",
+              "parameter": "content-security-policy",
+              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/new.asp",
+              "parameter": "referrer-policy",
+              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/search.asp",
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/list.asp",
+              "parameter": "referrer-policy",
+              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/default.asp",
+              "parameter": "x-frame-options",
+              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/list.asp",
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/search.asp",
+              "parameter": "content-security-policy",
+              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/list.asp",
+              "parameter": "x-frame-options",
+              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/default.asp",
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/new.asp",
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/search.asp",
+              "parameter": "referrer-policy",
+              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/new.asp",
+              "parameter": "content-security-policy",
+              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/default.asp",
+              "parameter": "content-security-policy",
+              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/default.asp",
+              "parameter": "referrer-policy",
+              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/view.asp",
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/view.asp",
+              "parameter": "referrer-policy",
+              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/view.asp",
+              "parameter": "content-security-policy",
+              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/search.asp",
+              "parameter": "x-frame-options",
+              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/view.asp",
+              "parameter": "x-frame-options",
+              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/new.asp",
+              "parameter": "x-frame-options",
+              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+            }
+          ],
+          "gaps": [
+            {
+              "category": "workflow",
+              "status": "partially-covered",
+              "route": "/default.asp",
+              "message": "Building Control (/default.asp): navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
+            },
+            {
+              "category": "workflow",
+              "status": "partially-covered",
+              "route": null,
+              "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
+            },
+            {
+              "category": "accessibility",
+              "status": "partially-covered",
+              "route": "/new.asp",
+              "message": "a scan scoped to the form — The form has no selector the scanner can be scoped with, so the whole page is scanned."
+            },
+            {
+              "category": "accessibility",
+              "status": "partially-covered",
+              "route": "/search.asp",
+              "message": "a scan scoped to the form — The form has no selector the scanner can be scoped with, so the whole page is scanned."
+            },
+            {
+              "category": "security",
+              "status": "partially-covered",
+              "route": "/new.asp",
+              "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
+            },
+            {
+              "category": "security",
+              "status": "partially-covered",
+              "route": "/search.asp",
+              "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
+            },
+            {
+              "category": "api",
+              "status": "partially-covered",
+              "route": "/new.asp",
+              "message": "server-side validation — The browser's own validation stops an invalid submission before it reaches the server, so whether the server checks too cannot be seen from the page."
+            },
+            {
+              "category": "api",
+              "status": "partially-covered",
+              "route": "/search.asp",
+              "message": "server-side validation — The browser's own validation stops an invalid submission before it reaches the server, so whether the server checks too cannot be seen from the page."
+            },
+            {
+              "category": "dataIntegrity",
+              "status": "partially-covered",
+              "route": "/new.asp",
+              "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
+            },
+            {
+              "category": "errorHandling",
+              "status": "partially-covered",
+              "route": "/403",
+              "message": "server timeouts and authorization errors — A timeout or a 401/403 cannot be provoked from the page without changing the server."
+            },
+            {
+              "category": "errorHandling",
+              "status": "partially-covered",
+              "route": "/403",
+              "message": "server timeouts and authorization errors — A timeout or a 401/403 cannot be provoked from the page without changing the server."
+            },
+            {
+              "category": "workflow",
+              "status": "human-required",
+              "route": "/new.asp",
+              "message": "business rules between fields beyond those named — Rules such as \"business accounts need a company number\" exist in requirements, not in the page; only rules visible in names or observed in behaviour were tested."
+            },
+            {
+              "category": "security",
+              "status": "human-required",
+              "route": "/approve.asp",
+              "message": "whether this link changes state: /approve.asp?id=1 — The link \"Approve\" at /approve.asp?id=1, on /list.asp, says it changes something, and a GET that changes something can be triggered by anyone who gets a user to open the URL. Discovery did not follow it: mapping an application must not alter it. Whether it really changes state, and whether it checks an anti-forgery token, was therefore not estab"
+            },
+            {
+              "category": "security",
+              "status": "human-required",
+              "route": "/revoke.asp",
+              "message": "whether this link changes state: /revoke.asp?id=3 — The link \"Revoke\" at /revoke.asp?id=3, on /list.asp, says it changes something, and a GET that changes something can be triggered by anyone who gets a user to open the URL. Discovery did not follow it: mapping an application must not alter it. Whether it really changes state, and whether it checks an anti-forgery token, was therefore not establis"
+            },
+            {
+              "category": "performance",
+              "status": "unsupported",
+              "route": null,
+              "message": "load, stress, spike and endurance testing — These need many concurrent virtual users over time. The browser worker measures single-user response times; it is not a load generator."
+            },
+            {
+              "category": "errorHandling",
+              "status": "unsupported",
+              "route": "/new.asp",
+              "message": "a network failure during submission — This form submits by navigating, so a network failure is shown by the browser's own error page, not by the application."
+            },
+            {
+              "category": "errorHandling",
+              "status": "unsupported",
+              "route": "/search.asp",
+              "message": "a network failure during submission — This form submits by navigating, so a network failure is shown by the browser's own error page, not by the application."
+            },
+            {
+              "category": "boundary",
+              "status": "unknown",
+              "route": "/new.asp",
+              "message": "a length limit — cost declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+            },
+            {
+              "category": "boundary",
+              "status": "unknown",
+              "route": "/new.asp",
+              "message": "a length limit — ni declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+            },
+            {
+              "category": "boundary",
+              "status": "unknown",
+              "route": "/new.asp",
+              "message": "a length limit — address declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+            },
+            {
+              "category": "boundary",
+              "status": "unknown",
+              "route": "/new.asp",
+              "message": "a length limit — applicant declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+            },
+            {
+              "category": "boundary",
+              "status": "unknown",
+              "route": "/search.asp",
+              "message": "a length limit — term declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+            }
+          ]
+        }
+      },
+      "detection": {
+        "planted": 4,
+        "detected": 3,
+        "surfacedAsGap": 1,
+        "weakOnly": 1,
+        "verdicts": [
+          {
+            "id": "PL_D01",
+            "class": "authorization",
+            "severity": "critical",
+            "routes": [
+              "/list.asp",
+              "/view.asp",
+              "/approve.asp"
+            ],
+            "statement": "Approving a permit is a GET any signed-in role may issue, with no token and no check.",
+            "detected": false,
+            "surfacedAsGap": true,
+            "gap": "whether this link changes state: /approve.asp?id=1 — The link \"Approve\" at /approve.asp?id=1, on /list.asp, says it changes something, and a GET that changes something can be triggered by anyone who gets a user to open the URL. Discovery did not follow it: mapping an application must not alter it. Whether it really changes state, and whether it checks an anti-forgery token, was therefore not estab",
+            "weakOnly": true,
+            "evidence": {
+              "kind": "test failure",
+              "strength": "wording only, no route",
+              "route": "/new.asp",
+              "message": "Expected the element to exist on the page, but it does not."
+            }
+          },
+          {
+            "id": "PL_D02",
+            "class": "injection",
+            "severity": "critical",
+            "routes": [
+              "/search.asp"
+            ],
+            "statement": "The search term is echoed into the page unescaped.",
+            "detected": true,
+            "surfacedAsGap": false,
+            "gap": null,
+            "weakOnly": false,
+            "evidence": {
+              "kind": "test failure",
+              "strength": "route and wording",
+              "route": "/search.asp",
+              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-bf034e39> element(s) exist. The application does not encode what it reflects."
+            }
+          },
+          {
+            "id": "PL_D03",
+            "class": "calculation",
+            "severity": "high",
+            "routes": [
+              "/view.asp"
+            ],
+            "statement": "The fee total does not equal the sum of the fee lines.",
+            "detected": true,
+            "surfacedAsGap": false,
+            "gap": null,
+            "weakOnly": false,
+            "evidence": {
+              "kind": "defect",
+              "strength": "route and wording",
+              "route": "/view.asp",
+              "message": "Page /view.asp: shows a total that is not the sum of its lines"
+            }
+          },
+          {
+            "id": "PL_D04",
+            "class": "data-exposure",
+            "severity": "high",
+            "routes": [
+              "/view.asp"
+            ],
+            "statement": "An applicant's national insurance number is shown in full to every signed-in user.",
+            "detected": true,
+            "surfacedAsGap": false,
+            "gap": null,
+            "weakOnly": false,
+            "evidence": {
+              "kind": "security finding",
+              "strength": "route and wording",
+              "route": "/view.asp",
+              "message": "A national insurance number appears in the response — CWE-359"
+            }
+          }
+        ]
+      }
+    },
     {
       "key": "token-api",
       "name": "Northwind Orders API",
       "technology": "bearer-token sign-in answering JSON rather than a cookie; X-CSRF-Token header convention; one HTML page over a JSON API",
       "domain": "order management",
-      "ranAt": "2026-11-21T18:35:12.706Z",
+      "ranAt": "2026-11-22T09:05:52.213Z",
       "planted": 4,
       "stages": {
         "application": {
-          "id": "4624c632-1769-4628-a208-15d6e0a6f78f",
+          "id": "453093b5-ae7a-4931-bb85-284a0d60d0b4",
           "authStrategy": "tokenLogin",
           "budget": 180,
           "maxPages": 20
@@ -21,8 +1672,8 @@
           "elements": 4,
           "endpoints": 2,
           "byKind": {
-            "link": 2,
-            "heading": 2
+            "heading": 2,
+            "link": 2
           },
           "paths": [
             "/",
@@ -37,7 +1688,7 @@
           "list": []
         },
         "design": {
-          "testSuiteId": "55d32c95-8976-467c-ae1d-769ca65fcbf9",
+          "testSuiteId": "2a5af2ce-2291-473f-9dc4-8f4adae5f281",
           "testSuiteName": "Northwind Orders API — form level",
           "forms": 0,
           "testsCreated": 32,
@@ -56,7 +1707,7 @@
           "pageTests": 32,
           "perPage": [
             {
-              "pageId": "70d1e6c4-3c10-4332-8eda-39a3d9ac3c3d",
+              "pageId": "a0c35216-ade4-40fe-91b5-2c540143274c",
               "name": "Token API (/)",
               "route": "/",
               "tests": 8,
@@ -70,7 +1721,7 @@
               }
             },
             {
-              "pageId": "9b9c6d05-4c90-4d5f-bef6-f52fb78e939b",
+              "pageId": "a8f4d73c-e3ae-4b77-82b1-277b6f79521f",
               "name": "/api/orders",
               "route": "/api/orders",
               "tests": 8,
@@ -84,7 +1735,7 @@
               }
             },
             {
-              "pageId": "89277d1c-b190-42f7-8275-fca4a6fefab5",
+              "pageId": "e0400f2b-130f-4347-8072-0bd49c53900a",
               "name": "Search (/search)",
               "route": "/search",
               "tests": 9,
@@ -99,7 +1750,7 @@
               }
             },
             {
-              "pageId": "cc098818-7bf5-4798-8e44-11f8fbbf6bb7",
+              "pageId": "b1ec40eb-7ef0-49dc-bae7-b9d8d4dfd470",
               "name": "/api/orders/ord-1",
               "route": "/api/orders/ord-1",
               "tests": 7,
@@ -115,7 +1766,7 @@
         },
         "scan": {
           "ok": true,
-          "id": "fed98f03-8349-48fb-bec1-1e2d1057a782",
+          "id": "2523ee30-326f-41bb-914b-150701559c84",
           "status": "completed",
           "requestsSent": null,
           "checksRun": null,
@@ -123,7 +1774,7 @@
         },
         "run": {
           "ok": true,
-          "runId": "2046677e-0020-4d02-9246-86188580b888",
+          "runId": "e4b8103e-353c-4ed3-a77b-6045898454c3",
           "status": "failed",
           "executions": 32,
           "byStatus": {
@@ -200,27 +1851,6 @@
             {
               "severity": "medium",
               "checkId": "MissingSecurityHeader",
-              "route": "/",
-              "parameter": "x-frame-options",
-              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
-            },
-            {
-              "severity": "medium",
-              "checkId": "MissingSecurityHeader",
-              "route": "/api/orders",
-              "parameter": "x-content-type-options",
-              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-            },
-            {
-              "severity": "medium",
-              "checkId": "MissingSecurityHeader",
-              "route": "/api/orders/ord-1",
-              "parameter": "x-content-type-options",
-              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-            },
-            {
-              "severity": "medium",
-              "checkId": "MissingSecurityHeader",
               "route": "/search",
               "parameter": "x-content-type-options",
               "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
@@ -235,9 +1865,23 @@
             {
               "severity": "medium",
               "checkId": "MissingSecurityHeader",
+              "route": "/api/orders",
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "UnhandledInput",
+              "route": "/api/orders/%7Bid%7D",
+              "parameter": "id",
+              "message": "An unparseable identifier makes the endpoint fail rather than refuse — parameter \"id\" — CWE-20"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
               "route": "/",
-              "parameter": "content-security-policy",
-              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+              "parameter": "x-frame-options",
+              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
             },
             {
               "severity": "medium",
@@ -245,15 +1889,23 @@
               "route": "/",
               "parameter": "x-content-type-options",
               "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/",
+              "parameter": "content-security-policy",
+              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/api/orders/ord-1",
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
             }
           ],
           "gaps": [
-            {
-              "category": "workflow",
-              "status": "partially-covered",
-              "route": null,
-              "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
-            },
             {
               "category": "workflow",
               "status": "partially-covered",
@@ -265,6 +1917,12 @@
               "status": "partially-covered",
               "route": "/api/orders/ord-1",
               "message": "/api/orders/ord-1: navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
+            },
+            {
+              "category": "workflow",
+              "status": "partially-covered",
+              "route": null,
+              "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
             },
             {
               "category": "smoke",

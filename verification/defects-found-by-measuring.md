@@ -1046,6 +1046,52 @@ cheaper than implying the gap closes itself.
 
 ---
 
+## 44. A stack trace in a JSON body was invisible to the stack-trace detector
+
+**Symptom.** `token-api` measured 2 of 4, with TA_D04 — *"An unparseable order id returns a
+stack trace and absolute paths"* — reported as missed. The machinery for it had been built
+the day before: a `checkErrorDisclosure` check and a stack-trace pattern widened from .NET
+alone to Node, Java, Python, PHP and Ruby.
+
+**What made it findable.** The check had fired. Reading the scan's own findings rather than
+the score showed `api.error-disclosure` on `/api/orders/{id}` — but only the half that says
+*"an unparseable identifier makes the endpoint fail rather than refuse"*. `checkErrorDisclosure`
+raises two findings, and the stack-trace one, which is what TA_D04 is about, had matched
+nothing.
+
+**The defect, which is two.** The lab's 500 body, copied from the running target:
+
+```
+{"error":"Cannot read properties of undefined (reading 'total')",
+ "stack":"Error: ...\n    at Server.<anonymous> (file:///home/user/AIRA/.../server.js:127:21)"}
+```
+
+First: `JSON.stringify` writes a newline as the two characters backslash and n. Every frame
+in a JSON body is separated by an escape sequence, and the pattern anchored each frame on
+`\n` — a real line break. So it could not see a trace in a JSON body at all, which is the
+one place the leak matters most and the shape every JSON API produces.
+
+Second: Node reports an ES-module frame as a `file://` URL, and the path pattern allowed a
+Windows drive letter before the path but no URL scheme. That alternative would have dropped
+every frame of a modern Node service even printed as text.
+
+Both were introduced by me, in the fix that broadened the pattern beyond .NET. The widening
+was correct about the vocabulary and wrong about the shape, and a test asserting it matched a
+Node trace *as text* passed throughout.
+
+**Fix.** A frame break is a real newline, an escaped one, or the start of the string. A frame
+path may carry a URL scheme. The same treatment for the Python and PHP alternatives, which
+were anchored the same way. Five tests, built from the body copied out of the running lab
+rather than from one written to match the pattern — including a guard that the wider frame
+break has not started reading prose as a trace, which matters more now and not less.
+Reverting it fails three of them.
+
+**The lesson, again.** A test written from the same understanding as the code it tests
+confirms the understanding, not the code. The thing that found this was a target, a planted
+defect and a score that disagreed with what the check claimed to do.
+
+---
+
 ## Two near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;

@@ -221,20 +221,43 @@ export async function checkCors(scanner, url, testId = 'SECP-CORS') {
  * column, a file in parentheses with a line, the Traceback header — so prose containing
  * the word "at" does not match.
  */
+/**
+ * The frame separator.
+ *
+ * A stack trace printed as text begins each frame on a new line. A stack trace disclosed
+ * in a JSON body does not: `JSON.stringify` writes the newline as the two characters
+ * backslash and n, so a pattern that insists on a real newline cannot see it. Measured on
+ * this project's own token-api target, whose 500 body is
+ * `{"error":"...","stack":"Error: ...\n    at Server.<anonymous> (file:///...)"}` — the
+ * planted defect was there, the check fired, and the stack-trace half of it matched
+ * nothing. A JSON API is where this leak matters most and was the one shape it missed.
+ */
+const FRAME_BREAK = String.raw`(?:\n|\\n|^)`;
+/**
+ * The path in a frame.
+ *
+ * Node reports an ES-module frame as a `file://` URL, so a path pattern that allows only a
+ * Windows drive letter before the path drops every ESM frame — which is every frame of a
+ * modern Node service.
+ */
+const FRAME_PATH = String.raw`(?:[a-z][a-z0-9+.-]*:\/\/)?(?:[A-Za-z]:)?[\w./\\-]+`;
+
 export const STACK_TRACE_PATTERN = new RegExp([
       // .NET: at Namespace.Method(args) in /path/File.cs:line 42
       String.raw`\bat [A-Z][A-Za-z0-9.]+\.[A-Za-z0-9]+\(.*\) in .*:line \d+`,
-      // Node and V8: at fn (/path/file.js:42:17), at /path/file.js:42:17, at async fn (…)
-      String.raw`\n\s*at (?:async )?(?:[\w$.<>\[\] ]+ )?\(?(?:[A-Za-z]:)?[\w./\\-]+\.(?:js|mjs|cjs|ts|tsx|jsx):\d+:\d+\)?`,
+      // Node and V8: at fn (/path/file.js:42:17), at /path/file.js:42:17, at async fn (…),
+      // at Server.<anonymous> (file:///path/server.js:127:21)
+      `${FRAME_BREAK}` + String.raw`\s*at (?:async )?(?:[\w$.<>\[\] ]+ )?\(?` + FRAME_PATH
+        + String.raw`\.(?:js|mjs|cjs|ts|tsx|jsx):\d+:\d+\)?`,
       // Node internals, which appear even when the application's own frames are stripped
-      String.raw`\n\s*at [\w$.]+ \(node:[\w/]+:\d+:\d+\)`,
+      `${FRAME_BREAK}` + String.raw`\s*at [\w$.]+ \(node:[\w/]+:\d+:\d+\)`,
       // Java and Kotlin: at com.acme.Orders.read(Orders.java:42)
       String.raw`\bat [a-z][\w.$]+\.[\w$]+\([\w$]+\.(?:java|kt):\d+\)`,
       // Python
       String.raw`Traceback \(most recent call last\)`,
-      String.raw`\n\s*File "[^"]+", line \d+, in `,
+      `${FRAME_BREAK}` + String.raw`\s*File "[^"]+", line \d+, in `,
       // PHP: #0 /path/file.php(42): handler()
-      String.raw`\n#\d+ [\w./\\-]+\.php\(\d+\)`,
+      `${FRAME_BREAK}` + String.raw`#\d+ [\w./\\-]+\.php\(\d+\)`,
       // Ruby: /path/file.rb:42:in `method'
       '[\\w./-]+\\.rb:\\d+:in [`\']'
 ].join('|'));
