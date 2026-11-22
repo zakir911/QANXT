@@ -37,6 +37,7 @@ const arg = (name, fallback) => {
   return index === -1 ? fallback : process.argv[index + 1];
 };
 const BUDGET = Number(arg('budget', 900));
+const SEED_URLS = String(arg('seed-urls', '')).split(',').map(v => v.trim()).filter(Boolean);
 const MAX_PAGES = Number(arg('max-pages', 160));
 const FREIGHT = process.env.FREIGHT_URL ?? 'http://127.0.0.1:4400';
 
@@ -72,6 +73,10 @@ await request(`/api/v1/applications/${application.id}`, {
   // its 900 seconds unspent — the time budget was never the constraint.
   body: { maxPages: MAX_PAGES, maxCrawlDepth: 6, explorationTimeoutSeconds: BUDGET,
           maxActions: Number(arg('max-actions', 6000)),
+          // Routes to open directly, as a user lists them when the crawl reports that its
+          // budget left URLs unopened. The same flag the pipeline driver takes, so the two
+          // measurements can be given the same reach.
+          ...(SEED_URLS.length > 0 ? { seedUrls: SEED_URLS.join(',') } : {}),
           interactionMode: 'navigation', useSitemap: true }
 });
 line(`  application ${application.id}, budget ${BUDGET}s, maxPages ${MAX_PAGES}`);

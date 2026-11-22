@@ -186,12 +186,13 @@ public static class SecurityAttackSurfaceBuilder
                 // Said plainly, because a reader seeing an authorization check against a
                 // plain-looking GET deserves to know why it is being probed at all.
                 ChangesState = true,
-                // The verb does not match the effect, which is what this check is about. It
-                // is implied elsewhere for DELETE — "it is a destructive verb" — and this is
-                // the mirror image: a safe verb doing an unsafe thing, which is worse,
-                // because a browser, a crawler or a link preview will issue a GET unasked.
-                RelevantChecks = item.RelevantChecks
-                    .Append(SecurityChecks.UnsafeMethod).Distinct().OrderBy(c => c).ToList(),
+                // No extra check is implied here on purpose. `api.unsafe-method` reads as
+                // the right one and is not: it creates an object and then tries to DELETE
+                // it, so pointing it at an approve link would probe something else and
+                // report confidently about it. What this surface item needs is a check that
+                // issues the link and establishes by observation that state changed, which
+                // does not exist yet. The authorization checks an authenticated endpoint
+                // already implies do run against it.
                 Why = $"{item.Why}; and its own words say it changes something, which discovery "
                     + "would not follow"
             });

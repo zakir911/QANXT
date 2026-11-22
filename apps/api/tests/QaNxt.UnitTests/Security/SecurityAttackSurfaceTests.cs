@@ -60,8 +60,20 @@ public class SecurityAttackSurfaceTests
         item.Why.Should().Contain("its own words say it changes something");
     }
 
+    /// <summary>
+    /// What it is pointed at, and what it is deliberately not pointed at.
+    ///
+    /// The authorization checks an authenticated endpoint already implies are the point of
+    /// putting it on the surface: who may issue this. `api.unsafe-method` reads as the right
+    /// one and is not — it creates an object and then tries to DELETE it, so pointing it at
+    /// an approve link would probe something else and report confidently about it.
+    ///
+    /// What this item actually needs is a check that issues the link and establishes by
+    /// observation that state changed. That does not exist, and asserting its absence here
+    /// is how the next person learns that rather than rediscovering it.
+    /// </summary>
     [Fact]
-    public void It_implies_the_checks_that_ask_whether_a_state_change_was_guarded()
+    public void It_is_pointed_at_the_authorization_checks_and_not_at_a_delete_probe()
     {
         var surface = Build(
             pages: new[] { Page("/list") },
@@ -72,9 +84,8 @@ public class SecurityAttackSurfaceTests
 
         var item = surface.Items.Single(i => i.Identifier.Contains("/approve.asp"));
 
-        // The point of putting it on the surface at all: who may issue it, and whether a
-        // state change should have needed more than a link.
-        item.RelevantChecks.Should().Contain(SecurityChecks.UnsafeMethod);
+        item.RelevantChecks.Should().Contain(SecurityChecks.VerticalEscalation);
+        item.RelevantChecks.Should().NotContain(SecurityChecks.UnsafeMethod);
     }
 
     [Fact]

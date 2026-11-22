@@ -1219,6 +1219,39 @@ and that is worse than a bug in a check.
 
 ---
 
+## 49. The fix reached the surface; the check to use it does not exist
+
+**What changed.** With the fact and the refusal separated (47, and the correction to it),
+permits-legacy now records `GET /approve.asp` and `GET /revoke.asp` as endpoints, in both
+modes, and they are scanned: `api.rate-limit` ran against `/approve.asp`, which nothing had
+ever done. The false coverage gap is gone — it is no longer written where the crawl did
+follow the link, so the report no longer says a thing was untested that was tested.
+
+**Why PL_D01 is still not detected, precisely.** It needs a finding that says *this GET
+changed state*. Nothing in the catalogue says that.
+
+- `authz.vertical` is implied and runs. It asks whether a lower-privileged identity can
+  reach what a higher-privileged one can. On this application every role can approve, so
+  both identities get the same answer, and the check has no way to know that approving ought
+  to be privileged. That is a declared authorization model, which the page does not carry —
+  the same class of ceiling as a declared business rule.
+- `api.unsafe-method` sounds right and is not: it creates an object and then tries to DELETE
+  it. Pointing that at `/approve.asp` would probe something else entirely, so the
+  implication was removed again rather than left to produce a confident irrelevance.
+
+**What would close it.** A check that issues the link as a low-privilege identity and
+establishes, by observation rather than by the verb, that something changed — then reports a
+state change reachable by a safe verb with no anti-forgery token. That is a real check worth
+building and it is not built. It would close PL_D01 and clinic-spa's CS_D04 together, which
+are the same shape.
+
+**Recorded rather than rounded.** permits-legacy stands at 3 of 4 and clinic-spa at 3 of 4,
+and the missing one on each is this. The difference between tonight and this morning is that
+it was a mystery and is now a named, bounded piece of work with the reason the existing
+checks cannot cover it.
+
+---
+
 ## Two near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;
