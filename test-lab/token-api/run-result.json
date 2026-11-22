@@ -3,11 +3,11 @@
   "name": "Northwind Orders API",
   "technology": "bearer-token sign-in answering JSON rather than a cookie; X-CSRF-Token header convention; one HTML page over a JSON API",
   "domain": "order management",
-  "ranAt": "2026-11-22T09:05:52.213Z",
+  "ranAt": "2026-11-22T09:14:17.902Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "453093b5-ae7a-4931-bb85-284a0d60d0b4",
+      "id": "34567a2b-d33e-4721-a295-c06a992d7a10",
       "authStrategy": "tokenLogin",
       "budget": 180,
       "maxPages": 20
@@ -18,8 +18,8 @@
       "elements": 4,
       "endpoints": 2,
       "byKind": {
-        "heading": 2,
-        "link": 2
+        "link": 2,
+        "heading": 2
       },
       "paths": [
         "/",
@@ -34,7 +34,7 @@
       "list": []
     },
     "design": {
-      "testSuiteId": "2a5af2ce-2291-473f-9dc4-8f4adae5f281",
+      "testSuiteId": "3b6daea8-ba40-4f9e-af82-83f036c10305",
       "testSuiteName": "Northwind Orders API — form level",
       "forms": 0,
       "testsCreated": 32,
@@ -53,7 +53,7 @@
       "pageTests": 32,
       "perPage": [
         {
-          "pageId": "a0c35216-ade4-40fe-91b5-2c540143274c",
+          "pageId": "768a1b7e-8cd7-420c-a656-a58d717bffdd",
           "name": "Token API (/)",
           "route": "/",
           "tests": 8,
@@ -67,7 +67,7 @@
           }
         },
         {
-          "pageId": "a8f4d73c-e3ae-4b77-82b1-277b6f79521f",
+          "pageId": "8b262f59-6e49-481e-8f6e-5368790cae15",
           "name": "/api/orders",
           "route": "/api/orders",
           "tests": 8,
@@ -81,7 +81,7 @@
           }
         },
         {
-          "pageId": "e0400f2b-130f-4347-8072-0bd49c53900a",
+          "pageId": "4d63cf0c-b3c0-4801-8155-7177d2aca1b5",
           "name": "Search (/search)",
           "route": "/search",
           "tests": 9,
@@ -96,7 +96,7 @@
           }
         },
         {
-          "pageId": "b1ec40eb-7ef0-49dc-bae7-b9d8d4dfd470",
+          "pageId": "1db8e38a-5e24-4508-85a6-49906fdfae19",
           "name": "/api/orders/ord-1",
           "route": "/api/orders/ord-1",
           "tests": 7,
@@ -112,7 +112,7 @@
     },
     "scan": {
       "ok": true,
-      "id": "2523ee30-326f-41bb-914b-150701559c84",
+      "id": "faf4e925-20a6-4cd1-bc8d-63dbdeff26b5",
       "status": "completed",
       "requestsSent": null,
       "checksRun": null,
@@ -120,7 +120,7 @@
     },
     "run": {
       "ok": true,
-      "runId": "e4b8103e-353c-4ed3-a77b-6045898454c3",
+      "runId": "cefa6f5b-8fe0-4a2a-a915-446febcad644",
       "status": "failed",
       "executions": 32,
       "byStatus": {
@@ -182,24 +182,31 @@
       "security": [
         {
           "severity": "high",
-          "checkId": "ReflectedXSS",
-          "route": "/search",
-          "parameter": "q",
-          "message": "'q' is reflected into HTML without encoding — parameter \"q\" — CWE-79"
-        },
-        {
-          "severity": "high",
           "checkId": "BOLA",
           "route": "/api/orders/%7Bid%7D",
           "parameter": "id",
           "message": "bob can read a resource owned by alice — parameter \"id\" — CWE-639"
         },
         {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
+          "severity": "high",
+          "checkId": "VerboseErrorDisclosure",
+          "route": "/api/orders/%7Bid%7D",
+          "parameter": "id",
+          "message": "An unparseable identifier returns a stack trace — parameter \"id\" — CWE-209"
+        },
+        {
+          "severity": "high",
+          "checkId": "ReflectedXSS",
           "route": "/search",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+          "parameter": "q",
+          "message": "'q' is reflected into HTML without encoding — parameter \"q\" — CWE-79"
+        },
+        {
+          "severity": "medium",
+          "checkId": "VerboseErrorDisclosure",
+          "route": "/api/orders/%7Bid%7D",
+          "parameter": null,
+          "message": "A stack trace is returned to the caller — CWE-209"
         },
         {
           "severity": "medium",
@@ -207,27 +214,6 @@
           "route": "/",
           "parameter": "referrer-policy",
           "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/api/orders",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "UnhandledInput",
-          "route": "/api/orders/%7Bid%7D",
-          "parameter": "id",
-          "message": "An unparseable identifier makes the endpoint fail rather than refuse — parameter \"id\" — CWE-20"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -246,12 +232,46 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
           "route": "/api/orders/ord-1",
           "parameter": "x-content-type-options",
           "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/api/orders",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/search",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "UnhandledInput",
+          "route": "/api/orders/%7Bid%7D",
+          "parameter": "id",
+          "message": "An unparseable identifier makes the endpoint fail rather than refuse — parameter \"id\" — CWE-20"
         }
       ],
       "gaps": [
+        {
+          "category": "workflow",
+          "status": "partially-covered",
+          "route": null,
+          "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
+        },
         {
           "category": "workflow",
           "status": "partially-covered",
@@ -263,12 +283,6 @@
           "status": "partially-covered",
           "route": "/api/orders/ord-1",
           "message": "/api/orders/ord-1: navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
-        },
-        {
-          "category": "workflow",
-          "status": "partially-covered",
-          "route": null,
-          "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
         },
         {
           "category": "smoke",
@@ -293,9 +307,9 @@
   },
   "detection": {
     "planted": 4,
-    "detected": 2,
+    "detected": 3,
     "surfacedAsGap": 0,
-    "weakOnly": 1,
+    "weakOnly": 0,
     "verdicts": [
       {
         "id": "TA_D01",
@@ -359,15 +373,15 @@
           "/api/orders/:id"
         ],
         "statement": "An unparseable order id returns a stack trace and absolute paths.",
-        "detected": false,
+        "detected": true,
         "surfacedAsGap": false,
         "gap": null,
-        "weakOnly": true,
+        "weakOnly": false,
         "evidence": {
           "kind": "security finding",
-          "strength": "same screen, different subject",
+          "strength": "route and wording",
           "route": "/api/orders/%7Bid%7D",
-          "message": "bob can read a resource owned by alice — parameter \"id\" — CWE-639"
+          "message": "An unparseable identifier returns a stack trace — parameter \"id\" — CWE-209"
         }
       }
     ]

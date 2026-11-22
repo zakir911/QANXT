@@ -160,7 +160,34 @@ export async function checkUserEnumeration(scanner, { baseUrl, path = '/api/sess
  * at the scope's configured rate. This observes whether a threshold exists. It is not, and
  * must not become, a credential-stuffing or load test.
  */
-export async function checkAccountLockout(scanner, { baseUrl, path = '/api/session', knownUser, attempts = 6, testId = 'SECA-LOCKOUT' }) {
+export async function checkAccountLockout(scanner, { baseUrl, path = '/api/session', knownUser, knownPassword, attempts = 6, testId = 'SECA-LOCKOUT' }) {
+  // A positive control, before anything is made to fail.
+  //
+  // The question this check has to answer first is whether the endpoint evaluates
+  // credentials at all, because an application that refuses every request before looking
+  // at a password answers six failed sign-ins identically and that is not a throttling
+  // result. The original control for it was an empty submission: if every attempt and an
+  // empty one answered the same, conclude nothing.
+  //
+  // That reads an application behaving correctly as one that is not listening. Measured on
+  // this project's own token-api target: a wrong password answers
+  // `401 {"error":"invalid_credentials"}` and so does a submission with no credentials at
+  // all — same status, same body — which is reasonable of it and indistinguishable to a
+  // negative control. The planted defect, a sign-in that is never throttled, went untested
+  // behind a guard built to prevent a different false result.
+  //
+  // One sign-in known to be good settles it. If the endpoint accepts a correct password it
+  // is evaluating credentials, so identical refusals of wrong ones are failed sign-ins.
+  // First, so that a threshold these attempts trip cannot block the control itself.
+  let evaluatesCredentials = false;
+  if (knownUser && knownPassword) {
+    const good = await scanner.submitSignIn(baseUrl, knownUser, knownPassword, {
+      as: 'unauthenticated', testId: `${testId}:control-valid`,
+      note: 'one correct sign-in, to establish that this endpoint evaluates credentials'
+    });
+    evaluatesCredentials = good.allowed && good.status >= 200 && good.status < 400;
+  }
+
   const observed = [];
   for (let i = 1; i <= attempts; i++) {
     // Through the application's own form. Posting JSON at a guessed endpoint was refused
@@ -179,10 +206,14 @@ export async function checkAccountLockout(scanner, { baseUrl, path = '/api/sessi
   // Did any of it reach the sign-in logic? An application that answers every attempt with
   // the same refusal, and refuses an attempt carrying no credentials at all in the same
   // way, is not failing to throttle: it is declining to talk.
-  const control = await scanner.submitSignIn(baseUrl, '', '', {
-    as: 'unauthenticated', testId: `${testId}:control`,
-    note: 'an empty submission, to tell a refusal apart from a failed sign-in'
-  });
+  // Only asked when the positive control did not settle it. An endpoint that took a correct
+  // password is evaluating credentials, whatever it answers to an empty submission.
+  const control = evaluatesCredentials
+    ? { allowed: false, status: 0 }
+    : await scanner.submitSignIn(baseUrl, '', '', {
+        as: 'unauthenticated', testId: `${testId}:control`,
+        note: 'an empty submission, to tell a refusal apart from a failed sign-in'
+      });
   if (control.allowed && observed.every(r => r.status === control.status)) {
     return {
       skipped: false, findings: [], inconclusive: true,

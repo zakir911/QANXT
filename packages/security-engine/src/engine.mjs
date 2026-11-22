@@ -287,10 +287,29 @@ export class SecurityScanner {
       });
     }
 
+    // No form. Use what the owner declared, and only guess when they declared nothing.
+    //
+    // `/api/session` with `{username, password}` was the whole of this path, and it is a
+    // guess twice over: the address and the field names. Measured on this project's own
+    // token-api target, whose sign-in is `POST /api/auth/token`: six "failed sign-ins"
+    // were six 404s, the control probe correctly spotted that no sign-in had taken place,
+    // and the lockout check reported that it could conclude nothing — while the planted
+    // defect, a sign-in that is never throttled, sat there untested.
+    const declared = this.context.signIn;
+    const usernameField = declared?.usernameField || 'username';
+    const passwordField = declared?.passwordField || 'password';
+    const credentials = { [usernameField]: username, [passwordField]: password };
+    const asForm = declared?.contentType === 'form';
+
     return await this.request({
-      url: at(baseUrl, `/api/session`), method: 'POST', risk: SECURITY_RISK.ACTIVE,
-      headers: { 'content-type': 'application/json' },
-      body: { username, password }, as: as ?? username, testId: testId ?? 'sign-in', note
+      url: declared?.endpoint ?? at(baseUrl, `/api/session`),
+      method: declared?.method ?? 'POST',
+      risk: SECURITY_RISK.ACTIVE,
+      headers: {
+        'content-type': asForm ? 'application/x-www-form-urlencoded' : 'application/json'
+      },
+      body: asForm ? new URLSearchParams(credentials).toString() : credentials,
+      as: as ?? username, testId: testId ?? 'sign-in', note
     });
   }
 

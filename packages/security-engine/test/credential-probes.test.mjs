@@ -94,3 +94,105 @@ test('enumeration sends a deliberately wrong password, never a real one', async 
       'a probe must never attempt a credential that could succeed');
   }
 });
+
+/**
+ * Whether the endpoint evaluates credentials at all, established positively.
+ *
+ * The guard above exists because an application that refuses every request before reading
+ * a password answers six failed sign-ins identically, and that is not a throttling result.
+ * Its control was an empty submission: if every attempt and an empty one answered the same,
+ * conclude nothing.
+ *
+ * That reads an application behaving correctly as one that is not listening. Measured on
+ * this project's own token-api target: a wrong password answers 401 invalid_credentials and
+ * so does a submission with no credentials — same status, same body, which is reasonable of
+ * it and indistinguishable to a negative control. The planted defect went untested behind a
+ * guard built to prevent a different false result.
+ */
+function scannerTracking(answerFor) {
+  const sent = [];
+  return {
+    sent,
+    async submitSignIn(baseUrl, username, password, options) {
+      sent.push({ username, password, testId: options?.testId });
+      return { allowed: true, responseHeaders: {}, responseText: '', ...answerFor(username, password) };
+    },
+    async request() { throw new Error('a credential probe must go through submitSignIn'); }
+  };
+}
+
+/** The lab's behaviour: 401 for anything but the one correct password. */
+const tokenApi = (username, password) =>
+  username === 'alice' && password === 'Token!2026'
+    ? { status: 200 }
+    : { status: 401 };
+
+test('a wrong password and an empty submission answering alike is still reported', async () => {
+  const scanner = scannerTracking(tokenApi);
+
+  const result = await checkAccountLockout(scanner, {
+    baseUrl: 'http://app.test', path: '/api/auth/token',
+    knownUser: 'alice', knownPassword: 'Token!2026'
+  });
+
+  assert.equal(result.findings.length, 1);
+  assert.match(result.findings[0].title, /never throttled/);
+});
+
+test('the correct sign-in is sent first, so a threshold cannot block the control', async () => {
+  // If the failures went first and the application did lock out, the control would be
+  // refused and the check would conclude nothing about an application that threshold-locks.
+  const scanner = scannerTracking(tokenApi);
+
+  await checkAccountLockout(scanner, {
+    baseUrl: 'http://app.test', path: '/api/auth/token',
+    knownUser: 'alice', knownPassword: 'Token!2026'
+  });
+
+  assert.match(scanner.sent[0].testId, /control-valid$/);
+  assert.equal(scanner.sent[0].password, 'Token!2026');
+});
+
+test('an endpoint that refuses even a correct password still concludes nothing', async () => {
+  // The anti-forgery case the guard was built for. Nothing here establishes that the
+  // endpoint ever looked at a password, so no finding is the right answer.
+  const scanner = scannerTracking(() => ({ status: 403 }));
+
+  const result = await checkAccountLockout(scanner, {
+    baseUrl: 'http://app.test', path: '/auth/sign-in',
+    knownUser: 'alice', knownPassword: 'Token!2026'
+  });
+
+  assert.equal(result.findings.length, 0);
+  assert.ok(result.inconclusive || result.skipped);
+});
+
+test('throttling is still read as throttling, not as a finding', async () => {
+  let n = 0;
+  const scanner = scannerTracking((username, password) => {
+    if (password === 'Token!2026') return { status: 200 };
+    n += 1;
+    return { status: n >= 3 ? 429 : 401 };
+  });
+
+  const result = await checkAccountLockout(scanner, {
+    baseUrl: 'http://app.test', path: '/api/auth/token',
+    knownUser: 'alice', knownPassword: 'Token!2026'
+  });
+
+  assert.equal(result.findings.length, 0);
+  assert.equal(result.ok, true);
+});
+
+test('with no password to hand it falls back to the empty-submission control', async () => {
+  // An older caller, or an identity whose password the scan does not hold. The previous
+  // behaviour has to remain reachable rather than becoming a silent no-op.
+  const scanner = scannerTracking(() => ({ status: 401 }));
+
+  const result = await checkAccountLockout(scanner, {
+    baseUrl: 'http://app.test', path: '/api/auth/token', knownUser: 'alice'
+  });
+
+  assert.equal(result.findings.length, 0);
+  assert.ok(result.inconclusive);
+});

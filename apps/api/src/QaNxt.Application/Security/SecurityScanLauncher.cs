@@ -247,6 +247,19 @@ public sealed class SecurityScanLauncher : ISecurityScanLauncher
                 label = i.Label, username = i.Username, password = i.Password,
                 role = i.Role, resourceId = i.ResourceId
             }),
+            // Where this application's sign-in is, so the authentication checks can make a
+            // failed one happen instead of guessing an address and reporting that they
+            // concluded nothing. Omitted when the owner declared nothing to pass on.
+            signIn = SecuritySurfaceService.DeclaredSignIn(application) is { } declaredSignIn
+                ? new
+                {
+                    endpoint = declaredSignIn.Endpoint,
+                    method = declaredSignIn.Method,
+                    contentType = declaredSignIn.ContentType,
+                    usernameField = declaredSignIn.UsernameField,
+                    passwordField = declaredSignIn.PasswordField
+                }
+                : null,
             callerMayRunDestructiveScans = _user.HasPermission(Permissions.SecurityScanDestructive),
             isProductionEnvironment = isProduction,
             productionTestingAuthorized = isProduction && _user.HasPermission(Permissions.SecurityProduction),

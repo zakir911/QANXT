@@ -1,6 +1,7 @@
 using QaNxt.Application.Abstractions;
 using QaNxt.Application.Discovery;
 using QaNxt.Domain.Common;
+using QaNxt.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace QaNxt.Application.Security;
@@ -96,6 +97,28 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
     /// </summary>
     private static SecurityAttackSurfaceBuilder.SignInInput? SignInFrom(Domain.Applications.Application application)
     {
+        var declared = DeclaredSignIn(application);
+        return declared is null
+            ? null
+            : new SecurityAttackSurfaceBuilder.SignInInput(
+                declared.Endpoint, application.UpdatedAt ?? application.CreatedAt);
+    }
+
+    /// <summary>What the owner said about this application's sign-in, resolved to an address
+    /// and the names of the two fields that carry the credentials.
+    ///
+    /// Shared with the scan launcher, which passes it to the worker. The authentication
+    /// checks have to be able to make a failed sign-in happen, and against a JSON API there
+    /// is no form to submit: the engine's fallback was a guessed <c>POST /api/session</c>
+    /// with a guessed body, so on an API whose sign-in is anywhere else every attempt was a
+    /// 404 and the lockout check could only report that it had concluded nothing. The
+    /// application has declared all of this since token sign-in was added; it was never
+    /// handed to the scan.
+    ///
+    /// Field names are left null when unset rather than defaulted here, so the one place
+    /// that knows the usual spellings stays the one place that tries them.</summary>
+    public static DeclaredSignInDetails? DeclaredSignIn(Domain.Applications.Application application)
+    {
         var declared = LoginFlowHints.Read(application.LoginFlowJson, "tokenEndpoint")
                        ?? application.LoginUrl;
         if (string.IsNullOrWhiteSpace(declared)) return null;
@@ -106,7 +129,23 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
             if (!Uri.TryCreate(baseUri, declared, out absolute)) return null;
         }
 
-        return new SecurityAttackSurfaceBuilder.SignInInput(
-            absolute.ToString(), application.UpdatedAt ?? application.CreatedAt);
+        if (absolute.Scheme != Uri.UriSchemeHttp && absolute.Scheme != Uri.UriSchemeHttps) return null;
+
+        // A token sign-in takes JSON; a form login is form-encoded. Where the owner declared
+        // a token endpoint, that is what they declared it for.
+        var isToken = LoginFlowHints.Read(application.LoginFlowJson, "tokenEndpoint") is not null
+                      || application.AuthStrategy == AuthenticationStrategy.TokenLogin;
+
+        return new DeclaredSignInDetails(
+            absolute.ToString(),
+            "POST",
+            isToken ? "json" : "form",
+            LoginFlowHints.Read(application.LoginFlowJson, "usernameField"),
+            LoginFlowHints.Read(application.LoginFlowJson, "passwordField"));
     }
 }
+
+/// <summary>A sign-in the owner declared: the address, how the credentials are carried, and
+/// the field names when they were given.</summary>
+public sealed record DeclaredSignInDetails(
+    string Endpoint, string Method, string ContentType, string? UsernameField, string? PasswordField);

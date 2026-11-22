@@ -198,6 +198,17 @@ export interface SecurityScanJob {
   checksToRun: string[];
   checksConfigured: string[];
   identities: SecurityIdentity[];
+  /**
+   * Where this application's sign-in is, when its owner has said.
+   *
+   * The authentication checks have to be able to make a failed sign-in happen. With an HTML
+   * form the scanner finds and submits the real one. With a JSON API there is no form, and
+   * the fallback was a guess — `POST /api/session` with `{username, password}` — so against
+   * an API whose sign-in is anywhere else every attempt hit a 404 and the lockout check
+   * honestly reported that it could conclude nothing. The application already declares this
+   * for the token sign-in it uses to run tests; it was simply never passed to the scan.
+   */
+  signIn?: SecurityScanSignIn;
   /** Whether this caller may issue destructive requests. Both this and the scope must allow. */
   callerMayRunDestructiveScans: boolean;
   isProductionEnvironment: boolean;
@@ -205,6 +216,17 @@ export interface SecurityScanJob {
   callbackToken: string;
   callbackBaseUrl: string;
   correlationId: string;
+}
+
+/** A sign-in the application declared, for the checks that must make one fail. */
+export interface SecurityScanSignIn {
+  /** Absolute URL. Relative is not useful here: the scan already knows its base. */
+  endpoint: string;
+  method?: string;
+  /** How the credentials are carried. Unset means JSON. */
+  contentType?: 'json' | 'form';
+  usernameField?: string;
+  passwordField?: string;
 }
 
 export interface ExecutionStepPlan {

@@ -131,7 +131,11 @@ export async function handleSecurityScanJob(
       isProductionEnvironment: job.isProductionEnvironment,
       productionTestingAuthorized: job.productionTestingAuthorized,
       callerMayRunActiveScans: true,
-      callerMayRunDestructiveScans: job.callerMayRunDestructiveScans
+      callerMayRunDestructiveScans: job.callerMayRunDestructiveScans,
+      // What the owner said about this application's sign-in. The authentication checks
+      // need a failed sign-in to actually happen; without this the engine guessed an
+      // address, and against an API whose sign-in is elsewhere every attempt was a 404.
+      signIn: job.signIn
     }
   });
 
@@ -518,7 +522,11 @@ const RUNNERS: Record<string, CheckRunner> = {
     const a = owner(context);
     if (!a) return inconclusive('A known username is needed for a bounded lockout probe.');
     return auth.checkAccountLockout(scanner, {
-      baseUrl: context.baseUrl, path: target.identifier, knownUser: a.username
+      baseUrl: context.baseUrl, path: target.identifier,
+      // The password as well as the name: one correct sign-in is what establishes that the
+      // endpoint evaluates credentials, and without it an application that answers a wrong
+      // password and an empty submission alike reads as one that is not listening.
+      knownUser: a.username, knownPassword: a.password
     });
   },
   'auth.session-logout': async (scanner, _target, context) => {
