@@ -76,3 +76,52 @@ describe('the state-changing floor', () => {
     });
   });
 });
+
+/**
+ * The wrapper against something shaped like the real scanner, rather than a plain object.
+ *
+ * The engine's scanner is a class with a getter that reads its own fields. A wrapper that
+ * routed property reads back through itself would resolve those fields through the proxy —
+ * which works until the class acquires a private field, and then throws for a reason nobody
+ * would connect to this file. A plain-object test cannot see any of that.
+ */
+class ScannerShaped {
+  readonly scope = { allowActiveTesting: true };
+  private startedAt = 1000;
+  calls: Array<number | undefined> = [];
+
+  get elapsedMinutes() { return Math.floor((2000 - this.startedAt) / 60_000); }
+
+  async request(options: { risk?: number }) {
+    this.calls.push(options.risk);
+    return { allowed: true, status: 200, responseText: '' };
+  }
+
+  async signIn() { return { cookie: 'session=x' }; }
+}
+
+describe('the state-changing floor against a class', () => {
+  it('still floors the probe', async () => {
+    const real = new ScannerShaped();
+    await stateChangingScanner(real as never).request({ risk: ACTIVE } as never);
+    expect(real.calls).toEqual([STATE_CHANGING]);
+  });
+
+  it('reads a getter that touches the scanner\'s own fields', () => {
+    const wrapped = stateChangingScanner(new ScannerShaped() as never);
+    expect((wrapped as unknown as { elapsedMinutes: number }).elapsedMinutes).toBe(0);
+  });
+
+  it('passes plain properties through', () => {
+    const wrapped = stateChangingScanner(new ScannerShaped() as never);
+    expect((wrapped as unknown as { scope: unknown }).scope).toEqual({ allowActiveTesting: true });
+  });
+
+  it('leaves sign-in unfloored, because authenticating is not probing the target', async () => {
+    const real = new ScannerShaped();
+    const session = await (stateChangingScanner(real as never) as unknown as
+      { signIn: () => Promise<unknown> }).signIn();
+    expect(session).toEqual({ cookie: 'session=x' });
+    expect(real.calls).toEqual([]);
+  });
+});
