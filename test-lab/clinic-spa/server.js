@@ -114,6 +114,21 @@ async function scheduleScreen() {
     </form>\`;
   document.querySelectorAll('nav a').forEach(a =>
     a.addEventListener('click', e => { e.preventDefault(); go(a.getAttribute('href')); }));
+  // The cancel control, wired to the endpoint it represents.
+  //
+  // It was drawn and connected to nothing. CS_D04 is "the control is hidden for a
+  // receptionist and the endpoint allows it anyway", and this screen rendered the button,
+  // the server implemented the route, and no line of client code ever joined the two. So the
+  // application never issued POST /api/appointments/:id/cancel, the crawl never observed it,
+  // and the endpoint never reached the attack surface — which left the defect unreachable for
+  // a reason that was nothing to do with the product under test. A fixture that does not do
+  // the thing its ground truth describes measures nothing.
+  document.querySelectorAll('[data-testid^="cancel-"]').forEach(button =>
+    button.addEventListener('click', async () => {
+      const id = button.getAttribute('data-testid').slice('cancel-'.length);
+      await api(\`/api/appointments/\${id}/cancel\`, { method: 'POST' });
+      scheduleScreen();
+    }));
   document.getElementById('book').addEventListener('submit', async e => {
     e.preventDefault();
     const r = await api('/api/appointments', { method: 'POST',
