@@ -786,6 +786,33 @@ refusal is recorded, and three refusals in a row disable the schedule with the r
 which is what withdrawing authorization is supposed to do. Nothing else triggers a scan; the
 cron is the only trigger there is.
 
+### A link that does something
+
+A `GET` is supposed to be safe: the specification says so, which is why nothing asks for an
+anti-forgery token on one, why browsers keep it in history, and why prefetchers, link scanners
+and chat clients building a preview will all follow one without being asked. An application
+that changes something in response to a `GET` is reachable by every one of those, and by any
+page on any other site that embeds it in an image tag.
+
+QA NXT looks for this, and the thing worth understanding is how it decides, because the
+obvious way is wrong. A link called `/approve` may approve nothing. A link called `/view` may
+write. So the name is only used to choose what to probe — never to report. The finding comes
+from watching a page:
+
+1. It reads a page the link was found on, twice, changing nothing in between.
+2. If those two reads already differ, it stops and says it could not evaluate. A page with a
+   clock, a visit counter or a rotating token on it cannot witness anything, and claiming
+   otherwise would mean a finding on every link of every such page.
+3. Only then does it issue the link, as the least privileged identity you gave it.
+4. It reads the page once more. A finding is raised only if it differs now.
+
+If the page does not move, you get "not evaluated", not a pass. The request may have changed
+something that page does not show, and the check can establish that a safe verb changed state
+but not that it did not.
+
+What this means in practice: when it reports, the report names the page it watched, so you can
+disagree with it. When it declines, the reason says which of the four steps stopped it.
+
 ### What a clean result is allowed to say
 
 This is the sentence the product will print, and the strongest one it has:

@@ -1242,11 +1242,21 @@ changed state*. Nothing in the catalogue says that.
 **What would close it.** A check that issues the link as a low-privilege identity and
 establishes, by observation rather than by the verb, that something changed — then reports a
 state change reachable by a safe verb with no anti-forgery token. That is a real check worth
-building and it is not built. It would close PL_D01 and clinic-spa's CS_D04 together, which
-are the same shape.
+building and it is not built.
 
-**Recorded rather than rounded.** permits-legacy stands at 3 of 4 and clinic-spa at 3 of 4,
-and the missing one on each is this. The difference between tonight and this morning is that
+**A claim made here and since found wrong.** This said the check would close PL_D01 and
+clinic-spa's CS_D04 together, "which are the same shape". They are not. clinic-spa cancels
+an appointment with `POST /api/appointments/:id/cancel`, and a POST is not a safe verb, so
+nothing about that defect is this one. CS_D04 is a control the interface hides from a
+receptionist and the endpoint permits anyway — an authorization defect that needs the element
+model for one identity joined to the endpoint, which is a different check with a different
+premise. Built from this paragraph, the check closes one defect and not two. The error was in
+reasoning from both being "a thing the crawl would not press" to their being the same
+finding; what they share is how they are reached, not what is wrong with them.
+
+**Recorded rather than rounded.** permits-legacy stands at 3 of 4 and clinic-spa at 3 of 4.
+On permits-legacy the missing one is this, and it is now closed — see 56. On clinic-spa the
+missing one is a different defect than this entry claimed, and is not closed. The difference between tonight and this morning is that
 it was a mystery and is now a named, bounded piece of work with the reason the existing
 checks cannot cover it.
 

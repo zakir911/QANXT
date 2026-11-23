@@ -127,6 +127,31 @@ The engine signs in through `POST /api/session` with synthetic credentials. An a
 using SSO, MFA or a bespoke token exchange would need work before an authenticated scan could
 run against it. Nothing here handles that.
 
+## The cross-site request checks need a cookie, so they do not run against HTTP Basic
+
+`request.csrf` and `request.origin` establish whether the application accepts a
+state-changing request that did not come from its own pages. Both work by replaying a request
+with the session's cookie and a foreign origin. An application authenticating with HTTP Basic
+has no cookie to replay — the credential is on every request by construction, and a browser
+will not attach it cross-site — so both checks report that they need an authenticated session
+and stop.
+
+Measured on the permits-legacy lab, which uses Basic deliberately: both checks are configured
+and neither executes. The verdict is honest and the gap is real. An application in this shape
+gets no cross-site coverage from these two checks, and the scan says so rather than counting
+them as clean.
+
+## A vertical escalation check cannot see a privilege the page never claims
+
+`authz.vertical` asks whether a lower-privileged identity reaches what a higher-privileged one
+reaches. Where the application permits both, both get the same answer, and the check reports
+nothing — correctly, because nothing it can observe says one of them should have been refused.
+
+That an approval ought to require an inspector is a declared authorization model. The page
+does not carry it, so no check can derive it. This is the same class of ceiling as a business
+rule stated nowhere in the markup: reachable by telling the product the rule, not by looking
+harder at the application. Recorded here rather than left to look like coverage.
+
 ## Only HTTP is tested
 
 No WebSocket, no gRPC, no GraphQL-specific checks, no mobile API conventions. A GraphQL
