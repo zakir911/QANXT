@@ -3,11 +3,11 @@
   "name": "Northwind Orders API",
   "technology": "bearer-token sign-in answering JSON rather than a cookie; X-CSRF-Token header convention; one HTML page over a JSON API",
   "domain": "order management",
-  "ranAt": "2026-11-22T09:17:18.947Z",
+  "ranAt": "2026-11-23T05:59:08.126Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "6c0afca0-bc74-4624-b133-86c2030a496d",
+      "id": "8632089f-c34c-4911-8035-fe2c0b0c395e",
       "authStrategy": "tokenLogin",
       "budget": 180,
       "maxPages": 20
@@ -18,8 +18,8 @@
       "elements": 4,
       "endpoints": 2,
       "byKind": {
-        "link": 2,
-        "heading": 2
+        "heading": 2,
+        "link": 2
       },
       "paths": [
         "/",
@@ -34,7 +34,7 @@
       "list": []
     },
     "design": {
-      "testSuiteId": "09fa5a12-e81c-4811-ae49-7ddbfc3a1beb",
+      "testSuiteId": "5cc400e6-a368-4c8c-86c5-96f5c2c16a3b",
       "testSuiteName": "Northwind Orders API — form level",
       "forms": 0,
       "testsCreated": 32,
@@ -53,7 +53,7 @@
       "pageTests": 32,
       "perPage": [
         {
-          "pageId": "58169503-d589-48fc-9a30-de74d6514088",
+          "pageId": "b1d66ed0-4ffb-40e5-b605-c3b6e16db8a3",
           "name": "Token API (/)",
           "route": "/",
           "tests": 8,
@@ -67,7 +67,7 @@
           }
         },
         {
-          "pageId": "73a0b117-4d72-4bee-b858-007a36baa583",
+          "pageId": "e003d565-b682-4f49-b797-9a0ea07406ee",
           "name": "/api/orders",
           "route": "/api/orders",
           "tests": 8,
@@ -81,7 +81,7 @@
           }
         },
         {
-          "pageId": "de50ba54-c934-4833-9fd3-f586dc1cdd83",
+          "pageId": "09a37917-1b59-4f99-a5fe-126b650ada4e",
           "name": "Search (/search)",
           "route": "/search",
           "tests": 9,
@@ -96,7 +96,7 @@
           }
         },
         {
-          "pageId": "eb98b080-f042-418e-a69b-8eb6f8b0d1d8",
+          "pageId": "e45cbb84-e28b-4f65-bf80-13a014d307ae",
           "name": "/api/orders/ord-1",
           "route": "/api/orders/ord-1",
           "tests": 7,
@@ -112,7 +112,7 @@
     },
     "scan": {
       "ok": true,
-      "id": "25334138-0159-4ff5-9aac-31dfa78294a7",
+      "id": "d2ce0fb1-a034-4410-bde2-79b72764663a",
       "status": "completed",
       "requestsSent": null,
       "checksRun": null,
@@ -120,7 +120,7 @@
     },
     "run": {
       "ok": true,
-      "runId": "b217e4d4-8d29-4d4a-9a34-5617fda93b65",
+      "runId": "e5591fdf-c255-4470-92f1-7498c9b5b9ff",
       "status": "failed",
       "executions": 32,
       "byStatus": {
@@ -189,17 +189,31 @@
         },
         {
           "severity": "high",
+          "checkId": "VerboseErrorDisclosure",
+          "route": "/api/orders/%7Bid%7D",
+          "parameter": "id",
+          "message": "An unparseable identifier returns a stack trace — parameter \"id\" — CWE-209"
+        },
+        {
+          "severity": "high",
           "checkId": "BOLA",
           "route": "/api/orders/%7Bid%7D",
           "parameter": "id",
           "message": "bob can read a resource owned by alice — parameter \"id\" — CWE-639"
         },
         {
-          "severity": "high",
-          "checkId": "VerboseErrorDisclosure",
-          "route": "/api/orders/%7Bid%7D",
-          "parameter": "id",
-          "message": "An unparseable identifier returns a stack trace — parameter \"id\" — CWE-209"
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/api/orders",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -211,6 +225,13 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
+          "route": "/search",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
           "route": "/api/orders/ord-1",
           "parameter": "x-content-type-options",
           "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
@@ -218,16 +239,9 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/api/orders",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
           "route": "/",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -240,8 +254,8 @@
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -256,29 +270,9 @@
           "route": "/api/auth/token",
           "parameter": null,
           "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/search",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         }
       ],
       "gaps": [
-        {
-          "category": "workflow",
-          "status": "partially-covered",
-          "route": "/api/orders/ord-1",
-          "message": "/api/orders/ord-1: navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
-        },
         {
           "category": "workflow",
           "status": "partially-covered",
@@ -290,6 +284,12 @@
           "status": "partially-covered",
           "route": null,
           "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
+        },
+        {
+          "category": "workflow",
+          "status": "partially-covered",
+          "route": "/api/orders/ord-1",
+          "message": "/api/orders/ord-1: navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
         },
         {
           "category": "smoke",

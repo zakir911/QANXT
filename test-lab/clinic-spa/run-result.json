@@ -3,11 +3,11 @@
   "name": "Clinic Scheduler",
   "technology": "Node HTTP server, no server-rendered markup; every screen built by client JavaScript; History API routing; JSON API",
   "domain": "clinical appointment scheduling",
-  "ranAt": "2026-11-22T09:18:54.068Z",
+  "ranAt": "2026-11-23T05:47:15.890Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "e9edfed8-61a3-46e4-ab23-2e06d11bf1bc",
+      "id": "b3b0740e-1c28-4b42-aa05-266036147e8c",
       "authStrategy": "formLogin",
       "budget": 240,
       "maxPages": 40
@@ -15,19 +15,19 @@
     "discovery": {
       "status": "completed",
       "pages": 3,
-      "elements": 25,
+      "elements": 32,
       "endpoints": 4,
       "byKind": {
-        "button": 4,
+        "button": 5,
         "unknown": 3,
-        "textInput": 3,
         "form": 3,
-        "heading": 4,
+        "textInput": 3,
+        "heading": 5,
         "passwordInput": 1,
-        "link": 2,
+        "link": 4,
         "table": 2,
-        "navigation": 1,
-        "dateInput": 2
+        "navigation": 2,
+        "dateInput": 4
       },
       "paths": [
         "/",
@@ -40,19 +40,19 @@
       "count": 3,
       "list": [
         {
-          "id": "165e8af9-dc02-46f3-bd04-55f1affcafed",
+          "id": "5fab3c54-4e1d-4d59-9d87-bf77cd36b92e",
           "route": "/",
           "name": "Clinic Scheduler",
           "fields": 2
         },
         {
-          "id": "ba94e63b-0542-4931-8d86-b04c736b449a",
+          "id": "09ebf04b-40a3-45e3-97a6-08c1bca98aa4",
           "route": "/patients",
           "name": "Patients",
           "fields": 1
         },
         {
-          "id": "3d9d2870-2877-43ec-925b-664edac479cf",
+          "id": "aeef1907-e268-4784-acdd-7b6791c13490",
           "route": "/schedule",
           "name": "Schedule",
           "fields": 3
@@ -60,7 +60,7 @@
       ]
     },
     "design": {
-      "testSuiteId": "8114dd9c-17d6-49d4-8d3e-5fb6bc3286c9",
+      "testSuiteId": "64868389-e48a-4b3d-b8f3-7a9b852a5224",
       "testSuiteName": "Clinic Scheduler — form level",
       "forms": 3,
       "testsCreated": 153,
@@ -75,7 +75,7 @@
       "engine": "QA NXT form and page test engine (deterministic)",
       "perForm": [
         {
-          "formId": "165e8af9-dc02-46f3-bd04-55f1affcafed",
+          "formId": "5fab3c54-4e1d-4d59-9d87-bf77cd36b92e",
           "name": "Clinic Scheduler",
           "route": "/",
           "fields": 2,
@@ -107,7 +107,7 @@
           ]
         },
         {
-          "formId": "ba94e63b-0542-4931-8d86-b04c736b449a",
+          "formId": "09ebf04b-40a3-45e3-97a6-08c1bca98aa4",
           "name": "Patients",
           "route": "/patients",
           "fields": 1,
@@ -142,7 +142,7 @@
           ]
         },
         {
-          "formId": "3d9d2870-2877-43ec-925b-664edac479cf",
+          "formId": "aeef1907-e268-4784-acdd-7b6791c13490",
           "name": "Schedule",
           "route": "/schedule",
           "fields": 3,
@@ -183,7 +183,7 @@
       "pageTests": 23,
       "perPage": [
         {
-          "pageId": "03d41d53-7df5-4775-9280-f9826a9894c9",
+          "pageId": "62ecbeac-4c45-4128-bc9f-3e469eda4c40",
           "name": "Clinic Scheduler (/schedule)",
           "route": "/schedule",
           "tests": 11,
@@ -198,7 +198,7 @@
           }
         },
         {
-          "pageId": "343ac9fa-8fe2-4903-a46c-ff0b5be91f3f",
+          "pageId": "6bebab4a-beef-40a2-93d0-8d12dd6c5959",
           "name": "Clinic Scheduler (/patients)",
           "route": "/patients",
           "tests": 12,
@@ -217,7 +217,7 @@
     },
     "scan": {
       "ok": true,
-      "id": "605dfcc6-6948-4afd-afd8-d31304dfaad2",
+      "id": "9ce16bcd-b8f0-47df-853e-18ae6175adea",
       "status": "completed",
       "requestsSent": null,
       "checksRun": null,
@@ -225,12 +225,12 @@
     },
     "run": {
       "ok": true,
-      "runId": "b06967c2-aec1-454c-9c8b-56103399cd5a",
+      "runId": "133822f1-6827-48ea-b1b1-97d6d38e3f34",
       "status": "failed",
       "executions": 153,
       "byStatus": {
-        "passed": 127,
-        "failed": 15,
+        "passed": 126,
+        "failed": 16,
         "skipped": 6,
         "blocked": 5
       },
@@ -258,7 +258,7 @@
         {
           "name": "Patients: does not reflect markup typed into Find a patient",
           "route": "/patients",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-eaac2309> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-ce6771f6> element(s) exist. The application does not encode what it reflects."
         },
         {
           "name": "Patients: copes with the session disappearing before submission",
@@ -306,9 +306,14 @@
           "message": "The element was expected to be hidden but was visible."
         },
         {
-          "name": "Clinic Scheduler (/patients): is not shown to a signed-out visitor",
+          "name": "Clinic Scheduler (/patients): opens and shows its content",
           "route": null,
-          "message": "The element was expected to be hidden but was visible."
+          "message": "role=navigation name=\"Schedule Patients\" could not be used: No element matched role=navigation name=\"Schedule Patients\" (or 2 declared fallback(s))."
+        },
+        {
+          "name": "Clinic Scheduler (/patients): is reached from Clinic Scheduler (/schedule) through \"Patients\"",
+          "route": null,
+          "message": "role=navigation name=\"Schedule Patients\" could not be used: No element matched role=navigation name=\"Schedule Patients\" (or 2 declared fallback(s))."
         }
       ]
     },
@@ -331,6 +336,11 @@
         },
         {
           "severity": "major",
+          "route": "/patients",
+          "message": "Page /patients: role=navigation name=\"Schedule Patients\" could not be used: No element matched role=navigation name=\"Schedule Patients\" (or 2 declared fallback(s))"
+        },
+        {
+          "severity": "major",
           "route": "/schedule",
           "message": "Schedule: does not tie the error to start"
         },
@@ -338,11 +348,6 @@
           "severity": "major",
           "route": "/schedule",
           "message": "Schedule: does not tie the error to end"
-        },
-        {
-          "severity": "minor",
-          "route": "/",
-          "message": "Clinic Scheduler: css=form#signin could not be used: No element matched css=form#signin"
         }
       ],
       "structural": [
@@ -356,10 +361,10 @@
       "security": [
         {
           "severity": "high",
-          "checkId": "BOLA",
-          "route": "/api/patients",
-          "parameter": "id",
-          "message": "clinician nilsen can read a resource owned by clinician okafor — parameter \"id\" — CWE-639"
+          "checkId": "PrivilegeEscalation",
+          "route": "/",
+          "parameter": null,
+          "message": "A read-only account can perform a write — CWE-269"
         },
         {
           "severity": "high",
@@ -370,17 +375,17 @@
         },
         {
           "severity": "high",
-          "checkId": "PrivilegeEscalation",
-          "route": "/",
-          "parameter": null,
-          "message": "A read-only account can perform a write — CWE-269"
+          "checkId": "BOLA",
+          "route": "/api/patients",
+          "parameter": "id",
+          "message": "clinician nilsen can read a resource owned by clinician okafor — parameter \"id\" — CWE-639"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/schedule",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -392,65 +397,23 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/patients",
+          "route": "/",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
           "parameter": "x-frame-options",
           "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "NoAccountLockout",
-          "route": "/",
-          "parameter": null,
-          "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
           "route": "/patients",
           "parameter": "x-content-type-options",
           "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "NoRateLimit",
-          "route": "/api/patients",
-          "parameter": null,
-          "message": "15 requests in quick succession were never rate limited — CWE-770"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/patients",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/patients",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -462,23 +425,23 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/schedule",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/schedule",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
           "route": "/",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/schedule",
           "parameter": "x-frame-options",
           "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/patients",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -486,20 +449,62 @@
           "route": "/schedule",
           "parameter": "content-security-policy",
           "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/schedule",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/patients",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/patients",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "NoAccountLockout",
+          "route": "/",
+          "parameter": null,
+          "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
+        },
+        {
+          "severity": "medium",
+          "checkId": "NoRateLimit",
+          "route": "/api/patients",
+          "parameter": null,
+          "message": "15 requests in quick succession were never rate limited — CWE-770"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
         }
       ],
       "gaps": [
         {
           "category": "workflow",
           "status": "partially-covered",
-          "route": null,
-          "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
+          "route": "/schedule",
+          "message": "Clinic Scheduler (/schedule): navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
         },
         {
           "category": "workflow",
           "status": "partially-covered",
-          "route": "/schedule",
-          "message": "Clinic Scheduler (/schedule): navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
+          "route": null,
+          "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
         },
         {
           "category": "accessibility",
@@ -528,37 +533,37 @@
         {
           "category": "api",
           "status": "partially-covered",
+          "route": "/patients",
+          "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
+        },
+        {
+          "category": "api",
+          "status": "partially-covered",
+          "route": "/",
+          "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
+        },
+        {
+          "category": "api",
+          "status": "partially-covered",
+          "route": "/patients",
+          "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
+        },
+        {
+          "category": "api",
+          "status": "partially-covered",
+          "route": "/",
+          "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
+        },
+        {
+          "category": "api",
+          "status": "partially-covered",
           "route": "/schedule",
-          "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
-        },
-        {
-          "category": "api",
-          "status": "partially-covered",
-          "route": "/",
-          "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
-        },
-        {
-          "category": "api",
-          "status": "partially-covered",
-          "route": "/patients",
-          "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
-        },
-        {
-          "category": "api",
-          "status": "partially-covered",
-          "route": "/patients",
-          "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
-        },
-        {
-          "category": "api",
-          "status": "partially-covered",
-          "route": "/",
           "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
         },
         {
           "category": "dataIntegrity",
           "status": "partially-covered",
-          "route": "/schedule",
+          "route": "/patients",
           "message": "a record shown back incompletely — This form has one field whose value can be recognised on a page afterwards. A page showing it proves the record was kept; a page showing nothing cannot be told from a confirmation page, so a lost value would not be reported."
         },
         {
@@ -576,7 +581,7 @@
         {
           "category": "dataIntegrity",
           "status": "partially-covered",
-          "route": "/patients",
+          "route": "/schedule",
           "message": "a record shown back incompletely — This form has one field whose value can be recognised on a page afterwards. A page showing it proves the record was kept; a page showing nothing cannot be told from a confirmation page, so a lost value would not be reported."
         },
         {
@@ -630,13 +635,13 @@
         {
           "category": "security",
           "status": "human-required",
-          "route": "/patients",
+          "route": "/schedule",
           "message": "an anti-forgery token — This form submits with script, so a token would travel in a header that the page does not declare."
         },
         {
           "category": "security",
           "status": "human-required",
-          "route": "/schedule",
+          "route": "/patients",
           "message": "an anti-forgery token — This form submits with script, so a token would travel in a header that the page does not declare."
         },
         {
@@ -660,12 +665,6 @@
         {
           "category": "boundary",
           "status": "unknown",
-          "route": "/",
-          "message": "a length limit — Username declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
-        },
-        {
-          "category": "boundary",
-          "status": "unknown",
           "route": "/schedule",
           "message": "a length limit — Patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
         },
@@ -674,6 +673,12 @@
           "status": "unknown",
           "route": "/patients",
           "message": "a length limit — Find a patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+        },
+        {
+          "category": "boundary",
+          "status": "unknown",
+          "route": "/",
+          "message": "a length limit — Username declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
         }
       ]
     }
@@ -721,7 +726,7 @@
           "kind": "test failure",
           "strength": "route and wording",
           "route": "/patients",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-eaac2309> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-ce6771f6> element(s) exist. The application does not encode what it reflects."
         }
       },
       {

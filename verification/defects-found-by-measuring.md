@@ -30,7 +30,7 @@ actually asserts rather than what its name says it checks**. A retention test na
 going back looked only at the step the bug spares, and a coverage figure counted tests whose
 own stored reason says they never ran. Neither needed a browser to find.
 
-Entries 29 to 55 are dominated by one shape, and it is the most dangerous one here because it
+Entries 29 to 56 are dominated by one shape, and it is the most dangerous one here because it
 looks like health: **a check that could not reach the thing it claimed to test, and said so
 honestly, so nothing appeared broken.** An oracle whose premise had stopped holding. A crawl
 that stopped at a budget and reported what it had rather than what it had not. Three checks
@@ -1437,6 +1437,48 @@ and it was going nowhere.
 **Fix.** Each check's outcome is logged as it finishes, with the note. It paid for itself
 within one run: it is how defect 54 above was found, five minutes after the first scan that
 carried it.
+
+---
+
+## 56. The check that had to observe a change ran after five probes that caused it
+
+**Symptom.** permits-legacy went back to 3 of 4. `request.safe-verb-state-change` executed,
+reached no verdict, and said why: *"/approve.asp?id=1 answered 200 and /list.asp is unchanged,
+so this check saw no state change."*
+
+**Diagnosis.** A consequence of 54, and one I mapped for one check and not for the rest.
+Resolving the address a check issues gave *every* check the working address, and the
+authorization and injection probes against `/approve.asp` are all `GET`s. The order they ran
+in was the alphabetical order the surface happened to produce, and the observing check came
+tenth of eleven:
+
+```
+authz.missing       owner 200, unauthenticated 401
+authz.vertical      Both inspector and clerk reach /approve.asp?id=1 (200 and 200)
+injection.sql       unbalanced quote answered 401 ... tautology returned ? row(s)
+injection.command   metacharacter answered 401 with no shell error signature
+injection.template  3 arithmetic marker(s) returned unevaluated
+...
+request.safe-verb-state-change   Not evaluated: ... /list.asp is unchanged
+```
+
+Every one of those is a legitimate probe asking whether the server refuses, and every one of
+them approved the permit. By the tenth check the record had been approved five times, the
+witness page could not move, and the check that existed to see the change reported — honestly
+— that it had seen none. Of a change its own suite had already spent.
+
+The withdrawal of `api.rate-limit` from these addresses, two commits earlier, was the same
+problem recognised in one check. Fifteen approvals was obvious. Five was not, because each of
+the five had a good reason to be there.
+
+**Fix.** On an address the surface established changes state, the check that needs an
+untouched record runs first. A clean prior state is a resource and the first probe consumes it,
+so order is part of the result rather than an implementation detail. Reads are left in whatever
+order they arrived, because there is no reason to reorder them and every reason not to.
+
+**What it does not solve, stated rather than discovered later.** Two checks that both need an
+untouched record cannot both have one. The set holds a single check today, and a second entry
+would be a design problem rather than a list to extend.
 
 ---
 

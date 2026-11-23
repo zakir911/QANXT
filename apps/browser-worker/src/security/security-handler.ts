@@ -10,6 +10,7 @@ import type { BrowserContext } from 'playwright';
 import type { BrowserPool } from '../browser/browser-pool.js';
 import { checkDomXssInBrowser } from './dom-xss.js';
 import { issuableAddress } from './issuable-address.js';
+import { probeOrder } from './probe-order.js';
 import { stateChangingScanner } from './state-changing-floor.js';
 import type { Logger } from '../util/logger.js';
 
@@ -183,7 +184,11 @@ export async function handleSecurityScanJob(
         break;
       }
 
-      for (const check of target.checks) {
+      // Order matters against an address that changes state: the first probe is the only one
+      // that sees the application as it was. See probe-order.ts, which was written after a
+      // check whose whole job is observing a change reported that it had seen none, of a
+      // change five earlier probes against the same address had already spent.
+      for (const check of probeOrder(target.checks, target.changesState)) {
         if (!wanted.has(check)) continue;
 
         const runner = RUNNERS[check];
