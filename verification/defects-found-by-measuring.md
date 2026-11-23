@@ -1259,9 +1259,13 @@ this paragraph, in the shape this paragraph describes, and permits-legacy moved 
 4 of 4: the witness page read identically at 2,292 bytes twice, differed after the probe, and
 the finding joined PL_D01 on route and wording as *"A GET changes state, and needs no
 anti-forgery token to do it"*, CWE-352, observed as the viewer identity. clinic-spa stays at
-3 of 4, because the second defect this entry promised to close is not this shape at all. The difference between tonight and this morning is that
-it was a mystery and is now a named, bounded piece of work with the reason the existing
-checks cannot cover it.
+3 of 4, because the second defect this entry promised to close is not this shape at all.
+
+Which leaves the entry worth keeping for what it got right rather than for its conclusion. It
+turned a mystery into a named, bounded piece of work with the reason the existing checks could
+not cover it, and the check built from that description worked on the first scan that carried
+it. It also asserted a second defect was the same without checking the verb, and that cost a
+claim rather than a day.
 
 ---
 
