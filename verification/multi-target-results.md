@@ -35,24 +35,28 @@ lines in a handler no test could reach. They are listed in
 | Pages discovered | 3 | 7 | 4 |
 | Forms extracted | 3 | 2 | 0 |
 | Tests designed and run | 153 | 203 | 32 |
-| Passed | 127 | 170 | 25 |
-| Failed | 15 | 28 | 7 |
-| Skipped / blocked | 6 / 5 | 5 / 0 | 0 / 0 |
-| Security checks run | 27 of 27 | 17 of 22 | 8 of 8 |
-| Security findings | 14 | 25 | 9 |
-| Defects correlated | 5 | 11 | 2 |
+| Failed | 16 | 28 | 7 |
+| Security checks executed | 22 of 28 | 17 of 21 | 8 of 8 |
+| Security findings | 19 | 23 | 13 |
 | Structural findings | 1 | 6 | 0 |
 | Coverage gaps | 31 | 20 | 6 |
 | **Planted defects detected on evidence** | **3 of 4** | **4 of 4** | **4 of 4** |
 
-permits-legacy moved 3 of 4 to 4 of 4 on 2026-11-23. Its *checks run* reads 17 of 22 rather
-than 18 of 18 because the figure now comes from the scan's own stored snapshot of what
-executed, where it used to come from the count the launcher configured. Five checks are
-configured and do not execute on this target, each for a reason the scan records:
-`request.csrf` and `request.origin` need a cookie to replay cross-site and HTTP Basic has
-none; `authz.vertical` and `authz.readonly` get the same answer for both identities on an
-application that permits both; `api.input-validation` found no parameter to probe. The lower
-number is the more honest one.
+**permits-legacy moved 3 of 4 to 4 of 4 on 2026-11-23,** and its *checks executed* figure fell
+at the same time, from 18 of 18 to 17 of 21. Both numbers improved. The old one came from the
+count the launcher configured; this one comes from the scan's own record of what executed, and
+it names the four that did not — `request.csrf` and `request.origin`, which replay a request
+with the session's cookie and have none to replay against HTTP Basic; `authz.readonly`, which
+could not establish that a write was refused for the reason it was testing; and
+`api.input-validation`, which found no parameter to probe. A fifth, `authz.vertical`, now
+executes and reports that an inspector and a clerk both reach `/approve.asp?id=1`, which is
+true and is not a finding, because nothing observable says either should have been refused.
+
+The lower number is the better one, and the reason it was ever the higher one is worth
+keeping: the measurement driver was reading fields the API does not return, so every run it
+had printed said "? request(s)" and silently dropped the coverage figures. A measurement tool
+that discards how much of a scan was real is measuring the thing it is pointed at less well
+than it claims to.
 
 token-api moved 2 of 4 to 4 of 4 on 2026-11-22, measured on one build with the other two
 columns. The two that changed had both been built and neither had ever fired:
@@ -97,16 +101,25 @@ no content, and the form extractor still found all three forms, because discover
 real browser rather than reading responses.
 
 **Which build each column came from.** The three columns were measured on different commits
-of the same day's work, and saying which matters more than tidiness. `token-api` is the most
-recent: it carries the token sign-in, the JSON-endpoint reading and the authenticated-endpoint
-flag, which is how it moved from 0 of 4 to 2 of 4. `clinic-spa` and `permits-legacy` were
-measured one commit earlier, before the error-disclosure check and the sign-in surface item
-existed; neither target has a JSON API or a token sign-in, so nothing in that work changes
-what they find, but their *checks run* counts would go up by one apiece and their numbers are
-therefore a floor rather than a final figure. They are re-run on the final build before the
-certification is written.
+of the same day's work, and saying which matters more than tidiness.
 
-The five blocked tests on `clinic-spa` are the new read-back oracle declining to run: its
+That was resolved on 2026-11-23: all three were re-measured, and the table above is from those
+runs. `clinic-spa` and `token-api` come from one run of the driver over both; `permits-legacy`
+comes from a run one commit later, which added the rule that a check needing an untouched
+record is probed first against an address that changes state.
+
+That commit is the only difference between the two, and it cannot move the other two columns:
+neither target has an address the surface believes changes state, so there is nothing for the
+rule to reorder. `clinic-spa`'s own check count confirms it independently —
+`request.safe-verb-state-change` is configured on `permits-legacy` and is *not* configured on
+`clinic-spa`, which is also the measurement that corrected the earlier claim that one check
+would close a defect on each.
+
+The earlier prediction in this paragraph held, which is worth recording because predictions
+here have not always: both counts went up by one apiece, and `api.error-disclosure` is the
+check that did it.
+
+`clinic-spa`'s blocked tests are the read-back oracle declining to run: its
 session lives in the page and does not survive a page load, so reopening the record is a
 sign-out and the empty page that follows is not evidence. Blocked is the honest verdict there,
 and blocked is not coverage.
