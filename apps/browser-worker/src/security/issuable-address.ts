@@ -6,13 +6,15 @@ import type { SecurityTarget } from '@qa-nxt/shared-types';
  * `identifier` is a template, and discovery builds it by stripping the query. That is right
  * for grouping — /view.asp?id=1 and /view.asp?id=2 are one endpoint — and wrong for sending a
  * request to an application that identifies a record in the query string. Measured on
- * permits-legacy: four checks were pointed at /approve.asp with no id, the application
- * answered 404 to all of them, and each honestly reported that it could not tell whether the
+ * permits-legacy: `authz.missing`, `authz.vertical` and `api.excessive-data` were each pointed
+ * at /approve.asp with no id, and again at /revoke.asp with no id. The application answered
+ * 404 to all six probes, and each check honestly reported that it could not tell whether the
  * route was reachable. Nothing was broken and nothing was tested.
  *
- * Resolved here rather than in each of the twenty-eight call sites below, because every one of
- * them would otherwise have to remember, and the one that forgot would report a clean
- * inconclusive against an address that does not exist.
+ * Resolved once, before a check is dispatched, rather than at each of the twenty-eight places
+ * a runner reaches for the identifier: every one of them would otherwise have to remember,
+ * and the one that forgot would report a clean inconclusive against an address that does not
+ * exist.
  *
  * Narrow on purpose:
  *  - a template carrying a placeholder is left alone, because the check substitutes into it

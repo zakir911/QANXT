@@ -280,6 +280,41 @@ public class SecurityAttackSurfaceTests
         item.Why.Should().Contain("changes something");
     }
 
+    /// <summary>The repeated probe is withdrawn from an address that changes state.
+    ///
+    /// `api.rate-limit` sends fifteen requests to establish that no threshold exists below
+    /// that number. Against a read that is a fair probe. Against an approve link it is fifteen
+    /// real approvals, and the product will not perform an action fifteen times to find out
+    /// whether it is throttled.
+    ///
+    /// This was live and harmless only by accident: the check was being pointed at the address
+    /// with its query stripped, so it sent fifteen requests to a page that does not exist and
+    /// reported "never rate limited" about it. Giving every check the working address is what
+    /// would have turned a meaningless finding into a destructive one.</summary>
+    [Fact]
+    public void A_repeated_probe_is_not_pointed_at_an_address_that_changes_state()
+    {
+        var surface = Build(
+            endpoints: new[] { Endpoint("GET", "https://app.test/approve.asp?id=1") },
+            stateChangingLinks: new[] { new StateChangingLinkInput("https://app.test/approve.asp", Seen) });
+
+        var item = surface.Items.Single(i => i.Identifier.Contains("approve.asp"));
+        item.ChangesState.Should().BeTrue();
+        item.RelevantChecks.Should().NotContain(SecurityChecks.RateLimit);
+        item.RelevantChecks.Should().Contain(SecurityChecks.StateChangeBySafeVerb,
+            "the check that acts once, and only after establishing a witness, still applies");
+    }
+
+    /// <summary>A read with query parameters keeps it, so the withdrawal above is about the
+    /// address changing state and not about query parameters.</summary>
+    [Fact]
+    public void A_read_with_query_parameters_still_gets_the_repeated_probe()
+    {
+        Build(endpoints: new[] { Endpoint("GET", "https://app.test/search?term=x") })
+            .Items.Should().ContainSingle()
+            .Which.RelevantChecks.Should().Contain(SecurityChecks.RateLimit);
+    }
+
     /// <summary>And the reason is said once, however many ways the address arrived.</summary>
     [Fact]
     public void The_reason_a_link_is_probed_is_not_repeated()

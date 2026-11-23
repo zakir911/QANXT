@@ -10,6 +10,7 @@ import type { BrowserContext } from 'playwright';
 import type { BrowserPool } from '../browser/browser-pool.js';
 import { checkDomXssInBrowser } from './dom-xss.js';
 import { issuableAddress } from './issuable-address.js';
+import { stateChangingScanner } from './state-changing-floor.js';
 import type { Logger } from '../util/logger.js';
 
 /**
@@ -199,7 +200,17 @@ export async function handleSecurityScanJob(
         // Every runner below is handed the address that can actually be issued, so none of
         // them has to know that the identifier is a template.
         const runnable = { ...target, identifier: issuableAddress(target) };
-        const outcome = await runOne(check, runnable, runner, scanner, context);
+
+        // And against an address the surface established changes something, every probe is
+        // declared state-changing however the check describes its own request. The scope
+        // guard already holds that a verb may raise a declared risk and never lower it; the
+        // same is true of the address, and only the surface knows that part.
+        //
+        // Without this, a check that declares its request merely active -- correct for a read
+        // -- is describing a mutation, and the guard waves it through on an authorisation
+        // nobody gave. That is the one rule this product is built around.
+        const probeScanner = target.changesState ? stateChangingScanner(scanner) : scanner;
+        const outcome = await runOne(check, runnable, runner, probeScanner, context);
         // Logged per check, because a scan that reports only its findings cannot be debugged
         // and cannot be trusted: "no finding" and "never ran" look identical from the
         // outside, which is the exact confusion this product exists to remove. The reason a

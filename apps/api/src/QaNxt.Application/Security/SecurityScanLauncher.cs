@@ -237,6 +237,11 @@ public sealed class SecurityScanLauncher : ISecurityScanLauncher
                 identifier = item.Identifier,
                 httpMethod = item.HttpMethod,
                 requiresAuthentication = item.RequiresAuthentication,
+                // So the worker can floor the risk of every probe against it. A check that
+                // declares its own request merely active is describing a read; against an
+                // address the surface knows changes state, that declaration is wrong, and the
+                // scope guard would wave it through on an authorisation nobody gave.
+                changesState = item.ChangesState,
                 parameters = item.Parameters,
                 checks = item.RelevantChecks,
                 // The page a check may read before and after acting, so it can observe a

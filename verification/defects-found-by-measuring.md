@@ -1349,7 +1349,8 @@ that page through to the checks as the page they may read before and after actin
 
 **Symptom.** On permits-legacy, `authz.missing`, `authz.vertical` and `api.excessive-data`
 each reported, honestly and in detail, that they could not tell whether `/approve.asp` was
-reachable, because the application answered 404.
+reachable, because the application answered 404 — and said the same again about `/revoke.asp`.
+Six probes, three checks, two addresses, no coverage.
 
 **Diagnosis.** The surface identifies an endpoint by a template built by stripping the query.
 That is right for grouping — `/view.asp?id=1` and `/view.asp?id=2` are one endpoint — and
@@ -1360,7 +1361,7 @@ correct about the address it was given and useless about the endpoint it was mea
 Nothing was broken and nothing was tested.
 
 Worth separating from the checks' own behaviour: the third verdict worked exactly as
-intended here. Four checks declined to draw a conclusion they had not earned, and said why,
+intended here. Three checks declined to draw a conclusion they had not earned, and said why,
 which is what made the real fault findable at all. A suite that had reported those as passes
 would have hidden it completely.
 

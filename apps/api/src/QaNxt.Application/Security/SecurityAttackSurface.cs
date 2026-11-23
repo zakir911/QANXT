@@ -585,6 +585,19 @@ public static class SecurityAttackSurfaceBuilder
     private static SecuritySurfaceItem ChangesStateByASafeVerb(SecuritySurfaceItem item) => item with
     {
         RelevantChecks = item.RelevantChecks.Append(SecurityChecks.StateChangeBySafeVerb)
+            // And the repeated probe is withdrawn. `api.rate-limit` sends fifteen requests to
+            // establish that no threshold exists below that number, which is a fair probe
+            // against a read and fifteen real approvals against this. It is withdrawn here
+            // rather than left to the scope guard because the honest reason is specific: the
+            // product will not perform an action fifteen times to find out whether it is
+            // throttled, and saying so is better coverage than a finding bought that way.
+            //
+            // Measured, and this matters: before the address a check issues was resolved
+            // properly, this check was hitting /approve.asp with the query stripped, getting
+            // 404 fifteen times, and reporting "never rate limited" about a page that does
+            // not exist. Giving every check the working address is what turned a meaningless
+            // finding into a destructive one, so the two changes belong together.
+            .Where(c => c != SecurityChecks.RateLimit)
             .Distinct(StringComparer.Ordinal).OrderBy(c => c, StringComparer.Ordinal).ToList(),
         // Said plainly, because a reader seeing an authorization check against a
         // plain-looking GET deserves to know why it is being probed at all.

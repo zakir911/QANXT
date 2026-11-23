@@ -166,6 +166,12 @@ export interface SecurityTarget {
   identifier: string;
   httpMethod?: string;
   requiresAuthentication: boolean;
+  /**
+   * The surface established that reaching this address changes something. Every probe against
+   * it is floored at state-changing risk, whatever the individual check declares, so the
+   * scope guard governs it on the authorisation that was actually given.
+   */
+  changesState?: boolean;
   parameters: string[];
   checks: string[];
   /**
