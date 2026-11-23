@@ -280,14 +280,34 @@ async function runOne(key) {
       if (['completed', 'failed', 'abandoned', 'cancelled'].includes(status)) break;
       await new Promise(resolve => setTimeout(resolve, 5000));
     }
-    const untested = scan?.untestedReasons ?? scan?.untested ?? null;
-    line(`  scan ${scan?.status ?? 'unknown'}: ${scan?.requestsSent ?? '?'} request(s), `
+    // Read by the names the API actually returns. This asked for `requestsSent` and
+    // `checksRun`, which are not fields: every run this driver has ever printed said
+    // "? request(s)" and recorded checksRun as null, while the API was returning
+    // requestsIssued, checksExecuted and checksConfigured all along. The numbers that say
+    // how much of a scan was real were the ones being dropped.
+    const untested = scan?.untestedAreas ?? scan?.untestedReasons ?? scan?.untested ?? null;
+    const executed = scan?.checksExecuted ?? null;
+    const configured = scan?.checksConfigured ?? null;
+    const requests = scan?.requestsIssued ?? scan?.requestsSent ?? null;
+    line(`  scan ${scan?.status ?? 'unknown'}: ${requests ?? '?'} request(s), `
       + `${(scan?.findings ?? []).length} finding(s)`
+      + (executed && configured ? `, ${executed.length} of ${configured.length} check(s) executed` : '')
       + (untested ? `, ${Array.isArray(untested) ? untested.length : Object.keys(untested).length} untested reason(s)` : ''));
+
+    // And the checks that did not execute are named, because that list is the difference
+    // between "this application is clean" and "most of it was never examined".
+    if (executed && configured) {
+      const missing = configured.filter(c => !executed.includes(c));
+      if (missing.length) line(`    did not execute: ${missing.join(', ')}`);
+    }
+
     result.stages.scan = {
       ok: true, id: scanId, status: scan?.status ?? null,
-      requestsSent: scan?.requestsSent ?? null,
-      checksRun: scan?.checksRun ?? null,
+      requestsIssued: requests,
+      requestsBlocked: scan?.requestsBlocked ?? null,
+      checksExecuted: executed,
+      checksConfigured: configured,
+      checksNotExecuted: executed && configured ? configured.filter(c => !executed.includes(c)) : null,
       untested
     };
   }
