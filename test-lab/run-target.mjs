@@ -206,9 +206,50 @@ async function runOne(key) {
     try { return new URL(p.url ?? p.normalizedUrl).pathname; } catch { return p.route ?? ''; }
   }))].filter(Boolean).sort();
   line(`  paths: ${paths.join(' ') || '(none)'}`);
+
+  // Which addresses the ground truth names, and whether anything reached them.
+  //
+  // A route nothing reached is either a gap in the product or a fixture that does not do what
+  // its own ground truth says, and the two are indistinguishable from the detection count
+  // alone. clinic-spa cost that distinction: CS_D04 names
+  // /api/appointments/:id/cancel, the server implemented it, and no line of client code ever
+  // called it, so the application never issued the request discovery would have had to see.
+  // The defect read as undetected for three runs and two written explanations before anyone
+  // asked whether the application did the thing.
+  //
+  // Advisory, deliberately. This cannot tell the two cases apart either — it can only say
+  // which routes to go and look at, which is the question that was never asked.
+  const reached = new Set([
+    ...paths,
+    ...(model.endpoints ?? []).map(e => {
+      try { return new URL(e.urlTemplate ?? e.sampleUrl ?? '').pathname; } catch { return e.urlTemplate ?? ''; }
+    })
+  ].filter(Boolean));
+
+  /** A ground-truth route matches when something reached it, allowing for :id style holes. */
+  const wasReached = (route) => {
+    if (reached.has(route)) return true;
+    const pattern = new RegExp('^' + route.split('/')
+      .map(part => (part.startsWith(':') || /^\{.+\}$/.test(part) ? '[^/]+' : part
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+      .join('/') + '$');
+    return [...reached].some(seen => pattern.test(seen));
+  };
+
+  const unreachedRoutes = [...new Set(target.defects.flatMap(d => d.routes ?? []))]
+    .filter(route => !wasReached(route))
+    .sort();
+  if (unreachedRoutes.length) {
+    line(`  ground truth names ${unreachedRoutes.length} route(s) nothing reached: `
+      + `${unreachedRoutes.join(', ')}`);
+    line('    either a gap in discovery or a fixture that does not exercise its own route — '
+      + 'worth checking which before reading the detection count');
+  }
+
   result.stages.discovery = {
     status: discovery.status, pages: pages.length, elements: elements.length,
     endpoints: (model.endpoints ?? []).length, byKind, paths,
+    groundTruthRoutesNothingReached: unreachedRoutes,
     message: discovery.message ?? discovery.summary ?? null
   };
 
