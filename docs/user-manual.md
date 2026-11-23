@@ -304,6 +304,21 @@ every row agrees on says nothing, a column where every row differs is a referenc
 and a column taking a handful of values across many rows is the one worth covering —
 whatever your application calls it.
 
+**And a map is one identity's view, which is the limit that catches people.** Discovery signs
+in as the account you configured and walks the application as that account sees it. A control
+your application does not render for that role is on no page in the map, so it was never
+followed — not declined, not skipped, simply absent, with nothing left behind to count. The
+run says so at the end, and it deliberately does not put a number on it, because a control
+that was never drawn leaves no trace to count and any number would be invented.
+
+This is worth acting on rather than noting. On this project's own 137-screen lab, the account
+the measurements used held `shipment:cancel` and not `claim:settle`: the crawl reached the
+cancel screen three times over and never once reached the settle screen, because there was no
+Settle button on the page for that role. Mapping again as an account holding the other
+permissions found it on the first pass. If your application hides controls by role — and most
+do — then one map is one role's worth of coverage, and the honest way to cover the rest is to
+map again as the other roles.
+
 ---
 
 ## 5. Getting tests
