@@ -1306,6 +1306,31 @@ and each asserts the index returns the element the scan returned. The load is no
 which the scan never was, so which of two identically-named controls a fingerprint describes
 no longer depends on what the database happened to return.
 
+**Measured, and the first attempt at measuring it was worthless.** The same 2,069-test suite
+dispatched in 104.9 seconds on the fixed build — *slower* per test than the 266.7-second
+baseline. The box was at load average 13, peaking at 21.5 on four cores, with a 230-page crawl
+running and the kernel killing processes for memory. A wall-clock number collected in that
+state says nothing about the code, and reporting it either way would have been a guess wearing
+a decimal point.
+
+So the method logs each time it loads a model, because how seldom it runs *is* the fix, and
+that count is immune to how busy the machine is. Then both behaviours were timed against the
+same suite, the same element model and the same idle box, by temporarily restoring the
+per-execution load:
+
+| | element model loads | dispatch | per test |
+| --- | --- | --- | --- |
+| Loaded per execution | 2,017 | 43.26 s | 20.91 ms |
+| Loaded once per application | **1** | **3.79 s** | **1.83 ms** |
+
+2,069 tests against a 3,068-element model, load average 2.4, no worker running so nothing
+competed. 11.4 times faster, and the load count is the part that cannot be argued with: 2,017
+reads of the same table became one.
+
+The freight target's full model is 8,599 elements rather than 3,068, so the saving there is
+larger again. That figure is not stated here, because it has not been measured — the crawl
+that would produce it was the thing starving the box.
+
 ---
 
 ## 51. The attack surface skipped an address already on it instead of marking it
@@ -1396,7 +1421,7 @@ carried it.
 
 ---
 
-## Three near misses worth recording
+## Four near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;
 the elapsed time was 535 seconds and I had read 02:51 as 03:12. Checking the timestamp
@@ -1407,6 +1432,24 @@ report.
 self-inflicted, caused by rebuilding the API mid-run. The second had the same 300-second
 signature with nothing rebuilt, which corrected it. Attributing a real defect to one's own
 error is the same failure as the reverse, and costs the same: the defect goes unfixed.
+
+**A green suite reported as green, then 17 failures in the same suite.** The worker suite ran
+clean — 543 passed, 0 failed — and was reported that way. Run again while a 230-page crawl was
+mapping the freight target on the same four cores, it produced 17 failures across five files.
+
+Not one of them was an assertion about behaviour. Every single failure was a timeout:
+`page.goto` exceeding six seconds against a fixture on loopback, `locator.selectOption`
+exceeding 1,500 milliseconds, hooks timing out at sixty seconds, and the five files taking
+335, 395 and 403 seconds where they normally take a few. The load average was 13 and had
+peaked at 21.5 on a four-core box — five times oversubscribed, by my own two jobs.
+
+The temptation here is the dangerous part, and it has a respectable-sounding name: raise the
+timeouts. It would work and it would be wrong-headed as a response to this, because nothing
+about the suite had changed and nothing about the product had either. The timeouts are
+test-speed knobs rather than assertions about how fast the application must be, so moving
+them would not weaken a single claim — which is exactly why reaching for them would be easy
+and exactly why it would have buried the real finding, that these two jobs cannot share this
+machine. Recorded, and the suite is re-run on an idle box rather than re-tuned.
 
 **An hour spent measuring a build that did not contain the change.** The worker is started as
 `node dist/index.js` from its own package directory, so it appears in `ps` as exactly that

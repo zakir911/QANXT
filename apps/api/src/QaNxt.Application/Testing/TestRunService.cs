@@ -695,6 +695,14 @@ public sealed class TestRunService : ITestRunService
             })
             .ToListAsync(ct);
 
+        // Logged because the point of this method is how seldom it runs. It used to run once
+        // per execution, reading the whole element model each time; one line per application
+        // per run is what the fix looks like from outside, and wall-clock timing on a loaded
+        // machine cannot tell the two apart.
+        _logger.LogInformation(
+            "Loaded the element model for application {ApplicationId}: {Elements} element(s) indexed",
+            applicationId, elements.Count);
+
         var index = new ElementFingerprintIndex();
         foreach (var e in elements)
         {
