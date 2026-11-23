@@ -38,12 +38,21 @@ lines in a handler no test could reach. They are listed in
 | Passed | 127 | 170 | 25 |
 | Failed | 15 | 28 | 7 |
 | Skipped / blocked | 6 / 5 | 5 / 0 | 0 / 0 |
-| Security checks run | 27 of 27 | 18 of 18 | 8 of 8 |
-| Security findings | 14 | 22 | 9 |
+| Security checks run | 27 of 27 | 17 of 22 | 8 of 8 |
+| Security findings | 14 | 25 | 9 |
 | Defects correlated | 5 | 11 | 2 |
 | Structural findings | 1 | 6 | 0 |
 | Coverage gaps | 31 | 20 | 6 |
-| **Planted defects detected on evidence** | **3 of 4** | **3 of 4** | **4 of 4** |
+| **Planted defects detected on evidence** | **3 of 4** | **4 of 4** | **4 of 4** |
+
+permits-legacy moved 3 of 4 to 4 of 4 on 2026-11-23. Its *checks run* reads 17 of 22 rather
+than 18 of 18 because the figure now comes from the scan's own stored snapshot of what
+executed, where it used to come from the count the launcher configured. Five checks are
+configured and do not execute on this target, each for a reason the scan records:
+`request.csrf` and `request.origin` need a cookie to replay cross-site and HTTP Basic has
+none; `authz.vertical` and `authz.readonly` get the same answer for both identities on an
+application that permits both; `api.input-validation` found no parameter to probe. The lower
+number is the more honest one.
 
 token-api moved 2 of 4 to 4 of 4 on 2026-11-22, measured on one build with the other two
 columns. The two that changed had both been built and neither had ever fired:
@@ -61,13 +70,27 @@ columns. The two that changed had both been built and neither had ever fired:
   reading as six un-throttled attempts was suppressing the true finding, because this API answers
   a wrong password and an empty submission identically (46).
 
-**What the one remaining miss on each of the other two is.** clinic-spa's CS_D04 and
-permits-legacy's PL_D01 are the same defect in two shapes — a cancel hidden from a receptionist
-and permitted by the endpoint, and an approve that is a GET any role may issue. Both sit behind a
-control the crawl will not press, and both now reach the attack surface as endpoints and are
-scanned, which they never were before. Neither is detected, because what they need is a check
-that issues the link and establishes by observation that state changed, and that check does not
-exist. Named and bounded in product defect 49 rather than left as a mystery.
+**PL_D01, and a claim that was wrong about it.** An earlier version of this section said
+clinic-spa's CS_D04 and permits-legacy's PL_D01 were "the same defect in two shapes" and that
+one check would close both. The first half is defensible — both sit behind a control the crawl
+will not press — and the conclusion drawn from it was not. clinic-spa cancels an appointment
+with `POST /api/appointments/:id/cancel`, and a POST is not a safe verb, so the check built
+from that paragraph cannot apply to it. What the two share is how they are reached, not what
+is wrong with them.
+
+PL_D01 is closed. `request.safe-verb-state-change` issues the link as the lowest-privilege
+identity available and concludes from a witness page rather than from the verb: it reads the
+page the link was found on twice, changing nothing, and declines to evaluate if those two
+reads already differ. On this target the witness read identically at 2,292 bytes twice and
+differed afterwards, and the finding joined PL_D01 on route and wording —
+*"A GET changes state, and needs no anti-forgery token to do it"*, CWE-352, observed as the
+viewer identity.
+
+CS_D04 remains open, and is now correctly described. It needs the element model for one
+identity compared against another's — a control the interface renders for a clinician and
+omits for a receptionist — joined to the endpoint behind it, then called as the receptionist.
+Discovery crawls as one identity, so that is a feature rather than a fix: per-identity
+discovery, then a diff. Named and bounded, not attempted.
 
 Discovery working at all on `clinic-spa` is the first result worth stating: the server sends
 no content, and the form extractor still found all three forms, because discovery drives a

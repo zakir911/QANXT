@@ -1254,9 +1254,12 @@ premise. Built from this paragraph, the check closes one defect and not two. The
 reasoning from both being "a thing the crawl would not press" to their being the same
 finding; what they share is how they are reached, not what is wrong with them.
 
-**Recorded rather than rounded.** permits-legacy stands at 3 of 4 and clinic-spa at 3 of 4.
-On permits-legacy the missing one is this, and it is now closed — see 56. On clinic-spa the
-missing one is a different defect than this entry claimed, and is not closed. The difference between tonight and this morning is that
+**Built, and it closed the one it could.** `request.safe-verb-state-change` was written from
+this paragraph, in the shape this paragraph describes, and permits-legacy moved from 3 of 4 to
+4 of 4: the witness page read identically at 2,292 bytes twice, differed after the probe, and
+the finding joined PL_D01 on route and wording as *"A GET changes state, and needs no
+anti-forgery token to do it"*, CWE-352, observed as the viewer identity. clinic-spa stays at
+3 of 4, because the second defect this entry promised to close is not this shape at all. The difference between tonight and this morning is that
 it was a mystery and is now a named, bounded piece of work with the reason the existing
 checks cannot cover it.
 
@@ -1264,8 +1267,14 @@ checks cannot cover it.
 
 ## 50. Starting a run re-read the whole element model once per test
 
-**Symptom.** Dispatch of the 7,774-test freight suite took 257 seconds. The previous fix had
+**Symptom.** Dispatch of the 7,774-test freight suite took 266.7 seconds. The previous fix had
 stopped it outliving the client, which was the visible failure, and left the cost in place.
+
+Measured from the run's `created_at` to the audit entry the service writes after the whole
+dispatch loop completes. A first reading of 257 seconds used `started_at`, which is nine
+seconds later because another service stamps it when the first execution actually begins —
+while dispatch is still running, since the worker consumes jobs as they are enqueued. Both
+numbers describe the same event; only the first is measured from the wrong end of it.
 
 **Diagnosis.** Measured rather than assumed, which is the only reason it was found. Redis
 stamps every stream entry with a millisecond timestamp, so the ids in the API log give the
@@ -1277,7 +1286,7 @@ apiece.
 Three awaits were still inside the loop. The expensive one was not an N+1 at all but N times
 a whole table: `LoadFingerprintsAsync` read every element of every page of the application,
 for one execution. On the freight target that query returns 8,599 rows and measures 19.8ms,
-so starting the suite spent about 150 of its 257 seconds reading the same rows back 7,602
+so starting the suite spent about 150 of its 267 seconds reading the same rows back 7,602
 times, before EF materialised any of them. It then scanned those 8,599 elements linearly for
 each step of each execution: roughly 163 million comparisons across the run.
 
