@@ -90,11 +90,36 @@ differed afterwards, and the finding joined PL_D01 on route and wording —
 *"A GET changes state, and needs no anti-forgery token to do it"*, CWE-352, observed as the
 viewer identity.
 
-CS_D04 remains open, and is now correctly described. It needs the element model for one
-identity compared against another's — a control the interface renders for a clinician and
-omits for a receptionist — joined to the endpoint behind it, then called as the receptionist.
-Discovery crawls as one identity, so that is a feature rather than a fix: per-identity
-discovery, then a diff. Named and bounded, not attempted.
+CS_D04 remains open, and the sentence that used to sit here — that it needs per-identity
+discovery, "a feature rather than a fix" — was asserted without being tested and is not
+established. That is the second claim about this one defect made from reasoning rather than
+measurement; the first was that it shared a shape with PL_D01. Both are recorded in product
+defect 49 rather than quietly replaced.
+
+**What is measured.** `POST /api/appointments/{id}/cancel` never reaches the attack surface.
+Not with the crawl in navigation mode, and not with it in interactive mode and state-changing
+clicks authorised. Without the endpoint on the surface no authorization check can be pointed
+at it, so the defect is out of reach before identities enter the question at all — which is
+what makes the per-identity story not merely unproven but the wrong layer to be looking at.
+
+Three observations, in the order they were made:
+
+- In navigation mode, the click pass over `/schedule` reported `skipped 1 control(s)` and gave
+  no reason. The crawl logged only two refusal reasons, and "it is not navigation and the
+  crawl is in navigation mode" is neither of them. It logs this one now.
+- The `--destructive` flag set `allowStateChangingClicks` and left the mode at `navigation`,
+  where that flag is close to inert for anything but a form submit: the click decision
+  consults it for submit and reset controls *before* the mode gate and consults the mode
+  afterwards for everything else. The flag now carries the mode with it.
+- With both set, discovery did find more — four forms rather than three, five endpoints rather
+  than four, `POST /api/appointments` now on the surface — and still no cancel endpoint. In
+  that run the click pass over `/schedule` produced no line at all, where the navigation-mode
+  run had produced one.
+
+clinic-spa is also the target that signs out on a page load, so discovery moves through it
+from inside, by its router rather than by addresses. Whether that path runs a click pass over
+a list it reached from inside is the specific open question, and it is a question rather than
+a conclusion.
 
 Discovery working at all on `clinic-spa` is the first result worth stating: the server sends
 no content, and the form extractor still found all three forms, because discovery drives a

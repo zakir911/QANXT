@@ -1263,15 +1263,28 @@ establishes, by observation rather than by the verb, that something changed — 
 state change reachable by a safe verb with no anti-forgery token. That is a real check worth
 building and it is not built.
 
-**A claim made here and since found wrong.** This said the check would close PL_D01 and
-clinic-spa's CS_D04 together, "which are the same shape". They are not. clinic-spa cancels
-an appointment with `POST /api/appointments/:id/cancel`, and a POST is not a safe verb, so
-nothing about that defect is this one. CS_D04 is a control the interface hides from a
-receptionist and the endpoint permits anyway — an authorization defect that needs the element
-model for one identity joined to the endpoint, which is a different check with a different
-premise. Built from this paragraph, the check closes one defect and not two. The error was in
-reasoning from both being "a thing the crawl would not press" to their being the same
-finding; what they share is how they are reached, not what is wrong with them.
+**Two claims made here and since found wrong, both about the same defect.**
+
+The first said the check would close PL_D01 and clinic-spa's CS_D04 together, "which are the
+same shape". They are not. clinic-spa cancels an appointment with
+`POST /api/appointments/:id/cancel`, and a POST is not a safe verb, so nothing about that
+defect is this one. The error was reasoning from both being "a thing the crawl would not
+press" to their being the same finding; what they share is how they are reached, not what is
+wrong with them. Built from this paragraph the check closes one defect, not two.
+
+The second was the replacement for the first: that CS_D04 needs the element model for one
+identity compared against another's, and so is a feature rather than a fix. That was also
+written without being tested, and testing it showed the premise is wrong at a lower layer —
+`POST /api/appointments/{id}/cancel` never reaches the attack surface at all, in navigation
+mode or in interactive mode with state-changing clicks authorised. No authorization check can
+be pointed at an endpoint that is not there, so identities are not the obstacle and were never
+the layer to look at. What the investigation did produce is in
+`verification/multi-target-results.md`: three measured observations, two fixes worth keeping,
+and one specific open question.
+
+Writing the same kind of wrong sentence twice about one defect is the lesson worth keeping
+here. Both times the reasoning was sound and the premise was untested, and both times the
+correction cost one experiment.
 
 **Built, and it closed the one it could.** `request.safe-verb-state-change` was written from
 this paragraph, in the shape this paragraph describes, and permits-legacy moved from 3 of 4 to
