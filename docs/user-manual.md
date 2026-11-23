@@ -810,6 +810,16 @@ If the page does not move, you get "not evaluated", not a pass. The request may 
 something that page does not show, and the check can establish that a safe verb changed state
 but not that it did not.
 
+**It really does the thing, once.** Step 3 is a real request to a real address, and if the link
+approves a permit then a permit gets approved. There is no way to establish this flaw without
+triggering it — that is what makes it a flaw — so the check is declared state-changing and the
+scope you authorized is what permits it, exactly as the cross-site request check already is. If
+you do not want state-changing probes, the scope is where you say so, and the check is then
+refused and recorded as refused rather than quietly skipped. It acts once per address, never
+in a loop: the repeated rate-limit probe is deliberately withdrawn from any address the
+product believes changes state, because establishing that an approval is not throttled by
+approving fifteen times is not a trade this product makes.
+
 What this means in practice: when it reports, the report names the page it watched, so you can
 disagree with it. When it declines, the reason says which of the four steps stopped it.
 
