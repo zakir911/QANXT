@@ -272,10 +272,33 @@ navigation mode mapped 166, because clicking costs an action apiece — so it re
 defect screens against navigation's 28. It reaches what navigation cannot and misses what
 navigation gets. Neither alone reaches everything.
 
-So freight's four unreached screens are reachable today, and what they need is configuration
-rather than code: an identity holding the permissions, interaction authorised, and a budget
-large enough to map what clicking finds. Worth stating plainly because "10 of 32" invites the
-opposite conclusion.
+**Closed by doing it.** Signed in as `admin`, interaction authorised, seeded at the claim
+detail pages and given 900 seconds, the crawl mapped `/claims/clm-0001/settle` — FP_D11's
+screen — along with `/claims/clm-0001/evidence` and `/claims/clm-0005/evidence`, which is
+FP_D19's. With `/shipments/:id/cancel` from the `ops.lead` run, three of the four are
+demonstrably reachable. The fourth, `/customs/declarations/:id/release`, is the one no run
+seeded a declaration *detail* page for; there is no evidence it behaves differently from
+settle, and no evidence it does not.
+
+| map | configuration | defect screens reached |
+| --- | --- | --- |
+| navigation, whole site | the default | 28 of 32 |
+| interactive as `ops.lead` | interaction authorised | 21 of 32 |
+| interactive as `admin`, seeded | narrow and deep | 18 of 32 |
+| **all three together** | | **31 of 32** |
+
+**The union is what is reachable; it is not what a run achieves,** and the difference is the
+real finding. Every one of those rows is a different configuration of the same product, and a
+customer runs one of them. Breadth and depth trade against each other under a time budget:
+navigation mode walks furthest and never presses a control, interactive mode presses controls
+and walks less far, and the identity it signs in as decides which controls exist at all. No
+single configuration reached everything, and the product does not currently tell anyone that
+— the crawl reports its own unopened frontier, which is most of the way there, but nothing
+says "the identity you gave me cannot see these controls".
+
+So what freight's four needed was configuration rather than code, which is worth saying
+plainly because "10 of 32" invites the opposite conclusion. What the product still owes is a
+word about the identity it mapped as.
 
 ## The control group: the application the engines were built against
 
