@@ -1273,18 +1273,27 @@ press" to their being the same finding; what they share is how they are reached,
 wrong with them. Built from this paragraph the check closes one defect, not two.
 
 The second was the replacement for the first: that CS_D04 needs the element model for one
-identity compared against another's, and so is a feature rather than a fix. That was also
-written without being tested, and testing it showed the premise is wrong at a lower layer —
-`POST /api/appointments/{id}/cancel` never reaches the attack surface at all, in navigation
-mode or in interactive mode with state-changing clicks authorised. No authorization check can
-be pointed at an endpoint that is not there, so identities are not the obstacle and were never
-the layer to look at. What the investigation did produce is in
-`verification/multi-target-results.md`: three measured observations, two fixes worth keeping,
-and one specific open question.
+identity compared against another's, and so is a feature rather than a fix. Also written
+without being tested, and also wrong.
 
-Writing the same kind of wrong sentence twice about one defect is the lesson worth keeping
-here. Both times the reasoning was sound and the premise was untested, and both times the
-correction cost one experiment.
+The cause was three layers below either guess. Three mentions of "cancel" exist in the whole
+clinic-spa fixture: the comment describing the defect, the button markup, and the server route.
+No line of client code ever joined the second to the third. The lab drew a Cancel button that
+called nothing, so the application never issued `POST /api/appointments/:id/cancel`, discovery
+never observed it, the endpoint never reached the attack surface, and no authorization check
+could be pointed at it. The product was behaving correctly throughout.
+
+Wiring the control, which is what the fixture's own ground truth describes, and authorising
+interaction put the endpoint on the surface on the first run and produced three findings
+against it — `authz.readonly` reporting *"A read-only account can perform a write"*, which is
+the planted defect, with `request.csrf` and `request.origin` beside it. clinic-spa went to
+4 of 4, and the matcher joined it without a word of its ground truth being touched.
+
+Two wrong sentences about one defect is the lesson worth keeping. Both times the reasoning was
+sound and the premise was untested. The question that settled it was not about the crawler or
+the identities or the verb; it was "does the application actually do the thing", and it went
+unasked through three runs and two written explanations by someone who had just spent the day
+insisting that a check must observe rather than assume.
 
 **Built, and it closed the one it could.** `request.safe-verb-state-change` was written from
 this paragraph, in the shape this paragraph describes, and permits-legacy moved from 3 of 4 to

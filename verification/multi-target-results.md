@@ -32,15 +32,25 @@ lines in a handler no test could reach. They are listed in
 
 | | clinic-spa | permits-legacy | token-api |
 | --- | --- | --- | --- |
-| Pages discovered | 3 | 7 | 4 |
-| Forms extracted | 3 | 2 | 0 |
-| Tests designed and run | 153 | 203 | 32 |
-| Failed | 16 | 28 | 7 |
+| Pages discovered | 4 | 7 | 4 |
+| Forms extracted | 4 | 2 | 0 |
+| Tests designed and run | 198 | 203 | 32 |
 | Security checks executed | 22 of 28 | 17 of 21 | 8 of 8 |
-| Security findings | 19 | 23 | 13 |
-| Structural findings | 1 | 6 | 0 |
-| Coverage gaps | 31 | 20 | 6 |
-| **Planted defects detected on evidence** | **3 of 4** | **4 of 4** | **4 of 4** |
+| Security findings | 22 | 23 | 13 |
+| Coverage gaps | 42 | 20 | 6 |
+| **Planted defects detected on evidence** | **4 of 4** | **4 of 4** | **4 of 4** |
+
+**clinic-spa's column is from a run with interaction authorised**, and the distinction matters
+rather than being a footnote. CS_D04 is a control the interface hides from a receptionist and
+the endpoint permits anyway, and the only way to learn what that control calls is to press it.
+Pressing it is a change to the application, so it needs the owner's permission, exactly as
+PL_D01's probe does. Without that permission the crawl declines, the endpoint stays off the
+surface, and clinic-spa reads 3 of 4 — correctly, with the reason recorded rather than the
+defect silently missing.
+
+Three checks found it once the endpoint was there: `authz.readonly` reporting *"A read-only
+account can perform a write"* against `/api/appointments/apt-1/cancel`, which is the planted
+defect, alongside `request.csrf` and `request.origin` on the same address.
 
 **permits-legacy moved 3 of 4 to 4 of 4 on 2026-11-23,** and its *checks executed* figure fell
 at the same time, from 18 of 18 to 17 of 21. Both numbers improved. The old one came from the
@@ -90,7 +100,7 @@ differed afterwards, and the finding joined PL_D01 on route and wording —
 *"A GET changes state, and needs no anti-forgery token to do it"*, CWE-352, observed as the
 viewer identity.
 
-CS_D04 remains open, and the sentence that used to sit here — that it needs per-identity
+CS_D04 is closed, and the way it closed is the point. The sentence that used to sit here — that it needs per-identity
 discovery, "a feature rather than a fix" — was asserted without being tested and is not
 established. That is the second claim about this one defect made from reasoning rather than
 measurement; the first was that it shared a shape with PL_D01. Both are recorded in product
@@ -116,10 +126,23 @@ Three observations, in the order they were made:
   that run the click pass over `/schedule` produced no line at all, where the navigation-mode
   run had produced one.
 
-clinic-spa is also the target that signs out on a page load, so discovery moves through it
-from inside, by its router rather than by addresses. Whether that path runs a click pass over
-a list it reached from inside is the specific open question, and it is a question rather than
-a conclusion.
+**And then the actual cause, which was none of the above.** Three mentions of "cancel" exist
+in the whole fixture: the comment describing the defect, the button markup, and the server
+route. No line of client code ever joined the second to the third. The lab drew a Cancel
+button that called nothing, so the application never issued the request discovery would have
+had to observe, and the endpoint could not reach the surface by any amount of crawling. The
+product was behaving correctly the entire time.
+
+Wiring the control — which is what the fixture's own ground truth describes — and authorising
+interaction produced the endpoint on the first run, and three checks on it immediately. The
+question that settled it was not about the crawler or the identities or the verb. It was
+"does the application actually do the thing", and it went unasked through three runs and two
+written explanations.
+
+The driver now prints which ground-truth routes nothing reached, so that question is asked by
+the instrument rather than remembered. It cannot say whether an unreached route is a gap in
+the product or a fixture that does not exercise itself — but naming the route is what was
+missing, and the line says plainly that it does not know which case it is.
 
 Discovery working at all on `clinic-spa` is the first result worth stating: the server sends
 no content, and the form extractor still found all three forms, because discovery drives a
