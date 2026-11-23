@@ -174,6 +174,13 @@ export interface SecurityTarget {
    * address was seen on; absent where it recorded none.
    */
   witnessUrl?: string | null;
+  /**
+   * One address discovery actually saw, query included. `identifier` is a template with the
+   * query stripped, so a check that must *issue* the request uses this instead: an
+   * application that identifies a record in the query string would otherwise be probed at an
+   * address with no record in it.
+   */
+  sampleUrl?: string | null;
 }
 
 /** A synthetic identity the scan may sign in as. Never a real account. */

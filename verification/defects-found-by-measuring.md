@@ -1252,7 +1252,149 @@ checks cannot cover it.
 
 ---
 
-## Two near misses worth recording
+## 50. Starting a run re-read the whole element model once per test
+
+**Symptom.** Dispatch of the 7,774-test freight suite took 257 seconds. The previous fix had
+stopped it outliving the client, which was the visible failure, and left the cost in place.
+
+**Diagnosis.** Measured rather than assumed, which is the only reason it was found. Redis
+stamps every stream entry with a millisecond timestamp, so the ids in the API log give the
+gap between consecutive enqueues directly: a uniform 33.8ms, median 28, quartiles 24 and 33.
+Flat, so a fixed per-iteration cost rather than contention. Redis itself was not it — 200
+`XADD`s each paying for a new process and a new connection cost under 1ms of server time
+apiece.
+
+Three awaits were still inside the loop. The expensive one was not an N+1 at all but N times
+a whole table: `LoadFingerprintsAsync` read every element of every page of the application,
+for one execution. On the freight target that query returns 8,599 rows and measures 19.8ms,
+so starting the suite spent about 150 of its 257 seconds reading the same rows back 7,602
+times, before EF materialised any of them. It then scanned those 8,599 elements linearly for
+each step of each execution: roughly 163 million comparisons across the run.
+
+**Fix.** The element model is the same answer for every test of an application, so it is
+loaded once per application and indexed by the ways a locator can name a control, which
+retires the scan as well as the query. The test data set a case draws on is cached per set,
+and the per-execution `cases.First` lookup — quadratic over the run — is a dictionary.
+
+**How the fix is held.** The index is a separate type so its behaviour can be checked against
+the scan it replaces rather than against itself: 570 generated cases cover every locator
+strategy against values present and absent in a model with repeated roles, labels and names,
+and each asserts the index returns the element the scan returned. The load is now ordered,
+which the scan never was, so which of two identically-named controls a fingerprint describes
+no longer depends on what the database happened to return.
+
+---
+
+## 51. The attack surface skipped an address already on it instead of marking it
+
+**Symptom.** permits-legacy measured 3 of 4 with state-changing interaction on and off, and
+the `ChangesState` flag the previous fix added was never observed on any item.
+
+**Diagnosis.** Discovery records a mutating-looking link as an endpoint whether or not the
+crawl followed it. By the time the link list is applied to the surface the address is already
+there as an ordinary-looking `GET`, so the dedupe dropped it — and the one fact the surface
+was missing, that it changes state, was attached to nothing. This is the same mistake as
+keying the surface off the crawl's refusal, one layer along: the fact and the record of the
+refusal are different things, and only the fact belongs on the surface.
+
+**Fix.** An address already on the surface is marked, not skipped.
+
+---
+
+## 52. Three links to one address produced three identical endpoint rows
+
+**Symptom.** Meridian Freight carried `GET /shipments/shp-0008/cancel` three times.
+
+**Diagnosis.** The insert loop checked for an existing row with a database query while every
+row it had added was still pending in the change tracker, unsaved and therefore invisible to
+that query.
+
+**Fix.** The addresses added by the loop are tracked in the loop.
+
+---
+
+## 53. The page a link was seen on was recorded in prose and nowhere usable
+
+**Symptom.** Nothing to witness a state change against.
+
+**Diagnosis.** The crawler reports `foundOnUrl` for every mutating link it declines to
+follow, and the ingest put it in the human-readable reason on a coverage gap. The endpoint
+row has a field for exactly this — `TriggeredByPageId` — and it was left null.
+
+**Fix.** The ingest resolves `foundOnUrl` to the page and sets it, and the surface carries
+that page through to the checks as the page they may read before and after acting.
+
+---
+
+## 54. Checks were pointed at an address with the query stripped off
+
+**Symptom.** On permits-legacy, `authz.missing`, `authz.vertical` and `api.excessive-data`
+each reported, honestly and in detail, that they could not tell whether `/approve.asp` was
+reachable, because the application answered 404.
+
+**Diagnosis.** The surface identifies an endpoint by a template built by stripping the query.
+That is right for grouping — `/view.asp?id=1` and `/view.asp?id=2` are one endpoint — and
+wrong for sending a request to an application that identifies a record in the query string,
+as plenty of older ones do. Every check was issuing `/approve.asp` with no `id`. The page
+genuinely does not exist, the 404 was genuine, and each check's inconclusive verdict was
+correct about the address it was given and useless about the endpoint it was meant to test.
+Nothing was broken and nothing was tested.
+
+Worth separating from the checks' own behaviour: the third verdict worked exactly as
+intended here. Four checks declined to draw a conclusion they had not earned, and said why,
+which is what made the real fault findable at all. A suite that had reported those as passes
+would have hidden it completely.
+
+**Fix.** The address a check issues is resolved once, before dispatch, rather than in each of
+the twenty-eight places a runner reaches for it — because every one of them would otherwise
+have to remember, and the one that forgot would report a clean inconclusive against an
+address that does not exist. Narrow on purpose: a template carrying a placeholder is left
+alone, since the check substitutes into it itself, and the sample address is preferred only
+when it carries a query the template dropped.
+
+---
+
+## 55. A scan reported its findings and nothing about what each check concluded
+
+**Symptom.** `request.safe-verb-state-change` was configured, did not execute, and no stored
+record anywhere said why. Establishing the reason took an hour of elimination.
+
+**Diagnosis.** The worker builds a per-check outcome carrying exactly the needed sentence —
+refused by the scope guard, inconclusive and why, or executed — and nothing logged it. The
+scan's stored snapshot lists which checks executed, which is enough to know that one did not
+and not enough to know why. For a product whose whole argument is that untested must never
+look like tested, the reason a check could not conclude is the most useful line it produces,
+and it was going nowhere.
+
+**Fix.** Each check's outcome is logged as it finishes, with the note. It paid for itself
+within one run: it is how defect 54 above was found, five minutes after the first scan that
+carried it.
+
+---
+
+## Three near misses worth recording
+
+**A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;
+the elapsed time was 535 seconds and I had read 02:51 as 03:12. Checking the timestamp
+rather than the expectation was the only thing that stopped a fourth "the budget is broken"
+report.
+
+**A product defect blamed on myself.** The first `fetch failed` was reported here as
+self-inflicted, caused by rebuilding the API mid-run. The second had the same 300-second
+signature with nothing rebuilt, which corrected it. Attributing a real defect to one's own
+error is the same failure as the reverse, and costs the same: the defect goes unfixed.
+
+**An hour spent measuring a build that did not contain the change.** The worker is started as
+`node dist/index.js` from its own package directory, so it appears in `ps` as exactly that
+and `pkill -f browser-worker` matches nothing. Three restarts in a row left the same process
+running, from before the check under test existed, and the scan dutifully recorded that this
+worker had no runner for it. Every layer above was then searched for the fault — the check
+id, the surface rule, the scope guard, the sign-in — and each was found to be correct,
+because each was. What ended it was asking which process was actually serving, and reading
+`/proc/<pid>/fd/1` to see which log it was writing to. The start script now names the binary
+by absolute path so the process is findable, and there is a stop script whose patterns match
+what it is trying to stop.
+
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;
 the elapsed time was 535 seconds and I had read 02:51 as 03:12. Checking the timestamp

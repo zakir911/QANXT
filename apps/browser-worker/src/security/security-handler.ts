@@ -9,6 +9,7 @@ import type { WorkerConfig } from '../config.js';
 import type { BrowserContext } from 'playwright';
 import type { BrowserPool } from '../browser/browser-pool.js';
 import { checkDomXssInBrowser } from './dom-xss.js';
+import { issuableAddress } from './issuable-address.js';
 import type { Logger } from '../util/logger.js';
 
 /**
@@ -195,7 +196,19 @@ export async function handleSecurityScanJob(
           continue;
         }
 
-        outcomes.push(await runOne(check, target, runner, scanner, context));
+        // Every runner below is handed the address that can actually be issued, so none of
+        // them has to know that the identifier is a template.
+        const runnable = { ...target, identifier: issuableAddress(target) };
+        const outcome = await runOne(check, runnable, runner, scanner, context);
+        // Logged per check, because a scan that reports only its findings cannot be debugged
+        // and cannot be trusted: "no finding" and "never ran" look identical from the
+        // outside, which is the exact confusion this product exists to remove. The reason a
+        // check did not conclude is the most useful line in a scan and it was going nowhere.
+        context.logger.info('Security check finished', {
+          check, target: target.identifier, executed: outcome.executed,
+          findings: outcome.findings.length, note: outcome.note
+        });
+        outcomes.push(outcome);
       }
     }
   } finally {

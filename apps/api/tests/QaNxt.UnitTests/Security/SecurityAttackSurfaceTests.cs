@@ -181,6 +181,10 @@ public class SecurityAttackSurfaceTests
     [InlineData("/users/{id}/deactivate")]
     [InlineData("/cancel-order")]
     [InlineData("/admin/purge")]
+    // Discovery stores absolute addresses, which is the form this actually sees.
+    [InlineData("http://127.0.0.1:4700/approve.asp")]
+    [InlineData("http://127.0.0.1:4700/revoke.asp")]
+    [InlineData("https://app.test/shipments/shp-0008/cancel")]
     public void A_get_whose_address_says_it_acts_is_probed_for_changing_state(string template)
     {
         Build(endpoints: new[] { Endpoint("GET", template) })
@@ -233,6 +237,25 @@ public class SecurityAttackSurfaceTests
         Build(endpoints: new[] { endpoint })
             .Items.Should().ContainSingle()
             .Which.WitnessIdentifier.Should().Be("https://app.test/view.asp?id=5");
+    }
+
+    /// <summary>The identifier is a template; issuing a request needs the address discovery
+    /// actually saw.
+    ///
+    /// Measured, not assumed: permits-legacy identifies a permit in the query string, the
+    /// template drops it, and the probe reached /approve.asp with no id. The application
+    /// answered 404, the witness page did not move, and the check correctly reported that it
+    /// had seen no state change — of an address that was never the one under test. The same
+    /// stripping had `api.rate-limit` sending its fifteen requests at a missing page.</summary>
+    [Fact]
+    public void An_address_discovery_saw_travels_with_the_item()
+    {
+        var endpoint = Endpoint("GET", "/approve.asp", sampleUrl: "https://app.test/approve.asp?id=1");
+
+        var item = Build(endpoints: new[] { endpoint }).Items.Should().ContainSingle().Subject;
+        item.Identifier.Should().Be("/approve.asp", "the template is what groups and dedupes");
+        item.SampleIdentifier.Should().Be("https://app.test/approve.asp?id=1",
+            "and the sample is what a probe can actually issue");
     }
 
     /// <summary>A state-changing link discovery reported is marked on the item already there,

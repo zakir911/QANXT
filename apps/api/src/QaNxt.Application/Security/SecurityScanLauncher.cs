@@ -241,7 +241,11 @@ public sealed class SecurityScanLauncher : ISecurityScanLauncher
                 checks = item.RelevantChecks,
                 // The page a check may read before and after acting, so it can observe a
                 // change rather than infer one from the verb.
-                witnessUrl = item.WitnessIdentifier
+                witnessUrl = item.WitnessIdentifier,
+                // And one address as discovery saw it, for a check that has to issue the
+                // request rather than describe it. The identifier above has the query
+                // stripped, which loses the record id on any application that puts it there.
+                sampleUrl = item.SampleIdentifier
             }),
             checksToRun = requested,
             checksConfigured = implied,

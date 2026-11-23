@@ -22,7 +22,16 @@ public sealed record SecuritySurfaceItem(
     string Why,
     /// <summary>A page a check can read before and after acting, to observe a change rather
     /// than infer one. Null where discovery recorded none.</summary>
-    string? WitnessIdentifier = null);
+    string? WitnessIdentifier = null,
+    /// <summary>One address discovery actually saw, query and all.
+    ///
+    /// <see cref="Identifier"/> is a template with the query removed, which is right for
+    /// grouping and wrong for issuing: an application that identifies a record in the query
+    /// string, as plenty of older ones do, loses the identifier entirely. A probe sent to the
+    /// template reached /approve.asp with no id and got a 404, so the check that had to
+    /// observe a state change observed nothing and the scan that measured rate limiting
+    /// measured it against a missing page.</summary>
+    string? SampleIdentifier = null);
 
 /// <summary>What discovery found that is worth security testing, and what that does not cover.</summary>
 public sealed record SecurityAttackSurface(
@@ -561,7 +570,8 @@ public static class SecurityAttackSurfaceBuilder
             Parameters: parameters,
             RelevantChecks: checks.ToList(),
             Why: string.Join("; ", reasons),
-            WitnessIdentifier: endpoint.WitnessUrl);
+            WitnessIdentifier: endpoint.WitnessUrl,
+            SampleIdentifier: string.IsNullOrWhiteSpace(endpoint.SampleUrl) ? null : endpoint.SampleUrl);
     }
 
     /// <summary>Records on a surface item what discovery observed about it: that the
