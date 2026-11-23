@@ -237,6 +237,46 @@ clinic-spa: CS_D04 read as undetected through three runs and two written explana
 cause turned out to be that the fixture drew a control wired to nothing, so the application
 never issued the request discovery would have had to see. The instrument now asks.
 
+### Why those four were never reached, established rather than assumed
+
+Four probes with `test-lab/freight-platform/discover-with-interaction.mjs`, each one answering
+a question the previous one raised.
+
+**The controls are neither links nor forms.** Settle is
+`<button type="button" data-route="/claims/{id}/settle">`. No `href`, so the mutating-link
+record that put permits-legacy's `/approve.asp` on the surface cannot see it. No form, so the
+declared-write-endpoint path cannot either — and that path demonstrably works on this target,
+since 69 distinct form actions were extracted including `/billing/invoices/inv-0004/pay`.
+Freight is also server-rendered, so its submissions are document POSTs rather than XHR and
+nothing lands in the observed-endpoint capture. An interactive click is the only route in.
+
+**The crawl identity's role decides whether the control exists to click.** `ops.lead` holds
+`role-operations`: `shipment:cancel` yes, `claim:settle` and `customs:release` no. The
+interactive crawl signed in as `ops.lead` reached `/shipments/:id/cancel` three times over and
+neither of the other two. One permission held, one screen reached; two permissions missing, two
+screens missing. That is a control group at both ends rather than a hypothesis.
+
+**Given the permission, the crawl finds the screen.** Signed in as `admin`, the crawl's own log
+reads `Found http://127.0.0.1:4400/claims/clm-0001/settle by clicking "Settle"`, with
+`/evidence` and `/investigate` beside it. `/admin/api-keys` and `/admin/audit`, unreachable as
+`ops.lead`, were mapped.
+
+**Whether a found screen is then mapped is a budget question, and the crawl says so.** That
+run ended `251 URL(s) were still waiting to be opened when the budget stopped the crawl, so
+this map is partial by that much` — the settle page among them. Defect 38's fix earning its
+keep: a crawl that reports its own unopened frontier is the single most useful product
+behaviour in this entire investigation, because every other step was readable only against it.
+
+**Interactive mode is a trade, not an upgrade.** On the same budget it mapped 128 routes where
+navigation mode mapped 166, because clicking costs an action apiece — so it reached 21 of 32
+defect screens against navigation's 28. It reaches what navigation cannot and misses what
+navigation gets. Neither alone reaches everything.
+
+So freight's four unreached screens are reachable today, and what they need is configuration
+rather than code: an identity holding the permissions, interaction authorised, and a budget
+large enough to map what clicking finds. Worth stating plainly because "10 of 32" invites the
+opposite conclusion.
+
 ## The control group: the application the engines were built against
 
 `freight-platform` was re-run after every change above, because a fix made for one shape of
