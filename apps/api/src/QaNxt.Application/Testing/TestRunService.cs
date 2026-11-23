@@ -189,6 +189,42 @@ public sealed class TestRunService : ITestRunService
         // dropped socket.
         var dispatchCt = CancellationToken.None;
 
+        // Everything the dispatch loop would otherwise fetch once per execution.
+        //
+        // Building one execution's payload asked the database for the application, the
+        // test's steps and their assertions, and the application's credentials — every
+        // time. On a 7,774-test suite that is tens of thousands of round trips, and the
+        // whole insert-and-dispatch ran past the client's timeout: the caller gave up
+        // believing the run had failed while the control plane carried on executing it. A
+        // product that cannot start its own largest suite without the client dying is not
+        // one somebody buys, and the cost here was never the work — it was asking for the
+        // same three things over and over.
+        //
+        // None of them vary within a run, so each is fetched once. Steps come back in a
+        // single query for every case in the run, ordered and with their assertions, and
+        // are handed to the builder already grouped.
+        var caseIds = executions.Select(e => e.TestCaseId).Distinct().ToList();
+        var stepsByCase = (await _db.TestSteps
+                .Where(s => caseIds.Contains(s.TestCaseId))
+                .OrderBy(s => s.Order)
+                .Include(s => s.Assertions)
+                .ToListAsync(dispatchCt))
+            .GroupBy(s => s.TestCaseId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        var applicationIds = cases.Where(c => c.ApplicationId is not null)
+            .Select(c => c.ApplicationId!.Value).Distinct().ToList();
+        var applicationsById = await _db.Applications
+            .Where(a => applicationIds.Contains(a.Id))
+            .ToDictionaryAsync(a => a.Id, dispatchCt);
+
+        // The one a test with no application of its own falls back to.
+        var projectApplication = cases.Any(c => c.ApplicationId is null)
+            ? await _db.Applications.FirstOrDefaultAsync(a => a.ProjectId == project.Id, dispatchCt)
+            : null;
+
+        var credentialsByApplication = new Dictionary<Guid, ApplicationCredentials>();
+
         var dispatched = 0;
         var dispatchErrors = new List<string>();
 
@@ -210,7 +246,8 @@ public sealed class TestRunService : ITestRunService
                 continue;
             }
 
-            var payload = await BuildPayloadAsync(run, execution, testCase, project, environment, dispatchCt);
+            var payload = await BuildPayloadAsync(run, execution, testCase, project, environment,
+                stepsByCase, applicationsById, projectApplication, credentialsByApplication, dispatchCt);
 
             if (payload.IsFailure)
             {
@@ -359,11 +396,16 @@ public sealed class TestRunService : ITestRunService
 
     private async Task<Result<ExecutionJobPayload>> BuildPayloadAsync(
         TestRun run, TestExecution execution, TestCase testCase, Domain.Projects.Project project,
-        Domain.Projects.Environment? environment, CancellationToken ct)
+        Domain.Projects.Environment? environment,
+        IReadOnlyDictionary<Guid, List<TestStep>> stepsByCase,
+        IReadOnlyDictionary<Guid, Domain.Applications.Application> applicationsById,
+        Domain.Applications.Application? projectApplication,
+        Dictionary<Guid, ApplicationCredentials> credentialsByApplication,
+        CancellationToken ct)
     {
         var application = testCase.ApplicationId is null
-            ? await _db.Applications.FirstOrDefaultAsync(a => a.ProjectId == project.Id, ct)
-            : await _db.Applications.FirstOrDefaultAsync(a => a.Id == testCase.ApplicationId, ct);
+            ? projectApplication
+            : applicationsById.GetValueOrDefault(testCase.ApplicationId.Value);
 
         if (application is null)
             return Error.Validation($"{testCase.Reference} has no application to run against.");
@@ -384,16 +426,18 @@ public sealed class TestRunService : ITestRunService
                 return Error.Validation($"{testCase.Reference} cannot run: its API base URL {apiReason}");
         }
 
-        var steps = await _db.TestSteps
-            .Where(s => s.TestCaseId == testCase.Id)
-            .OrderBy(s => s.Order)
-            .Include(s => s.Assertions)
-            .ToListAsync(ct);
+        var steps = stepsByCase.GetValueOrDefault(testCase.Id) ?? new List<TestStep>();
 
         if (steps.Count == 0)
             return Error.Validation($"{testCase.Reference} has no steps.");
 
-        var credentials = await _applications.ResolveCredentialsAsync(application, ct);
+        // Resolving credentials decrypts and can reach the database; it is the same answer
+        // for every test of an application, so it is asked once.
+        if (!credentialsByApplication.TryGetValue(application.Id, out var credentials))
+        {
+            credentials = await _applications.ResolveCredentialsAsync(application, ct);
+            credentialsByApplication[application.Id] = credentials;
+        }
         var secrets = await ResolveSecretsAsync(testCase, environment, credentials, ct);
         var data = await ResolveDataAsync(testCase, ct);
         var fingerprints = await LoadFingerprintsAsync(testCase, ct);
