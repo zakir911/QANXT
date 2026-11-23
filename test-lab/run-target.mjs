@@ -166,8 +166,18 @@ async function runOne(key) {
     body: {
       maxPages, maxCrawlDepth: 6, explorationTimeoutSeconds: budget,
       maxActions: Number(flag('max-actions', 1500)),
-      interactionMode: 'navigation', respectRobotsTxt: false, useSitemap: false,
-      ...(DESTRUCTIVE ? { allowStateChangingClicks: true } : {}),
+      respectRobotsTxt: false, useSitemap: false,
+      // `allowStateChangingClicks` on its own is close to inert for a button, and that cost a
+      // measurement. The crawl's click decision refuses a control that is not navigation while
+      // the mode is `navigation`, and it checks that *after* the state-changing flag — so the
+      // flag overrides the mode for a form submit and not for anything else. clinic-spa's
+      // cancel control is a plain button, and a run with state-changing clicks authorised
+      // logged "skipped 1 control(s)" with no reason, because that refusal is not one of the
+      // two the crawl logs. Authorising interaction has to mean the crawl is allowed to
+      // interact, so the two travel together here.
+      ...(DESTRUCTIVE
+        ? { interactionMode: 'interactive', allowStateChangingClicks: true }
+        : { interactionMode: 'navigation' }),
       // How this application signs in, where the page alone cannot say: the endpoint that
       // issues a token, the field it comes back in, and the header it goes out in. The
       // same slot carries a form login's selectors.

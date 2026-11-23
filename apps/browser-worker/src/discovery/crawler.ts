@@ -13,7 +13,7 @@ import { isUrlAllowed, normalizeUrl, visitKey } from '../security/url-guard.js';
 import { RobotsPolicy, requestContextFetcher } from '../security/robots.js';
 import type { Logger } from '../util/logger.js';
 import { classifyPage, inferRequiresAuthentication } from './classify.js';
-import { decide, linkLooksMutating } from './clickable.js';
+import { decide, linkLooksMutating, looksMutating } from './clickable.js';
 import type { RawClickCandidate } from './page-extractor.js';
 
 /** Controls examined per page. Enough for a full sidebar, bounded so one dense page
@@ -914,7 +914,16 @@ export class Crawler {
       if (!decision.click) {
         // Only the interesting refusals are logged. "It is an ordinary link" would be
         // every anchor on the page and would bury the ones that matter.
-        if (decision.reason.includes('changes data') || decision.reason.includes('form')) {
+        //
+        // A control whose own label reads as mutating is always interesting, whatever the
+        // reason it was refused, because it is the control the application's state-changing
+        // setting is *about*. Logged on the label rather than only on the reason: clinic-spa's
+        // cancel button was refused for being a non-navigation control in navigation mode,
+        // which is not one of the two reasons below, so a run with state-changing clicks
+        // authorised recorded "skipped 1 control(s)" and nothing else. Someone who turns that
+        // setting on and sees nothing happen deserves to be told which setting stopped it.
+        if (decision.reason.includes('changes data') || decision.reason.includes('form')
+            || looksMutating(candidate.accessibleName)) {
           this.note(`Did not click "${candidate.accessibleName || candidate.tagName}" on `
             + `${discovered.route || '/'}: ${decision.reason}.`);
         }
