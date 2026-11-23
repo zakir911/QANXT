@@ -279,9 +279,20 @@ async function runOne(
     const result = await runner(scanner, target, context);
 
     if (result.skipped) {
+      // The guard's own sentence first, then its code, and "unknown" only when it truly said
+      // nothing. A refusal whose reason reads "unknown" is a refusal nobody can act on, and
+      // one of those cost an investigation: a check had passed a bare sentence where the
+      // guard's decision object was expected, so `.reason` was undefined and the sentence it
+      // had written went nowhere. Reading both fields, and tolerating a decision that is
+      // itself a string, means a reason written anywhere survives to the log.
+      const decision: unknown = result.decision;
+      const said = typeof decision === 'string'
+        ? decision
+        : (decision as { explanation?: string; reason?: string } | undefined)?.explanation
+          ?? (decision as { reason?: string } | undefined)?.reason;
       return {
         check, target: target.identifier, executed: false, findings: [],
-        note: `Refused by the scope guard: ${result.decision?.reason ?? 'unknown'}.`
+        note: `Refused by the scope guard: ${said ?? 'no reason was given, which is itself worth fixing'}.`
       };
     }
     if (result.notTestable) {

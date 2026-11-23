@@ -99,14 +99,29 @@ test('no probe looks like an attack', async () => {
   }
 });
 
-test('an endpoint with no identifier is skipped, with the reason', async () => {
+test('an endpoint with no identifier reaches no verdict, and says why', async () => {
+  // This asserted `skipped: true` with the reason in `decision`, and pinned two mistakes.
+  //
+  // `skipped` means the scope guard refused the request — the worker's own note for it reads
+  // "Refused by the scope guard" — and nothing was refused here. The check simply cannot
+  // evaluate an endpoint with no identifier in its path, which is what `inconclusive` is for,
+  // and the distinction between "not permitted" and "not evaluable" is one this product is
+  // built on.
+  //
+  // `decision` is the guard's decision object everywhere else it appears. A sentence in that
+  // slot meant the worker read `.reason` off a string, got undefined, and logged "Refused by
+  // the scope guard: unknown" — so the one sentence explaining what happened went nowhere.
+  // Measured on the freight target, where this was the only outcome this check produced.
   const scanner = scannerAnswering({});
 
   const result = await api.checkErrorDisclosure(scanner, {
     baseUrl: 'http://api.test', path: '/api/orders'
   });
 
-  assert.equal(result.skipped, true);
-  assert.match(result.decision, /takes no identifier/);
-  assert.equal(scanner.asked.length, 0, 'a skipped check must send nothing');
+  assert.equal(result.inconclusive, true);
+  assert.equal(result.skipped, false, 'nothing refused this; it could not be evaluated');
+  assert.match(result.reason, /takes no identifier/);
+  assert.equal(result.decision, undefined, 'a sentence in the decision slot is how the reason was lost');
+  assert.equal(result.findings.length, 0);
+  assert.equal(scanner.asked.length, 0, 'a check that cannot evaluate must send nothing');
 });

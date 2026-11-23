@@ -30,7 +30,7 @@ actually asserts rather than what its name says it checks**. A retention test na
 going back looked only at the step the bug spares, and a coverage figure counted tests whose
 own stored reason says they never ran. Neither needed a browser to find.
 
-Entries 29 to 57 are dominated by one shape, and it is the most dangerous one here because it
+Entries 29 to 58 are dominated by one shape, and it is the most dangerous one here because it
 looks like health: **a check that could not reach the thing it claimed to test, and said so
 honestly, so nothing appeared broken.** An oracle whose premise had stopped holding. A crawl
 that stopped at a budget and reported what it had rather than what it had not. Three checks
@@ -1535,6 +1535,46 @@ could not see anywhere was that the map is bounded by it. And it does not count 
 missed: a control absent from the page leaves nothing to count, so any number would be
 invented. Both are asserted by tests, because both are the kind of thing a later edit
 helpfully adds back.
+
+---
+
+## 58. A check wrote the reason it could not run and the reporting threw it away
+
+**Symptom.** `api.error-disclosure` was the one check on the freight scan that produced no
+outcome anyone could read: *"Refused by the scope guard: unknown."* Nothing had been refused.
+
+**Diagnosis.** Two mistakes in one line, and the per-check logging added in 55 is what made
+either visible.
+
+```js
+return { skipped: true, decision: 'This endpoint takes no identifier, …', findings: [] };
+```
+
+`skipped` means the scope guard refused the request — the worker's note for it says exactly
+that — and nothing was refused. The check cannot evaluate an endpoint with no identifier in
+its path, which is what `inconclusive` is for. Reporting "not permitted" where the truth is
+"not evaluable" inverts the one distinction this product is built on, and does it in the
+reader's direction: a refusal sounds like a setting somebody can change.
+
+And `decision` is the scope guard's decision object everywhere else it appears, so the worker
+read `.reason` off a string, got `undefined`, and printed `unknown`. The check had written a
+perfectly good sentence — *"this endpoint takes no identifier, so there is nothing to make
+unparseable"* — and the reporting layer discarded it, which is the same fault as 55 one layer
+along: a reason that exists and does not arrive.
+
+It was the only check in the engine doing this. Swept rather than assumed: one occurrence of
+`decision: '` in the whole package.
+
+**Fix.** The check returns `inconclusive` with a `reason`, as the convention has it. The
+worker reads the guard's `explanation` first, then its `reason`, tolerates a decision that is
+itself a string, and when there is genuinely nothing says so — *"no reason was given, which is
+itself worth fixing"* — rather than `unknown`, because the two are different and only one of
+them is a bug in this file.
+
+**The test pinned both mistakes**, asserting `skipped: true` and the sentence in `decision`.
+It now asserts the corrected contract and says in the body why the old one was wrong, because
+a test that pins a false statement is worse than no test: it defends the behaviour from the
+next person who notices.
 
 ---
 

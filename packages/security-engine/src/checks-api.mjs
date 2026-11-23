@@ -245,7 +245,22 @@ export async function checkUnsafeMethods(scanner, { baseUrl, createPath, deleteP
  */
 export async function checkErrorDisclosure(scanner, { baseUrl, path, actor, testId = 'SECA-ERRDISC' }) {
   if (!path.includes('{id}')) {
-    return { skipped: true, decision: 'This endpoint takes no identifier, so there is nothing to make unparseable.', findings: [] };
+    // Inconclusive, not skipped, and a reason rather than a decision.
+    //
+    // This returned `{ skipped: true, decision: '<a sentence>' }`, and both halves were
+    // wrong. `skipped` means the scope guard refused the request, which nobody had asked for
+    // here; the premise simply does not hold, which is what `inconclusive` is for. And
+    // `decision` is the guard's decision object everywhere else, so the worker read
+    // `decision.reason` off a string, got undefined, and logged "Refused by the scope guard:
+    // unknown" — discarding the one sentence that said what had happened. Measured on the
+    // freight target, where this was the only outcome `api.error-disclosure` produced and the
+    // run gave no way to learn why.
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: 'Not evaluated: this endpoint takes no identifier in its path, so there is '
+        + 'nothing to make unparseable. An identifier in a query parameter is not one this '
+        + 'check can corrupt, because the application decides what to do with it.'
+    };
   }
 
   const probes = [
