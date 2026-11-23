@@ -14,7 +14,8 @@ worker, React console, PostgreSQL and Redis.
 | One target, end to end | `node test-lab/run-target.mjs clinic-spa permits-legacy token-api` |
 
 `verification/multi-target-results.md` is what the product found on four applications of
-different shapes, with the two planted defects it did not find and why.
+different shapes, with the planted defect it does not find and why. Two of the three small
+targets are at 4 of 4; the third needs a feature that is named there rather than a fix.
 `verification/defects-found-by-measuring.md` is the product's own defects, each with the
 evidence that established it.
 
