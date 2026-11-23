@@ -203,6 +203,40 @@ provokes the error, and a stack-trace pattern that knows more than one runtime �
 matched .NET's format only, so a Node application's stack was invisible to it. Both are built;
 neither is measured yet, because the build carrying them has not been run against this target.
 
+## Where freight's 10 of 32 actually is, which is not where it looked
+
+Asked properly for the first time on 2026-11-23, with
+`test-lab/scripts/ground-truth-reachability.mjs` against the 185-page map:
+
+| | |
+| --- | --- |
+| Planted defects | 32 |
+| Routes mapped | 166 |
+| **Defect screens something reached** | **28 of 32** |
+
+So freight's gap is not mainly a reachability gap. Twenty-eight of the thirty-two defects sit
+on a screen the crawl walked to, and were still not reported — which is a detection problem,
+and a different piece of work from the crawler entirely. Anyone reading "10 of 32" and
+reaching for the crawl would have spent the day in the wrong file.
+
+The four that were never reached are the documented class, and all four sit behind a control
+the crawl correctly declines to press:
+
+- `FP_D11` `/claims/:id/settle` — a claim a viewer may settle
+- `FP_D14` `/shipments/:id/cancel` — a cancel that orphans a route stop
+- `FP_D17` `/customs/declarations/:id/release` — a rejected declaration anyone may release
+- `FP_D19` `/claims/:id/evidence` — an oversize upload
+
+Three more are reached by path and carry their defect in a query parameter — `?q=` for the
+long-search crash and the reflected XSS, `?step=2` for the wizard. Worth keeping separate: a
+defect living in a query is on a screen that *was* mapped, and counting it as unreached sends
+somebody to look at the crawler for something the crawler did fine.
+
+This question went unasked for most of the project, and the reason it is asked now is
+clinic-spa: CS_D04 read as undetected through three runs and two written explanations, and the
+cause turned out to be that the fixture drew a control wired to nothing, so the application
+never issued the request discovery would have had to see. The instrument now asks.
+
 ## The control group: the application the engines were built against
 
 `freight-platform` was re-run after every change above, because a fix made for one shape of
