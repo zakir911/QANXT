@@ -30,7 +30,7 @@ actually asserts rather than what its name says it checks**. A retention test na
 going back looked only at the step the bug spares, and a coverage figure counted tests whose
 own stored reason says they never ran. Neither needed a browser to find.
 
-Entries 29 to 56 are dominated by one shape, and it is the most dangerous one here because it
+Entries 29 to 57 are dominated by one shape, and it is the most dangerous one here because it
 looks like health: **a check that could not reach the thing it claimed to test, and said so
 honestly, so nothing appeared broken.** An oracle whose premise had stopped holding. A crawl
 that stopped at a budget and reported what it had rather than what it had not. Three checks
@@ -1501,6 +1501,40 @@ order they arrived, because there is no reason to reorder them and every reason 
 **What it does not solve, stated rather than discovered later.** Two checks that both need an
 untouched record cannot both have one. The set holds a single check today, and a second entry
 would be a design problem rather than a list to extend.
+
+---
+
+## 57. A map never said it was one identity's view
+
+**Symptom.** None, which is the point. Freight's `/claims/:id/settle` sat unreached across
+every run and every report of this project, and nothing anywhere said why.
+
+**Diagnosis.** Established with a control group rather than inferred. `ops.lead`, the account
+the freight measurements sign in as, holds `role-operations`: `shipment:cancel` yes,
+`claim:settle` no. An interactive crawl as that account reached `/shipments/:id/cancel` three
+times over and never reached `/claims/:id/settle`. Not because it declined to press Settle —
+the application does not render Settle for a role without the permission, so there was nothing
+on the page to press. The same crawl as an administrator logged
+`Found .../claims/clm-0001/settle by clicking "Settle"` on the first pass.
+
+So a map is bounded by the identity that made it, and the reader of one had no way to learn
+that. The crawl already reports its unopened frontier and its per-route caps, which are the
+two limits anyone thought to report; this third one was invisible, and an invisible limit is
+indistinguishable from no limit.
+
+**Fix.** The crawl says so at the end, where the other limits are said: this map is what the
+signed-in identity can see, a control the application does not render for that identity is on
+no page here, and mapping again as an identity holding other permissions is how to find out
+what that leaves out.
+
+**What it deliberately does not do, twice over.** It does not name the identity. The first
+version interpolated the username, the masker redacted it as the personal data it is, and the
+note read *"This map is what \*\*\*REDACTED\*\*\* can see"* — worse than silence, because it
+looks like information and carries none. Whoever reads it configured the identity; what they
+could not see anywhere was that the map is bounded by it. And it does not count what it
+missed: a control absent from the page leaves nothing to count, so any number would be
+invented. Both are asserted by tests, because both are the kind of thing a later edit
+helpfully adds back.
 
 ---
 

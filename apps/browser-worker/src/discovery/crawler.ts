@@ -385,6 +385,34 @@ export class Crawler {
     // partial; it does not say whether one page was left or four hundred, and a coverage
     // figure computed over the pages that were opened reads the same either way. The
     // frontier is known at the moment of the stop, so it is reported.
+    // What this map is a view of, said at the end where the other limits are said.
+    //
+    // Measured on the freight target: ops.lead holds role-operations, which has
+    // shipment:cancel and not claim:settle. An interactive crawl as that account reached
+    // /shipments/:id/cancel three times over and never reached /claims/:id/settle — not
+    // because it declined to press Settle but because the application does not render Settle
+    // for a role without the permission, so there was nothing on the page to press. The same
+    // crawl as an administrator found it on the first pass. Nothing the first map produced
+    // said any of that, which is the same confusion as an untested area reading as a clean
+    // one.
+    //
+    // The identity is deliberately not named. The first version of this note interpolated the
+    // username, the masker redacted it as the personal data it is, and the note read "This
+    // map is what ***REDACTED*** can see" — worse than saying nothing, because it looks like
+    // information. Whoever reads this configured the identity and can see it in the
+    // application's settings; what they cannot see anywhere else is that the map is bounded
+    // by it.
+    //
+    // It also does not claim to know what it missed. A control absent from the page leaves
+    // nothing to count, so any number here would be invented.
+    if (this.options.auth.strategy !== 'none') {
+      this.note(
+        'This map is what the signed-in identity can see. A control the application does not '
+        + 'render for that identity is on no page here and was never followed, because there '
+        + 'was nothing to follow — so this map cannot say what it leaves out. Mapping again as '
+        + 'an identity holding other permissions is how to find out.');
+    }
+
     if (this.unexplored.length > 0) {
       const examples = this.unexplored.slice(0, 5).map(url => routeShapeOf(url));
       this.note(
