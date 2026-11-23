@@ -1449,7 +1449,13 @@ about the suite had changed and nothing about the product had either. The timeou
 test-speed knobs rather than assertions about how fast the application must be, so moving
 them would not weaken a single claim — which is exactly why reaching for them would be easy
 and exactly why it would have buried the real finding, that these two jobs cannot share this
-machine. Recorded, and the suite is re-run on an idle box rather than re-tuned.
+machine.
+
+Settled by re-running the five files on an idle box instead: **63 of 63 passed**, and the
+timings say the rest. `select-diagnosis` took 14.5 seconds where it had taken 335 and failed
+six; `partial-map-accounting` 28 seconds where it had taken 395 and failed two. No timeout was
+touched. The suite is not flaky, and it is not able to share four cores with a 230-page
+crawl.
 
 **An hour spent measuring a build that did not contain the change.** The worker is started as
 `node dist/index.js` from its own package directory, so it appears in `ps` as exactly that
