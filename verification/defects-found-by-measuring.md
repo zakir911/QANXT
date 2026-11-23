@@ -30,6 +30,25 @@ actually asserts rather than what its name says it checks**. A retention test na
 going back looked only at the step the bug spares, and a coverage figure counted tests whose
 own stored reason says they never ran. Neither needed a browser to find.
 
+Entries 29 to 55 are dominated by one shape, and it is the most dangerous one here because it
+looks like health: **a check that could not reach the thing it claimed to test, and said so
+honestly, so nothing appeared broken.** An oracle whose premise had stopped holding. A crawl
+that stopped at a budget and reported what it had rather than what it had not. Three checks
+pointed at an address with the query stripped off, each reporting a truthful 404 about a page
+that was never the one under test. A scan that recorded its findings and nothing about what
+each check concluded, so "found nothing" and "never ran" were indistinguishable from outside.
+
+The lesson they share is not that the third verdict is a problem. It is the opposite: in every
+one of those cases the honest "not evaluated" is what made the fault findable at all, and a
+suite that had reported them as passes would have hidden the lot. What was missing was never
+the verdict — it was somewhere for the verdict's reason to go.
+
+Two entries in this stretch are corrections to earlier entries in this same document, which is
+the point of numbering them rather than editing them away: 49 named a check worth building and
+asserted it would close two defects on two applications, and it closes one, because the second
+cancels with a POST and a POST is not a safe verb. The claim was never tested before it was
+written down.
+
 ---
 
 ## 1. Tests were authored with locators that address more than one element
