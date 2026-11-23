@@ -340,6 +340,7 @@ export namespace request {
   const checkUploadRestrictions: Check;
   const checkOpenRedirect: Check;
   const checkSsrf: Check;
+  const checkStateChangeBySafeVerb: Check;
 }
 export namespace passive {
   const checkSecurityHeaders: (scanner: SecurityScanner, url: string, testId?: string) => Promise<CheckResult>;

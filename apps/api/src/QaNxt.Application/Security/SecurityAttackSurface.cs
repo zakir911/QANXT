@@ -19,7 +19,10 @@ public sealed record SecuritySurfaceItem(
     IReadOnlyList<string> Parameters,
     IReadOnlyList<string> RelevantChecks,
     /// <summary>Why it is here, in the terms a reader can disagree with.</summary>
-    string Why);
+    string Why,
+    /// <summary>A page a check can read before and after acting, to observe a change rather
+    /// than infer one. Null where discovery recorded none.</summary>
+    string? WitnessIdentifier = null);
 
 /// <summary>What discovery found that is worth security testing, and what that does not cover.</summary>
 public sealed record SecurityAttackSurface(
@@ -96,7 +99,12 @@ public static class SecurityAttackSurfaceBuilder
     public sealed record EndpointInput(
         Guid Id, string Method, string UrlTemplate, string SampleUrl,
         bool RequiresAuthentication, string? RequestContentType, string? RequestSampleJson,
-        DateTimeOffset LastSeenAt);
+        DateTimeOffset LastSeenAt,
+        /// <summary>The page this endpoint was seen from, where discovery recorded one. A
+        /// check that must observe whether a request changed anything reads this page before
+        /// and after; without it the only thing to read is the request's own response, which
+        /// says what the application chose to say rather than what it did.</summary>
+        string? WitnessUrl = null);
 
     /// <summary>A form discovery found, as the application declares it submits.</summary>
     /// <remarks>
@@ -167,35 +175,25 @@ public static class SecurityAttackSurfaceBuilder
         // already on the surface. Whether they are *scanned* is the scan's decision: the
         // checks they imply are the ones that issue the request, and the scope's destructive
         // setting is what allows that. The surface's job is to stop hiding them.
+        //
+        // A link already on the surface is *marked*, not skipped. Discovery records these as
+        // endpoints whether or not the crawl followed them, so by the time this runs the
+        // address is normally already an ordinary-looking GET item — and skipping it meant
+        // the one thing the surface was missing, that it changes state, never got attached to
+        // anything. That is the same mistake as keying the surface off the refusal: the fact
+        // and the refusal are different records, and only the fact belongs here.
         foreach (var link in stateChangingLinks ?? Array.Empty<StateChangingLinkInput>())
         {
             var endpoint = StateChangingEndpoint(link);
             if (endpoint is null) continue;
-            if (endpoints.Concat(items.Where(i => i.Kind == SecuritySurfaceKind.Endpoint)
-                    .Select(i => new EndpointInput(Guid.Empty, i.HttpMethod ?? "GET", i.Identifier,
-                        null, false, null, null, DateTimeOffset.MinValue)))
-                .Any(seen => string.Equals(seen.Method, endpoint.Method, StringComparison.OrdinalIgnoreCase)
-                          && string.Equals(NormalizeTemplate(seen.UrlTemplate),
-                                NormalizeTemplate(endpoint.UrlTemplate), StringComparison.OrdinalIgnoreCase)))
-            {
-                continue;
-            }
-            var item = FromEndpoint(endpoint);
-            items.Add(item with
-            {
-                // Said plainly, because a reader seeing an authorization check against a
-                // plain-looking GET deserves to know why it is being probed at all.
-                ChangesState = true,
-                // No extra check is implied here on purpose. `api.unsafe-method` reads as
-                // the right one and is not: it creates an object and then tries to DELETE
-                // it, so pointing it at an approve link would probe something else and
-                // report confidently about it. What this surface item needs is a check that
-                // issues the link and establishes by observation that state changed, which
-                // does not exist yet. The authorization checks an authenticated endpoint
-                // already implies do run against it.
-                Why = $"{item.Why}; and its own words say it changes something, which discovery "
-                    + "would not follow"
-            });
+
+            var at = items.FindIndex(i => i.Kind == SecuritySurfaceKind.Endpoint
+                && string.Equals(i.HttpMethod ?? "GET", endpoint.Method, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(NormalizeTemplate(i.Identifier), NormalizeTemplate(endpoint.UrlTemplate),
+                       StringComparison.OrdinalIgnoreCase));
+
+            if (at >= 0) items[at] = ChangesStateByASafeVerb(items[at]);
+            else items.Add(ChangesStateByASafeVerb(FromEndpoint(endpoint)));
         }
 
         // Only where the form declares a write, and only where no observed endpoint already
@@ -530,6 +528,19 @@ public static class SecurityAttackSurfaceBuilder
             checks.Add(SecurityChecks.UploadRestrictions);
             reasons.Add("it accepts a file");
         }
+        // A GET whose own address says it does something: /approve, /cancel, /revoke.
+        //
+        // The name is what selects it for probing, and nothing more. The finding the check
+        // raises comes from reading a witness page before and after the request, so a link
+        // called /approve that approves nothing produces no finding, and one called /view
+        // that quietly writes is missed here rather than misreported. Selecting by name and
+        // concluding by observation is the same division the crawler already uses.
+        if (SafeVerb(method) && ReadsAsMutating(endpoint.UrlTemplate))
+        {
+            checks.Add(SecurityChecks.StateChangeBySafeVerb);
+            reasons.Add("its address says it changes something, which a GET should not");
+        }
+
         if (IsAuthenticationish(endpoint.UrlTemplate))
         {
             checks.Add(SecurityChecks.UserEnumeration);
@@ -549,7 +560,68 @@ public static class SecurityAttackSurfaceBuilder
             CarriesUrlParameter: redirectish,
             Parameters: parameters,
             RelevantChecks: checks.ToList(),
-            Why: string.Join("; ", reasons));
+            Why: string.Join("; ", reasons),
+            WitnessIdentifier: endpoint.WitnessUrl);
+    }
+
+    /// <summary>Records on a surface item what discovery observed about it: that the
+    /// application's own words say this address does something, and that a safe verb reaches
+    /// it. The check added is the one that issues the request and establishes, from a witness
+    /// page read before and after, whether anything actually changed.
+    ///
+    /// <c>api.unsafe-method</c> reads as the right check and is not: it creates an object and
+    /// then tries to DELETE it, so pointing it at an approve link would probe something else
+    /// and report confidently about it.</summary>
+    private static SecuritySurfaceItem ChangesStateByASafeVerb(SecuritySurfaceItem item) => item with
+    {
+        RelevantChecks = item.RelevantChecks.Append(SecurityChecks.StateChangeBySafeVerb)
+            .Distinct(StringComparer.Ordinal).OrderBy(c => c, StringComparer.Ordinal).ToList(),
+        // Said plainly, because a reader seeing an authorization check against a
+        // plain-looking GET deserves to know why it is being probed at all.
+        ChangesState = true,
+        Why = item.Why.Contains("changes something", StringComparison.OrdinalIgnoreCase)
+            ? item.Why
+            : $"{item.Why}; and its own words say it changes something, which discovery "
+              + "would not follow"
+    };
+
+    /// <summary>A verb the HTTP specification says has no side effects, and which therefore
+    /// needs no anti-forgery token, survives in history and is followed by prefetchers.</summary>
+    private static bool SafeVerb(string method)
+        => string.Equals(method, "GET", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(method, "HEAD", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Words an address uses when it does something rather than shows something.
+    /// Deliberately verbs, not nouns: a page at /approvals lists them, a link at /approve
+    /// performs one.</summary>
+    private static readonly string[] MutatingWords =
+    {
+        "approve", "reject", "revoke", "cancel", "delete", "remove", "destroy", "archive",
+        "activate", "deactivate", "disable", "enable", "suspend", "publish", "unpublish",
+        "confirm", "accept", "decline", "submit", "send", "reset", "clear", "purge",
+        "assign", "unassign", "close", "reopen", "complete", "void", "refund", "promote"
+    };
+
+    /// <summary>Whether a path segment reads as an instruction. Matched on whole segments so
+    /// that /send does and /sender does not, and never on the query, where a value the caller
+    /// chose would otherwise decide what gets probed.</summary>
+    private static bool ReadsAsMutating(string urlTemplate)
+    {
+        var path = urlTemplate;
+        var query = path.IndexOf('?');
+        if (query >= 0) path = path[..query];
+
+        foreach (var raw in path.Split('/', StringSplitOptions.RemoveEmptyEntries))
+        {
+            // /approve.asp and /cancel-order both count; the extension and the separators
+            // are not part of the word.
+            foreach (var word in raw.Split(new[] { '.', '-', '_' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (MutatingWords.Contains(word, StringComparer.OrdinalIgnoreCase)) return true;
+            }
+        }
+
+        return false;
     }
 
     // -----------------------------------------------------------------------

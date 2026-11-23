@@ -238,7 +238,10 @@ public sealed class SecurityScanLauncher : ISecurityScanLauncher
                 httpMethod = item.HttpMethod,
                 requiresAuthentication = item.RequiresAuthentication,
                 parameters = item.Parameters,
-                checks = item.RelevantChecks
+                checks = item.RelevantChecks,
+                // The page a check may read before and after acting, so it can observe a
+                // change rather than infer one from the verb.
+                witnessUrl = item.WitnessIdentifier
             }),
             checksToRun = requested,
             checksConfigured = implied,

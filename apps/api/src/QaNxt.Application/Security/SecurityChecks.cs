@@ -56,6 +56,10 @@ public static class SecurityChecks
     public const string OriginValidation = "request.origin";
     public const string UploadRestrictions = "request.upload";
     public const string OpenRedirect = "request.redirect";
+    /// <summary>A state change reachable with a safe verb: a GET that changes something, so
+    /// no anti-forgery token is required and any third party can trigger it. Raised from a
+    /// witness page observed before and after, never from the shape of the URL.</summary>
+    public const string StateChangeBySafeVerb = "request.safe-verb-state-change";
     public const string Ssrf = "request.ssrf";
 
     // Passive

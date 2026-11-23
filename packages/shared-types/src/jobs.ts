@@ -168,6 +168,12 @@ export interface SecurityTarget {
   requiresAuthentication: boolean;
   parameters: string[];
   checks: string[];
+  /**
+   * A page a check may read before and after acting, to observe that something changed
+   * instead of inferring it from the verb or the URL. Discovery sets it to the page the
+   * address was seen on; absent where it recorded none.
+   */
+  witnessUrl?: string | null;
 }
 
 /** A synthetic identity the scan may sign in as. Never a real account. */

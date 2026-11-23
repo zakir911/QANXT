@@ -691,6 +691,28 @@ const RUNNERS: Record<string, CheckRunner> = {
       actor: a ? asActor(a) : undefined
     });
   },
+  'request.safe-verb-state-change': async (scanner, target, context) => {
+    // The lowest-privilege signed-in identity available, because "a GET changes state" is a
+    // worse finding when the caller holds no privilege at all. With only one identity the
+    // check runs as that one and says so in the finding's observedAsRole.
+    const a = readOnly(context) ?? intruder(context) ?? owner(context);
+    if (!a) {
+      return inconclusive('A signed-in identity is needed: an anonymous GET that is refused says '
+        + 'nothing about whether a safe verb changes state for someone who is signed in.');
+    }
+    if (!target.witnessUrl) {
+      return inconclusive('Not evaluated: this check establishes a state change by reading a page '
+        + 'before and after the request, and discovery recorded no page this address was seen '
+        + 'from. Without one the only thing to read is the request\'s own response, which says '
+        + 'what the application chose to say rather than what it did.');
+    }
+    return request.checkStateChangeBySafeVerb(scanner, {
+      baseUrl: context.baseUrl,
+      path: target.identifier,
+      witnessPath: target.witnessUrl,
+      actor: asActor(a)
+    });
+  },
   'request.redirect': async (scanner, target, context) => {
     const parameter = target.parameters.find(p => REDIRECTISH.has(p.toLowerCase()))
       ?? target.parameters[0];

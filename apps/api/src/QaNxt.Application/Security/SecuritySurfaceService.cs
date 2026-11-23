@@ -57,7 +57,11 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
             .Where(e => e.ApplicationId == applicationId)
             .Select(e => new SecurityAttackSurfaceBuilder.EndpointInput(
                 e.Id, e.Method, e.UrlTemplate, e.SampleUrl, e.RequiresAuthentication,
-                e.RequestContentType, e.RequestSampleJson, e.LastSeenAt))
+                e.RequestContentType, e.RequestSampleJson, e.LastSeenAt,
+                e.TriggeredByPageId == null
+                    ? null
+                    : _db.ApplicationPages.Where(p => p.Id == e.TriggeredByPageId)
+                        .Select(p => p.Url).FirstOrDefault()))
             .ToListAsync(ct);
 
         // Forms, for the endpoints they declare they write to. Discovery never submits one, so

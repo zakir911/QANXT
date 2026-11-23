@@ -407,3 +407,186 @@ export async function checkSsrf(scanner, { baseUrl, path, parameter = 'url', all
     }]
   };
 }
+
+/**
+ * Text that varies on its own between two identical reads of the same page, and so cannot
+ * carry evidence that a probe changed anything. Stripped before the witness is digested.
+ *
+ * This is a narrow list on purpose. The check's whole claim rests on the witness page being
+ * stable, and the honest way to establish that is to read it twice and compare, which is what
+ * the control below does. Stripping is only here so that a clock in a page footer does not
+ * make every witness useless — not to paper over a page that genuinely churns.
+ */
+
+/** Names a rotating per-render value goes by. Matched whole, with an optional `_` or `__`
+ * prefix, because the framework conventions differ and all of them rotate. */
+const NOISE_NAMES = 'csrf|xsrf|nonce|authenticity_token|request[-_]?verification_?token'
+  + '|verification_?token|viewstate|eventvalidation|request[-_]?id|cachebust|_t';
+
+/** What such a value looks like: base64, hex or url-safe, long enough not to be a word. */
+const NOISE_VALUE = '[A-Za-z0-9_\\-+/=]{8,}';
+
+const WITNESS_NOISE = [
+  // ISO timestamps and common date-time renderings.
+  /\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?/g,
+  /\d{1,2}:\d{2}:\d{2}\s*(AM|PM|am|pm)?/g,
+  // A token named by one attribute and carried by another: the markup shape every server
+  // framework emits. Matched before the direct form below, because the direct form would
+  // otherwise consume the name and leave the value behind — which is exactly what it did,
+  // and what left a page with a `<meta name="csrf-token" content="...">` unusable as a
+  // witness while looking as though it had been handled.
+  new RegExp(`(?:name|id)\\s*=\\s*["']?[_-]{0,2}(?:${NOISE_NAMES})`
+    + `[^<>]{0,60}?(?:value|content)\\s*=\\s*["']?${NOISE_VALUE}`, 'gi'),
+  // And the direct form: `csrf=...`, `"csrf":"..."`, `nonce="..."`.
+  new RegExp(`[_-]{0,2}(?:${NOISE_NAMES})["']?\\s*[=:]\\s*["']?${NOISE_VALUE}`, 'gi'),
+  // Durations a page reports about itself.
+  /\b\d+(\.\d+)?\s?ms\b/gi
+];
+
+/** A witness page reduced to the part of it that can carry evidence of a state change. */
+function witnessDigest(text) {
+  if (typeof text !== 'string') return null;
+  let stripped = text;
+  for (const pattern of WITNESS_NOISE) stripped = stripped.replace(pattern, '');
+  return stripped.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * A state change reachable with a safe verb.
+ *
+ * The claim is that issuing a `GET` — a verb the HTTP specification says is safe, and which
+ * therefore needs no anti-forgery token, survives in browser history, and is followed by
+ * prefetchers, crawlers and link scanners — changed something an identity can observe.
+ *
+ * Nothing in the catalogue said that before this check existed. `authz.vertical` asks whether
+ * a lower-privileged identity can reach what a higher one can, which on an application where
+ * every role may approve returns the same answer for both and reports nothing.
+ * `api.unsafe-method` creates an object and then tries to `DELETE` it, which probes something
+ * else entirely.
+ *
+ * **The verb is not the evidence.** A link named `/approve` may do nothing; a link named
+ * `/view` may do a great deal. So the finding is never raised from the URL. It is raised only
+ * when a witness page the identity can read differs after the probe, and the honesty of that
+ * rests entirely on the control:
+ *
+ *   1. read the witness twice, changing nothing in between;
+ *   2. if those two reads already differ, the page cannot attribute a later difference to the
+ *      probe, so the check reports that it could not evaluate and stops — it does not guess;
+ *   3. only then issue the candidate request, and read the witness once more.
+ *
+ * Without step 2 any page carrying a clock, a counter or a rotating token would report a
+ * state change on every candidate, and a scanner that confidently reports a finding on every
+ * link is worth less than one that reports none.
+ *
+ * **A witness that does not move is not a clean bill of health.** The probe may have changed
+ * something this page does not show. That is reported as not evaluated, not as a pass: this
+ * check can establish that a safe verb changed state and cannot establish that it did not.
+ *
+ * The probe is declared state-changing, so the scope guard governs it and it is refused
+ * rather than run where that has not been permitted.
+ */
+export async function checkStateChangeBySafeVerb(
+  scanner,
+  { baseUrl, path, witnessPath, actor, testId = 'SECA-SAFEVERB' }
+) {
+  const witnessUrl = at(baseUrl, witnessPath ?? path);
+  const role = actor?.label ?? 'unauthenticated';
+
+  const read = (label, note) => scanner.request({
+    url: witnessUrl, risk: SECURITY_RISK.PASSIVE, testId: `${testId}:${label}`,
+    headers: authHeaders(actor), as: role, note
+  });
+
+  const before = await read('witness-1', 'reading the witness page before anything is probed');
+  if (!before.allowed) return { skipped: true, decision: before.decision, findings: [] };
+
+  if (before.status < 200 || before.status >= 300) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: `Not evaluated: this check needs a page it can read to tell whether anything changed, `
+        + `and ${witnessPath ?? path} answered ${before.status} as ${role}. Without a witness a state `
+        + `change cannot be observed, and the verb alone is not evidence of one.`
+    };
+  }
+
+  const control = await read('witness-2', 'reading the witness page a second time, changing nothing, '
+    + 'to establish whether it is stable enough to carry evidence');
+  if (!control.allowed) return { skipped: true, decision: control.decision, findings: [] };
+
+  const baseline = witnessDigest(before.responseText);
+  const settled = witnessDigest(control.responseText);
+
+  if (baseline === null || settled === null) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: 'Not evaluated: the witness page returned no text to compare, so a change to it could '
+        + 'not be observed either way.'
+    };
+  }
+
+  if (baseline !== settled) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: `Not evaluated: ${witnessPath ?? path} differs between two reads with nothing done in `
+        + 'between, so a difference after the probe would not be evidence that the probe caused it. '
+        + 'This check needs a stable page to witness against and will not report a state change it '
+        + 'cannot attribute.'
+    };
+  }
+
+  const probe = await scanner.request({
+    url: at(baseUrl, path), risk: SECURITY_RISK.STATE_CHANGING, testId: `${testId}:probe`,
+    headers: authHeaders(actor), as: role,
+    note: `issuing ${path} as ${role} with no anti-forgery token, to establish by observation `
+      + 'whether a safe verb changes state'
+  });
+  if (!probe.allowed) return { skipped: true, decision: probe.decision, findings: [] };
+
+  if (probe.status === 401 || probe.status === 403 || probe.status === 405) {
+    return {
+      skipped: false, findings: [], ok: true,
+      detail: `${path} refused a GET from ${role} with ${probe.status}`
+    };
+  }
+
+  const after = await read('witness-3', 'reading the witness page after the probe');
+  if (!after.allowed) return { skipped: true, decision: after.decision, findings: [] };
+
+  const observed = witnessDigest(after.responseText);
+  if (observed === settled) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: `Not evaluated: ${path} answered ${probe.status} and ${witnessPath ?? path} is unchanged, `
+        + 'so this check saw no state change. It cannot conclude there was none — the request may have '
+        + 'changed something this page does not show — and it will not record an untested endpoint as '
+        + 'a safe one.'
+    };
+  }
+
+  return {
+    skipped: false,
+    findings: [{
+      category: 'StateChangeBySafeVerb',
+      title: 'A GET changes state, and needs no anti-forgery token to do it',
+      endpoint: path, httpMethod: 'GET', observedAsRole: role,
+      description: `${path} was issued as ${role} with no anti-forgery token and answered `
+        + `${probe.status}. ${witnessPath ?? path} read identically twice beforehand and differs `
+        + 'afterwards, so the change is attributable to that request rather than to the page moving '
+        + 'on its own. The verb was not the evidence: the witness page was.',
+      impact: 'A GET needs no token, no form and no script. Any page on any other site can trigger '
+        + 'it with an image tag, and so can a browser prefetcher, a link scanner, a chat client '
+        + 'unfurling a preview or anything that walks the user\'s history. The change also happens '
+        + 'for whoever follows the link, at whatever privilege they hold.',
+      remediation: 'Make the state change a POST (or another unsafe verb), require an anti-forgery '
+        + 'token on it, and authorize it against what the caller is allowed to do rather than against '
+        + 'being signed in at all.',
+      // CWE-352 is the exploitable shape: no token is required because the verb is safe, so a
+      // third-party page can issue it. CWE-650 is the same flaw read from the HTTP side.
+      cwe: 'CWE-352', cweConfidence: 'confirmed',
+      owaspApiCategory: 'API5:2023', owaspWebCategory: 'A01:2021',
+      severityFactors: new SeverityFactors('trivial', 'serious', 'none', 'nonSensitive', 'public'),
+      confidence: confidenceFrom({ reproduced: true, corroborated: true, unambiguous: true }),
+      exchanges: [before, control, probe, after]
+    }]
+  };
+}

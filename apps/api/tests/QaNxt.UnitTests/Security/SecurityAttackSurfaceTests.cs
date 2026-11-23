@@ -57,7 +57,12 @@ public class SecurityAttackSurfaceTests
             .ContainSingle(i => i.Identifier.Contains("/approve.asp")).Subject;
         item.HttpMethod.Should().Be("GET");
         item.ChangesState.Should().BeTrue();
-        item.Why.Should().Contain("its own words say it changes something");
+        // The wording moved when the rule that recognises these addresses moved into the
+        // endpoint builder, which is also what stopped the reason being stated twice. What
+        // matters is that the item says why it is being probed, in terms a reader can
+        // disagree with.
+        item.Why.Should().Contain("changes something");
+        item.Why.Should().Contain("which a GET should not");
     }
 
     /// <summary>
@@ -69,8 +74,10 @@ public class SecurityAttackSurfaceTests
     /// an approve link would probe something else and report confidently about it.
     ///
     /// What this item actually needs is a check that issues the link and establishes by
-    /// observation that state changed. That does not exist, and asserting its absence here
-    /// is how the next person learns that rather than rediscovering it.
+    /// observation that state changed. That is `request.safe-verb-state-change`, and it now
+    /// exists: it reads a witness page twice before touching anything, issues the link only
+    /// if those two reads agree, and reports a finding only if the page differs afterwards.
+    /// This asserted its absence while it was unbuilt; it asserts its presence now.
     /// </summary>
     [Fact]
     public void It_is_pointed_at_the_authorization_checks_and_not_at_a_delete_probe()
@@ -85,6 +92,9 @@ public class SecurityAttackSurfaceTests
         var item = surface.Items.Single(i => i.Identifier.Contains("/approve.asp"));
 
         item.RelevantChecks.Should().Contain(SecurityChecks.VerticalEscalation);
+        item.RelevantChecks.Should().Contain(SecurityChecks.StateChangeBySafeVerb);
+        // Still not this one. It creates an object and then tries to DELETE it, so pointing
+        // it at an approve link would probe something else and report confidently about it.
         item.RelevantChecks.Should().NotContain(SecurityChecks.UnsafeMethod);
     }
 
@@ -154,6 +164,110 @@ public class SecurityAttackSurfaceTests
 
         Build(pages: new[] { page }).Items.Should().ContainSingle()
             .Which.Identifier.Should().Be("/view.asp");
+    }
+
+    // -----------------------------------------------------------------------
+    // A safe verb that changes state
+    // -----------------------------------------------------------------------
+
+    /// <summary>A GET whose address says it does something gets the check that can establish
+    /// whether it does. The name only selects what to probe; the check's own finding comes
+    /// from reading a witness page before and after.</summary>
+    [Theory]
+    [InlineData("/approve.asp")]
+    [InlineData("/revoke.asp")]
+    [InlineData("/shipments/{id}/cancel")]
+    [InlineData("/orders/{id}/refund")]
+    [InlineData("/users/{id}/deactivate")]
+    [InlineData("/cancel-order")]
+    [InlineData("/admin/purge")]
+    public void A_get_whose_address_says_it_acts_is_probed_for_changing_state(string template)
+    {
+        Build(endpoints: new[] { Endpoint("GET", template) })
+            .Items.Should().ContainSingle()
+            .Which.RelevantChecks.Should().Contain(SecurityChecks.StateChangeBySafeVerb);
+    }
+
+    /// <summary>Nouns name a list; verbs name an action. A surface that probed every address
+    /// containing the letters of a verb would report on half the application.</summary>
+    [Theory]
+    [InlineData("/approvals")]          // lists them
+    [InlineData("/api/senders")]        // "send" inside a longer word
+    [InlineData("/cancellations")]
+    [InlineData("/archived")]
+    [InlineData("/completeness-report")]
+    public void A_get_that_only_reads_is_not_probed_for_changing_state(string template)
+    {
+        Build(endpoints: new[] { Endpoint("GET", template) })
+            .Items.Should().ContainSingle()
+            .Which.RelevantChecks.Should().NotContain(SecurityChecks.StateChangeBySafeVerb);
+    }
+
+    /// <summary>A POST that cancels something is not this finding. The whole claim is that a
+    /// verb the specification calls safe is doing the work, and a POST is not one.</summary>
+    [Fact]
+    public void An_unsafe_verb_that_changes_state_is_not_this_finding()
+    {
+        Build(endpoints: new[] { Endpoint("POST", "/shipments/{id}/cancel") })
+            .Items.Should().ContainSingle()
+            .Which.RelevantChecks.Should().NotContain(SecurityChecks.StateChangeBySafeVerb);
+    }
+
+    /// <summary>The query is not consulted. Otherwise a caller who put `?action=delete` on a
+    /// read endpoint would decide what the scan probes.</summary>
+    [Fact]
+    public void A_verb_in_the_query_does_not_select_an_endpoint_for_probing()
+    {
+        Build(endpoints: new[] { Endpoint("GET", "/report?action=approve") })
+            .Items.Should().ContainSingle()
+            .Which.RelevantChecks.Should().NotContain(SecurityChecks.StateChangeBySafeVerb);
+    }
+
+    /// <summary>The page the address was seen on travels with the item, because the check
+    /// cannot observe a change without something to read.</summary>
+    [Fact]
+    public void The_page_an_endpoint_was_seen_from_travels_with_it()
+    {
+        var endpoint = Endpoint("GET", "/approve.asp") with { WitnessUrl = "https://app.test/view.asp?id=5" };
+
+        Build(endpoints: new[] { endpoint })
+            .Items.Should().ContainSingle()
+            .Which.WitnessIdentifier.Should().Be("https://app.test/view.asp?id=5");
+    }
+
+    /// <summary>A state-changing link discovery reported is marked on the item already there,
+    /// not added beside it.
+    ///
+    /// Discovery records these addresses as endpoints whether or not the crawl followed them,
+    /// so by the time the links are applied the address is normally already an
+    /// ordinary-looking GET. Skipping it left the one fact the surface was missing attached
+    /// to nothing — the same mistake as keying the surface off the crawl's refusal, which
+    /// made the measurement read the same with state-changing interaction on and off.</summary>
+    [Fact]
+    public void A_link_already_on_the_surface_is_marked_rather_than_duplicated()
+    {
+        var surface = Build(
+            endpoints: new[] { Endpoint("GET", "https://app.test/approve.asp") },
+            stateChangingLinks: new[] { new StateChangingLinkInput("https://app.test/approve.asp", Seen) });
+
+        var item = surface.Items.Should().ContainSingle(
+            i => i.Identifier.Contains("approve.asp")).Subject;
+        item.ChangesState.Should().BeTrue();
+        item.RelevantChecks.Should().Contain(SecurityChecks.StateChangeBySafeVerb);
+        item.Why.Should().Contain("changes something");
+    }
+
+    /// <summary>And the reason is said once, however many ways the address arrived.</summary>
+    [Fact]
+    public void The_reason_a_link_is_probed_is_not_repeated()
+    {
+        var surface = Build(
+            endpoints: new[] { Endpoint("GET", "https://app.test/cancel") },
+            stateChangingLinks: new[] { new StateChangingLinkInput("https://app.test/cancel", Seen) });
+
+        var why = surface.Items.Single(i => i.Identifier.Contains("cancel")).Why;
+        var occurrences = why.Split("changes something").Length - 1;
+        occurrences.Should().Be(1, "the item is marked once, not once per source");
     }
 
     private static EndpointInput Endpoint(

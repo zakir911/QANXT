@@ -180,7 +180,7 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
             await UpsertTransitionsAsync(run, application.Id, completion, pageIdsByNormalizedUrl, token);
             await UpsertApiEndpointsAsync(run, application.Id, completion, pageIdsByNormalizedUrl, token);
             await RecordConsoleErrorsAsync(run, completion, token);
-            await RecordStateChangingLinksAsync(run, application, completion, token);
+            await RecordStateChangingLinksAsync(run, application, completion, pageIdsByNormalizedUrl, token);
 
             run.Status = ParseStatus(completion.Status);
             run.StartedAt ??= completion.StartedAt;
@@ -241,9 +241,22 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
     /// </summary>
     private async Task RecordStateChangingLinksAsync(
         DiscoveryRun run, Domain.Applications.Application application,
-        DiscoveryCompletionPayload completion, CancellationToken ct)
+        DiscoveryCompletionPayload completion,
+        IReadOnlyDictionary<string, Guid> pageIdsByNormalizedUrl, CancellationToken ct)
     {
         if (completion.StateChangingLinks.Count == 0) return;
+
+        // The page the link was seen on, so a check that needs to observe whether the link
+        // changed anything has something to observe against. Without it such a check can only
+        // read the link's own response, which tells it what the application chose to say
+        // rather than what it did.
+        var pageIdByUrl = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
+        foreach (var page in completion.Pages)
+        {
+            if (page.Url is not { Length: > 0 }) continue;
+            if (!pageIdsByNormalizedUrl.TryGetValue(page.NormalizedUrl, out var id)) continue;
+            pageIdByUrl[page.Url] = id;
+        }
 
         // The address, recorded as the endpoint it is.
         //
@@ -256,12 +269,20 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
         //
         // GET, because that is what a link is, and an authenticated endpoint carrying an
         // identifier is what makes the authorization checks apply to it.
+        // Addresses added by this loop, because the existence check below runs against the
+        // database and nothing in this loop is saved until it ends. Three links to the same
+        // address produced three identical endpoint rows: the query could not see the two
+        // rows already waiting in the change tracker. Meridian Freight carried
+        // /shipments/shp-0008/cancel three times because of it.
+        var added = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var link in completion.StateChangingLinks)
         {
             if (!Uri.TryCreate(link.Url, UriKind.Absolute, out var absolute)) continue;
             if (absolute.Scheme != Uri.UriSchemeHttp && absolute.Scheme != Uri.UriSchemeHttps) continue;
 
             var template = absolute.GetLeftPart(UriPartial.Path);
+            if (!added.Add(template)) continue;
             if (await _db.ApiEndpoints.AnyAsync(e => e.ApplicationId == application.Id
                      && e.Method == "GET" && e.UrlTemplate == template, ct))
             {
@@ -276,6 +297,10 @@ public sealed class DiscoveryIngestService : IDiscoveryIngestService
                 UrlTemplate = template,
                 SampleUrl = absolute.ToString(),
                 RequiresAuthentication = true,
+                TriggeredByPageId = link.FoundOnUrl is { Length: > 0 } found
+                                    && pageIdByUrl.TryGetValue(found, out var witnessId)
+                    ? witnessId
+                    : null,
                 LastSeenAt = run.CompletedAt ?? DateTimeOffset.UtcNow
             });
         }
