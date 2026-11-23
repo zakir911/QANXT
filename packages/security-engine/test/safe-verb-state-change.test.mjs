@@ -258,3 +258,23 @@ test('real content is never mistaken for a rotating token', async () => {
   const result = await run(scanner);
   assert.equal(result.findings.length, 1);
 });
+
+test('the address under test cannot witness itself', async () => {
+  // Reading the witness happens twice, before the probe. Letting it default to the address
+  // under test would perform the state change twice before deciding whether to perform it,
+  // then compare an already-changed record against an already-changed record and report
+  // nothing. No request should be made at all.
+  const asked = [];
+  const scanner = { async request(o) { asked.push(o.testId); return { allowed: true, status: 200, responseText: 'x' }; } };
+
+  for (const witnessPath of [undefined, null, '', '/approve.asp?id=5']) {
+    const result = await checkStateChangeBySafeVerb(scanner, {
+      baseUrl: 'http://app.test', path: '/approve.asp?id=5', witnessPath, actor
+    });
+    assert.equal(result.findings.length, 0);
+    assert.equal(result.inconclusive, true);
+    assert.match(result.reason, /cannot witness itself/);
+  }
+
+  assert.deepEqual(asked, [], 'nothing is issued when there is no usable witness');
+});

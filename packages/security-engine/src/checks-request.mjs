@@ -489,7 +489,23 @@ export async function checkStateChangeBySafeVerb(
   scanner,
   { baseUrl, path, witnessPath, actor, testId = 'SECA-SAFEVERB' }
 ) {
-  const witnessUrl = at(baseUrl, witnessPath ?? path);
+  // A witness is required, and it must not be the address under test.
+  //
+  // This defaulted to `path`, which reads as a harmless convenience and is not one: the
+  // witness is read twice before the probe, so a caller omitting it would have performed the
+  // state change twice before deciding whether to perform it at all, and then compared an
+  // approved record against an approved record. Nothing in the worker does that, because it
+  // refuses the check without a witness; the default was a trap for the next caller.
+  if (!witnessPath || witnessPath === path) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: 'Not evaluated: this check needs a separate page to read before and after acting. '
+        + 'The address under test cannot witness itself — reading it is performing the very '
+        + 'change being investigated.'
+    };
+  }
+
+  const witnessUrl = at(baseUrl, witnessPath);
   const role = actor?.label ?? 'unauthenticated';
 
   const read = (label, note) => scanner.request({
@@ -504,7 +520,7 @@ export async function checkStateChangeBySafeVerb(
     return {
       skipped: false, findings: [], inconclusive: true,
       reason: `Not evaluated: this check needs a page it can read to tell whether anything changed, `
-        + `and ${witnessPath ?? path} answered ${before.status} as ${role}. Without a witness a state `
+        + `and ${witnessPath} answered ${before.status} as ${role}. Without a witness a state `
         + `change cannot be observed, and the verb alone is not evidence of one.`
     };
   }
@@ -527,7 +543,7 @@ export async function checkStateChangeBySafeVerb(
   if (baseline !== settled) {
     return {
       skipped: false, findings: [], inconclusive: true,
-      reason: `Not evaluated: ${witnessPath ?? path} differs between two reads with nothing done in `
+      reason: `Not evaluated: ${witnessPath} differs between two reads with nothing done in `
         + 'between, so a difference after the probe would not be evidence that the probe caused it. '
         + 'This check needs a stable page to witness against and will not report a state change it '
         + 'cannot attribute.'
@@ -556,7 +572,7 @@ export async function checkStateChangeBySafeVerb(
   if (observed === settled) {
     return {
       skipped: false, findings: [], inconclusive: true,
-      reason: `Not evaluated: ${path} answered ${probe.status} and ${witnessPath ?? path} is unchanged, `
+      reason: `Not evaluated: ${path} answered ${probe.status} and ${witnessPath} is unchanged, `
         + 'so this check saw no state change. It cannot conclude there was none — the request may have '
         + 'changed something this page does not show — and it will not record an untested endpoint as '
         + 'a safe one.'
@@ -570,7 +586,7 @@ export async function checkStateChangeBySafeVerb(
       title: 'A GET changes state, and needs no anti-forgery token to do it',
       endpoint: path, httpMethod: 'GET', observedAsRole: role,
       description: `${path} was issued as ${role} with no anti-forgery token and answered `
-        + `${probe.status}. ${witnessPath ?? path} read identically twice beforehand and differs `
+        + `${probe.status}. ${witnessPath} read identically twice beforehand and differs `
         + 'afterwards, so the change is attributable to that request rather than to the page moving '
         + 'on its own. The verb was not the evidence: the witness page was.',
       impact: 'A GET needs no token, no form and no script. Any page on any other site can trigger '
