@@ -192,6 +192,30 @@ public class SecurityAttackSurfaceTests
             .Which.RelevantChecks.Should().Contain(SecurityChecks.StateChangeBySafeVerb);
     }
 
+    /// <summary>Recognising the address by its name has to reach the same conclusions as
+    /// having it reported as a state-changing link, because both say the same thing about it.
+    ///
+    /// Two things were withdrawn on the reported-link path and not on this one: the repeated
+    /// rate-limit probe, which against an approve link is fifteen real approvals, and the flag
+    /// the worker reads to floor the risk of every probe against the address. Derived from the
+    /// verb alone that flag is false here — it is a GET — which is the wrong answer for an
+    /// address whose own words say otherwise.</summary>
+    [Theory]
+    [InlineData("/approve.asp")]
+    [InlineData("/shipments/{id}/cancel")]
+    [InlineData("http://127.0.0.1:4700/revoke.asp?id=3")]
+    public void Recognising_the_address_by_name_reaches_the_same_conclusions(string template)
+    {
+        var item = Build(endpoints: new[] { Endpoint("GET", template) })
+            .Items.Should().ContainSingle().Subject;
+
+        item.RelevantChecks.Should().Contain(SecurityChecks.StateChangeBySafeVerb);
+        item.RelevantChecks.Should().NotContain(SecurityChecks.RateLimit,
+            "fifteen requests against an approve link is fifteen approvals");
+        item.ChangesState.Should().BeTrue(
+            "the worker floors the risk of every probe against the address from this flag");
+    }
+
     /// <summary>Nouns name a list; verbs name an action. A surface that probed every address
     /// containing the letters of a verb would report on half the application.</summary>
     [Theory]

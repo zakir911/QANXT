@@ -547,6 +547,22 @@ public static class SecurityAttackSurfaceBuilder
         if (SafeVerb(method) && ReadsAsMutating(endpoint.UrlTemplate))
         {
             checks.Add(SecurityChecks.StateChangeBySafeVerb);
+
+            // Said on the item, not only in the reasons, because the worker floors the risk of
+            // every probe against an address that changes state and reads that flag to decide.
+            // Derived from the verb alone it is false here — a GET — which is exactly the
+            // wrong answer for an address whose own words say otherwise.
+            mutates = true;
+
+            // And the repeated probe comes off, for the reason it comes off a link discovery
+            // reported: fifteen requests to establish that no threshold exists below that
+            // number is a fair probe against a read and fifteen real approvals against this.
+            //
+            // This was withdrawn on the other path and not on this one, which would have left
+            // a GET /shipments/{id}/cancel recognised by its name alone still carrying it.
+            // Two paths reach the same conclusion about an address and both have to act on it.
+            checks.Remove(SecurityChecks.RateLimit);
+
             reasons.Add("its address says it changes something, which a GET should not");
         }
 
