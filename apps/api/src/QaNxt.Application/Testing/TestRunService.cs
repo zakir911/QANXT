@@ -57,6 +57,10 @@ public interface ITestRunService
 /// the least information and the least authority that still lets it do the job.</summary>
 public sealed class TestRunService : ITestRunService
 {
+    /// <summary>Stands in for a test case that draws on no data set, so the resolvers take the
+    /// same shape whether or not there is one.</summary>
+    private static readonly List<TestDataField> EmptyDataFields = new();
+
     private readonly IQaNxtDbContext _db;
     private readonly IJobQueue _queue;
     private readonly ICurrentUser _currentUser;
@@ -225,13 +229,29 @@ public sealed class TestRunService : ITestRunService
 
         var credentialsByApplication = new Dictionary<Guid, ApplicationCredentials>();
 
+        // Two more were still asked per execution, found by measuring the fixed build rather
+        // than trusting it. The element model a step's fingerprint is matched against is the
+        // whole application's — 8,599 rows for the freight target — and it was queried,
+        // materialised and then linearly scanned once per execution. At 20ms for the query
+        // alone that was about 150 of the 257 seconds the dispatch took. The test data set a
+        // case draws from was asked twice per execution on top.
+        //
+        // Neither varies within a run for tests that share an application or a data set, so
+        // each is built once. The element model is also indexed by the ways a locator can name
+        // a control, which replaces the scan.
+        var fingerprintsByApplication = new Dictionary<Guid, ElementFingerprintIndex>();
+        var dataFieldsBySet = new Dictionary<Guid, List<TestDataField>>();
+
+        // Looked up per execution; a linear scan here is quadratic over the run.
+        var casesById = cases.ToDictionary(c => c.Id);
+
         var dispatched = 0;
         var dispatchErrors = new List<string>();
 
         var skipped = 0;
         foreach (var execution in executions)
         {
-            var testCase = cases.First(c => c.Id == execution.TestCaseId);
+            var testCase = casesById[execution.TestCaseId];
 
             // A compatibility test belongs to one browser. In a run on another it is skipped,
             // and says so, rather than passing in the wrong engine and being counted as
@@ -247,7 +267,8 @@ public sealed class TestRunService : ITestRunService
             }
 
             var payload = await BuildPayloadAsync(run, execution, testCase, project, environment,
-                stepsByCase, applicationsById, projectApplication, credentialsByApplication, dispatchCt);
+                stepsByCase, applicationsById, projectApplication, credentialsByApplication,
+                fingerprintsByApplication, dataFieldsBySet, dispatchCt);
 
             if (payload.IsFailure)
             {
@@ -401,6 +422,8 @@ public sealed class TestRunService : ITestRunService
         IReadOnlyDictionary<Guid, Domain.Applications.Application> applicationsById,
         Domain.Applications.Application? projectApplication,
         Dictionary<Guid, ApplicationCredentials> credentialsByApplication,
+        Dictionary<Guid, ElementFingerprintIndex> fingerprintsByApplication,
+        Dictionary<Guid, List<TestDataField>> dataFieldsBySet,
         CancellationToken ct)
     {
         var application = testCase.ApplicationId is null
@@ -438,9 +461,29 @@ public sealed class TestRunService : ITestRunService
             credentials = await _applications.ResolveCredentialsAsync(application, ct);
             credentialsByApplication[application.Id] = credentials;
         }
-        var secrets = await ResolveSecretsAsync(testCase, environment, credentials, ct);
-        var data = await ResolveDataAsync(testCase, ct);
-        var fingerprints = await LoadFingerprintsAsync(testCase, ct);
+        // Both of these were a query per execution; now one per data set and one per
+        // application, for the whole run.
+        var dataFields = EmptyDataFields;
+        if (testCase.TestDataSetId is { } dataSetId
+            && !dataFieldsBySet.TryGetValue(dataSetId, out dataFields!))
+        {
+            dataFields = await _db.TestDataFields
+                .Where(f => f.TestDataSetId == dataSetId)
+                .ToListAsync(ct);
+            dataFieldsBySet[dataSetId] = dataFields;
+        }
+
+        ElementFingerprintIndex? fingerprintIndex = null;
+        if (testCase.ApplicationId is { } fingerprintApplicationId
+            && !fingerprintsByApplication.TryGetValue(fingerprintApplicationId, out fingerprintIndex))
+        {
+            fingerprintIndex = await LoadElementFingerprintIndexAsync(fingerprintApplicationId, ct);
+            fingerprintsByApplication[fingerprintApplicationId] = fingerprintIndex;
+        }
+
+        var secrets = ResolveSecrets(environment, credentials, dataFields);
+        var data = ResolveData(dataFields);
+        var fingerprints = ResolveFingerprints(steps, fingerprintIndex);
 
         return Result<ExecutionJobPayload>.Success(new ExecutionJobPayload
         {
@@ -568,8 +611,9 @@ public sealed class TestRunService : ITestRunService
     /// <summary>Resolves the secrets a test may reference. The application's own credentials
     /// are always available under well-known names so a generated test can sign in without
     /// any additional configuration.</summary>
-    private async Task<Dictionary<string, string>> ResolveSecretsAsync(
-        TestCase testCase, Domain.Projects.Environment? environment, ApplicationCredentials credentials, CancellationToken ct)
+    private Dictionary<string, string> ResolveSecrets(
+        Domain.Projects.Environment? environment, ApplicationCredentials credentials,
+        IReadOnlyList<TestDataField> dataFields)
     {
         var secrets = new Dictionary<string, string>(StringComparer.Ordinal);
 
@@ -593,34 +637,23 @@ public sealed class TestRunService : ITestRunService
             }
         }
 
-        if (testCase.TestDataSetId is not null)
+        foreach (var field in dataFields)
         {
-            var sensitive = await _db.TestDataFields
-                .Where(f => f.TestDataSetId == testCase.TestDataSetId && f.Kind == TestDataKind.SecretReference)
-                .ToListAsync(ct);
+            if (field.Kind != TestDataKind.SecretReference) continue;
 
-            foreach (var field in sensitive)
-            {
-                // A secret reference names a secret; it does not contain one.
-                var referenced = ExtractSecretName(field.Value);
-                if (referenced is not null && secrets.TryGetValue(referenced, out var resolved))
-                    secrets[field.Key] = resolved;
-            }
+            // A secret reference names a secret; it does not contain one.
+            var referenced = ExtractSecretName(field.Value);
+            if (referenced is not null && secrets.TryGetValue(referenced, out var resolved))
+                secrets[field.Key] = resolved;
         }
 
         return secrets;
     }
 
-    private async Task<Dictionary<string, string>> ResolveDataAsync(TestCase testCase, CancellationToken ct)
+    private static Dictionary<string, string> ResolveData(IReadOnlyList<TestDataField> dataFields)
     {
-        if (testCase.TestDataSetId is null) return new Dictionary<string, string>();
-
-        var fields = await _db.TestDataFields
-            .Where(f => f.TestDataSetId == testCase.TestDataSetId)
-            .ToListAsync(ct);
-
         var data = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var field in fields)
+        foreach (var field in dataFields)
         {
             if (field.Kind == TestDataKind.SecretReference) continue;    // handled as a secret
             data[field.Key] = field.Kind switch
@@ -634,25 +667,26 @@ public sealed class TestRunService : ITestRunService
         return data;
     }
 
-    /// <summary>Attaches what each step's target looked like when it was authored, taken
-    /// from the discovered element model. Without this a healer can only compare against
-    /// the broken locator; with it, a renamed control is still recognisable.</summary>
-    private async Task<Dictionary<Guid, ElementFingerprintPayload>> LoadFingerprintsAsync(TestCase testCase, CancellationToken ct)
+    /// <summary>Loads one application's discovered element model and indexes it by the ways a
+    /// step's locator can name a control. Called once per application in a run.
+    ///
+    /// It used to be called once per execution, and each call read the whole model — every
+    /// element of every page of the application. The query alone measured 19.8ms against 8,599
+    /// rows on the freight target, so starting its 7,602-test suite spent about 150 seconds
+    /// re-reading the same table.</summary>
+    private async Task<ElementFingerprintIndex> LoadElementFingerprintIndexAsync(Guid applicationId, CancellationToken ct)
     {
-        if (testCase.ApplicationId is null) return new Dictionary<Guid, ElementFingerprintPayload>();
-
-        var steps = await _db.TestSteps
-            .Where(s => s.TestCaseId == testCase.Id && s.TargetJson != null)
-            .Select(s => new { s.Id, s.TargetJson })
-            .ToListAsync(ct);
-
         var pageIds = await _db.ApplicationPages
-            .Where(p => p.ApplicationId == testCase.ApplicationId)
+            .Where(p => p.ApplicationId == applicationId)
             .Select(p => p.Id)
             .ToListAsync(ct);
 
         var elements = await _db.ApplicationElements
             .Where(e => pageIds.Contains(e.ApplicationPageId))
+            // Ordered so that "the first element matching this locator" means the same thing on
+            // every run. Unordered, which control a fingerprint described when two shared a
+            // name was left to whatever order the database happened to return.
+            .OrderBy(e => e.ApplicationPageId).ThenBy(e => e.Id)
             .Select(e => new
             {
                 e.TestId, e.AriaRole, e.AccessibleName, e.Label, e.Placeholder, e.TagName, e.Text,
@@ -661,44 +695,54 @@ public sealed class TestRunService : ITestRunService
             })
             .ToListAsync(ct);
 
+        var index = new ElementFingerprintIndex();
+        foreach (var e in elements)
+        {
+            index.Add(e.TestId, e.AriaRole, e.AccessibleName, e.Label, e.Placeholder, e.Text,
+                new ElementFingerprintPayload
+                {
+                    TagName = e.TagName,
+                    AriaRole = e.AriaRole,
+                    AccessibleName = e.AccessibleName,
+                    Text = e.Text,
+                    Label = e.Label,
+                    Placeholder = e.Placeholder,
+                    TestId = e.TestId,
+                    ElementId = e.ElementId,
+                    Name = e.Name,
+                    Type = e.Type,
+                    DomPath = e.DomPath,
+                    ParentSignature = e.ParentSignature,
+                    NeighbourText = e.NeighbourText,
+                    Bounding = new BoundingPayload(e.BoundingX, e.BoundingY, e.BoundingWidth, e.BoundingHeight)
+                });
+        }
+
+        return index;
+    }
+
+    /// <summary>Attaches what each step's target looked like when it was authored, taken
+    /// from the discovered element model. Without this a healer can only compare against
+    /// the broken locator; with it, a renamed control is still recognisable.</summary>
+    private static Dictionary<Guid, ElementFingerprintPayload> ResolveFingerprints(
+        IReadOnlyList<TestStep> steps, ElementFingerprintIndex? index)
+    {
         var result = new Dictionary<Guid, ElementFingerprintPayload>();
+
+        // No application means no discovered model to match against.
+        if (index is null) return result;
 
         foreach (var step in steps)
         {
+            if (step.TargetJson is null) continue;
+
             var locator = LocatorDescriptor.FromJson(step.TargetJson);
             if (locator is null) continue;
 
-            var match = locator.Strategy switch
-            {
-                LocatorStrategy.TestId => elements.FirstOrDefault(e => e.TestId == locator.Value),
-                LocatorStrategy.Role => elements.FirstOrDefault(e =>
-                    e.AriaRole == locator.Value &&
-                    (locator.Name == null || e.AccessibleName == locator.Name)),
-                LocatorStrategy.Label => elements.FirstOrDefault(e => e.Label == locator.Value),
-                LocatorStrategy.Placeholder => elements.FirstOrDefault(e => e.Placeholder == locator.Value),
-                LocatorStrategy.Text => elements.FirstOrDefault(e => e.Text == locator.Value),
-                _ => null
-            };
-
+            var match = index.Match(locator);
             if (match is null) continue;
 
-            result[step.Id] = new ElementFingerprintPayload
-            {
-                TagName = match.TagName,
-                AriaRole = match.AriaRole,
-                AccessibleName = match.AccessibleName,
-                Text = match.Text,
-                Label = match.Label,
-                Placeholder = match.Placeholder,
-                TestId = match.TestId,
-                ElementId = match.ElementId,
-                Name = match.Name,
-                Type = match.Type,
-                DomPath = match.DomPath,
-                ParentSignature = match.ParentSignature,
-                NeighbourText = match.NeighbourText,
-                Bounding = new BoundingPayload(match.BoundingX, match.BoundingY, match.BoundingWidth, match.BoundingHeight)
-            };
+            result[step.Id] = match;
         }
 
         return result;
