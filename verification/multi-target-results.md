@@ -237,6 +237,41 @@ clinic-spa: CS_D04 read as undetected through three runs and two written explana
 cause turned out to be that the fixture drew a control wired to nothing, so the application
 never issued the request discovery would have had to see. The instrument now asks.
 
+### Two of the seventeen misses, run down to the cause
+
+The detection analysis records 17 missed with the screen reached, and the largest cluster is
+security (4). The first thing to check was whether the form-engine run even scans — it does,
+`includeSecurity: true, securityProfile: 'standard'` — so those four were in scope and
+genuinely unreported. Two of them are now explained, and neither is a detector failing.
+
+**FP_D28, reflected XSS in search: the product finds it.** A scan run on its own against the
+freight target on 2026-11-23 reported `xss.reflected` — *"'q' is reflected into HTML without
+encoding"* on `/shipments`. The earlier note in this project recording "no `xss.reflected`
+finding at all" as unexplained was a property of that one run and not of the product.
+
+Worth knowing how narrow the defect is: the raw term reaches the markup only through the
+*"No shipments match X"* message, so a probe has to return zero rows to trigger it at all, and
+`q` has to be on the surface. `/shipments?q=&status=&carrier=&page=1` is mapped, so it is.
+
+**FP_D31, stack trace from an unparseable API id: the check finds it when pointed at it.**
+Verified in three steps against the live application rather than inferred.
+
+The defect is there and needs no session: `GET /api/shipments/%00bad` answers 500 with
+`{"error":"lookup_failed","stack":"Error: … at Object.handler (file:///home/user/…)"}`. The
+detector matches that body, both as JSON-escaped text and as the raw stack field, so defect
+44's fix holds. And the check itself, pointed at `/api/shipments/{id}`, returns two findings —
+*"An unparseable identifier returns a stack trace"* (CWE-209) and *"An unparseable identifier
+makes the endpoint fail rather than refuse"* (CWE-20).
+
+So whether a run finds FP_D31 depends on whether its crawl mapped `/api/shipments/{id}`. The
+185-page map did. The 69-page partial map the standalone scan produced did not, which is why
+`api.error-disclosure` had one target that day and it was the wrong one.
+
+**What is not claimed.** The full freight detection count has not been re-measured — that
+needs the 7,774-test suite — so there is no new number here. What there is: two of the
+seventeen explained, with evidence, and neither one a check that cannot see what it is
+looking at.
+
 ### Why those four were never reached, established rather than assumed
 
 Four probes with `test-lab/freight-platform/discover-with-interaction.mjs`, each one answering
