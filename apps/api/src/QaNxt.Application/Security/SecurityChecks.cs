@@ -68,6 +68,10 @@ public static class SecurityChecks
     public const string Cors = "passive.cors";
     public const string SensitiveData = "passive.sensitive-data";
     public const string Misconfiguration = "passive.misconfiguration";
+    /// <summary>Personal data in a query string: an address that takes it, or a form that will
+    /// submit it by GET. A query string reaches access logs, proxy logs, browser history and
+    /// the Referer header, which is a different exposure from the same data in a body.</summary>
+    public const string PersonalDataInUrl = "passive.pii-in-url";
 
     public static IReadOnlyList<string> All { get; } = new[]
     {
@@ -77,7 +81,7 @@ public static class SecurityChecks
         ReflectedXss, StoredXss, DomXss,
         SqlInjection, NoSqlInjection, CommandInjection, TemplateInjection,
         CsrfToken, OriginValidation, UploadRestrictions, OpenRedirect, StateChangeBySafeVerb, Ssrf,
-        SecurityHeaders, Cookies, Cors, SensitiveData, Misconfiguration
+        SecurityHeaders, Cookies, Cors, SensitiveData, Misconfiguration, PersonalDataInUrl
     };
 
     /// <summary>Checks that only a browser-driven scan can perform. Named so a response-only

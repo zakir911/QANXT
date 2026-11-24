@@ -38,7 +38,7 @@ import type { Logger } from '../util/logger.js';
 
 type CheckRunner = (scanner: Scanner, target: SecurityTarget, context: ScanContext) => Promise<CheckResult>;
 
-interface ScanContext {
+export interface ScanContext {
   baseUrl: string;
   identities: Map<string, SignedInIdentity>;
   logger: Logger;
@@ -486,16 +486,48 @@ export async function signInIdentities(
 // Which engine function each check name runs
 // ---------------------------------------------------------------------------
 
-const owner = (context: ScanContext) => [...context.identities.values()][0];
-const intruder = (context: ScanContext) => [...context.identities.values()][1];
+/**
+ * Which identity plays which part in a comparison.
+ *
+ * Every one of these resolves by the role the caller declared, falling back to position. The
+ * fallback is what the first two used to do *instead*: `owner` was whatever identity came
+ * first and `intruder` whatever came second, whatever their roles. A launcher sending
+ * privileged, owner, readonly in that order — the order its own documentation uses — got the
+ * administrator as the "owner".
+ *
+ * The cost landed on authz.vertical, which takes the privileged identity and a lesser one.
+ * Both resolved to the administrator, so the check compared an identity against itself and
+ * reported "both reach this route" on five targets. It cannot find a privilege escalation
+ * that way: the lesser identity holds every privilege. An honest-looking inconclusive is the
+ * worst possible disguise for a check that could never have failed.
+ */
+export const byRole = (context: ScanContext, ...roles: string[]) =>
+  [...context.identities.values()].find(i => i.role !== undefined && roles.includes(i.role));
+
+export const owner = (context: ScanContext) =>
+  byRole(context, 'owner', 'user', 'member', 'standard')
+  ?? [...context.identities.values()][0];
+
+/**
+ * A second identity to compare against the first, and necessarily a different one.
+ *
+ * Position alone could return the same identity the owner resolved to, which is how a
+ * comparison silently stops comparing.
+ */
+export const intruder = (context: ScanContext) => {
+  const all = [...context.identities.values()];
+  const first = owner(context);
+  return byRole(context, 'intruder', 'attacker', 'other')
+    ?? all.find(i => i !== first);
+};
 // Role names are whatever the caller sent, so both spellings of each are honoured. The
 // launcher's own documentation says "privileged"; this looked only for "admin", so a scan
 // configured exactly as documented had no privileged identity and the checks needing one
 // reported inconclusive while the identity sat in the map.
-const privileged = (context: ScanContext) =>
+export const privileged = (context: ScanContext) =>
   [...context.identities.values()].find(i =>
     i.role === 'privileged' || i.role === 'admin' || i.role === 'administrator');
-const readOnly = (context: ScanContext) =>
+export const readOnly = (context: ScanContext) =>
   [...context.identities.values()].find(i =>
     i.role === 'readonly' || i.role === 'read-only' || i.role === 'viewer');
 
@@ -520,7 +552,11 @@ const RUNNERS: Record<string, CheckRunner> = {
     });
   },
   'authz.vertical': async (scanner, target, context) => {
-    const admin = privileged(context); const lesser = owner(context);
+    const admin = privileged(context);
+    // Explicitly not the privileged identity. Resolving the lesser one by position returned
+    // the administrator, and the check then compared him with himself.
+    const lesser = [...context.identities.values()].find(i => i !== admin && i.role !== 'privileged'
+      && i.role !== 'admin' && i.role !== 'administrator');
     if (!admin || !lesser) return inconclusive('A privileged and a lesser identity are needed; both were not available.');
     return authz.checkVerticalEscalation(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
@@ -774,8 +810,21 @@ const RUNNERS: Record<string, CheckRunner> = {
 
   'passive.headers': async (scanner, target, context) =>
     passive.checkSecurityHeaders(scanner, url(context.baseUrl, target.identifier), 'passive.headers'),
-  'passive.cookies': async (scanner, target, context) =>
-    passive.checkCookies(scanner, url(context.baseUrl, target.identifier), 'passive.cookies'),
+  // Given an identity, this check signs in and judges the cookies the authentication
+  // response sets, once per way the form will authenticate. Without one it can only read the
+  // page under test, which is close to the only request that issues no session cookie — so a
+  // scan configured with no credentials reports the check inconclusive rather than clean.
+  'passive.cookies': async (scanner, target, context) => {
+    const identity = owner(context);
+    return passive.checkCookies(
+      scanner, url(context.baseUrl, target.identifier), 'passive.cookies',
+      {
+        baseUrl: context.baseUrl,
+        credentials: identity?.username
+          ? { username: identity.username, password: identity.password }
+          : undefined
+      });
+  },
   'passive.cors': async (scanner, target, context) =>
     passive.checkCors(scanner, url(context.baseUrl, target.identifier), 'passive.cors'),
   // Read as a signed-in identity where the job carries one. Anonymously, this check
@@ -788,7 +837,15 @@ const RUNNERS: Record<string, CheckRunner> = {
       { headers: authHeaders(identity) });
   },
   'passive.misconfiguration': async (scanner, _target, context) =>
-    passive.checkMisconfiguration(scanner, context.baseUrl, 'passive.misconfiguration')
+    passive.checkMisconfiguration(scanner, context.baseUrl, 'passive.misconfiguration'),
+  // Read as a signed-in identity, for the same reason sensitive-data is: the forms that
+  // collect personal data are behind the sign-in, and a stranger is shown the login page.
+  'passive.pii-in-url': async (scanner, target, context) => {
+    const identity = owner(context);
+    return passive.checkPersonalDataInUrl(
+      scanner, url(context.baseUrl, target.identifier), 'passive.pii-in-url',
+      { headers: authHeaders(identity) });
+  }
 };
 
 const REDIRECTISH = new Set([

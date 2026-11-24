@@ -362,6 +362,11 @@ public static class SecurityAttackSurfaceBuilder
             SecurityChecks.SecurityHeaders,
             SecurityChecks.Cookies,
             SecurityChecks.SensitiveData,
+            // Every page may take personal data in its query string or declare a form that
+            // will put it there. Implying this only where a query parameter was already
+            // discovered would miss the form nobody has used yet, which is the whole point of
+            // reading the markup rather than waiting for a request.
+            SecurityChecks.PersonalDataInUrl,
             // And every page can read the fragment it was opened with. DOM XSS takes its
             // source from location.hash, location.search, document.referrer or window.name —
             // none of which is a form input — so implying it only where a form was found

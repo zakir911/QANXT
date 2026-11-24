@@ -313,6 +313,78 @@ export class SecurityScanner {
     });
   }
 
+  /**
+   * Every distinct way the sign-in form will authenticate this identity, each as its own
+   * exchange, for a check that has to judge what the *response* to signing in sets.
+   *
+   * ## Why a check cannot do this for itself
+   *
+   * The cookie check used to read the Set-Cookie headers of a passive GET of some page. A
+   * page GET is close to the only request that does not issue a session cookie: the cookie
+   * worth judging is minted by the authentication response, which that check never made. It
+   * reported a clean result from having looked at the wrong exchange.
+   *
+   * And one exchange is not enough. A sign-in form offering "keep me signed in" has two
+   * authentication paths, and they are often written by different people at different times —
+   * which is how one of them ends up assembling its Set-Cookie header by hand and dropping
+   * HttpOnly. Signing in once, the default way, cannot see it.
+   *
+   * Each optional control is exercised on its own rather than in combination: the
+   * combinations are exponential and the finding is per branch, not per pairing.
+   *
+   * @param {string} baseUrl
+   * @param {string} username
+   * @param {string} password
+   * @param {{maxOptions?: number, signInPath?: string}} [options]
+   * @returns {Promise<{exchanges: Array<{label: string, control: string|null, result: object}>,
+   *                    form: {action: string, method: string, options: Array<object>}|null}>}
+   */
+  async signInExchanges(baseUrl, username, password, options = {}) {
+    const maxOptions = options.maxOptions ?? 3;
+    const paths = [
+      ...(options.signInPath ? [options.signInPath] : []),
+      '/auth/sign-in', '/auth/login', '/login', '/sign-in', '/signin',
+      '/account/login', '/users/sign_in', '/session/new'
+    ];
+
+    for (const path of dedupe(paths)) {
+      const page = await this.request({
+        url: at(baseUrl, `${path}`), method: 'GET', risk: SECURITY_RISK.PASSIVE,
+        as: username, testId: 'sign-in'
+      });
+      if (!page.allowed || typeof page.responseBody !== 'string') continue;
+
+      const form = readSignInForm(page.responseBody, username, password);
+      if (form === null) continue;
+
+      const action = new URL(form.action, at(baseUrl, `${path}`)).toString();
+      const submit = async (extra, label, control) => {
+        const result = await this.request({
+          url: action, method: form.method,
+          risk: SECURITY_RISK.STATE_CHANGING,
+          headers: { 'content-type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ ...form.fields, ...extra }).toString(),
+          as: username, testId: 'sign-in', note: label
+        });
+        return { label, control, result };
+      };
+
+      const exchanges = [await submit({}, 'the form as it stands', null)];
+
+      // A fresh sign-in per option. Capped, because the number of exchanges a check may
+      // make should not be decided by how many boxes somebody put on a login page.
+      for (const option of (form.options ?? []).slice(0, maxOptions)) {
+        exchanges.push(await submit(
+          { [option.name]: option.value },
+          `with "${option.name}" enabled`, option.name));
+      }
+
+      return { exchanges, form: { action: form.action, method: form.method, options: form.options ?? [] } };
+    }
+
+    return { exchanges: [], form: null };
+  }
+
   async signIn(baseUrl, username, password = 'lab-password', options = {}) {
     // HTTP Basic first, because it is the one case where the application states the
     // answer. A 401 carrying WWW-Authenticate: Basic is the server saying what it wants,
@@ -477,10 +549,30 @@ export function readSignInForm(html, username, password) {
     if (identityField === undefined) continue;
 
     const fields = {};
+    const options = [];
     for (const control of controls) {
       const type = (control.type ?? 'text').toLowerCase();
       if (type === 'submit' || type === 'button' || type === 'image' || type === 'reset') continue;
-      if (type === 'checkbox' || type === 'radio') continue;   // left as the form defaults
+      if (type === 'checkbox' || type === 'radio') {
+        // A box the form ticks for you is part of how the form submits, so it belongs in the
+        // default submission. Every checkbox used to be dropped here, which quietly signed in
+        // differently from the form for any application that pre-ticks one.
+        if ('checked' in control) {
+          fields[control.name] = control.value || 'on';
+          continue;
+        }
+
+        // An unticked box is left unticked, which is the right thing for signing in: a scan
+        // should authenticate the way the form does, not the way it could be made to.
+        //
+        // It is reported rather than discarded, because an unticked box can be a second
+        // authentication path. "Keep me signed in" is the common one, and the common bug is a
+        // branch that assembles its own Set-Cookie and loses HttpOnly doing it. A check that
+        // never ticks the box cannot see that cookie, and a check never told the box is there
+        // cannot say what it did not look at.
+        options.push({ name: control.name, value: control.value || 'on', type });
+        continue;
+      }
       fields[control.name] = control.value ?? '';
     }
     fields[identityField.name] = username;
@@ -490,16 +582,26 @@ export function readSignInForm(html, username, password) {
     return {
       action: form.action || '',
       method: (form.method || 'post').toUpperCase() === 'GET' ? 'GET' : 'POST',
-      fields
+      fields,
+      options
     };
   }
   return null;
 }
 
-/** The attributes of one tag, as a plain object. */
+/**
+ * The attributes of one tag, as a plain object.
+ *
+ * Valueless attributes are included, with an empty string. HTML boolean attributes are
+ * ordinarily written bare — `checked`, `required`, `disabled`, `readonly` — and a reader that
+ * demands `name="value"` cannot see any of them. A pre-ticked checkbox then looked identical
+ * to an unticked one.
+ */
 function attributesOf(source) {
   const found = {};
-  for (const pair of source.matchAll(/([a-zA-Z-]+)\s*=\s*("([^"]*)"|'([^']*)'|([^\s">]+))/g)) {
+  for (const pair of source.matchAll(
+    /([a-zA-Z-]+)(?:\s*=\s*("([^"]*)"|'([^']*)'|([^\s">]+)))?/g)) {
+    if (!pair[1]) continue;
     found[pair[1].toLowerCase()] = pair[3] ?? pair[4] ?? pair[5] ?? '';
   }
   return found;

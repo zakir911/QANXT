@@ -673,6 +673,18 @@ public class SecurityAttackSurfaceTests
     }
 
     [Fact]
+    public void Every_page_implies_the_personal_data_in_URL_check_even_with_no_query_parameter()
+    {
+        // The check reads the page's own markup for a form that will submit personal data by
+        // GET, so it finds the form nobody has used yet. Implying it only where a query
+        // parameter had already been discovered would wait for the leak before looking for it.
+        var plain = Build(pages: new[] { Page("/customers", PageKind.List, false) })
+            .Items.Single().RelevantChecks;
+
+        plain.Should().Contain(SecurityChecks.PersonalDataInUrl);
+    }
+
+    [Fact]
     public void Every_page_implies_DOM_XSS_even_one_with_no_form_at_all()
     {
         // The source is location.hash, location.search, document.referrer or window.name —

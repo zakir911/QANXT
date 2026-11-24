@@ -344,7 +344,24 @@ export namespace request {
 }
 export namespace passive {
   const checkSecurityHeaders: (scanner: SecurityScanner, url: string, testId?: string) => Promise<CheckResult>;
-  const checkCookies: (scanner: SecurityScanner, url: string, testId?: string) => Promise<CheckResult>;
+  const checkPersonalDataInUrl: (
+    scanner: SecurityScanner, url: string, testId?: string,
+    options?: { headers?: Record<string, string> }
+  ) => Promise<CheckResult>;
+  const formsSubmittingPersonalDataByGet: (
+    html: string
+  ) => Array<{ action: string; method: string; fields: string[]; defaulted: boolean }>;
+  const personalParameterName: (name: string) => string | null;
+  const checkCookies: (
+    scanner: SecurityScanner, url: string, testId?: string,
+    options?: {
+      /** Signed in with these, the check judges the cookies the authentication response
+       * sets, once per way the sign-in form will authenticate. Without them it can only read
+       * the page under test, and says so rather than reporting a clean result. */
+      credentials?: { username: string; password: string };
+      baseUrl?: string;
+    }
+  ) => Promise<CheckResult>;
   const checkCors: (scanner: SecurityScanner, url: string, testId?: string) => Promise<CheckResult>;
   const checkSensitiveData: (
     scanner: SecurityScanner, url: string, testId?: string,

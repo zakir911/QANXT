@@ -1637,6 +1637,62 @@ the mirror was restored. A guard that has only ever been seen passing is not kno
 
 ---
 
+## 60. Personal data in a URL was never a finding, only personal data in a body
+
+**Symptom.** FP_D32, a customer contact search that submits an email address by GET, was
+missed by every scan. No check in the engine asked the question.
+
+**Diagnosis.** The sensitive-data check has this in its own file, and it is right:
+
+> Email addresses and telephone numbers are deliberately absent. A support address in a
+> footer is not a leak, and a detector that reports one teaches its readers to skim — which
+> costs more than the finding is worth.
+
+That reasoning holds for a response body and does not transfer to a URL. An address in a body
+is read by whoever was already entitled to the page. The same address in a query string is
+written to the web server's access log, every proxy log in between, the browser history of
+what may be a shared terminal, and the `Referer` header of every request the page then makes
+to a third party. The data has left the conversation it was part of. Same data, different
+exposure, and the second one is CWE-598.
+
+So this is not a correction of that decision. It is the question that decision did not cover.
+
+**Fix.** A new check, `passive.pii-in-url`, on two kinds of evidence, neither of which is a
+guess about a value:
+
+- A query parameter whose *name* says what it holds. The name is better evidence than the
+  contents: a value that looks like an email in one record may be empty in the next, and the
+  parameter is a leak either way. A validated value raises confidence when one is there and
+  its absence never lowers the finding.
+- A form that will submit such a field by GET, read from the page's own markup — so it is
+  found before anyone has used it. **A form with no method attribute submits by GET**, which
+  is how most instances arrive: nobody chose it, and the check says so in the finding.
+
+The name list is deliberately short. Every entry is a name whose only ordinary meaning is
+personal data about an identifiable person: not `name`, which is as often a product's, nor
+`id`, `account` or `reference`. A test holds fourteen ordinary parameter names — `q`, `id`,
+`name`, `page`, `tier`, `reference`, `customerId`, `search` and the rest — and asserts every
+one stays quiet, because a check that reports them all would be read once and skipped
+thereafter.
+
+**Measured against the live application, both ways.**
+
+```
+defect ON : 1 finding  — A form on /customers submits contactEmail by GET   (CWE-598)
+defect OFF: 0 findings — the same form, method="post"
+```
+
+The control group is the half that matters: with the planted defect switched off the markup
+becomes a POST and the check goes silent. Pointed at the address the form produces,
+`/customers?contactEmail=…`, it raises both findings and gives the one with a real value in
+it Medium confidence against the markup-only Low — the confidence model doing its job
+unprompted.
+
+The value itself is never written into a finding, and a test asserts that by searching the
+serialised output for it.
+
+---
+
 ## Four near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;

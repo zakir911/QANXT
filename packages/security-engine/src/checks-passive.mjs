@@ -95,14 +95,86 @@ export async function checkSecurityHeaders(scanner, url, testId = 'SECP-HEADERS'
   return { skipped: false, findings, observations };
 }
 
-/** Cookie attributes, judged against what the cookie appears to be for. */
-export async function checkCookies(scanner, url, testId = 'SECP-COOKIES') {
+/**
+ * Cookie attributes, judged against what the cookie appears to be for.
+ *
+ * ## Which response's cookies
+ *
+ * Given credentials, the ones the authentication response sets, once per way the sign-in form
+ * will authenticate. Without them, whatever the page under test happens to set.
+ *
+ * That distinction is the whole check. A page GET is close to the only request that issues no
+ * session cookie, so reading its Set-Cookie headers and reporting no finding said nothing
+ * about session cookies while looking exactly like a clean result. The same fault was found
+ * and fixed in the sensitive-data check — "anonymously, this check examined whatever an
+ * application shows a stranger and reported it clean" — and this one was left behind.
+ *
+ * A form offering "keep me signed in" authenticates two ways, and the second branch is where
+ * a hand-assembled Set-Cookie loses HttpOnly. Each is examined separately and findings name
+ * which branch set the cookie, because "the session cookie lacks HttpOnly" and "the session
+ * cookie lacks HttpOnly when you tick remember me" are different bugs to go and fix.
+ *
+ * @param {object} scanner
+ * @param {string} url
+ * @param {string} [testId]
+ * @param {{credentials?: {username: string, password: string}, baseUrl?: string}} [options]
+ */
+export async function checkCookies(scanner, url, testId = 'SECP-COOKIES', options = {}) {
   const result = await scanner.request({ url, risk: SECURITY_RISK.PASSIVE, testId });
   if (!result.allowed) return { skipped: true, decision: result.decision, findings: [], observations: [] };
 
-  const setCookies = result.headers?.getSetCookie?.() ?? [];
   const findings = [];
   const observations = [];
+
+  /** Every response whose cookies are worth judging, and how it was obtained. */
+  const sources = [{ label: 'the page under test', control: null, result }];
+
+  const credentials = options.credentials;
+  const baseUrl = options.baseUrl ?? url;
+  let authenticationExamined = false;
+
+  if (credentials?.username && typeof scanner.signInExchanges === 'function') {
+    const { exchanges } = await scanner.signInExchanges(
+      baseUrl, credentials.username, credentials.password);
+    for (const exchange of exchanges) {
+      if (!exchange.result?.allowed) continue;
+      authenticationExamined = true;
+      sources.push({ label: `signing in ${exchange.label}`, control: exchange.control, result: exchange.result });
+    }
+  }
+
+  for (const source of sources) {
+    judgeCookies(source, url, findings, observations);
+  }
+
+  // Nothing to judge is not a clean result. Before this, a check that saw no cookies at all
+  // returned exactly what a check that saw well-configured ones returned, and the reader had
+  // no way to tell "the session cookie is correct" from "no session cookie was ever seen".
+  const sawSession = observations.some(o => o.looksLikeSession);
+  if (!sawSession) {
+    return {
+      skipped: false, findings, observations, inconclusive: true,
+      reason: authenticationExamined
+        ? 'Not evaluated: signing in was examined and no response set a cookie that looks like a '
+          + 'session. The application may carry its session in a header or a token, which this '
+          + 'check cannot judge.'
+        : credentials?.username
+          ? 'Not evaluated: no sign-in form could be found to authenticate against, and the page '
+            + 'under test set no session cookie. The cookies worth judging are the ones an '
+            + 'authentication response sets, and no authentication response was obtained.'
+          : 'Not evaluated: no credentials were supplied, so only the page under test could be '
+            + 'read, and it set no session cookie. A session cookie is issued by signing in, '
+            + 'which this check was not given the means to do.'
+    };
+  }
+
+  return { skipped: false, findings, observations };
+}
+
+/** Judges one response's Set-Cookie headers, appending to the caller's lists. */
+function judgeCookies(source, url, findings, observations) {
+  const { label, result } = source;
+  const setCookies = result.headers?.getSetCookie?.() ?? [];
 
   for (const raw of setCookies) {
     const [pair] = raw.split(';');
@@ -118,8 +190,11 @@ export async function checkCookies(scanner, url, testId = 'SECP-COOKIES') {
     // cookie without it is how preferences work, and flagging it is noise.
     const looksLikeSession = /sess|auth|token|jwt|sid/i.test(name);
 
-    // The value is never recorded — only its shape.
-    observations.push({ cookie: name, httpOnly, secure, sameSite, looksLikeSession, valueLength: pair.split('=')[1]?.length ?? 0 });
+    // The value is never recorded — only its shape, and which response set it.
+    observations.push({
+      cookie: name, httpOnly, secure, sameSite, looksLikeSession,
+      valueLength: pair.split('=')[1]?.length ?? 0, setBy: label
+    });
 
     if (!looksLikeSession) continue;
 
@@ -134,10 +209,17 @@ export async function checkCookies(scanner, url, testId = 'SECP-COOKIES') {
 
     findings.push({
       category: 'InsecureCookieAttributes',
-      title: `Session cookie "${name}" is missing ${missing.join(', ')}`,
+      title: source.control
+        ? `Session cookie "${name}" is missing ${missing.join(', ')} when "${source.control}" is enabled`
+        : `Session cookie "${name}" is missing ${missing.join(', ')}`,
       parameter: name,
       endpoint: new URL(url).pathname,
-      description: `The cookie "${name}" looks like a session cookie and does not set ${missing.join(', ')}.`,
+      description: `The cookie "${name}" looks like a session cookie and does not set `
+        + `${missing.join(', ')}. It was set by ${label}.`
+        + (source.control
+          ? ` The same cookie set by signing in the form's default way is judged separately, so `
+            + `this is a fault in the "${source.control}" branch specifically.`
+          : ''),
       impact: missing.includes('HttpOnly')
         ? 'Script running in the page can read the session cookie.'
         : 'The cookie is sent on cross-site requests.',
@@ -156,8 +238,6 @@ export async function checkCookies(scanner, url, testId = 'SECP-COOKIES') {
       exchanges: [result]
     });
   }
-
-  return { skipped: false, findings, observations };
 }
 
 /**
@@ -441,6 +521,202 @@ export async function checkMisconfiguration(scanner, baseUrl, testId = 'SECP-MIS
       confidence: confidenceFrom({ reproduced: false, corroborated: false, unambiguous: false }),
       exchanges: [result]
     });
+  }
+
+  return { skipped: false, findings, observations };
+}
+
+/**
+ * Personal data travelling in a URL.
+ *
+ * ## Why this is a separate question from personal data in a response
+ *
+ * The sensitive-data check deliberately does not match email addresses or telephone numbers,
+ * and that reasoning is sound where it was made: a support address in a footer is not a leak,
+ * and a detector that reports one teaches its readers to skim.
+ *
+ * None of it transfers to a URL. An address in a response body is seen by whoever was already
+ * entitled to the page. The same address in a query string is written to the web server's
+ * access log, every proxy's log in between, the browser's history on what may be a shared
+ * terminal, and the `Referer` header of every request the page then makes to a third party.
+ * The data has left the conversation it was part of. That is CWE-598, it is one of the
+ * findings a regulator asks about first, and the scanner could not see it at all.
+ *
+ * ## What counts as evidence
+ *
+ * Two things, and neither is a guess about a value:
+ *
+ * - A query parameter whose *name* says what it holds. Names are chosen by the author to
+ *   describe the contents, which makes them better evidence than the contents: a value that
+ *   looks like an email in one record may be absent in the next, and the parameter is a leak
+ *   either way.
+ * - A form that will submit such a field by GET. This is read from the page's own markup, so
+ *   it is found whether or not anyone has used the form yet — and **a form with no method
+ *   attribute submits by GET**, which is how most instances of this arrive: nobody chose it.
+ *
+ * A validated value in the query raises the confidence when one happens to be there, and its
+ * absence never lowers the finding, because the parameter is the fault.
+ */
+
+/**
+ * Parameter and field names that say the value is personal.
+ *
+ * Deliberately short. Every entry here is a name whose only ordinary meaning is personal data
+ * about an identifiable person — not `name`, which is as often a product's, nor `id`, nor
+ * `account`, nor `reference`. The cost of a wrong entry is paid by every reader of every
+ * report, so the list earns its length.
+ */
+const PERSONAL_PARAMETER_NAMES = [
+  'email', 'emailaddress', 'e_mail', 'mail', 'contactemail', 'useremail',
+  'phone', 'phonenumber', 'telephone', 'tel', 'mobile', 'msisdn', 'contactphone',
+  'dob', 'dateofbirth', 'birthdate', 'birthday',
+  'ssn', 'socialsecurity', 'socialsecuritynumber',
+  'nino', 'nationalinsurance', 'nationalinsurancenumber',
+  'passport', 'passportnumber', 'taxid', 'tin',
+  'iban', 'cardnumber', 'pan', 'creditcard',
+  'postcode', 'zipcode', 'homeaddress', 'streetaddress'
+];
+
+/** Input types whose author has declared the field holds personal contact data. */
+const PERSONAL_INPUT_TYPES = new Set(['email', 'tel']);
+
+/** A name, reduced so that contact_email, contactEmail and contact-email are one thing. */
+const normaliseName = (name) => String(name ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/** Whether a parameter or field name says it holds personal data, and which name matched. */
+export function personalParameterName(name) {
+  const reduced = normaliseName(name);
+  if (reduced.length === 0) return null;
+  return PERSONAL_PARAMETER_NAMES.includes(reduced) ? reduced : null;
+}
+
+/**
+ * The forms a page declares that will submit a personal field by GET.
+ *
+ * @param {string} html
+ * @returns {Array<{action: string, method: string, fields: string[], defaulted: boolean}>}
+ */
+export function formsSubmittingPersonalDataByGet(html) {
+  const found = [];
+  if (typeof html !== 'string') return found;
+
+  for (const match of html.matchAll(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi)) {
+    const attributes = match[1] ?? '';
+    const inner = match[2] ?? '';
+
+    const declared = /\bmethod\s*=\s*["']?([a-zA-Z]+)/.exec(attributes)?.[1]?.toLowerCase();
+    // No method attribute means GET. This is the case worth catching: a form nobody chose a
+    // method for, quietly putting whatever it collects into the address bar.
+    const method = declared ?? 'get';
+    if (method !== 'get') continue;
+
+    const fields = [];
+    for (const input of inner.matchAll(/<input\b([^>]*)>/gi)) {
+      const source = input[1] ?? '';
+      const name = /\bname\s*=\s*("([^"]*)"|'([^']*)'|([^\s">]+))/.exec(source);
+      const type = /\btype\s*=\s*("([^"]*)"|'([^']*)'|([^\s">]+))/.exec(source);
+      const fieldName = name?.[2] ?? name?.[3] ?? name?.[4] ?? '';
+      const fieldType = (type?.[2] ?? type?.[3] ?? type?.[4] ?? 'text').toLowerCase();
+      if (!fieldName) continue;
+
+      if (PERSONAL_INPUT_TYPES.has(fieldType) || personalParameterName(fieldName)) {
+        fields.push(fieldName);
+      }
+    }
+
+    if (fields.length > 0) {
+      const action = /\baction\s*=\s*("([^"]*)"|'([^']*)'|([^\s">]+))/.exec(attributes);
+      found.push({
+        action: action?.[2] ?? action?.[3] ?? action?.[4] ?? '',
+        method, fields, defaulted: declared === undefined
+      });
+    }
+  }
+
+  return found;
+}
+
+/** Personal data in a query string, from the address under test and from the page's forms. */
+export async function checkPersonalDataInUrl(scanner, url, testId = 'SECP-PII-URL', options = {}) {
+  const result = await scanner.request({
+    url, risk: SECURITY_RISK.PASSIVE, testId, headers: options.headers ?? {}
+  });
+  if (!result.allowed) return { skipped: true, decision: result.decision, findings: [], observations: [] };
+
+  const findings = [];
+  const observations = [];
+  const path = new URL(url).pathname;
+
+  // 1. The address under test.
+  const query = [...new URL(url).searchParams.keys()];
+  const leaking = query.map(name => ({ name, matched: personalParameterName(name) }))
+    .filter(p => p.matched !== null);
+
+  for (const parameter of leaking) {
+    const value = new URL(url).searchParams.get(parameter.name) ?? '';
+    const corroborated = findPersonalData(value).length > 0 || /@|\d{6,}/.test(value);
+    observations.push({ kind: 'queryParameter', parameter: parameter.name, corroborated });
+
+    findings.push({
+      category: 'PersonalDataInUrl',
+      title: `"${parameter.name}" carries personal data in the query string`,
+      parameter: parameter.name,
+      endpoint: path,
+      httpMethod: 'GET',
+      description: `The address ${path} takes "${parameter.name}" as a query parameter. Its name `
+        + 'says it holds personal data about an identifiable person, and a query string is '
+        + 'written to the web server access log, every proxy log in between, and the browser '
+        + 'history of whoever used it.',
+      impact: 'Personal data is retained by systems that were never meant to hold it, and is '
+        + 'sent to third parties in the Referer header of requests this page makes.',
+      remediation: `Submit "${parameter.name}" in a request body over POST, or replace it with an `
+        + 'opaque identifier the server resolves.',
+      cwe: 'CWE-598', cweConfidence: 'confirmed',
+      owaspWebCategory: 'A01:2021',
+      // No unusual conditions: the data is in the log the moment somebody uses the feature.
+      // Reach is 'none' because reading the logs is a separate access the finding does not
+      // establish — what this establishes is the retention.
+      severityFactors: new SeverityFactors('trivial', 'serious', 'none', 'personalData', 'public'),
+      confidence: confidenceFrom({ reproduced: false, corroborated, unambiguous: true }),
+      exchanges: [result]
+    });
+  }
+
+  // 2. The forms the page declares, which leak on first use whether or not anyone has used them.
+  for (const form of formsSubmittingPersonalDataByGet(result.responseBody)) {
+    observations.push({ kind: 'form', action: form.action, fields: form.fields, defaulted: form.defaulted });
+
+    findings.push({
+      category: 'PersonalDataInUrl',
+      title: `A form on ${path} submits ${form.fields.join(', ')} by GET`,
+      parameter: form.fields[0],
+      endpoint: path,
+      httpMethod: 'GET',
+      description: `The form posting to "${form.action || path}" collects `
+        + `${form.fields.join(', ')} and submits by GET`
+        + (form.defaulted
+          ? ', because it declares no method at all and GET is what HTML does then. '
+          : '. ')
+        + 'Whatever is typed into it arrives in the address bar and in every log that records '
+        + 'the request.',
+      impact: 'The first person to use this form puts personal data into the access log, the '
+        + 'proxy log and their own browser history.',
+      remediation: 'Give the form method="post", and read the fields from the request body.',
+      cwe: 'CWE-598', cweConfidence: 'confirmed',
+      owaspWebCategory: 'A01:2021',
+      severityFactors: new SeverityFactors('trivial', 'serious', 'none', 'personalData', 'public'),
+      // The markup is unambiguous about what it will do; nothing yet observed it doing it.
+      confidence: confidenceFrom({ reproduced: false, corroborated: false, unambiguous: true }),
+      exchanges: [result]
+    });
+  }
+
+  if (findings.length === 0 && query.length === 0 && !/<form/i.test(result.responseBody ?? '')) {
+    return {
+      skipped: false, findings, observations, inconclusive: true,
+      reason: 'Not evaluated: this address carries no query parameters and the page declares no '
+        + 'form, so there is nothing that could put personal data into a URL.'
+    };
   }
 
   return { skipped: false, findings, observations };

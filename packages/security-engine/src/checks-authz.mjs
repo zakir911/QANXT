@@ -97,6 +97,16 @@ function looksLikeSignInPage(body) {
  * @param intruder  { cookie, label }              who should not see it
  */
 export async function checkBola(scanner, { baseUrl, path, owner, intruder, testId = 'SECA-BOLA' }) {
+  const sameActor = sameIdentity(owner, intruder);
+  if (sameActor) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: `Not evaluated: the owning and intruding identities are the same one `
+        + `(${owner.label}), matched on ${sameActor}. An identity reading its own record is `
+        + 'the application working. Supply two distinct identities.'
+    };
+  }
+
   // The check compares what the owner can read against what a stranger can read, so it
   // needs to know which resource is the owner's. Without one it used to interpolate
   // `undefined` into the URL and then report that the stranger's response "did not contain
@@ -171,9 +181,45 @@ export async function checkBola(scanner, { baseUrl, path, owner, intruder, testI
   };
 }
 
+/**
+ * Whether two actors are the same identity, and on what evidence.
+ *
+ * Label alone is not enough: a caller may hand the same credential under two names. What
+ * authenticates the request is what decides, so the headers and the cookie are compared too,
+ * and the reason is returned so the check can say how it knows.
+ *
+ * @returns {string|null} what matched, or null when they are genuinely different
+ */
+function sameIdentity(a, b) {
+  if (!a || !b) return null;
+  if (a === b) return 'the same object';
+  if (a.label && b.label && a.label === b.label) return 'their label';
+  if (a.cookie && b.cookie && a.cookie === b.cookie) return 'the same session cookie';
+  const headersOf = x => JSON.stringify(Object.entries(x.headers ?? {}).sort());
+  const both = headersOf(a);
+  if (both !== '[]' && both === headersOf(b)) return 'identical authentication headers';
+  return null;
+}
+
 /** Broken function level authorization — a lesser role reaching a privileged route. */
 export async function checkVerticalEscalation(scanner, { baseUrl, path, privileged, lesser, testId = 'SECA-VERT' }) {
   const url = at(baseUrl, `${path}`);
+
+  // Two identities that are one identity cannot establish anything. The caller resolved both
+  // of these by position once, got the administrator twice, and this check dutifully compared
+  // him with himself and reported that both roles reached the route — on evidence that could
+  // not have come out any other way. It reads as a scoping limit and is a check that could
+  // never fail, which is the more dangerous of the two.
+  const same = sameIdentity(privileged, lesser);
+  if (same) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: `Not evaluated: the privileged and lesser identities are the same one `
+        + `(${privileged.label}), matched on ${same}. Comparing an identity with itself cannot `
+        + 'show a privilege escalation, because the lesser identity holds every privilege. '
+        + 'Supply two distinct identities, declaring which is which by role.'
+    };
+  }
 
   const control = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:control`,
@@ -250,6 +296,17 @@ export async function checkVerticalEscalation(scanner, { baseUrl, path, privileg
 
 /** A read-only role performing a write. */
 export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, readonly, body, testId = 'SECA-RO' }) {
+  const sameActor = sameIdentity(writer, readonly);
+  if (sameActor) {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: `Not evaluated: the writing and read-only identities are the same one `
+        + `(${writer.label}), matched on ${sameActor}. A write succeeding for an identity `
+        + 'permitted to write establishes nothing about one that is not. Supply two distinct '
+        + 'identities.'
+    };
+  }
+
   const url = at(baseUrl, `${path}`);
 
   const control = await scanner.request({

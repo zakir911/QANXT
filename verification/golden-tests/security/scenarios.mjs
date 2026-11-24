@@ -46,7 +46,8 @@ export const CHECKS = [
   'injection.sql', 'injection.nosql', 'injection.command', 'injection.template',
   'request.csrf', 'request.origin', 'request.upload', 'request.redirect',
   'request.safe-verb-state-change', 'request.ssrf',
-  'passive.headers', 'passive.cookies', 'passive.cors', 'passive.sensitive-data', 'passive.misconfiguration'
+  'passive.headers', 'passive.cookies', 'passive.cors', 'passive.sensitive-data', 'passive.misconfiguration',
+  'passive.pii-in-url'
 ];
 
 /** Checks only a browser-driven scan can perform. Reported as untested, never as absent. */
