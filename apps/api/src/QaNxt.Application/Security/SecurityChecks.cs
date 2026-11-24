@@ -76,7 +76,7 @@ public static class SecurityChecks
         MassAssignment, InputValidation, UnsafeMethod, RateLimit, ExcessiveData, ErrorDisclosure,
         ReflectedXss, StoredXss, DomXss,
         SqlInjection, NoSqlInjection, CommandInjection, TemplateInjection,
-        CsrfToken, OriginValidation, UploadRestrictions, OpenRedirect, Ssrf,
+        CsrfToken, OriginValidation, UploadRestrictions, OpenRedirect, StateChangeBySafeVerb, Ssrf,
         SecurityHeaders, Cookies, Cors, SensitiveData, Misconfiguration
     };
 

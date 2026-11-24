@@ -1,3 +1,4 @@
+using System.Reflection;
 using QaNxt.Application.Security;
 using QaNxt.Domain.Enums;
 using QaNxt.Domain.Security;
@@ -155,6 +156,41 @@ public class SecurityImpactSelectorTests
         result.Selected.Should().BeEmpty();
         result.Notes.Should().ContainMatch("*names no known check*");
         result.Notes.Should().ContainMatch("*not being re-tested by this run*");
+    }
+
+    [Fact]
+    public void Every_declared_check_is_in_the_canonical_list()
+    {
+        // The list is a contract, and a check missing from it is worse than a misnamed one:
+        // the selector drops it, the gate cannot count it as untested, and nothing in either
+        // path says the check exists. This reads the declared constants rather than repeating
+        // them, so a check added without being listed fails here instead of in a scan.
+        var declared = typeof(SecurityChecks)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(f => f.IsLiteral && f.FieldType == typeof(string))
+            .Select(f => (string)f.GetRawConstantValue()!)
+            .ToList();
+
+        declared.Should().NotBeEmpty();
+        declared.Should().OnlyContain(check => SecurityChecks.All.Contains(check));
+    }
+
+    [Fact]
+    public void An_open_safe_verb_finding_keeps_its_own_check_selected()
+    {
+        // The finding this covers is real: permits-legacy's GET-that-settles, found by
+        // request.safe-verb-state-change. Left out of the canonical list, the check its own
+        // finding names reads as unknown, so the one rule that stops a regression hiding —
+        // an open finding keeps its check whatever changed — does not apply to it.
+        var result = Select(open: new[]
+        {
+            new OpenFinding("CSRF", SecurityChecks.StateChangeBySafeVerb,
+                SecurityFindingStatus.Confirmed)
+        });
+
+        var selected = result.Selected.Single(s => s.Check == SecurityChecks.StateChangeBySafeVerb);
+        selected.BecauseOfOpenFinding.Should().BeTrue();
+        result.Notes.Should().NotContainMatch("*names no known check*");
     }
 
     [Fact]

@@ -1578,6 +1578,65 @@ next person who notices.
 
 ---
 
+## 59. Two checks existed, ran, and were absent from the list that governs them
+
+**Symptom.** None, which is the point. Both checks worked. `request.safe-verb-state-change`
+found permits-legacy's GET-that-settles and `api.error-disclosure` found freight's stack
+trace. Neither was in `SecurityChecks.All`.
+
+**Diagnosis.** That list is not a catalogue, it is a gate. Two code paths read it:
+
+```csharp
+if (string.IsNullOrWhiteSpace(check) || !SecurityChecks.All.Contains(check))
+{
+    notes.Add($"An open {finding.Category} finding names no known check ('{finding.TestId}'), "
+            + "so nothing could be selected to cover it. It is not being re-tested by this run.");
+    continue;
+}
+```
+
+That block exists for one reason, stated two lines below it: *"a check that found something
+and then stopped running is how a regression hides."* An open finding keeps its own check
+selected whatever the change touched. A check absent from `All` fails that membership test, so
+the finding it raised reads as naming an unknown check and is dropped from selection. The
+permits-legacy CWE-352 finding, earned the same week, would not have been re-tested by the
+next change-driven scan — defeated by its own safeguard, through the omission of one
+identifier from one array.
+
+The class's own doc comment had already named this failure: *"a check named one way in the
+selector and another way in the scan record produces a gate that reports full coverage from a
+scan that ran nothing."* Absent is worse than misnamed. A misnamed check is in the universe
+and wrong about itself; an absent one cannot be reported as untested, because as far as the
+coverage arithmetic is concerned it does not exist.
+
+**Why nothing caught it.** The guard was there and was correct. `SECPL-027` compares the
+platform's vocabulary against the engine's, in both directions, and would have failed on
+either check. It asks the running platform for its list over HTTP, so it runs when somebody
+runs the whole product verification and not otherwise. Nobody had. A guard that only fires in
+the expensive suite is a guard against the wrong thing.
+
+Read off disk, the drift was: 34 constants declared, 33 in `All`, 32 in the engine's mirror.
+
+**Fix.** Three parts, because the omission and the reason it survived are different faults.
+
+- `StateChangeBySafeVerb` added to `All`; `api.error-disclosure` and
+  `request.safe-verb-state-change` added to the engine's mirror. The two lists are now
+  identical at 34.
+- A C# test that reads the declared constants by reflection and asserts every one appears in
+  `All`. It repeats no names, so a check added without being listed fails here rather than in
+  a scan.
+- A node test that reads the C# source off disk and compares the two lists. No database, no
+  API, no browser: it runs with the engine package's own suite, which is the cheapest suite
+  that could possibly catch this. It does not replace `SECPL-027`, which proves the *running*
+  platform serves what its source declares — something a file read cannot establish.
+
+**Both guards were checked for sensitivity rather than assumed.** The C# test failed before
+the one-line fix and passes after. The node test was run against a deliberately mutated
+mirror, reported *"only in the platform: request.safe-verb-state-change"*, and went green when
+the mirror was restored. A guard that has only ever been seen passing is not known to work.
+
+---
+
 ## Four near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;

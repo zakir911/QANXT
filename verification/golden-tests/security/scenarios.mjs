@@ -41,9 +41,11 @@ export const CHECKS = [
   'authz.bola', 'authz.vertical', 'authz.readonly', 'authz.missing', 'authz.token',
   'auth.enumeration', 'auth.lockout', 'auth.session-logout', 'auth.session-lifetime', 'auth.reset-reuse',
   'api.mass-assignment', 'api.input-validation', 'api.unsafe-method', 'api.rate-limit', 'api.excessive-data',
+  'api.error-disclosure',
   'xss.reflected', 'xss.stored', 'xss.dom',
   'injection.sql', 'injection.nosql', 'injection.command', 'injection.template',
-  'request.csrf', 'request.origin', 'request.upload', 'request.redirect', 'request.ssrf',
+  'request.csrf', 'request.origin', 'request.upload', 'request.redirect',
+  'request.safe-verb-state-change', 'request.ssrf',
   'passive.headers', 'passive.cookies', 'passive.cors', 'passive.sensitive-data', 'passive.misconfiguration'
 ];
 
