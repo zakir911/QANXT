@@ -555,14 +555,19 @@ const RUNNERS: Record<string, CheckRunner> = {
     // username, password and role, because that is what signing in needs, so the check that
     // finds an IDOR reported "give the identity a resourceId it owns" on every target of
     // every run while a planted IDOR sat untested.
-    const resourceId = a.resourceId
+    const declared = a.resourceId;
+    const resourceId = declared
       ?? identifierFromSample(target.identifier, target.sampleUrl)
       ?? '';
 
     return authz.checkBola(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
       owner: { ...asActor(a), resourceId },
-      intruder: asActor(b)
+      intruder: asActor(b),
+      // A derived resource can show the endpoint refusing the second identity, which is a
+      // pass worth having. It cannot show a leak, because nothing says the record was
+      // private to the first identity.
+      resourceOwnership: declared ? 'declared' : 'assumed'
     });
   },
   'authz.vertical': async (scanner, target, context) => {

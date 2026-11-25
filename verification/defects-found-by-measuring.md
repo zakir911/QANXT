@@ -1827,8 +1827,42 @@ shown. `identifierFromSample` reads the concrete identifier off the sample URL t
 already carries, and the bola runner uses it when no resource was declared.
 
 A declared `resourceId` still wins: a caller who knows which record belongs to whom is a better
-authority than a crawl. The derived one is weaker than a record created for the test, and much
-better than a check that never runs.
+authority than a crawl.
+
+**And the first version of this fix manufactured a false positive.** Measured against the live
+application with two real identities, it reported:
+
+```
+CWE-639 | readonly can read a resource owned by ops.lead
+```
+
+The application is right and the finding was wrong. `/api/shipments/{id}` has no ownership
+check because shipments do not belong to users, `role-viewer` holds `shipment:read` by design,
+and a read-only auditor reading a shipment is the feature. **The control group is what caught
+it: the finding persisted with the planted defect switched off.** Had I checked only that the
+defect was now found, this would have shipped — a scanner reporting an IDOR on every record two
+roles may legitimately share, which is worse than one that reports none.
+
+The mistake was treating two halves of a premise as one. BOLA needs a record that one identity
+may see *and another must not*, and an address the crawl reached establishes only the first
+half. The vertical-escalation check already had this written down — *"Both roles reached it.
+That is only a defect if the route was meant to be restricted, and nothing observed here says
+it was"* — and I did not carry it across.
+
+So a derived resource now carries `resourceOwnership: 'assumed'` and cannot found a finding. It
+can still establish a **pass**, which is what the derivation is for: an endpoint that refuses
+the second identity is access control working, and that verdict was previously unreachable.
+When both read the record, the check says what is actually missing:
+
+> Not evaluated: ops.lead and readonly both read shp-0001, and nothing establishes that it was
+> private to the first. Its identifier was taken from an address discovery reached, which shows
+> the record is visible to that identity and says nothing about whether the other was meant to
+> see it — and a record two roles may both read is the ordinary case. Name a resource one
+> identity owns, or map the application again as each identity and compare what each is shown.
+
+That is more useful than the sentence it replaces, because the identifier is no longer what is
+missing. **FP_D12 is therefore not claimed as found**, and the claim earlier in this session
+that it was is withdrawn.
 
 The matching is per path segment rather than by regex over the whole string, because the
 failure that matters here is a *wrong* identifier, not a missing one — a check pointed at the
@@ -1999,6 +2033,49 @@ passes on is one that books twice.
 does not re-validate at its confirm step, so a POST with no draft behind it creates a
 consignment with no customer, no pieces and no weight. Several such records exist in the lab's
 state from earlier runs.
+
+---
+
+## 67. The new personal-data check, measured end to end, and what the same run did not establish
+
+**What the scan found.** `passive.pii-in-url`, added as defect 60, now runs as part of an
+ordinary freight scan: 32 of 32 implied checks, up from 31, with 25 executed over 1,736
+requests. It reports:
+
+```
+[critical] A form on /customers submits contactEmail by GET
+    category PersonalDataInUrl   /customers
+    CWE-598 · A01:2021
+```
+
+FP_D32, found by the product's own scan rather than by a harness calling the check directly.
+The cookie finding from defect 62 appears in the same run, twice — *"Session cookie
+`lab_session` is missing HttpOnly when `remember` is enabled"* — so both fixes hold in place.
+
+**What the same run did not establish, and why.** `authz.bola` ran on one target,
+`/api/view?path={v}`, whose identifier sits in a query parameter rather than a path segment, so
+nothing could be derived for it. `/api/shipments/{id}` — the one FP_D12 needs — was not in the
+surface at all. The crawl recorded **two** API endpoints for this application, because
+discovery finished `partiallyCompleted` at 69 pages against the 185 a full map reaches.
+
+That is the breadth-against-depth trade this document has recorded before, arriving in a new
+place: the scan ran every check its surface implied, and the surface was short of the endpoint
+that mattered.
+
+**A discovery fault found while looking.** The endpoint templates include these:
+
+```
+/api/shipments/shp-0001/{id}   sample: /api/shipments/shp-0001/BOOKED
+/api/shipments/shp-0002/{id}   sample: /api/shipments/shp-0002/BOOKED
+/api/shipments/shp-0003/{id}   sample: /api/shipments/shp-0003/BOOKED
+```
+
+The application has one route here, `/api/shipments/:id`. The parameteriser kept the record
+identifier as a literal and turned the status value into the parameter — backwards, and it
+names the result `{id}`. One template per record follows, so the surface fills with
+near-duplicates of an endpoint that does not exist, while the real one is a separate row that a
+shorter crawl may miss entirely. Not yet fixed: recorded here with the evidence, because the
+next thing to do about FP_D12 is this rather than another scan.
 
 ---
 

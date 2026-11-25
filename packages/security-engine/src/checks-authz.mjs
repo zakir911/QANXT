@@ -96,7 +96,30 @@ function looksLikeSignInPage(body) {
  * @param owner     { cookie, label, resourceId }  who legitimately owns it
  * @param intruder  { cookie, label }              who should not see it
  */
-export async function checkBola(scanner, { baseUrl, path, owner, intruder, testId = 'SECA-BOLA' }) {
+export async function checkBola(scanner, {
+  baseUrl, path, owner, intruder,
+  /**
+   * Where the owner's resource came from: 'declared' when a caller who knows the data named
+   * it, 'assumed' when it was read off an address discovery happened to reach.
+   *
+   * The difference decides whether a finding is possible at all. BOLA needs a record that
+   * one identity may see and another must not, and an address the crawl reached establishes
+   * only the first half. Deriving the identifier and then treating both identities reading it
+   * as a finding reports an IDOR on every record two roles may legitimately share.
+   *
+   * Measured: pointed at freight's `/api/shipments/{id}` with the identifier taken from a
+   * sample URL, this check reported "readonly can read a resource owned by ops.lead". The
+   * application is right and the finding was wrong — `role-viewer` holds `shipment:read` by
+   * design, and shipments belong to customers rather than to users. The control group is what
+   * caught it: the finding persisted with the planted defect switched off.
+   *
+   * The same reasoning is already written into the vertical-escalation check: "Both roles
+   * reached it. That is only a defect if the route was meant to be restricted, and nothing
+   * observed here says it was."
+   */
+  resourceOwnership = 'declared',
+  testId = 'SECA-BOLA'
+}) {
   const sameActor = sameIdentity(owner, intruder);
   if (sameActor) {
     return {
@@ -126,7 +149,9 @@ export async function checkBola(scanner, { baseUrl, path, owner, intruder, testI
   const control = await scanner.request({
     url, risk: SECURITY_RISK.ACTIVE, testId: `${testId}:control`,
     headers: authHeaders(owner), as: owner.label,
-    note: 'the owner reading their own resource'
+    note: resourceOwnership === 'declared'
+      ? 'the owner reading their own resource'
+      : 'an identity reading a record discovery saw it reach'
   });
   if (!control.allowed) return { skipped: true, decision: control.decision, findings: [] };
 
@@ -159,6 +184,26 @@ export async function checkBola(scanner, { baseUrl, path, owner, intruder, testI
   if (!leaked) {
     return { skipped: false, findings: [], ok: true,
              detail: `${intruder.label} received ${attempt.status} but the body did not contain ${owner.resourceId}` };
+  }
+
+  // Both identities read the record. That is a finding only if the record was the first
+  // one's to see and not the second's, and an identifier taken off an address the crawl
+  // reached does not say so. Most records two roles can both read are records two roles are
+  // both meant to read: a read-only auditor reading a shipment is the application working.
+  //
+  // So a derived resource can establish a pass — the intruder was refused — and cannot
+  // establish a finding. Saying which is missing beats both a false finding and the old
+  // "no resource was supplied", because the identifier is no longer what is missing.
+  if (resourceOwnership !== 'declared') {
+    return {
+      skipped: false, findings: [], inconclusive: true,
+      reason: `Not evaluated: ${owner.label} and ${intruder.label} both read ${resourceId}, and `
+        + 'nothing establishes that it was private to the first. Its identifier was taken from '
+        + 'an address discovery reached, which shows the record is visible to that identity and '
+        + 'says nothing about whether the other was meant to see it — and a record two roles may '
+        + 'both read is the ordinary case. Name a resource one identity owns, or map the '
+        + 'application again as each identity and compare what each is shown.'
+    };
   }
 
   return {

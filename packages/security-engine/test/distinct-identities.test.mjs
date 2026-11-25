@@ -117,3 +117,73 @@ test('two identities differing only in label, with no credential at all, are not
   assert.equal(asked.length, 2);
   assert.equal(/the same one/.test(result.reason ?? ''), false);
 });
+
+/**
+ * A resource whose ownership nobody established.
+ *
+ * The worker can now derive the owner's record from an address discovery reached, which is
+ * what let authz.bola run at all. It is also how the check came within one control group of
+ * reporting an IDOR on every record two roles may legitimately share: pointed at freight's
+ * `/api/shipments/{id}` with the identifier read off a sample URL, it reported "readonly can
+ * read a resource owned by ops.lead". The application was right — `role-viewer` holds
+ * `shipment:read` by design and shipments belong to customers, not users — and the finding
+ * was wrong. It persisted with the planted defect switched off, which is what caught it.
+ */
+const reads = (body) => ({
+  async request() {
+    return { allowed: true, status: 200, responseBody: body, headers: { get: () => null } };
+  }
+});
+
+test('a derived resource both identities can read is inconclusive, not a finding', async () => {
+  const result = await checkBola(reads({ id: 'shp-0001', reference: 'MF770000' }), {
+    baseUrl: 'http://app.test', path: '/api/shipments/{id}',
+    owner: { label: 'ops.lead', cookie: 'session=a', headers: {}, resourceId: 'shp-0001' },
+    intruder: { label: 'readonly', cookie: 'session=b', headers: {} },
+    resourceOwnership: 'assumed'
+  });
+
+  assert.equal(result.findings.length, 0);
+  assert.equal(result.inconclusive, true);
+  assert.match(result.reason, /nothing establishes that it was private to the first/);
+  assert.match(result.reason, /a record two roles may both read is the ordinary case/);
+});
+
+test('a declared resource both identities can read is still a finding', async () => {
+  // The caller named the record, which is the caller asserting it belongs to that identity.
+  // The guard must not swallow the finding it exists to allow.
+  const result = await checkBola(reads({ id: 'ord-77', total: 120 }), {
+    baseUrl: 'http://app.test', path: '/api/orders/{id}',
+    owner: { label: 'alice', cookie: 'session=a', headers: {}, resourceId: 'ord-77' },
+    intruder: { label: 'bob', cookie: 'session=b', headers: {} }
+  });
+
+  assert.equal(result.findings.length, 1);
+  assert.equal(result.findings[0].cwe, 'CWE-639');
+  assert.match(result.findings[0].title, /bob can read a resource owned by alice/);
+});
+
+test('a derived resource the second identity is refused is a pass, which is why deriving is worth it', async () => {
+  // The value the derivation buys: the check can now reach a verdict at all where it used to
+  // stop at "no resource was supplied".
+  const refusing = {
+    calls: 0,
+    async request() {
+      this.calls += 1;
+      return this.calls === 1
+        ? { allowed: true, status: 200, responseBody: { id: 'shp-0001' }, headers: { get: () => null } }
+        : { allowed: true, status: 403, responseBody: { error: 'forbidden' }, headers: { get: () => null } };
+    }
+  };
+
+  const result = await checkBola(refusing, {
+    baseUrl: 'http://app.test', path: '/api/shipments/{id}',
+    owner: { label: 'ops.lead', cookie: 'session=a', headers: {}, resourceId: 'shp-0001' },
+    intruder: { label: 'readonly', cookie: 'session=b', headers: {} },
+    resourceOwnership: 'assumed'
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.findings.length, 0);
+  assert.notEqual(result.inconclusive, true);
+});
