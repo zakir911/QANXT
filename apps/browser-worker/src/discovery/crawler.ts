@@ -151,6 +151,18 @@ export class Crawler {
    * which is why this is a field and not a local.
    */
   private readonly observedInstanceCandidates = new Map<string, ApiInstanceCandidate>();
+
+  /**
+   * Addresses the crawler is itself fetching from inside the page, right now.
+   *
+   * The network listener records the application's own traffic, and it cannot tell the
+   * application's fetch from the crawler's. So the in-page probe for a derived record address
+   * came back through the listener and was recorded a second time, untemplated: clinic-spa's
+   * surface carried `/api/patients/{id}` and `/api/patients/pat-1` and `/api/patients/pat-2`
+   * as three endpoints for one route, and the scan then had three targets where it had one
+   * route to test. A scanner's own traffic is not the application's API surface.
+   */
+  private readonly probingNow = new Set<string>();
   /** Links not followed because their own words say they change something. */
   private mutatingLinksSkipped = 0;
   /** The same links, kept so the report can name them and not only count them. */
@@ -1253,6 +1265,9 @@ export class Crawler {
     if (resourceType !== 'xhr' && resourceType !== 'fetch') return;
 
     const url = response.url();
+    // Not the application's traffic: the crawler's own probe for a derived record address,
+    // which records itself, templated, when it answers.
+    if (this.probingNow.has(url)) return;
     const template = normalizeUrl(url);
     const key = `${request.method()} ${template}`;
     const timing = request.timing();
@@ -1362,6 +1377,7 @@ export class Crawler {
    */
   private async retrieveApiInstance(page: Page, url: string, id: string): Promise<void> {
     let answer: { status: number; contentType: string; body: string } | null = null;
+    this.probingNow.add(url);
     try {
       answer = await page.evaluate(async (target: string) => {
         const response = await fetch(target, { credentials: 'include' });
@@ -1374,6 +1390,9 @@ export class Crawler {
     } catch {
       this.note(`${safeRoute(url)} could not be retrieved from inside the application.`);
       return;
+    } finally {
+      // Left in place briefly: the listener fires after evaluate() resolves.
+      setTimeout(() => this.probingNow.delete(url), 5_000);
     }
     if (answer === null) return;
 

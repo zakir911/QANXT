@@ -295,6 +295,18 @@ describe('record routes where the session lives in the page', () => {
     expect(app.asked).toContain('/api/widgets/w-1');
   });
 
+  test('the route is recorded once, templated: the probe is not the application\'s traffic', () => {
+    // The network listener records the application's own API calls and cannot tell them from
+    // the crawler's. So the in-page probe came back through it and was recorded a second
+    // time, untemplated, and clinic-spa's surface carried `/api/patients/{id}` beside
+    // `/api/patients/pat-1` and `/api/patients/pat-2`: three endpoints for one route, and
+    // three scan targets where there was one route to test.
+    const records = report.apiEndpoints
+      .map(e => e.urlTemplate)
+      .filter(t => /\/api\/widgets\//.test(t));
+    expect(records).toEqual([`${app.baseUrl}/api/widgets/{id}`]);
+  });
+
   test('no page is recorded at an API address', () => {
     // The phantom pages. Each was a duplicate of the fallback screen, carrying that
     // screen's form, and each grew a full test suite of its own.

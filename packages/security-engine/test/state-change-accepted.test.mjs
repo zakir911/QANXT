@@ -103,7 +103,8 @@ test('an endpoint that accepts the change without a token is still a finding', a
   // The guard must not swallow what the check exists for.
   const scanner = stub(
     answered(302, '/warehouse/stock/stk-1'),
-    answered(302, '/warehouse/stock/stk-1'));
+    answered(302, '/warehouse/stock/stk-1'),
+    answered(200));   // reading the address: a form, not a redirect
 
   const result = await checkCsrfToken(scanner, {
     baseUrl: 'http://app.test', path: '/warehouse/stock/stk-1/adjust', session
@@ -143,7 +144,8 @@ test('the origin check reads a redirect the same way', async () => {
 test('an origin that is not read is still a finding', async () => {
   const scanner = stub(
     answered(302, '/claims/clm-1'),
-    answered(302, '/claims/clm-2'));
+    answered(302, '/claims/clm-2'),
+    answered(200));   // reading the address: a form, not a redirect
 
   const result = await checkOriginValidation(scanner, {
     baseUrl: 'http://app.test', path: '/claims/new', session

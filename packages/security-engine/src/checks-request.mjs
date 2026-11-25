@@ -129,6 +129,57 @@ function samePathAs(location, requestedPath) {
  * The control matters as much as the claim. An endpoint that refuses the request with a
  * token as well proves nothing, and this reports inconclusive rather than calling it safe.
  */
+/**
+ * Whether a state-changing request changed anything, or just got the application's shell back.
+ *
+ * `stateChangeAccepted` reads the status and the redirect, which is enough on an application
+ * that answers 404 or 405 to an address it does not serve. A single-page application does not:
+ * clinic-spa serves its shell, 200 and HTML, for every path and every method it has no handler
+ * for, because that is how client-side routing works. So a POST to `/` answered 200, the
+ * control looked accepted, the probe without a token answered 200 too, and the check reported
+ * *"A state-changing request succeeds with no anti-CSRF token"* about an address that does
+ * nothing at all. Three findings on clinic-spa were that, and on any such application every
+ * address with no handler would produce the same.
+ *
+ * A GET of the same address settles it. If the state-changing response is byte-identical to
+ * what simply reading the address returns, nothing was changed and there is no state change to
+ * defend. The test is deliberately strict — identical, not merely similar — because a real
+ * change almost always shows: different JSON, a redirect, a changed page, a message. The cost
+ * is one GET, and only once a finding is otherwise about to be founded.
+ *
+ * Contrast the endpoint this must not suppress: `/api/appointments/apt-1/cancel` has no GET
+ * handler, so reading it returns clinic-spa's shell while the POST returns the cancelled
+ * appointment as JSON. Different, so the finding stands — correctly, because that endpoint
+ * really does accept a cookie-authorised POST with no token.
+ */
+export async function changedNothing(scanner, { baseUrl, path, response, session, testId }) {
+  const read = await scanner.request({
+    url: at(baseUrl, `${path}`), method: 'GET', risk: SECURITY_RISK.PASSIVE,
+    headers: { ...authHeaders(session) },
+    as: 'the legitimate caller', testId: `${testId}:read`,
+    note: 'reading the address, to tell a state change from the application answering its shell'
+  });
+  if (!read.allowed) return null;
+  if (Number(read.status) !== Number(response.status)) return null;
+
+  const bodyOf = (result) => typeof result?.responseBody === 'string'
+    ? result.responseBody
+    : result?.responseBody === undefined ? null : JSON.stringify(result.responseBody);
+  const left = bodyOf(response);
+  const right = bodyOf(read);
+  if (left === null || right === null || left !== right) return null;
+  // An empty body on both sides is not evidence of anything. A 204, or a 302 whose body is
+  // empty as most are, would otherwise compare equal to an empty read and have its finding
+  // withdrawn on the strength of two blanks.
+  if (left.trim() === '') return null;
+
+  return `Not evaluated: this address answers exactly the same ${left.length}-byte response to a `
+    + `plain GET as it does to the state-changing request — status ${response.status} both times, `
+    + 'byte for byte. So the request changed nothing, and there is no state change here for an '
+    + 'anti-forgery control to defend. A single-page application answers its shell this way for '
+    + 'every address it has no handler for.';
+}
+
 export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {}, tokenHeader = 'x-csrf-token', testId = 'SECA-CSRF' }) {
   if (!isSignedIn(session)) {
     return { skipped: false, findings: [], inconclusive: true,
@@ -169,6 +220,15 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
   if (!probe.accepted) {
     return { skipped: false, findings: [], ok: true,
              detail: `with a token it ${control.how}; without one it ${probe.how}` };
+  }
+
+  // Both answered. Before founding a finding, establish that either answer was a change at
+  // all: an address with no handler for this method answers the application's shell to
+  // anything, and two identical shells are not a control group.
+  const nothingChanged = await changedNothing(
+    scanner, { baseUrl, path, response: withToken, session, testId });
+  if (nothingChanged !== null) {
+    return { skipped: false, findings: [], inconclusive: true, reason: nothingChanged };
   }
 
   return {
@@ -228,6 +288,15 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
   if (!fromElsewhere.accepted) {
     return { skipped: false, findings: [], ok: true,
              detail: `from its own origin it ${fromOwnOrigin.how}; from another it ${fromElsewhere.how}` };
+  }
+
+  // The same premise this check shares with the anti-forgery one: an address with no handler
+  // for this method answers the application's shell whatever origin is claimed, and accepting
+  // a shell from anywhere is not a missing origin check.
+  const nothingChanged = await changedNothing(
+    scanner, { baseUrl, path, response: sameOrigin, session, testId });
+  if (nothingChanged !== null) {
+    return { skipped: false, findings: [], inconclusive: true, reason: nothingChanged };
   }
 
   return {
