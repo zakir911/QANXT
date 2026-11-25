@@ -2321,6 +2321,54 @@ supplied a resource identifier.
 
 ---
 
+## 72. FP_D24: the defect hides itself from the model that would find it
+
+**Established, not fixed.** Recorded because the reason is exact and worth stating rather than
+leaving as one more "missed".
+
+**The defect, from the live page.** `/orders/sales/so-0002`, the approval dialog:
+
+```html
+defect on    <div class="modal" id="approve-modal" data-testid="approve-modal" hidden>
+defect off   <div class="modal" id="approve-modal" data-testid="approve-modal"
+                  role="dialog" aria-modal="true" aria-label="Approve this order" hidden>
+```
+
+No `role`, no `aria-modal`, no accessible name. A screen-reader user is never told it opened.
+
+**Why nothing finds it.** Discovery classifies an element as a dialog from the `<dialog>` tag
+or a `role` attribute:
+
+```ts
+if (tag === 'dialog') return 'dialog';
+...
+if (element.getAttribute('role') === 'alert') return 'alert';
+```
+
+The faulty version is a bare `<div>`, so it enters the element model as nothing at all. **The
+omission that is the defect is the same omission that hides it from the model.** A check over
+the element model cannot find a dialog that never became one, however the check is written.
+
+Axe does not help either: a hidden `div` with no role carries no violation. There is nothing
+wrong with the markup *as markup* — it is wrong as a dialog, and only behaviour says it is one.
+
+**What would find it, and why it is not built here.** The dialog has to be recognised by what
+it does rather than what it says: a control opens it, it covers the page, it holds a form and a
+dismiss control, and only then is its lack of `role="dialog"` a finding. That is a behavioural
+model of an overlay, and it needs interaction — the same class of work as reaching a wizard
+spread across addresses in defect 70.
+
+A markup-only heuristic is available — a hidden container holding a form and a button whose
+only text is ✕ — and it is not being added at the end of this session on this much evidence.
+Extending a premise past what the evidence supports is how the BOLA false positive in defect 64
+was nearly shipped, and a new accessibility heuristic firing on every collapsed panel in an
+application would cost more than this finding is worth.
+
+So FP_D24 stays missed, with its cause named: not a check that asked the wrong question, but an
+element model that cannot hold the subject.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,
