@@ -2058,9 +2058,11 @@ nothing could be derived for it. `/api/shipments/{id}` — the one FP_D12 needs 
 surface at all. The crawl recorded **two** API endpoints for this application, because
 discovery finished `partiallyCompleted` at 69 pages against the 185 a full map reaches.
 
-That is the breadth-against-depth trade this document has recorded before, arriving in a new
-place: the scan ran every check its surface implied, and the surface was short of the endpoint
-that mattered.
+**Correction.** This paragraph first called that the breadth-against-depth trade recorded
+elsewhere in this document. It was not, and the run said so in its own words. See defect 71:
+the crawl stopped on a 400-action budget this scan driver never set, at 69 of the 180 pages it
+asked for, in 434 of the 1500 seconds it allowed. The ceiling was a default in the harness, not
+a property of crawling.
 
 **A discovery fault found while looking.** The endpoint templates include these:
 
@@ -2254,6 +2256,68 @@ gap about wizards. A test holds that line.
 form, and building that is a feature rather than a correction — the product has a journey
 recorder, which is where it belongs. What changed is that the engine no longer passes over the
 shape in silence, and the reader is told which instrument to use.
+
+---
+
+## 71. The harness could not pass on the one budget that was binding
+
+**Symptom.** Every freight security scan reached 69 pages and stopped. I attributed it, three
+times in writing, to the breadth-against-depth trade recorded elsewhere here, and used it to
+explain why `/api/shipments/{id}` was missing from the surface and why FP_D12 could not be
+verified.
+
+That was wrong, and the run had said so all along:
+
+```
+Stopped: the 400-action budget was reached.
+```
+
+**Diagnosis.** A crawl stops on whichever of four limits it meets first: pages, depth, time, or
+actions. The numbers from the run's own record:
+
+| budget | asked for | used |
+| --- | --- | --- |
+| pages | 180 | 69 |
+| time | 1500s | 434s |
+| actions | **400 (never set)** | **400** |
+
+Nothing was blocked by policy. The scan driver set three budgets generously and left the fourth
+at the application's default, and a crawl of this application spends roughly six actions a page
+— so 400 actions is about 69 pages however high the other three are set.
+
+**And the harness could not have set it.** `runDiscovery`, which every driver in the
+verification suite uses, took `maxPages`, `maxDepth` and a timeout, and built its request body
+from those three:
+
+```js
+const body = { applicationId, maxPages, maxDepth };
+if (crawlSeconds !== undefined) body.timeoutSeconds = crawlSeconds;
+```
+
+The platform was configurable and honest the whole time. `StartDiscoveryRequest` accepts
+`MaxActions` and clamps it to 1–100,000; `DiscoveryRunDetail` carries it with a comment saying
+exactly why — *"MaxActions is here because a crawl that stops on its action budget cannot
+otherwise be explained from its own record"*. Somebody had already thought this through. The
+helper in front of it dropped the setting, so no caller could reach it.
+
+**Fix.** `runDiscovery` forwards `maxActions` when asked. The freight scan driver sets it, and
+now prints whichever budget stopped the crawl, in the run's own words, instead of leaving the
+reader to infer it from a page count:
+
+```js
+const stoppedBecause = String(discovery.progressLog ?? '')
+  .split('\n').filter(note => /^Stopped: /.test(note.trim()));
+```
+
+**The lesson is about me, not the code.** The product reported the cause accurately, in a
+sentence naming the exact number. I read "partiallyCompleted, 69 page(s)" beside a cap of 180
+and inferred the cap was the limit — the one explanation the numbers ruled out. Three write-ups
+carried that inference as though it were a finding, and the corrections are made in place rather
+than edited away.
+
+It is also the second time in this session that the fix for a "fundamental limit" turned out to
+be a default nobody had set. The first was `authz.bola`, which had never run because no driver
+supplied a resource identifier.
 
 ---
 

@@ -36,6 +36,15 @@ const arg = (name, fallback) => {
 const PROFILE = arg('profile', 'standard');
 const BUDGET = Number(arg('budget', 900));
 const MAX_PAGES = Number(arg('max-pages', 160));
+/**
+ * The click budget.
+ *
+ * Set explicitly because the default binds first and silently. maxPages and the time budget
+ * are the two anybody raises; the action budget defaults to 400 on the application, and a
+ * crawl of a 137-screen application spends roughly six actions a page, so 400 actions is
+ * about 69 pages however high the other two are set.
+ */
+const MAX_ACTIONS = Number(arg('max-actions', Math.max(2000, MAX_PAGES * 20)));
 const FREIGHT = process.env.FREIGHT_URL ?? 'http://127.0.0.1:4400';
 
 const line = (text = '') => console.log(text);
@@ -90,9 +99,21 @@ await request(`/api/v1/applications/${application.id}`, {
           interactionMode: 'navigation' }
 });
 const discovery = await runDiscovery(tenant, application.id, {
-  maxPages: MAX_PAGES, maxDepth: 6, timeoutSeconds: BUDGET, timeoutMs: (BUDGET + 300) * 1000
+  maxPages: MAX_PAGES, maxDepth: 6, timeoutSeconds: BUDGET, maxActions: MAX_ACTIONS,
+  timeoutMs: (BUDGET + 300) * 1000
 });
 line(`  discovery ${discovery.status}, ${discovery.pagesDiscovered ?? '?'} page(s)`);
+// Which budget actually bound, in the run's own words. This script set three of them and
+// left the fourth at its default for weeks: every crawl stopped on "the 400-action budget
+// was reached" at 69 of the 180 pages asked for, in 434 of the 1500 seconds allowed. The
+// report said so and nobody read it, and three write-ups attributed the ceiling to a
+// breadth-against-depth trade that was not what happened.
+const stoppedBecause = String(discovery.progressLog ?? '')
+  .split('\n').filter(note => /^Stopped: /.test(note.trim()));
+for (const note of stoppedBecause) line(`  ${note.trim()}`);
+if (stoppedBecause.length === 0 && discovery.status !== 'completed') {
+  line('  (the run did not say which budget stopped it)');
+}
 result.stages.discovery = { status: discovery.status, pages: discovery.pagesDiscovered ?? null };
 
 // ---- 2. authorize the scan ----------------------------------------------------

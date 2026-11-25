@@ -192,7 +192,7 @@ export async function registerApplication(tenant, projectId,
  *                                           reported as a timeout by the thing watching it.
  */
 export async function runDiscovery(tenant, applicationId,
-  { maxPages = 25, maxDepth = 3, timeoutSeconds, timeoutMs } = {}) {
+  { maxPages = 25, maxDepth = 3, timeoutSeconds, timeoutMs, maxActions } = {}) {
   // A caller who said how long it will wait but not how long the crawl may take has stated
   // a bound either way: waiting less than the crawl is allowed to take reports a healthy
   // long crawl as a timeout. So the crawl is held just inside the wait, which is what these
@@ -203,6 +203,17 @@ export async function runDiscovery(tenant, applicationId,
   const body = { applicationId, maxPages, maxDepth };
   // Only sent when asked for. Sending a default here is what overrode the application.
   if (crawlSeconds !== undefined) body.timeoutSeconds = crawlSeconds;
+
+  // The fourth budget, which this helper did not offer at all.
+  //
+  // A crawl stops on whichever of four limits it reaches first: pages, depth, time, or
+  // actions. This function took three of them, so every caller in the verification suite
+  // was bound by the application's action budget — 400 by default — with no way to say
+  // otherwise. A caller raising maxPages to 180 and the time budget to 1500 seconds got 69
+  // pages in 434 seconds and a report that said, accurately, "Stopped: the 400-action budget
+  // was reached". The platform was configurable and honest the whole time; the harness in
+  // front of it could not pass the setting through.
+  if (maxActions !== undefined) body.maxActions = maxActions;
 
   const started = await request('/api/v1/discovery/runs', {
     token: tenant.token, method: 'POST', body
