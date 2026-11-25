@@ -16,6 +16,11 @@ public class PageTestDesignerTests
     private static DesignPage Page(string route, string title, params DesignElement[] elements)
         => new(Guid.NewGuid(), $"https://bank.test{route}", route, title, PageKind.Unknown, true, 200, elements);
 
+    /// <summary>A page whose address carries a query already, which `Page` cannot express
+    /// because its element list is a params array and must come last.</summary>
+    private static DesignPage PageAt(string url, string route, string title, params DesignElement[] elements)
+        => new(Guid.NewGuid(), url, route, title, PageKind.Unknown, true, 200, elements);
+
     private static readonly IReadOnlySet<string> NoSignInNames = new HashSet<string>();
 
     private static PageDesign Design(DesignPage page, IReadOnlyList<NavigationHop>? path = null, TestingProfile? profile = null, bool signIn = true)
@@ -146,6 +151,70 @@ public class PageTestDesignerTests
         techniques.Should().NotContain("totals-add-up");
         techniques.Should().NotContain("count-matches");
         techniques.Should().NotContain("percentage-lines");
+    }
+
+    [Fact]
+    public void A_listing_with_a_search_field_is_also_counted_with_the_filter_matching_nothing()
+    {
+        // The count oracle's error message names the defect it exists for — counting before
+        // filtering — and it was only ever pointed at the unfiltered page, where the heading
+        // and the rows legitimately disagree because of pagination. The one arrangement in
+        // which the defect shows was never visited.
+        var page = Page("/shipments", "Shipments",
+            Element("Shipments", ElementKind.Heading),
+            Element("q", ElementKind.TextInput),
+            Element("Shipments", ElementKind.Table));
+
+        var design = Design(page);
+        var filtered = design.Tests.Single(t => t.Technique == "count-matches-filtered");
+
+        filtered.Steps.Should().Contain(step =>
+            step.Action == BrowserActionType.Navigate
+            && step.Url != null && step.Url.Contains("q=qanxt-no-such-value"));
+        filtered.Steps.Should().Contain(step =>
+            step.Action == BrowserActionType.AssertDisplayedCountMatches);
+    }
+
+    [Fact]
+    public void A_listing_with_no_filter_records_a_gap_rather_than_a_test_that_proves_nothing()
+    {
+        // A field that is not a filter produces a URL the application ignores, the page
+        // renders unfiltered, and the check passes without having established anything.
+        var page = Page("/fleet/vehicles", "Vehicles",
+            Element("Vehicles", ElementKind.Heading),
+            Element("Vehicles", ElementKind.Table));
+
+        var design = Design(page);
+
+        design.Tests.Should().NotContain(t => t.Technique == "count-matches-filtered");
+        design.Gaps.Should().Contain(gap => gap.Missing.Contains("the count under a filter"));
+    }
+
+    [Fact]
+    public void A_field_that_is_not_a_filter_does_not_produce_the_filtered_count_test()
+    {
+        var page = Page("/customers/new", "New customer",
+            Element("Customers", ElementKind.Table),
+            Element("contactEmail", ElementKind.TextInput));
+
+        Design(page).Tests.Should().NotContain(t => t.Technique == "count-matches-filtered");
+    }
+
+    [Fact]
+    public void The_filter_probe_replaces_a_value_already_in_the_address()
+    {
+        // The page's discovered URL may already carry the parameter, and two copies of it
+        // is a URL whose meaning depends on the server's parsing order.
+        var page = PageAt("https://app.test/shipments?q=urgent&page=2", "/shipments", "Shipments",
+            Element("q", ElementKind.TextInput),
+            Element("Shipments", ElementKind.Table));
+
+        var filtered = Design(page).Tests.Single(t => t.Technique == "count-matches-filtered");
+        var url = filtered.Steps.First(step => step.Action == BrowserActionType.Navigate).Url!;
+
+        url.Should().Contain("q=qanxt-no-such-value");
+        url.Should().NotContain("q=urgent");
+        url.Should().Contain("page=2");
     }
 
     [Fact]

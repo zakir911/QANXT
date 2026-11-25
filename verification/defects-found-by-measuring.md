@@ -1838,6 +1838,170 @@ placeholders, a sample that is itself still a template, and a literal segment th
 
 ---
 
+## 65. The oracle that names a defect in its own error message could not report it
+
+**Symptom.** FP_D10 — a listing whose count is computed before the filter is applied — was
+missed. The product generates 5,709 tests named *"counts the rows it shows"*, one ran on
+`/shipments`, and it passed.
+
+**Diagnosis.** It passed correctly. The unfiltered page shows 25 rows of 40 and states 40,
+which is what a pager is for. The defect only shows once a filter has removed rows, and
+nothing ever filtered. The test opens the page and asserts.
+
+So the first fault is that the one arrangement where the defect is visible was never visited —
+while the oracle's own error message describes it exactly:
+
+> A count and a list that disagree mean one of them is built from the wrong collection; the
+> usual cause is **counting before filtering, which leaves the heading and the pager
+> advertising rows the filter has already removed.**
+
+**And pointing it at a filtered page was not enough.** Measured, with a browser, against the
+live application: `/shipments?status=delivered` (4 rows, states 40) and
+`/shipments?q=zzzznomatch` (0 rows, states 40) both passed. Two guards, each written against
+a real false positive, between them made the oracle blind to its own subject.
+
+```ts
+const shown = snapshot.largestTableRows;
+if (shown === 0) return found;        // ← discards the most informative case there is
+...
+if (snapshot.hasPagination) continue; // ← and freight's listing always renders a pager
+```
+
+The first was reaching for "this page has no table, so there is nothing to count" and was
+written as "no rows", which also silences a filter that matched nothing — a result set with
+nothing in it, beside a heading still advertising the whole population. The second is sound
+for a bare claim on a paginated page, where the other rows are legitimately elsewhere, and it
+applies to every page in this application.
+
+**A third thing had to be true and wasn't.** Many applications, this one included, render an
+empty state *instead of* an empty table:
+
+```html
+<div class="empty" data-testid="shipments-empty">No shipments match zzzznomatch.</div>
+```
+
+So "no table" and "not a listing" are not the same thing, and a page reading *"No shipments
+match"* beside a heading advertising forty of them looked exactly like a page that was never a
+listing at all. Recognising the empty state is what finally made the case judgeable.
+
+**Fix.**
+
+The snapshot now carries `hasTable`, `hasEmptyState` and `pagesClaimed`. Nothing is counted
+only where the page is not a listing at all. Two new rules cover the empty case, and neither
+needs to know the page size:
+
+- A positive count stated beside an empty table or empty state. Pagination does not excuse it:
+  no pager, however many pages it offers, makes the first page of a non-empty result set empty.
+- A pager claiming more than one page while the first is empty. That is the page asserting its
+  result set does not fit on one page, contradicted by what it rendered, on its own evidence.
+
+And a new test, `count-matches-filtered`, navigates to the listing with its search parameter
+set to a value no data contains — fixed rather than random, so a failure reproduces by pasting
+the URL — and then asserts. Where discovery recorded no such field, it records a coverage gap
+instead of a test, because a parameter the application ignores produces an unfiltered page and
+a pass that establishes nothing.
+
+**Measured on the live application, both ways.**
+
+```
+defect ON   /shipments                    PASS   (25 of 40 with a pager: correct)
+            /shipments?status=delivered   PASS   (needs the page size; see below)
+            /shipments?q=zzzznomatch      FAIL   "page 1 of 2" — the pager says there are 2
+                                                 pages, so the first one cannot be empty,
+                                                 but 0 row(s) are shown
+defect OFF  all three                     PASS
+```
+
+**What this still cannot do**, stated rather than left to be discovered: the four-row case.
+`?status=delivered` shows 4 rows under a pager claiming two pages, which is wrong, and proving
+it needs the page size — knowable only by comparing against another page or by following the
+pager to an empty page 2. The oracle judges one page at a time and says nothing here rather
+than guessing. The zero-match filter is the probe that works without that knowledge, which is
+why the test uses it.
+
+---
+
+## 66. The duplicate-submission test counted requests the browser sent, not orders the server placed
+
+**Symptom.** FP_D16 — submitting the booking form twice creates two consignments — was missed.
+The product generates 648 tests named *"sends one submission when the submit control is pressed
+twice quickly"*, one ran on the booking form, and it passed.
+
+**Diagnosis.** The assertion is on the wire, not on the application:
+
+```csharp
+var requests = JsonSerializer.Serialize(new { method, urlContains = path, maxCount = 1, countUnrefusedOnly = true });
+...
+new(BrowserActionType.AssertRequests, $"Confirm at most one {method} was sent", Value: requests)
+```
+
+Press submit twice, 120 ms apart, and assert at most one submission reached the server. When
+the page's own script disables the button after the first press, one request goes out,
+`maxCount: 1` is satisfied, and the test passes — having established that *this browser*
+would not send the second. The handler, which is the only place the guard can do any good,
+was never asked the question.
+
+**The product's own test lab proves the distinction**, and had it the wrong way round. The
+form-lab `/checkout` form is described as *"Order form whose submit control disables itself,
+so a double click places one order"*, and its guard is:
+
+```js
+guarded.addEventListener('submit', () => {
+  const button = guarded.querySelector('button[type=submit]');
+  setTimeout(() => { button.disabled = true; ... });
+});
+```
+
+That is all of it. Asked directly, with one token and one cookie — which is exactly what two
+presses send — the endpoint places an order every time:
+
+```
+POST /checkout → 303  location: /checkout/done?ref=CHE-0003
+POST /checkout → 303  location: /checkout/done?ref=CHE-0004
+```
+
+Two orders. The oracle test asserting a pass there was asserting a fact about Chromium.
+
+**Fix.** A request expectation can now state how many requests the test was *trying* to
+cause, separately from how many it will allow. The two are different questions, and the
+duplicate-submission test needs both: it allows one submission to succeed and needs two to
+arrive, because judging what a handler does with a second submission requires a second
+submission to reach it.
+
+Fewer than that and the premise did not hold, so it reports inconclusive with the reason —
+*"the page prevented the rest in the browser, which is worth having and is not the same thing:
+anything that is not this browser can still send them"* — rather than a pass.
+
+Counted before the `countUnrefusedOnly` filter, deliberately. A second submission the server
+*refused* is still a second submission that reached it, and that is the application working.
+
+**What this changes in practice.** Three outcomes where there were two:
+
+| what happened | before | after |
+| --- | --- | --- |
+| two reached the server, one record | pass | pass |
+| two reached the server, two records | fail | fail |
+| the page stopped the second | **pass** | **inconclusive** |
+
+Only the third row moved, and it is the row that was lying. The test on freight's booking form
+is in that row, which is why FP_D16 was missed: not a wrong answer, an answer to a question
+nobody asked.
+
+**Not claimed.** FP_D16 itself is not confirmed by this. Two attempts to exercise it through
+the booking wizard were contaminated — the first by the draft being cleared after a confirm,
+so a second sequential confirm creates an *empty* consignment rather than a duplicate, and the
+second by seeded records matching the probe's own identifying fields. Both were withdrawn
+rather than written up. What is established is read from the product's source and from
+form-lab's endpoint: the oracle asserts the wrong thing, and the shape of application it
+passes on is one that books twice.
+
+**A fixture fault found on the way**, recorded because it is mine: the freight booking handler
+does not re-validate at its confirm step, so a POST with no draft behind it creates a
+consignment with no customer, no pieces and no weight. Several such records exist in the lab's
+state from earlier runs.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

@@ -131,7 +131,10 @@ describe('a total that does not equal its lines', () => {
 });
 
 const snapshot = (over: Partial<NumbersSnapshot>): NumbersSnapshot => ({
-  tables: [], statements: [], lines: [], hasPagination: false, largestTableRows: 0, ...over
+  tables: [], statements: [], lines: [], hasPagination: false, largestTableRows: 0,
+  // These snapshots stand for pages that rendered a listing, which is the only kind this
+  // oracle judges. A page with no table at all is its own case and has its own test.
+  hasTable: true, hasEmptyState: false, pagesClaimed: null, ...over
 });
 
 describe('a count the page states but does not show', () => {
@@ -173,9 +176,53 @@ describe('a count the page states but does not show', () => {
     }))).toEqual([]);
   });
 
-  it('says nothing about a page with no rows at all', () => {
+  it('says nothing about a page that renders no table', () => {
+    // Nothing to count. This is what the old "no rows at all" rule was reaching for, and it
+    // was written as `largestTableRows === 0`, which also silenced the case below.
     expect(findCountMismatches(snapshot({
+      statements: ['42 shipments'], largestTableRows: 0, hasTable: false
+    }))).toEqual([]);
+  });
+
+  it('reports a positive count stated beside an empty table', () => {
+    // This test previously asserted the opposite, under the name "says nothing about a page
+    // with no rows at all". That was wrong and it was the most useful case in the file: a
+    // filter that matched nothing, next to a heading still advertising the whole
+    // population, is the clearest possible form of counting before filtering — which is the
+    // defect this oracle's own error message names. The old rule discarded it on the way in.
+    const found = findCountMismatches(snapshot({
       statements: ['42 shipments'], largestTableRows: 0
+    }));
+
+    expect(found).toHaveLength(1);
+    expect(found[0]!.stated).toBe(42);
+    expect(found[0]!.shown).toBe(0);
+    expect(found[0]!.reason).toMatch(/while its table is empty/);
+  });
+
+  it('reports an empty first page under a pager claiming more pages', () => {
+    // Independent of any heading: a pager saying "page 1 of 2" is the page asserting its
+    // result set does not fit on one page, and an empty first page contradicts that. It
+    // needs no knowledge of the page size, which is why it is worth having separately.
+    const found = findCountMismatches(snapshot({
+      statements: [], largestTableRows: 0, hasPagination: true, pagesClaimed: 2
+    }));
+
+    expect(found).toHaveLength(1);
+    expect(found[0]!.reason).toMatch(/the first one cannot be empty/);
+  });
+
+  it('accepts an empty table on a page that claims nothing', () => {
+    // An empty result set with an honest page around it. No claim, no pager promising more:
+    // nothing to contradict, so nothing to report.
+    expect(findCountMismatches(snapshot({
+      statements: ['No shipments match.'], largestTableRows: 0
+    }))).toEqual([]);
+  });
+
+  it('accepts a page stating zero beside its empty table', () => {
+    expect(findCountMismatches(snapshot({
+      statements: ['0 shipments'], largestTableRows: 0
     }))).toEqual([]);
   });
 

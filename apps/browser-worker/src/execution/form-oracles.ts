@@ -523,6 +523,22 @@ interface RequestExpectation {
   maxDurationMs?: number;
   bodyContains?: string;
   /**
+   * How many requests the test was *trying* to cause, as opposed to how many it will allow.
+   *
+   * The two are different questions and conflating them is how the duplicate-submission test
+   * came to pass on an application that books twice. It presses submit twice and asserts at
+   * most one submission reaches the server. When the page's own script disables the button
+   * after the first press, one request goes out, `maxCount: 1` is satisfied, and the test
+   * passes — having established that the *browser* prevented the second submission, which is
+   * not what it claims. The server's handler was never asked the question.
+   *
+   * With this set, fewer requests than the test tried to cause means its premise did not
+   * hold, and it reports inconclusive with the reason rather than a pass. Counted before the
+   * `countUnrefusedOnly` filter, because a second submission the server refused is still a
+   * second submission that reached it — that is the application working, and the point.
+   */
+  premiseMinCount?: number;
+  /**
    * Which requests to count. "navigation" (default): since the test's last navigate step.
    * "test": the whole test. "submission": since the last step that acted, which is the only
    * one of the three that means "what this submission sent".
@@ -569,6 +585,25 @@ export async function assertRequests(page: Page, value: string | undefined, obs:
     && ['document', 'xhr', 'fetch', undefined].includes(e.resourceType)
     && (!expectation.countUnrefusedOnly || e.statusCode === undefined || e.statusCode < 400));
   const what = `${expectation.method ?? 'any'}${expectation.countUnrefusedOnly ? ' submission' : ' request'}(s)${expectation.urlContains ? ` to "${expectation.urlContains}"` : ''}${expectation.countUnrefusedOnly ? ' the server did not refuse' : ''}`;
+
+  // Did the test manage to do the thing it is judging? Asked before anything is judged,
+  // because a verdict on an attempt that did not happen is not a verdict.
+  if (expectation.premiseMinCount !== undefined) {
+    const attempted = events.filter(e =>
+      (!expectation.method || e.method.toUpperCase() === expectation.method.toUpperCase())
+      && (!expectation.urlContains || urlMatches(e.url, expectation.urlContains))
+      && ['document', 'xhr', 'fetch', undefined].includes(e.resourceType));
+
+    if (attempted.length < expectation.premiseMinCount) {
+      throw new InconclusiveError(
+        `Not evaluated: this test needed ${expectation.premiseMinCount} request(s) to reach the `
+        + `server to judge what the server does with them, and ${attempted.length} did. The page `
+        + 'prevented the rest in the browser, which is worth having and is not the same thing: '
+        + 'anything that is not this browser can still send them. Ask the endpoint directly to '
+        + 'find out what the handler does.');
+    }
+  }
+
   const problems: string[] = [];
   if (expectation.minCount !== undefined && matching.length < expectation.minCount) {
     // Name what was sent instead, so a reader can tell "nothing was sent" from "it went

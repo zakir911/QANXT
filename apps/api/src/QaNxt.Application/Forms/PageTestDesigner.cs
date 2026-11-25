@@ -198,6 +198,58 @@ public static class PageTestDesigner
                 TestPriority.Medium, $"{signedIn}{name} exists at {page.Route} and shows a table.",
                 "The claim as written, the rows counted; DOM snapshot on failure."));
 
+            // The same claim, with a filter applied.
+            //
+            // The count oracle's own error message names the defect it exists for — "the
+            // usual cause is counting before filtering, which leaves the heading and the
+            // pager advertising rows the filter has already removed" — and it was only ever
+            // pointed at the unfiltered page, where the heading and the rows legitimately
+            // disagree because of pagination. So the one arrangement in which the defect is
+            // visible was never visited.
+            //
+            // A filter that matches nothing is the probe, because it needs no knowledge of
+            // the data: whatever the collection holds, a search for this token returns none
+            // of it, and the page must then say zero rather than go on advertising the
+            // whole population.
+            var filterField = page.Elements.FirstOrDefault(element =>
+                element.Visible
+                && element.Kind is ElementKind.TextInput
+                && !string.IsNullOrWhiteSpace(element.Name)
+                && LooksLikeAFilter(element.Name));
+
+            if (filterField is not null)
+            {
+                var probe = WithQuery(page.Url, filterField.Name, NoSuchValue);
+                tests.Add(Test(TestCategory.DataIntegrity, "count-matches-filtered",
+                    $"counts the rows it shows when \"{filterField.Name}\" matches nothing",
+                    "A count the page states still matches the rows it renders once a filter has "
+                    + "removed them all.",
+                    "The page states no rows, or says so in words. It does not go on stating the "
+                    + "unfiltered count.",
+                    new List<DesignedStep>
+                    {
+                        new(BrowserActionType.Navigate, $"Open {name} filtered to nothing", Url: probe),
+                        new(BrowserActionType.AssertDisplayedCountMatches,
+                            "Confirm the stated count matches the rows shown")
+                    },
+                    TestPriority.Medium,
+                    $"{signedIn}{name} exists at {page.Route}, shows a table, and filters from the "
+                    + "query string.",
+                    "The claim as written, the rows counted; DOM snapshot on failure."));
+            }
+            else
+            {
+                gaps.Add(new DesignedGap(TestCategory.DataIntegrity, null,
+                    $"{name}: the count under a filter",
+                    "Discovery recorded no text filter on this listing, so there is no way from here "
+                    + "to put it in the one state where a count computed before filtering shows: the "
+                    + "unfiltered page is allowed to state more rows than it renders, because that is "
+                    + "what a pager is for.",
+                    "Add a test id to the listing's search field, or add a test by hand that applies a "
+                    + "filter the application supports and then checks the count.",
+                    CoverageGapStatus.PartiallyCovered));
+            }
+
             tests.Add(Test(TestCategory.DataIntegrity, "percentage-lines", "derives each percentage line from a figure above it",
                 "A line labelled with a percentage is that percentage of a figure the page has already stated.",
                 "Every percentage line matches its rate applied to a figure printed before it.",
@@ -222,6 +274,37 @@ public static class PageTestDesigner
         }
 
         return new PageDesign(tests, gaps);
+    }
+
+    /// <summary>A value no application's data contains, for filtering a listing to nothing.
+    ///
+    /// Fixed rather than random, so a failure is reproducible by pasting the URL.</summary>
+    private const string NoSuchValue = "qanxt-no-such-value-7f3a";
+
+    /// <summary>Whether a field's name says it narrows a listing.
+    ///
+    /// Deliberately short. A field that is not a filter produces a URL the application
+    /// ignores, the page renders unfiltered, and the check then passes without having
+    /// established anything — a pass that means nothing, which reads as coverage.</summary>
+    private static bool LooksLikeAFilter(string name)
+    {
+        var reduced = new string(name.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+        return reduced is "q" or "query" or "search" or "searchterm" or "term" or "filter"
+            or "keyword" or "keywords" or "find" or "text" or "name" or "reference" or "ref";
+    }
+
+    /// <summary>The page's address with one query parameter set, replacing any already there.</summary>
+    private static string WithQuery(string url, string parameter, string value)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var parsed)) return url;
+
+        var pairs = parsed.Query.TrimStart('?')
+            .Split('&', StringSplitOptions.RemoveEmptyEntries)
+            .Where(pair => !pair.StartsWith($"{Uri.EscapeDataString(parameter)}=", StringComparison.OrdinalIgnoreCase)
+                        && !pair.StartsWith($"{parameter}=", StringComparison.OrdinalIgnoreCase))
+            .Append($"{Uri.EscapeDataString(parameter)}={Uri.EscapeDataString(value)}");
+
+        return new UriBuilder(parsed) { Query = string.Join('&', pairs) }.Uri.ToString();
     }
 
     /// <summary>Up to three things that identify the page: its headings first, then named

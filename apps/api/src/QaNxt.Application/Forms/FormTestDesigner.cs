@@ -1583,11 +1583,22 @@ public static class FormTestDesigner
             }
             var requests = JsonSerializer.Serialize(new { method, urlContains = path, maxCount = 1, countUnrefusedOnly = true }, JsonDefaults.Options);
 
+            // The same expectation, plus the number of submissions this test is trying to
+            // cause. Without it the test passes when the page's own script disables the
+            // button after the first press: one request goes out, "at most one submission"
+            // is satisfied, and the result reads as the application being safe against
+            // double submission when all that was shown is that this browser would not send
+            // the second. The handler — which is where the guard has to be, because anything
+            // that is not a browser can send both — was never asked.
+            var repeatedRequests = JsonSerializer.Serialize(
+                new { method, urlContains = path, maxCount = 1, premiseMinCount = 2, countUnrefusedOnly = true },
+                JsonDefaults.Options);
+
             Add(Test(TestCategory.Reliability, "rapid-repeat-submit", "sends one submission when the submit control is pressed twice quickly",
                 "An impatient second press does not submit the form twice.",
                 "Exactly one submission reaches the server.",
                 new List<DesignedStep> { Open() }.Concat(fill.Steps).Append(SubmitStep("repeat:2:120"))
-                    .Append(new(BrowserActionType.AssertRequests, $"Confirm at most one {method ?? "submission"} was sent", Value: requests)).ToList(),
+                    .Append(new(BrowserActionType.AssertRequests, $"Confirm at most one {method ?? "submission"} was sent", Value: repeatedRequests)).ToList(),
                 null, TestPriority.High, new[] { "state:duplicate-click" }, fill.Data));
 
             Add(Test(TestCategory.Reliability, "refresh-after-submit", "does not submit again when the result page is refreshed",

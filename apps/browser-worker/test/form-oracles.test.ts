@@ -81,6 +81,12 @@ describe('form oracles', () => {
     await expect(promise).rejects.toThrow(pattern);
   };
 
+  /** Refused to judge, rather than judged either way. */
+  const inconclusiveStep = async (promise: Promise<unknown>, pattern: RegExp) => {
+    await expect(promise).rejects.toThrow(InconclusiveError);
+    await expect(promise).rejects.toThrow(pattern);
+  };
+
   beforeAll(async () => {
     const port = 4800 + Math.floor(Math.random() * 90);
     base = `http://127.0.0.1:${port}`;
@@ -224,20 +230,54 @@ describe('form oracles', () => {
     await run({ action: 'assertNoServerError' });
   }, 30_000);
 
-  test('a double click sends one order where it is guarded and two where it is not (FL-D03)', async () => {
+  test('a double click sends two where nothing stops it (FL-D03)', async () => {
+    await open('/duplicate-submit');
+    await fill('duplicate-submit-payee', 'Acme');
+    await fill('duplicate-submit-amount', '10');
+    await run({ action: 'click', target: testId('duplicate-submit-submit'), value: 'repeat:2:120' });
+    await fails(run({ action: 'assertRequests', value: JSON.stringify({ method: 'POST', urlContains: '/api/transfers', maxCount: 1 }) }), /at most 1 .* saw 2/);
+  }, 30_000);
+
+  test('a double click the page itself blocks is not evidence the application is safe', async () => {
+    // This half of the old test asserted a pass, under the name "sends one order where it is
+    // guarded". The guard is `button.disabled = true` in a submit listener, and there is
+    // nothing on the server at all. Asked directly, with one token and one cookie, the
+    // endpoint places an order every time:
+    //
+    //   POST /checkout → 303 location: /checkout/done?ref=CHE-0003
+    //   POST /checkout → 303 location: /checkout/done?ref=CHE-0004
+    //
+    // So "at most one submission reached the server" was true and meant nothing about the
+    // application: the second press never left the browser. A pass there says the form is
+    // safe against double submission when anything that is not this browser books twice.
+    //
+    // The premise is now declared, and a test that could not perform the act it judges says
+    // so instead.
     await open('/checkout');
     await fill('checkout-fullName', 'Ada');
     await fill('checkout-email', 'ada@example.test');
     await fill('checkout-quantity', '1');
     await run({ action: 'check', target: testId('checkout-shipping-0') });
     await run({ action: 'click', target: testId('checkout-submit'), value: 'repeat:2:120' });
-    await run({ action: 'assertRequests', value: JSON.stringify({ method: 'POST', urlContains: '/checkout', maxCount: 1 }) });
 
+    await inconclusiveStep(
+      run({ action: 'assertRequests', value: JSON.stringify({
+        method: 'POST', urlContains: '/checkout', maxCount: 1, premiseMinCount: 2
+      }) }),
+      /needed 2 request\(s\) to reach the server/);
+  }, 30_000);
+
+  test('the premise holds where the page does not interfere, and the verdict stands', async () => {
+    // The guard must not swallow a real finding: where both submissions do reach the server,
+    // the premise is met and the excess is still reported.
     await open('/duplicate-submit');
     await fill('duplicate-submit-payee', 'Acme');
     await fill('duplicate-submit-amount', '10');
     await run({ action: 'click', target: testId('duplicate-submit-submit'), value: 'repeat:2:120' });
-    await fails(run({ action: 'assertRequests', value: JSON.stringify({ method: 'POST', urlContains: '/api/transfers', maxCount: 1 }) }), /at most 1 .* saw 2/);
+
+    await fails(run({ action: 'assertRequests', value: JSON.stringify({
+      method: 'POST', urlContains: '/api/transfers', maxCount: 1, premiseMinCount: 2
+    }) }), /at most 1 .* saw 2/);
   }, 30_000);
 
   test('a submission still in flight is waited for, not missed', async () => {

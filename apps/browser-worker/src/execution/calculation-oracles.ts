@@ -54,7 +54,23 @@ export interface NumbersSnapshot {
   statements: string[];
   /** How many rows the page's largest rendered table shows. */
   largestTableRows: number;
+  /** Whether the page rendered a table at all, which is not the same as one with rows in
+   *  it. A page with no table has nothing to count; a table with no rows is a result set
+   *  with nothing in it, and a page still claiming a positive count beside it is wrong. */
+  hasTable: boolean;
+  /** Whether the page says, in so many words, that it is a listing with nothing in it.
+   *
+   *  Many applications render an empty state *instead of* an empty table, so "no table" and
+   *  "not a listing" are not the same thing. Without this, a page reading "No shipments
+   *  match" beside a heading advertising forty of them looked exactly like a page that was
+   *  never a listing at all — and the clearest instance of counting before filtering went
+   *  unjudged for want of a `<table>` element. */
+  hasEmptyState: boolean;
   hasPagination: boolean;
+  /** The number of pages the pager says exist, from "page 1 of 3". Null when the pager does
+   *  not say. A pager claiming a second page is the page asserting its result set is bigger
+   *  than one page, which an empty first page contradicts. */
+  pagesClaimed: number | null;
   lines: LineSnapshot[];
 }
 
@@ -245,9 +261,44 @@ const BARE_CLAIM = /\b(\d[\d,.  ]*)\s+([a-z][a-z ]{2,30}?)\b(?:\s+(?:found|mat
 export function findCountMismatches(snapshot: NumbersSnapshot): CountMismatch[] {
   const found: CountMismatch[] = [];
   const shown = snapshot.largestTableRows;
-  if (shown === 0) return found;
+
+  // Nothing to count only when the page renders no table. This used to return on
+  // `shown === 0`, which threw away the most informative case there is: a filter that
+  // matched nothing, beside a heading still advertising the whole population. The oracle's
+  // own error message names that defect — "the usual cause is counting before filtering" —
+  // and this line is why it could never report it.
+  if (!snapshot.hasTable && !snapshot.hasEmptyState) return found;
+
+  // A pager claiming a second page is the page asserting its result set does not fit on one
+  // page. An empty first page contradicts that outright, whatever the heading says, and
+  // needs no knowledge of the page size to judge.
+  if (shown === 0 && snapshot.pagesClaimed !== null && snapshot.pagesClaimed > 1) {
+    found.push({
+      claim: `page 1 of ${snapshot.pagesClaimed}`,
+      stated: snapshot.pagesClaimed,
+      shown,
+      reason: `the pager says there are ${snapshot.pagesClaimed} pages, so the first one cannot be empty`
+    });
+  }
 
   for (const statement of snapshot.statements) {
+    // A positive count stated beside an empty table. The pagination escape below does not
+    // apply here: no pager, however many pages it offers, makes the first page of a
+    // non-empty result set empty.
+    if (shown === 0) {
+      const bareOnEmpty = BARE_CLAIM.exec(statement.trim());
+      if (bareOnEmpty === null) continue;
+      const claimed = readNumber(bareOnEmpty[1]);
+      if (claimed === null || !Number.isInteger(claimed) || claimed === 0) continue;
+      found.push({
+        claim: statement.trim().slice(0, 120),
+        stated: claimed,
+        shown,
+        reason: `the page states ${claimed} ${bareOnEmpty[2]!.trim()} while its table is empty`
+      });
+      continue;
+    }
+
     const range = RANGE_CLAIM.exec(statement);
     if (range !== null) {
       const first = readNumber(range[1]);
@@ -457,14 +508,31 @@ export async function readNumbers(page: Page): Promise<NumbersSnapshot> {
         if (text.length > 0 && text.length <= 160) statements.push(text);
       });
 
-    const hasPagination = Array.from(document.querySelectorAll(
+    const pagers = Array.from(document.querySelectorAll(
       'nav, [role="navigation"], [class*="pagin"], [class*="pager"], [aria-label*="pagination" i]'))
-      .some(node => rendered(node) && /\b(next|previous|page\s*\d|\d\s*of\s*\d)\b/i.test(textOf(node)));
+      .filter(node => rendered(node));
+    const pagerText = pagers.map(node => textOf(node)).join(' ');
+    const hasPagination = /\b(next|previous|page\s*\d|\d\s*of\s*\d)\b/i.test(pagerText);
+
+    const ofPages = /\bpage\s*\d+\s*of\s*(\d+)\b/i.exec(pagerText);
+    const pagesClaimed = ofPages === null ? null : Number(ofPages[1]);
 
     const largestTableRows = tables.reduce(
       (most, table) => Math.max(most, table.rows.filter(row => !row.inFoot).length), 0);
 
-    return { tables, statements, lines, hasPagination, largestTableRows };
+    // An explicit empty state: the page's own statement that it is a listing holding
+    // nothing. Matched on the marker or the wording, because applications spell it both
+    // ways and a listing is worth judging either way.
+    const hasEmptyState = Array.from(document.querySelectorAll(
+      '[class*="empty" i], [data-testid*="empty" i], [class*="no-result" i], [class*="noresult" i]'))
+      .some(node => rendered(node))
+      || Array.from(document.querySelectorAll('p, div, td, th, h1, h2, h3, h4'))
+        .some(node => rendered(node)
+          && /\b(no\s+\w+\s+(match|found|yet)|nothing\s+to\s+show|no\s+results?)\b/i
+            .test(textOf(node)));
+
+    return { tables, statements, lines, hasPagination, largestTableRows,
+             hasTable: tables.length > 0, hasEmptyState, pagesClaimed };
   });
 }
 
