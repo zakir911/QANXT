@@ -3,11 +3,11 @@
   "name": "Northwind Orders API",
   "technology": "bearer-token sign-in answering JSON rather than a cookie; X-CSRF-Token header convention; one HTML page over a JSON API",
   "domain": "order management",
-  "ranAt": "2026-11-23T05:59:08.126Z",
+  "ranAt": "2026-11-25T19:39:57.793Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "8632089f-c34c-4911-8035-fe2c0b0c395e",
+      "id": "4e4b2620-0080-4ca0-980f-c67285adcd29",
       "authStrategy": "tokenLogin",
       "budget": 180,
       "maxPages": 20
@@ -18,14 +18,17 @@
       "elements": 4,
       "endpoints": 2,
       "byKind": {
-        "heading": 2,
-        "link": 2
+        "link": 2,
+        "heading": 2
       },
       "paths": [
         "/",
         "/api/orders",
         "/api/orders/ord-1",
         "/search"
+      ],
+      "groundTruthRoutesNothingReached": [
+        "/api/auth/token"
       ],
       "message": null
     },
@@ -34,7 +37,7 @@
       "list": []
     },
     "design": {
-      "testSuiteId": "5cc400e6-a368-4c8c-86c5-96f5c2c16a3b",
+      "testSuiteId": "454ba138-d915-44f4-991d-b2540ce9b25e",
       "testSuiteName": "Northwind Orders API — form level",
       "forms": 0,
       "testsCreated": 32,
@@ -53,7 +56,7 @@
       "pageTests": 32,
       "perPage": [
         {
-          "pageId": "b1d66ed0-4ffb-40e5-b605-c3b6e16db8a3",
+          "pageId": "381f32d5-5033-440e-a2e1-34dac53d033b",
           "name": "Token API (/)",
           "route": "/",
           "tests": 8,
@@ -67,7 +70,7 @@
           }
         },
         {
-          "pageId": "e003d565-b682-4f49-b797-9a0ea07406ee",
+          "pageId": "c69ebc54-0e23-464e-ad14-98e57b313b77",
           "name": "/api/orders",
           "route": "/api/orders",
           "tests": 8,
@@ -81,7 +84,7 @@
           }
         },
         {
-          "pageId": "09a37917-1b59-4f99-a5fe-126b650ada4e",
+          "pageId": "c917b31a-5c92-4fe4-9146-717f1dd358ef",
           "name": "Search (/search)",
           "route": "/search",
           "tests": 9,
@@ -96,7 +99,7 @@
           }
         },
         {
-          "pageId": "e45cbb84-e28b-4f65-bf80-13a014d307ae",
+          "pageId": "af49e61c-a759-474f-929b-1a091f7e2bad",
           "name": "/api/orders/ord-1",
           "route": "/api/orders/ord-1",
           "tests": 7,
@@ -112,15 +115,93 @@
     },
     "scan": {
       "ok": true,
-      "id": "d2ce0fb1-a034-4410-bde2-79b72764663a",
+      "id": "ac3ddb7d-f3a2-4546-9c4c-41c63615a7f2",
       "status": "completed",
-      "requestsSent": null,
-      "checksRun": null,
-      "untested": null
+      "requestsIssued": 173,
+      "requestsBlocked": 0,
+      "checksExecuted": [
+        "passive.headers",
+        "passive.sensitive-data",
+        "xss.dom",
+        "authz.missing",
+        "injection.sql",
+        "passive.pii-in-url",
+        "xss.reflected",
+        "api.excessive-data",
+        "authz.token",
+        "passive.cors",
+        "api.error-disclosure",
+        "authz.bola",
+        "api.mass-assignment",
+        "auth.enumeration",
+        "auth.lockout",
+        "injection.nosql"
+      ],
+      "checksConfigured": [
+        "api.error-disclosure",
+        "api.excessive-data",
+        "api.input-validation",
+        "api.mass-assignment",
+        "auth.enumeration",
+        "auth.lockout",
+        "auth.reset-reuse",
+        "auth.session-lifetime",
+        "auth.session-logout",
+        "authz.bola",
+        "authz.missing",
+        "authz.readonly",
+        "authz.token",
+        "authz.vertical",
+        "injection.nosql",
+        "injection.sql",
+        "passive.cookies",
+        "passive.cors",
+        "passive.headers",
+        "passive.pii-in-url",
+        "passive.sensitive-data",
+        "request.csrf",
+        "request.origin",
+        "xss.dom",
+        "xss.reflected",
+        "xss.stored"
+      ],
+      "checksNotExecuted": [
+        "api.input-validation",
+        "auth.reset-reuse",
+        "auth.session-lifetime",
+        "auth.session-logout",
+        "authz.readonly",
+        "authz.vertical",
+        "passive.cookies",
+        "request.csrf",
+        "request.origin",
+        "xss.stored"
+      ],
+      "untested": [
+        "authz.missing on /: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 33 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
+        "passive.cookies on /: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
+        "passive.pii-in-url on /: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
+        "passive.cookies on /api/orders: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
+        "passive.pii-in-url on /api/orders: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
+        "passive.cookies on /api/orders/ord-1: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
+        "passive.pii-in-url on /api/orders/ord-1: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
+        "passive.cookies on http://127.0.0.1:4500/search?q=example: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
+        "authz.vertical on http://127.0.0.1:4500/api/orders: Inconclusive: A privileged and a lesser identity are needed; both were not available.",
+        "api.excessive-data on http://127.0.0.1:4500/api/orders/{id}: Inconclusive: The endpoint answered 500.",
+        "api.input-validation on http://127.0.0.1:4500/api/auth/token: Inconclusive: No parameter was discovered on this endpoint to probe.",
+        "auth.reset-reuse on http://127.0.0.1:4500/api/auth/token: Inconclusive: The reset token is not returned in the response, which is correct behaviour for a real application. Reuse cannot be tested without the token, so this is reported as not testable by this check rather than as a pass.",
+        "auth.session-lifetime on http://127.0.0.1:4500/api/auth/token: Inconclusive: Sign-in failed (404).",
+        "auth.session-logout on http://127.0.0.1:4500/api/auth/token: Inconclusive: The session did not authenticate even before sign-out (404).",
+        "authz.missing on http://127.0.0.1:4500/api/auth/token: Inconclusive: The owner could not read it either (404).",
+        "authz.readonly on http://127.0.0.1:4500/api/auth/token: Inconclusive: alice could not write either (401); the endpoint may reject this payload for unrelated reasons.",
+        "request.csrf on http://127.0.0.1:4500/api/auth/token: Inconclusive: An authenticated session is needed to send a cross-site request.",
+        "request.origin on http://127.0.0.1:4500/api/auth/token: Inconclusive: An authenticated session is needed to vary the origin.",
+        "xss.stored on http://127.0.0.1:4500/api/auth/token: Inconclusive: No field was discovered on this page to store a marker in."
+      ]
     },
     "run": {
       "ok": true,
-      "runId": "e5591fdf-c255-4470-92f1-7498c9b5b9ff",
+      "runId": "af643992-d8ee-4034-9fa6-8623df69fc2b",
       "status": "failed",
       "executions": 32,
       "byStatus": {
@@ -204,34 +285,6 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/api/orders",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "UnhandledInput",
-          "route": "/api/orders/%7Bid%7D",
-          "parameter": "id",
-          "message": "An unparseable identifier makes the endpoint fail rather than refuse — parameter \"id\" — CWE-20"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/search",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
           "route": "/api/orders/ord-1",
           "parameter": "x-content-type-options",
           "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
@@ -254,15 +307,22 @@
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
           "parameter": "x-content-type-options",
           "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+          "route": "/api/orders",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -270,15 +330,30 @@
           "route": "/api/auth/token",
           "parameter": null,
           "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/search",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "UnhandledInput",
+          "route": "/api/orders/%7Bid%7D",
+          "parameter": "id",
+          "message": "An unparseable identifier makes the endpoint fail rather than refuse — parameter \"id\" — CWE-20"
         }
       ],
       "gaps": [
-        {
-          "category": "workflow",
-          "status": "partially-covered",
-          "route": "/",
-          "message": "Token API (/): navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
-        },
         {
           "category": "workflow",
           "status": "partially-covered",
@@ -292,16 +367,22 @@
           "message": "/api/orders/ord-1: navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
         },
         {
-          "category": "smoke",
+          "category": "workflow",
           "status": "partially-covered",
-          "route": "/api/orders",
-          "message": "/api/orders: content check — Discovery saw no stable heading or control on this page to look for, so the test checks only that it opens."
+          "route": "/",
+          "message": "Token API (/): navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
         },
         {
           "category": "smoke",
           "status": "partially-covered",
           "route": "/api/orders/ord-1",
           "message": "/api/orders/ord-1: content check — Discovery saw no stable heading or control on this page to look for, so the test checks only that it opens."
+        },
+        {
+          "category": "smoke",
+          "status": "partially-covered",
+          "route": "/api/orders",
+          "message": "/api/orders: content check — Discovery saw no stable heading or control on this page to look for, so the test checks only that it opens."
         },
         {
           "category": "performance",

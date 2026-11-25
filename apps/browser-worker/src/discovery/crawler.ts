@@ -141,6 +141,16 @@ export class Crawler {
   /** Pages visited per route shape, e.g. "/accounts/*" -> 3. Loop protection. */
   private readonly routeShapeCounts = new Map<string, number>();
   private blockedByPolicy = 0;
+
+  /**
+   * Record addresses derived from a collection the page fetched for itself.
+   *
+   * Kept on the crawler rather than returned with a page because the responses arrive on the
+   * network listener, asynchronously, and not as the return value of anything. Drained by
+   * the crawl loop. A response that lands after this page's turn is drained on the next one,
+   * which is why this is a field and not a local.
+   */
+  private readonly observedInstanceCandidates = new Map<string, ApiInstanceCandidate>();
   /** Links not followed because their own words say they change something. */
   private mutatingLinksSkipped = 0;
   /** The same links, kept so the report can name them and not only count them. */
@@ -301,6 +311,26 @@ export class Crawler {
           continue;
         }
 
+        // An API address is retrieved, not navigated to, when the session lives in the page.
+        //
+        // In that mode discovery moves through the application by its router, because a
+        // document load signs it out. Pushing an API address through a client-side router
+        // fetches nothing: the router does not recognise `/api/patients/pat-1`, renders
+        // whatever its fallback renders, and the crawl records that screen under the address
+        // it asked for. clinic-spa produced three such pages — duplicates of its schedule
+        // screen, with that screen's form on each — and the form engine then designed a full
+        // suite against every one of them: 396 tests where 199 were real, and the record
+        // endpoint still missing from the surface it was derived for.
+        //
+        // `apiInstanceId` marks the entries that are API addresses by construction: each was
+        // built from an identifier read out of a JSON collection. Those are fetched from
+        // inside the page, which carries the in-page session, and recorded as endpoints.
+        if (this.inApp && entry.apiInstanceId !== undefined) {
+          this.visited.add(normalized);
+          await this.retrieveApiInstance(page, entry.url, entry.apiInstanceId);
+          continue;
+        }
+
         const shape = routeShapeOf(entry.url);
         const shapeCount = this.routeShapeCounts.get(shape) ?? 0;
         if (shapeCount >= this.options.budget.maxInstancesPerRouteShape) {
@@ -339,7 +369,17 @@ export class Crawler {
 
           // Records a JSON collection named. Queued before clicking, because a GET for a
           // record the application just listed is as cheap and as certain as a link.
-          for (const candidate of discovered.apiInstanceCandidates) {
+          // Both sources of the same hypothesis: a collection the crawler opened as a
+          // document, and one the page fetched for itself. The second is drained from the
+          // crawler because it arrives on the network listener rather than as a return
+          // value, and it is the only source an application with no server-rendered markup
+          // has.
+          const derived = [
+            ...discovered.apiInstanceCandidates,
+            ...this.observedInstanceCandidates.values()
+          ];
+          this.observedInstanceCandidates.clear();
+          for (const candidate of derived) {
             if (!this.visited.has(visitKey(candidate.url))) {
               queue.push({
                 url: candidate.url, depth: entry.depth + 1,
@@ -1229,6 +1269,7 @@ export class Crawler {
       try {
         const body = await response.text();
         responseSample = this.masker.maskJson(body).slice(0, 4000);
+        this.deriveInstancesFromObservedCollection(url, request.method(), status, body);
       } catch {
         // A response body can be unavailable (redirects, aborted requests); the endpoint
         // is still worth recording without a sample.
@@ -1306,6 +1347,116 @@ export class Crawler {
    * shape of the endpoint on the surface, not to walk every record in the database — and
    * the route-shape cap would stop it anyway, later and more expensively.
    */
+  /**
+   * Fetches a derived record address from inside the application and records what it is.
+   *
+   * Used only where a document load would sign the crawl out. The request goes through the
+   * page's own `fetch`, so it carries whatever the application uses to authenticate itself —
+   * a cookie, a header the application's code sets, or a token it holds in memory — none of
+   * which a fresh document load would have.
+   *
+   * A 404 records nothing: the address was a hypothesis about REST's convention, and the
+   * application has said there is no route there. A 401 or 403 is recorded, because "this
+   * route exists and refuses me" is exactly what an authorization check needs to compare two
+   * identities against.
+   */
+  private async retrieveApiInstance(page: Page, url: string, id: string): Promise<void> {
+    let answer: { status: number; contentType: string; body: string } | null = null;
+    try {
+      answer = await page.evaluate(async (target: string) => {
+        const response = await fetch(target, { credentials: 'include' });
+        return {
+          status: response.status,
+          contentType: response.headers.get('content-type') ?? '',
+          body: (await response.text()).slice(0, 8000)
+        };
+      }, url);
+    } catch {
+      this.note(`${safeRoute(url)} could not be retrieved from inside the application.`);
+      return;
+    }
+    if (answer === null) return;
+
+    if (answer.status === 404) {
+      this.note(`${safeRoute(url)} answered 404, so the identifier read from its collection `
+        + 'does not address a record this way.');
+      return;
+    }
+    if (!isJsonContentType(answer.contentType)) {
+      this.note(`${safeRoute(url)} did not answer JSON, so it is not recorded as a record `
+        + 'endpoint.');
+      return;
+    }
+
+    const template = templateForInstance(url, id) ?? normalizeUrl(url);
+    const key = `GET ${template}`;
+    if (this.apiEndpoints.has(key)) return;
+    this.apiEndpoints.set(key, {
+      method: 'GET',
+      urlTemplate: template,
+      sampleUrl: url.slice(0, 2000),
+      statusCode: answer.status,
+      durationMs: 0,
+      responseSample: this.masker.maskJson(answer.body).slice(0, 4000),
+      responseContentType: answer.contentType,
+      requiresAuthentication: true,
+      triggeredByNormalizedUrl: visitKey(url),
+      timesObserved: 1
+    });
+    this.note(`${safeRoute(url)} answered ${answer.status} with JSON when fetched from inside `
+      + `the application, so ${safeRoute(template)} is recorded as a record endpoint.`);
+  }
+
+  /**
+   * Reads record identifiers out of a collection the application fetched for itself.
+   *
+   * The identifier derivation existed already, and ran only on a JSON document the crawler
+   * had navigated to. That is the server-rendered case: freight links to `/api/shipments`,
+   * the crawler opens it as a page, and `/api/shipments/{id}` goes on the surface.
+   *
+   * A client-rendered application never does that. clinic-spa's screens fetch
+   * `/api/patients?q=` from their own JavaScript, so the collection arrives on the network
+   * listener and its body is recorded as a sample — with `pat-1` and `pat-2` in it — and
+   * nothing was ever derived from it. `/api/patients/{id}` therefore never reached the
+   * security surface, `authz.bola` had no record route to compare two clinicians against,
+   * and CS_D03 — a clinician reading another clinician's patient, a critical planted
+   * authorization defect — was reported as a gap on an application whose own traffic
+   * contained the addresses needed to find it.
+   *
+   * Which is the wrong way round. Record-level routes are where object-level authorization
+   * defects live, they are the routes no document points at, and an SPA's API is entirely
+   * background fetches. The derivation was absent exactly where it is most needed.
+   *
+   * The same policy guard the queue applies is applied here rather than later, so an
+   * analytics or CDN host an application talks to does not have addresses invented under it
+   * and then enqueued only to be refused.
+   */
+  private deriveInstancesFromObservedCollection(
+    url: string, method: string, status: number, body: string
+  ): void {
+    if (method !== 'GET' || status < 200 || status >= 300) return;
+
+    const guard = isUrlAllowed(url, {
+      allowedHosts: this.options.budget.allowedHosts,
+      excludedPathPrefixes: this.options.budget.excludedPathPrefixes,
+      allowPrivateNetworks: this.options.budget.allowPrivateNetworks
+    });
+    if (!guard.allowed) return;
+
+    const ids = identifiersIn(body);
+    if (ids.length === 0) return;
+
+    const candidates = instanceUrlsFor(url, ids)
+      .filter(candidate => !this.visited.has(visitKey(candidate.url))
+        && !this.observedInstanceCandidates.has(candidate.url));
+    if (candidates.length === 0) return;
+
+    for (const candidate of candidates) this.observedInstanceCandidates.set(candidate.url, candidate);
+    this.note(`${safeRoute(url)} was fetched by the application and named ${ids.length} record(s); `
+      + `trying ${candidates.length} of them as addresses under it, which the application may `
+      + 'or may not serve.');
+  }
+
   private readJsonDocument(
     url: string,
     status: number | undefined,
@@ -1369,20 +1520,7 @@ export class Crawler {
     const ids = identifiersIn(body);
     if (ids.length === 0) return [];
 
-    const candidates: ApiInstanceCandidate[] = [];
-    for (const id of ids.slice(0, MAX_API_INSTANCES_PER_COLLECTION)) {
-      try {
-        const instance = new URL(url);
-        instance.search = '';
-        instance.hash = '';
-        instance.pathname = `${instance.pathname.replace(/\/$/, '')}/${encodeURIComponent(id)}`;
-        candidates.push({ url: instance.toString(), id });
-      } catch {
-        // An id that cannot be put in a path is not a candidate. Nothing is reported: the
-        // collection is still recorded, and a record that cannot be addressed this way may
-        // simply not be addressable this way.
-      }
-    }
+    const candidates = instanceUrlsFor(url, ids);
     if (candidates.length > 0) {
       this.note(`${safeRoute(url)} named ${ids.length} record(s); trying ${candidates.length} of them `
         + 'as addresses under it, which the application may or may not serve.');
@@ -1659,6 +1797,32 @@ export function isJsonContentType(contentType: string | undefined): boolean {
  * name says it is an identifier. A nested object's id is left alone: an order carrying a
  * customer's id does not mean the collection serves customers.
  */
+/**
+ * The addresses a collection's own record identifiers suggest, under the collection's path.
+ *
+ * Extracted because it is now wanted from two places: a JSON collection the crawler
+ * navigated to, and a JSON collection the page fetched for itself. The query string and
+ * fragment are dropped — `/api/patients?q=` names records that live at `/api/patients/pat-1`,
+ * not at `/api/patients/pat-1?q=` — and an identifier that cannot be put in a path is
+ * skipped rather than reported, because a record that is not addressable this way may simply
+ * not be.
+ */
+export function instanceUrlsFor(collectionUrl: string, ids: string[]): ApiInstanceCandidate[] {
+  const candidates: ApiInstanceCandidate[] = [];
+  for (const id of ids.slice(0, MAX_API_INSTANCES_PER_COLLECTION)) {
+    try {
+      const instance = new URL(collectionUrl);
+      instance.search = '';
+      instance.hash = '';
+      instance.pathname = `${instance.pathname.replace(/\/$/, '')}/${encodeURIComponent(id)}`;
+      candidates.push({ url: instance.toString(), id });
+    } catch {
+      // Nothing is reported: the collection is still recorded.
+    }
+  }
+  return candidates;
+}
+
 export function identifiersIn(body: string): string[] {
   let parsed: unknown;
   try { parsed = JSON.parse(body); } catch { return []; }

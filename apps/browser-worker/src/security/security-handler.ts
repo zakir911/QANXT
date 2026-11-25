@@ -81,6 +81,56 @@ export interface SignedInIdentity extends SecurityIdentity {
 export const asActor = (identity: SignedInIdentity) =>
   ({ headers: identity.headers, cookie: identity.cookie, label: identity.label });
 
+/**
+ * How an identity proves who it is, read from the headers it actually carries.
+ *
+ * Used to say why a cross-site request cannot be forged against it. Reading the scheme off
+ * the headers rather than the target's configuration keeps the sentence true: it describes
+ * what the scan is holding, not what the target declared.
+ */
+export const authenticationScheme = (identity: { headers?: Record<string, string> }) => {
+  const headers = identity.headers ?? {};
+  const names = Object.keys(headers);
+  const authorization = names.find(name => name.toLowerCase() === 'authorization');
+  if (authorization !== undefined) {
+    const word = String(headers[authorization] ?? '').trim().split(/\s+/)[0] ?? '';
+    if (/^basic$/i.test(word)) return 'HTTP Basic credentials';
+    if (/^bearer$/i.test(word)) return 'a bearer token';
+    return 'an Authorization header';
+  }
+  const apiKey = names.find(name => /(^|-)(api-?key|token|auth)$/i.test(name));
+  if (apiKey !== undefined) return `the ${apiKey} header`;
+  // Never reached from the guards that call this, which only fire when there is no cookie.
+  // Answered anyway, because a function that can return a false sentence is one caller away
+  // from printing it.
+  if (names.some(name => name.toLowerCase() === 'cookie')) return 'a session cookie';
+  if (names.length !== 0) return 'headers rather than a cookie';
+  return 'no credentials this scan can see';
+};
+
+/**
+ * Why a header-authenticated application has no cross-site request to forge.
+ *
+ * The honest verdict is still inconclusive — nothing was established about an anti-forgery
+ * control — but the reason matters as much as the verdict. This said "An authenticated
+ * session is needed to send a cross-site request", which reads as the scan having failed to
+ * sign in. It had signed in: it was holding this identity's headers at the time, and the
+ * authorization checks on the same target ran as that identity. What it lacked was a cookie,
+ * and a cookie is the whole mechanism: a browser attaches one to a cross-site request by
+ * itself, which is what makes forgery possible. It never attaches an Authorization header,
+ * because only the application's own code sets that. So an application authenticating by
+ * header is not exposed to this, and reporting it as a coverage gap in the scan understates
+ * the application and misdirects whoever reads it.
+ */
+const noCrossSiteRequestToForge = (identity: SignedInIdentity, soThere: string) => {
+  const scheme = authenticationScheme(identity);
+  return `Not evaluated: ${identity.label} authenticates with ${scheme} and the application set `
+    + 'no session cookie. A browser attaches a cookie to a cross-site request on its own, which '
+    + `is what makes forgery possible; it does not attach ${scheme}, which only the application's `
+    + `own code sets. So ${soThere}. That is a property of how this application authenticates, `
+    + 'not a gap in the scan.';
+};
+
 /** What one check did, whether or not it found anything. */
 interface CheckOutcome {
   check: string;
@@ -765,7 +815,14 @@ const RUNNERS: Record<string, CheckRunner> = {
 
   'request.csrf': async (scanner, target, context) => {
     const a = owner(context);
-    if (!a?.cookie) return inconclusive('An authenticated session is needed to send a cross-site request.');
+    if (!a) {
+      return inconclusive('No signed-in identity was obtained, so there was nobody to forge a '
+        + 'cross-site request on behalf of.');
+    }
+    if (!a.cookie) {
+      return inconclusive(noCrossSiteRequestToForge(a, 'there is no cross-site request here for an '
+        + 'anti-forgery token to defend'));
+    }
     return request.checkCsrfToken(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
       session: { cookie: a.cookie, csrf: a.csrf }, body: {}
@@ -773,7 +830,14 @@ const RUNNERS: Record<string, CheckRunner> = {
   },
   'request.origin': async (scanner, target, context) => {
     const a = owner(context);
-    if (!a?.cookie) return inconclusive('An authenticated session is needed to vary the origin.');
+    if (!a) {
+      return inconclusive('No signed-in identity was obtained, so varying the origin would compare '
+        + 'two anonymous requests and establish nothing.');
+    }
+    if (!a.cookie) {
+      return inconclusive(noCrossSiteRequestToForge(a, 'varying the origin would compare two '
+        + 'requests neither of which carries credentials'));
+    }
     return request.checkOriginValidation(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
       session: { cookie: a.cookie, csrf: a.csrf }, body: {}

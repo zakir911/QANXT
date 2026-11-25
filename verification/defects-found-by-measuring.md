@@ -2625,6 +2625,160 @@ clinic-spa has no reference-shaped field, which is what the short name list is f
 
 ---
 
+## 77. Two checks blamed the application for their own missing premise
+
+**What the reader saw.** On permits-legacy and token-api, `request.csrf` and `request.origin`
+each reported:
+
+> An authenticated session is needed to send a cross-site request.
+
+Which reads as the scan having failed to sign in. It had not. It was holding that identity's
+headers at the time, and `authz.readonly` on the same target ran as the same identity and
+reported a status code back from it — *"clerk could not write either (400)"*. A reader
+reaching the first sentence concludes the product could not authenticate against the target,
+and stops trusting the rest of the file.
+
+**What was actually true, and is a better answer.** Both checks guard on the identity having
+a *cookie*, and that guard is right. A browser attaches a cookie to a cross-site request by
+itself, which is the entire mechanism forgery depends on. It never attaches an Authorization
+header, because only the application's own code sets one. permits-legacy authenticates with
+HTTP Basic and token-api with a bearer token, so **neither is exposed to this at all** — and
+that is a property of the application worth stating, not a gap in the scan worth apologising
+for.
+
+**Fixed** by naming the scheme, read off the headers the scan is holding rather than off the
+target's configuration, so the sentence stays true to what happened:
+
+> Not evaluated: clerk authenticates with HTTP Basic credentials and the application set no
+> session cookie. A browser attaches a cookie to a cross-site request on its own, which is
+> what makes forgery possible; it does not attach HTTP Basic credentials, which only the
+> application's own code sets. So there is no cross-site request here for an anti-forgery
+> token to defend. That is a property of how this application authenticates, not a gap in the
+> scan.
+
+The verdict is unchanged — still `inconclusive`, because nothing was established about an
+anti-forgery control. Only the reason changed, and the reason was the part that was wrong.
+
+**A note on where the bar is.** `request.safe-verb-state-change`, written in this same area,
+already explained itself this way: *"an anonymous GET that is refused says nothing about
+whether a safe verb changes state for someone who is signed in."* Two checks in the same file
+answered to two different standards. Eight tests now cover the scheme naming, including that
+no branch of it can produce a false sentence — a function that would describe a cookie as
+"headers rather than a cookie" is one caller away from printing that.
+
+**Not a fix for the thing it looks like.** permits-legacy's CSRF-shaped defect, PL_D01, is
+found — by `request.safe-verb-state-change`, as *"A GET changes state, and needs no
+anti-forgery token to do it — CWE-352"*. That target is 4 of 4.
+
+---
+
+## 78. The product could not find record routes on any client-rendered application
+
+**The defect.** Reading record identifiers out of a collection and trying them as addresses
+under it — the thing that finds `/api/shipments/{id}` when no document anywhere links to it —
+ran *only* on a JSON collection the crawler had navigated to as a document.
+
+A client-rendered application never serves one. clinic-spa's screens fetch
+`/api/patients?q=` from their own JavaScript. The collection arrived on the network listener,
+its body was recorded as a response sample **with `pat-1` and `pat-2` in it**, and nothing was
+ever derived from it. So:
+
+```
+endpoints discovery recorded for clinic-spa
+  /api/patients?q={v}      GET   200     <- the collection, with the ids in its body
+  /api/appointments        GET   200
+  /api/appointments/apt-1/cancel  POST 200
+  ...
+  /api/patients/{id}       — never reached
+```
+
+`authz.bola` therefore had no record route on which to compare two clinicians, and **CS_D03 —
+a clinician reading another clinician's patient record, a critical planted authorization
+defect — came back as a gap** on an application whose own traffic carried the addresses needed
+to find it.
+
+**Which is exactly the wrong way round.** Record-level routes are where object-level
+authorization defects live. They are the routes no document points at. And a client-rendered
+application's API is *nothing but* background fetches. The derivation was absent precisely
+where it is the only thing that would work.
+
+**Fixed** by deriving from the collections the application fetches for itself, not only the
+ones the crawler opens. The same policy guard the queue applies is applied at derivation, so
+an analytics or CDN host the application talks to does not get addresses invented under it.
+
+**Why the tests for this are end to end.** `identifiersIn` and the URL building were both
+correct and unit-tested throughout, and never called. No unit test could have caught this,
+because nothing was wrong with any unit. The test runs a real client-rendered application —
+a mount point, a `fetch` for its collection, no anchor and no record id anywhere in the
+markup — in a real Chromium, and asserts the record route reaches the surface *and* that the
+application's own request log shows the GET that put it there. With the derivation disabled,
+those two fail and the two shape guards beside them still pass, which is the right split.
+
+**The runner had already said which branch this was.** Its note reads: *"ground truth names 1
+route(s) nothing reached: /api/patients/:id — either a gap in discovery or a fixture that does
+not exercise its own route."* It was the first branch. The note is worth keeping for the next
+one.
+
+---
+
+## 79. An API address pushed through a client-side router, and the phantom pages it made
+
+**Found by my own fix for defect 78, in the measurement that followed it.** The derivation
+worked: discovery reached `/api/patients/pat-1` and `/api/patients/pat-2`, which it never had.
+The numbers around it were wrong in a way worth reading carefully:
+
+```
+before:  4 page(s)   4 form(s)   199 test(s)   6 endpoint(s)
+after:   7 page(s)   7 form(s)   396 test(s)   6 endpoint(s)
+```
+
+Three pages and 197 tests appeared, and **not one new endpoint**. `/api/patients/{id}` — the
+whole object of the exercise — was still missing from the surface.
+
+**What those three pages were.** Each recorded `visible_text_excerpt` was clinic-spa's
+*schedule screen*, and each carried that screen's booking form, with `http_status` null:
+
+```
+url                                        http_status  text
+/api/patients/pat-1                        (null)       "Schedule Schedule Patients Patient Start End Status pat-1 ..."
+/api/patients/pat-2                        (null)       same
+/api/appointments/apt-1                    (null)       same
+```
+
+Duplicates of one screen, filed under three addresses that answer JSON. The form engine then
+designed a full suite against each: 396 tests where 199 were real.
+
+**Why.** The crawl log says it plainly, in a sentence the product writes about itself:
+
+> This application signs out on a page load (its session lives in the page), so discovery
+> moves through it from inside: by its links and its router, **never by loading an address**.
+
+That is right, and it is why clinic-spa can be crawled at all. But a client-side router does
+not fetch `/api/patients/pat-1` — it does not recognise it, so it renders whatever its
+fallback renders, and the crawl recorded that screen under the address it had asked for. The
+derived addresses were correct; the way they were retrieved could not work.
+
+**Fixed** by retrieving them instead of routing to them. An entry carrying `apiInstanceId` is
+an API address *by construction* — built from an identifier read out of a JSON collection — so
+in this mode it is fetched from inside the page, which carries the in-page session that a
+fresh document load would not have, and recorded as an endpoint. A 404 records nothing. A 401
+or 403 is recorded, because "this route exists and refuses me" is what an authorization
+comparison needs.
+
+**The test fixtures an application of this shape rather than asserting the branch.** It keeps
+its token in a JavaScript variable — no cookie, no storage — so a document load genuinely
+signs it out and the crawler genuinely enters this mode. With the branch disabled all three of
+its assertions fail: the endpoint is missing, the application's request log never shows the
+record address, and a phantom page appears under `/api/`. That last one is the assertion worth
+keeping: `expect(pages.filter(p => p.url.includes('/api/'))).toEqual([])`.
+
+**What this cost to find: one measurement.** The unit tests for defect 78 passed, the
+end-to-end test passed, the fix was right, and the first run on a real application of the
+shape it was written for still produced three phantom screens and doubled the test count. A
+green suite said the derivation worked. Only the run said what it derived was unreachable.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

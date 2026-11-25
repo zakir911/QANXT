@@ -19,6 +19,35 @@ import { at } from './target-url.mjs';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+/**
+ * Where a sign-in form is served, and where a JSON sign-in is answered.
+ *
+ * Module constants because the form list was copied into three methods and the JSON list
+ * into one, and then only some of them were maintained. `signIn` grew the JSON list when a
+ * bearer-token application could not be authenticated at all. `signInExchanges`, written
+ * afterwards so the cookie check could judge what an authentication response sets, kept only
+ * the form list.
+ *
+ * The cost landed on every client-rendered application. clinic-spa builds its sign-in form
+ * in the browser, so there is no form in the served HTML to read; `signIn` authenticates
+ * against it anyway through `/api/session`, and the authorization checks ran as that
+ * identity. `signInExchanges` tried the eight form paths, found no form on any of them, and
+ * returned nothing — so the cookie check reported "no sign-in form could be found to
+ * authenticate against" about an application the same scan had signed in to seconds earlier,
+ * and declined to judge a `clinic_session` cookie carrying HttpOnly and SameSite=Lax.
+ *
+ * One list used by every path is the fix. Four lists was the defect.
+ */
+const SIGN_IN_FORM_PATHS = [
+  '/auth/sign-in', '/auth/login', '/login', '/sign-in', '/signin',
+  '/account/login', '/users/sign_in', '/session/new'
+];
+
+const SIGN_IN_JSON_ENDPOINTS = [
+  '/api/session', '/api/auth/token', '/api/auth/login',
+  '/api/login', '/api/token', '/auth/token', '/oauth/token'
+];
+
 export class SecurityScanner {
   /**
    * @param {object} options
@@ -230,8 +259,7 @@ export class SecurityScanner {
 
     const paths = [
       ...(options.signInPath ? [options.signInPath] : []),
-      '/auth/sign-in', '/auth/login', '/login', '/sign-in', '/signin',
-      '/account/login', '/users/sign_in', '/session/new'
+      ...SIGN_IN_FORM_PATHS
     ];
 
     for (const path of dedupe(paths)) {
@@ -343,8 +371,7 @@ export class SecurityScanner {
     const maxOptions = options.maxOptions ?? 3;
     const paths = [
       ...(options.signInPath ? [options.signInPath] : []),
-      '/auth/sign-in', '/auth/login', '/login', '/sign-in', '/signin',
-      '/account/login', '/users/sign_in', '/session/new'
+      ...SIGN_IN_FORM_PATHS
     ];
 
     for (const path of dedupe(paths)) {
@@ -382,6 +409,34 @@ export class SecurityScanner {
       return { exchanges, form: { action: form.action, method: form.method, options: form.options ?? [] } };
     }
 
+    // No form in the served HTML. That is not the same as no sign-in: a client-rendered
+    // application builds its form in the browser, and answers credentials as JSON. `signIn`
+    // has tried these endpoints since a bearer-token application could not be authenticated
+    // at all; this method did not, so the cookie check could not reach any application of
+    // that shape and said so in words that read as the application's fault rather than its
+    // own.
+    //
+    // One exchange, and no optional controls to vary: a JSON endpoint has no checkboxes. So
+    // this cannot see a "remember me" that downgrades a cookie, which is what the per-option
+    // exchanges above are for, and the label says which sign-in was examined so that a clean
+    // result is not read as more than it is.
+    for (const endpoint of SIGN_IN_JSON_ENDPOINTS) {
+      const result = await this.request({
+        url: at(baseUrl, `${endpoint}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
+        headers: { 'content-type': 'application/json' },
+        body: { username, password, email: username }, as: username, testId: 'sign-in'
+      });
+      if (!result.allowed || result.status >= 400) continue;
+      // A 2xx that sets no cookie is still the authentication response, and the check's own
+      // "signing in set no session cookie" is the right answer for it. Returning it is how
+      // that answer becomes reachable at all.
+      return {
+        exchanges: [{ label: `through ${endpoint}, which answers credentials as JSON`,
+                      control: null, result }],
+        form: null
+      };
+    }
+
     return { exchanges: [], form: null };
   }
 
@@ -402,8 +457,7 @@ export class SecurityScanner {
 
     const paths = [
       ...(options.signInPath ? [options.signInPath] : []),
-      '/auth/sign-in', '/auth/login', '/login', '/sign-in', '/signin',
-      '/account/login', '/users/sign_in', '/session/new'
+      ...SIGN_IN_FORM_PATHS
     ];
 
     for (const path of dedupe(paths)) {
@@ -439,8 +493,7 @@ export class SecurityScanner {
     // Applications that answer a JSON sign-in rather than serving a form. The path is not
     // one convention either: a token endpoint is spelled a dozen ways and guessing only
     // /api/session is how the whole family of them went untested.
-    for (const endpoint of ['/api/session', '/api/auth/token', '/api/auth/login',
-                            '/api/login', '/api/token', '/auth/token', '/oauth/token']) {
+    for (const endpoint of SIGN_IN_JSON_ENDPOINTS) {
       const result = await this.request({
         url: at(baseUrl, `${endpoint}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
         headers: { 'content-type': 'application/json' },
