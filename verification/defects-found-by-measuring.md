@@ -2206,6 +2206,57 @@ requirement path, which is the right instrument for a rule somebody has written 
 
 ---
 
+## 70. The check that would have caught it could not be pointed at the wizard
+
+**Symptom.** FP_D15 — stepping back from step 3 of the booking wizard empties step 2 — was
+missed. Unlike most of these, the product already has exactly the right check.
+
+`RetainsAnswersGoingBack` fills through a step, presses back, and asserts with `AssertValue`
+that every field still holds what was entered. That is FP_D15's question, word for word. It
+produced no test for freight's booking wizard, and neither did anything else in the multi-step
+family.
+
+**Diagnosis.** Two gates, both missed, both silently.
+
+```csharp
+if (!_form.IsMultiStep) return;
+...
+if (_previous is null) return;
+```
+
+`IsMultiStep` means one form whose fields are in groups — a wizard the *browser* runs. Freight's
+is a wizard the *server* runs: one page per step at `?step=1`, `?step=2`, each with its own
+`<form>`, and the control back to the previous step is an `<a href="…?step=1&back=1">Back</a>`
+rather than a Previous button. So the form is not multi-step by that definition, there is no
+previous button, and `MultiStep()` returned without a word.
+
+Both shapes are ordinary. The server-rendered one is what checkouts, applications and
+onboarding flows have looked like for twenty years.
+
+**The defect is real and the oracle is right.** Measured by following freight's own Back link:
+
+```
+defect on    step 2 after Back: pieces "",  weight "",    declaredValue ""
+defect off   step 2 after Back: pieces 9,   weight 777,   declaredValue 4242
+```
+
+**Fix.** The gap is named rather than guessed at. A form on a page whose address carries a
+numeric step — `step`, `stage`, `phase`, `wizardstep`, `currentstep` — now records a coverage
+gap saying that this is one step of a wizard spread across addresses, that nothing here fills a
+step and checks what survives going back, and that a recorded journey is the instrument that
+carries state across addresses.
+
+`page=2` is excluded deliberately: that is a listing showing its second page, not a flow on its
+second step, and without the distinction every paginated form in an application would carry a
+gap about wizards. A test holds that line.
+
+**Not fixed: reaching the wizard.** Modelling a flow across four addresses is a journey, not a
+form, and building that is a feature rather than a correction — the product has a journey
+recorder, which is where it belongs. What changed is that the engine no longer passes over the
+shape in silence, and the reader is told which instrument to use.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

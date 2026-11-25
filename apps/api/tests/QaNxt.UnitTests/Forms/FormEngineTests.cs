@@ -514,6 +514,65 @@ public class FormEngineTests
         Design(filter).HumanTasks.Should().NotContain(task => task.Key.Contains("unique-"));
     }
 
+    /// <summary>The same design, on a page at a given address.</summary>
+    private static FormDesign DesignAtUrl(DiscoveredFormModel form, string pageUrl, string route)
+        => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,
+            pageUrl, route, form.Name, false, Array.Empty<CorrelatedEndpoint>(), new TestingProfile()));
+
+    [Fact]
+    public void One_step_of_a_page_per_step_wizard_names_the_gap_instead_of_saying_nothing()
+    {
+        // FP_D15 — stepping back empties the step before — is exactly what
+        // RetainsAnswersGoingBack asserts, and that check never reached freight's wizard
+        // because its steps are separate addresses with a Back link rather than one form
+        // with grouped fields and a Previous button. Both gates missed it silently.
+        var step = new DiscoveredFormModel
+        {
+            Name = "Book a shipment", Method = "post", Action = "/shipments/new?step=2",
+            HasFormElement = true, Locator = TestId("booking-form-step-2"), IsMultiStep = false,
+            Fields = new()
+            {
+                Field("pieces", "number", true),
+                Field("weight", "number", true)
+            },
+            Buttons = new() { new FormButtonModel { Label = "Continue", Type = "submit", Role = "submit", Locator = TestId("booking-next") } }
+        };
+
+        var design = DesignAtUrl(step, "http://lab/shipments/new?step=2", "/shipments/new");
+
+        design.Gaps.Should().Contain(gap =>
+            gap.Category == TestCategory.MultiStep
+            && gap.Missing.Contains("what this wizard keeps between its steps")
+            && gap.Status == CoverageGapStatus.NotCovered);
+    }
+
+    [Fact]
+    public void An_ordinary_form_is_not_mistaken_for_a_wizard_step()
+    {
+        var design = DesignAtUrl(Registration(), "http://lab/registration", "/registration");
+
+        design.Gaps.Should().NotContain(gap => gap.Missing.Contains("what this wizard keeps"));
+    }
+
+    [Fact]
+    public void A_paginated_listing_is_not_mistaken_for_a_wizard_step()
+    {
+        // page=2 is a listing showing its second page, not a flow on its second step. The
+        // distinction matters because every paginated form in an application would otherwise
+        // carry a gap about wizards.
+        var filter = new DiscoveredFormModel
+        {
+            Name = "Shipment filters", Method = "get", Action = "/shipments",
+            HasFormElement = true, Locator = TestId("shipment-filters"), IsMultiStep = false,
+            Fields = new() { Field("q", "text", false) },
+            Buttons = new() { new FormButtonModel { Label = "Apply", Type = "submit", Role = "submit", Locator = TestId("shipment-apply") } }
+        };
+
+        var design = DesignAtUrl(filter, "http://lab/shipments?page=2", "/shipments");
+
+        design.Gaps.Should().NotContain(gap => gap.Missing.Contains("what this wizard keeps"));
+    }
+
     private static FormDesign Design(DiscoveredFormModel form, TestingProfile? profile = null, bool credentials = false,
         IReadOnlyList<CorrelatedEndpoint>? endpoints = null)
         => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,

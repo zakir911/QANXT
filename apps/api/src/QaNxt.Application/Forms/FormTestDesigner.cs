@@ -1365,7 +1365,41 @@ public static class FormTestDesigner
 
         private void MultiStep()
         {
-            if (!_form.IsMultiStep) return;
+            if (!_form.IsMultiStep)
+            {
+                // A wizard whose steps are separate pages is invisible to everything below.
+                //
+                // `IsMultiStep` means one form with its fields in groups — a wizard the browser
+                // runs. The other common shape is a wizard the server runs: one page per step
+                // at `?step=1`, `?step=2`, each with its own form, and a Back *link* rather than
+                // a Previous button. Both of this family's gates miss it, so `MultiStep` used to
+                // return here without a word, and so did `RetainsAnswersGoingBack` — which is
+                // the one thing that would have caught FP_D15.
+                //
+                // That check already exists and is right: it fills through a step, presses
+                // back, and asserts with AssertValue that every field still holds what was
+                // entered. Measured on freight, following its Back link by hand:
+                //
+                //   defect on    step 2 after Back: pieces "", weight "", declaredValue ""
+                //   defect off   step 2 after Back: pieces 9, weight 777, declaredValue 4242
+                //
+                // The oracle is not what is missing. Reaching a wizard spread across pages is,
+                // and that is a journey across four URLs rather than a form, so it is named here
+                // instead of guessed at.
+                if (Wanted(TestCategory.MultiStep) && LooksLikeOneStepOfAWizard(_ctx.PageUrl))
+                {
+                    Gap(TestCategory.MultiStep, null, "what this wizard keeps between its steps",
+                        "This form's page is one step of a wizard whose steps are separate addresses, and "
+                        + "the step tests model a wizard held in a single form with its fields grouped. So "
+                        + "nothing here fills a step, goes back, and checks that the answers survived — the "
+                        + "check for that exists and cannot be pointed at a flow spread across pages.",
+                        "Record a journey through the wizard's steps, which does carry state across "
+                        + "addresses, or test the back navigation by hand.",
+                        CoverageGapStatus.NotCovered);
+                    _applicable.Add(TestCategory.MultiStep);
+                }
+                return;
+            }
             if (!Wanted(TestCategory.MultiStep)) return;
             if (_next is null)
             {
@@ -1695,6 +1729,30 @@ public static class FormTestDesigner
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Whether a page's address says it is one step of a wizard.
+        ///
+        /// A numeric step in the query is the convention server-rendered wizards use, and it
+        /// is read rather than guessed at: a parameter named for a step, holding a number.
+        /// `page=2` is excluded deliberately — that is pagination, which is a listing showing
+        /// its second page, not a flow on its second step.
+        /// </summary>
+        private static bool LooksLikeOneStepOfAWizard(string? pageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(pageUrl)) return false;
+            if (!Uri.TryCreate(pageUrl, UriKind.Absolute, out var parsed)) return false;
+
+            foreach (var pair in parsed.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var parts = pair.Split('=', 2);
+                if (parts.Length != 2) continue;
+                var name = new string(parts[0].Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+                if (name is not ("step" or "stage" or "phase" or "wizardstep" or "currentstep")) continue;
+                if (int.TryParse(parts[1], out var number) && number >= 1) return true;
+            }
+            return false;
         }
 
         /// <summary>
