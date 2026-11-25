@@ -31,6 +31,87 @@ import { at } from './target-url.mjs';
 const EXTERNAL_MARKER_HOST = 'qanxt-redirect-probe.invalid';
 
 /**
+ * Whether a state-changing request was accepted, judged from the answer.
+ *
+ * ## Why a status code is not the answer
+ *
+ * These checks used `status >= 400` as the whole test. On a JSON API that is right. On an
+ * application rendered on the server it is wrong in the worst direction, because the ordinary
+ * way such an application refuses is to answer 302 and show the form again:
+ *
+ *     POST /claims/new   (no token)   ->   302   location: /claims/new
+ *
+ * Nothing was created. 302 is under 400, so both the control and the probe "succeeded
+ * identically" and the finding was raised. Measured on a 137-screen application that carries
+ * and enforces an anti-forgery token on its forms, that produced 54 endpoints' worth —
+ * 108 findings with the origin check included, 38% of everything the scan reported, every one
+ * of them false.
+ *
+ * ## What is judged instead
+ *
+ * Where the answer went, which is what distinguishes the two cases:
+ *
+ *   - 4xx and 5xx: refused, as before.
+ *   - 3xx back to the address posted to: the form being re-shown, which is a refusal. This is
+ *     the case that was inverted.
+ *   - 3xx to a sign-in: refused.
+ *   - 3xx onward to somewhere else: accepted. A form that saves redirects to what it saved,
+ *     which is the POST-redirect-GET pattern working.
+ *   - 2xx: accepted.
+ *
+ * The product already judged this correctly one layer away. Its form engine reports "it
+ * answered 302 and redirected to /x with nothing that reads as a rejection" — where it went,
+ * and whether a rejection is visible. This is that reasoning, brought to the checks that
+ * needed it.
+ *
+ * @returns {{accepted: boolean, how: string}}
+ */
+export function stateChangeAccepted(response, requestedPath) {
+  const status = Number(response?.status ?? 0);
+
+  if (status >= 400) return { accepted: false, how: `answered ${status}` };
+
+  if (status >= 300 && status < 400) {
+    const location = String(
+      response?.headers?.get?.('location')
+      ?? response?.headers?.location
+      ?? '');
+
+    if (location === '') {
+      // A redirect with nowhere to go settles nothing, and calling it acceptance is the
+      // mistake this function exists to avoid.
+      return { accepted: false, how: `answered ${status} with no Location` };
+    }
+    if (/sign-?in|log-?in|auth\/|session/i.test(location)) {
+      return { accepted: false, how: `redirected to ${location}, which asks for credentials` };
+    }
+    if (samePathAs(location, requestedPath)) {
+      return {
+        accepted: false,
+        how: `redirected back to ${location}, which is how a form is shown again after a refusal`
+      };
+    }
+    return { accepted: true, how: `redirected onward to ${location}` };
+  }
+
+  return { accepted: true, how: `answered ${status}` };
+}
+
+/** Whether a Location names the same path that was requested, ignoring host and query. */
+function samePathAs(location, requestedPath) {
+  const pathOf = (value) => {
+    try {
+      return new URL(value, 'http://placeholder.invalid').pathname.replace(/\/+$/, '');
+    } catch {
+      return String(value ?? '').split('?')[0]?.replace(/\/+$/, '') ?? '';
+    }
+  };
+  const a = pathOf(location);
+  const b = pathOf(requestedPath);
+  return a !== '' && a.toLowerCase() === b.toLowerCase();
+}
+
+/**
  * Missing anti-CSRF token: a state-changing request succeeds without one.
  *
  * The control matters as much as the claim. An endpoint that refuses the request with a
@@ -53,10 +134,15 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
     note: 'the request as the application\'s own page would send it'
   });
   if (!withToken.allowed) return { skipped: true, decision: withToken.decision, findings: [] };
-  if (withToken.status >= 400) {
+
+  const control = stateChangeAccepted(withToken, path);
+  if (!control.accepted) {
     return { skipped: false, findings: [], inconclusive: true,
-             reason: `The endpoint refused the request even with a token and a same-site origin `
-               + `(${withToken.status}), so nothing can be concluded about what it does without one.` };
+             reason: `Not evaluated: the endpoint did not accept the request even with a token and a `
+               + `same-site origin — it ${control.how}. Nothing can be concluded about what it does `
+               + 'without one. This probe sends JSON with the token in a header, so a form endpoint '
+               + 'that wants the token in a urlencoded body will refuse it here and refuse it for '
+               + 'the right reason.' };
   }
 
   const withoutToken = await scanner.request({
@@ -67,9 +153,10 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
   });
   if (!withoutToken.allowed) return { skipped: true, decision: withoutToken.decision, findings: [] };
 
-  if (withoutToken.status >= 400) {
+  const probe = stateChangeAccepted(withoutToken, path);
+  if (!probe.accepted) {
     return { skipped: false, findings: [], ok: true,
-             detail: `with token ${withToken.status}, without token ${withoutToken.status}` };
+             detail: `with a token it ${control.how}; without one it ${probe.how}` };
   }
 
   return {
@@ -78,8 +165,8 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
       category: 'MissingCsrfToken',
       title: 'A state-changing request succeeds with no anti-CSRF token',
       endpoint: path, httpMethod: 'POST', observedAsRole: 'authenticated session, no token',
-      description: `The request succeeded with a token (${withToken.status}) and succeeded identically `
-        + `without one (${withoutToken.status}). The session cookie alone is enough to authorise the change.`,
+      description: `The request was accepted with a token — it ${control.how} — and accepted the same `
+        + `way without one: it ${probe.how}. The session cookie alone is enough to authorise the change.`,
       impact: 'Any site the user visits while signed in can make this request on their behalf.',
       remediation: 'Require a per-session anti-CSRF token on every state-changing request, or set the '
         + 'session cookie SameSite=Strict and validate Origin.',
@@ -109,9 +196,12 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
     as: 'same-origin', testId: `${testId}:control`, note: 'the request with the application\'s own origin'
   });
   if (!sameOrigin.allowed) return { skipped: true, decision: sameOrigin.decision, findings: [] };
-  if (sameOrigin.status >= 400) {
+  const fromOwnOrigin = stateChangeAccepted(sameOrigin, path);
+  if (!fromOwnOrigin.accepted) {
     return { skipped: false, findings: [], inconclusive: true,
-             reason: `The endpoint refused a same-origin request (${sameOrigin.status}).` };
+             reason: `Not evaluated: the endpoint did not accept a request from its own origin — it `
+               + `${fromOwnOrigin.how}. What it does with another origin's cannot be read against `
+               + 'that.' };
   }
 
   const crossOrigin = await scanner.request({
@@ -122,9 +212,10 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
   });
   if (!crossOrigin.allowed) return { skipped: true, decision: crossOrigin.decision, findings: [] };
 
-  if (crossOrigin.status >= 400) {
+  const fromElsewhere = stateChangeAccepted(crossOrigin, path);
+  if (!fromElsewhere.accepted) {
     return { skipped: false, findings: [], ok: true,
-             detail: `same-origin ${sameOrigin.status}, cross-origin ${crossOrigin.status}` };
+             detail: `from its own origin it ${fromOwnOrigin.how}; from another it ${fromElsewhere.how}` };
   }
 
   return {
@@ -133,8 +224,9 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
       category: 'MissingOriginValidation',
       title: 'A state-changing request is accepted from any origin',
       endpoint: path, httpMethod: 'POST', observedAsRole: 'cross-origin caller',
-      description: `An Origin of https://${EXTERNAL_MARKER_HOST} was accepted (${crossOrigin.status}), the `
-        + `same answer a same-origin request received (${sameOrigin.status}). The header is not being read. `
+      description: `An Origin of https://${EXTERNAL_MARKER_HOST} was accepted — it ${fromElsewhere.how} — `
+        + `the same way a request from the application's own origin was: it ${fromOwnOrigin.how}. `
+        + 'The header is not being read. '
         + 'The host named does not resolve and nothing was sent to it.',
       impact: 'The origin check that would stop a cross-site request is not there.',
       remediation: 'Validate Origin (and Sec-Fetch-Site where available) on every state-changing request.',

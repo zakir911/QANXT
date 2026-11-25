@@ -2527,11 +2527,48 @@ A reader who checks two, finds the application correct, and stops reading will n
 reflected XSS, the GET-that-settles, the missing `HttpOnly` or the unauthenticated shipment API
 — all of which are in the same file and all of which are real.
 
-**What the fix has to do**, and why it is not a one-line threshold change: a redirect is not an
-answer. It has to distinguish a redirect *back to the form* from a redirect *onward*, read the
-destination for a rejection the way the form engine does, and where neither settles it, say so
-rather than guess — the state either changed or it did not, and a witness read before and after
-is what establishes which. That machinery exists, in `request.safe-verb-state-change`.
+**Fix.** A shared `stateChangeAccepted(response, path)`, used by both checks, judging where the
+answer went rather than only its number:
+
+| answer | verdict |
+| --- | --- |
+| 4xx, 5xx | refused |
+| 3xx back to the address posted to | **refused** — the form being shown again |
+| 3xx to a sign-in | refused |
+| 3xx onward to somewhere else | accepted — a saved form redirects to what it saved |
+| 3xx with no `Location` | refused; a redirect to nowhere settles nothing |
+| 2xx | accepted |
+
+Host and query are ignored when comparing paths, so `http://app.test/claims/new?error=1` is
+recognised as the same address.
+
+**Measured against the live application.** The two endpoints that were false findings:
+
+```
+/claims/new      inconclusive — it redirected back to /claims/new, which is how a form is shown
+                 again after a refusal
+/customers/new   inconclusive — the same
+```
+
+Eleven tests, and the four that matter were checked for sensitivity by disabling the
+redirect-back rule: they fail, naming the exact case.
+
+**What this does not yet do, stated rather than left to be found.** The check now reaches no
+verdict at all on a form endpoint, because its probe does not look like the application's own
+request: it sends JSON with the token in a header and an empty body, so a handler wanting a
+urlencoded body with fields in it refuses — and refuses for the right reason. On freight that
+includes `/warehouse/stock/{id}/adjust`, which genuinely has no token. Nothing is lost by it:
+FP_D29 is found by the form engine checking the token field's presence, which is how it was
+found before.
+
+Turning those inconclusives into verdicts needs the control request shaped from what discovery
+recorded — the endpoint's declared content type and a sample body. `SecurityTarget` carries
+neither today, so that is a change across shared types, the surface builder and the worker, and
+it is the next thing this check needs rather than something to guess at here.
+
+**The trade is the right way round.** 108 confident false findings became 54 honest "not
+evaluated"s with the reason attached. A reader can act on the second and was being trained by
+the first to ignore the report.
 
 ---
 
