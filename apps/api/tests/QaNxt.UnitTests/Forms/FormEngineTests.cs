@@ -428,6 +428,92 @@ public class FormEngineTests
         Design(booking).Tests.Should().Contain(test => test.Technique == "round-trip");
     }
 
+    [Fact]
+    public void A_reference_field_raises_the_uniqueness_question_rather_than_asserting_an_answer()
+    {
+        // FP_D04 is real and observable: freight accepts two invoices carrying one reference
+        // with the defect on, and refuses the second with it off. What the generator cannot
+        // know is whether the rule exists. A field named "reference" is as often a
+        // counterparty's own number, legitimately shared, as it is a key — and freight's own
+        // form says nothing either way. Asserting uniqueness would fail every application
+        // that allows duplicates by design.
+        var invoice = new DiscoveredFormModel
+        {
+            Name = "Raise an invoice", Method = "post", Action = "/billing/invoices/new",
+            HasFormElement = true, Locator = TestId("invoice-form"),
+            Fields = new()
+            {
+                Field("customerId", "select", true),
+                Field("netGbp", "number", true),
+                Field("reference", "text", false, new() { ["maxlength"] = "24" })
+            },
+            Buttons = new() { new FormButtonModel { Label = "Raise invoice", Type = "submit", Role = "submit", Locator = TestId("invoice-submit") } }
+        };
+
+        var design = Design(invoice);
+
+        design.Tests.Should().NotContain(test => test.Technique.StartsWith("unique-"),
+            "a rule nobody stated is not a verdict a machine may reach");
+        design.Gaps.Should().Contain(gap =>
+            gap.FieldKey == "reference" && gap.Status == CoverageGapStatus.HumanRequired);
+        design.HumanTasks.Should().Contain(task => task.Key.Contains("unique-reference"));
+    }
+
+    [Fact]
+    public void The_uniqueness_question_names_both_answers_so_it_can_be_closed()
+    {
+        var invoice = new DiscoveredFormModel
+        {
+            Name = "Raise an invoice", Method = "post", Action = "/billing/invoices/new",
+            HasFormElement = true, Locator = TestId("invoice-form"),
+            Fields = new() { Field("reference", "text", false) },
+            Buttons = new() { new FormButtonModel { Label = "Raise", Type = "submit", Role = "submit", Locator = TestId("invoice-submit") } }
+        };
+
+        var task = Design(invoice).HumanTasks.Single(t => t.Key.Contains("unique-reference"));
+
+        task.Steps.Should().Contain("submit it again with the same");
+        task.Expected.Should().Contain("If it is not, both are accepted and that is correct");
+    }
+
+    [Fact]
+    public void An_ordinary_field_raises_no_uniqueness_question()
+    {
+        // The near misses are excluded deliberately: a name is a person's or a product's, and
+        // asking about every text field would make the answer sheet longer than the report.
+        var form = new DiscoveredFormModel
+        {
+            Name = "Add a customer", Method = "post", Action = "/customers/new",
+            HasFormElement = true, Locator = TestId("customer-form"),
+            Fields = new()
+            {
+                Field("name", "text", true),
+                Field("contactEmail", "email", true),
+                Field("pieces", "number", false)
+            },
+            Buttons = new() { new FormButtonModel { Label = "Add", Type = "submit", Role = "submit", Locator = TestId("customer-submit") } }
+        };
+
+        var design = Design(form);
+
+        design.HumanTasks.Should().NotContain(task => task.Key.Contains("unique-"));
+        design.Gaps.Should().NotContain(gap => gap.Missing.Contains("a uniqueness check"));
+    }
+
+    [Fact]
+    public void A_filter_form_raises_no_uniqueness_question_because_it_creates_nothing()
+    {
+        var filter = new DiscoveredFormModel
+        {
+            Name = "Invoice filters", Method = "get", Action = "/billing/invoices",
+            HasFormElement = true, Locator = TestId("invoice-filters"),
+            Fields = new() { Field("reference", "text", false) },
+            Buttons = new() { new FormButtonModel { Label = "Apply", Type = "submit", Role = "submit", Locator = TestId("invoice-apply") } }
+        };
+
+        Design(filter).HumanTasks.Should().NotContain(task => task.Key.Contains("unique-"));
+    }
+
     private static FormDesign Design(DiscoveredFormModel form, TestingProfile? profile = null, bool credentials = false,
         IReadOnlyList<CorrelatedEndpoint>? endpoints = null)
         => FormTestDesigner.Design(new FormDesignContext(Guid.Parse("11111111-1111-1111-1111-111111111111"), form,

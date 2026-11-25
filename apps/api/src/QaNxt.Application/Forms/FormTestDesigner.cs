@@ -252,6 +252,7 @@ public static class FormTestDesigner
             Dynamic();
             MultiStep();
             Reliability();
+            UniqueValues();
             ErrorHandlingAndRecovery();
             StateTransition();
             Security();
@@ -1694,6 +1695,81 @@ public static class FormTestDesigner
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// A value that looks like a record's own reference, submitted twice.
+        ///
+        /// Raised as a question rather than asserted, and that is the whole of the design.
+        /// FP_D04 — two invoices carrying the same reference — is real, and measured both
+        /// ways on the live application:
+        ///
+        ///   defect on   submit 1: "Invoice MF-U-9560 raised."   submit 2: "Invoice MF-U-9560 raised."
+        ///   defect off  submit 1: "Invoice MF-U-16963 raised."  submit 2: "Invoice MF-U-16963 already exists."
+        ///
+        /// So the behaviour is observable and the engine could perform it. What the engine
+        /// cannot know is whether the rule exists. Freight's Reference field declares nothing
+        /// about uniqueness — its only hint is "Leave blank to generate one" — and a field
+        /// named "reference" is as often a customer's own purchase-order number, which several
+        /// records legitimately share, as it is a key.
+        ///
+        /// Asserting uniqueness anyway would fail every application that allows duplicates by
+        /// design. That is the same mistake as deriving a record's owner from a crawl and
+        /// calling a shared record a leak: half a premise, held as if it were the whole one.
+        /// It was caught there by a control group and it is not being repeated here.
+        ///
+        /// What the product owes instead is to stop being silent. The gap is named, and the
+        /// steps are written out so answering it takes a minute rather than a design session.
+        /// A stated requirement turns this into an automated test through the requirement path,
+        /// which is the instrument for a rule somebody has actually written down.
+        /// </summary>
+        private void UniqueValues()
+        {
+            if (!_transactional) return;
+
+            var candidates = _fields.Where(field => LooksLikeARecordReference(field.Name)).ToList();
+            if (candidates.Count == 0) return;
+
+            foreach (var field in candidates)
+            {
+                Gap(TestCategory.DataIntegrity, field.Name, $"a uniqueness check on {field.DisplayName}",
+                    $"{field.DisplayName} reads like a record's own reference, and whether two records may "
+                    + "carry the same one is a rule this form does not state. Asserting it either way would "
+                    + "be the generator deciding a business rule: a reference is as often a counterparty's "
+                    + "number, legitimately shared, as it is a key.",
+                    $"State the rule as a requirement and it becomes an automated test, or answer the task "
+                    + "below once by hand.",
+                    CoverageGapStatus.HumanRequired);
+
+                Human(TestCategory.DataIntegrity, $"unique-{field.Name}",
+                    $"decide whether {field.DisplayName} must be unique",
+                    $"Whether two records may carry the same {field.DisplayName} is not stated on the form, "
+                    + "so no verdict here would mean anything.",
+                    $"Open {_ctx.PageUrl}. Submit the form with a {field.DisplayName} of your choosing, then "
+                    + $"submit it again with the same {field.DisplayName} and everything else valid.",
+                    $"If {field.DisplayName} is meant to be unique, the second submission is refused and says "
+                    + "so. If it is not, both are accepted and that is correct — say so, and this stops being "
+                    + "asked.");
+            }
+
+            _applicable.Add(TestCategory.DataIntegrity);
+        }
+
+        /// <summary>
+        /// Whether a field's name says it holds a record's own reference.
+        ///
+        /// Short on purpose, and it excludes the near misses deliberately: "name" is a person's
+        /// or a product's, "number" alone is a quantity as often as an identifier, and "email"
+        /// is unique on an account form and shared on a contact form. Each entry here is a name
+        /// whose ordinary meaning is the identifier a record is known by.
+        /// </summary>
+        private static bool LooksLikeARecordReference(string name)
+        {
+            var reduced = new string((name ?? string.Empty).Where(char.IsLetterOrDigit).ToArray())
+                .ToLowerInvariant();
+            return reduced is "reference" or "ref" or "code" or "sku" or "barcode" or "slug"
+                or "registration" or "accountnumber" or "accountref" or "identifier"
+                or "invoicenumber" or "ordernumber" or "vatnumber" or "taxid";
         }
 
         private void StateTransition()

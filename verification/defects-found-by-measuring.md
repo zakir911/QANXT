@@ -2151,6 +2151,61 @@ the crawler, with a test that fails without it.
 
 ---
 
+## 69. A whole class of rule the engine was silent about
+
+**Symptom.** FP_D04 — two invoices carrying the same reference — was missed, and the
+measurement could not even score it. There is no uniqueness test anywhere in the product: a
+search for one found 25 test names containing "duplicate", every one of them a form accepting
+the literal string *"Duplicate invoice"* as a **Reason**.
+
+**The defect is real and observable.** Measured both ways on the live application:
+
+```
+defect on    submit 1: "Invoice MF-U-9560 raised."    submit 2: "Invoice MF-U-9560 raised."
+defect off   submit 1: "Invoice MF-U-16963 raised."   submit 2: "Invoice MF-U-16963 already exists."
+```
+
+Two submissions of one form, and the application's own words distinguish the cases. The engine
+could perform that and does not.
+
+**Why it is not simply asserted.** Because the engine cannot know the rule exists.
+
+Freight's Reference field declares nothing about uniqueness. Its only hint is *"Leave blank to
+generate one."* And a field named `reference` is as often a counterparty's own purchase-order
+number — which several records legitimately share — as it is a key. Asserting uniqueness would
+fail every application that allows duplicates by design.
+
+That is the same mistake as defect 64: half a premise held as if it were the whole one. There,
+a record the crawl reached was treated as a record the crawl's identity *owned*, and a shared
+record became a reported leak; a control group caught it. The lesson transfers directly, and
+this is the first place it was available to apply.
+
+**Fix.** The engine stops being silent without pretending to a verdict. For a field whose name
+says it holds a record's own reference, on a form that creates something, it records a coverage
+gap marked `HumanRequired` and a human task with the steps written out:
+
+> Open the form. Submit it with a Reference of your choosing, then submit it again with the same
+> Reference and everything else valid.
+>
+> If Reference is meant to be unique, the second submission is refused and says so. If it is
+> not, both are accepted and that is correct — say so, and this stops being asked.
+
+Both answers are named, so the question can be closed rather than accumulating.
+
+The name list is short and excludes the near misses on purpose: `name` is a person's or a
+product's, `number` alone is a quantity as often as an identifier, and `email` is unique on an
+account form and shared on a contact form. Across all of freight it matches nine fields, so the
+answer sheet stays shorter than the report. A test asserts that an ordinary form — name,
+contactEmail, pieces — raises nothing, and that a GET filter form raises nothing either,
+because it creates no records to collide.
+
+**What this does and does not change.** FP_D04 is still not found by the automated engine, and
+is not claimed to be. What changed is that the gap is now named, with the steps to close it, in
+the place a reader looks — and a stated requirement turns it into an automated test through the
+requirement path, which is the right instrument for a rule somebody has written down.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,
