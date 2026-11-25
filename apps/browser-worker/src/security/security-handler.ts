@@ -11,6 +11,7 @@ import type { BrowserPool } from '../browser/browser-pool.js';
 import { checkDomXssInBrowser } from './dom-xss.js';
 import { issuableAddress } from './issuable-address.js';
 import { probeOrder } from './probe-order.js';
+import { identifierFromSample } from './discovered-resource.js';
 import { stateChangingScanner } from './state-changing-floor.js';
 import type { Logger } from '../util/logger.js';
 
@@ -545,9 +546,22 @@ const RUNNERS: Record<string, CheckRunner> = {
   'authz.bola': async (scanner, target, context) => {
     const a = owner(context); const b = intruder(context);
     if (!a || !b) return inconclusive('Two signed-in identities are needed to compare access; fewer were available.');
+
+    // A declared resource wins: a caller who knows which record belongs to whom is a better
+    // authority than a crawl. Failing that, the identifier from an address discovery reached
+    // while signed in — which is, by construction, a record that identity was shown.
+    //
+    // Nothing had ever supplied one. Every driver here declares identities as label,
+    // username, password and role, because that is what signing in needs, so the check that
+    // finds an IDOR reported "give the identity a resourceId it owns" on every target of
+    // every run while a planted IDOR sat untested.
+    const resourceId = a.resourceId
+      ?? identifierFromSample(target.identifier, target.sampleUrl)
+      ?? '';
+
     return authz.checkBola(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
-      owner: { ...asActor(a), resourceId: a.resourceId ?? '' },
+      owner: { ...asActor(a), resourceId },
       intruder: asActor(b)
     });
   },

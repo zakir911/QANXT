@@ -203,6 +203,41 @@ provokes the error, and a stack-trace pattern that knows more than one runtime �
 matched .NET's format only, so a Node application's stack was invisible to it. Both are built;
 neither is measured yet, because the build carrying them has not been run against this target.
 
+## Correction, 2026-11-25: freight's figure was 10 of 32 and should not have been
+
+The join from a planted defect to a signal is by keyword, and thirteen of the thirty-two
+defects carry words the oracles never use. The detector already printed them under *"Keyword
+lists that match nothing in this run"*, with the warning that this is how two defects had
+previously read as missed while both were being detected. The list was printed and not acted
+on. All thirteen were published as "missed", which states as a fact about the product
+something that was only ever a fact about the measurement.
+
+One of the ten was also a misattribution: FP_D18, a 500 on a long search at `/shipments`, had
+been credited to a CWE-209 stack-trace finding on `/api/shipments/{id}` — FP_D31's endpoint.
+The two share the keyword `stack trace`, they tied, and order decided. D31 was published as
+missed while the finding that evidences it was credited elsewhere.
+
+Re-derived from the same stored run and the same data:
+
+| | before | after |
+| --- | --- | --- |
+| found | 10 | **11** |
+| possible | 1 | 1 |
+| missed | 17 | **5** |
+| unscoreable | — | **11** |
+| unreachable | 4 | 4 |
+
+FP_D27 is recovered on *"Expected the page to load within 3000 ms but it took 3425 ms"* and
+FP_D28 on *"'q' is reflected into HTML without encoding"*. FP_D18 is withdrawn.
+
+**So of 32 planted defects this measurement can speak to 17: it found 11 and missed 5.** For
+the other 15 — 11 unscoreable, 4 on screens nothing reached — it now says so rather than
+counting them against the product. Defect 61 carries the detail.
+
+Everything below this heading was written against the old figure. Where it says "10 of 32",
+read the table above; the reachability finding it reports is unaffected, because that was
+measured against the map rather than through the keyword join.
+
 ## Where freight's 10 of 32 actually is, which is not where it looked
 
 Asked properly for the first time on 2026-11-23, with

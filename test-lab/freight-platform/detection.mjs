@@ -100,6 +100,25 @@ const UNRELIABLE_TEST_PATTERNS = [
     explain: 'the assertion requires the form not to navigate, while its own objective '
            + 'allows the value to be accepted, which navigates' },
 
+  // A test that never acted observed nothing, whichever way the application behaves.
+  //
+  // "expected at least 1 GET request(s) to \"%20%3CNode%3E\" but saw 0 (no submission was
+  // sent at all)" is not the application failing to answer. The submission never left, so
+  // the assertion about how fast it was answered has no subject. The target in that message
+  // is a URL-encoded " <Node>", which is an object that reached a string context by
+  // accident — recorded separately as a defect in the generator, and either way not
+  // something the application can be held to.
+  //
+  // This mattered beyond its own count: the signal is on /admin/audit and carries the
+  // Performance category, so once category agreement became admissible evidence it was
+  // eligible to stand for the audit-log defect, and being first in the list it won over the
+  // failure that actually measures the page — "Expected the page to load within 3000 ms but
+  // it took 3424 ms". A right verdict on the wrong evidence is still wrong.
+  { namePattern: /./,
+    messagePattern: /no submission was sent at all|but saw 0 \(no .* sent/i,
+    kind: 'test-never-submitted',
+    explain: 'the submission never left, so there was nothing for the application to answer' },
+
   // A whitespace rule used to sit here, discounting "does not accept whitespace alone"
   // failures on the grounds that a field which trims three spaces to empty and saves is
   // behaving correctly. That was true while the generator emitted the test for optional
@@ -151,16 +170,87 @@ function mentions(text, token) {
 }
 
 /**
+ * The kind of defect a failing test of each category can evidence.
+ *
+ * ## Why this exists
+ *
+ * FP_D27, the audit log answering in four seconds, was recorded as missed. The product had
+ * found it. In the very run that was analysed, three executions of
+ * "Audit log · Meridian Freight (/admin/audit): loads within 3000 ms" failed with
+ *
+ *     Expected the page to load within 3000 ms but it took 3424 ms.
+ *
+ * FP_D27's keywords were 'slow', 'response time' and 'performance budget'. The message
+ * contains none of them, so a matcher reading prose could not join a failure that named the
+ * screen and stated the symptom in numbers.
+ *
+ * Patching the word list would fix that one defect and leave the class alone. The real
+ * mistake was reading prose when structure was available: the product records what kind of
+ * test each one is, the ground truth records what kind of defect each one is, and those two
+ * facts agreeing on the defect's own screen is stronger evidence than any phrase.
+ *
+ * Only unambiguous pairings are here. A test category that could evidence several kinds of
+ * defect, or none in particular, is left out and keeps relying on keywords — `businessRule`
+ * has no test category of its own, and inventing one would buy matches at the cost of
+ * meaning.
+ */
+const DEFECT_KIND_BY_TEST_CATEGORY = {
+  2: 'boundary',          // Boundary
+  4: 'validation',        // Validation
+  5: 'validation',        // InputValidation
+  6: 'crossField',        // CrossField
+  8: 'multiStep',         // MultiStep
+  11: 'accessibility',    // Accessibility
+  12: 'security',         // Security
+  14: 'performance',      // Performance
+  16: 'responsive',       // Responsive
+  20: 'calculation',      // DataIntegrity — the surcharge-on-gross finding arrived this way
+  21: 'stateTransition',  // StateTransition
+  22: 'errorHandling',    // ErrorHandling
+  23: 'reliability'       // Reliability
+};
+
+/**
+ * The defect kinds where the category *is* the whole claim, so agreement identifies the
+ * defect on its own.
+ *
+ * A page is either slow or it is not. It either fits a phone screen or it does not. There is
+ * one such proposition per page, so a failing performance test on the screen of a performance
+ * defect can only be about that defect.
+ *
+ * Everything else needs a keyword as well, and the first version of this rule did not ask for
+ * one. It credited three defects wrongly in a single pass: a step-boundary failure about "Net
+ * amount (GBP)" was read as the duplicate-invoice-reference defect, and a missing-field
+ * validation message was read as the crash on an invoice whose shipment had been removed. A
+ * form carries many validation rules and "a validation test failed on this form" does not say
+ * which of them — which is the whole reason the keywords exist.
+ */
+const CATEGORY_IS_THE_WHOLE_CLAIM = new Set(['performance', 'responsive']);
+
+/** Whether a signal's own test category says it is about this kind of defect. */
+function categoryAgrees(signal, defect) {
+  if (signal.category === undefined || signal.category === null || signal.category === '') return false;
+  const kind = DEFECT_KIND_BY_TEST_CATEGORY[Number(signal.category)];
+  return kind !== undefined && kind === defect.category;
+}
+
+/** Whether category agreement alone may stand as evidence for this defect. */
+function categoryAloneIdentifies(signal, defect) {
+  return categoryAgrees(signal, defect) && CATEGORY_IS_THE_WHOLE_CLAIM.has(defect.category);
+}
+
+/**
  * How specifically a defect's keywords match a signal.
  *
  * Two numbers, because neither alone separates a real match from a coincidence: how many
  * distinct keywords matched, and how much text those keywords account for. "delivery date"
  * matching is worth more than "step" matching, and both matching is worth more than either.
  */
-function specificity(keywords, text, onScreen) {
+function specificity(keywords, text, onScreen, sameCategory = false) {
   const hits = keywords.filter(word => mentions(text, word));
   return {
     onScreen,
+    sameCategory,
     matched: hits.length,
     weight: hits.reduce((total, word) => total + word.length, 0)
   };
@@ -177,6 +267,10 @@ function specificity(keywords, text, onScreen) {
  */
 function beats(candidate, incumbent) {
   if (candidate.onScreen !== incumbent.onScreen) return candidate.onScreen;
+  // The product's own classification of the test, agreeing with the ground truth's
+  // classification of the defect, outranks any number of words. It is a fact each side
+  // recorded independently rather than a phrase that happens to appear in a sentence.
+  if (candidate.sameCategory !== incumbent.sameCategory) return candidate.sameCategory;
   if (candidate.matched !== incumbent.matched) return candidate.matched > incumbent.matched;
   return candidate.weight > incumbent.weight;
 }
@@ -403,6 +497,9 @@ export function detect({ defects, failures = [], findings = [], structural = [],
     ...applicationFailures.map(f => ({
       kind: 'execution',
       text: `${f.name ?? ''} ${f.message ?? ''}`,
+      // What kind of test this was, as the product itself recorded it. Dropped here before,
+      // which left the matcher reading prose for something both sides had already stated.
+      category: f.category,
       route: typeof f.route === 'string' && f.route !== '' ? f.route : undefined
     })),
     ...findings.map(f => ({
@@ -440,10 +537,21 @@ export function detect({ defects, failures = [], findings = [], structural = [],
 
     const namesScreen = signals.filter(signal =>
       onScreen(signal, screen) && !contradicts(signal, defect));
+    // On the defect's own screen, either a keyword or the product's own classification of
+    // the test will do. A Performance test failing on the screen of a performance defect is
+    // as direct as evidence gets, and requiring a word as well is how FP_D27 was recorded
+    // as missed while three failures named the screen and gave the two numbers.
     const onScreenAndSymptom = namesScreen
-      .map(signal => ({ signal, specificity: specificity(keywords, signal.asserts ?? signal.text, true) }))
-      .filter(candidate => candidate.specificity.matched > 0);
-    // Away from the screen, two independent keywords are required.
+      .map(signal => ({
+        signal,
+        specificity: specificity(keywords, signal.asserts ?? signal.text, true,
+                                 categoryAgrees(signal, defect))
+      }))
+      .filter(candidate => candidate.specificity.matched > 0
+        || categoryAloneIdentifies(candidate.signal, defect));
+    // Away from the screen, two independent keywords are still required. Category agreement
+    // earns nothing here: every performance test on every page of the application shares a
+    // category with a performance defect, so off its own screen it says nothing at all.
     const symptomOnly = signals
       .filter(signal => !namesScreen.includes(signal) && !contradicts(signal, defect))
       .map(signal => ({ signal, specificity: specificity(keywords, signal.asserts ?? signal.text, false) }))
@@ -484,10 +592,19 @@ export function detect({ defects, failures = [], findings = [], structural = [],
   // window". Three words, none of them in the message, written against wording nobody
   // checked. A list that matches nothing now says so instead of looking like an absence
   // of findings.
-  const deadKeywords = claims
+  // Only where there was something to match against.
+  //
+  // With no signals at all, every keyword list matches nothing — trivially, and for the
+  // opposite reason. A run that reported no application failures did not fail to be
+  // measured: the product ran and found nothing, which is a miss and belongs to the
+  // product. Gating on this is what keeps "the measurement cannot say" from quietly
+  // absorbing "there was nothing to say".
+  const deadKeywords = signals.length === 0 ? [] : claims
     .filter(claim => claim.keywords.length > 0
       && !signals.some(signal => claim.keywords.some(word => mentions(signal.text, word))))
     .map(claim => ({ id: claim.defect.id, keywords: claim.keywords }));
+
+  const unscoreable = new Set(deadKeywords.map(entry => entry.id));
 
   const verdicts = claims.map(claim => {
     const mine = (candidates) =>
@@ -501,10 +618,24 @@ export function detect({ defects, failures = [], findings = [], structural = [],
     const contested = claim.onScreenAndSymptom.length + claim.symptomOnly.length
       - onScreenAndSymptom.length - symptomOnly.length;
 
+    // A defect this measurement cannot speak to is not a defect the product missed.
+    //
+    // Thirteen of the thirty-two were in that state and every one was reported as "missed",
+    // which is a claim about the product made on the strength of the measurement's own blind
+    // spot. The dead-keyword list had named them all, in a report carrying the warning that
+    // this is how FP_D25 and FP_D26 read as missed while both were being detected. It was
+    // printed and not acted on, including by me.
+    //
+    // "missed" and "unscoreable" are different facts about different things: one says the
+    // product found nothing, the other says nothing here could have found anything. Only the
+    // first is about the product, and merging them attributes the measurement's gap to the
+    // thing it is measuring — in the direction that happens to look rigorous, which is the
+    // one worth distrusting.
     let verdict;
     if (onScreenAndSymptom.length) verdict = 'found';
     else if (symptomOnly.length) verdict = 'possible';
     else if (!claim.screenReached) verdict = 'unreachable';
+    else if (unscoreable.has(claim.defect.id)) verdict = 'unscoreable';
     else verdict = 'missed';
 
     return {
@@ -524,7 +655,7 @@ export function detect({ defects, failures = [], findings = [], structural = [],
     };
   });
 
-  const counts = { found: 0, possible: 0, missed: 0, unreachable: 0 };
+  const counts = { found: 0, possible: 0, missed: 0, unscoreable: 0, unreachable: 0 };
   for (const verdict of verdicts) counts[verdict.verdict] += 1;
 
   return {

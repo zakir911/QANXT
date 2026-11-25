@@ -1693,6 +1693,246 @@ serialised output for it.
 
 ---
 
+## 62. The cookie check read the one request that issues no session cookie
+
+**Symptom.** FP_D30 — the "remember me" branch reissuing the session cookie without HttpOnly —
+was missed by every scan. `passive.cookies` ran, reported nothing, and looked clean.
+
+**Diagnosis.** The check did one passive GET of the page under test and judged whatever
+`Set-Cookie` came back. A page GET is close to the only request that does *not* issue a session
+cookie: the cookie worth judging is minted by the authentication response, which this check
+never made. It was looking at the wrong exchange and reporting a clean result from it.
+
+The same fault had already been found and fixed one check along. `passive.sensitive-data`
+carries this comment:
+
+> Read as a signed-in identity where the job carries one. Anonymously, this check examined
+> whatever an application shows a stranger — on anything behind a sign-in, the sign-in page —
+> and reported it clean.
+
+Cookies was left behind.
+
+And one authentication exchange would not have been enough. `readSignInForm` had this:
+
+```js
+if (type === 'checkbox' || type === 'radio') continue;   // left as the form defaults
+```
+
+Leaving the box unticked is right — a scan should authenticate the way the form does. Throwing
+away the fact that the box exists is not. A form offering "keep me signed in" has two
+authentication paths, they are often written by different people at different times, and that
+is how one of them ends up assembling its `Set-Cookie` by hand and losing `HttpOnly` doing it.
+
+**Fix.** `signInExchanges` returns one exchange per way the form will authenticate: the default
+submission, then one per optional control, each on its own rather than in combination, capped
+so the number of requests is not decided by how many boxes somebody put on a login page. The
+cookie check judges all of them and names which branch set the cookie, because "the session
+cookie lacks HttpOnly" and "it lacks HttpOnly when you tick remember me" are different bugs to
+go and fix.
+
+**Three things fell out of it.**
+
+A check that saw no cookies used to return exactly what a check that saw well-configured ones
+returned. "Correct" and "never looked at" read identically. It is now `inconclusive` with the
+reason, in three forms: credentials were examined and no session cookie appeared, credentials
+were supplied but no sign-in form was found to use them on, or no credentials were given at
+all. They are different states and a reader can act on each.
+
+`attributesOf` only matched `name="value"`, so a bare HTML boolean — `checked`, `required`,
+`disabled`, `readonly` — was invisible. A pre-ticked checkbox read identically to an unticked
+one, and the loop above dropped it from the submission entirely, so the scan quietly signed in
+differently from the form for any application that pre-ticks one.
+
+**Measured on the live application.** The scan reports, twice:
+
+```
+[medium] Session cookie "lab_session" is missing HttpOnly when "remember" is enabled
+```
+
+The two headers side by side, from the same endpoint, are the whole defect:
+
+```
+no remember-me:   lab_session=…; Path=/; HttpOnly; SameSite=Lax
+with remember-me: lab_session=…; Path=/; Max-Age=2592000; SameSite=Lax
+```
+
+---
+
+## 63. A comparison check was handed one identity twice and called it inconclusive
+
+**Symptom.** `authz.vertical` reported on five freight targets: *"Both administrator and
+administrator reach this route."* Nothing had gone wrong, as far as the report was concerned.
+
+**Diagnosis.** The worker resolves four identity slots. `privileged` and `readOnly` matched on
+the role the caller declared — one of them had already been fixed once for only recognising
+"admin" when the documentation said "privileged". `owner` and `intruder` were left taking
+whatever came first and second:
+
+```ts
+const owner = (context: ScanContext) => [...context.identities.values()][0];
+const intruder = (context: ScanContext) => [...context.identities.values()][1];
+```
+
+The freight launcher declares `privileged`, `owner`, `readonly`, in that order, which is the
+order its own documentation uses. So `owner` returned the administrator, and `authz.vertical`,
+which asks for the privileged identity and a lesser one, got the administrator twice. It
+compared him with himself and reported that both roles reached the route — on evidence that
+could not have come out any other way.
+
+**This is the worst shape a false negative can take.** It was not a wrong finding, which
+somebody would check. It was `inconclusive`, with a true and reasonable sentence attached
+about most routes being reachable by every role — a limitation a reader would accept, standing
+in for a check that could never have failed. The lesser identity held every privilege.
+
+**Fix.** Both sides, because either alone leaves the hole.
+
+The worker resolves every slot by declared role, falling back to position, and the lesser
+identity for a vertical comparison is explicitly not the privileged one. The resolvers are
+exported so a test can reach them, for the same reason `asActor` already was.
+
+The engine refuses the comparison itself rather than trusting its caller. `checkBola`,
+`checkVerticalEscalation` and `checkReadOnlyWrite` all establish that they have two distinct
+identities first, and say how they know: the same object, the same label, the same session
+cookie, or identical authentication headers. Label alone is not enough — a caller may hand the
+same credential under two names. A refused comparison issues no request, which a test asserts
+by giving it a scanner that throws.
+
+**Verified on the live application.** Before: five occurrences of "administrator and
+administrator". After: none, and the comparison reads "administrator and operations" — two
+identities, so the check can now fail.
+
+**A test's failure message is the bug in one line.** Reverting `owner` to position with the
+test in place prints:
+
+```
+expected 'administrator' not to be 'administrator'
+```
+
+---
+
+## 64. The check that finds an IDOR had never run
+
+**Symptom.** `authz.bola` reported *"No resource belonging to the owning identity was supplied,
+so there is nothing for another identity to try to read"* on every target of every run. FP_D12,
+a planted IDOR, sat untested.
+
+**Diagnosis.** The check is honest and the message is correct: it needs to know which record is
+the owner's, and nothing ever told it. Every scan driver in this project declares identities as
+label, username, password and role, because that is what signing in needs. `resourceId` is in
+the type and no caller sets it.
+
+**Fix.** The product already knows a record the identity can see. Discovery walks the
+application *signed in*, so every address it recorded is one that identity reached and was
+shown. `identifierFromSample` reads the concrete identifier off the sample URL the surface
+already carries, and the bola runner uses it when no resource was declared.
+
+A declared `resourceId` still wins: a caller who knows which record belongs to whom is a better
+authority than a crawl. The derived one is weaker than a record created for the test, and much
+better than a check that never runs.
+
+The matching is per path segment rather than by regex over the whole string, because the
+failure that matters here is a *wrong* identifier, not a missing one — a check pointed at the
+wrong record produces a finding or a clean result that means nothing. A sample that does not
+line up with the template segment for segment yields nothing, as do a template with two
+placeholders, a sample that is itself still a template, and a literal segment that disagrees.
+
+---
+
+## 61. The measurement reported its own blind spot as the product's failure
+
+**Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,
+and the error was in the measurement, not the product.
+
+**Diagnosis.** The detector joins a planted defect to a signal by keyword. Each defect carries
+a short list of words, and a failure must contain one to be credited. FP_D27, the audit log
+answering in four seconds, had `slow, response time, performance budget`. In the very run that
+was analysed, three executions of *"Audit log · Meridian Freight (/admin/audit): loads within
+3000 ms"* failed with
+
+```
+Expected the page to load within 3000 ms but it took 3424 ms.
+```
+
+Same screen, the symptom in numbers, not one of those three words. The product found it and
+the measurement could not see that it had.
+
+That is not one defect's bad luck. **Thirteen of the thirty-two were unscoreable by keyword**,
+and the detector already said so. It prints a list headed *"Keyword lists that match nothing in
+this run"*, carrying its own warning:
+
+> Either the defect genuinely produced nothing, or the list was written against wording the
+> oracles do not use — which is how FP_D25 and FP_D26 read as missed while both were being
+> detected.
+
+The report fired, named all thirteen, and was not acted on, including by me. Every one of them
+was published as "missed" — a claim about the product resting on the measurement's blind spot.
+
+**And one of the ten was a false positive.** FP_D18 is a 500 on a long search at `/shipments`.
+It had been credited to this:
+
+```
+A stack trace is returned to the caller  CWE-209  A05:2021  /api/shipments/{id}
+```
+
+That is FP_D31's endpoint. Both defects list `stack trace`, so they tied on specificity and
+order decided; D18 took the signal and D31 was published as missed while the finding that
+evidences it sat credited to another defect.
+
+**Fix.** Three parts.
+
+*The verdict.* A defect whose words appear nowhere in the run now reads `unscoreable`, not
+`missed`. "The product found nothing" and "nothing here could have found anything" are
+different facts about different things, and only the first is about the product. Merging them
+attributes the measurement's gap to the thing being measured, in the direction that looks
+rigorous — which is the one to distrust.
+
+It is gated on the run having produced signals at all. With no failures, every keyword list
+matches nothing for the opposite reason: the product ran and reported nothing, which is a
+genuine miss. A test pins both directions, and it caught this exact over-reach when the gate
+was missing.
+
+*Structure before prose.* The product records what kind of test each one is and the ground
+truth records what kind of defect each one is. Those agreeing, on the defect's own screen, is
+stronger evidence than a phrase one side guessed at, so category agreement now counts.
+
+It counts **alone** only where the category is the whole claim — `performance` and
+`responsive`. A page is either slow or not; there is one such proposition per page. A form
+carries many validation rules, so "a validation test failed here" cannot say which. The first
+version of this rule lacked that restriction and credited three defects wrongly in a single
+pass: a step-boundary failure about "Net amount (GBP)" read as the duplicate-invoice-reference
+defect, and a missing-field validation message read as the crash on an invoice whose shipment
+had been removed. Caught by reading the evidence of every newly credited defect rather than
+the count.
+
+*A test that never acted is not the application failing.* `"expected at least 1 GET request(s)
+to \"%20%3CNode%3E\" but saw 0 (no submission was sent at all)"` was classified as an
+application failure by default. The submission never left, so the assertion about how fast it
+was answered has no subject. This mattered beyond its own count: that signal is on
+`/admin/audit` and carries the Performance category, so once category agreement became
+admissible it was eligible to stand for the audit-log defect — and being first in the list it
+won over the failure that actually measures the page. A right verdict on the wrong evidence is
+still wrong.
+
+**The corrected figures, same run, same data.**
+
+| | before | after |
+| --- | --- | --- |
+| found | 10 | **11** |
+| possible | 1 | 1 |
+| missed | 17 | **5** |
+| unscoreable | — | **11** |
+| unreachable | 4 | 4 |
+
+Two genuine detections recovered — FP_D27 on *"took 3425 ms"*, FP_D28 on *"'q' is reflected
+into HTML without encoding"* — and one false positive withdrawn, FP_D18, which is now
+unscoreable because its own words appear nowhere in the run.
+
+**The honest reading of the new shape**: of 32 planted defects, this measurement can speak to
+17. It found 11 of those and missed 5. For the other 15 it says so, which is the first time
+that has been true.
+
+---
+
 ## Four near misses worth recording
 
 **A clock misread.** Discovery at 88 pages looked like it had overrun a 900-second budget;

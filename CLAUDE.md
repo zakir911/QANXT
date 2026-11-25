@@ -15,8 +15,15 @@ worker, React console, PostgreSQL and Redis.
 
 `verification/multi-target-results.md` is what the product found on four applications of
 different shapes. All three small targets are at 4 of 4 — one of them only with interaction
-authorised, because finding its defect means pressing a control. The large one is at 10 of 32
-and that gap is the honest one.
+authorised, because finding its defect means pressing a control.
+
+The large one is at **11 of the 17 its measurement can speak to**, with 5 missed, 11
+unscoreable and 4 on screens nothing reached. It read as 10 of 32 with 17 missed until the
+join was examined: thirteen defects had keyword lists the oracles' own wording never matches,
+so the measurement could not score them either way and published them as the product's
+failure. One of the ten was also a misattribution. Defect 61 has the arithmetic. An
+unscoreable defect is a gap in the measurement, not a verdict on the product, and the two are
+no longer added together.
 `verification/defects-found-by-measuring.md` is the product's own defects, each with the
 evidence that established it.
 

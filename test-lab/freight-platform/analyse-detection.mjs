@@ -123,6 +123,8 @@ const c = analysis.counts;
 line(`\n    found       ${String(c.found).padStart(2)}  a failure or finding named the screen and the symptom`);
 line(`    possible    ${String(c.possible).padStart(2)}  two independent symptom keywords, screen not named`);
 line(`    missed      ${String(c.missed).padStart(2)}  the screen was discovered and nothing reported it`);
+line(`    unscoreable ${String(c.unscoreable ?? 0).padStart(2)}  no signal in this run contains any of the defect's words,`);
+line('                    so this measurement cannot say either way — not a verdict on the product');
 line(`    unreachable ${String(c.unreachable).padStart(2)}  discovery never reached the screen`);
 
 if (c.found) {

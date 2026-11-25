@@ -1,5 +1,5 @@
 {
-  "analysedAt": "2026-11-23T02:51:10.061Z",
+  "analysedAt": "2026-11-25T01:31:07.946Z",
   "source": "form-run-final.json",
   "note": "A failure is classified as a tool error or an application failure before it is matched to a defect. Only an application failure can evidence one: a Playwright timeout says nothing about whether the application is correct, whatever words happen to be in its message.",
   "run": {
@@ -15,14 +15,15 @@
       "blocked": 0
     },
     "security": {
-      "findings": 176,
+      "findings": 123,
       "status": null
     }
   },
   "counts": {
-    "found": 10,
+    "found": 11,
     "possible": 1,
-    "missed": 17,
+    "missed": 5,
+    "unscoreable": 11,
     "unreachable": 4
   },
   "verdicts": [
@@ -65,7 +66,7 @@
       "category": "validation",
       "screen": "/billing/invoices/new",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -98,7 +99,7 @@
       "category": "boundary",
       "screen": "/carriers/:id/rates",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -120,7 +121,7 @@
       "category": "businessRule",
       "screen": "/billing/credit-notes/new",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -131,7 +132,7 @@
       "category": "calculation",
       "screen": "/shipments",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -153,7 +154,7 @@
       "category": "authorization",
       "screen": "/shipments/:id",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -197,7 +198,7 @@
       "category": "reliability",
       "screen": "/shipments/new",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -219,10 +220,10 @@
       "category": "errorHandling",
       "screen": "/shipments",
       "screenReached": true,
-      "verdict": "found",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
-      "evidenceKind": "security",
-      "evidence": "A stack trace is returned to the caller CWE-209 A05:2021 /api/shipments/%7Bid%7D"
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D19_OVERSIZE_UPLOAD_CRASHES",
@@ -241,7 +242,7 @@
       "category": "errorHandling",
       "screen": "/billing/invoices/:id",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -285,7 +286,7 @@
       "category": "accessibility",
       "screen": "/orders/sales/:id",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -318,10 +319,10 @@
       "category": "performance",
       "screen": "/admin/audit",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "found",
       "contestedEvidence": 0,
-      "evidenceKind": null,
-      "evidence": null
+      "evidenceKind": "execution",
+      "evidence": "Audit log: loads within 3000 ms Expected the page to load within 3000 ms but it took 3425 ms."
     },
     {
       "id": "FP_D28_REFLECTED_XSS_IN_SEARCH",
@@ -329,10 +330,10 @@
       "category": "security",
       "screen": "/shipments",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "found",
       "contestedEvidence": 0,
-      "evidenceKind": null,
-      "evidence": null
+      "evidenceKind": "security",
+      "evidence": "'q' is reflected into HTML without encoding q CWE-79 A03:2021 "
     },
     {
       "id": "FP_D29_NO_CSRF_ON_ADJUSTMENT",
@@ -351,7 +352,7 @@
       "category": "security",
       "screen": "/auth/sign-in",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -362,7 +363,7 @@
       "category": "security",
       "screen": "/api/shipments/:id",
       "screenReached": true,
-      "verdict": "missed",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -405,6 +406,14 @@
       ]
     },
     {
+      "id": "FP_D10_PAGINATION_COUNT_WRONG",
+      "keywords": [
+        "count",
+        "pagination",
+        "filtered"
+      ]
+    },
+    {
       "id": "FP_D12_SHIPMENT_IDOR",
       "keywords": [
         "idor",
@@ -419,6 +428,14 @@
         "duplicate",
         "twice",
         "idempotency"
+      ]
+    },
+    {
+      "id": "FP_D18_LONG_SEARCH_CRASHES",
+      "keywords": [
+        "internal server error",
+        "stack trace",
+        "http 500"
       ]
     },
     {
@@ -454,28 +471,27 @@
       ]
     },
     {
-      "id": "FP_D28_REFLECTED_XSS_IN_SEARCH",
-      "keywords": [
-        "xss",
-        "script tag",
-        "reflected",
-        "injection"
-      ]
-    },
-    {
       "id": "FP_D30_SESSION_COOKIE_FLAGS",
       "keywords": [
         "httponly",
         "secure flag",
         "cookie"
       ]
+    },
+    {
+      "id": "FP_D31_STACK_TRACE_LEAKED",
+      "keywords": [
+        "stack trace",
+        "disclosure",
+        "information leak"
+      ]
     }
   ],
   "failureAnalysis": {
     "total": 530,
-    "applicationFailures": 494,
+    "applicationFailures": 484,
     "toolErrors": 36,
-    "unreliableTests": 0,
+    "unreliableTests": 10,
     "unknown": 0,
     "toolErrorBreakdown": {
       "undrivable-select": {
@@ -503,6 +519,15 @@
         ]
       }
     },
-    "unreliableBreakdown": {}
+    "unreliableBreakdown": {
+      "test-never-submitted": {
+        "count": 10,
+        "explain": "the submission never left, so there was nothing for the application to answer",
+        "examples": [
+          "Audit log: answers a submission within 2000 ms",
+          "Audit log: answers a submission within 2000 ms"
+        ]
+      }
+    }
   }
 }

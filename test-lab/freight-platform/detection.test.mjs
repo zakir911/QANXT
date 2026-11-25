@@ -374,3 +374,80 @@ test('an execution failure is still matched on its whole message', () => {
   assert.equal(result.verdicts[0].verdict, 'found');
   assert.equal(result.verdicts[0].evidenceKind, 'execution');
 });
+
+test('a defect whose words appear nowhere in the run is unscoreable, not missed', () => {
+  // Thirteen of the thirty-two freight defects were in this state and every one was
+  // reported as "missed" — a claim about the product resting on the measurement's own blind
+  // spot. The dead-keyword report had named them, carrying the warning that this is exactly
+  // how FP_D25 and FP_D26 read as missed while both were being detected.
+  const result = detect({
+    defects: [{ id: 'FP_D04_DUPLICATE_INVOICE_REFERENCE', screen: '/billing/invoices/new',
+                severity: 'major', category: 'validation' }],
+    failures: [{
+      name: 'Raise an invoice: refuses a value between two of its steps of 0.01 in Net amount (GBP)',
+      message: 'POST http://127.0.0.1:4400/billing/invoices/new accepted the submission.',
+      category: '5', route: '/billing/invoices/new'
+    }],
+    reachedPaths: ['/billing/invoices/new']
+  });
+
+  const verdict = verdictFor(result, 'FP_D04_DUPLICATE_INVOICE_REFERENCE');
+  assert.equal(verdict.verdict, 'unscoreable',
+    'none of duplicate/unique/already exists appears in the run, so nothing here could '
+    + 'have scored it either way');
+  assert.ok(result.deadKeywords.some(entry => entry.id === 'FP_D04_DUPLICATE_INVOICE_REFERENCE'));
+});
+
+test('an empty run is a miss by the product, not an unscoreable measurement', () => {
+  // The opposite reason for the same arithmetic: with no signals at all every keyword list
+  // matches nothing, and the product genuinely reported nothing. That belongs to the
+  // product. Letting "the measurement cannot say" absorb it would excuse every empty run.
+  const result = detect({
+    defects: [{ id: 'FP_D04_DUPLICATE_INVOICE_REFERENCE', screen: '/billing/invoices/new',
+                severity: 'major', category: 'validation' }],
+    failures: [],
+    reachedPaths: ['/billing/invoices/new']
+  });
+
+  assert.equal(verdictFor(result, 'FP_D04_DUPLICATE_INVOICE_REFERENCE').verdict, 'missed');
+  assert.deepEqual(result.deadKeywords, []);
+});
+
+test('a performance test failing on a performance defect\'s own screen is evidence enough', () => {
+  // FP_D27's keywords were 'slow', 'response time' and 'performance budget'. The product
+  // said "Expected the page to load within 3000 ms but it took 3424 ms" — none of those
+  // words, the screen named, the symptom given in numbers. Structure both sides recorded
+  // independently beats a phrase one side guessed at.
+  const result = detect({
+    defects: [{ id: 'FP_D27_AUDIT_LOG_SLOW', screen: '/admin/audit', severity: 'minor',
+                category: 'performance' }],
+    failures: [{
+      name: 'Audit log: loads within 3000 ms',
+      message: 'Expected the page to load within 3000 ms but it took 3424 ms.',
+      category: '14', route: '/admin/audit'
+    }],
+    reachedPaths: ['/admin/audit']
+  });
+
+  assert.equal(verdictFor(result, 'FP_D27_AUDIT_LOG_SLOW').verdict, 'found');
+});
+
+test('a validation test failing on a form does not identify which rule broke', () => {
+  // The first version of the category rule credited three defects wrongly in one pass. A
+  // form carries many validation rules, so "a validation test failed here" cannot say which
+  // — and category agreement alone counts only where the category is the whole claim, as
+  // for a page that is either slow or not.
+  const result = detect({
+    defects: [{ id: 'FP_D04_DUPLICATE_INVOICE_REFERENCE', screen: '/billing/invoices/new',
+                severity: 'major', category: 'validation' }],
+    failures: [{
+      name: 'Raise an invoice: refuses a value between two of its steps of 0.01 in Net amount (GBP)',
+      message: 'duplicate unique already exists — words present so the list is not dead',
+      category: '5', route: '/billing/invoices/new'
+    }],
+    reachedPaths: ['/billing/invoices/new']
+  });
+
+  // The words are there, so it is scoreable and scored on the words, not on the category.
+  assert.notEqual(verdictFor(result, 'FP_D04_DUPLICATE_INVOICE_REFERENCE').verdict, 'unscoreable');
+});
