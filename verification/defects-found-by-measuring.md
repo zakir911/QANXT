@@ -2582,6 +2582,49 @@ the first to ignore the report.
 
 ---
 
+## 76. The BOLA fix cost a real detection, and the measurement caught it
+
+**What happened.** Re-measuring the three small targets after the day's changes — which is why
+the re-measurement was worth doing — clinic-spa came in at 2 of 4 in navigation mode, with
+CS_D03 surfacing as a *gap* rather than a finding. CS_D03 is *"a clinician can read a patient
+record belonging to another clinician"*: a BOLA case, and BOLA was changed today.
+
+**Diagnosis, and it is mine.** Defect 64 stopped a *derived* resource from founding a BOLA
+finding, because on freight that produced a false positive — a read-only auditor reading a
+shipment, which is the application working. On clinic-spa the same mechanism was producing a
+**true** positive, because a patient record genuinely is private to one clinician.
+
+So the fix traded a true detection on one target for removing a false one on another. Both
+halves were real; the design was underdetermined. `clinic-spa/target.json` declared three
+identities and no `resourceId` on any of them, so ownership was never stated and the check had
+to guess — and guessing is what produced both outcomes.
+
+**Fix: supply what the check asks for.** It had been asking all along, in the sentence defect 64
+added — *"Name a resource one identity owns, or map the application again as each identity."*
+`dr.okafor` is clinician `cl-1` and `pat-1` belongs to `cl-1`, so the target now declares it.
+
+**Measured against the live application, both ways:**
+
+```
+declared  (target.json says pat-1 is okafor's)   CWE-639 | dr.nilsen can read a resource owned by dr.okafor
+assumed   (what a crawl-derived id gets)         0 findings, inconclusive — "nothing establishes
+                                                 that it was private to the first"
+```
+
+Which is the whole design working: the finding is founded where ownership is known, withheld
+where it is guessed, and freight — which declares nothing — stays correctly silent.
+
+**Why this is the argument for re-measuring after a change.** The BOLA fix was right, tested in
+both directions, and verified against the application that motivated it. It still cost a
+detection on a target I was not looking at, and nothing in the unit tests could have told me,
+because the loss was in configuration rather than code. A green suite is not a measurement.
+
+**One concern checked and dropped**: the uniqueness questions from defect 69 looked likely to be
+noisy — 24 human tasks on a three-form application. None of the 24 come from that change;
+clinic-spa has no reference-shaped field, which is what the short name list is for.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,
