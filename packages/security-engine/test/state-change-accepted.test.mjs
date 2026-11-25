@@ -152,3 +152,26 @@ test('an origin that is not read is still a finding', async () => {
   assert.equal(result.findings.length, 1);
   assert.match(result.findings[0].description, /The header is not being read/);
 });
+
+test('a redirect to an error page is a refusal, not acceptance', () => {
+  // "Onward" alone is not acceptance. An application that answers a rejected write with
+  // 302 -> /error otherwise reads exactly like one that saved the record and redirected to
+  // it, which is the same confusion as the redirect-back case one step along.
+  for (const where of ['/error', '/errors/403', '/forbidden', '/access-denied',
+                       '/unauthorized', '/403', '/not-allowed']) {
+    const outcome = stateChangeAccepted(answered(302, where), '/claims/new');
+    assert.equal(outcome.accepted, false, `${where} is a refusal`);
+    assert.match(outcome.how, /error page|credentials/);
+  }
+});
+
+test('a record whose address merely contains those letters is still an acceptance', () => {
+  // The words have to be a path segment. "errorsmith" is a customer, "/claims/clm-403" is a
+  // record, and neither is an error page — a rule that matched them would turn real findings
+  // into silence, which is the direction that costs most.
+  for (const where of ['/customers/errorsmith', '/claims/clm-403', '/invoices/5001',
+                       '/reports/terrordome']) {
+    assert.equal(stateChangeAccepted(answered(302, where), '/claims/new').accepted, true,
+      `${where} is a saved record, not an error page`);
+  }
+});

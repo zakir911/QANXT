@@ -2535,12 +2535,22 @@ answer went rather than only its number:
 | 4xx, 5xx | refused |
 | 3xx back to the address posted to | **refused** — the form being shown again |
 | 3xx to a sign-in | refused |
+| 3xx to an error page | refused — "onward" alone is not acceptance |
 | 3xx onward to somewhere else | accepted — a saved form redirects to what it saved |
 | 3xx with no `Location` | refused; a redirect to nowhere settles nothing |
 | 2xx | accepted |
 
 Host and query are ignored when comparing paths, so `http://app.test/claims/new?error=1` is
 recognised as the same address.
+
+The error-page rule was added on a second reading of my own fix: an application that answers a
+rejected write with `302 -> /error` redirects *onward*, so the first version called it
+acceptance — the same confusion as the redirect-back case, one step along. It takes two patterns
+rather than one, because the boundaries differ and merging them breaks real records: a word may
+follow a hyphen, so `/access-denied` is an error page, but a status code may not, because
+`/claims/clm-403` is a claim and reading it as an error page would turn a real finding into
+silence. Both directions are tested, including `/customers/errorsmith` and `/reports/terrordome`
+staying acceptances.
 
 **Measured against the live application.** The two endpoints that were false findings:
 

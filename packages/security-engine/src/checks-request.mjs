@@ -85,6 +85,18 @@ export function stateChangeAccepted(response, requestedPath) {
     if (/sign-?in|log-?in|auth\/|session/i.test(location)) {
       return { accepted: false, how: `redirected to ${location}, which asks for credentials` };
     }
+    // An error page is a refusal that happens to redirect onward, so "onward" alone is not
+    // acceptance. Without this, an application that answers a rejected write with
+    // `302 -> /error` reads exactly like one that saved the record and redirected to it.
+    //
+    // Two patterns rather than one, because the boundaries differ and conflating them breaks
+    // real records. A word may follow a hyphen — `/access-denied` is an error page — but a
+    // status code may not: `/claims/clm-403` is a claim, and a rule that read it as an error
+    // page would turn a real finding into silence.
+    if (/(^|[/-])(error|errors|forbidden|denied|unauthoriz\w*|unauthoris\w*)([/?]|$)/i.test(location)
+        || /(^|\/)(40[13]|500|not-?allowed)([/?]|$)/i.test(location)) {
+      return { accepted: false, how: `redirected to ${location}, which is an error page` };
+    }
     if (samePathAs(location, requestedPath)) {
       return {
         accepted: false,
