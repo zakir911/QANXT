@@ -2474,6 +2474,67 @@ from here.
 
 ---
 
+## 75. The largest finding family is wrong against the commonest architecture
+
+**Established, not fixed.** Found while checking a number before quoting it, and it is the
+most serious open item in this document.
+
+**Symptom.** Scan r9 reported 283 findings. **108 of them — 38% — are one family:**
+
+```
+A state-changing request succeeds with no anti-CSRF token   ×54
+A state-changing request is accepted from any origin        ×54
+```
+
+Fifty-four endpoints, two checks each. Freight carries an anti-forgery token on its forms and
+enforces it.
+
+**Diagnosis.** Asked directly:
+
+```
+POST /claims/new   (no token)   →  302   location: /claims/new
+```
+
+Redirected **back to the form it came from**, and no claim was created. That is how a
+server-rendered application refuses: re-show the form, with a flash. Freight's handler does
+exactly that — *"That form expired."*
+
+The check's criterion, from its own source:
+
+```js
+if (withToken.status >= 400)   { /* inconclusive: refused even with a token */ }
+if (withoutToken.status >= 400) { /* ok: refused without one */ }
+// otherwise: "The request succeeded with a token and succeeded identically without one"
+```
+
+A 302 is under 400, so both requests "succeeded" and the finding is raised. **Every
+server-rendered application that refuses by redirect-and-reshow produces one of these per
+protected form** — the dominant idiom on the web. Fifty-four on this application; hundreds on
+a real one.
+
+**The product already knows how to judge this.** Its form engine says, in so many words:
+
+> POST … accepted the submission: it answered 302 and redirected to /x with nothing that reads
+> as a rejection.
+
+Where it redirected, and whether a rejection is visible. The security check was left behind —
+the same shape as the cookie check being left behind by sensitive-data in defect 62, and the
+third time in this session that one half of the product knew something the other half did not.
+
+**Why this one outranks everything else open.** Not the count. A scanner's credibility is spent
+per false finding and every true one is cashed against it, and this family is 38% of the report.
+A reader who checks two, finds the application correct, and stops reading will never reach the
+reflected XSS, the GET-that-settles, the missing `HttpOnly` or the unauthenticated shipment API
+— all of which are in the same file and all of which are real.
+
+**What the fix has to do**, and why it is not a one-line threshold change: a redirect is not an
+answer. It has to distinguish a redirect *back to the form* from a redirect *onward*, read the
+destination for a rejection the way the form engine does, and where neither settles it, say so
+rather than guess — the state either changed or it did not, and a witness read before and after
+is what establishes which. That machinery exists, in `request.safe-verb-state-change`.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

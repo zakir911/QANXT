@@ -1,5 +1,5 @@
 {
-  "analysedAt": "2026-11-25T01:31:07.946Z",
+  "analysedAt": "2026-11-25T19:17:01.656Z",
   "source": "form-run-final.json",
   "note": "A failure is classified as a tool error or an application failure before it is matched to a defect. Only an application failure can evidence one: a Playwright timeout says nothing about whether the application is correct, whatever words happen to be in its message.",
   "run": {
@@ -15,15 +15,15 @@
       "blocked": 0
     },
     "security": {
-      "findings": 123,
+      "findings": 283,
       "status": null
     }
   },
   "counts": {
     "found": 11,
-    "possible": 1,
-    "missed": 5,
-    "unscoreable": 11,
+    "possible": 2,
+    "missed": 6,
+    "unscoreable": 9,
     "unreachable": 4
   },
   "verdicts": [
@@ -220,7 +220,7 @@
       "category": "errorHandling",
       "screen": "/shipments",
       "screenReached": true,
-      "verdict": "unscoreable",
+      "verdict": "missed",
       "contestedEvidence": 0,
       "evidenceKind": null,
       "evidence": null
@@ -330,10 +330,10 @@
       "category": "security",
       "screen": "/shipments",
       "screenReached": true,
-      "verdict": "found",
+      "verdict": "unscoreable",
       "contestedEvidence": 0,
-      "evidenceKind": "security",
-      "evidence": "'q' is reflected into HTML without encoding q CWE-79 A03:2021 "
+      "evidenceKind": null,
+      "evidence": null
     },
     {
       "id": "FP_D29_NO_CSRF_ON_ADJUSTMENT",
@@ -352,10 +352,10 @@
       "category": "security",
       "screen": "/auth/sign-in",
       "screenReached": true,
-      "verdict": "unscoreable",
+      "verdict": "possible",
       "contestedEvidence": 0,
-      "evidenceKind": null,
-      "evidence": null
+      "evidenceKind": "security",
+      "evidence": "Session cookie \"lab_session\" is missing HttpOnly when \"remember\" is enabled lab_session CWE-1004 A05:2021 "
     },
     {
       "id": "FP_D31_STACK_TRACE_LEAKED",
@@ -363,10 +363,10 @@
       "category": "security",
       "screen": "/api/shipments/:id",
       "screenReached": true,
-      "verdict": "unscoreable",
+      "verdict": "found",
       "contestedEvidence": 0,
-      "evidenceKind": null,
-      "evidence": null
+      "evidenceKind": "security",
+      "evidence": "A stack trace is returned to the caller CWE-209 A05:2021 "
     },
     {
       "id": "FP_D32_PII_IN_QUERY_STRING",
@@ -431,14 +431,6 @@
       ]
     },
     {
-      "id": "FP_D18_LONG_SEARCH_CRASHES",
-      "keywords": [
-        "internal server error",
-        "stack trace",
-        "http 500"
-      ]
-    },
-    {
       "id": "FP_D19_OVERSIZE_UPLOAD_CRASHES",
       "keywords": [
         "upload",
@@ -471,19 +463,12 @@
       ]
     },
     {
-      "id": "FP_D30_SESSION_COOKIE_FLAGS",
+      "id": "FP_D28_REFLECTED_XSS_IN_SEARCH",
       "keywords": [
-        "httponly",
-        "secure flag",
-        "cookie"
-      ]
-    },
-    {
-      "id": "FP_D31_STACK_TRACE_LEAKED",
-      "keywords": [
-        "stack trace",
-        "disclosure",
-        "information leak"
+        "xss",
+        "script tag",
+        "reflected",
+        "injection"
       ]
     }
   ],
