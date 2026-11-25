@@ -1290,8 +1290,34 @@ export class Crawler {
   ): ApiInstanceCandidate[] {
     if (!isJsonContentType(contentType) || body === undefined) return [];
 
-    // The endpoint, whatever it answered: an API that 403s is still an API, and the surface
-    // wants to know it is there.
+    // A hypothesis that came back 404 is not an endpoint.
+    //
+    // `instanceId` is set only for a URL this crawler built itself, by appending an
+    // identifier it read out of a collection. That is a guess at REST's convention, and a
+    // 404 is the application saying the guess was wrong — there is no route there. Recording
+    // it anyway put twelve rows on freight's surface for a route that does not exist, named
+    // `{id}` so they read as record endpoints, because the 404 body was JSON:
+    //
+    //   /api/shipments/shp-0001/{id}   sample: /api/shipments/shp-0001/BOOKED   404
+    //
+    // That URL exists because "BOOKED" was read out of a shipment as if it were a record
+    // identifier. The surface then carries one fabricated template per record, which crowds
+    // out real endpoints under a page or time cap — and `/api/shipments/{id}`, the one an
+    // object-level authorization check needs, is a separate row a short crawl can miss.
+    //
+    // The distinction is the status, not the guessing. A 403 on an invented URL means the
+    // route is there and refused, which is exactly what the surface wants; a 404 means it
+    // was never there. A 404 on a URL the *application* linked to is a dead link, which is
+    // a different report and still reaches the notes below.
+    if (instanceId !== undefined && status === 404) {
+      this.note(`${safeRoute(url)} answered 404, so the identifier read from its collection `
+        + 'does not address a record this way. Nothing is recorded as an endpoint: a route '
+        + 'that is not there is not a route.');
+      return [];
+    }
+
+    // The endpoint, whatever else it answered: an API that 403s is still an API, and the
+    // surface wants to know it is there.
     const template = instanceId === undefined
       ? normalizeUrl(url)
       : templateForInstance(url, instanceId) ?? normalizeUrl(url);

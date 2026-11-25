@@ -2079,6 +2079,78 @@ next thing to do about FP_D12 is this rather than another scan.
 
 ---
 
+## 68. A guess the application refused was recorded as an endpoint
+
+**Symptom.** Twelve rows on freight's attack surface for a route that does not exist:
+
+```
+/api/shipments/shp-0001/{id}   sample: /api/shipments/shp-0001/BOOKED   404
+/api/shipments/shp-0002/{id}   sample: /api/shipments/shp-0002/BOOKED   404
+/api/shipments/shp-0003/{id}   sample: /api/shipments/shp-0003/BOOKED   404
+```
+
+The application has one route here, `/api/shipments/:id`. Every one of those answered 404.
+
+**Diagnosis.** Reading identifiers out of a collection and appending them is how the crawler
+puts instance endpoints on the surface, and it is a good idea: REST's shape is a convention, so
+the guess is tested with a GET rather than assumed. The handling of the answer was wrong.
+
+"BOOKED" is not a record identifier. It is the `code` of the first entry in a shipment's
+`events` array, and `identifiersIn` reads a nested array as a collection and `code` as its
+record identifier. Reproduced exactly, on the live application's own response:
+
+```
+identifiers harvested from one shipment record: [ 'BOOKED' ]
+```
+
+So the crawler asked for `/api/shipments/shp-0001/BOOKED`, the application said 404 — and it
+was recorded as an endpoint anyway, because the 404 body is JSON and the recording happens
+before the status is looked at. The comment above it is right about the case it was written
+for and was carrying more than it should:
+
+> The endpoint, whatever it answered: an API that 403s is still an API, and the surface wants
+> to know it is there.
+
+A 403 on an invented URL means the route is there and refused, which the surface does want. A
+404 means it was never there.
+
+**Why it costs more than tidiness.** The templates are named `{id}`, so they read as record
+endpoints to anyone and anything selecting by shape. One is produced per record, so the surface
+fills with near-duplicates of a route that does not exist — and under a page or time cap those
+displace real ones. `/api/shipments/{id}`, the single row an object-level authorization check
+needs, is one entry among them that a short crawl can miss entirely. It did: the scan in defect
+67 recorded two API endpoints for freight and that was not one of them.
+
+**Fix.** A URL the crawler built itself — `instanceId` is set only for those — that answers 404
+is not recorded as an endpoint. The note says so, because a hypothesis that failed is still
+information. A 404 on a URL the *application* linked to is a dead link, which is a different
+report and still reaches the notes.
+
+The harvesting is left alone deliberately. Teaching `identifiersIn` that a record's nested
+array is not a collection of that record's own instances would be a second change with its own
+regression surface across four other targets, and it is not needed: the hypothesis is tested,
+and testing it is what makes the answer available. The 404 gate is right whatever gets
+harvested.
+
+**The test was wrong before it was right.** The first version passed with the fix disabled —
+worthless. Its fixture served records of `{ id, status, reference }`, and nothing in that shape
+produces the fabrication. Rebuilt faithfully, with the nested `events` array carrying a `code`,
+it fails with the gate removed:
+
+```
+× no endpoint is recorded for a route the application answered 404 for  → expected [ …(2) ] to deeply equal []
+× no template is built below a record, where there is no route          → expected [ …(2) ] to deeply equal []
+```
+
+and passes with it restored. It drives the real crawler in a real browser against a real
+server, so the mechanism under test is the one that ran against freight.
+
+**Not claimed:** that freight's surface is now clean. That needs another full crawl, which is
+eighteen minutes and has not been run since the fix. What is established is the mechanism, in
+the crawler, with a test that fails without it.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,
