@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { identifiersIn, isJsonContentType, templateForInstance } from '../src/discovery/crawler.js';
+import { apiSurfaceLooksUnwalked, identifiersIn, isJsonContentType, templateForInstance } from '../src/discovery/crawler.js';
 
 /**
  * Reading a JSON API as an API.
@@ -95,5 +95,28 @@ describe('the template for an instance the crawler addressed', () => {
   it('says nothing when the identifier is not in the path at all', () => {
     expect(templateForInstance('http://api.test/api/orders?id=ord-1', 'ord-1')).toBeNull();
     expect(templateForInstance('not a url', 'ord-1')).toBeNull();
+  });
+});
+
+describe('whether a crawl\'s API surface is the application\'s own', () => {
+  it('says so for a page-heavy crawl that found almost no API', () => {
+    // Freight, measured: discovery completed at 164 pages with two endpoints, and one of the
+    // missing ones was the only address an object-level authorization check can use. A reader
+    // seeing "completed" beside the page count would conclude the surface was whole.
+    expect(apiSurfaceLooksUnwalked(164, 2)).toBe(true);
+    expect(apiSurfaceLooksUnwalked(137, 0)).toBe(true);
+    expect(apiSurfaceLooksUnwalked(50, 2)).toBe(true);
+  });
+
+  it('stays quiet when the pages do fetch their API', () => {
+    // A client-rendered application: its pages fetch, so the crawl sees the API as traffic.
+    expect(apiSurfaceLooksUnwalked(40, 12)).toBe(false);
+    expect(apiSurfaceLooksUnwalked(164, 30)).toBe(false);
+  });
+
+  it('stays quiet on a small application, where the ratio means nothing', () => {
+    // Under twenty pages almost anything looks API-poor and the note would be noise.
+    expect(apiSurfaceLooksUnwalked(19, 0)).toBe(false);
+    expect(apiSurfaceLooksUnwalked(3, 0)).toBe(false);
   });
 });

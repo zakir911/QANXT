@@ -93,11 +93,33 @@ const application = await registerApplication(tenant, project.id, {
   name: 'Meridian Freight', baseUrl: FREIGHT, loginUrl: `${FREIGHT}/auth/sign-in`,
   username: 'ops.lead', password: 'Freight!2026', maxPages: MAX_PAGES
 });
-await request(`/api/v1/applications/${application.id}`, {
+/**
+ * The JSON API, seeded, because nothing links to it.
+ *
+ * A link-following crawl of a server-rendered application finds the HTML surface and almost
+ * none of the API. Measured: with the action budget raised, discovery completed at 164 pages
+ * and 221 targets — and still two API endpoints, because freight renders on the server and
+ * its pages fetch nothing. `/api/shipments/{id}`, the one an object-level authorization check
+ * needs, is reachable only by asking for the collection: the crawler reads the record ids out
+ * of it and builds the instance URLs itself.
+ *
+ * So this is not a workaround. It is the configuration a server-rendered application needs,
+ * and the product has the setting for exactly this.
+ */
+const SEED_URLS = [`${FREIGHT}/api/shipments`];
+
+const configured = await request(`/api/v1/applications/${application.id}`, {
   token: tenant.token, method: 'PATCH',
   body: { maxPages: MAX_PAGES, maxCrawlDepth: 6, explorationTimeoutSeconds: BUDGET,
-          interactionMode: 'navigation' }
+          maxActions: MAX_ACTIONS, interactionMode: 'navigation',
+          seedUrls: SEED_URLS.join(',') }
 });
+// A refused configuration that carries on silently is worse than a failure: the run looks
+// configured and is not. That cost a measurement earlier in this project.
+if (!configured.ok) {
+  throw new Error(`the application configuration was refused: ${configured.status} `
+    + String(configured.text).slice(0, 300));
+}
 const discovery = await runDiscovery(tenant, application.id, {
   maxPages: MAX_PAGES, maxDepth: 6, timeoutSeconds: BUDGET, maxActions: MAX_ACTIONS,
   timeoutMs: (BUDGET + 300) * 1000

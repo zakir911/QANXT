@@ -2369,6 +2369,51 @@ element model that cannot hold the subject.
 
 ---
 
+## 73. A complete crawl of a server-rendered application reports a near-empty API
+
+**Symptom.** With the action budget finally set (defect 71), freight's discovery **completed** —
+not partially — mapping **164 pages and 221 targets**. It found **two API endpoints**.
+
+The application has a JSON API. One of the addresses missing from those two was
+`/api/shipments/{id}`, which is the only kind of address an object-level authorization check
+can be pointed at, so `authz.bola` again had nothing to run on.
+
+**Diagnosis.** A crawl follows what the pages link to. An application rendered on the server
+does not link to its own API, and its pages fetch little or nothing, so the API surface a crawl
+sees is whatever happened to be fetched — not what the application serves. Freight renders on
+the server, so its two endpoints are the two its pages touched.
+
+Nothing about that is a bug in the crawl. The problem is what it reads like. "Discovery
+completed, 164 page(s), 221 target(s)" invites the conclusion that the surface is whole, and as
+a map of what was walked it *is* whole. The scan's standing caveat — *"it describes what
+discovery walked rather than the application"* — is true and too general to act on. I read
+both and still spent the afternoon looking for the endpoint in the wrong place.
+
+**Fix, in two parts.**
+
+The crawl now says so when its own numbers show it. A page-heavy crawl that found almost no API
+notes that a crawl follows what the pages link to, that an application rendered on the server
+does not link to its own API, and that seeding the API's collection addresses is what maps the
+rest — because the instance addresses are built from the identifiers a collection names.
+
+The rule is a pure function so both answers can be tested, and the threshold is asserted in
+both directions: `(164, 2)` and `(137, 0)` say yes, `(40, 12)` and `(164, 30)` say no — a
+client-rendered application's pages fetch, so its API arrives as traffic — and `(19, 0)` says
+no, because under twenty pages almost anything looks API-poor and the note would be noise.
+
+And the freight scan driver seeds `/api/shipments`. That is not a workaround: it is the
+configuration a server-rendered application needs, and the product has had the setting all
+along. The driver also now fails loudly if its configuration PATCH is refused, rather than
+running on and looking configured.
+
+**The pattern worth naming.** Three times today the ceiling was a setting: the action budget
+the harness could not pass on, the resource identifier no driver supplied, and now the seed
+addresses nobody set. In each case the product was configurable and said what it had done, and
+the thing in front of it either could not pass the setting through or never set it. A product
+this careful about its own honesty deserves drivers that read what it says.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

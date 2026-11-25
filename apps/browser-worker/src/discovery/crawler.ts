@@ -413,6 +413,32 @@ export class Crawler {
         + 'an identity holding other permissions is how to find out.');
     }
 
+    // What a link-following crawl of a server-rendered application cannot find.
+    //
+    // A crawl follows what the pages link to. An application that renders on the server does
+    // not link to its own JSON API, and its pages fetch little or nothing, so the API surface
+    // a crawl sees is whatever happened to be fetched — not what the application serves.
+    //
+    // Measured on a 137-screen server-rendered application: discovery *completed*, mapping
+    // 164 pages and 221 targets, with two API endpoints. One of the two that were missing was
+    // `/api/shipments/{id}`, which is the only kind of address an object-level authorization
+    // check can be pointed at — so that check had nothing to run on, and the report said the
+    // surface was complete because, as a map of what was walked, it was.
+    //
+    // The remedy is a setting that already exists: seed the API's collection addresses, and
+    // the instance URLs are built from the identifiers the collection names. Saying so here
+    // beats leaving a reader to infer a complete API surface from a complete crawl.
+    if (apiSurfaceLooksUnwalked(this.pages.size, this.apiEndpoints.size)) {
+      const htmlPages = this.pages.size;
+      const endpoints = this.apiEndpoints.size;
+      this.note(
+        `${htmlPages} page(s) were mapped and ${endpoints} API endpoint(s) found. A crawl `
+        + 'follows what the pages link to, and an application rendered on the server does not '
+        + 'link to its own API — so this is the API surface its pages happened to fetch, not '
+        + 'the one it serves. Seeding the API\'s collection addresses is what maps the rest: '
+        + 'the instance addresses are built from the identifiers a collection names.');
+    }
+
     if (this.unexplored.length > 0) {
       const examples = this.unexplored.slice(0, 5).map(url => routeShapeOf(url));
       this.note(
@@ -1600,6 +1626,23 @@ export function templateForInstance(url: string, id: string): string | null {
     }
   }
   return null;
+}
+
+/**
+ * Whether a crawl's API surface is too thin to be the application's own.
+ *
+ * Two numbers and a ratio, kept pure so both answers can be tested. The threshold earns its
+ * place in both directions: below twenty pages almost any application looks API-poor and the
+ * note would be noise, and one endpoint per twenty-five pages is the line between "this
+ * application's pages fetch things" and "this application renders on the server and its API
+ * is somewhere nothing linked to".
+ *
+ * Freight, measured: 164 pages, 2 endpoints — far under the line, and the two it found were
+ * not the one an object-level authorization check needs.
+ */
+export function apiSurfaceLooksUnwalked(htmlPages: number, endpoints: number): boolean {
+  if (htmlPages < 20) return false;
+  return endpoints <= Math.max(2, Math.floor(htmlPages / 25));
 }
 
 export function isJsonContentType(contentType: string | undefined): boolean {

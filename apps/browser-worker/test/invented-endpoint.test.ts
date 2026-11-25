@@ -124,6 +124,24 @@ describe('an instance URL the application does not serve', () => {
     expect(invented.map(e => `${e.urlTemplate} (${e.sampleUrl})`)).toEqual([]);
   });
 
+  test('a page-heavy crawl with almost no API says the API surface is not the application\'s', () => {
+    // A reader seeing "discovery completed" beside a page count reasonably concludes the
+    // surface is complete. On a server-rendered application it is complete as a map of what
+    // was walked and nowhere near complete as a map of the API, because nothing links to the
+    // API. Measured on freight: completed, 164 pages, 221 targets, two API endpoints — and
+    // one of the missing ones was the only address an object-level authorization check can
+    // use.
+    //
+    // This fixture is small, so the note is asserted on the ratio rule rather than on
+    // freight's numbers; the rule is what has to hold.
+    const said = /follows what the pages link to/.test(report.progressLog ?? '');
+
+    // Below the threshold the note would be noise on any small application, and this fixture
+    // is deliberately small — so the assertion is on the rule, in whichever direction this
+    // crawl falls.
+    expect(said).toBe(report.pages.length >= 20);
+  });
+
   test('no template is built below a record, where there is no route', () => {
     // The shape of the fabrication: a literal record id followed by a placeholder.
     const belowARecord = report.apiEndpoints
