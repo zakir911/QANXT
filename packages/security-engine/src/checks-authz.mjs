@@ -588,12 +588,35 @@ export function looksPrivileged(path) {
   // separators before being compared — three of them were dead on arrival, and `/back-office`
   // read as an ordinary route. The joined form of each segment pair is tested instead, so
   // `/back-office` and `/backoffice` are the same route to this function.
+  // Words that name the administration of the *application*, not a part of the business.
+  //
+  // `billing`, `invoices` and `reports` were in this list and are not administrative. They
+  // name what a finance team does all day. Their presence turned every route in a billing or
+  // reporting area that two roles can both reach into a high-severity "improper
+  // authorization" finding, and on freight that was seven of them:
+  //
+  //   high | operations reaches /billing/payments, which names itself administrative
+  //   high | operations reaches /reports/builder, which names itself administrative
+  //   ...
+  //
+  // Every one wrong, and in the direction that costs most: a reader who checks two and finds
+  // the application behaving correctly stops reading the rest. On a real finance system there
+  // would be hundreds.
+  //
+  // They were invisible until the identity resolution was fixed, because the check had been
+  // comparing an identity with itself and never reached this line. The fix was right and it
+  // exposed this.
+  //
+  // `accounts` is left in and is the next one to settle. In an administrative console it
+  // means user accounts; in a bank it is the entire business. This project's own demo bank is
+  // where the evidence would come from, and that is a separate measurement rather than a
+  // guess made here.
   const ADMINISTRATIVE = [
     'admin', 'administration', 'administrator', 'superuser', 'root',
     'manage', 'management', 'console', 'backoffice', 'internal',
     'users', 'accounts', 'roles', 'permissions', 'members', 'staff',
     'settings', 'configuration', 'config', 'system',
-    'audit', 'auditlog', 'logs', 'billing', 'invoices', 'reports'
+    'audit', 'auditlog', 'logs'
   ];
   let pathname;
   try {

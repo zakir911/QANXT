@@ -2414,6 +2414,66 @@ this careful about its own honesty deserves drivers that read what it says.
 
 ---
 
+## 74. Seven high-severity findings calling a finance team's job an administrative breach
+
+**Symptom.** With the action budget set, r8's larger surface produced seven findings the
+previous runs had not:
+
+```
+high | operations reaches /billing/payments, which names itself administrative
+high | operations reaches /billing/credit-notes/new, which names itself administrative
+high | operations reaches /billing/surcharges, which names itself administrative
+high | operations reaches /billing/invoices/new, which names itself administrative
+high | operations reaches /reports/builder, which names itself administrative
+high | operations reaches /reports/export, which names itself administrative
+high | operations reaches /reports/scheduled, which names itself administrative
+```
+
+CWE-285, Improper Authorization, high severity, seven of them. All seven wrong.
+
+**Diagnosis.** `authz.vertical` reports a finding when two roles both reach a route *and* the
+route's own name says it was meant to be restricted. That second condition is a word list, and
+the list contained `billing`, `invoices` and `reports`.
+
+Those are not administrative. They name what a finance team does all day. Any application with
+a billing or reporting area produces one of these for every route in it that two roles can
+both reach — seven on freight, and hundreds on a real finance system.
+
+Confirmed against the application: `ops.lead` receives 200 from `/billing/payments`,
+`/billing/invoices/new` and `/reports/builder`. The write actions are guarded —
+`/billing/invoices/new` checks `invoice:write` on its handler — so what the scan found was a
+finance *page* being readable, which is the application working.
+
+**Why it appeared now.** It was always there and could never fire. Until defect 63, the check
+resolved both of its identities by position and compared the administrator with himself, so it
+reported inconclusive and never reached the line that consults this list. The identity fix was
+right, and what it exposed was this.
+
+**Why this is the costliest kind of wrong.** Not because seven is many. Because a reader who
+checks two of them, finds the application behaving correctly, and stops reading has been taught
+that this report is noise — and the report also contains a real reflected XSS, a real
+GET-that-settles, and real missing-HttpOnly findings. A scanner's credibility is spent per false
+finding and is what every true one is cashed against.
+
+**Fix.** The three business domains are out. The list now holds only words that name the
+administration of the application itself: `admin`, `administration`, `superuser`, `root`,
+`manage`, `console`, `backoffice`, `internal`, `users`, `roles`, `permissions`, `members`,
+`staff`, `settings`, `config`, `system`, `audit`, `logs`.
+
+Tested in both directions, which is what makes it a rule rather than a patch: the seven freight
+routes and `/invoices/5003`, `/shipments`, `/customers`, `/claims/new` are not administrative;
+`/admin/users`, `/admin/api-keys`, `/administration/roles`, `/settings/permissions`,
+`/system/config`, `/back-office/staff`, `/internal/console` and `/admin/audit` still are. The
+test was checked for sensitivity by putting `billing` back, and it failed with
+*"/billing/payments is not an administrative route"*.
+
+**Left standing, and named rather than guessed at:** `accounts`. In an administrative console it
+means user accounts; in a bank it is the entire business. This project's own demo bank is where
+that evidence would come from, and settling it is a measurement rather than a judgement to make
+from here.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

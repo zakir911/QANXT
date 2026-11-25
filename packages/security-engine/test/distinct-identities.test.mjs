@@ -187,3 +187,36 @@ test('a derived resource the second identity is refused is a pass, which is why 
   assert.equal(result.findings.length, 0);
   assert.notEqual(result.inconclusive, true);
 });
+
+/**
+ * Which routes name themselves administrative.
+ *
+ * The vertical-escalation check reports a finding when two roles both reach a route *and* the
+ * route's own name says it was meant to be restricted. The name list had three business
+ * domains in it — billing, invoices, reports — and freight produced seven high-severity
+ * findings naming routes a finance team uses as its job:
+ *
+ *   high | operations reaches /billing/payments, which names itself administrative
+ *
+ * All seven wrong, and in the costliest direction: a reader who checks two, finds the
+ * application correct, and stops reading has been taught to skim the report.
+ */
+test('a business domain does not name itself administrative', async () => {
+  const { looksPrivileged } = await import('../src/checks-authz.mjs');
+
+  for (const path of ['/billing/payments', '/billing/invoices/new', '/billing/surcharges',
+                      '/reports/builder', '/reports/export', '/reports/scheduled',
+                      '/invoices/5003', '/shipments', '/customers', '/claims/new']) {
+    assert.equal(looksPrivileged(path), false, `${path} is not an administrative route`);
+  }
+});
+
+test('the administration of the application still does', async () => {
+  const { looksPrivileged } = await import('../src/checks-authz.mjs');
+
+  for (const path of ['/admin/users', '/admin/api-keys', '/administration/roles',
+                      '/settings/permissions', '/system/config', '/back-office/staff',
+                      '/internal/console', '/admin/audit']) {
+    assert.equal(looksPrivileged(path), true, `${path} is an administrative route`);
+  }
+});
