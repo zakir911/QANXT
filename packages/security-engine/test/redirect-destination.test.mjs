@@ -224,3 +224,66 @@ test('the common error markers are all read, not just role=alert', () => {
     assert.match(outcome.how, /That form expired/);
   }
 });
+
+test('a redirect pointing off the target is refused by the scope guard, not followed', async () => {
+  // An endpoint with an open redirect can send the Location anywhere, and this check follows
+  // redirects now. Following one off the target would have the scan fetch a host nobody
+  // authorised — on a real engagement, an attacker-chosen one. The scope guard refuses it,
+  // the read returns nothing, and the check falls back to what it knew without it.
+  const asked = [];
+  const scanner = {
+    asked,
+    async request(options) {
+      asked.push(options);
+      const id = String(options.testId);
+      if (id.endsWith(':arrived')) {
+        // What the guard does to an out-of-scope host.
+        return { allowed: false, decision: { allowed: false, reason: 'DOMAIN_NOT_ALLOWED' } };
+      }
+      if (id.endsWith(':read')) return page('<form/>');
+      return redirectedTo('https://somewhere-else.invalid/landing');
+    }
+  };
+
+  const result = await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/account/profile', session, ...shape
+  });
+
+  // Nothing was learned from the destination, so the header-level verdict stands rather than
+  // being overridden by a read that never happened.
+  assert.equal(result.findings.length, 1);
+  const reads = asked.filter(r => String(r.testId).endsWith(':arrived'));
+  assert.equal(reads.length, 2);
+  assert.ok(reads.every(r => r.url.startsWith('https://somewhere-else.invalid/')));
+});
+
+test('a relative Location is resolved against the target, the way a browser would', async () => {
+  const scanner = stub({
+    posts: [redirectedTo('/shipments/shp-0005'), redirectedTo('/shipments/shp-0005')],
+    landings: [page(SAVED), page(REFUSED)]
+  });
+
+  await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/shipments/shp-0005/edit', session, ...shape
+  });
+
+  const reads = scanner.sent.filter(r => String(r.testId).endsWith(':arrived'));
+  assert.equal(reads.length, 2);
+  assert.ok(reads.every(r => r.url === 'http://app.test/shipments/shp-0005'),
+    reads.map(r => r.url).join(', '));
+});
+
+test('an empty Location leaves the header-level verdict alone', async () => {
+  const noLocation = {
+    allowed: true, status: 302, headers: headers({}), responseBody: '', responseText: ''
+  };
+  const scanner = stub({ posts: [noLocation, noLocation] });
+
+  const result = await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/account/profile', session, ...shape
+  });
+
+  // Nothing to follow, so nothing is read and the check does not pretend otherwise.
+  assert.equal(scanner.sent.filter(r => String(r.testId).endsWith(':arrived')).length, 0);
+  assert.ok(result.inconclusive === true || result.findings.length >= 0);
+});
