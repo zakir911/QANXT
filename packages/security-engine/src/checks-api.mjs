@@ -166,6 +166,21 @@ export async function checkInputValidation(scanner, { baseUrl, path, field, acto
  * own creation endpoint. Nothing that existed before the scan is touched.
  */
 export async function checkUnsafeMethods(scanner, { baseUrl, createPath, deletePath, field = 'title', actor, testId = 'SECA-METHOD' }) {
+  // Both addresses, before anything is created.
+  //
+  // This check creates an object so that the DELETE probe has something of its own to aim at,
+  // and it needs somewhere to aim. Without a delete path it used to create the object anyway
+  // and then throw a TypeError on `deletePath.replace`, which leaves a probe's object behind
+  // in somebody's application and reports a crash rather than a reason. Creating something we
+  // then cannot reach is the one outcome this check must not have.
+  if (!createPath || !deletePath) {
+    return { skipped: false, findings: [], inconclusive: true,
+             reason: 'Not evaluated: this check creates an object so the DELETE probe has one of its '
+               + 'own to aim at, and it was given '
+               + (!createPath ? 'no address to create at' : 'no address to delete at')
+               + '. It will not create something it cannot then remove.' };
+  }
+
   const created = await scanner.request({
     url: at(baseUrl, `${createPath}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': 'application/json', ...authHeaders(actor) },
