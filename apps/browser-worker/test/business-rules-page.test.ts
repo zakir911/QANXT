@@ -381,3 +381,206 @@ rule CREDIT_NOTE_CAP
     expect(error.message).toContain('out by 300');
   });
 }, 120_000);
+
+describe('the submission rule, against a server that answers', () => {
+  let pool: BrowserPool;
+  let context: BrowserContext;
+  let page: Page;
+  let server: Server;
+  let base: string;
+  let markup = '';
+  /** How the stub answers the next POST, set per test. */
+  let answer: { status: number; body?: string; location?: string } = { status: 200 };
+  let received: Record<string, string> = {};
+  const logger = new Logger('error', {}, () => {});
+
+  beforeAll(async () => {
+    server = createServer((request, response) => {
+      if (request.method === 'POST') {
+        let body = '';
+        request.on('data', chunk => { body += chunk; });
+        request.on('end', () => {
+          received = Object.fromEntries(new URLSearchParams(body));
+          const headers: Record<string, string> = { 'content-type': 'text/html' };
+          if (answer.location !== undefined) headers.location = answer.location;
+          response.writeHead(answer.status, headers);
+          response.end(answer.body ?? '');
+        });
+        return;
+      }
+      response.writeHead(200, { 'content-type': 'text/html' });
+      response.end(`<!doctype html><html><body>${markup}</body></html>`);
+    });
+    await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+    const address = server.address();
+    base = `http://127.0.0.1:${typeof address === 'object' && address ? address.port : 0}`;
+    pool = new BrowserPool(true, logger);
+  }, 60_000);
+
+  beforeEach(async () => {
+    await context?.close().catch(() => undefined);
+    context = await pool.createContext('chromium', { defaultTimeoutMs: 3000, navigationTimeoutMs: 15_000 });
+    page = await context.newPage();
+    received = {};
+  });
+
+  afterAll(async () => {
+    await context?.close().catch(() => undefined);
+    await pool?.close().catch(() => undefined);
+    await new Promise<void>(resolve => server.close(() => resolve()));
+  });
+
+  const openAt = async (path: string, html: string) => { markup = html; await page.goto(base + path); };
+
+  const refusalOf = async (rule: string): Promise<Error> => {
+    try {
+      await assertBusinessRule(page, rule);
+    } catch (error) {
+      return error as Error;
+    }
+    throw new Error('the oracle returned where it was expected to refuse');
+  };
+
+  const CAP = `
+rule CREDIT_NOTE_CAP
+  on      /billing/credit-notes/new
+  means   A credit note can never be raised for more than the invoice it credits.
+  submit  amount = 50000
+  expect  refused
+`;
+
+  const FORM = `
+    <form method="post" action="/billing/credit-notes/new">
+      <input name="invoice" value="INV-2026-5000">
+      <input name="amount" type="number" value="400" max="400">
+      <button type="submit">Raise</button>
+    </form>`;
+
+  test('a server that refuses passes the rule', async () => {
+    await openAt('/billing/credit-notes/new', FORM);
+    answer = { status: 422, body: 'Amount exceeds the invoice total' };
+    await expect(assertBusinessRule(page, CAP)).resolves.toBeUndefined();
+  });
+
+  test('the forced value is what reaches the server, over the form\'s own', async () => {
+    await openAt('/billing/credit-notes/new', FORM);
+    answer = { status: 422 };
+    await assertBusinessRule(page, CAP);
+    expect(received.amount).toBe('50000');
+    // The rest of the form travels as the application would send it.
+    expect(received.invoice).toBe('INV-2026-5000');
+  });
+
+  test('a server that accepts fails the rule — this is FP_D05 and FP_D09\'s shape', async () => {
+    await openAt('/billing/credit-notes/new', FORM);
+    answer = { status: 302, location: '/billing/credit-notes/cn-0009' };
+    const error = await refusalOf(CAP);
+    expect(error).toBeInstanceOf(OracleError);
+    expect(error.message).toContain('never be raised for more than');
+    expect(error.message).toContain('amount=50000');
+    expect(error.message).toContain('accepted where the rule says it must be refused');
+  });
+
+  test('a 200 carrying the form and a complaint is a refusal, not an acceptance', async () => {
+    // Plenty of applications answer an invalid form with 200 and the form again.
+    await openAt('/billing/credit-notes/new', FORM);
+    answer = { status: 200, body: '<div role="alert">Amount exceeds the invoice total</div>' };
+    await expect(assertBusinessRule(page, CAP)).resolves.toBeUndefined();
+  });
+
+  test('a 302 back to the form it was posted to is a refusal', async () => {
+    await openAt('/billing/credit-notes/new', FORM);
+    answer = { status: 302, location: '/billing/credit-notes/new' };
+    await expect(assertBusinessRule(page, CAP)).resolves.toBeUndefined();
+  });
+
+  test('a 500 is neither verdict, and says so', async () => {
+    await openAt('/billing/credit-notes/new', FORM);
+    answer = { status: 500, body: 'TypeError: cannot read property of undefined' };
+    const error = await refusalOf(CAP);
+    expect(error).toBeInstanceOf(OracleError);
+    expect(error.message).toContain('fail rather than decide');
+  });
+
+  test('`expect accepted` is checked in the other direction', async () => {
+    const ALLOWED = `
+rule SMALL_CREDIT_NOTE_GOES_THROUGH
+  on      /billing/credit-notes/new
+  means   A credit note within the invoice total is accepted.
+  submit  amount = 100
+  expect  accepted
+`;
+    await openAt('/billing/credit-notes/new', FORM);
+    answer = { status: 302, location: '/billing/credit-notes/cn-0010' };
+    await expect(assertBusinessRule(page, ALLOWED)).resolves.toBeUndefined();
+
+    answer = { status: 422, body: 'Rejected' };
+    const error = await refusalOf(ALLOWED);
+    expect(error.message).toContain('refused where the rule says it must be accepted');
+  });
+
+  test('no form carrying the named field is inconclusive, naming what the screen has', async () => {
+    await openAt('/billing/credit-notes/new',
+      '<form method="post" action="/x"><input name="query"></form>');
+    const error = await refusalOf(CAP);
+    expect(error).toBeInstanceOf(InconclusiveError);
+    expect(error.message).toContain("'amount'");
+    expect(error.message).toContain("'query'");
+  });
+
+  test('a screen with no form at all is inconclusive, not a failure', async () => {
+    await openAt('/billing/credit-notes/new', '<h1>Nothing to raise</h1>');
+    const error = await refusalOf(CAP);
+    expect(error).toBeInstanceOf(InconclusiveError);
+    expect(error.message).toContain('none at all');
+  });
+
+  test('two forms carrying the field is inconclusive rather than a coin toss', async () => {
+    // Sending to the wrong one would be refused for the wrong reason, which reads exactly like
+    // the rule being enforced.
+    await openAt('/billing/credit-notes/new', `
+      <form method="post" action="/a"><input name="amount" value="1"></form>
+      <form method="post" action="/b"><input name="amount" value="2"></form>`);
+    const error = await refusalOf(CAP);
+    expect(error).toBeInstanceOf(InconclusiveError);
+    expect(error.message).toContain('2 forms');
+    expect(error.message).toContain('refused for the wrong');
+  });
+
+  test('the form holding the named field is used, not the first form on the page', async () => {
+    // A search box above the form that matters is the ordinary case, and submitting it instead
+    // would produce a confident wrong answer.
+    await openAt('/billing/credit-notes/new', `
+      <form method="get" action="/search"><input name="query"></form>
+      ${FORM}`);
+    answer = { status: 422 };
+    await assertBusinessRule(page, CAP);
+    expect(received.amount).toBe('50000');
+    expect(received.invoice).toBe('INV-2026-5000');
+  });
+
+  test('a field named as the screen spells it still reaches the form\'s own name', async () => {
+    await openAt('/billing/credit-notes/new',
+      '<form method="post" action="/x"><input name="creditAmount" value="400"></form>');
+    answer = { status: 422 };
+    await assertBusinessRule(page, `
+rule R
+  on      /billing/credit-notes/new
+  means   A credit note is capped.
+  submit  credit_amount = 50000
+  expect  refused
+`);
+    // The form is found by the folded name, so the override has to land on the folded name too.
+    // Keyed by the exact string instead, the field keeps its own value and an extra key rides
+    // along — the submission goes out looking right and carrying nothing the rule asked for.
+    expect(received).toEqual({ creditAmount: '50000' });
+  });
+
+  test('a submission rule written for another screen is not sent anywhere', async () => {
+    await openAt('/fleet/drivers', FORM);
+    const error = await refusalOf(CAP);
+    expect(error).toBeInstanceOf(InconclusiveError);
+    expect(error.message).toContain('is about /billing/credit-notes/new');
+    expect(received).toEqual({});
+  });
+}, 120_000);

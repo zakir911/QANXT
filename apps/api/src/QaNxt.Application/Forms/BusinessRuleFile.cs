@@ -2,12 +2,30 @@ using System.Text.RegularExpressions;
 
 namespace QaNxt.Application.Forms;
 
+/// <summary>What a rule asks of the application.</summary>
+public enum BusinessRuleKind
+{
+    /// <summary>A statement about the figures a screen shows. Checked by reading the screen,
+    /// with nothing submitted and nothing changed.</summary>
+    Calculation,
+
+    /// <summary>A statement about what a submission must be refused. This one **sends a
+    /// request**: the form disabling its own submit button is the thing being disbelieved, so
+    /// the only way to know is to ask the endpoint directly. Where the application is wrong, the
+    /// submission succeeds and the record is created — which is the defect, and is why the test
+    /// belongs with the rest of the suite that submits forms rather than with the read-only
+    /// checks.</summary>
+    Submission
+}
+
 /// <summary>One rule as the application's owner wrote it.</summary>
 /// <param name="Id">The name on the `rule` line.</param>
 /// <param name="Screen">The address the rule is about, from the `on` line.</param>
 /// <param name="Means">The owner's own words, for the test's description.</param>
 /// <param name="Text">The whole block, passed to the worker unchanged.</param>
-public sealed record BusinessRuleBlock(string Id, string Screen, string Means, string Text);
+/// <param name="Kind">Whether the rule reads a screen or sends a submission.</param>
+public sealed record BusinessRuleBlock(
+    string Id, string Screen, string Means, string Text, BusinessRuleKind Kind);
 
 /// <summary>Reads a business rules file far enough to know which screen each rule is about.
 ///
@@ -24,7 +42,7 @@ public sealed record BusinessRuleBlock(string Id, string Screen, string Means, s
 public static class BusinessRuleFile
 {
     private static readonly Regex RuleStart = new(@"^rule\s+(\S+)$", RegexOptions.IgnoreCase);
-    private static readonly Regex Keyed = new(@"^(on|means|expect|within)\s*:?\s+(.+)$", RegexOptions.IgnoreCase);
+    private static readonly Regex Keyed = new(@"^(on|means|expect|within|when|submit)\s*:?\s+(.+)$", RegexOptions.IgnoreCase);
 
     public static IReadOnlyList<BusinessRuleBlock> Blocks(string? text)
     {
@@ -35,17 +53,19 @@ public static class BusinessRuleFile
         var screen = string.Empty;
         var means = string.Empty;
         var hasExpectation = false;
+        var kind = BusinessRuleKind.Calculation;
         var lines = new List<string>();
 
         void Finish()
         {
             if (id is null) return;
             if (screen.Length > 0 && hasExpectation)
-                blocks.Add(new BusinessRuleBlock(id, screen, means, string.Join("\n", lines)));
+                blocks.Add(new BusinessRuleBlock(id, screen, means, string.Join("\n", lines), kind));
             id = null;
             screen = string.Empty;
             means = string.Empty;
             hasExpectation = false;
+            kind = BusinessRuleKind.Calculation;
             lines = new List<string>();
         }
 
@@ -73,7 +93,15 @@ public static class BusinessRuleFile
             var value = keyed.Groups[2].Value.Trim();
             if (key == "on") screen = value;
             else if (key == "means") means = value;
-            else if (key == "expect") hasExpectation = true;
+            else if (key == "expect")
+            {
+                hasExpectation = true;
+                // The one thing read out of an `expect` line here. Not the expression — that is
+                // the worker's to parse — only whether this rule sends a request, because that
+                // decides how the test is described and where it belongs in the suite.
+                if (Regex.IsMatch(value, @"^(refused|rejected|accepted|allowed)$", RegexOptions.IgnoreCase))
+                    kind = BusinessRuleKind.Submission;
+            }
         }
 
         Finish();

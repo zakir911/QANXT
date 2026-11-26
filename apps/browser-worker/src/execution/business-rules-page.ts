@@ -1,7 +1,9 @@
 import type { Page } from 'playwright';
 import { readNumber } from './calculation-oracles.js';
-import { checkRule, normaliseName, parseRules, rulesFor } from './business-rules.js';
-import { InconclusiveError, OracleError } from './form-oracles.js';
+import {
+  checkRule, normaliseName, parseRules, rulesFor, type SubmissionRule
+} from './business-rules.js';
+import { InconclusiveError, OracleError, submitDirectly } from './form-oracles.js';
 
 /**
  * Reading the values a business rule talks about off a screen.
@@ -221,6 +223,8 @@ export async function assertBusinessRule(page: Page, ruleText: string | undefine
       + 'A rule is not checked against a screen it was not written for.');
   }
 
+  if (rule.kind === 'submission') return await checkSubmissionRule(page, rule);
+
   const { values, ambiguous, texts } = namedValuesFrom(await readNamedValues(page));
   const outcome = checkRule(rule, values, texts);
 
@@ -239,4 +243,96 @@ export async function assertBusinessRule(page: Page, ruleText: string | undefine
 
   if (outcome.outcome === 'cannotTell') throw new InconclusiveError(outcome.detail + dropped);
   throw new OracleError(outcome.detail);
+}
+
+
+/**
+ * Checks a rule about what a submission must be refused.
+ *
+ * The commonest serious defect there is: a form disables its own submit button when a value
+ * breaks a rule, and the handler behind it has no equivalent check, so anything that is not a
+ * browser is accepted. Nothing on the screen is wrong — the screen is doing its job — and no
+ * amount of reading figures finds it.
+ *
+ * Which form is used is decided by the fields the rule names, not by taking the first form on
+ * the page. A page with a search box above the form that matters would otherwise have its
+ * search submitted instead, and a wrong submission gets refused, which this check would then
+ * report as the server enforcing a rule it has never heard of. Where no form holds the named
+ * fields, or more than one does, the result is inconclusive naming them.
+ *
+ * It sends a request. That makes it the one rule kind that changes the application when the
+ * application is wrong, which is exactly the case it exists to detect, so it runs only where
+ * the run is authorised to interact.
+ */
+export async function checkSubmissionRule(page: Page, rule: SubmissionRule): Promise<void> {
+  const wanted = rule.submit.map(([field]) => field);
+
+  const forms = await page.evaluate((names: string[]) => {
+    const folded = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const target = names.map(folded);
+    return Array.from(document.querySelectorAll('form')).map((form, index) => {
+      // Folded name → the name the form itself declares. The override has to be keyed by the
+      // form's own spelling, or the field keeps its value and the forced one rides along as an
+      // extra key: a submission that goes out looking right and carries nothing the rule asked
+      // for, which the endpoint then accepts or refuses for reasons of its own.
+      const held = new Map<string, string>();
+      for (const control of Array.from(form.elements)) {
+        const name = (control as HTMLInputElement).name;
+        if (name && !held.has(folded(name))) held.set(folded(name), name);
+      }
+      return { index, holdsAll: target.every(name => held.has(name)),
+               declared: [...held], names: [...held.values()] };
+    });
+  }, wanted);
+
+  const candidates = forms.filter(form => form.holdsAll);
+
+  if (candidates.length === 0) {
+    const offered = [...new Set(forms.flatMap(form => form.names))].sort();
+    throw new InconclusiveError(
+      `Not evaluated: no form on this screen carries ${wanted.map(f => `'${f}'`).join(', ')}, `
+      + `which ${rule.id} submits. The fields this screen's forms do carry: `
+      + `${offered.length === 0 ? 'none at all' : offered.map(f => `'${f}'`).join(', ')}. `
+      + 'A submission cannot be sent to a form that would not accept it.'
+    );
+  }
+
+  if (candidates.length > 1) {
+    throw new InconclusiveError(
+      `Not evaluated: ${candidates.length} forms on this screen carry every field `
+      + `${rule.id} submits, and sending to the wrong one would be refused for the wrong `
+      + 'reason — which would read exactly like the rule being enforced. Name the fields more '
+      + 'precisely, or state the rule against a screen with one such form.'
+    );
+  }
+
+  const declared = new Map(candidates[0]!.declared);
+  const overrides: Record<string, string> = {};
+  for (const [field, value] of rule.submit) {
+    // Keyed by the form's own spelling, which is how the form was matched in the first place.
+    overrides[declared.get(normaliseName(field)) ?? field] = value;
+  }
+
+  const outcome = await submitDirectly(page, {
+    form: { strategy: 'css', value: 'form', nth: candidates[0]!.index },
+    overrides,
+    rule: rule.means || rule.id
+  });
+
+  const submitted = rule.submit.map(([field, value]) => `${field}=${value}`).join(', ');
+
+  if (outcome.verdict === 'failed') {
+    // Neither verdict is true: the application did not accept the value and did not reject it.
+    throw new OracleError(
+      `${rule.means || rule.id} — submitting ${submitted} made the application fail rather than `
+      + `decide. ${outcome.detail}`
+    );
+  }
+
+  if (outcome.verdict === rule.mustBe) return;
+
+  throw new OracleError(
+    `${rule.means || rule.id} — submitting ${submitted} was ${outcome.verdict} where the rule `
+    + `says it must be ${rule.mustBe}. ${outcome.detail}`
+  );
 }

@@ -56,13 +56,22 @@ does not reach the adjustment page and the run says so.
 **Business rules an owner states are now checked**, which closes the one class nothing else
 reaches: an invoice whose fuel surcharge goes on the gross when the rule says the net breaks no
 field, raises no error and ties out internally. The owner writes a `business-rules.txt`; the
-designer makes one test per rule; the worker parses and evaluates it — never `eval`. Proved live
-on freight: **FP_D06 and FP_D08 found** with arithmetic, and the FOB declaration passes as a
-control. Three rules were written and deleted because they were my assumptions rather than
-stated policy and all three failed confidently against behaviour the application never claimed;
-the file says so at its top. FP_D07 needs cross-row reasoning over a rate table and FP_D05 and
-FP_D09 need a submitted value to be refused, so neither is reachable this way yet. Defects 90
-and 91. `docs/user-manual.md` section 5 has the format.
+designer makes one test per rule; the worker parses and evaluates it — never `eval`. Two shapes: a rule
+about the figures a screen shows, and a rule about what a submission must be refused (which
+sends a request, because the form disabling its own submit button is what is being disbelieved).
+
+Proved live on freight: **four of the five rule-dependent defects found** — FP_D06 and FP_D08 by
+calculation, FP_D05 and FP_D09 by submission, each with a paired control that passes. FP_D07 is
+**not** found and is not claimed: it compares one row of a rate card against another row's rate,
+which needs a third rule shape over a table and across it.
+
+Two things this cost, both worth knowing. Three calculation rules were written and deleted
+because they were my assumptions rather than stated policy, and all three failed confidently
+against behaviour the application never claimed. And a refusal rule **passed because `ops.lead`
+has no `invoice:credit` permission**, so every submission to that endpoint is refused whatever it
+carries — only the paired acceptance rule exposed it, and without it FP_D09 would have been
+recorded as found. Pair every `expect refused` with an `expect accepted`. Defects 90, 91 and 92.
+`docs/user-manual.md` section 5 has the format.
 
 `verification/defects-found-by-measuring.md` is the product's own defects, each with the
 evidence that established it.

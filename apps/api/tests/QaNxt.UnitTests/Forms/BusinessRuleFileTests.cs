@@ -194,4 +194,56 @@ public class BusinessRuleFileTests
 
         BusinessRuleFile.For(blocks, "http://localhost:4400/").Should().HaveCount(1);
     }
+
+    // ---- which kind of rule a block is ----------------------------------------------
+
+    [Fact]
+    public void A_rule_comparing_figures_is_a_calculation_rule()
+    {
+        BusinessRuleFile.Blocks(File)[0].Kind.Should().Be(BusinessRuleKind.Calculation);
+    }
+
+    [Fact]
+    public void A_rule_expecting_a_refusal_is_a_submission_rule()
+    {
+        var blocks = BusinessRuleFile.Blocks("""
+            rule CREDIT_NOTE_CAP
+              on      /billing/credit-notes/new
+              means   A credit note can never be raised for more than the invoice it credits.
+              submit  amount = 50000
+              expect  refused
+            """);
+
+        blocks.Should().HaveCount(1);
+        blocks[0].Kind.Should().Be(BusinessRuleKind.Submission);
+        // The submit line travels to the worker like everything else; it is not parsed here.
+        blocks[0].Text.Should().Contain("submit  amount = 50000");
+    }
+
+    [Fact]
+    public void Every_spelling_of_the_two_verdicts_is_recognised()
+    {
+        foreach (var word in new[] { "refused", "rejected", "accepted", "allowed" })
+        {
+            BusinessRuleFile.Blocks($"rule R\n on /a\n submit x = 1\n expect {word}")[0]
+                .Kind.Should().Be(BusinessRuleKind.Submission, $"'{word}' names a verdict");
+        }
+    }
+
+    [Fact]
+    public void A_when_line_does_not_stop_a_block_being_read()
+    {
+        // `when` and `submit` were not in the key list when they were added to the language, so
+        // every rule carrying one lost those lines from the text sent to the worker — which
+        // would have been parsed there as a rule with no precondition and nothing to submit.
+        var blocks = BusinessRuleFile.Blocks("""
+            rule DUTY
+              on     /customs/declarations/{id}
+              when   Incoterm includes freight is Yes
+              expect valueForDuty == goodsValue + freightCost
+            """);
+
+        blocks.Should().HaveCount(1);
+        blocks[0].Text.Should().Contain("when   Incoterm includes freight is Yes");
+    }
 }

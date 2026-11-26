@@ -738,7 +738,7 @@ export async function materialiseFixture(spec: string, workDir: string): Promise
 }
 
 /** What `assertServerEnforces` is asked to send, and what counts as the server refusing. */
-interface ServerEnforcementCheck {
+export interface ServerEnforcementCheck {
   /** The form to serialise and send. Its own action, method and enctype are used. */
   form?: LocatorDescriptor;
   /** Values forced on top of whatever the live form carries. */
@@ -785,14 +785,34 @@ export interface SerialisedForm {
  * the defect will write the record — that is what finding it means, and it is the same
  * exposure the engine's double-submit test already carries.
  */
-export async function assertServerEnforces(page: Page, value: string | undefined): Promise<void> {
-  let check: ServerEnforcementCheck;
-  try {
-    check = JSON.parse(value ?? '{}') as ServerEnforcementCheck;
-  } catch {
-    throw new OracleError('assertServerEnforces needs a JSON description of the submission to send.');
-  }
+/**
+ * What the application did with a submission that was sent to it directly.
+ *
+ * Extracted so that the two callers who need this judgement share it rather than each reaching
+ * their own. Telling a refusal from an acceptance took six defects to get right — a 302 back to
+ * the posted path is a refusal, a 200 carrying the form again is a refusal, a 500 is neither —
+ * and a second implementation of it would be wrong in a different way.
+ */
+export interface SubmissionVerdict {
+  /** 'refused', 'accepted', or 'failed' for a 5xx, which is neither. */
+  verdict: 'refused' | 'accepted' | 'failed';
+  /** A sentence naming what happened, for the report either way. */
+  detail: string;
+  status: number;
+  method: string;
+  target: string;
+}
 
+/**
+ * Sends a form's submission straight to its endpoint and says what came back.
+ *
+ * The context's cookies travel with it, so the request is made as the signed-in user and not as
+ * an anonymous one. Redirects are not followed: a 302 is part of the answer.
+ */
+export async function submitDirectly(
+  page: Page,
+  check: ServerEnforcementCheck
+): Promise<SubmissionVerdict> {
   const serialised = await serialiseForm(page, check.form);
   if (serialised === null) {
     throw new OracleError(
@@ -812,8 +832,6 @@ export async function assertServerEnforces(page: Page, value: string | undefined
   const rule = check.rule ? ` The browser refused it because ${check.rule}.` : '';
   const payload = Object.fromEntries(fields);
 
-  // The context's cookies travel with this, so the request is made as the signed-in user
-  // and not as an anonymous one. Redirects are not followed: a 302 is part of the answer.
   let response;
   try {
     response = method === 'GET'
@@ -831,19 +849,23 @@ export async function assertServerEnforces(page: Page, value: string | undefined
   }
 
   const status = response.status();
-  const refused = check.refusedStatuses
+  const refusedExplicitly = check.refusedStatuses
     ? check.refusedStatuses.includes(status)
     : status >= 400 && status < 500;
 
-  if (refused) return;
+  if (refusedExplicitly) {
+    return { verdict: 'refused', status, method, target,
+             detail: `${method} ${target} refused the submission with ${status}.` };
+  }
 
   if (status >= 500) {
     const body = (await response.text().catch(() => '')).slice(0, 400);
-    throw new OracleError(
-      `${method} ${target} answered ${status} rather than refusing the submission.${rule} `
-      + 'The server did not accept the value, but it did not reject it either — it failed on '
-      + `it, which is its own defect.${body ? ` It replied: ${collapse(body)}` : ''}`
-    );
+    return {
+      verdict: 'failed', status, method, target,
+      detail: `${method} ${target} answered ${status} rather than refusing the submission.${rule} `
+        + 'The server did not accept the value, but it did not reject it either — it failed on '
+        + `it, which is its own defect.${body ? ` It replied: ${collapse(body)}` : ''}`
+    };
   }
 
   // 2xx and 3xx both need looking at: plenty of applications answer an invalid form with
@@ -851,16 +873,39 @@ export async function assertServerEnforces(page: Page, value: string | undefined
   const body = await response.text().catch(() => '');
   const location = response.headers()['location'];
 
-  if (firstComplaint(body)) return;
-  if (location && sameRoute(location, target)) return;
+  if (firstComplaint(body)) {
+    return { verdict: 'refused', status, method, target,
+             detail: `${method} ${target} answered ${status} with the form and a complaint on it, `
+               + 'which is a refusal.' };
+  }
+  if (location && sameRoute(location, target)) {
+    return { verdict: 'refused', status, method, target,
+             detail: `${method} ${target} answered ${status} and redirected back to the form it `
+               + 'was posted to, which is a refusal.' };
+  }
 
-  throw new OracleError(
-    `${method} ${target} accepted the submission: it answered ${status}`
-    + `${location ? ` and redirected to ${location}` : ''} with nothing that reads as a `
-    + `rejection.${rule} The rule is enforced in the browser and not on the server, so `
-    + 'anything that is not a browser can ignore it.'
-  );
+  return {
+    verdict: 'accepted', status, method, target,
+    detail: `${method} ${target} accepted the submission: it answered ${status}`
+      + `${location ? ` and redirected to ${location}` : ''} with nothing that reads as a `
+      + `rejection.${rule} The rule is enforced in the browser and not on the server, so `
+      + 'anything that is not a browser can ignore it.'
+  };
 }
+
+export async function assertServerEnforces(page: Page, value: string | undefined): Promise<void> {
+  let check: ServerEnforcementCheck;
+  try {
+    check = JSON.parse(value ?? '{}') as ServerEnforcementCheck;
+  } catch {
+    throw new OracleError('assertServerEnforces needs a JSON description of the submission to send.');
+  }
+
+  const outcome = await submitDirectly(page, check);
+  if (outcome.verdict === 'refused') return;
+  throw new OracleError(outcome.detail);
+}
+
 
 /**
  * Reads a form off the page the way the browser would submit it.

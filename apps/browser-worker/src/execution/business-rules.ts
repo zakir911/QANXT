@@ -76,17 +76,13 @@ export interface RulePrecondition {
   negated: boolean;
 }
 
-export interface BusinessRule {
+/** What every rule carries, whatever kind it is. */
+export interface RuleIdentity {
   id: string;
   /** The screen the rule is about, as the owner wrote it. */
   screen: string;
   /** What the rule means, in the owner's words. Printed in reports, never parsed. */
   means: string;
-  comparison: Comparison;
-  left: Expression;
-  right: Expression;
-  /** Rounding this rule tolerates. Money needs it; a count does not. */
-  within: number;
   /**
    * What has to be true of the screen for the rule to apply at all. Null when the rule applies
    * to every instance of its screen.
@@ -100,9 +96,50 @@ export interface BusinessRule {
   when: RulePrecondition | null;
   /** The line the rule started on, so a problem can be pointed at. */
   line: number;
-  /** The expression as written, for the report. */
+  /** The rule as written, for the report. */
   expression: string;
 }
+
+/**
+ * A rule about the figures a screen shows: `expect fuelSurcharge == invoiceNet * 0.115`.
+ *
+ * Checked by reading the screen, with no submission and nothing changed. The great majority of
+ * stated rules are this kind.
+ */
+export interface CalculationRule extends RuleIdentity {
+  kind: 'calculation';
+  comparison: Comparison;
+  left: Expression;
+  right: Expression;
+  /** Rounding this rule tolerates. Money needs it; a count does not. */
+  within: number;
+}
+
+/**
+ * A rule about what a submission must be refused:
+ *
+ *     rule CREDIT_NOTE_CAP
+ *       on      /billing/credit-notes/new
+ *       means   A credit note can never be raised for more than the invoice it credits.
+ *       submit  amount = 50000
+ *       expect  refused
+ *
+ * A different shape entirely, and the one that reaches the commonest serious defect there is:
+ * the form disables its own submit button and the handler behind it has no equivalent check, so
+ * anything that does not go through the browser is accepted. Nothing on the screen is wrong —
+ * the screen is doing its job — and no amount of reading figures finds it.
+ *
+ * This kind **sends a request**, so it only runs where the run is authorised to interact.
+ */
+export interface SubmissionRule extends RuleIdentity {
+  kind: 'submission';
+  /** Field name → the value to force, in the order written. */
+  submit: Array<[string, string]>;
+  /** What the application must do with it. */
+  mustBe: 'refused' | 'accepted';
+}
+
+export type BusinessRule = CalculationRule | SubmissionRule;
 
 export interface RuleProblem {
   line: number;
@@ -281,22 +318,79 @@ export function parseRules(text: string): { rules: BusinessRule[]; problems: Rul
   const lines = String(text ?? '').split(/\r?\n/);
   // `sawExpect` is separate from `expression` so that an unreadable expect line draws one
   // complaint (what was wrong with it) and not a second saying the rule has no expectation.
-  let current: Partial<BusinessRule> & { line?: number; sawExpect?: boolean } | null = null;
+  /**
+   * A rule being read, before its kind is known.
+   *
+   * The kind is decided by what follows `expect`: a comparison makes a calculation rule, the
+   * words `refused` or `accepted` make a submission rule. Reading into one loose draft and
+   * deciding at the end beats guessing from the first line, because the lines may come in any
+   * order and an owner who writes `expect` before `submit` means the same thing.
+   *
+   * `sawExpect` is separate from the expectation so that an unreadable `expect` line draws one
+   * complaint — what was wrong with it — and not a second saying the rule has no expectation.
+   */
+  interface Draft {
+    id: string;
+    screen: string;
+    means: string;
+    within: number;
+    when: RulePrecondition | null;
+    line: number;
+    sawExpect: boolean;
+    expression: string;
+    comparison?: Comparison;
+    left?: Expression;
+    right?: Expression;
+    submit: Array<[string, string]>;
+    mustBe?: 'refused' | 'accepted';
+  }
+
+  let current: Draft | null = null;
 
   const finish = () => {
     if (current === null) return;
-    const { id, screen, expression, line } = current;
+    const draft = current;
+    current = null;
+
+    const { id, screen, line } = draft;
+    const identity = { id, screen, means: draft.means, when: draft.when, line,
+                       expression: draft.expression };
+
     if (!screen) {
-      problems.push({ line: line ?? 0, problem: `rule ${id} does not say which screen it is about (expected an 'on' line)`, text: '' });
-    } else if (!expression) {
-      if (!current.sawExpect) {
-        problems.push({ line: line ?? 0, text: '',
+      problems.push({ line, text: '',
+        problem: `rule ${id} does not say which screen it is about (expected an 'on' line)` });
+      return;
+    }
+
+    if (draft.mustBe !== undefined) {
+      if (draft.submit.length === 0) {
+        problems.push({ line, text: '',
+          problem: `rule ${id} says a submission must be ${draft.mustBe} but does not say what to `
+            + "submit (expected a 'submit <field> = <value>' line)" });
+        return;
+      }
+      rules.push({ ...identity, kind: 'submission', submit: draft.submit, mustBe: draft.mustBe });
+      return;
+    }
+
+    if (draft.submit.length > 0 && !draft.sawExpect) {
+      problems.push({ line, text: '',
+        problem: `rule ${id} says what to submit but not what must happen to it `
+          + "(expected 'expect refused' or 'expect accepted')" });
+      return;
+    }
+
+    if (draft.comparison === undefined) {
+      // An `expect` line that could not be read has already been reported against its own line.
+      if (!draft.sawExpect) {
+        problems.push({ line, text: '',
           problem: `rule ${id} does not say what to expect (expected an 'expect' line)` });
       }
-    } else {
-      rules.push(current as BusinessRule);
+      return;
     }
-    current = null;
+
+    rules.push({ ...identity, kind: 'calculation', within: draft.within,
+                 comparison: draft.comparison, left: draft.left!, right: draft.right! });
   };
 
   lines.forEach((raw, index) => {
@@ -307,14 +401,16 @@ export function parseRules(text: string): { rules: BusinessRule[]; problems: Rul
     const ruleStart = /^rule\s+(\S+)$/i.exec(line);
     if (ruleStart) {
       finish();
-      current = { id: ruleStart[1]!, means: '', within: DEFAULT_WITHIN, when: null, line: lineNumber };
+      current = { id: ruleStart[1]!, screen: '', means: '', within: DEFAULT_WITHIN, when: null,
+                  line: lineNumber, sawExpect: false, expression: '', submit: [] };
       return;
     }
 
-    const keyed = /^(on|means|expect|within|when)\s*:?\s+(.+)$/i.exec(line);
+    const keyed = /^(on|means|expect|within|when|submit)\s*:?\s+(.+)$/i.exec(line);
     if (!keyed) {
       problems.push({ line: lineNumber, text: raw.trim(),
-        problem: "expected 'rule <name>', or an 'on', 'means', 'when', 'expect' or 'within' line" });
+        problem: "expected 'rule <name>', or an 'on', 'means', 'when', 'submit', 'expect' or "
+          + "'within' line" });
       return;
     }
     if (current === null) {
@@ -349,8 +445,37 @@ export function parseRules(text: string): { rules: BusinessRule[]; problems: Rul
         problems.push({ line: lineNumber, text: raw.trim(),
           problem: `'within' needs a number that is not negative, and '${value}' is not one` });
       } else current.within = within;
-    } else {
+    }
+    else if (key === 'submit') {
+      // `submit amount = 50000, invoice = INV-2026-5000`. Values are text, sent as the form
+      // would send them; nothing here is evaluated.
+      for (const pair of value.split(',')) {
+        const assignment = /^\s*([^=]+?)\s*=\s*(.*?)\s*$/.exec(pair);
+        if (!assignment) {
+          problems.push({ line: lineNumber, text: raw.trim(),
+            problem: `rule ${current.id}: a 'submit' line reads `
+              + `'<field> = <value>, <field> = <value>', and '${pair.trim()}' is not that shape` });
+          continue;
+        }
+        current.submit.push([assignment[1]!, assignment[2]!]);
+      }
+      current.expression = current.expression === ''
+        ? `submit ${value}` : `${current.expression}; submit ${value}`;
+    }
+    else {
       current.sawExpect = true;
+
+      // `expect refused` and `expect accepted` make this a rule about a submission rather than
+      // about the figures on a screen.
+      const verdict = /^(refused|rejected|accepted|allowed)$/i.exec(value);
+      if (verdict) {
+        const word = verdict[1]!.toLowerCase();
+        current.mustBe = word === 'refused' || word === 'rejected' ? 'refused' : 'accepted';
+        current.expression = current.expression === ''
+          ? `must be ${current.mustBe}` : `${current.expression} — must be ${current.mustBe}`;
+        return;
+      }
+
       const parsed = parseExpression(value);
       if ('problem' in parsed) {
         problems.push({ line: lineNumber, text: raw.trim(),
@@ -435,7 +560,7 @@ const round = (value: number) => Math.round(value * 1e6) / 1e6;
  * silence that looks exactly like honesty and is not.
  */
 export function checkRule(
-  rule: BusinessRule,
+  rule: CalculationRule,
   supplied: Map<string, number>,
   /** The text of everything the screen shows by name, for a `when` line. Numbers are in
    *  `supplied`; a precondition is usually about a word — an incoterm, a status, a flag. */

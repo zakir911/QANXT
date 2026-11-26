@@ -557,3 +557,121 @@ rule DUTY_INCLUDES_FREIGHT
     expect(checkRule(bare, new Map([['a', 1]])).outcome).toBe('held');
   });
 });
+
+describe('a rule about what a submission must be refused', () => {
+  /**
+   * The commonest serious defect there is, and a different shape from everything above: a form
+   * disables its own submit button when a value breaks a rule, and the handler behind it has no
+   * equivalent check. Nothing on the screen is wrong — the screen is doing its job — and no
+   * amount of reading figures off it finds the hole.
+   */
+  const CAP = `
+rule CREDIT_NOTE_CAP
+  on      /billing/credit-notes/new
+  means   A credit note can never be raised for more than the invoice it credits.
+  submit  amount = 50000
+  expect  refused
+`;
+
+  test('it parses as a submission rule, not a calculation', () => {
+    const { rules, problems } = parseRules(CAP);
+    expect(problems).toEqual([]);
+    expect(rules[0]!.kind).toBe('submission');
+    if (rules[0]!.kind !== 'submission') return;
+    expect(rules[0]!.submit).toEqual([['amount', '50000']]);
+    expect(rules[0]!.mustBe).toBe('refused');
+  });
+
+  test('several fields on one submit line, in the order written', () => {
+    const { rules } = parseRules(
+      'rule R\n on /a\n submit amount = 50000, invoice = INV-2026-5000\n expect refused\n');
+    if (rules[0]!.kind !== 'submission') throw new Error('expected a submission rule');
+    expect(rules[0]!.submit).toEqual([['amount', '50000'], ['invoice', 'INV-2026-5000']]);
+  });
+
+  test('`accepted` is the other direction, for a value that must go through', () => {
+    const { rules } = parseRules(
+      'rule R\n on /a\n submit amount = 10\n expect accepted\n');
+    if (rules[0]!.kind !== 'submission') throw new Error('expected a submission rule');
+    expect(rules[0]!.mustBe).toBe('accepted');
+  });
+
+  test('`rejected` and `allowed` are accepted spellings, because people write both', () => {
+    const refused = parseRules('rule R\n on /a\n submit a = 1\n expect rejected\n').rules[0]!;
+    const allowed = parseRules('rule S\n on /a\n submit a = 1\n expect allowed\n').rules[0]!;
+    if (refused.kind !== 'submission' || allowed.kind !== 'submission') throw new Error('kind');
+    expect(refused.mustBe).toBe('refused');
+    expect(allowed.mustBe).toBe('accepted');
+  });
+
+  test('a value may be text, and is sent as written', () => {
+    const { rules } = parseRules(
+      'rule R\n on /a\n submit reference = INV 2026/5000\n expect refused\n');
+    if (rules[0]!.kind !== 'submission') throw new Error('expected a submission rule');
+    expect(rules[0]!.submit).toEqual([['reference', 'INV 2026/5000']]);
+  });
+
+  test('an empty value is a field deliberately left blank, not a mistake', () => {
+    const { rules, problems } = parseRules(
+      'rule R\n on /a\n submit customer =\n expect refused\n');
+    expect(problems).toEqual([]);
+    if (rules[0]!.kind !== 'submission') throw new Error('expected a submission rule');
+    expect(rules[0]!.submit).toEqual([['customer', '']]);
+  });
+
+  test('the two kinds live in one file and keep their own shapes', () => {
+    const { rules, problems } = parseRules(`${CAP}
+rule SURCHARGE_ON_NET
+  on      /billing/invoices/{id}
+  expect  fuelSurcharge == invoiceNet * 0.115
+`);
+    expect(problems).toEqual([]);
+    expect(rules.map(r => r.kind)).toEqual(['submission', 'calculation']);
+  });
+
+  test('a submission rule can carry a precondition like any other', () => {
+    const { rules } = parseRules(
+      'rule R\n on /a\n when Status is onHold\n submit amount = 1\n expect refused\n');
+    expect(rules[0]!.when).toMatchObject({ field: 'Status', is: 'onHold' });
+  });
+
+  test('a submit with no expect is reported, not stored as half a rule', () => {
+    const { rules, problems } = parseRules('rule R\n on /a\n submit amount = 50000\n');
+    expect(rules).toEqual([]);
+    expect(problems[0]!.problem).toContain('not what must happen to it');
+  });
+
+  test('an expect refused with no submit is reported', () => {
+    const { rules, problems } = parseRules('rule R\n on /a\n expect refused\n');
+    expect(rules).toEqual([]);
+    expect(problems[0]!.problem).toContain('does not say what to submit');
+  });
+
+  test('a submit line in no recognised shape is reported against its line', () => {
+    const { problems } = parseRules('rule R\n on /a\n submit just some words\n expect refused\n');
+    expect(problems[0]).toMatchObject({ line: 3 });
+    expect(problems[0]!.problem).toContain("'submit' line reads");
+  });
+
+  test('one bad pair on a submit line does not discard the others', () => {
+    const { rules, problems } = parseRules(
+      'rule R\n on /a\n submit amount = 5, oops, invoice = INV-1\n expect refused\n');
+    expect(problems).toHaveLength(1);
+    if (rules[0]!.kind !== 'submission') throw new Error('expected a submission rule');
+    expect(rules[0]!.submit).toEqual([['amount', '5'], ['invoice', 'INV-1']]);
+  });
+
+  test('the report line names what was submitted and what must happen', () => {
+    const { rules } = parseRules(CAP);
+    expect(rules[0]!.expression).toContain('submit amount = 50000');
+    expect(rules[0]!.expression).toContain('must be refused');
+  });
+
+  test('`within` on a submission rule is harmless and ignored', () => {
+    // Nothing is rounded when the answer is refused or accepted.
+    const { rules, problems } = parseRules(
+      'rule R\n on /a\n submit a = 1\n expect refused\n within 0.5\n');
+    expect(problems).toEqual([]);
+    expect(rules[0]!.kind).toBe('submission');
+  });
+});

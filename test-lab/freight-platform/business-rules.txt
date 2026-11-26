@@ -46,3 +46,43 @@ rule DUTY_IS_THE_RATE_ON_THE_CUSTOMS_VALUE
   when    Duty rate is 0%
   expect  duty == 0
   within  0.01
+
+# ---- Rules about what a submission must be refused ---------------------------------------
+#
+# These send a request. The form disabling its own submit button is exactly what is being
+# disbelieved, so the only way to know whether the rule holds is to ask the endpoint directly.
+# Where the application is wrong the submission succeeds and the record is created — which is
+# the defect, and why these rules belong on a target you are willing to write to.
+#
+# **Pair every refusal rule with an acceptance rule.** A refusal proves nothing on its own: run
+# as `ops.lead`, who has no `invoice:credit` permission, both credit-note rules below came back
+# refused, and the first one therefore "passed" — for a reason that has nothing to do with the
+# amount. The paired rule, which must be accepted, is what exposed it. Without it the run would
+# have reported a rule holding that had never been tested.
+#
+# The identity matters as much as the rule. These two run as `finance`; the order rules run as
+# any identity that may raise an order.
+
+rule CREDIT_NOTE_CANNOT_EXCEED_ITS_INVOICE
+  on      /billing/credit-notes/new
+  means   A credit note can never be raised for more than the invoice it credits.
+  submit  invoiceId = inv-0002, amountGbp = 50000, reason = overcharge
+  expect  refused
+
+rule SMALL_CREDIT_NOTE_IS_ACCEPTED
+  on      /billing/credit-notes/new
+  means   A credit note within the invoice total is accepted, so the rule above is not just a closed door.
+  submit  invoiceId = inv-0002, amountGbp = 100, reason = overcharge
+  expect  accepted
+
+rule ORDER_FOR_A_CUSTOMER_ON_CREDIT_HOLD_IS_REFUSED
+  on      /orders/sales/new
+  means   An order for a customer on credit hold is refused by the server, not only by the browser.
+  submit  customerId = cus-010, skuId = sku-001, quantity = 1, serviceLevel = STD, incoterm = FCA, requestedDeliveryOn = 2026-04-20
+  expect  refused
+
+rule ORDER_FOR_A_CUSTOMER_IN_GOOD_STANDING_IS_ACCEPTED
+  on      /orders/sales/new
+  means   An order for a customer not on credit hold is accepted, so the rule above is not just a closed door.
+  submit  customerId = cus-001, skuId = sku-001, quantity = 1, serviceLevel = STD, incoterm = FCA, requestedDeliveryOn = 2026-04-20
+  expect  accepted

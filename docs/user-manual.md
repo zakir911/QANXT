@@ -469,6 +469,45 @@ figures, the name is dropped and the rule is skipped saying so — two places di
 value, and guessing between them produces a confident wrong answer. And a rule whose expression
 cannot be read is reported with its line number and never silently ignored.
 
+**A rule about what must be refused.** The commonest serious defect there is: the form disables
+its own submit button when a value breaks a rule, and the handler behind it has no equivalent
+check, so anything that is not a browser is accepted. Nothing on the screen is wrong — the
+screen is doing its job — and no amount of reading figures finds it.
+
+```
+rule CREDIT_NOTE_CANNOT_EXCEED_ITS_INVOICE
+  on      /billing/credit-notes/new
+  means   A credit note can never be raised for more than the invoice it credits.
+  submit  invoiceId = inv-0002, amountGbp = 50000, reason = Goodwill
+  expect  refused
+```
+
+`submit` names fields and the values to force on top of whatever the live form carries; the rest
+of the form travels as the application would send it. `expect refused` or `expect accepted`
+(`rejected` and `allowed` also work). The form used is the one that carries every field you
+named, not the first form on the page — a search box above the form that matters would otherwise
+have its search submitted instead. Where no form carries them, or more than one does, the test
+is skipped saying so.
+
+**This one sends a request.** If the application is wrong, the record is created — that is the
+defect, and there is no way to find it without asking. Put these rules on a target you are
+willing to write to.
+
+**Pair every refusal rule with an acceptance rule.** A refusal on its own proves nothing. Run
+against a user without permission to raise a credit note at all, a refusal rule passes for a
+reason that has nothing to do with the amount, and the run reports a rule holding that was never
+tested. A second rule submitting a value that *must* go through is what catches that:
+
+```
+rule SMALL_CREDIT_NOTE_IS_ACCEPTED
+  on      /billing/credit-notes/new
+  means   A credit note within the invoice total is accepted.
+  submit  invoiceId = inv-0002, amountGbp = 100, reason = Goodwill
+  expect  accepted
+```
+
+That pairing found exactly this mistake on the first live run of the feature.
+
 **It is only as good as your rules.** Write what the business has actually stated, not what you
 assume it would say. A rule nobody agreed to still fails loudly, with arithmetic attached, and
 reads exactly like a defect.

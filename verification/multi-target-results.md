@@ -758,15 +758,40 @@ guessed between, so the rule names the uniquely marked `fuel-surcharge` instead.
 that the correct figure is on the page — the application computes 11.5% of net somewhere and
 then shows 11.5% of gross in the summary.
 
-### Still not reachable this way, and what each needs
+### Rules about what a submission must be refused (same day)
 
-| defect | shape | what it needs |
+The second rule shape was built straight after, and reaches the other two. A rule forces a value
+the browser would refuse, sends it to the endpoint as the signed-in user, and judges what came
+back — the form disabling its own submit button is precisely what is being disbelieved.
+
+| screen | rule | outcome | evidence |
+| --- | --- | --- | --- |
+| `/orders/sales/new` | ORDER_FOR_A_CUSTOMER_ON_CREDIT_HOLD_IS_REFUSED | **FAIL — FP_D05** | accepted: 302 to `/orders/sales/so-0027`, for `cus-010`, which the form itself labels ON CREDIT HOLD |
+| `/orders/sales/new` | ORDER_FOR_A_CUSTOMER_IN_GOOD_STANDING_IS_ACCEPTED | **PASS** | the control: `cus-001` goes through |
+| `/billing/credit-notes/new` | CREDIT_NOTE_CANNOT_EXCEED_ITS_INVOICE | **FAIL — FP_D09** | accepted: £50,000 against a £778.28 invoice, 302 to `/billing/credit-notes` (as `finance`) |
+| `/billing/credit-notes/new` | SMALL_CREDIT_NOTE_IS_ACCEPTED | **PASS** | the control: £100 goes through |
+
+**The control rules are the measurement, not politeness.** Run as `ops.lead` — the identity used
+everywhere else in this document — both credit-note rules came back refused, because
+`role-operations` has no `invoice:credit` permission and every submission to that endpoint is
+refused whatever it carries. The refusal rule therefore **passed**, on a refusal it had not
+caused, and FP_D09 would have been recorded as found. The paired acceptance rule is what exposed
+it. Defect 92 has the detail; the rules file and the manual now both require the pairing.
+
+### Where the five stand
+
+| defect | found | by |
 | --- | --- | --- |
-| FP_D07 rate band boundary | a weight on a band edge is rated in the lower band | cross-row reasoning: the "50 kg costs" cell of the 0–50 row must use the *next* band's rate. Per-row rules over a table would not do it; the statement spans rows. |
-| FP_D05 credit limit bypassed | the form disables submit, the handler accepts anyway | a rule about what a submission must be refused, not about figures on a screen. The oracle for this exists (`assertServerEnforces`); what is missing is a way for the owner to state the value that must be refused. |
-| FP_D09 credit note exceeds invoice | same shape | same |
+| FP_D05 credit limit bypassed | **yes** | submission rule, with its control |
+| FP_D06 surcharge on gross | **yes** | calculation rule |
+| FP_D07 rate band boundary | no | see below |
+| FP_D08 duty excludes freight | **yes** | calculation rule with a `when` precondition |
+| FP_D09 credit note exceeds invoice | **yes** | submission rule, with its control |
 
-So of the five rule-dependent freight defects, **two are found, and the other three need two
-further rule shapes** — one over a table's rows and across them, one over a submission. Both are
-real extensions of the same file format rather than new machinery, and neither is built.
+**Four of the five.** FP_D07 is the one left, and it is left for a reason worth stating rather
+than worked around: the rate card shows four bands as four rows, and the statement is that a
+weight equal to a band's upper bound belongs to the *next* band. That compares one row's price
+against another row's rate. Nothing in a per-row rule expresses it, and contorting one to fit
+this particular table would be fitting the tool to the answer. A rule language over a table's
+rows *and across them* is a third shape; it is not built, and no run claims it.
 

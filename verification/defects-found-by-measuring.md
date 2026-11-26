@@ -3457,6 +3457,59 @@ code they test, both by me, and both were green on the first run. Nothing about 
 anything was wrong. The only reason to look was that a green suite written that fast is itself
 suspicious.
 
+## 92. A rule about a refusal passed because the user could not perform the action at all
+
+**Found on the first live run of the submission rule, by the control rule written beside it.**
+
+A submission rule disbelieves a form's own submit button: it forces a value the browser would
+refuse, sends it straight to the endpoint as the signed-in user, and judges what comes back. Two
+rules were written against freight's credit-note screen, which is where FP_D09 lives — a credit
+note can be raised for more than the invoice it credits:
+
+```
+rule CREDIT_NOTE_CANNOT_EXCEED_ITS_INVOICE
+  submit  invoiceId = inv-0002, amountGbp = 50000, reason = Goodwill
+  expect  refused
+
+rule SMALL_CREDIT_NOTE_IS_ACCEPTED
+  submit  invoiceId = inv-0002, amountGbp = 100, reason = Goodwill
+  expect  accepted
+```
+
+Run as `ops.lead`, the identity the measurement uses everywhere:
+
+| rule | verdict | why |
+| --- | --- | --- |
+| CREDIT_NOTE_CANNOT_EXCEED_ITS_INVOICE | **PASS** | refused — 302 back to the form |
+| SMALL_CREDIT_NOTE_IS_ACCEPTED | **FAIL** | refused — 302 back to the form |
+
+Both were refused, and the refusal had nothing to do with the amount. `billing.js:338` gates the
+handler on `can(user, 'invoice:credit')`, which `role-operations` does not hold. Every submission
+to that endpoint as `ops.lead` is refused, whatever it carries. The first rule passed on a
+refusal it had not caused, and reported a rule holding that had never been tested.
+
+Run as `finance`, who holds the permission:
+
+| rule | verdict | why |
+| --- | --- | --- |
+| CREDIT_NOTE_CANNOT_EXCEED_ITS_INVOICE | **FAIL — FP_D09** | accepted: 302 to `/billing/credit-notes`. A £50,000 credit note against a £778.28 invoice. |
+| SMALL_CREDIT_NOTE_IS_ACCEPTED | **PASS** | accepted: the £100 note goes through |
+
+**What this means about the shape of the check, not about one run.** A refusal is not evidence
+that a rule is enforced. A permission gate, a missing required field, an expired token, a
+read-only identity and the rule itself all produce the same 4xx or the same 302 back to the form,
+and the oracle cannot tell them apart — nor could any oracle, because the application does not
+say. The only thing that distinguishes them is a second submission that *must* succeed.
+
+So the paired control is not good practice, it is the measurement. Both the rules file and the
+manual now say: pair every `expect refused` with an `expect accepted`. Without it, a refusal rule
+is a test that cannot fail for the right reason and cannot be told from one that passed.
+
+Worth being plain about how close this came to shipping as a success. Had I written only the
+refusal rule — the obvious thing, the one that names the defect — the run would have reported it
+passing, I would have recorded FP_D09 as found, and the product would have been wrong about the
+one defect the feature was built to catch.
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

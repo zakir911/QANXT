@@ -191,12 +191,23 @@ public static class PageTestDesigner
         foreach (var rule in BusinessRuleFile.For(ctx.BusinessRules ?? Array.Empty<BusinessRuleBlock>(), page.Route))
         {
             var says = rule.Means.Length > 0 ? rule.Means : $"the rule {rule.Id} holds";
-            tests.Add(Test(TestCategory.DataIntegrity, $"business-rule-{rule.Id}",
+            var submits = rule.Kind == BusinessRuleKind.Submission;
+            tests.Add(Test(
+                // A submission rule disbelieves the form's own submit button and asks the
+                // endpoint directly, which is the same question the form engine's server-side
+                // checks ask, so it sits in the same category as those rather than with the
+                // read-only arithmetic.
+                submits ? TestCategory.Security : TestCategory.DataIntegrity,
+                $"business-rule-{rule.Id}",
                 $"obeys {rule.Id}", says,
-                "The figures the screen shows satisfy the rule, or the step reports which of its fields the screen does not show.",
+                submits
+                    ? "The endpoint refuses the submission the rule names, or the step reports what it did with it instead."
+                    : "The figures the screen shows satisfy the rule, or the step reports which of its fields the screen does not show.",
                 new List<DesignedStep> { open, new(BrowserActionType.AssertBusinessRule, says, Value: rule.Text) },
                 TestPriority.High, $"{signedIn}{name} exists at {page.Route}.",
-                "The rule as written, the figures read off the screen and the arithmetic; DOM snapshot on failure."));
+                submits
+                    ? "The submission as sent, the status and location the endpoint answered with, and what that reads as; DOM snapshot on failure."
+                    : "The rule as written, the figures read off the screen and the arithmetic; DOM snapshot on failure."));
         }
 
         // A page that prints a table is making arithmetic claims about its own contents, and
