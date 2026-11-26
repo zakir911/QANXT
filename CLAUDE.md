@@ -44,6 +44,15 @@ are **not planted defects** — `/fleet/drivers/new`, `/orders/purchase/new` and
 `/routes/planner`, each verified by hand — and on `/routes/planner`, which enforces its
 permission and not its token, it reports the missing token and no privilege escalation.
 
+On freight's own security scan, **13 endpoints with no effective anti-forgery check are
+reported and all 13 are right**, 11 of them also reporting a read-only write, and the 2 that
+carry a permission gate correctly get no privilege finding. Three administrative pages an
+operations user reaches were verified by hand at 200 with their content. FP_D29 is found;
+FP_D11 is **named as a gap carrying its own address and not found**, because discovery maps as
+one identity and the control is invisible and 403 to that one. Defects 88 and 89, and
+`multi-target-results.md` has the run history — including that the default 160-page budget
+does not reach the adjustment page and the run says so.
+
 `verification/defects-found-by-measuring.md` is the product's own defects, each with the
 evidence that established it.
 

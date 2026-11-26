@@ -414,6 +414,8 @@ printing because every intermediate state looked like progress:
 | r13 | 1 | 1 | 3 | the scan held no anti-forgery token at all (85) |
 | r14 | 1 | 1 | **0** | one fact, one row (86) — and the cautious branch ate every escalation |
 | r15 | 3 | 3 | 2 | a page stable when read again was changed by the request (87) |
+| r16 | 6 | 6 | 5 | the application's own confirmation, read rather than diffed (88) |
+| r17 | 13 | 13 | 11 | the same build, with the exploration budget raised to 300 pages |
 
 **r11's forty findings were mostly false.** Defects 82 to 87 in
 `verification/defects-found-by-measuring.md` carry the evidence for each step; the short
@@ -421,10 +423,35 @@ version is that giving a check the ability to issue a request it had never been 
 exposed three further faults behind it, and each one, left alone, made the product *more*
 confidently wrong than the silence it replaced.
 
-### What r15 reports, and what was verified by hand
+### What r17 reports, and what was verified by hand
 
-24 rows, 17 distinct facts. The three write findings were each checked against the running
-application before being believed:
+**56 rows, 20 distinct facts, 219 pages.** r16 ran on the same build with the default
+160-page budget and reached 141; it found six write endpoints and reported, in its own log,
+that *"budget stopped it"* with pages still queued. One of those queued pages carries
+FP_D29. Raising the budget is a configuration knob and not a fix to anything, and the two
+runs are listed separately for that reason.
+
+Every endpoint reported was checked against the handler, and the discrimination is exact:
+
+| | reported | correct |
+| --- | --- | --- |
+| no effective anti-forgery check | 13 | **13** |
+| no permission check, escalation reported | 11 | **11** |
+| permission check present, escalation **withheld** | 2 | **2** |
+
+The two withheld are `/routes/planner` and `/claims/:id/investigate`. Both carry a `can(...)`
+gate and neither got a privilege finding, while both correctly got the missing-token one.
+
+`/warehouse/stock/:id/adjust` is the subtle one: its handler *does* name `csrfValid`, behind
+`if (!faults.on('FP_D29_NO_CSRF_ON_ADJUSTMENT') && !await csrfValid(ctx))`. With the fault on,
+the check is skipped — so reporting a missing token there is right, and it is **FP_D29**.
+
+Three `BrokenFunctionLevelAuthorization` findings were checked the same way. Signed in as
+`ops.lead`, `GET /admin/settings`, `/admin/users/new` and `/admin/api-keys` all answer **200**
+and serve their content — the API keys page returns its own `<h1>API keys</h1>` to an
+operations user.
+
+### The three write findings r15 reported, checked by hand at the time
 
 | endpoint | handler has | `ops.lead`, no token | `readonly`, no token | product said |
 | --- | --- | --- | --- | --- |
@@ -446,25 +473,35 @@ least right to take credit for and most reason to report.
 
 Stated rather than rounded away.
 
-**FP_D29 — the stock adjustment form carries no anti-forgery token.** The check now sends
-`delta`, `reason` and `note` as a urlencoded body and still reaches no verdict: the endpoint
-refuses the control request. The reason the scan gives names what it sent, which is the point
-of that sentence existing. The remaining gap is a value the application's business rule
-rejects but its HTML constraints permit — `min="-100000" max="100000"` makes zero a legal
-quantity and the handler answers *"Enter a whole number other than zero"*. `FormRequestShape`
-now prefers an ordinary value over the range midpoint, and r15 is the first run to carry that;
-it did not recover the defect, so something else is also in the way and it has not been run
-down yet.
+**FP_D29 — the stock adjustment form carries no anti-forgery token. Found, in r17.** It took
+four fixes and one knob. The checks had to be able to send a body the endpoint accepts (82),
+the value had to be one the application's own business rule allows — `min="-100000"
+max="100000"` makes the range midpoint exactly zero and the handler answers *"Enter a whole
+number other than zero"* (86) — the refusal-by-redirect had to stop reading as acceptance
+(84), and the application's own confirmation had to be read rather than two pages diffed (88).
+Then the crawl had to actually reach the page: at the default 160-page budget it does not,
+and the run says so.
 
-**FP_D11 — settlement is hidden from a viewer and permitted by the handler.** Proven by hand
-in one request: `readonly`, on a page that tells it *"Settling a claim needs the claim:settle
-permission, which your role does not hold"*, settled a £5,953.11 claim for £1.00 — status
-`submitted` → `settled`. The product cannot reach it because `/claims/:id/settle` is not on the
-surface: every claim reference in every claims list is a `<button data-route="/claims/…">`
-rather than a link, so a crawl that does not press controls reached 141 routes and not one
-claim. The page extractor now reads destinations a control declares, and r15 still shows no
-claim page, so that fix is not working on this application and that is an open item rather
-than an explanation.
+**FP_D11 — settlement is hidden from a viewer and permitted by the handler. Named, not
+found.** Proven by hand in one request: `readonly`, on a page that tells it *"Settling a claim
+needs the claim:settle permission, which your role does not hold"*, settled a £5,953.11 claim
+for £1.00 — status `submitted` → `settled`.
+
+The product cannot reach it, and not for want of a crawler. `claim:settle` belongs to
+administrator and finance; discovery signs in as `ops.lead`; the control is not rendered for
+that role and `GET /claims/clm-0001/settle` answers **403** to it. Verified across three
+identities. **No amount of crawling as the identity the map was built with finds that
+address** — while the scan is given `administrator`, which sees it.
+
+So the scan now reports it as a gap carrying its own address:
+
+> *surface on /claims/clm-0001/settle: Not covered: the map was built as a different identity,
+> and administrator can see a control ("Settle") on /claims/clm-0001 that points here. Nothing
+> probed this address, because it was not on the surface to probe.*
+
+That is a named gap, not a detection, and the difference is not cosmetic. Closing it means
+letting discovery map as more than one identity, which changes what an application record
+holds — a design decision, flagged rather than made. Defect 89.
 
 ## The control group: the application the engines were built against
 
