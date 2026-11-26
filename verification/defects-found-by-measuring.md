@@ -3378,6 +3378,85 @@ which this does not claim.
 
 ---
 
+## 90. Every route template matched nothing, because a bare path is a file URI on Unix
+
+**Found by the tests, before any run.** The business rules file lets an owner write a rule for
+`/billing/credit-notes/{id}` and have it apply to `/billing/credit-notes/cn-0004`, which is the
+address a run actually visits. Three tests asserting exactly that failed, and the exact match
+beside them passed, which is the shape of a bug worth chasing rather than a fixture worth
+editing.
+
+`BusinessRuleFile.Normalise` unwrapped an address like this:
+
+```csharp
+if (Uri.TryCreate(path, UriKind.Absolute, out var absolute)) path = absolute.AbsolutePath;
+```
+
+On Unix, `Uri.TryCreate("/billing/credit-notes/{id}", UriKind.Absolute, ...)` returns **true**:
+a leading slash is a valid absolute `file:` URI. `AbsolutePath` then comes back percent-encoded,
+so the screen became `/billing/credit-notes/%7Bid%7D`, the brace the template matcher looks for
+was gone, and no template ever matched anything. A plain path survived unharmed, so every exact
+match worked and the capability looked fine.
+
+| written as | normalised to | matched `/billing/credit-notes/cn-0004` |
+| --- | --- | --- |
+| `/billing/credit-notes/cn-0004` | `/billing/credit-notes/cn-0004` | yes |
+| `/billing/credit-notes/{id}` | `/billing/credit-notes/%7bid%7d` | **no** |
+| `/orders/:orderId/lines` | `/orders/:orderid/lines` | yes, by luck — no encoding needed |
+
+Only http and https are unwrapped now, and what comes back is unescaped. The TypeScript half
+was never affected: `new URL('/billing/credit-notes/{id}')` throws, the throw is caught, and the
+path is left as written — which is why the same logic in two languages disagreed, and why the
+C# tests were worth writing rather than assuming the behaviour carried over.
+
+**What this cost if it had shipped:** a rule written for a detail screen would have been stored,
+listed in the application's configuration as a rule, counted among the rules, and silently
+applied to nothing. No failure, no skip, no report — the rule simply would not exist at run
+time. The product would have said it was checking something it was not.
+
+## 91. Six tests asserting a refusal would have passed had the code never refused
+
+**Found by reading my own new tests rather than their result.** The business rule oracle has to
+refuse in six distinct ways — a broken rule, a missing field, a rule written for another screen,
+a rule that cannot be parsed, a step carrying no rule, a name the screen gives two figures. Each
+was asserted like this:
+
+```ts
+await assertBusinessRule(page, RULE).catch((error: Error) => {
+  expect(error).toBeInstanceOf(InconclusiveError);
+  expect(error.message).toContain('is about /billing/invoices/new');
+});
+```
+
+If the oracle returned instead of throwing, the callback never runs, nothing is asserted, and
+the test passes. All six were green. All six would have stayed green had the oracle silently
+approved every rule it was handed.
+
+That is the same failure this product exists to find, inside its own test suite: a pass that
+means nothing was observed. The house rule says a pass means it ran, the expected behaviour was
+observed and there is evidence, and `.catch(callback)` satisfies none of the three.
+
+Replaced with a helper that throws when the oracle does not:
+
+```ts
+const refusalOf = async (rule: string | undefined): Promise<Error> => {
+  try {
+    await assertBusinessRule(page, rule);
+  } catch (error) {
+    return error as Error;
+  }
+  throw new Error('the oracle returned where it was expected to refuse');
+};
+```
+
+And a test asserting the helper itself fails on a rule that holds, because a guard nobody has
+seen fail is a guard nobody has tested. Seven tests now, where six were decoration.
+
+**Worth noting about how it was found:** the six tests were written in the same minute as the
+code they test, both by me, and both were green on the first run. Nothing about the result said
+anything was wrong. The only reason to look was that a green suite written that fast is itself
+suspicious.
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

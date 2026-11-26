@@ -718,3 +718,55 @@ a form error that assistive technology would not announce with the field.
   Nothing in 249 engine tests, 644 worker tests or 1813 C# tests was red at any point during
   that sequence. A green suite said the checks worked; only running them against an
   application showed what they concluded.
+
+## Business rules the owner states (2026-11-26)
+
+The five freight defects that depend on knowing the business were carried as misses for weeks
+with no one-sentence reason. The reason is that nobody had told the product the rule. A rules
+file now does, and this is what it reaches.
+
+Run with the worker's own oracle, signed in as `ops.lead` in a real browser, against the live
+application. Four rules in `test-lab/freight-platform/business-rules.txt`.
+
+| screen | rule | outcome | evidence |
+| --- | --- | --- | --- |
+| `/billing/invoices/inv-0001` | SURCHARGE_ON_NET | **FAIL — FP_D06** | surcharge £796.77, 11.5% of the £5,773.71 net is £663.98, out by £132.79 |
+| `/billing/invoices/inv-0004` | SURCHARGE_ON_NET | **FAIL — FP_D06** | £526.82 against £439.02, out by £87.80 |
+| `/customs/declarations/dec-0002` | DUTY_VALUE_INCLUDES_FREIGHT | **FAIL — FP_D08** | customs value £84,209.08, goods plus freight £85,891.48, out by £1,682.40 |
+| `/customs/declarations/dec-0005` | DUTY_VALUE_IS_GOODS_ALONE | **PASS** | FOB: £15,875.09 == £15,875.09. The control. |
+| `/customs/declarations/dec-0005` | DUTY_VALUE_INCLUDES_FREIGHT | not applicable | `Incoterm includes freight` reads No |
+| `/customs/declarations/dec-0002` | DUTY_IS_THE_RATE_ON_THE_CUSTOMS_VALUE | not applicable | `Duty rate` reads 12%, the rule is about 0% |
+| `/fleet/drivers` | — | no rules apply | and none run |
+
+FP_D08 holds on every CIF declaration sampled: dec-0001, 0002, 0004, 0007 and 0010 all show the
+customs value equal to the goods value with the freight cost excluded, and dec-0005 is the one
+FOB declaration, where goods alone is correct and the rule passes. The duty arithmetic itself is
+right — dec-0002's £10,105.09 is exactly 12% of its stated customs value — so only the base is
+wrong, which is what FP_D08 says.
+
+**Three rules were written and deleted.** VAT on the net plus the surcharge; the surcharge
+inside the invoice total; the VAT basis including it. All three reported confident failures with
+arithmetic attached, against behaviour this application never claimed: its VAT basis is the net
+alone and its total deliberately excludes the surcharge line. They were my assumptions. Nothing
+in the output distinguished them from the two real finds, and nothing could have — this is the
+capability's one structural risk, and the rules file now carries the warning at its top.
+
+**The invoice contradicts itself**, which the ambiguity guard caught before any rule ran. The
+line table prints £663.98 against the label "Fuel surcharge 11.5%" and the summary prints
+£796.77 against the same label. One screen giving one name two figures is refused rather than
+guessed between, so the rule names the uniquely marked `fuel-surcharge` instead. Worth noting
+that the correct figure is on the page — the application computes 11.5% of net somewhere and
+then shows 11.5% of gross in the summary.
+
+### Still not reachable this way, and what each needs
+
+| defect | shape | what it needs |
+| --- | --- | --- |
+| FP_D07 rate band boundary | a weight on a band edge is rated in the lower band | cross-row reasoning: the "50 kg costs" cell of the 0–50 row must use the *next* band's rate. Per-row rules over a table would not do it; the statement spans rows. |
+| FP_D05 credit limit bypassed | the form disables submit, the handler accepts anyway | a rule about what a submission must be refused, not about figures on a screen. The oracle for this exists (`assertServerEnforces`); what is missing is a way for the owner to state the value that must be refused. |
+| FP_D09 credit note exceeds invoice | same shape | same |
+
+So of the five rule-dependent freight defects, **two are found, and the other three need two
+further rule shapes** — one over a table's rows and across them, one over a submission. Both are
+real extensions of the same file format rather than new machinery, and neither is built.
+

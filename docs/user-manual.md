@@ -403,6 +403,78 @@ shows version history and compares versions; and **imports manual tests** from C
 JSON or structured text. An imported test whose steps are all understood becomes an automated
 draft; anything else becomes a human verification task with its steps intact.
 
+### Tell it your business rules
+
+Everything above asks a question the application answers about itself: does this total equal the
+lines above it, does this count match these rows, does this field honour the limit it declares.
+Those find defects whatever your business is.
+
+One class they cannot reach. An invoice adds a fuel surcharge to the gross amount; your rule is
+that it goes on the net. No field is invalid, no error appears, the arithmetic is internally
+consistent, and the only way to know it is wrong is to have been told. So tell it.
+
+Write them in a `business-rules.txt` committed beside your application, and load it with
+`PATCH /api/v1/applications/{id}` (field `businessRules`) or by letting the CLI pick the file up
+from your repository. There is no console screen for this yet; the file is the interface, which
+is deliberate — rules belong in version control with the code they describe, so a change to one
+is reviewed like any other. Each rule is four lines:
+
+```
+rule SURCHARGE_ON_NET
+  on      /billing/invoices/{id}
+  means   The fuel surcharge is 11.5% of the net freight, never of the VAT-inclusive total.
+  expect  fuelSurcharge == invoiceNet * 0.115
+  within  0.01
+```
+
+`on` is the screen, and `{id}` or `:id` covers every instance of it. `means` is your own
+sentence, and it is what a failure report says — not an arithmetic complaint. `expect` compares
+two calculations using `+ - * /`, brackets, `==`, `!=`, `<=`, `>=`, `<` and `>`. `within` is the
+rounding it tolerates; it defaults to a penny, and `within 0` suits a count.
+
+Field names are matched to what the screen shows: a summary label, a form field's name, or a
+`data-field` attribute. Letters and digits only, folded, so `Fuel surcharge`, `fuelSurcharge`
+and `fuel_surcharge` are one name. `surcharge` is a **different** name and will not match
+`Fuel surcharge` — matching on a fragment is how a rule about the order total silently gets
+checked against the line total.
+
+**A rule can apply only sometimes.** Customs duty on a shipment whose incoterm includes freight
+is charged on goods plus freight; where it does not, goods alone is right. One screen renders
+both:
+
+```
+rule DUTY_VALUE_INCLUDES_FREIGHT
+  on      /customs/declarations/{id}
+  when    Incoterm includes freight is Yes
+  expect  valueForDuty == goodsValue + freightCost
+```
+
+`when <something the screen shows> is <text>`, or `is not`. Where the condition does not hold,
+the rule reports **not applicable** rather than passing or failing.
+
+**Four outcomes, and the last two are why this is worth trusting.**
+
+| | |
+| --- | --- |
+| The rule holds | The test passes. |
+| The rule is broken | The test fails, quoting your sentence, the figures and the amount it is out by. |
+| A field is not on the screen | The test is **skipped**, naming the field it could not find and listing the names the screen did offer. Never a pass. |
+| A `when` is not met | The test is **not applicable**. |
+
+A rule that passed because its field was missing is a rule you are relying on and nobody is
+checking, which is worse than no rule. So it will not do that.
+
+**Two refusals worth knowing about.** Where one screen gives the same name two different
+figures, the name is dropped and the rule is skipped saying so — two places disagreeing is not a
+value, and guessing between them produces a confident wrong answer. And a rule whose expression
+cannot be read is reported with its line number and never silently ignored.
+
+**It is only as good as your rules.** Write what the business has actually stated, not what you
+assume it would say. A rule nobody agreed to still fails loudly, with arithmetic attached, and
+reads exactly like a defect.
+
+Nothing here runs a model, and nothing here evaluates your text as code.
+
 ---
 
 ## 6. Running tests

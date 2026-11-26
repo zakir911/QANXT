@@ -53,6 +53,17 @@ one identity and the control is invisible and 403 to that one. Defects 88 and 89
 `multi-target-results.md` has the run history — including that the default 160-page budget
 does not reach the adjustment page and the run says so.
 
+**Business rules an owner states are now checked**, which closes the one class nothing else
+reaches: an invoice whose fuel surcharge goes on the gross when the rule says the net breaks no
+field, raises no error and ties out internally. The owner writes a `business-rules.txt`; the
+designer makes one test per rule; the worker parses and evaluates it — never `eval`. Proved live
+on freight: **FP_D06 and FP_D08 found** with arithmetic, and the FOB declaration passes as a
+control. Three rules were written and deleted because they were my assumptions rather than
+stated policy and all three failed confidently against behaviour the application never claimed;
+the file says so at its top. FP_D07 needs cross-row reasoning over a rate table and FP_D05 and
+FP_D09 need a submitted value to be refused, so neither is reachable this way yet. Defects 90
+and 91. `docs/user-manual.md` section 5 has the format.
+
 `verification/defects-found-by-measuring.md` is the product's own defects, each with the
 evidence that established it.
 
