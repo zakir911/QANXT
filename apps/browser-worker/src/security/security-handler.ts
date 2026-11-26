@@ -56,7 +56,7 @@ type CheckRunner = (scanner: Scanner, target: SecurityTarget, context: ScanConte
  * A malformed sample is treated as no sample rather than thrown: the surface is built
  * elsewhere, and a check that cannot read it should still run with what it has and say so.
  */
-const requestShapeOf = (target: SecurityTarget): {
+export const requestShapeOf = (target: SecurityTarget): {
   body: Record<string, unknown>;
   contentType: string;
   tokenField: string | null;
@@ -701,7 +701,16 @@ const inconclusive = (reason: string): CheckResult => ({ findings: [], inconclus
  */
 const BROWSER_CHECKS = new Set(['xss.dom']);
 
-const RUNNERS: Record<string, CheckRunner> = {
+/**
+ * Exported so a test can reach one runner at a time.
+ *
+ * Same reason `asActor` and `signInIdentities` are exported: this table is where the
+ * platform's check names are turned into the engine's calls, and it decides which identity
+ * each check acts as and what it says when it cannot run. That second part is the product's
+ * honesty, and nothing could reach it from a test — the file sat at 16.5% line coverage with
+ * the dispatch untested while the checks it dispatches to were covered well.
+ */
+export const RUNNERS: Record<string, CheckRunner> = {
   'authz.bola': async (scanner, target, context) => {
     const a = owner(context); const b = intruder(context);
     if (!a || !b) return inconclusive('Two signed-in identities are needed to compare access; fewer were available.');
