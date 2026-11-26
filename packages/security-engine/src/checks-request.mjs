@@ -222,9 +222,64 @@ export async function theAlertIsThePagesOwn(scanner, landing, { session, testId,
   return alertsIn(again.responseText).includes(alert);
 }
 
+/**
+ * The page with its scripts and styles removed.
+ *
+ * A region that reads as an error has to be a region the application *rendered*, not a string
+ * in its JavaScript. Freight ships this in an inline script on every page:
+ *
+ *     root.innerHTML = '<div class="flash flash-error" role="alert">That view could not be
+ *                        loaded.</div>';
+ *
+ * so every page in the application appeared to be reporting an error. That blocked the branch
+ * that reads the application's own success message and cost FP_D29 — a stock adjustment
+ * accepted with no anti-forgery token, with the application saying "Stock adjusted by +1. On
+ * hand is now 255." on the very page being examined.
+ *
+ * It was harmless only by luck: the same literal is on both pages, so neither arm appeared to
+ * carry an error the other lacked. An application that embedded error markup in a script on
+ * one page and not another would have produced a false "the probe was refused".
+ */
+function rendered(html) {
+  if (typeof html !== 'string') return '';
+  return html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, ' ')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ');
+}
+
+/**
+ * The text of anything on the page that reads as the application reporting it *did* something.
+ *
+ * Better evidence than any page comparison, and available on most applications rendered on the
+ * server: after a write they redirect and say so. Freight answers an accepted stock adjustment
+ * with `<div class="flash flash-success" role="status">Stock adjusted by +1. On hand is now
+ * 252.</div>`, which states the write happened more plainly than a diff of two pages ever
+ * could.
+ *
+ * This replaced a comparison of whole page bodies, which could not work: the flash itself makes
+ * the page after a request differ from the same page read again, so every application that
+ * reports what it did looked like an application whose pages vary at random. FP_D29 — a stock
+ * adjustment that takes no anti-forgery token — was lost exactly there, with both arms accepted
+ * and the application saying so twice.
+ */
+function successesIn(page) {
+  const html = rendered(page);
+  if (html === '') return [];
+  const found = [];
+  const pattern = /(?:role=["']status["']|class=["'][^"']*(?:\bflash-success\b|\balert-success\b|\bsuccess\b)[^"']*["'])[^>]*>\s*([^<]{1,300})/gi;
+  let match;
+  while ((match = pattern.exec(html)) !== null) {
+    const text = match[1].replace(/\s+/g, ' ').trim();
+    if (text !== '') found.push(text);
+  }
+  return found;
+}
+
 /** The text of anything on the page that reads as an error the application is reporting. */
-function alertsIn(html) {
-  if (typeof html !== 'string') return [];
+function alertsIn(page) {
+  const html = rendered(page);
+  if (html === '') return [];
   const found = [];
   const pattern = /(?:role=["']alert["']|class=["'][^"']*(?:\berror\b|\balert-danger\b|\balert-error\b|\bflash-error\b|\binvalid-feedback\b)[^"']*["'])[^>]*>\s*([^<]{1,300})/gi;
   let match;
@@ -268,6 +323,15 @@ export function distinguishedTheTwo(controlPage, probePage) {
   if (onlyOnTheProbe.length > 0) {
     return { known: true, refused: true, how: `the application answered "${onlyOnTheProbe[0]}"` };
   }
+
+  // The application saying it did something is stronger evidence than any comparison of the
+  // two pages, and it is what a server-rendered application says after a write it accepted.
+  const probeSucceeded = successesIn(probePage);
+  if (probeSucceeded.length > 0 && probeAlerts.length === 0) {
+    return { known: true, refused: false, accepted: true,
+             how: `the application answered "${probeSucceeded[0]}"` };
+  }
+
   return { known: false, differedAnyway: true };
 }
 

@@ -3268,6 +3268,116 @@ it is declining is not caution.
 
 ---
 
+## 88. Error markup inside a script made every page look like it was reporting an error
+
+**Found by running one check against one endpoint and printing what it sent.** FP_D29 — the
+stock adjustment form carries no anti-forgery token — survived every fix in defects 82 to 87,
+and the reason the scan gave had become wrong in a new way each time. So instead of reading
+code I ran `checkCsrfToken` against `/warehouse/stock/stk-fxt-sku-001/adjust` directly and
+printed every exchange:
+
+```
+SECA-CSRF:control   POST  delta=1&reason=Cycle+count+correction&note=QA+NXT+test+notes
+                    -> 302  /warehouse/stock/stk-fxt-sku-001
+SECA-CSRF:arrived   GET   -> 200   flash-success "Stock adjusted by +1. On hand is now 254."
+SECA-CSRF:no-token  POST  delta=1&reason=Cycle+count+correction&note=QA+NXT+test+notes
+                    -> 302  /warehouse/stock/stk-fxt-sku-001
+SECA-CSRF:arrived   GET   -> 200   flash-success "Stock adjusted by +1. On hand is now 255."
+```
+
+The defect is in that transcript twice over. A request with no anti-forgery token was accepted,
+the stock balance moved, and **the application said so in words** — and the check returned
+*"the page varies on its own"*.
+
+**Two faults, one of them mine from an hour earlier.**
+
+*Comparing whole page bodies cannot work on an application that reports what it did.* Defect
+87 settled the "pages differ" case with a third read: a page stable when read again was changed
+by the request. But freight's flash message is consumed when it is read, so the page after the
+probe always differs from the same page read again — by exactly the sentence that proves the
+probe wrote. Every application that reports its own writes looked like an application whose
+pages vary at random. Two consecutive reads with nothing sent between them are byte-identical,
+which is how I know the volatility was the flash and nothing else.
+
+The fix is to stop diffing and read what the application said. `successesIn` looks for the
+regions a server-rendered application puts a confirmation in — `role="status"`,
+`class="flash-success"`, `alert-success` — and a probe whose landing page carries one, with no
+error beside it, was accepted. That is better evidence than any comparison of two pages, and it
+is what the application volunteers.
+
+*And the reason that branch never fired:* freight ships this in an inline script, on every page
+in the application:
+
+```js
+root.innerHTML = '<div class="flash flash-error" role="alert" data-testid="flash">'
+               + 'That view could not be loaded.</div>';
+```
+
+`alertsIn` matched it. So every page in freight appeared to be reporting an error, the
+"no error beside it" condition was never true, and the success branch was unreachable.
+
+It was harmless only by luck. The same literal sits on both pages, so neither arm appeared to
+carry an error the other lacked — and `distinguishedTheTwo` compares the two sets rather than
+testing either alone. An application that embedded error markup in a script on one page and not
+another would have produced a confident **"the probe was refused"** on an endpoint that
+accepted it. A region that reads as an error has to be a region the application *rendered*:
+scripts, styles and comments are stripped before either scanner runs.
+
+**FP_D29 is now found**, with the application's own sentence as the evidence.
+
+---
+
+## 89. Discovery maps as one identity; the scan is given several
+
+**Established by hand, after the extractor turned out to be working.** FP_D11 is a settlement
+hidden from a viewer and permitted by the handler, and I had written that the product could not
+reach it because every claim reference is a `data-route` button the crawl could not read. That
+was wrong twice: the extractor reads them, and the worker log for the latest run says
+`Mapped /claims/clm-0001`. I had grepped the scan's log rather than the crawl's and concluded a
+fix was not working when it was.
+
+The real reason is upstream of anything a crawler can do:
+
+| signed in as | settle control rendered | `GET /claims/clm-0001/settle` |
+| --- | --- | --- |
+| `ops.lead` | **no** | **403** |
+| `admin` | yes | 200 |
+| `finance` | yes | 200 |
+
+`claim:settle` belongs to administrator and finance. Freight's claim page renders the control
+only for a role that holds it:
+
+```js
+${settleable && maySettle ? `<button data-route="/claims/${claim.id}/settle">Settle</button>` : ''}
+```
+
+Discovery signs in as `ops.lead`. The address is not in the markup it reads and is forbidden to
+it besides, so **no amount of crawling as that identity finds it.** The scan is nevertheless
+given three identities including `administrator`, which sees both.
+
+So the surface is whatever one identity could see, while the scan holds credentials that would
+have shown it more. That is a structural gap, not a bug in a crawler, and it is the same shape
+as CS_D04 on clinic-spa — a control the interface hides from a role and the endpoint permits —
+except that there the crawl *had* the identity that could press it.
+
+**What was built, and what was deliberately not.** The scan now reads each page the surface
+already holds as the most privileged identity it was given, and reports every destination that
+identity's page declares which the surface does not hold: the address, the control's label, and
+the page it was declared on.
+
+It does **not** add them as targets. Which checks an address implies is decided where the
+surface is built, from the forms, the observed traffic and the route shape together, and a
+second copy of that rule in a worker would be a worse one. Making the product *test* these
+addresses means letting discovery map as more than one identity — a change to what an
+application record holds, which is a design decision rather than something to infer here. It is
+flagged, not made.
+
+So FP_D11 goes from a silent miss to a named gap carrying its own address. That is the standard
+the rest of the scan already holds itself to and it is not the same thing as finding the defect,
+which this does not claim.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

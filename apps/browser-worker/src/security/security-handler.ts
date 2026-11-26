@@ -1,7 +1,9 @@
 import type { SecurityIdentity, SecurityScanJob, SecurityTarget } from '@qa-nxt/shared-types';
 import { alsoSeenAt, collapseFindings, type CollapsedFinding } from './collapse-findings.js';
+import { controlsTheSurfaceDoesNotHold, declaredControlsIn, unseenControlGap }
+  from './controls-other-identities-see.js';
 import {
-  SEVERITY_ORDER, CONFIDENCE_ORDER, SecurityScanner, at, authHeaders, isSignedIn,
+  SEVERITY_ORDER, CONFIDENCE_ORDER, SECURITY_RISK, SecurityScanner, at, authHeaders, isSignedIn,
   api, auth, authz, injection, passive, request, xss
 } from '@qa-nxt/security-engine';
 import type { CheckResult, SecurityFinding, SecurityScanner as Scanner } from '@qa-nxt/security-engine';
@@ -321,6 +323,16 @@ export async function handleSecurityScanJob(
     if (browser) await browser.close().catch(() => {});
   }
 
+  // What the map could not see, because of who it was mapped as.
+  //
+  // Discovery maps as one identity; this scan is given several, because every authorization
+  // check compares two. So the surface is whatever the crawling identity could see, and the
+  // scan holds credentials that would have shown it more. On freight the settle control is
+  // rendered only for a role holding claim:settle and the address answers 403 to the identity
+  // the crawl used, so a planted defect sits behind an address no amount of crawling as that
+  // identity finds.
+  const unseen = await controlsOtherIdentitiesSee(scanner, job, context, log);
+
   const summary = scanner.summary();
   const executed = [...new Set(outcomes.filter(o => o.executed).map(o => o.check))];
   // One fact, reported once. A scan of a 137-screen application produced 173 findings and 17
@@ -344,7 +356,7 @@ export async function handleSecurityScanJob(
     durationMs: Date.now() - started,
     checksConfigured: job.checksConfigured,
     checksExecuted: executed,
-    untestedAreas: untestedAreas(job, outcomes),
+    untestedAreas: [...untestedAreas(job, outcomes), ...unseen],
     findings: findings.map(toReport),
     blockedRequests: summary.blocked.map(blocked => ({
       url: blocked.url,
@@ -432,6 +444,58 @@ async function runOne(
  * Distinguishing tested coverage from untested areas is a requirement rather than a courtesy,
  * and the honest source for it is what actually happened rather than a fixed list.
  */
+/**
+ * Reads each page the surface holds as the most privileged identity, and reports every
+ * destination that identity's page declares which the surface does not hold.
+ *
+ * Bounded on purpose: page targets only, and capped, because this is a sweep for coverage
+ * rather than a second crawl. Nothing is probed and nothing is added as a target — which
+ * checks an address implies is decided where the surface is built, and guessing it here would
+ * be a worse copy of that rule.
+ */
+async function controlsOtherIdentitiesSee(
+  scanner: Scanner, job: SecurityScanJob, context: ScanContext, log: Logger
+): Promise<string[]> {
+  const identities = [...context.identities.values()];
+  if (identities.length < 2) return [];
+
+  // The one most likely to see more than the crawl did.
+  const privileged = identities.find(i => i.role === 'privileged' || i.role === 'administrator'
+                                       || i.role === 'admin' || i.role === 'owner')
+    ?? identities[0];
+  if (privileged === undefined) return [];
+
+  const pages = job.targets.filter(t => t.kind === 'page').slice(0, 200);
+  const gaps = new Map<string, string>();
+
+  for (const target of pages) {
+    const address = target.sampleUrl ?? target.identifier;
+    let url: string;
+    try { url = new URL(address, context.baseUrl).toString(); } catch { continue; }
+
+    const read = await scanner.request({
+      url, method: 'GET', risk: SECURITY_RISK.PASSIVE,
+      headers: { ...privileged.headers },
+      as: privileged.label, testId: 'surface:other-identity',
+      note: 'reading a page the surface already holds as a more privileged identity, to find '
+        + 'controls the identity the crawl used could not see'
+    });
+    if (!read.allowed || typeof read.responseBody !== 'string') continue;
+
+    for (const control of controlsTheSurfaceDoesNotHold(
+      target.identifier, declaredControlsIn(read.responseBody), job.targets)) {
+      gaps.set(control.address, unseenControlGap(control, privileged.label));
+    }
+  }
+
+  if (gaps.size > 0) {
+    log.info('Controls another identity can see that the map does not hold', {
+      identity: privileged.label, addresses: gaps.size
+    });
+  }
+  return [...gaps.values()];
+}
+
 function untestedAreas(job: SecurityScanJob, outcomes: CheckOutcome[]): string[] {
   const areas = new Set<string>();
 

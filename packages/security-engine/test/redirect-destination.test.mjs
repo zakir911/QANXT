@@ -415,3 +415,110 @@ test('an empty Location leaves the header-level verdict alone', async () => {
   assert.equal(scanner.sent.filter(r => String(r.testId).endsWith(':arrived')).length, 0);
   assert.ok(result.inconclusive === true || result.findings.length >= 0);
 });
+
+/**
+ * The application's own account of what it did, read off the page the redirect led to.
+ *
+ * Diffing two pages cannot work on an application that reports what it did, because the report
+ * itself makes the page differ from the same page read again. Freight's stock adjustment is
+ * the case: both arms accepted, both landing pages carrying
+ * `<div class="flash flash-success" role="status">Stock adjusted by +1. On hand is now 255.`,
+ * and the comparison calling that "the page varies on its own". FP_D29 was lost there.
+ */
+const SAVED_STATUS = '<h1>Stock</h1>'
+  + '<div class="flash flash-success" role="status">Stock adjusted by +1. On hand is now 255.</div>';
+
+test('the application saying it did something is a finding, whatever the pages look like', async () => {
+  const scanner = stub({
+    posts: [redirectedTo('/warehouse/stock/stk-1'), redirectedTo('/warehouse/stock/stk-1')],
+    landings: [page(SAVED_STATUS.replace('255', '254')), page(SAVED_STATUS)]
+  });
+
+  const result = await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/warehouse/stock/stk-1/adjust', session,
+    body: { delta: '1', reason: 'Damage' },
+    contentType: 'application/x-www-form-urlencoded', tokenField: null
+  });
+
+  assert.equal(result.findings.length, 1);
+  assert.equal(result.findings[0].category, 'MissingCsrfToken');
+  // And no page needed reading a third time: the application already said so.
+  assert.equal(scanner.sent.filter(r => String(r.testId).endsWith(':stable')).length, 0);
+});
+
+test('an error on the probe still wins over a success, so a refusal is never read as a write', async () => {
+  const both = '<div class="flash flash-success" role="status">Saved.</div>'
+    + '<div class="flash flash-error" role="alert">That form expired.</div>';
+  const scanner = stub({
+    posts: [redirectedTo('/x'), redirectedTo('/x')],
+    landings: [page('<div class="flash flash-success" role="status">Saved.</div>'), page(both)]
+  });
+
+  const result = await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/x/edit', session, ...shape
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.findings.length, 0);
+});
+
+/**
+ * Error markup inside a script is not the application reporting an error.
+ *
+ * Freight ships this in an inline script on every page:
+ *
+ *     root.innerHTML = '<div class="flash flash-error" role="alert">That view could not be
+ *                        loaded.</div>';
+ *
+ * so every page in the application appeared to be reporting one. That blocked the branch above
+ * and cost FP_D29. It was harmless only by luck — the same literal sits on both pages, so
+ * neither arm appeared to carry an error the other lacked.
+ */
+test('markup inside a script is not a region the application rendered', async () => {
+  const scriptNoise = '<script>root.innerHTML = '
+    + "'<div class=\"flash flash-error\" role=\"alert\">That view could not be loaded.</div>';"
+    + '</script>';
+  const scanner = stub({
+    posts: [redirectedTo('/warehouse/stock/stk-1'), redirectedTo('/warehouse/stock/stk-1')],
+    landings: [page(scriptNoise + SAVED_STATUS.replace('255', '254')),
+               page(scriptNoise + SAVED_STATUS)]
+  });
+
+  const result = await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/warehouse/stock/stk-1/adjust', session,
+    body: { delta: '1' }, contentType: 'application/x-www-form-urlencoded', tokenField: null
+  });
+
+  assert.equal(result.findings.length, 1);
+});
+
+test('a comment carrying error markup is ignored too', () => {
+  const commented = '<!-- <div role="alert">That form expired.</div> --><h1>ok</h1>';
+  assert.deepEqual(distinguishedTheTwo('<h1>ok</h1>', commented), { known: false, differedAnyway: true });
+});
+
+test('a success region in a style block is not a success either', async () => {
+  const styled = '<style>.success:after{content:"Saved."}</style><h1>Stock</h1>';
+  let reads = 0;
+  const scanner = {
+    sent: [],
+    async request(options) {
+      this.sent.push(options);
+      const id = String(options.testId);
+      if (id.endsWith(':read')) return page('<form/>');
+      // A page that keeps changing: nothing the application said, so this is all there is.
+      if (id.endsWith(':stable')) return page(styled + `<p>${43 + reads++} views</p>`);
+      if (id.endsWith(':arrived')) return page(styled + `<p>${41 + reads++} views</p>`);
+      return redirectedTo('/x');
+    }
+  };
+
+  const result = await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/x/edit', session, ...shape
+  });
+
+  // A stylesheet is not the application reporting a write, so the check falls through to the
+  // stability read rather than founding a finding on a CSS rule.
+  assert.equal(result.inconclusive, true);
+  assert.equal(scanner.sent.filter(r => String(r.testId).endsWith(':stable')).length, 1);
+});
