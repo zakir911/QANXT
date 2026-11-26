@@ -1,4 +1,5 @@
 import type { SecurityIdentity, SecurityScanJob, SecurityTarget } from '@qa-nxt/shared-types';
+import { alsoSeenAt, collapseFindings, type CollapsedFinding } from './collapse-findings.js';
 import {
   SEVERITY_ORDER, CONFIDENCE_ORDER, SecurityScanner, at, authHeaders, isSignedIn,
   api, auth, authz, injection, passive, request, xss
@@ -322,7 +323,10 @@ export async function handleSecurityScanJob(
 
   const summary = scanner.summary();
   const executed = [...new Set(outcomes.filter(o => o.executed).map(o => o.check))];
-  const findings = outcomes.flatMap(o => o.findings);
+  // One fact, reported once. A scan of a 137-screen application produced 173 findings and 17
+  // distinct facts: 135 of them one missing response header, 16 of them one cookie attribute.
+  // A report where 87% of the rows are two sentences repeated hides the rows that matter.
+  const findings = collapseFindings(outcomes.flatMap(o => o.findings));
 
   log.info('Security scan finished', {
     requestsIssued: summary.requestsIssued,
@@ -445,7 +449,7 @@ function untestedAreas(job: SecurityScanJob, outcomes: CheckOutcome[]): string[]
   return [...areas];
 }
 
-function toReport(finding: SecurityFinding): Record<string, unknown> {
+function toReport(finding: CollapsedFinding): Record<string, unknown> {
   return {
     category: finding.category,
     title: finding.title,
@@ -465,7 +469,10 @@ function toReport(finding: SecurityFinding): Record<string, unknown> {
     owaspApiCategory: finding.owaspApiCategory ?? null,
     owaspWebCategory: finding.owaspWebCategory ?? null,
     owaspEdition: '2021',
-    description: finding.description,
+    // Where one fact was seen at several addresses, the description says so and names them.
+    // The count has to be *in* the finding a person reads: a collapsed report that silently
+    // dropped 134 addresses would be a different kind of dishonesty from the one it fixes.
+    description: [finding.description, alsoSeenAt(finding)].filter(Boolean).join(' '),
     impact: finding.impact,
     remediation: finding.remediation,
     reproductionSteps: reproduction(finding),

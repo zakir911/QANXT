@@ -131,6 +131,19 @@ export interface SecurityFinding {
   httpMethod?: string;
   parameter?: string;
   observedAsRole?: string;
+  /**
+   * What is wrong, where that is not the address.
+   *
+   * A response header is set by one piece of middleware and a cookie's attributes are set
+   * where it is issued, so the same fact arrives once per page the scan looked at: 135
+   * findings for one missing header on a 137-screen application, in a report with 17 distinct
+   * facts in it. A check that knows its finding is about the application rather than the
+   * address says so here, and the caller collapses them into one while keeping the addresses
+   * as evidence.
+   *
+   * Left unset where the fix is per-endpoint. Two routes with the same flaw are two problems.
+   */
+  subject?: string;
   description: string;
   impact: string;
   remediation: string;

@@ -3167,6 +3167,61 @@ from r11 or r12 was published.
 
 ---
 
+## 86. A hundred and seventy-three findings, seventeen facts
+
+**Found by collapsing the report I was about to publish.** Freight's r13 scan reported 173
+findings. Grouped by what they actually say:
+
+| | |
+| --- | --- |
+| 135 | `x-content-type-options is not set` |
+| 16 | `Session cookie "lab_session" is missing HttpOnly when "remember" is enabled` |
+| 3 | `A read-only account can perform a write` |
+| 3 | `Protected data is served to an unauthenticated caller` |
+| 3 | `6 consecutive failed sign-ins were never throttled` |
+| 2 | `15 requests in quick succession were never rate limited` |
+| 1 each | nine more, including the real missing-token hole and an open redirect |
+
+**Seventeen distinct facts in 173 rows.** 151 of them — 87% — are two sentences repeated. The
+three privilege escalations and the one genuine anti-forgery hole are somewhere after row 151.
+
+This is not cosmetic. The thing a reviewer is paid to find is the row they will never reach,
+and every count the product has published this session was a count of rows rather than
+problems. `verification/multi-target-results.md` carries those numbers. I had written "28
+findings on 19 targets → 20 on 12" as a measure of improvement without once asking how many
+*things* that was.
+
+**Three different ways one fact arrived more than once.**
+
+*The whole application.* A response header is set by one piece of middleware. Missing on 135
+pages is one fix. So is a cookie's HttpOnly: the attribute is set where the cookie is issued,
+once, whatever page the scan happened to observe it on. The check now says so by setting
+`subject` on the finding — `header:x-content-type-options`, `cookie:lab_session:HttpOnly` — and
+findings sharing a subject become one.
+
+*Every instance of one route.* `/api/shipments/shp-0001`, `shp-0002` and `shp-0003` are three
+samples of `/api/shipments/{id}`, and an endpoint that serves protected data without a session
+does it for every id. `routeTemplate` replaces a segment that cannot be a route name — a
+number, a prefixed number, a UUID — and leaves a word alone, because `/orders/sales/new` and
+`/orders/sales/approve` are two routes and merging them would hide one.
+
+*The same address, spelled two ways.* `/auth/sign-in` and `http://127.0.0.1:4400/auth/sign-in`
+reached the surface as separate items, so account lockout was reported against both.
+
+**What is deliberately not collapsed.** Three read-only writes on `/reports/builder`,
+`/warehouse/transfers/new` and `/fleet/drivers/new` are three problems and three fixes. A rule
+that merged them would be the same mistake pointing the other way, and a worse one: this one
+wastes a reader's time, that one loses an endpoint. Only a declared subject, or the same fact
+on the same route template with the same method, parameter and role, is treated as one.
+
+**And nothing is dropped.** The survivor carries how many addresses it stands for and lists
+the first eight, and the sentence goes into the description a person reads, not just into a
+column: *"The same thing is true at 134 other address(es) this scan reached. Also at …"*. A
+collapsed report that quietly discarded 134 addresses would be a different kind of dishonesty
+from the one it fixes.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

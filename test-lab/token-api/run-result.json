@@ -3,11 +3,11 @@
   "name": "Northwind Orders API",
   "technology": "bearer-token sign-in answering JSON rather than a cookie; X-CSRF-Token header convention; one HTML page over a JSON API",
   "domain": "order management",
-  "ranAt": "2026-11-26T02:24:52.236Z",
+  "ranAt": "2026-11-26T08:44:48.915Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "ca9e66a6-3164-446d-b8a2-34e54121576f",
+      "id": "1dd94e28-152d-4b2a-8f35-49ace9bfa66c",
       "authStrategy": "tokenLogin",
       "budget": 180,
       "maxPages": 20
@@ -37,7 +37,7 @@
       "list": []
     },
     "design": {
-      "testSuiteId": "fbe020f5-af0f-4475-9f0b-dc280a98182d",
+      "testSuiteId": "b8a751aa-deb4-43dd-89c6-6f11343b2f5f",
       "testSuiteName": "Northwind Orders API — form level",
       "forms": 0,
       "testsCreated": 32,
@@ -56,7 +56,7 @@
       "pageTests": 32,
       "perPage": [
         {
-          "pageId": "c5ed785b-f40b-4025-954a-cf31276bca93",
+          "pageId": "13d0d8b4-7608-49d1-bcf3-89c391c363bb",
           "name": "Token API (/)",
           "route": "/",
           "tests": 8,
@@ -70,7 +70,7 @@
           }
         },
         {
-          "pageId": "045dbe8e-5160-4c4e-ab1e-42e855e1735c",
+          "pageId": "6ce59837-2ed6-413b-a2aa-909ce10d060d",
           "name": "/api/orders",
           "route": "/api/orders",
           "tests": 8,
@@ -84,7 +84,7 @@
           }
         },
         {
-          "pageId": "37f0d058-083c-4f63-a69e-386bd03d9904",
+          "pageId": "3ac82462-ac56-4471-b078-05d7adde9fe6",
           "name": "Search (/search)",
           "route": "/search",
           "tests": 9,
@@ -99,7 +99,7 @@
           }
         },
         {
-          "pageId": "5051ac32-d15b-4b46-8c49-abd209d2a041",
+          "pageId": "0f38d0c2-eac8-46c5-8c6a-10b95605b196",
           "name": "/api/orders/ord-1",
           "route": "/api/orders/ord-1",
           "tests": 7,
@@ -115,7 +115,7 @@
     },
     "scan": {
       "ok": true,
-      "id": "53ccb6fc-e481-486c-bbf3-94879b611616",
+      "id": "50e2d00c-6388-44a6-b2ec-0ebaeb68915e",
       "status": "completed",
       "requestsIssued": 181,
       "requestsBlocked": 0,
@@ -181,11 +181,11 @@
         "authz.missing on /: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 33 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
         "passive.cookies on /: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
         "passive.pii-in-url on /: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
-        "passive.cookies on /api/orders: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
-        "passive.pii-in-url on /api/orders: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "passive.cookies on /api/orders/ord-1: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
         "passive.pii-in-url on /api/orders/ord-1: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "passive.cookies on http://127.0.0.1:4500/search?q=example: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
+        "passive.cookies on /api/orders: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
+        "passive.pii-in-url on /api/orders: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "authz.vertical on http://127.0.0.1:4500/api/orders: Inconclusive: A privileged and a lesser identity are needed; both were not available.",
         "api.excessive-data on http://127.0.0.1:4500/api/orders/{id}: Inconclusive: The endpoint answered 500.",
         "api.input-validation on http://127.0.0.1:4500/api/auth/token: Inconclusive: No parameter was discovered on this endpoint to probe.",
@@ -193,7 +193,7 @@
         "auth.session-lifetime on http://127.0.0.1:4500/api/auth/token: Inconclusive: Sign-in failed (404).",
         "auth.session-logout on http://127.0.0.1:4500/api/auth/token: Inconclusive: The session did not authenticate even before sign-out (404).",
         "authz.missing on http://127.0.0.1:4500/api/auth/token: Inconclusive: The owner could not read it either (404).",
-        "authz.readonly on http://127.0.0.1:4500/api/auth/token: Inconclusive: alice could not write either (401); the endpoint may reject this payload for unrelated reasons.",
+        "authz.readonly on http://127.0.0.1:4500/api/auth/token: Inconclusive: Not evaluated: alice could not write either — it answered 401. An account that is permitted to write has to succeed before a refusal for one that is not means anything.",
         "request.csrf on http://127.0.0.1:4500/api/auth/token: Inconclusive: Not evaluated: alice authenticates with a bearer token and the application set no session cookie. A browser attaches a cookie to a cross-site request on its own, which is what makes forgery possible; it does not attach a bearer token, which only the application's own code sets. So there is no cross-site request here for an anti-forgery token to defend. That is a property of how this application authenticates, not a gap in the scan.",
         "request.origin on http://127.0.0.1:4500/api/auth/token: Inconclusive: Not evaluated: alice authenticates with a bearer token and the application set no session cookie. A browser attaches a cookie to a cross-site request on its own, which is what makes forgery possible; it does not attach a bearer token, which only the application's own code sets. So varying the origin would compare two requests neither of which carries credentials. That is a property of how this application authenticates, not a gap in the scan.",
         "xss.stored on http://127.0.0.1:4500/api/auth/token: Inconclusive: No field was discovered on this page to store a marker in."
@@ -201,7 +201,7 @@
     },
     "run": {
       "ok": true,
-      "runId": "ba8180a7-fec8-4f92-86b1-675f0a227911",
+      "runId": "608b8352-e77b-4d62-9382-ba11d83540e9",
       "status": "failed",
       "executions": 32,
       "byStatus": {
@@ -270,38 +270,24 @@
         },
         {
           "severity": "high",
-          "checkId": "VerboseErrorDisclosure",
-          "route": "/api/orders/%7Bid%7D",
-          "parameter": "id",
-          "message": "An unparseable identifier returns a stack trace — parameter \"id\" — CWE-209"
-        },
-        {
-          "severity": "high",
           "checkId": "BOLA",
           "route": "/api/orders/%7Bid%7D",
           "parameter": "id",
           "message": "bob can read a resource owned by alice — parameter \"id\" — CWE-639"
         },
         {
-          "severity": "medium",
-          "checkId": "NoAccountLockout",
-          "route": "/api/auth/token",
-          "parameter": null,
-          "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
+          "severity": "high",
+          "checkId": "VerboseErrorDisclosure",
+          "route": "/api/orders/%7Bid%7D",
+          "parameter": "id",
+          "message": "An unparseable identifier returns a stack trace — parameter \"id\" — CWE-209"
         },
         {
           "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/search",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+          "checkId": "UnhandledInput",
+          "route": "/api/orders/%7Bid%7D",
+          "parameter": "id",
+          "message": "An unparseable identifier makes the endpoint fail rather than refuse — parameter \"id\" — CWE-20"
         },
         {
           "severity": "medium",
@@ -313,9 +299,30 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
           "route": "/api/orders",
           "parameter": "x-content-type-options",
           "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "NoAccountLockout",
+          "route": "/api/auth/token",
+          "parameter": null,
+          "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
         },
         {
           "severity": "medium",
@@ -327,7 +334,7 @@
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/",
+          "route": "/search",
           "parameter": "x-content-type-options",
           "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         },
@@ -342,18 +349,17 @@
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "UnhandledInput",
-          "route": "/api/orders/%7Bid%7D",
-          "parameter": "id",
-          "message": "An unparseable identifier makes the endpoint fail rather than refuse — parameter \"id\" — CWE-20"
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         }
       ],
       "gaps": [
+        {
+          "category": "workflow",
+          "status": "partially-covered",
+          "route": null,
+          "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
+        },
         {
           "category": "workflow",
           "status": "partially-covered",
@@ -365,12 +371,6 @@
           "status": "partially-covered",
           "route": "/api/orders/ord-1",
           "message": "/api/orders/ord-1: navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
-        },
-        {
-          "category": "workflow",
-          "status": "partially-covered",
-          "route": null,
-          "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
         },
         {
           "category": "smoke",

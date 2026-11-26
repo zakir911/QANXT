@@ -3,11 +3,11 @@
   "name": "Clinic Scheduler",
   "technology": "Node HTTP server, no server-rendered markup; every screen built by client JavaScript; History API routing; JSON API",
   "domain": "clinical appointment scheduling",
-  "ranAt": "2026-11-26T02:11:45.592Z",
+  "ranAt": "2026-11-26T08:30:41.809Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "414aa6a5-9369-4d0f-b09f-5ff8099d365b",
+      "id": "aea57ce6-b652-4ab0-91c5-12d7f97f66a3",
       "authStrategy": "formLogin",
       "budget": 240,
       "maxPages": 40
@@ -15,19 +15,19 @@
     "discovery": {
       "status": "completed",
       "pages": 4,
-      "elements": 31,
+      "elements": 38,
       "endpoints": 7,
       "byKind": {
         "unknown": 4,
-        "button": 5,
+        "button": 6,
         "form": 4,
-        "heading": 5,
+        "heading": 6,
         "textInput": 4,
         "passwordInput": 1,
         "table": 3,
-        "link": 2,
-        "navigation": 1,
-        "dateInput": 2
+        "link": 4,
+        "navigation": 2,
+        "dateInput": 4
       },
       "paths": [
         "/",
@@ -41,25 +41,25 @@
       "count": 4,
       "list": [
         {
-          "id": "03372634-d76b-46b4-88a6-1d46dbb4b0e2",
+          "id": "d35c2702-a315-4787-91f7-431f14220e35",
           "route": "/",
           "name": "Clinic Scheduler",
           "fields": 2
         },
         {
-          "id": "0506eca7-d3c2-4c26-83b6-f887ed348e3f",
+          "id": "8957225b-2ba1-4169-9a52-96518eee0272",
           "route": "/patients",
           "name": "Patients",
           "fields": 1
         },
         {
-          "id": "751d1ea7-34f9-4350-ab10-adcbd2dc3527",
+          "id": "e0b17a2a-0827-4785-aae6-ea80491fcea5",
           "route": "/patients",
           "name": "Patients",
           "fields": 1
         },
         {
-          "id": "37f97bf2-f0c5-4c06-af61-50ca7811ace6",
+          "id": "6f4fc81a-2a58-4240-a11c-7704fde241df",
           "route": "/schedule",
           "name": "Schedule",
           "fields": 3
@@ -67,22 +67,22 @@
       ]
     },
     "design": {
-      "testSuiteId": "968ba61f-7dc1-4c08-8b2e-d017e31254c5",
+      "testSuiteId": "40841e3c-eb33-401b-b294-ccc9481cde82",
       "testSuiteName": "Clinic Scheduler — form level",
       "forms": 4,
-      "testsCreated": 199,
+      "testsCreated": 198,
       "testsUpdated": 0,
       "testsUnchanged": 0,
       "testsDeprecated": 0,
       "testsLeftAsEdited": 0,
-      "gaps": 45,
+      "gaps": 46,
       "humanTasks": 20,
       "findings": 1,
       "usedAi": false,
       "engine": "QA NXT form and page test engine (deterministic)",
       "perForm": [
         {
-          "formId": "03372634-d76b-46b4-88a6-1d46dbb4b0e2",
+          "formId": "d35c2702-a315-4787-91f7-431f14220e35",
           "name": "Clinic Scheduler",
           "route": "/",
           "fields": 2,
@@ -113,7 +113,7 @@
           ]
         },
         {
-          "formId": "0506eca7-d3c2-4c26-83b6-f887ed348e3f",
+          "formId": "8957225b-2ba1-4169-9a52-96518eee0272",
           "name": "Patients",
           "route": "/patients",
           "fields": 1,
@@ -147,7 +147,7 @@
           ]
         },
         {
-          "formId": "751d1ea7-34f9-4350-ab10-adcbd2dc3527",
+          "formId": "e0b17a2a-0827-4785-aae6-ea80491fcea5",
           "name": "Patients",
           "route": "/patients",
           "fields": 1,
@@ -181,7 +181,7 @@
           ]
         },
         {
-          "formId": "37f97bf2-f0c5-4c06-af61-50ca7811ace6",
+          "formId": "6f4fc81a-2a58-4240-a11c-7704fde241df",
           "name": "Schedule",
           "route": "/schedule",
           "fields": 3,
@@ -217,10 +217,10 @@
       ],
       "warnings": [],
       "pages": 3,
-      "pageTests": 35,
+      "pageTests": 34,
       "perPage": [
         {
-          "pageId": "c157fa4c-95cc-42eb-b031-9f17888bf2c3",
+          "pageId": "dc33144a-b925-46fe-bca2-fbfb3a6a2f28",
           "name": "Clinic Scheduler (/schedule)",
           "route": "/schedule",
           "tests": 11,
@@ -235,7 +235,7 @@
           }
         },
         {
-          "pageId": "d2c5543d-648d-425f-8fe8-8ef0a4e7a3c1",
+          "pageId": "aa671358-6a15-4109-a749-6b8d78b19b85",
           "name": "Clinic Scheduler (/patients)",
           "route": "/patients",
           "tests": 12,
@@ -251,14 +251,13 @@
           }
         },
         {
-          "pageId": "043f1282-f973-45ab-bb43-9df50d03322f",
+          "pageId": "31713ace-a116-45fc-aba8-a7df11a3266f",
           "name": "Clinic Scheduler (/patients)",
           "route": "/patients",
-          "tests": 12,
-          "reachedByClicking": true,
+          "tests": 11,
+          "reachedByClicking": false,
           "testsByCategory": {
             "smoke": 1,
-            "workflow": 1,
             "security": 1,
             "accessibility": 2,
             "performance": 1,
@@ -270,18 +269,18 @@
     },
     "scan": {
       "ok": true,
-      "id": "20cdf387-4e05-4f4e-9656-cf4b6ad25316",
+      "id": "e50c808e-1e1e-47d3-9aae-c8aa7f6e53cf",
       "status": "completed",
       "requestsIssued": 329,
       "requestsBlocked": 2,
       "checksExecuted": [
-        "auth.lockout",
         "passive.cookies",
         "passive.headers",
         "passive.sensitive-data",
         "xss.dom",
         "xss.reflected",
         "xss.stored",
+        "auth.lockout",
         "injection.sql",
         "passive.pii-in-url",
         "api.excessive-data",
@@ -339,21 +338,21 @@
         "authz.vertical"
       ],
       "untested": [
+        "authz.missing on /schedule: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 16 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
+        "passive.pii-in-url on /schedule: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "auth.enumeration on /: Inconclusive: One of the two deliberately wrong sign-ins succeeded (200/200), so these answers are not comparable.",
         "auth.session-lifetime on /: Inconclusive: The application does not state a session lifetime in the response body or the cookie, so none could be read. This is reported as not measured rather than as acceptable.",
         "auth.session-logout on /: Refused by the scope guard: The standard profile does not run this risk level..",
         "passive.pii-in-url on /: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
+        "authz.missing on http://127.0.0.1:4600/patients?q=: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 16 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
         "authz.missing on /patients: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 16 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
         "passive.pii-in-url on /patients: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
-        "authz.missing on http://127.0.0.1:4600/patients?q=: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 16 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
-        "authz.missing on /schedule: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 16 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
-        "passive.pii-in-url on /schedule: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "authz.vertical on http://127.0.0.1:4600/api/appointments: Inconclusive: A privileged and a lesser identity are needed; both were not available.",
         "api.excessive-data on http://127.0.0.1:4600/api/patients/{id}: Inconclusive: The endpoint answered 404.",
         "api.error-disclosure on http://127.0.0.1:4600/api/patients?q={v}: Inconclusive: Not evaluated: this endpoint takes no identifier in its path, so there is nothing to make unparseable. An identifier in a query parameter is not one this check can corrupt, because the application decides what to do with it.",
-        "authz.readonly on http://127.0.0.1:4600/api/appointments: Inconclusive: clinician okafor could not write either (400); the endpoint may reject this payload for unrelated reasons.",
-        "request.csrf on http://127.0.0.1:4600/api/appointments: Inconclusive: Not evaluated: the endpoint did not accept the request even with a token and a same-site origin — it answered 400. Nothing can be concluded about what it does without one. This probe sends JSON with the token in a header, so a form endpoint that wants the token in a urlencoded body will refuse it here and refuse it for the right reason.",
-        "request.origin on http://127.0.0.1:4600/api/appointments: Inconclusive: Not evaluated: the endpoint did not accept a request from its own origin — it answered 400. What it does with another origin's cannot be read against that.",
+        "authz.readonly on http://127.0.0.1:4600/api/appointments: Inconclusive: Not evaluated: clinician okafor could not write either — it answered 400. An account that is permitted to write has to succeed before a refusal for one that is not means anything.",
+        "request.csrf on http://127.0.0.1:4600/api/appointments: Inconclusive: Not evaluated: the endpoint did not accept the request even with a token and a same-site origin — it answered 400. Nothing can be concluded about what it does without one. What was sent: a JSON body carrying the field(s) patient, start, end, with the token in a header only, because no form declared a token field here.",
+        "request.origin on http://127.0.0.1:4600/api/appointments: Inconclusive: Not evaluated: the endpoint did not accept a request from its own origin — it answered 400. What it does with another origin's cannot be read against that. What was sent: a JSON body carrying the field(s) patient, start, end, with the token in a header only, because no form declared a token field here.",
         "xss.stored on http://127.0.0.1:4600/api/appointments: Inconclusive: The value could not be stored (400), so what happens on read is unknown.",
         "api.input-validation on http://127.0.0.1:4600/api/appointments/apt-1/cancel: Inconclusive: No parameter was discovered on this endpoint to probe.",
         "authz.missing on http://127.0.0.1:4600/api/appointments/apt-1/cancel: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 16 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
@@ -365,9 +364,9 @@
         "auth.session-lifetime on http://127.0.0.1:4600/api/session: Inconclusive: The application does not state a session lifetime in the response body or the cookie, so none could be read. This is reported as not measured rather than as acceptable.",
         "auth.session-logout on http://127.0.0.1:4600/api/session: Refused by the scope guard: The standard profile does not run this risk level..",
         "authz.missing on http://127.0.0.1:4600/api/session: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 16 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
-        "authz.readonly on http://127.0.0.1:4600/api/session: Inconclusive: clinician okafor could not write either (401); the endpoint may reject this payload for unrelated reasons.",
-        "request.csrf on http://127.0.0.1:4600/api/session: Inconclusive: Not evaluated: the endpoint did not accept the request even with a token and a same-site origin — it answered 401. Nothing can be concluded about what it does without one. This probe sends JSON with the token in a header, so a form endpoint that wants the token in a urlencoded body will refuse it here and refuse it for the right reason.",
-        "request.origin on http://127.0.0.1:4600/api/session: Inconclusive: Not evaluated: the endpoint did not accept a request from its own origin — it answered 401. What it does with another origin's cannot be read against that.",
+        "authz.readonly on http://127.0.0.1:4600/api/session: Inconclusive: Not evaluated: clinician okafor could not write either — it answered 401. An account that is permitted to write has to succeed before a refusal for one that is not means anything.",
+        "request.csrf on http://127.0.0.1:4600/api/session: Inconclusive: Not evaluated: the endpoint did not accept the request even with a token and a same-site origin — it answered 401. Nothing can be concluded about what it does without one. What was sent: a JSON body carrying the field(s) username, password, with the token in a header only, because no form declared a token field here.",
+        "request.origin on http://127.0.0.1:4600/api/session: Inconclusive: Not evaluated: the endpoint did not accept a request from its own origin — it answered 401. What it does with another origin's cannot be read against that. What was sent: a JSON body carrying the field(s) username, password, with the token in a header only, because no form declared a token field here.",
         "xss.stored on http://127.0.0.1:4600/api/session: Inconclusive: The value could not be stored (401), so what happens on read is unknown.",
         "api.input-validation on http://127.0.0.1:4600/: Inconclusive: No parameter was discovered on this endpoint to probe.",
         "authz.missing on http://127.0.0.1:4600/: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 16 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
@@ -379,12 +378,12 @@
     },
     "run": {
       "ok": true,
-      "runId": "9341fff5-19fe-43d9-b0d7-43cd4ac9f951",
+      "runId": "0f2cadd4-f191-44b8-b48e-8139da4fffcf",
       "status": "failed",
-      "executions": 199,
+      "executions": 198,
       "byStatus": {
-        "passed": 168,
-        "failed": 17,
+        "passed": 166,
+        "failed": 18,
         "skipped": 8,
         "blocked": 6
       },
@@ -412,7 +411,7 @@
         {
           "name": "Patients: does not reflect markup typed into Find a patient",
           "route": "/patients",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-2adf8995> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-6714bb16> element(s) exist. The application does not encode what it reflects."
         },
         {
           "name": "Patients: copes with the session disappearing before submission",
@@ -432,7 +431,7 @@
         {
           "name": "Patients: does not reflect markup typed into Find a patient",
           "route": "/patients",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-2d276846> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-ffcf533a> element(s) exist. The application does not encode what it reflects."
         },
         {
           "name": "Patients: copes with the session disappearing before submission",
@@ -465,9 +464,14 @@
           "message": "The element was expected to be hidden but was visible."
         },
         {
-          "name": "Clinic Scheduler (/patients): is not shown to a signed-out visitor",
+          "name": "Clinic Scheduler (/patients): opens and shows its content",
           "route": null,
-          "message": "The element was expected to be hidden but was visible."
+          "message": "role=navigation name=\"Schedule Patients\" could not be used: No element matched role=navigation name=\"Schedule Patients\" (or 2 declared fallback(s))."
+        },
+        {
+          "name": "Clinic Scheduler (/patients): is reached from Clinic Scheduler (/schedule) through \"Patients\"",
+          "route": null,
+          "message": "role=navigation name=\"Schedule Patients\" could not be used: No element matched role=navigation name=\"Schedule Patients\" (or 2 declared fallback(s))."
         },
         {
           "name": "Clinic Scheduler (/patients): is not shown to a signed-out visitor",
@@ -520,6 +524,13 @@
       "security": [
         {
           "severity": "high",
+          "checkId": "PrivilegeEscalation",
+          "route": "/api/appointments/apt-1/cancel",
+          "parameter": null,
+          "message": "A read-only account can perform a write — CWE-269"
+        },
+        {
+          "severity": "high",
           "checkId": "BOLA",
           "route": "/api/patients/%7Bid%7D",
           "parameter": "id",
@@ -533,53 +544,25 @@
           "message": "A state-changing request succeeds with no anti-CSRF token — CWE-352"
         },
         {
-          "severity": "high",
-          "checkId": "PrivilegeEscalation",
-          "route": "/api/appointments/apt-1/cancel",
-          "parameter": null,
-          "message": "A read-only account can perform a write — CWE-269"
-        },
-        {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/schedule",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/schedule",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingOriginValidation",
-          "route": "/api/appointments/apt-1/cancel",
-          "parameter": null,
-          "message": "A state-changing request is accepted from any origin — CWE-352"
-        },
-        {
-          "severity": "medium",
-          "checkId": "NoAccountLockout",
-          "route": "/",
-          "parameter": null,
-          "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
-        },
-        {
-          "severity": "medium",
-          "checkId": "NoAccountLockout",
-          "route": "/api/session",
-          "parameter": null,
-          "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -590,24 +573,45 @@
         },
         {
           "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/schedule",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+          "checkId": "NoAccountLockout",
+          "route": "/",
+          "parameter": null,
+          "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingOriginValidation",
+          "route": "/api/appointments/apt-1/cancel",
+          "parameter": null,
+          "message": "A state-changing request is accepted from any origin — CWE-352"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "NoAccountLockout",
+          "route": "/api/session",
+          "parameter": null,
+          "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/patients",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+          "route": "/schedule",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -620,13 +624,6 @@
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/patients",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/schedule",
           "parameter": "content-security-policy",
           "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
         },
@@ -634,13 +631,20 @@
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/patients",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/",
+          "route": "/patients",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/schedule",
           "parameter": "referrer-policy",
           "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
         },
@@ -653,6 +657,12 @@
         }
       ],
       "gaps": [
+        {
+          "category": "workflow",
+          "status": "partially-covered",
+          "route": "/patients",
+          "message": "Clinic Scheduler (/patients): navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
+        },
         {
           "category": "workflow",
           "status": "partially-covered",
@@ -674,7 +684,7 @@
         {
           "category": "security",
           "status": "partially-covered",
-          "route": "/schedule",
+          "route": "/patients",
           "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
         },
         {
@@ -692,14 +702,20 @@
         {
           "category": "security",
           "status": "partially-covered",
-          "route": "/patients",
+          "route": "/schedule",
           "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
         },
         {
           "category": "api",
           "status": "partially-covered",
           "route": "/patients",
-          "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
+          "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
+        },
+        {
+          "category": "api",
+          "status": "partially-covered",
+          "route": "/patients",
+          "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
         },
         {
           "category": "api",
@@ -710,13 +726,7 @@
         {
           "category": "api",
           "status": "partially-covered",
-          "route": "/",
-          "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
-        },
-        {
-          "category": "api",
-          "status": "partially-covered",
-          "route": "/schedule",
+          "route": "/patients",
           "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
         },
         {
@@ -728,8 +738,14 @@
         {
           "category": "api",
           "status": "partially-covered",
-          "route": "/patients",
-          "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
+          "route": "/schedule",
+          "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
+        },
+        {
+          "category": "api",
+          "status": "partially-covered",
+          "route": "/",
+          "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
         },
         {
           "category": "api",
@@ -738,27 +754,15 @@
           "message": "the endpoint's address — This form's page calls 3 write endpoints (POST http://127.0.0.1:4600/api/appointments, POST http://127.0.0.1:4600/api/appointments/apt-1/cancel, POST http://127.0.0.1:4600/api/session) and the form declares no action, so which one it submits to was not observed. The test checks whichever request the submission makes."
         },
         {
-          "category": "api",
-          "status": "partially-covered",
-          "route": "/patients",
-          "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
-        },
-        {
           "category": "dataIntegrity",
           "status": "partially-covered",
-          "route": "/patients",
+          "route": "/schedule",
           "message": "a record shown back incompletely — This form has one field whose value can be recognised on a page afterwards. A page showing it proves the record was kept; a page showing nothing cannot be told from a confirmation page, so a lost value would not be reported."
         },
         {
           "category": "dataIntegrity",
           "status": "partially-covered",
           "route": "/patients",
-          "message": "Clinic Scheduler (/patients): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-        },
-        {
-          "category": "dataIntegrity",
-          "status": "partially-covered",
-          "route": "/schedule",
           "message": "a record shown back incompletely — This form has one field whose value can be recognised on a page afterwards. A page showing it proves the record was kept; a page showing nothing cannot be told from a confirmation page, so a lost value would not be reported."
         },
         {
@@ -770,13 +774,19 @@
         {
           "category": "dataIntegrity",
           "status": "partially-covered",
-          "route": "/schedule",
+          "route": "/patients",
           "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
         },
         {
           "category": "dataIntegrity",
           "status": "partially-covered",
           "route": "/patients",
+          "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
+        },
+        {
+          "category": "dataIntegrity",
+          "status": "partially-covered",
+          "route": "/schedule",
           "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
         },
         {
@@ -795,7 +805,7 @@
           "category": "dataIntegrity",
           "status": "partially-covered",
           "route": "/patients",
-          "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
+          "message": "Clinic Scheduler (/patients): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
         },
         {
           "category": "errorHandling",
@@ -820,18 +830,6 @@
           "status": "partially-covered",
           "route": "/403",
           "message": "server timeouts and authorization errors — A timeout or a 401/403 cannot be provoked from the page without changing the server."
-        },
-        {
-          "category": "reliability",
-          "status": "not-covered",
-          "route": "/schedule",
-          "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
-        },
-        {
-          "category": "reliability",
-          "status": "not-covered",
-          "route": "/patients",
-          "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
         },
         {
           "category": "reliability",
@@ -846,15 +844,27 @@
           "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
         },
         {
+          "category": "reliability",
+          "status": "not-covered",
+          "route": "/schedule",
+          "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
+        },
+        {
+          "category": "reliability",
+          "status": "not-covered",
+          "route": "/patients",
+          "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
+        },
+        {
           "category": "workflow",
           "status": "human-required",
-          "route": "/schedule",
+          "route": "/",
           "message": "business rules between fields beyond those named — Rules such as \"business accounts need a company number\" exist in requirements, not in the page; only rules visible in names or observed in behaviour were tested."
         },
         {
           "category": "workflow",
           "status": "human-required",
-          "route": "/",
+          "route": "/schedule",
           "message": "business rules between fields beyond those named — Rules such as \"business accounts need a company number\" exist in requirements, not in the page; only rules visible in names or observed in behaviour were tested."
         },
         {
@@ -908,14 +918,14 @@
         {
           "category": "boundary",
           "status": "unknown",
-          "route": "/schedule",
-          "message": "a length limit — Patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+          "route": "/",
+          "message": "a length limit — Username declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
         },
         {
           "category": "boundary",
           "status": "unknown",
-          "route": "/",
-          "message": "a length limit — Username declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+          "route": "/schedule",
+          "message": "a length limit — Patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
         },
         {
           "category": "boundary",
@@ -969,7 +979,7 @@
           "kind": "test failure",
           "strength": "route and wording",
           "route": "/patients",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-2adf8995> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-6714bb16> element(s) exist. The application does not encode what it reflects."
         }
       },
       {

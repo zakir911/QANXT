@@ -78,6 +78,11 @@ export async function checkSecurityHeaders(scanner, url, testId = 'SECP-HEADERS'
       title: `${expected.name} is not set`,
       parameter: expected.name,
       endpoint: new URL(url).pathname,
+      // What is wrong is the header, not the address. One piece of middleware sets it, so
+      // missing on a hundred pages is one fix — and a report that says it a hundred times is
+      // a report nobody can read. The address is kept as evidence; the subject is what the
+      // finding is about.
+      subject: `header:${expected.name}`,
       description: `The response carries no ${expected.name} header, which ${expected.purpose}.`,
       impact: 'A browser applies its own defaults, which are more permissive than an explicit policy.',
       remediation: `Set ${expected.name} on HTML responses.`,
@@ -214,6 +219,9 @@ function judgeCookies(source, url, findings, observations) {
         : `Session cookie "${name}" is missing ${missing.join(', ')}`,
       parameter: name,
       endpoint: new URL(url).pathname,
+      // A cookie's attributes are set where it is issued, once, whatever page the scan
+      // happened to observe it on.
+      subject: `cookie:${name}:${missing.join(',')}${source.control ? `:${source.control}` : ''}`,
       description: `The cookie "${name}" looks like a session cookie and does not set `
         + `${missing.join(', ')}. It was set by ${label}.`
         + (source.control
