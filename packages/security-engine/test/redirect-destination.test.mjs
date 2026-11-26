@@ -90,12 +90,21 @@ test('an identical landing page means the application did not distinguish them, 
   assert.equal(result.findings[0].category, 'MissingCsrfToken');
 });
 
-test('a landing page that differs for some other reason is not evidence either way', async () => {
-  const scanner = stub({
-    posts: [redirectedTo('/shipments/shp-0005'), redirectedTo('/shipments/shp-0005')],
-    landings: [page('<h1>SHP-0005</h1><p>Viewed 41 times</p>'),
-               page('<h1>SHP-0005</h1><p>Viewed 42 times</p>')]
-  });
+test('a page that still differs when read again is varying, not evidence', async () => {
+  // A view counter, a relative timestamp, a "last seen" line. The page was never evidence
+  // about either request.
+  let counter = 41;
+  const scanner = {
+    async request(options) {
+      const id = String(options.testId);
+      if (id.endsWith(':read')) return page('<form/>');
+      if (id.endsWith(':stable') || id.endsWith(':arrived')) {
+        counter += 1;
+        return page(`<h1>SHP-0005</h1><p>Viewed ${counter} times</p>`);
+      }
+      return redirectedTo('/shipments/shp-0005');
+    }
+  };
 
   const result = await checkCsrfToken(scanner, {
     baseUrl: 'http://app.test', path: '/shipments/shp-0005/edit', session, ...shape
@@ -103,8 +112,59 @@ test('a landing page that differs for some other reason is not evidence either w
 
   assert.equal(result.inconclusive, true);
   assert.equal(result.findings.length, 0);
-  assert.match(result.reason, /not the same for each/);
-  assert.match(result.reason, /would be guessing/);
+  assert.match(result.reason, /changes on its own/);
+});
+
+test('a page stable when read again was changed by the request, so the finding stands', async () => {
+  // The branch that cost three true findings on freight. /fleet/drivers/new,
+  // /reports/builder and /warehouse/transfers/new each let a read-only account write; both
+  // arms landed on the same list page, and the page differed between the two reads *because
+  // both writes had landed in it*. Reading that as ambiguity threw all three away.
+  const afterOne = '<h1>Drivers</h1><tr>drv-025</tr>';
+  const afterTwo = '<h1>Drivers</h1><tr>drv-025</tr><tr>drv-026</tr>';
+  let arrived = 0;
+  const scanner = {
+    async request(options) {
+      const id = String(options.testId);
+      if (id.endsWith(':read')) return page('<form/>');
+      if (id.endsWith(':stable')) return page(afterTwo);   // settled: nothing varies by itself
+      if (id.endsWith(':arrived')) return page(++arrived === 1 ? afterOne : afterTwo);
+      return redirectedTo('/fleet/drivers');
+    }
+  };
+
+  const result = await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/fleet/drivers/new', session, ...shape
+  });
+
+  assert.equal(result.findings.length, 1);
+  assert.equal(result.findings[0].category, 'MissingCsrfToken');
+});
+
+test('two different destinations mean each request produced one, with no extra read', async () => {
+  // A form that saves and redirects to what it saved gives each request its own address.
+  // Comparing two different records says nothing, and there is nothing to disambiguate.
+  const stable = [];
+  const scanner = {
+    async request(options) {
+      const id = String(options.testId);
+      if (id.endsWith(':stable')) { stable.push(options.url); return page('<p>x</p>'); }
+      if (id.endsWith(':read')) return page('<form/>');
+      if (id.endsWith(':arrived')) {
+        return page(options.url.endsWith('drv-025') ? '<h1>drv-025</h1>' : '<h1>drv-026</h1>');
+      }
+      return redirectedTo(stable.length === 0 && !this._second
+        ? (this._second = true, '/fleet/drivers/drv-025')
+        : '/fleet/drivers/drv-026');
+    }
+  };
+
+  const result = await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/fleet/drivers/new', session, ...shape
+  });
+
+  assert.equal(result.findings.length, 1);
+  assert.deepEqual(stable, []);
 });
 
 test('the destination is read once per arm, and only after the control was accepted', async () => {

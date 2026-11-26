@@ -18,7 +18,7 @@ import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { authHeaders } from './credentials.mjs';
 import { at } from './target-url.mjs';
 import { arrivedAt, changedNothing, distinguishedTheTwo, encodeBody, stateChangeAccepted,
-  theAlertIsThePagesOwn } from './checks-request.mjs';
+  theAlertIsThePagesOwn, thePageChangesOnItsOwn } from './checks-request.mjs';
 
 /** Statuses that count as a refusal. 404 is included: not telling a stranger a resource
  *  exists is a legitimate answer, and the brief names both. */
@@ -428,12 +428,14 @@ export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, reado
              detail: `both requests redirected to the same address, but ${readonly.label} was `
                + `refused there: ${difference.how}` };
   }
-  if (difference.differedAnyway) {
+  if (difference.differedAnyway
+      && writerLanded?.url === readonlyLanded?.url
+      && await thePageChangesOnItsOwn(scanner, readonlyLanded, { session: readonly, testId })) {
     return { skipped: false, findings: [], inconclusive: true,
              reason: `Not evaluated: both ${writer.label} and ${readonly.label} were answered the `
-               + 'same way and both redirected to the same address, but the page they led to is '
-               + 'not the same for each, and the difference is not an error the application is '
-               + 'reporting. Founding a privilege-escalation finding on it would be guessing.' };
+               + 'same way and both redirected to the same address, the page they led to is not '
+               + 'the same for each, and reading it again with nothing sent shows it changes on '
+               + 'its own. So the difference is the page varying rather than either request.' };
   }
 
   // Both were answered, which is not the same as either having written anything. An address

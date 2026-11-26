@@ -271,6 +271,35 @@ export function distinguishedTheTwo(controlPage, probePage) {
   return { known: false, differedAnyway: true };
 }
 
+/**
+ * Whether a page changes on its own, with nothing sent to it.
+ *
+ * When both arms land on the same address and that page is not the same for each, there are
+ * two possible reasons and they point opposite ways. Either the second request *changed* what
+ * the address shows — which is the finding — or the page simply varies: a view counter, a
+ * relative timestamp, a "last seen" line.
+ *
+ * One more read settles it. A page that is stable when read again was changed by the request;
+ * a page that differs from itself was never evidence about either request.
+ *
+ * This is the branch that cost three true findings on freight. `/fleet/drivers/new`,
+ * `/reports/builder` and `/warehouse/transfers/new` each let a read-only account write, both
+ * arms landed on the same list page, and the page differed between the two reads *because
+ * both writes had landed in it*. Reading that as ambiguity threw away all three.
+ */
+export async function thePageChangesOnItsOwn(scanner, landing, { session, testId }) {
+  if (!landing?.url || typeof landing.body !== 'string') return true;
+  const again = await scanner.request({
+    url: landing.url, method: 'GET', risk: SECURITY_RISK.PASSIVE,
+    headers: { ...authHeaders(session) },
+    as: 'the legitimate caller', testId: `${testId}:stable`,
+    note: 'reading the same page once more with nothing sent to it, to tell a page the request '
+      + 'changed from a page that simply varies'
+  });
+  if (!again.allowed || typeof again.responseText !== 'string') return true;
+  return again.responseText !== landing.body;
+}
+
 export async function changedNothing(scanner, { baseUrl, path, response, session, testId }) {
   const read = await scanner.request({
     url: at(baseUrl, `${path}`), method: 'GET', risk: SECURITY_RISK.PASSIVE,
@@ -426,12 +455,19 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
                + `was refused there: ${difference.how}` };
   }
   if (difference.differedAnyway) {
-    return { skipped: false, findings: [], inconclusive: true,
-             reason: 'Not evaluated: both requests were accepted and both redirected to the same '
-               + 'address, but the page they led to is not the same for each, and the difference '
-               + 'is not an error the application is reporting. That may be a refusal this check '
-               + 'cannot read, or a page that simply varies. Founding a missing-token finding on '
-               + 'it would be guessing.' };
+    // Two requests went to the same address and it does not show the same thing afterwards.
+    // Either the second one changed it — which is the finding — or the page varies by itself.
+    // One more read tells them apart.
+    if (controlLanded?.url !== probeLanded?.url) {
+      // Not even the same address: each request was given a destination of its own, which on
+      // a form that saves and redirects to what it saved means each one saved something.
+    } else if (await thePageChangesOnItsOwn(scanner, probeLanded, { session, testId })) {
+      return { skipped: false, findings: [], inconclusive: true,
+               reason: 'Not evaluated: both requests were accepted and both redirected to the same '
+                 + 'address, the page they led to is not the same for each, and reading it again '
+                 + 'with nothing sent shows it changes on its own. So the difference is the page '
+                 + 'varying rather than either request, and nothing here distinguishes them.' };
+    }
   }
 
   // Both answered. Before founding a finding, establish that either answer was a change at
@@ -528,12 +564,13 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
              detail: `both requests redirected to the same address, but the one claiming another `
                + `origin was refused there: ${originDifference.how}` };
   }
-  if (originDifference.differedAnyway) {
+  if (originDifference.differedAnyway
+      && ownLanded?.url === elsewhereLanded?.url
+      && await thePageChangesOnItsOwn(scanner, elsewhereLanded, { session, testId })) {
     return { skipped: false, findings: [], inconclusive: true,
              reason: 'Not evaluated: both requests were accepted and both redirected to the same '
-               + 'address, but the page they led to is not the same for each, and the difference '
-               + 'is not an error the application is reporting. Founding a missing-origin-check '
-               + 'finding on it would be guessing.' };
+               + 'address, the page they led to is not the same for each, and reading it again '
+               + 'with nothing sent shows it changes on its own.' };
   }
 
   // The same premise this check shares with the anti-forgery one: an address with no handler

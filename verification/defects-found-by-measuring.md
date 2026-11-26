@@ -3222,6 +3222,52 @@ from the one it fixes.
 
 ---
 
+## 87. The cautious branch threw away every finding it was asked to judge
+
+**Found by reading the collapsed report instead of celebrating it.** The run that reduced 173
+findings to 18 facts also reported **zero** privilege escalations, where the run before it had
+three — and I had verified all three by hand: `/reports/builder`,
+`/warehouse/transfers/new` and `/fleet/drivers/new` each let an audit viewer write, with no
+permission check in any of the three handlers.
+
+The scan said why:
+
+> *both operations and audit viewer were answered the same way and both redirected to the same
+> address, but the page they led to is not the same for each, and the difference is not an
+> error the application is reporting. Founding a privilege-escalation finding on it would be
+> guessing.*
+
+That is defect 84's third branch, which I had written one commit earlier and described as
+taking a deliberate cost: *"This costs real detections on applications whose pages vary, and
+that cost is taken deliberately."*
+
+The cost was not applications whose pages vary. **The page differed because both writes had
+landed in it.** Writer creates driver 25, the landing page is read; viewer creates driver 26,
+the landing page is read again and now has an extra row. The difference *is* the finding, and
+the branch built to avoid guessing discarded it — three for three, every finding that reached
+that branch.
+
+**The discriminator I was missing is one more read.** Either the second request changed what
+the address shows, or the page varies by itself — a view counter, a relative timestamp. A page
+read a third time with nothing sent to it settles which: a page that is stable was changed by
+the request; a page that differs from itself was never evidence about either request.
+
+`thePageChangesOnItsOwn` does that, in the one branch where it decides something.
+
+And a case that needs no read at all: when the two arms land on **different** addresses, each
+request was given a destination of its own, which on a form that saves and redirects to what
+it saved means each one saved something. Comparing two different records establishes nothing;
+there is nothing ambiguous to resolve.
+
+**What this says about "cautious".** Preferring no verdict over a wrong one is right, and I
+reached for it three times today — 84's third branch, 85's control-refused guard, the alert
+check. Two of those were correct. This one was a guess dressed as caution: I had not worked
+out *why* two pages would differ, so I called it unknowable, and the commonest reason turned
+out to be the very thing the check exists to detect. Caution that has not understood the case
+it is declining is not caution.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,
