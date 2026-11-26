@@ -3,11 +3,11 @@
   "name": "Northwind Orders API",
   "technology": "bearer-token sign-in answering JSON rather than a cookie; X-CSRF-Token header convention; one HTML page over a JSON API",
   "domain": "order management",
-  "ranAt": "2026-11-26T10:11:23.916Z",
+  "ranAt": "2026-11-26T16:40:37.501Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "714bf495-c41a-42a5-a135-c0be8d486d52",
+      "id": "bb2c1090-0d96-4e68-b913-a8d3198b99aa",
       "authStrategy": "tokenLogin",
       "budget": 180,
       "maxPages": 20
@@ -18,8 +18,8 @@
       "elements": 4,
       "endpoints": 2,
       "byKind": {
-        "heading": 2,
-        "link": 2
+        "link": 2,
+        "heading": 2
       },
       "paths": [
         "/",
@@ -37,7 +37,7 @@
       "list": []
     },
     "design": {
-      "testSuiteId": "d9c01b19-7c93-403a-bafc-9d4dd5feec76",
+      "testSuiteId": "e6757e7d-a0ba-4e1b-8688-2f92b6206988",
       "testSuiteName": "Northwind Orders API — form level",
       "forms": 0,
       "testsCreated": 32,
@@ -56,7 +56,7 @@
       "pageTests": 32,
       "perPage": [
         {
-          "pageId": "c79748a8-cc82-4173-b621-e982a36e9039",
+          "pageId": "1d891f00-4443-4cc2-ae10-3aaedbb2f720",
           "name": "Token API (/)",
           "route": "/",
           "tests": 8,
@@ -70,7 +70,7 @@
           }
         },
         {
-          "pageId": "0d63a519-41e1-4cd0-aba2-e373638504b2",
+          "pageId": "7de688d1-0d38-4303-8ae1-7b778405f29e",
           "name": "/api/orders",
           "route": "/api/orders",
           "tests": 8,
@@ -84,7 +84,7 @@
           }
         },
         {
-          "pageId": "9378aec2-0c0c-4f92-9431-75d565460185",
+          "pageId": "5ce6329d-fe7b-4231-aa28-e505df7ca2ba",
           "name": "Search (/search)",
           "route": "/search",
           "tests": 9,
@@ -99,7 +99,7 @@
           }
         },
         {
-          "pageId": "4e97ad3e-20b6-4e51-becb-b001287c993e",
+          "pageId": "354814f5-5d3b-4f44-a2c7-bf425ff54a4f",
           "name": "/api/orders/ord-1",
           "route": "/api/orders/ord-1",
           "tests": 7,
@@ -115,9 +115,9 @@
     },
     "scan": {
       "ok": true,
-      "id": "e6f7941d-95d6-4f61-b1d2-8b1c67bde732",
+      "id": "af1c49e2-d014-4193-aa51-b14de56b571b",
       "status": "completed",
-      "requestsIssued": 181,
+      "requestsIssued": 185,
       "requestsBlocked": 0,
       "checksExecuted": [
         "passive.headers",
@@ -181,11 +181,11 @@
         "authz.missing on /: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 33 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
         "passive.cookies on /: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
         "passive.pii-in-url on /: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
-        "passive.cookies on /api/orders: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
-        "passive.pii-in-url on /api/orders: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "passive.cookies on /api/orders/ord-1: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
         "passive.pii-in-url on /api/orders/ord-1: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "passive.cookies on http://127.0.0.1:4500/search?q=example: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
+        "passive.cookies on /api/orders: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
+        "passive.pii-in-url on /api/orders: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "authz.vertical on http://127.0.0.1:4500/api/orders: Inconclusive: A privileged and a lesser identity are needed; both were not available.",
         "api.excessive-data on http://127.0.0.1:4500/api/orders/{id}: Inconclusive: The endpoint answered 500.",
         "api.input-validation on http://127.0.0.1:4500/api/auth/token: Inconclusive: No parameter was discovered on this endpoint to probe.",
@@ -201,7 +201,7 @@
     },
     "run": {
       "ok": true,
-      "runId": "8231c834-68a6-46f8-9771-13c6f73d9fbb",
+      "runId": "7a0ab910-a760-4a49-bf73-06ce62bc277f",
       "status": "failed",
       "executions": 32,
       "byStatus": {
@@ -284,6 +284,13 @@
         },
         {
           "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
           "checkId": "UnhandledInput",
           "route": "/api/orders/%7Bid%7D",
           "parameter": "id",
@@ -291,17 +298,10 @@
         },
         {
           "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+          "checkId": "VerboseErrorDisclosure",
+          "route": "/api/orders/%7Bid%7D",
+          "parameter": null,
+          "message": "A stack trace is returned to the caller — CWE-209"
         },
         {
           "severity": "medium",
@@ -319,17 +319,17 @@
         },
         {
           "severity": "medium",
-          "checkId": "VerboseErrorDisclosure",
-          "route": "/api/orders/%7Bid%7D",
-          "parameter": null,
-          "message": "A stack trace is returned to the caller — CWE-209"
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
         }
       ],
       "gaps": [

@@ -3,11 +3,11 @@
   "name": "Ashfield Building Control",
   "technology": "HTTP Basic authentication, no anti-forgery token, state changes through GET links, nested-table markup, sequential integer ids in the query string",
   "domain": "municipal building permits",
-  "ranAt": "2026-11-26T10:06:58.662Z",
+  "ranAt": "2026-11-26T16:36:16.125Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "b9cd462a-f03a-4320-a244-9f44d1b3709a",
+      "id": "7bdb42a9-8328-4e0d-8ef1-044bc228cc01",
       "authStrategy": "basicAuth",
       "budget": 240,
       "maxPages": 40
@@ -38,13 +38,13 @@
       "count": 2,
       "list": [
         {
-          "id": "4646083a-21e7-46ee-8745-91e1090c18a5",
+          "id": "b49a6e29-a591-42a7-8996-531f5e23873e",
           "route": "/new.asp",
           "name": "New application",
           "fields": 4
         },
         {
-          "id": "d9496045-9094-4226-bd88-fbda864cdf41",
+          "id": "ae65a138-cda4-469e-bf4f-c9d8f3d1c529",
           "route": "/search.asp",
           "name": "Search",
           "fields": 1
@@ -52,7 +52,7 @@
       ]
     },
     "design": {
-      "testSuiteId": "190ac81d-9f68-4938-b0b1-52f8da85ecc1",
+      "testSuiteId": "825b649e-aa5f-4f4b-a691-539adf8bfa8d",
       "testSuiteName": "Ashfield Building Control — form level",
       "forms": 2,
       "testsCreated": 203,
@@ -67,7 +67,7 @@
       "engine": "QA NXT form and page test engine (deterministic)",
       "perForm": [
         {
-          "formId": "4646083a-21e7-46ee-8745-91e1090c18a5",
+          "formId": "b49a6e29-a591-42a7-8996-531f5e23873e",
           "name": "New application",
           "route": "/new.asp",
           "fields": 4,
@@ -100,7 +100,7 @@
           ]
         },
         {
-          "formId": "d9496045-9094-4226-bd88-fbda864cdf41",
+          "formId": "ae65a138-cda4-469e-bf4f-c9d8f3d1c529",
           "name": "Search",
           "route": "/search.asp",
           "fields": 1,
@@ -139,7 +139,7 @@
       "pageTests": 82,
       "perPage": [
         {
-          "pageId": "71d88863-5acf-497d-b98b-5857f66f4d3a",
+          "pageId": "f7fa8cde-2a98-457d-a3c2-b2ab7cde31e5",
           "name": "Building Control (/default.asp)",
           "route": "/default.asp",
           "tests": 11,
@@ -154,7 +154,7 @@
           }
         },
         {
-          "pageId": "642b3b97-ca7d-4be5-b81d-f675875e914b",
+          "pageId": "22e3f86f-ae82-42bc-9724-c8ed10e58435",
           "name": "Permit register (/list.asp)",
           "route": "/list.asp",
           "tests": 11,
@@ -169,7 +169,7 @@
           }
         },
         {
-          "pageId": "60e880b5-72df-4a88-b569-cd95500a4ee2",
+          "pageId": "426569ae-281b-4427-ab2e-8b26a3a7435a",
           "name": "New application (/new.asp)",
           "route": "/new.asp",
           "tests": 12,
@@ -185,7 +185,7 @@
           }
         },
         {
-          "pageId": "1404390a-9dbb-4cdc-8e4e-ff62f501b218",
+          "pageId": "3031a5b4-288e-4d30-ad8b-e028c1466b2c",
           "name": "Search (/search.asp)",
           "route": "/search.asp",
           "tests": 12,
@@ -201,7 +201,23 @@
           }
         },
         {
-          "pageId": "665fa4af-8063-40be-b387-43b057021064",
+          "pageId": "958ae9cc-4ec0-4966-b254-2b02e2f2d925",
+          "name": "Permit BP-2026-0001 (/view.asp)",
+          "route": "/view.asp",
+          "tests": 12,
+          "reachedByClicking": true,
+          "testsByCategory": {
+            "smoke": 1,
+            "workflow": 1,
+            "security": 1,
+            "accessibility": 2,
+            "performance": 1,
+            "dataIntegrity": 3,
+            "responsive": 3
+          }
+        },
+        {
+          "pageId": "b3e482d9-e0d8-4add-8193-3d9e442ac150",
           "name": "Permit BP-2026-0002 (/view.asp)",
           "route": "/view.asp",
           "tests": 12,
@@ -217,24 +233,8 @@
           }
         },
         {
-          "pageId": "6aba199f-dc3e-470d-96b1-b6f2d47e132a",
+          "pageId": "d68317b2-df0d-4617-bfca-0b03b0103429",
           "name": "Permit BP-2026-0003 (/view.asp)",
-          "route": "/view.asp",
-          "tests": 12,
-          "reachedByClicking": true,
-          "testsByCategory": {
-            "smoke": 1,
-            "workflow": 1,
-            "security": 1,
-            "accessibility": 2,
-            "performance": 1,
-            "dataIntegrity": 3,
-            "responsive": 3
-          }
-        },
-        {
-          "pageId": "7591c0b0-4b21-4501-816c-5094482c625f",
-          "name": "Permit BP-2026-0001 (/view.asp)",
           "route": "/view.asp",
           "tests": 12,
           "reachedByClicking": true,
@@ -252,9 +252,9 @@
     },
     "scan": {
       "ok": true,
-      "id": "a2f2fcc1-6600-4fed-bc60-e26778a9d767",
+      "id": "efa4508c-b848-4aaf-97d5-fb7d660029ad",
       "status": "completed",
-      "requestsIssued": 275,
+      "requestsIssued": 282,
       "requestsBlocked": 0,
       "checksExecuted": [
         "authz.missing",
@@ -309,14 +309,14 @@
       "untested": [
         "passive.cookies on /default.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "passive.pii-in-url on /default.asp: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
+        "passive.cookies on /list.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
+        "passive.pii-in-url on /list.asp: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "passive.cookies on /search.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "passive.cookies on /new.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "xss.stored on /new.asp: Inconclusive: The value could not be stored (400), so what happens on read is unknown.",
-        "passive.cookies on /list.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
-        "passive.pii-in-url on /list.asp: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
+        "passive.cookies on http://127.0.0.1:4700/view.asp?id=1: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "passive.cookies on http://127.0.0.1:4700/view.asp?id=2: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "passive.cookies on http://127.0.0.1:4700/view.asp?id=3: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
-        "passive.cookies on http://127.0.0.1:4700/view.asp?id=1: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "authz.vertical on http://127.0.0.1:4700/approve.asp?id=1: Inconclusive: Both inspector and clerk reach http://127.0.0.1:4700/approve.asp?id=1 (200 and 200), and nothing about the route says it was meant to be restricted — most routes are reachable by every role. Compare what each role is shown in the interface, or name the privileged routes, to judge this one.",
         "api.excessive-data on http://127.0.0.1:4700/revoke.asp?id=3: Inconclusive: The endpoint answered 403.",
         "authz.missing on http://127.0.0.1:4700/revoke.asp?id=3: Inconclusive: The owner could not read it either (403).",
@@ -329,7 +329,7 @@
     },
     "run": {
       "ok": true,
-      "runId": "e57e9dcb-264b-4cb6-b5a1-63c155d1b0e9",
+      "runId": "073f8e88-cf33-4aa3-9e00-521d71b7720f",
       "status": "failed",
       "executions": 203,
       "byStatus": {
@@ -361,7 +361,7 @@
         {
           "name": "Search: does not reflect markup typed into term",
           "route": "/search.asp",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-a2941def> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-5473a987> element(s) exist. The application does not encode what it reflects."
         },
         {
           "name": "Search: has no serious automated accessibility violations",
@@ -429,6 +429,21 @@
           "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
         },
         {
+          "name": "Permit BP-2026-0001 (/view.asp): is not shown to a signed-out visitor",
+          "route": null,
+          "message": "The element was expected to be hidden but was visible."
+        },
+        {
+          "name": "Permit BP-2026-0001 (/view.asp): has no serious automated accessibility violations",
+          "route": null,
+          "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
+        },
+        {
+          "name": "Permit BP-2026-0001 (/view.asp): fits a mobile screen (390x844)",
+          "route": null,
+          "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+        },
+        {
           "name": "Permit BP-2026-0002 (/view.asp): is not shown to a signed-out visitor",
           "route": null,
           "message": "The element was expected to be hidden but was visible."
@@ -460,21 +475,6 @@
         },
         {
           "name": "Permit BP-2026-0003 (/view.asp): fits a mobile screen (390x844)",
-          "route": null,
-          "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
-        },
-        {
-          "name": "Permit BP-2026-0001 (/view.asp): is not shown to a signed-out visitor",
-          "route": null,
-          "message": "The element was expected to be hidden but was visible."
-        },
-        {
-          "name": "Permit BP-2026-0001 (/view.asp): has no serious automated accessibility violations",
-          "route": null,
-          "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
-        },
-        {
-          "name": "Permit BP-2026-0001 (/view.asp): fits a mobile screen (390x844)",
           "route": null,
           "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
         }
@@ -579,13 +579,6 @@
       "security": [
         {
           "severity": "high",
-          "checkId": "PersonalDataExposure",
-          "route": "/view.asp",
-          "parameter": null,
-          "message": "A national insurance number appears in the response — CWE-359"
-        },
-        {
-          "severity": "high",
           "checkId": "StateChangeBySafeVerb",
           "route": "/approve.asp",
           "parameter": null,
@@ -597,6 +590,20 @@
           "route": "/search.asp",
           "parameter": "term",
           "message": "'term' is reflected into HTML without encoding — parameter \"term\" — CWE-79"
+        },
+        {
+          "severity": "high",
+          "checkId": "PersonalDataExposure",
+          "route": "/view.asp",
+          "parameter": null,
+          "message": "A national insurance number appears in the response — CWE-359"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
         },
         {
           "severity": "medium",
@@ -616,13 +623,6 @@
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/default.asp",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/default.asp",
           "parameter": "content-security-policy",
           "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
         }
@@ -631,16 +631,16 @@
         {
           "category": "workflow",
           "status": "partially-covered",
-          "route": null,
-          "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
-        },
-        {
-          "category": "workflow",
-          "status": "partially-covered",
           "route": "/default.asp",
           "message": "Building Control (/default.asp): navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
         },
         {
+          "category": "workflow",
+          "status": "partially-covered",
+          "route": null,
+          "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
+        },
+        {
           "category": "accessibility",
           "status": "partially-covered",
           "route": "/new.asp",
@@ -655,14 +655,20 @@
         {
           "category": "security",
           "status": "partially-covered",
-          "route": "/new.asp",
+          "route": "/search.asp",
           "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
         },
         {
           "category": "security",
           "status": "partially-covered",
-          "route": "/search.asp",
+          "route": "/new.asp",
           "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
+        },
+        {
+          "category": "api",
+          "status": "partially-covered",
+          "route": "/search.asp",
+          "message": "server-side validation — The browser's own validation stops an invalid submission before it reaches the server, so whether the server checks too cannot be seen from the page."
         },
         {
           "category": "api",
@@ -671,10 +677,22 @@
           "message": "server-side validation — The browser's own validation stops an invalid submission before it reaches the server, so whether the server checks too cannot be seen from the page."
         },
         {
-          "category": "api",
+          "category": "dataIntegrity",
+          "status": "partially-covered",
+          "route": "/view.asp",
+          "message": "Permit BP-2026-0001 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+        },
+        {
+          "category": "dataIntegrity",
+          "status": "partially-covered",
+          "route": "/view.asp",
+          "message": "Permit BP-2026-0002 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+        },
+        {
+          "category": "dataIntegrity",
           "status": "partially-covered",
           "route": "/search.asp",
-          "message": "server-side validation — The browser's own validation stops an invalid submission before it reaches the server, so whether the server checks too cannot be seen from the page."
+          "message": "Search (/search.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
         },
         {
           "category": "dataIntegrity",
@@ -697,32 +715,14 @@
         {
           "category": "dataIntegrity",
           "status": "partially-covered",
-          "route": "/view.asp",
-          "message": "Permit BP-2026-0002 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-        },
-        {
-          "category": "dataIntegrity",
-          "status": "partially-covered",
           "route": "/new.asp",
           "message": "New application (/new.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
         },
         {
           "category": "dataIntegrity",
           "status": "partially-covered",
-          "route": "/search.asp",
-          "message": "Search (/search.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-        },
-        {
-          "category": "dataIntegrity",
-          "status": "partially-covered",
           "route": "/default.asp",
           "message": "Building Control (/default.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-        },
-        {
-          "category": "dataIntegrity",
-          "status": "partially-covered",
-          "route": "/view.asp",
-          "message": "Permit BP-2026-0001 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
         },
         {
           "category": "errorHandling",
@@ -751,26 +751,14 @@
         {
           "category": "errorHandling",
           "status": "unsupported",
-          "route": "/search.asp",
+          "route": "/new.asp",
           "message": "a network failure during submission — This form submits by navigating, so a network failure is shown by the browser's own error page, not by the application."
         },
         {
           "category": "errorHandling",
           "status": "unsupported",
-          "route": "/new.asp",
+          "route": "/search.asp",
           "message": "a network failure during submission — This form submits by navigating, so a network failure is shown by the browser's own error page, not by the application."
-        },
-        {
-          "category": "boundary",
-          "status": "unknown",
-          "route": "/new.asp",
-          "message": "a length limit — applicant declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
-        },
-        {
-          "category": "boundary",
-          "status": "unknown",
-          "route": "/new.asp",
-          "message": "a length limit — address declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
         },
         {
           "category": "boundary",
@@ -781,8 +769,20 @@
         {
           "category": "boundary",
           "status": "unknown",
+          "route": "/new.asp",
+          "message": "a length limit — address declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+        },
+        {
+          "category": "boundary",
+          "status": "unknown",
           "route": "/search.asp",
           "message": "a length limit — term declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+        },
+        {
+          "category": "boundary",
+          "status": "unknown",
+          "route": "/new.asp",
+          "message": "a length limit — applicant declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
         },
         {
           "category": "boundary",
@@ -836,7 +836,7 @@
           "kind": "test failure",
           "strength": "route and wording",
           "route": "/search.asp",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-a2941def> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-5473a987> element(s) exist. The application does not encode what it reflects."
         }
       },
       {

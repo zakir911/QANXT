@@ -1,16 +1,16 @@
 {
-  "ranAt": "2026-11-26T10:12:19.509Z",
+  "ranAt": "2026-11-26T16:41:33.547Z",
   "results": [
     {
       "key": "clinic-spa",
       "name": "Clinic Scheduler",
       "technology": "Node HTTP server, no server-rendered markup; every screen built by client JavaScript; History API routing; JSON API",
       "domain": "clinical appointment scheduling",
-      "ranAt": "2026-11-26T09:57:37.803Z",
+      "ranAt": "2026-11-26T16:26:36.105Z",
       "planted": 4,
       "stages": {
         "application": {
-          "id": "4fa0e8f1-2ec4-4ebc-87fb-54c16843a673",
+          "id": "238bbdf8-52bd-4dc6-8fc1-f4aeeacecd3a",
           "authStrategy": "formLogin",
           "budget": 240,
           "maxPages": 40
@@ -18,19 +18,19 @@
         "discovery": {
           "status": "completed",
           "pages": 4,
-          "elements": 38,
+          "elements": 31,
           "endpoints": 7,
           "byKind": {
-            "button": 6,
+            "button": 5,
             "unknown": 4,
             "form": 4,
-            "heading": 6,
             "textInput": 4,
+            "heading": 5,
             "passwordInput": 1,
+            "link": 2,
             "table": 3,
-            "link": 4,
-            "navigation": 2,
-            "dateInput": 4
+            "navigation": 1,
+            "dateInput": 2
           },
           "paths": [
             "/",
@@ -44,25 +44,25 @@
           "count": 4,
           "list": [
             {
-              "id": "3d68a273-80b4-4648-a859-03835a72347f",
+              "id": "7e25056e-0e9b-4d64-902f-f07fac98120c",
               "route": "/",
               "name": "Clinic Scheduler",
               "fields": 2
             },
             {
-              "id": "73c8c930-bf82-46d9-bb15-f6500a057b2f",
+              "id": "9837ab6f-d597-4d7a-b422-55ee05bd4384",
               "route": "/patients",
               "name": "Patients",
               "fields": 1
             },
             {
-              "id": "bf0eec79-8e15-45e2-9bd4-12b82c4f8639",
+              "id": "f9632c46-862b-4d0b-9ad4-da5bcf1ba347",
               "route": "/patients",
               "name": "Patients",
               "fields": 1
             },
             {
-              "id": "bc46f464-ec7d-48d3-b517-10ff757aa3c0",
+              "id": "ce50d61e-ca85-42d6-b936-5796bac4b213",
               "route": "/schedule",
               "name": "Schedule",
               "fields": 3
@@ -70,22 +70,22 @@
           ]
         },
         "design": {
-          "testSuiteId": "df87ac64-7062-48cd-b8b4-6839cedaf3b3",
+          "testSuiteId": "fbaea1ca-7613-41fe-a90b-b1401b3ac685",
           "testSuiteName": "Clinic Scheduler — form level",
           "forms": 4,
-          "testsCreated": 198,
+          "testsCreated": 199,
           "testsUpdated": 0,
           "testsUnchanged": 0,
           "testsDeprecated": 0,
           "testsLeftAsEdited": 0,
-          "gaps": 46,
+          "gaps": 45,
           "humanTasks": 20,
           "findings": 1,
           "usedAi": false,
           "engine": "QA NXT form and page test engine (deterministic)",
           "perForm": [
             {
-              "formId": "3d68a273-80b4-4648-a859-03835a72347f",
+              "formId": "7e25056e-0e9b-4d64-902f-f07fac98120c",
               "name": "Clinic Scheduler",
               "route": "/",
               "fields": 2,
@@ -116,7 +116,7 @@
               ]
             },
             {
-              "formId": "73c8c930-bf82-46d9-bb15-f6500a057b2f",
+              "formId": "9837ab6f-d597-4d7a-b422-55ee05bd4384",
               "name": "Patients",
               "route": "/patients",
               "fields": 1,
@@ -150,7 +150,7 @@
               ]
             },
             {
-              "formId": "bf0eec79-8e15-45e2-9bd4-12b82c4f8639",
+              "formId": "f9632c46-862b-4d0b-9ad4-da5bcf1ba347",
               "name": "Patients",
               "route": "/patients",
               "fields": 1,
@@ -184,7 +184,7 @@
               ]
             },
             {
-              "formId": "bc46f464-ec7d-48d3-b517-10ff757aa3c0",
+              "formId": "ce50d61e-ca85-42d6-b936-5796bac4b213",
               "name": "Schedule",
               "route": "/schedule",
               "fields": 3,
@@ -220,10 +220,10 @@
           ],
           "warnings": [],
           "pages": 3,
-          "pageTests": 34,
+          "pageTests": 35,
           "perPage": [
             {
-              "pageId": "56482768-7979-42bd-ad41-32b4e96dc2c0",
+              "pageId": "489e43a4-5fbf-40b2-aad9-164949c06332",
               "name": "Clinic Scheduler (/schedule)",
               "route": "/schedule",
               "tests": 11,
@@ -238,7 +238,7 @@
               }
             },
             {
-              "pageId": "205b9265-91d8-4de9-9179-bfc26d0ec691",
+              "pageId": "bcf4ca83-7a65-4fbc-922c-1fb1a1402393",
               "name": "Clinic Scheduler (/patients)",
               "route": "/patients",
               "tests": 12,
@@ -254,13 +254,14 @@
               }
             },
             {
-              "pageId": "67316e36-f5ab-4d10-a9b2-6907e2c93d8b",
+              "pageId": "b5516baf-b23e-4eae-b66d-1f69609a3559",
               "name": "Clinic Scheduler (/patients)",
               "route": "/patients",
-              "tests": 11,
-              "reachedByClicking": false,
+              "tests": 12,
+              "reachedByClicking": true,
               "testsByCategory": {
                 "smoke": 1,
+                "workflow": 1,
                 "security": 1,
                 "accessibility": 2,
                 "performance": 1,
@@ -272,9 +273,9 @@
         },
         "scan": {
           "ok": true,
-          "id": "a22fe788-bffe-4b45-9486-a94ef7a380ef",
+          "id": "777babd1-2185-47d4-b9c3-15d13e49be12",
           "status": "completed",
-          "requestsIssued": 329,
+          "requestsIssued": 333,
           "requestsBlocked": 2,
           "checksExecuted": [
             "passive.cookies",
@@ -347,9 +348,9 @@
             "auth.session-lifetime on /: Inconclusive: The application does not state a session lifetime in the response body or the cookie, so none could be read. This is reported as not measured rather than as acceptable.",
             "auth.session-logout on /: Refused by the scope guard: The standard profile does not run this risk level..",
             "passive.pii-in-url on /: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
+            "authz.missing on http://127.0.0.1:4600/patients?q=: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 16 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
             "authz.missing on /patients: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 16 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
             "passive.pii-in-url on /patients: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
-            "authz.missing on http://127.0.0.1:4600/patients?q=: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 16 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
             "authz.vertical on http://127.0.0.1:4600/api/appointments: Inconclusive: A privileged and a lesser identity are needed; both were not available.",
             "api.excessive-data on http://127.0.0.1:4600/api/patients/{id}: Inconclusive: The endpoint answered 404.",
             "api.error-disclosure on http://127.0.0.1:4600/api/patients?q={v}: Inconclusive: Not evaluated: this endpoint takes no identifier in its path, so there is nothing to make unparseable. An identifier in a query parameter is not one this check can corrupt, because the application decides what to do with it.",
@@ -381,12 +382,12 @@
         },
         "run": {
           "ok": true,
-          "runId": "7f98fe72-58ed-4cd5-98ed-fe953b87f604",
+          "runId": "1d270f9a-6323-4f18-a381-4a3c580c5d41",
           "status": "failed",
-          "executions": 198,
+          "executions": 199,
           "byStatus": {
-            "passed": 166,
-            "failed": 18,
+            "passed": 168,
+            "failed": 17,
             "skipped": 8,
             "blocked": 6
           },
@@ -414,7 +415,7 @@
             {
               "name": "Patients: does not reflect markup typed into Find a patient",
               "route": "/patients",
-              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-290a0665> element(s) exist. The application does not encode what it reflects."
+              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-e73aa0fe> element(s) exist. The application does not encode what it reflects."
             },
             {
               "name": "Patients: copes with the session disappearing before submission",
@@ -434,7 +435,7 @@
             {
               "name": "Patients: does not reflect markup typed into Find a patient",
               "route": "/patients",
-              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-6c9b6c55> element(s) exist. The application does not encode what it reflects."
+              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-d684eaba> element(s) exist. The application does not encode what it reflects."
             },
             {
               "name": "Patients: copes with the session disappearing before submission",
@@ -467,14 +468,9 @@
               "message": "The element was expected to be hidden but was visible."
             },
             {
-              "name": "Clinic Scheduler (/patients): opens and shows its content",
+              "name": "Clinic Scheduler (/patients): is not shown to a signed-out visitor",
               "route": null,
-              "message": "role=navigation name=\"Schedule Patients\" could not be used: No element matched role=navigation name=\"Schedule Patients\" (or 2 declared fallback(s))."
-            },
-            {
-              "name": "Clinic Scheduler (/patients): is reached from Clinic Scheduler (/schedule) through \"Patients\"",
-              "route": null,
-              "message": "role=navigation name=\"Schedule Patients\" could not be used: No element matched role=navigation name=\"Schedule Patients\" (or 2 declared fallback(s))."
+              "message": "The element was expected to be hidden but was visible."
             },
             {
               "name": "Clinic Scheduler (/patients): is not shown to a signed-out visitor",
@@ -507,11 +503,6 @@
             },
             {
               "severity": "major",
-              "route": "/patients",
-              "message": "Page /patients: role=navigation name=\"Schedule Patients\" could not be used: No element matched role=navigation name=\"Schedule Patients\" (or 2 declared fallback(s))"
-            },
-            {
-              "severity": "major",
               "route": "/schedule",
               "message": "Schedule: does not tie the error to start"
             },
@@ -532,13 +523,6 @@
           "security": [
             {
               "severity": "high",
-              "checkId": "PrivilegeEscalation",
-              "route": "/api/appointments/apt-1/cancel",
-              "parameter": null,
-              "message": "A read-only account can perform a write — CWE-269"
-            },
-            {
-              "severity": "high",
               "checkId": "BOLA",
               "route": "/api/patients/%7Bid%7D",
               "parameter": "id",
@@ -550,6 +534,27 @@
               "route": "/api/appointments/apt-1/cancel",
               "parameter": null,
               "message": "A state-changing request succeeds with no anti-CSRF token — CWE-352"
+            },
+            {
+              "severity": "high",
+              "checkId": "PrivilegeEscalation",
+              "route": "/api/appointments/apt-1/cancel",
+              "parameter": null,
+              "message": "A read-only account can perform a write — CWE-269"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/schedule",
+              "parameter": "x-frame-options",
+              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/schedule",
+              "parameter": "referrer-policy",
+              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
             },
             {
               "severity": "medium",
@@ -569,13 +574,6 @@
               "severity": "medium",
               "checkId": "MissingSecurityHeader",
               "route": "/schedule",
-              "parameter": "x-content-type-options",
-              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-            },
-            {
-              "severity": "medium",
-              "checkId": "MissingSecurityHeader",
-              "route": "/schedule",
               "parameter": "content-security-policy",
               "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
             },
@@ -583,15 +581,8 @@
               "severity": "medium",
               "checkId": "MissingSecurityHeader",
               "route": "/schedule",
-              "parameter": "referrer-policy",
-              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-            },
-            {
-              "severity": "medium",
-              "checkId": "NoAccountLockout",
-              "route": "/api/session",
-              "parameter": null,
-              "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
             },
             {
               "severity": "medium",
@@ -602,10 +593,10 @@
             },
             {
               "severity": "medium",
-              "checkId": "MissingSecurityHeader",
-              "route": "/schedule",
-              "parameter": "x-frame-options",
-              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+              "checkId": "NoAccountLockout",
+              "route": "/api/session",
+              "parameter": null,
+              "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
             }
           ],
           "gaps": [
@@ -622,12 +613,6 @@
               "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
             },
             {
-              "category": "workflow",
-              "status": "partially-covered",
-              "route": "/patients",
-              "message": "Clinic Scheduler (/patients): navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
-            },
-            {
               "category": "accessibility",
               "status": "partially-covered",
               "route": "/schedule",
@@ -642,13 +627,13 @@
             {
               "category": "security",
               "status": "partially-covered",
-              "route": "/patients",
+              "route": "/schedule",
               "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
             },
             {
               "category": "security",
               "status": "partially-covered",
-              "route": "/schedule",
+              "route": "/patients",
               "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
             },
             {
@@ -660,7 +645,7 @@
             {
               "category": "api",
               "status": "partially-covered",
-              "route": "/",
+              "route": "/schedule",
               "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
             },
             {
@@ -668,6 +653,12 @@
               "status": "partially-covered",
               "route": "/patients",
               "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
+            },
+            {
+              "category": "api",
+              "status": "partially-covered",
+              "route": "/",
+              "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
             },
             {
               "category": "api",
@@ -684,12 +675,6 @@
             {
               "category": "api",
               "status": "partially-covered",
-              "route": "/patients",
-              "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
-            },
-            {
-              "category": "api",
-              "status": "partially-covered",
               "route": "/",
               "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
             },
@@ -702,8 +687,8 @@
             {
               "category": "api",
               "status": "partially-covered",
-              "route": "/schedule",
-              "message": "the verb the form submits with — This form declares neither a method nor an action, so which verb its submission uses cannot be read from the page. The test checks that the submission reached the server and was accepted, without asserting a verb."
+              "route": "/patients",
+              "message": "the endpoint's address — This form submits with script and discovery never submits forms, so the endpoint was not observed. The test checks whichever request the submission makes."
             },
             {
               "category": "dataIntegrity",
@@ -715,7 +700,19 @@
               "category": "dataIntegrity",
               "status": "partially-covered",
               "route": "/patients",
+              "message": "a record shown back incompletely — This form has one field whose value can be recognised on a page afterwards. A page showing it proves the record was kept; a page showing nothing cannot be told from a confirmation page, so a lost value would not be reported."
+            },
+            {
+              "category": "dataIntegrity",
+              "status": "partially-covered",
+              "route": "/patients",
               "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
+            },
+            {
+              "category": "dataIntegrity",
+              "status": "partially-covered",
+              "route": "/patients",
+              "message": "Clinic Scheduler (/patients): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
             },
             {
               "category": "dataIntegrity",
@@ -726,7 +723,19 @@
             {
               "category": "dataIntegrity",
               "status": "partially-covered",
+              "route": "/schedule",
+              "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
+            },
+            {
+              "category": "dataIntegrity",
+              "status": "partially-covered",
               "route": "/patients",
+              "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
+            },
+            {
+              "category": "dataIntegrity",
+              "status": "partially-covered",
+              "route": "/schedule",
               "message": "a record shown back incompletely — This form has one field whose value can be recognised on a page afterwards. A page showing it proves the record was kept; a page showing nothing cannot be told from a confirmation page, so a lost value would not be reported."
             },
             {
@@ -736,30 +745,6 @@
               "message": "Clinic Scheduler (/schedule): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
             },
             {
-              "category": "dataIntegrity",
-              "status": "partially-covered",
-              "route": "/patients",
-              "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
-            },
-            {
-              "category": "dataIntegrity",
-              "status": "partially-covered",
-              "route": "/patients",
-              "message": "Clinic Scheduler (/patients): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-            },
-            {
-              "category": "dataIntegrity",
-              "status": "partially-covered",
-              "route": "/schedule",
-              "message": "the stored record — QA NXT has no access to the application's database. Where the application moves to a page of its own after saving, that page is reopened and the values submitted are looked for in it. A page that shows part of the record is a defect in the part it lost; a page that shows none of it is a confirmation page, which is correct behaviour and tells the test nothing, so the record behi"
-            },
-            {
-              "category": "dataIntegrity",
-              "status": "partially-covered",
-              "route": "/schedule",
-              "message": "a record shown back incompletely — This form has one field whose value can be recognised on a page afterwards. A page showing it proves the record was kept; a page showing nothing cannot be told from a confirmation page, so a lost value would not be reported."
-            },
-            {
               "category": "errorHandling",
               "status": "partially-covered",
               "route": "/403",
@@ -793,18 +778,18 @@
               "category": "reliability",
               "status": "not-covered",
               "route": "/patients",
-              "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
-            },
-            {
-              "category": "reliability",
-              "status": "not-covered",
-              "route": "/schedule",
               "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
             },
             {
               "category": "reliability",
               "status": "not-covered",
               "route": "/",
+              "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
+            },
+            {
+              "category": "reliability",
+              "status": "not-covered",
+              "route": "/schedule",
               "message": "duplicate-submission tests — This form declares neither a method nor an action and discovery observed no endpoint for it, so a second submission cannot be told apart from the requests the page makes anyway."
             },
             {
@@ -822,6 +807,12 @@
             {
               "category": "security",
               "status": "human-required",
+              "route": "/schedule",
+              "message": "an anti-forgery token — This form submits with script, so a token would travel in a header that the page does not declare."
+            },
+            {
+              "category": "security",
+              "status": "human-required",
               "route": "/patients",
               "message": "an anti-forgery token — This form submits with script, so a token would travel in a header that the page does not declare."
             },
@@ -835,12 +826,6 @@
               "category": "security",
               "status": "human-required",
               "route": "/patients",
-              "message": "an anti-forgery token — This form submits with script, so a token would travel in a header that the page does not declare."
-            },
-            {
-              "category": "security",
-              "status": "human-required",
-              "route": "/schedule",
               "message": "an anti-forgery token — This form submits with script, so a token would travel in a header that the page does not declare."
             },
             {
@@ -864,14 +849,14 @@
             {
               "category": "boundary",
               "status": "unknown",
-              "route": "/patients",
-              "message": "a length limit — Find a patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+              "route": "/",
+              "message": "a length limit — Username declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
             },
             {
               "category": "boundary",
               "status": "unknown",
-              "route": "/",
-              "message": "a length limit — Username declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+              "route": "/patients",
+              "message": "a length limit — Find a patient declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
             },
             {
               "category": "boundary",
@@ -931,7 +916,7 @@
               "kind": "test failure",
               "strength": "route and wording",
               "route": "/patients",
-              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-290a0665> element(s) exist. The application does not encode what it reflects."
+              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-e73aa0fe> element(s) exist. The application does not encode what it reflects."
             }
           },
           {
@@ -984,11 +969,11 @@
       "name": "Ashfield Building Control",
       "technology": "HTTP Basic authentication, no anti-forgery token, state changes through GET links, nested-table markup, sequential integer ids in the query string",
       "domain": "municipal building permits",
-      "ranAt": "2026-11-26T10:06:58.662Z",
+      "ranAt": "2026-11-26T16:36:16.125Z",
       "planted": 4,
       "stages": {
         "application": {
-          "id": "b9cd462a-f03a-4320-a244-9f44d1b3709a",
+          "id": "7bdb42a9-8328-4e0d-8ef1-044bc228cc01",
           "authStrategy": "basicAuth",
           "budget": 240,
           "maxPages": 40
@@ -1019,13 +1004,13 @@
           "count": 2,
           "list": [
             {
-              "id": "4646083a-21e7-46ee-8745-91e1090c18a5",
+              "id": "b49a6e29-a591-42a7-8996-531f5e23873e",
               "route": "/new.asp",
               "name": "New application",
               "fields": 4
             },
             {
-              "id": "d9496045-9094-4226-bd88-fbda864cdf41",
+              "id": "ae65a138-cda4-469e-bf4f-c9d8f3d1c529",
               "route": "/search.asp",
               "name": "Search",
               "fields": 1
@@ -1033,7 +1018,7 @@
           ]
         },
         "design": {
-          "testSuiteId": "190ac81d-9f68-4938-b0b1-52f8da85ecc1",
+          "testSuiteId": "825b649e-aa5f-4f4b-a691-539adf8bfa8d",
           "testSuiteName": "Ashfield Building Control — form level",
           "forms": 2,
           "testsCreated": 203,
@@ -1048,7 +1033,7 @@
           "engine": "QA NXT form and page test engine (deterministic)",
           "perForm": [
             {
-              "formId": "4646083a-21e7-46ee-8745-91e1090c18a5",
+              "formId": "b49a6e29-a591-42a7-8996-531f5e23873e",
               "name": "New application",
               "route": "/new.asp",
               "fields": 4,
@@ -1081,7 +1066,7 @@
               ]
             },
             {
-              "formId": "d9496045-9094-4226-bd88-fbda864cdf41",
+              "formId": "ae65a138-cda4-469e-bf4f-c9d8f3d1c529",
               "name": "Search",
               "route": "/search.asp",
               "fields": 1,
@@ -1120,7 +1105,7 @@
           "pageTests": 82,
           "perPage": [
             {
-              "pageId": "71d88863-5acf-497d-b98b-5857f66f4d3a",
+              "pageId": "f7fa8cde-2a98-457d-a3c2-b2ab7cde31e5",
               "name": "Building Control (/default.asp)",
               "route": "/default.asp",
               "tests": 11,
@@ -1135,7 +1120,7 @@
               }
             },
             {
-              "pageId": "642b3b97-ca7d-4be5-b81d-f675875e914b",
+              "pageId": "22e3f86f-ae82-42bc-9724-c8ed10e58435",
               "name": "Permit register (/list.asp)",
               "route": "/list.asp",
               "tests": 11,
@@ -1150,7 +1135,7 @@
               }
             },
             {
-              "pageId": "60e880b5-72df-4a88-b569-cd95500a4ee2",
+              "pageId": "426569ae-281b-4427-ab2e-8b26a3a7435a",
               "name": "New application (/new.asp)",
               "route": "/new.asp",
               "tests": 12,
@@ -1166,7 +1151,7 @@
               }
             },
             {
-              "pageId": "1404390a-9dbb-4cdc-8e4e-ff62f501b218",
+              "pageId": "3031a5b4-288e-4d30-ad8b-e028c1466b2c",
               "name": "Search (/search.asp)",
               "route": "/search.asp",
               "tests": 12,
@@ -1182,7 +1167,23 @@
               }
             },
             {
-              "pageId": "665fa4af-8063-40be-b387-43b057021064",
+              "pageId": "958ae9cc-4ec0-4966-b254-2b02e2f2d925",
+              "name": "Permit BP-2026-0001 (/view.asp)",
+              "route": "/view.asp",
+              "tests": 12,
+              "reachedByClicking": true,
+              "testsByCategory": {
+                "smoke": 1,
+                "workflow": 1,
+                "security": 1,
+                "accessibility": 2,
+                "performance": 1,
+                "dataIntegrity": 3,
+                "responsive": 3
+              }
+            },
+            {
+              "pageId": "b3e482d9-e0d8-4add-8193-3d9e442ac150",
               "name": "Permit BP-2026-0002 (/view.asp)",
               "route": "/view.asp",
               "tests": 12,
@@ -1198,24 +1199,8 @@
               }
             },
             {
-              "pageId": "6aba199f-dc3e-470d-96b1-b6f2d47e132a",
+              "pageId": "d68317b2-df0d-4617-bfca-0b03b0103429",
               "name": "Permit BP-2026-0003 (/view.asp)",
-              "route": "/view.asp",
-              "tests": 12,
-              "reachedByClicking": true,
-              "testsByCategory": {
-                "smoke": 1,
-                "workflow": 1,
-                "security": 1,
-                "accessibility": 2,
-                "performance": 1,
-                "dataIntegrity": 3,
-                "responsive": 3
-              }
-            },
-            {
-              "pageId": "7591c0b0-4b21-4501-816c-5094482c625f",
-              "name": "Permit BP-2026-0001 (/view.asp)",
               "route": "/view.asp",
               "tests": 12,
               "reachedByClicking": true,
@@ -1233,9 +1218,9 @@
         },
         "scan": {
           "ok": true,
-          "id": "a2f2fcc1-6600-4fed-bc60-e26778a9d767",
+          "id": "efa4508c-b848-4aaf-97d5-fb7d660029ad",
           "status": "completed",
-          "requestsIssued": 275,
+          "requestsIssued": 282,
           "requestsBlocked": 0,
           "checksExecuted": [
             "authz.missing",
@@ -1290,14 +1275,14 @@
           "untested": [
             "passive.cookies on /default.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
             "passive.pii-in-url on /default.asp: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
+            "passive.cookies on /list.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
+            "passive.pii-in-url on /list.asp: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
             "passive.cookies on /search.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
             "passive.cookies on /new.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
             "xss.stored on /new.asp: Inconclusive: The value could not be stored (400), so what happens on read is unknown.",
-            "passive.cookies on /list.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
-            "passive.pii-in-url on /list.asp: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
+            "passive.cookies on http://127.0.0.1:4700/view.asp?id=1: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
             "passive.cookies on http://127.0.0.1:4700/view.asp?id=2: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
             "passive.cookies on http://127.0.0.1:4700/view.asp?id=3: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
-            "passive.cookies on http://127.0.0.1:4700/view.asp?id=1: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
             "authz.vertical on http://127.0.0.1:4700/approve.asp?id=1: Inconclusive: Both inspector and clerk reach http://127.0.0.1:4700/approve.asp?id=1 (200 and 200), and nothing about the route says it was meant to be restricted — most routes are reachable by every role. Compare what each role is shown in the interface, or name the privileged routes, to judge this one.",
             "api.excessive-data on http://127.0.0.1:4700/revoke.asp?id=3: Inconclusive: The endpoint answered 403.",
             "authz.missing on http://127.0.0.1:4700/revoke.asp?id=3: Inconclusive: The owner could not read it either (403).",
@@ -1310,7 +1295,7 @@
         },
         "run": {
           "ok": true,
-          "runId": "e57e9dcb-264b-4cb6-b5a1-63c155d1b0e9",
+          "runId": "073f8e88-cf33-4aa3-9e00-521d71b7720f",
           "status": "failed",
           "executions": 203,
           "byStatus": {
@@ -1342,7 +1327,7 @@
             {
               "name": "Search: does not reflect markup typed into term",
               "route": "/search.asp",
-              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-a2941def> element(s) exist. The application does not encode what it reflects."
+              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-5473a987> element(s) exist. The application does not encode what it reflects."
             },
             {
               "name": "Search: has no serious automated accessibility violations",
@@ -1410,6 +1395,21 @@
               "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
             },
             {
+              "name": "Permit BP-2026-0001 (/view.asp): is not shown to a signed-out visitor",
+              "route": null,
+              "message": "The element was expected to be hidden but was visible."
+            },
+            {
+              "name": "Permit BP-2026-0001 (/view.asp): has no serious automated accessibility violations",
+              "route": null,
+              "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
+            },
+            {
+              "name": "Permit BP-2026-0001 (/view.asp): fits a mobile screen (390x844)",
+              "route": null,
+              "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+            },
+            {
               "name": "Permit BP-2026-0002 (/view.asp): is not shown to a signed-out visitor",
               "route": null,
               "message": "The element was expected to be hidden but was visible."
@@ -1441,21 +1441,6 @@
             },
             {
               "name": "Permit BP-2026-0003 (/view.asp): fits a mobile screen (390x844)",
-              "route": null,
-              "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
-            },
-            {
-              "name": "Permit BP-2026-0001 (/view.asp): is not shown to a signed-out visitor",
-              "route": null,
-              "message": "The element was expected to be hidden but was visible."
-            },
-            {
-              "name": "Permit BP-2026-0001 (/view.asp): has no serious automated accessibility violations",
-              "route": null,
-              "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
-            },
-            {
-              "name": "Permit BP-2026-0001 (/view.asp): fits a mobile screen (390x844)",
               "route": null,
               "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
             }
@@ -1560,13 +1545,6 @@
           "security": [
             {
               "severity": "high",
-              "checkId": "PersonalDataExposure",
-              "route": "/view.asp",
-              "parameter": null,
-              "message": "A national insurance number appears in the response — CWE-359"
-            },
-            {
-              "severity": "high",
               "checkId": "StateChangeBySafeVerb",
               "route": "/approve.asp",
               "parameter": null,
@@ -1578,6 +1556,20 @@
               "route": "/search.asp",
               "parameter": "term",
               "message": "'term' is reflected into HTML without encoding — parameter \"term\" — CWE-79"
+            },
+            {
+              "severity": "high",
+              "checkId": "PersonalDataExposure",
+              "route": "/view.asp",
+              "parameter": null,
+              "message": "A national insurance number appears in the response — CWE-359"
+            },
+            {
+              "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/default.asp",
+              "parameter": "x-frame-options",
+              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
             },
             {
               "severity": "medium",
@@ -1597,13 +1589,6 @@
               "severity": "medium",
               "checkId": "MissingSecurityHeader",
               "route": "/default.asp",
-              "parameter": "x-frame-options",
-              "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
-            },
-            {
-              "severity": "medium",
-              "checkId": "MissingSecurityHeader",
-              "route": "/default.asp",
               "parameter": "content-security-policy",
               "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
             }
@@ -1612,16 +1597,16 @@
             {
               "category": "workflow",
               "status": "partially-covered",
-              "route": null,
-              "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
-            },
-            {
-              "category": "workflow",
-              "status": "partially-covered",
               "route": "/default.asp",
               "message": "Building Control (/default.asp): navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
             },
             {
+              "category": "workflow",
+              "status": "partially-covered",
+              "route": null,
+              "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
+            },
+            {
               "category": "accessibility",
               "status": "partially-covered",
               "route": "/new.asp",
@@ -1636,14 +1621,20 @@
             {
               "category": "security",
               "status": "partially-covered",
-              "route": "/new.asp",
+              "route": "/search.asp",
               "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
             },
             {
               "category": "security",
               "status": "partially-covered",
-              "route": "/search.asp",
+              "route": "/new.asp",
               "message": "authorization, access control and object references — Who may submit this form, and with whose records, is a property of the account, not the page; it is tested at application level by the security engine against its scope."
+            },
+            {
+              "category": "api",
+              "status": "partially-covered",
+              "route": "/search.asp",
+              "message": "server-side validation — The browser's own validation stops an invalid submission before it reaches the server, so whether the server checks too cannot be seen from the page."
             },
             {
               "category": "api",
@@ -1652,10 +1643,22 @@
               "message": "server-side validation — The browser's own validation stops an invalid submission before it reaches the server, so whether the server checks too cannot be seen from the page."
             },
             {
-              "category": "api",
+              "category": "dataIntegrity",
+              "status": "partially-covered",
+              "route": "/view.asp",
+              "message": "Permit BP-2026-0001 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+            },
+            {
+              "category": "dataIntegrity",
+              "status": "partially-covered",
+              "route": "/view.asp",
+              "message": "Permit BP-2026-0002 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+            },
+            {
+              "category": "dataIntegrity",
               "status": "partially-covered",
               "route": "/search.asp",
-              "message": "server-side validation — The browser's own validation stops an invalid submission before it reaches the server, so whether the server checks too cannot be seen from the page."
+              "message": "Search (/search.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
             },
             {
               "category": "dataIntegrity",
@@ -1678,32 +1681,14 @@
             {
               "category": "dataIntegrity",
               "status": "partially-covered",
-              "route": "/view.asp",
-              "message": "Permit BP-2026-0002 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-            },
-            {
-              "category": "dataIntegrity",
-              "status": "partially-covered",
               "route": "/new.asp",
               "message": "New application (/new.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
             },
             {
               "category": "dataIntegrity",
               "status": "partially-covered",
-              "route": "/search.asp",
-              "message": "Search (/search.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-            },
-            {
-              "category": "dataIntegrity",
-              "status": "partially-covered",
               "route": "/default.asp",
               "message": "Building Control (/default.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-            },
-            {
-              "category": "dataIntegrity",
-              "status": "partially-covered",
-              "route": "/view.asp",
-              "message": "Permit BP-2026-0001 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
             },
             {
               "category": "errorHandling",
@@ -1732,26 +1717,14 @@
             {
               "category": "errorHandling",
               "status": "unsupported",
-              "route": "/search.asp",
+              "route": "/new.asp",
               "message": "a network failure during submission — This form submits by navigating, so a network failure is shown by the browser's own error page, not by the application."
             },
             {
               "category": "errorHandling",
               "status": "unsupported",
-              "route": "/new.asp",
+              "route": "/search.asp",
               "message": "a network failure during submission — This form submits by navigating, so a network failure is shown by the browser's own error page, not by the application."
-            },
-            {
-              "category": "boundary",
-              "status": "unknown",
-              "route": "/new.asp",
-              "message": "a length limit — applicant declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
-            },
-            {
-              "category": "boundary",
-              "status": "unknown",
-              "route": "/new.asp",
-              "message": "a length limit — address declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
             },
             {
               "category": "boundary",
@@ -1762,8 +1735,20 @@
             {
               "category": "boundary",
               "status": "unknown",
+              "route": "/new.asp",
+              "message": "a length limit — address declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+            },
+            {
+              "category": "boundary",
+              "status": "unknown",
               "route": "/search.asp",
               "message": "a length limit — term declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+            },
+            {
+              "category": "boundary",
+              "status": "unknown",
+              "route": "/new.asp",
+              "message": "a length limit — applicant declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
             },
             {
               "category": "boundary",
@@ -1817,7 +1802,7 @@
               "kind": "test failure",
               "strength": "route and wording",
               "route": "/search.asp",
-              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-a2941def> element(s) exist. The application does not encode what it reflects."
+              "message": "Input was written back into the page as live markup: 1 <qanxt-probe-5473a987> element(s) exist. The application does not encode what it reflects."
             }
           },
           {
@@ -1866,11 +1851,11 @@
       "name": "Northwind Orders API",
       "technology": "bearer-token sign-in answering JSON rather than a cookie; X-CSRF-Token header convention; one HTML page over a JSON API",
       "domain": "order management",
-      "ranAt": "2026-11-26T10:11:23.916Z",
+      "ranAt": "2026-11-26T16:40:37.501Z",
       "planted": 4,
       "stages": {
         "application": {
-          "id": "714bf495-c41a-42a5-a135-c0be8d486d52",
+          "id": "bb2c1090-0d96-4e68-b913-a8d3198b99aa",
           "authStrategy": "tokenLogin",
           "budget": 180,
           "maxPages": 20
@@ -1881,8 +1866,8 @@
           "elements": 4,
           "endpoints": 2,
           "byKind": {
-            "heading": 2,
-            "link": 2
+            "link": 2,
+            "heading": 2
           },
           "paths": [
             "/",
@@ -1900,7 +1885,7 @@
           "list": []
         },
         "design": {
-          "testSuiteId": "d9c01b19-7c93-403a-bafc-9d4dd5feec76",
+          "testSuiteId": "e6757e7d-a0ba-4e1b-8688-2f92b6206988",
           "testSuiteName": "Northwind Orders API — form level",
           "forms": 0,
           "testsCreated": 32,
@@ -1919,7 +1904,7 @@
           "pageTests": 32,
           "perPage": [
             {
-              "pageId": "c79748a8-cc82-4173-b621-e982a36e9039",
+              "pageId": "1d891f00-4443-4cc2-ae10-3aaedbb2f720",
               "name": "Token API (/)",
               "route": "/",
               "tests": 8,
@@ -1933,7 +1918,7 @@
               }
             },
             {
-              "pageId": "0d63a519-41e1-4cd0-aba2-e373638504b2",
+              "pageId": "7de688d1-0d38-4303-8ae1-7b778405f29e",
               "name": "/api/orders",
               "route": "/api/orders",
               "tests": 8,
@@ -1947,7 +1932,7 @@
               }
             },
             {
-              "pageId": "9378aec2-0c0c-4f92-9431-75d565460185",
+              "pageId": "5ce6329d-fe7b-4231-aa28-e505df7ca2ba",
               "name": "Search (/search)",
               "route": "/search",
               "tests": 9,
@@ -1962,7 +1947,7 @@
               }
             },
             {
-              "pageId": "4e97ad3e-20b6-4e51-becb-b001287c993e",
+              "pageId": "354814f5-5d3b-4f44-a2c7-bf425ff54a4f",
               "name": "/api/orders/ord-1",
               "route": "/api/orders/ord-1",
               "tests": 7,
@@ -1978,9 +1963,9 @@
         },
         "scan": {
           "ok": true,
-          "id": "e6f7941d-95d6-4f61-b1d2-8b1c67bde732",
+          "id": "af1c49e2-d014-4193-aa51-b14de56b571b",
           "status": "completed",
-          "requestsIssued": 181,
+          "requestsIssued": 185,
           "requestsBlocked": 0,
           "checksExecuted": [
             "passive.headers",
@@ -2044,11 +2029,11 @@
             "authz.missing on /: Inconclusive: The route answered 200 to an anonymous caller, but with no data in it (only 33 characters of visible text — an application shell). An application that renders in the browser serves the same shell on every route and fetches its data separately, so this route cannot show an exposure. Check the endpoints it calls.",
             "passive.cookies on /: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
             "passive.pii-in-url on /: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
-            "passive.cookies on /api/orders: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
-            "passive.pii-in-url on /api/orders: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
             "passive.cookies on /api/orders/ord-1: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
             "passive.pii-in-url on /api/orders/ord-1: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
             "passive.cookies on http://127.0.0.1:4500/search?q=example: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
+            "passive.cookies on /api/orders: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
+            "passive.pii-in-url on /api/orders: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
             "authz.vertical on http://127.0.0.1:4500/api/orders: Inconclusive: A privileged and a lesser identity are needed; both were not available.",
             "api.excessive-data on http://127.0.0.1:4500/api/orders/{id}: Inconclusive: The endpoint answered 500.",
             "api.input-validation on http://127.0.0.1:4500/api/auth/token: Inconclusive: No parameter was discovered on this endpoint to probe.",
@@ -2064,7 +2049,7 @@
         },
         "run": {
           "ok": true,
-          "runId": "8231c834-68a6-46f8-9771-13c6f73d9fbb",
+          "runId": "7a0ab910-a760-4a49-bf73-06ce62bc277f",
           "status": "failed",
           "executions": 32,
           "byStatus": {
@@ -2147,6 +2132,13 @@
             },
             {
               "severity": "medium",
+              "checkId": "MissingSecurityHeader",
+              "route": "/",
+              "parameter": "x-content-type-options",
+              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+            },
+            {
+              "severity": "medium",
               "checkId": "UnhandledInput",
               "route": "/api/orders/%7Bid%7D",
               "parameter": "id",
@@ -2154,17 +2146,10 @@
             },
             {
               "severity": "medium",
-              "checkId": "MissingSecurityHeader",
-              "route": "/",
-              "parameter": "referrer-policy",
-              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-            },
-            {
-              "severity": "medium",
-              "checkId": "MissingSecurityHeader",
-              "route": "/",
-              "parameter": "content-security-policy",
-              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+              "checkId": "VerboseErrorDisclosure",
+              "route": "/api/orders/%7Bid%7D",
+              "parameter": null,
+              "message": "A stack trace is returned to the caller — CWE-209"
             },
             {
               "severity": "medium",
@@ -2182,17 +2167,17 @@
             },
             {
               "severity": "medium",
-              "checkId": "VerboseErrorDisclosure",
-              "route": "/api/orders/%7Bid%7D",
-              "parameter": null,
-              "message": "A stack trace is returned to the caller — CWE-209"
+              "checkId": "MissingSecurityHeader",
+              "route": "/",
+              "parameter": "content-security-policy",
+              "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
             },
             {
               "severity": "medium",
               "checkId": "MissingSecurityHeader",
               "route": "/",
-              "parameter": "x-content-type-options",
-              "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+              "parameter": "referrer-policy",
+              "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
             }
           ],
           "gaps": [
