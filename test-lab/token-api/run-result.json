@@ -3,11 +3,11 @@
   "name": "Northwind Orders API",
   "technology": "bearer-token sign-in answering JSON rather than a cookie; X-CSRF-Token header convention; one HTML page over a JSON API",
   "domain": "order management",
-  "ranAt": "2026-11-26T09:35:42.706Z",
+  "ranAt": "2026-11-26T10:11:23.916Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "4cae6f9b-c802-46c6-bdc5-5d4608e1f051",
+      "id": "714bf495-c41a-42a5-a135-c0be8d486d52",
       "authStrategy": "tokenLogin",
       "budget": 180,
       "maxPages": 20
@@ -18,8 +18,8 @@
       "elements": 4,
       "endpoints": 2,
       "byKind": {
-        "link": 2,
-        "heading": 2
+        "heading": 2,
+        "link": 2
       },
       "paths": [
         "/",
@@ -37,7 +37,7 @@
       "list": []
     },
     "design": {
-      "testSuiteId": "903ec18c-5eb5-43c8-808f-a179de0dac2a",
+      "testSuiteId": "d9c01b19-7c93-403a-bafc-9d4dd5feec76",
       "testSuiteName": "Northwind Orders API — form level",
       "forms": 0,
       "testsCreated": 32,
@@ -56,7 +56,7 @@
       "pageTests": 32,
       "perPage": [
         {
-          "pageId": "68a957cc-f771-4293-af50-f8f9a9e7a96c",
+          "pageId": "c79748a8-cc82-4173-b621-e982a36e9039",
           "name": "Token API (/)",
           "route": "/",
           "tests": 8,
@@ -70,7 +70,7 @@
           }
         },
         {
-          "pageId": "835bb72d-fd07-4ae3-bab7-80bdff2ced2f",
+          "pageId": "0d63a519-41e1-4cd0-aba2-e373638504b2",
           "name": "/api/orders",
           "route": "/api/orders",
           "tests": 8,
@@ -84,7 +84,7 @@
           }
         },
         {
-          "pageId": "9083d0e5-01fe-4138-871d-32e45c7fb1fe",
+          "pageId": "9378aec2-0c0c-4f92-9431-75d565460185",
           "name": "Search (/search)",
           "route": "/search",
           "tests": 9,
@@ -99,7 +99,7 @@
           }
         },
         {
-          "pageId": "ac1a4138-bfa2-43bd-8f00-6b90b22c8396",
+          "pageId": "4e97ad3e-20b6-4e51-becb-b001287c993e",
           "name": "/api/orders/ord-1",
           "route": "/api/orders/ord-1",
           "tests": 7,
@@ -115,7 +115,7 @@
     },
     "scan": {
       "ok": true,
-      "id": "66584525-affd-4851-b950-75b5d27da4d9",
+      "id": "e6f7941d-95d6-4f61-b1d2-8b1c67bde732",
       "status": "completed",
       "requestsIssued": 181,
       "requestsBlocked": 0,
@@ -183,9 +183,9 @@
         "passive.pii-in-url on /: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "passive.cookies on /api/orders: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
         "passive.pii-in-url on /api/orders: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
-        "passive.cookies on http://127.0.0.1:4500/search?q=example: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
         "passive.cookies on /api/orders/ord-1: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
         "passive.pii-in-url on /api/orders/ord-1: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
+        "passive.cookies on http://127.0.0.1:4500/search?q=example: Inconclusive: Not evaluated: signing in was examined and no response set a cookie that looks like a session. The application may carry its session in a header or a token, which this check cannot judge.",
         "authz.vertical on http://127.0.0.1:4500/api/orders: Inconclusive: A privileged and a lesser identity are needed; both were not available.",
         "api.excessive-data on http://127.0.0.1:4500/api/orders/{id}: Inconclusive: The endpoint answered 500.",
         "api.input-validation on http://127.0.0.1:4500/api/auth/token: Inconclusive: No parameter was discovered on this endpoint to probe.",
@@ -201,7 +201,7 @@
     },
     "run": {
       "ok": true,
-      "runId": "4acc29d5-0c7c-45b3-8833-d6b6f7f9be1b",
+      "runId": "8231c834-68a6-46f8-9771-13c6f73d9fbb",
       "status": "failed",
       "executions": 32,
       "byStatus": {
@@ -284,10 +284,10 @@
         },
         {
           "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+          "checkId": "UnhandledInput",
+          "route": "/api/orders/%7Bid%7D",
+          "parameter": "id",
+          "message": "An unparseable identifier makes the endpoint fail rather than refuse — parameter \"id\" — CWE-20"
         },
         {
           "severity": "medium",
@@ -305,6 +305,20 @@
         },
         {
           "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "NoAccountLockout",
+          "route": "/api/auth/token",
+          "parameter": null,
+          "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
+        },
+        {
+          "severity": "medium",
           "checkId": "VerboseErrorDisclosure",
           "route": "/api/orders/%7Bid%7D",
           "parameter": null,
@@ -316,23 +330,15 @@
           "route": "/",
           "parameter": "x-content-type-options",
           "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "NoAccountLockout",
-          "route": "/api/auth/token",
-          "parameter": null,
-          "message": "6 consecutive failed sign-ins were never throttled — CWE-307"
-        },
-        {
-          "severity": "medium",
-          "checkId": "UnhandledInput",
-          "route": "/api/orders/%7Bid%7D",
-          "parameter": "id",
-          "message": "An unparseable identifier makes the endpoint fail rather than refuse — parameter \"id\" — CWE-20"
         }
       ],
       "gaps": [
+        {
+          "category": "workflow",
+          "status": "partially-covered",
+          "route": null,
+          "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
+        },
         {
           "category": "workflow",
           "status": "partially-covered",
@@ -346,22 +352,16 @@
           "message": "/api/orders/ord-1: navigation to the page — Discovery reached this page by its address (a listed route, the sitemap or the start page), not by clicking, so no click path is known."
         },
         {
-          "category": "workflow",
+          "category": "smoke",
           "status": "partially-covered",
-          "route": null,
-          "message": "journeys across several forms — End-to-end workflows are taken from recorded journeys. They are not inferred from discovery, because the order of real business steps is not visible in the page."
+          "route": "/api/orders",
+          "message": "/api/orders: content check — Discovery saw no stable heading or control on this page to look for, so the test checks only that it opens."
         },
         {
           "category": "smoke",
           "status": "partially-covered",
           "route": "/api/orders/ord-1",
           "message": "/api/orders/ord-1: content check — Discovery saw no stable heading or control on this page to look for, so the test checks only that it opens."
-        },
-        {
-          "category": "smoke",
-          "status": "partially-covered",
-          "route": "/api/orders",
-          "message": "/api/orders: content check — Discovery saw no stable heading or control on this page to look for, so the test checks only that it opens."
         },
         {
           "category": "performance",

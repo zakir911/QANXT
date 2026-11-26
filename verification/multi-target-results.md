@@ -38,11 +38,23 @@ interaction authorised: `node test-lab/run-target.mjs clinic-spa permits-legacy 
 | --- | --- | --- | --- |
 | Pages discovered | 4 | 7 | 4 |
 | Forms extracted | 4 | 2 | 0 |
-| Tests designed and run | 199 | 203 | 32 |
-| Security checks executed | 24 of 29 | 17 of 22 | 16 of 26 |
-| Security findings | 19 | 23 | 13 |
-| Coverage gaps | 45 | 27 | 6 |
+| Tests designed and run | 198 | 203 | 32 |
+| Security checks executed | 24 of 29 | 18 of 22 | 16 of 26 |
+| Security findings | 11 | 7 | 10 |
+| Coverage gaps | 46 | 27 | 6 |
 | **Planted defects detected on evidence** | **4 of 4** | **4 of 4** | **4 of 4** |
+
+**The findings row counts facts, not rows, and it did not until 2026-11-26.** The earlier
+figures here were 19, 23 and 13, and they were counts of *report rows*. A response header is
+set by one piece of middleware, so a scan that looked at forty pages reported it forty times;
+the same was true of a session cookie's attributes and of every instance of one parameterised
+route. On freight that arithmetic was stark — **173 rows holding 17 distinct facts, 151 of
+them two sentences repeated** — and the three privilege escalations worth reading were
+somewhere after row 151. Defect 86 has the detail. Nothing is discarded: a collapsed finding
+carries how many addresses it stands for and names the first eight, in the description a
+person reads.
+
+Every number this file has ever published was a row count. They are corrected above.
 
 **That it is one configuration is the point, and it was not true until 2026-11-26.**
 
@@ -388,6 +400,72 @@ So what freight's four needed was configuration rather than code, which is worth
 plainly because "10 of 32" invites the opposite conclusion. What the product still owes is a
 word about the identity it mapped as.
 
+## The security scan on the big application, 2026-11-26
+
+Six faults in the write checks came out of one afternoon's re-measurement of
+`freight-platform`, four of them in series over a single endpoint. The run history is worth
+printing because every intermediate state looked like progress:
+
+| run | CSRF rows | origin rows | escalation rows | what had just been fixed |
+| --- | --- | --- | --- | --- |
+| r10 | 12 | 12 | 0 | — |
+| r11 | 20 | 20 | 20 | the checks could finally send a body the endpoint accepts (82, 83) |
+| r12 | 10 | 10 | 2 | a redirect-to-the-record read as acceptance (84) |
+| r13 | 1 | 1 | 3 | the scan held no anti-forgery token at all (85) |
+| r14 | 1 | 1 | **0** | one fact, one row (86) — and the cautious branch ate every escalation |
+| r15 | 3 | 3 | 2 | a page stable when read again was changed by the request (87) |
+
+**r11's forty findings were mostly false.** Defects 82 to 87 in
+`verification/defects-found-by-measuring.md` carry the evidence for each step; the short
+version is that giving a check the ability to issue a request it had never been able to issue
+exposed three further faults behind it, and each one, left alone, made the product *more*
+confidently wrong than the silence it replaced.
+
+### What r15 reports, and what was verified by hand
+
+24 rows, 17 distinct facts. The three write findings were each checked against the running
+application before being believed:
+
+| endpoint | handler has | `ops.lead`, no token | `readonly`, no token | product said |
+| --- | --- | --- | --- | --- |
+| `/fleet/drivers/new` | `requireAuth` only | — | 302 → `/fleet/drivers/drv-025`, driver created | CSRF, origin, escalation |
+| `/orders/purchase/new` | `requireAuth` only | — | 302 → `/orders/purchase/po-0019`, order created | CSRF, origin, escalation |
+| `/routes/planner` | `requireAuth` + `can(user, 'route:plan')` | 302 → `/routes/rte-0017`, route created | 302 → `/routes`, refused | CSRF, origin — **and no escalation** |
+
+The third row is the one worth reading. `/routes/planner` enforces its permission and not its
+token, and the product reported exactly that: the missing token, and nothing about privilege.
+An audit viewer posting cross-origin with no token created `drv-025` on the first row — list
+24 → 25, the name visible on the page.
+
+**None of these three is a planted defect.** `test-lab/freight-platform/defects.js` has no
+entry for drivers, purchase orders or route planning. They are real flaws in the lab
+application, found by the product rather than seeded for it, which is the result this file has
+least right to take credit for and most reason to report.
+
+### Two planted defects the product still does not find
+
+Stated rather than rounded away.
+
+**FP_D29 — the stock adjustment form carries no anti-forgery token.** The check now sends
+`delta`, `reason` and `note` as a urlencoded body and still reaches no verdict: the endpoint
+refuses the control request. The reason the scan gives names what it sent, which is the point
+of that sentence existing. The remaining gap is a value the application's business rule
+rejects but its HTML constraints permit — `min="-100000" max="100000"` makes zero a legal
+quantity and the handler answers *"Enter a whole number other than zero"*. `FormRequestShape`
+now prefers an ordinary value over the range midpoint, and r15 is the first run to carry that;
+it did not recover the defect, so something else is also in the way and it has not been run
+down yet.
+
+**FP_D11 — settlement is hidden from a viewer and permitted by the handler.** Proven by hand
+in one request: `readonly`, on a page that tells it *"Settling a claim needs the claim:settle
+permission, which your role does not hold"*, settled a £5,953.11 claim for £1.00 — status
+`submitted` → `settled`. The product cannot reach it because `/claims/:id/settle` is not on the
+surface: every claim reference in every claims list is a `<button data-route="/claims/…">`
+rather than a link, so a crawl that does not press controls reached 141 routes and not one
+claim. The page extractor now reads destinations a control declares, and r15 still shows no
+claim page, so that fix is not working on this application and that is an open item rather
+than an explanation.
+
 ## The control group: the application the engines were built against
 
 `freight-platform` was re-run after every change above, because a fix made for one shape of
@@ -577,6 +655,8 @@ before being removed.
 | "clerk can reach a route intended for inspector", high, confirmed | the route is the form clerks use; the check concluded escalation from "both roles got 200" | inconclusive unless the route names itself administrative, and then marked likely, not confirmed |
 | 12 missing-header findings naming `/schedule/schedule` | measured on the 404 page, at URLs that do not exist | measured on the real pages |
 | 23 of 43 test failures on the SPA | submissions the application had accepted and acted on | 16 failures, of which 2 are the planted defects |
+| 20 missing-token and 20 privilege-escalation findings on freight | the application redirects to the record whether it accepted or refused, so both arms of each check read as accepted; and the scan held no anti-forgery token for it at all, so its control request was refused too | 3 and 2, each verified by hand against the running application |
+| 135 rows saying one response header is missing, 16 saying one cookie lacks HttpOnly | the fix is one piece of middleware and one cookie; the row count was the number of pages looked at | 1 row each, carrying the count and the first eight addresses |
 
 The 16 that remain on `clinic-spa` were read one by one. Two are the planted defects. The
 rest are real and were not planted: the application crashes with `found.body.map is not a
@@ -592,6 +672,12 @@ a form error that assistive technology would not announce with the field.
 - **The targets are synthetic.** They were written to have known defects in known places,
   which is what makes a detection rate measurable and also means they are kinder than real
   software: the defects are the ones somebody thought to plant.
-- **100% is not reachable and is not claimed.** Two of the eight planted defects need either
-  an authorization the scan is not given or a capability the product does not have, and both
-  are stated above rather than rounded away.
+- **100% is not reachable and is not claimed.** On the three small targets all twelve planted
+  defects are detected on evidence. On the big one, FP_D29 and FP_D11 are not, both for
+  reasons established rather than guessed and both written up above as open items.
+- **Six of the write-check faults found on 2026-11-26 were found by distrusting a good
+  result.** Four of the six were only visible once the fault in front of them was fixed, and
+  the intermediate states each produced a more confident wrong answer than the state before.
+  Nothing in 249 engine tests, 644 worker tests or 1813 C# tests was red at any point during
+  that sequence. A green suite said the checks worked; only running them against an
+  application showed what they concluded.

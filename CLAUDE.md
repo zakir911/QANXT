@@ -27,6 +27,23 @@ so the measurement could not score them either way and published them as the pro
 failure. One of the ten was also a misattribution. Defect 61 has the arithmetic. An
 unscoreable defect is a gap in the measurement, not a verdict on the product, and the two are
 no longer added together.
+
+A security finding count is a count of **facts, not report rows**, and was not until
+2026-11-26: freight reported 173 rows holding 17 distinct facts, 151 of them one missing
+response header and one cookie attribute repeated once per page looked at. Defect 86. The
+small targets' finding figures in `multi-target-results.md` were corrected with it, from
+19/23/13 to 11/7/10.
+
+**Freight's write checks were wrong in six ways and four of them were in series**, found on
+2026-11-26 by re-measuring after each fix and refusing to believe an improvement. Giving the
+anti-forgery check a body the endpoint would accept exposed three further faults behind it,
+and each intermediate state was more confidently wrong than the silence it replaced: one run
+reported forty findings, most of them false, against endpoints that enforce their tokens
+properly. Defects 82 to 87. The product now reports three true write findings on freight that
+are **not planted defects** — `/fleet/drivers/new`, `/orders/purchase/new` and
+`/routes/planner`, each verified by hand — and on `/routes/planner`, which enforces its
+permission and not its token, it reports the missing token and no privilege escalation.
+
 `verification/defects-found-by-measuring.md` is the product's own defects, each with the
 evidence that established it.
 
