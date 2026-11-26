@@ -3,31 +3,33 @@
   "name": "Ashfield Building Control",
   "technology": "HTTP Basic authentication, no anti-forgery token, state changes through GET links, nested-table markup, sequential integer ids in the query string",
   "domain": "municipal building permits",
-  "ranAt": "2026-11-25T19:35:21.344Z",
+  "ranAt": "2026-11-26T01:58:10.874Z",
   "planted": 4,
   "stages": {
     "application": {
-      "id": "244a49d3-1c6a-4e4f-956f-a0b1849f362e",
+      "id": "95194758-c588-4d74-b861-85fb2c4457bf",
       "authStrategy": "basicAuth",
       "budget": 240,
       "maxPages": 40
     },
     "discovery": {
       "status": "completed",
-      "pages": 7,
-      "elements": 66,
+      "pages": 10,
+      "elements": 83,
       "endpoints": 2,
       "byKind": {
-        "link": 40,
-        "table": 17,
+        "link": 54,
+        "table": 20,
         "button": 2,
         "form": 2,
         "textInput": 5
       },
       "paths": [
+        "/approve.asp",
         "/default.asp",
         "/list.asp",
         "/new.asp",
+        "/revoke.asp",
         "/search.asp",
         "/view.asp"
       ],
@@ -38,13 +40,13 @@
       "count": 2,
       "list": [
         {
-          "id": "c0a968c5-d5fa-4272-aedd-8c80bab95d06",
+          "id": "b8ff1510-8350-4bc3-9320-81a8396a8d2d",
           "route": "/new.asp",
           "name": "New application",
           "fields": 4
         },
         {
-          "id": "c336b983-5885-4e66-ab37-5a04211c92f4",
+          "id": "019db7ed-7fa8-4069-9ea3-3844e2ca238f",
           "route": "/search.asp",
           "name": "Search",
           "fields": 1
@@ -52,22 +54,22 @@
       ]
     },
     "design": {
-      "testSuiteId": "9d4c3c43-4937-4119-8e67-2882d785e202",
+      "testSuiteId": "752c1061-29fa-43cb-9ed7-b236c3b37457",
       "testSuiteName": "Ashfield Building Control — form level",
       "forms": 2,
-      "testsCreated": 203,
+      "testsCreated": 239,
       "testsUpdated": 0,
       "testsUnchanged": 0,
       "testsDeprecated": 0,
       "testsLeftAsEdited": 0,
-      "gaps": 27,
+      "gaps": 30,
       "humanTasks": 8,
       "findings": 6,
       "usedAi": false,
       "engine": "QA NXT form and page test engine (deterministic)",
       "perForm": [
         {
-          "formId": "c0a968c5-d5fa-4272-aedd-8c80bab95d06",
+          "formId": "b8ff1510-8350-4bc3-9320-81a8396a8d2d",
           "name": "New application",
           "route": "/new.asp",
           "fields": 4,
@@ -100,7 +102,7 @@
           ]
         },
         {
-          "formId": "c336b983-5885-4e66-ab37-5a04211c92f4",
+          "formId": "019db7ed-7fa8-4069-9ea3-3844e2ca238f",
           "name": "Search",
           "route": "/search.asp",
           "fields": 1,
@@ -135,11 +137,11 @@
         }
       ],
       "warnings": [],
-      "pages": 7,
-      "pageTests": 82,
+      "pages": 10,
+      "pageTests": 118,
       "perPage": [
         {
-          "pageId": "0f6a22aa-34a6-4722-90f0-5c152991dfd1",
+          "pageId": "c053f2ec-ed4e-42e9-aff8-801c036f4336",
           "name": "Building Control (/default.asp)",
           "route": "/default.asp",
           "tests": 11,
@@ -154,7 +156,7 @@
           }
         },
         {
-          "pageId": "72cda9ce-fe69-4232-86b3-54f897d04081",
+          "pageId": "24111d5e-417f-476d-8cf6-ebe5fa456828",
           "name": "Permit register (/list.asp)",
           "route": "/list.asp",
           "tests": 11,
@@ -169,7 +171,7 @@
           }
         },
         {
-          "pageId": "e1acf3c0-e76f-4d0b-85bb-f4fa62381c84",
+          "pageId": "f84b1f78-07d7-4432-9bca-404ad94d44e2",
           "name": "New application (/new.asp)",
           "route": "/new.asp",
           "tests": 12,
@@ -185,7 +187,7 @@
           }
         },
         {
-          "pageId": "f1dbe2fe-9d12-4b3c-9e7c-7f9d478216d7",
+          "pageId": "f3a333ae-1f74-4136-bd40-de78405c9e42",
           "name": "Search (/search.asp)",
           "route": "/search.asp",
           "tests": 12,
@@ -201,7 +203,55 @@
           }
         },
         {
-          "pageId": "d8bb2859-54a1-4f39-8f58-65827fdd53b5",
+          "pageId": "bbd55d7a-a97e-4eec-977f-2e151a6de295",
+          "name": "Approved (/approve.asp)",
+          "route": "/approve.asp",
+          "tests": 12,
+          "reachedByClicking": true,
+          "testsByCategory": {
+            "smoke": 1,
+            "workflow": 1,
+            "security": 1,
+            "accessibility": 2,
+            "performance": 1,
+            "dataIntegrity": 3,
+            "responsive": 3
+          }
+        },
+        {
+          "pageId": "342581ce-574c-490c-8782-0a45230b9907",
+          "name": "Approved (/approve.asp)",
+          "route": "/approve.asp",
+          "tests": 12,
+          "reachedByClicking": true,
+          "testsByCategory": {
+            "smoke": 1,
+            "workflow": 1,
+            "security": 1,
+            "accessibility": 2,
+            "performance": 1,
+            "dataIntegrity": 3,
+            "responsive": 3
+          }
+        },
+        {
+          "pageId": "fd4239ad-80df-4fd9-8a1c-325add58e57d",
+          "name": "Not permitted (/revoke.asp)",
+          "route": "/revoke.asp",
+          "tests": 12,
+          "reachedByClicking": true,
+          "testsByCategory": {
+            "smoke": 1,
+            "workflow": 1,
+            "security": 1,
+            "accessibility": 2,
+            "performance": 1,
+            "dataIntegrity": 3,
+            "responsive": 3
+          }
+        },
+        {
+          "pageId": "af25992c-733c-4149-b03e-f4c72e365dc5",
           "name": "Permit BP-2026-0001 (/view.asp)",
           "route": "/view.asp",
           "tests": 12,
@@ -217,7 +267,7 @@
           }
         },
         {
-          "pageId": "b7db3f52-2535-41ee-8f38-0342f80e4e89",
+          "pageId": "39932227-ebb0-4634-88ce-b60700481e0d",
           "name": "Permit BP-2026-0002 (/view.asp)",
           "route": "/view.asp",
           "tests": 12,
@@ -233,7 +283,7 @@
           }
         },
         {
-          "pageId": "4ade7e03-5e5c-4689-a67d-849ba352782b",
+          "pageId": "82288496-7d88-4335-843e-10d1960327b6",
           "name": "Permit BP-2026-0003 (/view.asp)",
           "route": "/view.asp",
           "tests": 12,
@@ -252,25 +302,25 @@
     },
     "scan": {
       "ok": true,
-      "id": "0f66c8aa-18c9-467c-81c1-0e209026cbea",
+      "id": "08ad3788-0a75-447b-a284-3e1342b4f725",
       "status": "completed",
-      "requestsIssued": 222,
+      "requestsIssued": 361,
       "requestsBlocked": 0,
       "checksExecuted": [
         "authz.missing",
+        "injection.sql",
         "passive.headers",
+        "passive.pii-in-url",
         "passive.sensitive-data",
         "xss.dom",
-        "passive.pii-in-url",
         "xss.reflected",
         "xss.stored",
-        "injection.sql",
-        "request.safe-verb-state-change",
         "api.excessive-data",
         "authz.token",
         "injection.command",
         "injection.template",
         "passive.cors",
+        "request.safe-verb-state-change",
         "authz.vertical",
         "api.mass-assignment",
         "injection.nosql"
@@ -307,37 +357,40 @@
         "request.origin"
       ],
       "untested": [
+        "passive.cookies on http://127.0.0.1:4700/approve.asp?id=1: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
+        "passive.cookies on http://127.0.0.1:4700/approve.asp?id=2: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "passive.cookies on /default.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "passive.pii-in-url on /default.asp: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "passive.cookies on /list.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "passive.pii-in-url on /list.asp: Inconclusive: Not evaluated: this address carries no query parameters and the page declares no form, so there is nothing that could put personal data into a URL.",
         "passive.cookies on /new.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "xss.stored on /new.asp: Inconclusive: The value could not be stored (400), so what happens on read is unknown.",
+        "authz.missing on http://127.0.0.1:4700/revoke.asp?id=3: Inconclusive: The owner could not read it either (403).",
+        "passive.cookies on http://127.0.0.1:4700/revoke.asp?id=3: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "passive.cookies on /search.asp: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "passive.cookies on http://127.0.0.1:4700/view.asp?id=1: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "passive.cookies on http://127.0.0.1:4700/view.asp?id=2: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
         "passive.cookies on http://127.0.0.1:4700/view.asp?id=3: Inconclusive: Not evaluated: no sign-in form could be found to authenticate against, and the page under test set no session cookie. The cookies worth judging are the ones an authentication response sets, and no authentication response was obtained.",
+        "request.safe-verb-state-change on http://127.0.0.1:4700/approve.asp?id=1: Inconclusive: Not evaluated: http://127.0.0.1:4700/approve.asp?id=1 answered 200 and http://127.0.0.1:4700/list.asp is unchanged, so this check saw no state change. It cannot conclude there was none — the request may have changed something this page does not show — and it will not record an untested endpoint as a safe one.",
         "authz.vertical on http://127.0.0.1:4700/approve.asp?id=1: Inconclusive: Both inspector and clerk reach http://127.0.0.1:4700/approve.asp?id=1 (200 and 200), and nothing about the route says it was meant to be restricted — most routes are reachable by every role. Compare what each role is shown in the interface, or name the privileged routes, to judge this one.",
         "api.excessive-data on http://127.0.0.1:4700/revoke.asp?id=3: Inconclusive: The endpoint answered 403.",
-        "authz.missing on http://127.0.0.1:4700/revoke.asp?id=3: Inconclusive: The owner could not read it either (403).",
         "api.input-validation on http://127.0.0.1:4700/new.asp: Inconclusive: No parameter was discovered on this endpoint to probe.",
         "authz.readonly on http://127.0.0.1:4700/new.asp: Inconclusive: clerk could not write either (400); the endpoint may reject this payload for unrelated reasons.",
         "authz.vertical on http://127.0.0.1:4700/new.asp: Inconclusive: Both inspector and clerk reach http://127.0.0.1:4700/new.asp (200 and 200), and nothing about the route says it was meant to be restricted — most routes are reachable by every role. Compare what each role is shown in the interface, or name the privileged routes, to judge this one.",
-        "request.csrf on http://127.0.0.1:4700/new.asp: Inconclusive: An authenticated session is needed to send a cross-site request.",
-        "request.origin on http://127.0.0.1:4700/new.asp: Inconclusive: An authenticated session is needed to vary the origin.",
+        "request.csrf on http://127.0.0.1:4700/new.asp: Inconclusive: Not evaluated: clerk authenticates with HTTP Basic credentials and the application set no session cookie. A browser attaches a cookie to a cross-site request on its own, which is what makes forgery possible; it does not attach HTTP Basic credentials, which only the application's own code sets. So there is no cross-site request here for an anti-forgery token to defend. That is a property of how this application authenticates, not a gap in the scan.",
+        "request.origin on http://127.0.0.1:4700/new.asp: Inconclusive: Not evaluated: clerk authenticates with HTTP Basic credentials and the application set no session cookie. A browser attaches a cookie to a cross-site request on its own, which is what makes forgery possible; it does not attach HTTP Basic credentials, which only the application's own code sets. So varying the origin would compare two requests neither of which carries credentials. That is a property of how this application authenticates, not a gap in the scan.",
         "xss.stored on http://127.0.0.1:4700/new.asp: Inconclusive: No field was discovered on this page to store a marker in."
       ]
     },
     "run": {
       "ok": true,
-      "runId": "3376c4bb-af5e-45ea-ad57-54d4a211d8f9",
+      "runId": "85d74233-9198-493d-958d-f93aa480561e",
       "status": "failed",
-      "executions": 203,
+      "executions": 239,
       "byStatus": {
-        "passed": 168,
-        "error": 1,
+        "passed": 193,
         "skipped": 6,
-        "failed": 28
+        "failed": 40
       },
       "failures": [
         {
@@ -363,7 +416,7 @@
         {
           "name": "Search: does not reflect markup typed into term",
           "route": "/search.asp",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-b76f4842> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-8cc7fc46> element(s) exist. The application does not encode what it reflects."
         },
         {
           "name": "Search: has no serious automated accessibility violations",
@@ -427,6 +480,66 @@
         },
         {
           "name": "Search (/search.asp): fits a mobile screen (390x844)",
+          "route": null,
+          "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+        },
+        {
+          "name": "Approved (/approve.asp): is reached from Building Control (/default.asp) through \"Permit register\" → \"Approve\"",
+          "route": null,
+          "message": "Expected the URL to contain \"/approve.asp\" but it was \"http://127.0.0.1:4700/revoke.asp?id=2\"."
+        },
+        {
+          "name": "Approved (/approve.asp): is not shown to a signed-out visitor",
+          "route": null,
+          "message": "The element was expected to be hidden but was visible."
+        },
+        {
+          "name": "Approved (/approve.asp): has no serious automated accessibility violations",
+          "route": null,
+          "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
+        },
+        {
+          "name": "Approved (/approve.asp): fits a mobile screen (390x844)",
+          "route": null,
+          "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+        },
+        {
+          "name": "Approved (/approve.asp): is reached from Building Control (/default.asp) through \"Permit register\" → \"Approve\"",
+          "route": null,
+          "message": "Expected the URL to contain \"/approve.asp\" but it was \"http://127.0.0.1:4700/revoke.asp?id=2\"."
+        },
+        {
+          "name": "Approved (/approve.asp): is not shown to a signed-out visitor",
+          "route": null,
+          "message": "The element was expected to be hidden but was visible."
+        },
+        {
+          "name": "Approved (/approve.asp): has no serious automated accessibility violations",
+          "route": null,
+          "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
+        },
+        {
+          "name": "Approved (/approve.asp): fits a mobile screen (390x844)",
+          "route": null,
+          "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
+        },
+        {
+          "name": "Not permitted (/revoke.asp): is reached from Building Control (/default.asp) through \"Permit register\" → \"Revoke\"",
+          "route": null,
+          "message": "role=link name=\"Revoke\" could not be used: role=link name=\"Revoke\" matched 2 elements. Narrow the locator, or set \"nth\" to choose one deliberately."
+        },
+        {
+          "name": "Not permitted (/revoke.asp): is not shown to a signed-out visitor",
+          "route": null,
+          "message": "The element was expected to be hidden but was visible."
+        },
+        {
+          "name": "Not permitted (/revoke.asp): has no serious automated accessibility violations",
+          "route": null,
+          "message": "1 violation(s) against wcag2a, wcag2aa, wcag21aa: 1 serious. 1 at serious or worse: html-has-lang (serious) <html> element must have a lang attribute at html — https://dequeuniversity.com/rules/axe/4.13/html-has-lang?application=axeAPI."
+        },
+        {
+          "name": "Not permitted (/revoke.asp): fits a mobile screen (390x844)",
           "route": null,
           "message": "The page can be scrolled sideways by 378px in a 390px-wide window; the element reaching furthest is table, whose right edge is at 768px."
         },
@@ -594,100 +707,142 @@
           "message": "A national insurance number appears in the response — CWE-359"
         },
         {
-          "severity": "high",
-          "checkId": "StateChangeBySafeVerb",
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/search.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/list.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/new.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/revoke.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/default.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/new.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/list.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/revoke.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/revoke.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/list.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/new.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/list.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/search.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/search.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/revoke.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
           "route": "/approve.asp",
-          "parameter": null,
-          "message": "A GET changes state, and needs no anti-forgery token to do it — CWE-352"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/list.asp",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/new.asp",
           "parameter": "content-security-policy",
           "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/default.asp",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/list.asp",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/new.asp",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/search.asp",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/new.asp",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/search.asp",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/list.asp",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/search.asp",
-          "parameter": "x-content-type-options",
-          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/default.asp",
-          "parameter": "referrer-policy",
-          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/default.asp",
-          "parameter": "content-security-policy",
-          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/search.asp",
+          "route": "/approve.asp",
           "parameter": "x-frame-options",
           "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
         },
@@ -695,6 +850,20 @@
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/view.asp",
+          "parameter": "x-frame-options",
+          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/view.asp",
+          "parameter": "referrer-policy",
+          "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/approve.asp",
           "parameter": "referrer-policy",
           "message": "referrer-policy is not set — parameter \"referrer-policy\" — CWE-1021"
         },
@@ -709,36 +878,29 @@
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
           "route": "/view.asp",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/new.asp",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
-        },
-        {
-          "severity": "medium",
-          "checkId": "MissingSecurityHeader",
-          "route": "/view.asp",
           "parameter": "x-content-type-options",
           "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/list.asp",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+          "route": "/new.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
         },
         {
           "severity": "medium",
           "checkId": "MissingSecurityHeader",
-          "route": "/default.asp",
-          "parameter": "x-frame-options",
-          "message": "x-frame-options is not set — parameter \"x-frame-options\" — CWE-1021"
+          "route": "/approve.asp",
+          "parameter": "x-content-type-options",
+          "message": "x-content-type-options is not set — parameter \"x-content-type-options\" — CWE-1021"
+        },
+        {
+          "severity": "medium",
+          "checkId": "MissingSecurityHeader",
+          "route": "/search.asp",
+          "parameter": "content-security-policy",
+          "message": "content-security-policy is not set — parameter \"content-security-policy\" — CWE-1021"
         }
       ],
       "gaps": [
@@ -757,13 +919,13 @@
         {
           "category": "accessibility",
           "status": "partially-covered",
-          "route": "/search.asp",
+          "route": "/new.asp",
           "message": "a scan scoped to the form — The form has no selector the scanner can be scoped with, so the whole page is scanned."
         },
         {
           "category": "accessibility",
           "status": "partially-covered",
-          "route": "/new.asp",
+          "route": "/search.asp",
           "message": "a scan scoped to the form — The form has no selector the scanner can be scoped with, so the whole page is scanned."
         },
         {
@@ -781,14 +943,62 @@
         {
           "category": "api",
           "status": "partially-covered",
-          "route": "/search.asp",
+          "route": "/new.asp",
           "message": "server-side validation — The browser's own validation stops an invalid submission before it reaches the server, so whether the server checks too cannot be seen from the page."
         },
         {
           "category": "api",
           "status": "partially-covered",
-          "route": "/new.asp",
+          "route": "/search.asp",
           "message": "server-side validation — The browser's own validation stops an invalid submission before it reaches the server, so whether the server checks too cannot be seen from the page."
+        },
+        {
+          "category": "dataIntegrity",
+          "status": "partially-covered",
+          "route": "/view.asp",
+          "message": "Permit BP-2026-0001 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+        },
+        {
+          "category": "dataIntegrity",
+          "status": "partially-covered",
+          "route": "/approve.asp",
+          "message": "Approved (/approve.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+        },
+        {
+          "category": "dataIntegrity",
+          "status": "partially-covered",
+          "route": "/default.asp",
+          "message": "Building Control (/default.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+        },
+        {
+          "category": "dataIntegrity",
+          "status": "partially-covered",
+          "route": "/view.asp",
+          "message": "Permit BP-2026-0003 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+        },
+        {
+          "category": "dataIntegrity",
+          "status": "partially-covered",
+          "route": "/search.asp",
+          "message": "Search (/search.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+        },
+        {
+          "category": "dataIntegrity",
+          "status": "partially-covered",
+          "route": "/revoke.asp",
+          "message": "Not permitted (/revoke.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+        },
+        {
+          "category": "dataIntegrity",
+          "status": "partially-covered",
+          "route": "/new.asp",
+          "message": "New application (/new.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+        },
+        {
+          "category": "dataIntegrity",
+          "status": "partially-covered",
+          "route": "/approve.asp",
+          "message": "Approved (/approve.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
         },
         {
           "category": "dataIntegrity",
@@ -800,43 +1010,13 @@
           "category": "dataIntegrity",
           "status": "partially-covered",
           "route": "/view.asp",
-          "message": "Permit BP-2026-0001 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-        },
-        {
-          "category": "dataIntegrity",
-          "status": "partially-covered",
-          "route": "/new.asp",
-          "message": "New application (/new.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-        },
-        {
-          "category": "dataIntegrity",
-          "status": "partially-covered",
-          "route": "/view.asp",
-          "message": "Permit BP-2026-0003 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
+          "message": "Permit BP-2026-0002 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
         },
         {
           "category": "dataIntegrity",
           "status": "partially-covered",
           "route": "/list.asp",
           "message": "Permit register (/list.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-        },
-        {
-          "category": "dataIntegrity",
-          "status": "partially-covered",
-          "route": "/view.asp",
-          "message": "Permit BP-2026-0002 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-        },
-        {
-          "category": "dataIntegrity",
-          "status": "partially-covered",
-          "route": "/search.asp",
-          "message": "Search (/search.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
-        },
-        {
-          "category": "dataIntegrity",
-          "status": "partially-covered",
-          "route": "/default.asp",
-          "message": "Building Control (/default.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for."
         },
         {
           "category": "errorHandling",
@@ -855,18 +1035,6 @@
           "status": "human-required",
           "route": "/new.asp",
           "message": "business rules between fields beyond those named — Rules such as \"business accounts need a company number\" exist in requirements, not in the page; only rules visible in names or observed in behaviour were tested."
-        },
-        {
-          "category": "security",
-          "status": "human-required",
-          "route": "/approve.asp",
-          "message": "whether this link changes state: /approve.asp?id=1 — The link \"Approve\" at /approve.asp?id=1, on /list.asp, says it changes something, and a GET that changes something can be triggered by anyone who gets a user to open the URL. Discovery did not follow it: mapping an application must not alter it. Whether it really changes state, and whether it checks an anti-forgery token, was therefore not estab"
-        },
-        {
-          "category": "security",
-          "status": "human-required",
-          "route": "/revoke.asp",
-          "message": "whether this link changes state: /revoke.asp?id=3 — The link \"Revoke\" at /revoke.asp?id=3, on /list.asp, says it changes something, and a GET that changes something can be triggered by anyone who gets a user to open the URL. Discovery did not follow it: mapping an application must not alter it. Whether it really changes state, and whether it checks an anti-forgery token, was therefore not establis"
         },
         {
           "category": "performance",
@@ -895,12 +1063,6 @@
         {
           "category": "boundary",
           "status": "unknown",
-          "route": "/search.asp",
-          "message": "a length limit — term declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
-        },
-        {
-          "category": "boundary",
-          "status": "unknown",
           "route": "/new.asp",
           "message": "a length limit — cost declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
         },
@@ -908,22 +1070,28 @@
           "category": "boundary",
           "status": "unknown",
           "route": "/new.asp",
-          "message": "a length limit — ni declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+          "message": "a length limit — address declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+        },
+        {
+          "category": "boundary",
+          "status": "unknown",
+          "route": "/search.asp",
+          "message": "a length limit — term declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
         },
         {
           "category": "boundary",
           "status": "unknown",
           "route": "/new.asp",
-          "message": "a length limit — address declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
+          "message": "a length limit — ni declares no minimum or maximum length, so its length boundaries are unknown and none were invented."
         }
       ]
     }
   },
   "detection": {
     "planted": 4,
-    "detected": 4,
-    "surfacedAsGap": 0,
-    "weakOnly": 0,
+    "detected": 3,
+    "surfacedAsGap": 1,
+    "weakOnly": 1,
     "verdicts": [
       {
         "id": "PL_D01",
@@ -935,15 +1103,15 @@
           "/approve.asp"
         ],
         "statement": "Approving a permit is a GET any signed-in role may issue, with no token and no check.",
-        "detected": true,
-        "surfacedAsGap": false,
-        "gap": null,
-        "weakOnly": false,
+        "detected": false,
+        "surfacedAsGap": true,
+        "gap": "Permit BP-2026-0001 (/view.asp): the count under a filter — Discovery recorded no text filter on this listing, so there is no way from here to put it in the one state where a count computed before filtering shows: the unfiltered page is allowed to state more rows than it renders, because that is what a pager is for.",
+        "weakOnly": true,
         "evidence": {
-          "kind": "security finding",
-          "strength": "route and wording",
-          "route": "/approve.asp",
-          "message": "A GET changes state, and needs no anti-forgery token to do it — CWE-352"
+          "kind": "test failure",
+          "strength": "wording only, no route",
+          "route": "/new.asp",
+          "message": "Expected the element to exist on the page, but it does not."
         }
       },
       {
@@ -962,7 +1130,7 @@
           "kind": "test failure",
           "strength": "route and wording",
           "route": "/search.asp",
-          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-b76f4842> element(s) exist. The application does not encode what it reflects."
+          "message": "Input was written back into the page as live markup: 1 <qanxt-probe-8cc7fc46> element(s) exist. The application does not encode what it reflects."
         }
       },
       {

@@ -2818,6 +2818,65 @@ finding it produces.
 
 ---
 
+## 81. Authorising interaction cost the detection it was meant to enable
+
+**Found by running permits-legacy with `--destructive` for the first time.** Every earlier
+permits measurement had been in navigation mode. Under authorisation it read **3 of 4**, and
+the defect it lost was PL_D01 — *"Approving a permit is a GET any signed-in role may issue,
+with no token and no check"* — the single most authorisation-shaped defect in the target.
+
+**The product said why, in its own words.** `request.safe-verb-state-change` reported:
+
+> `/approve.asp?id=1` answered 200 and `/list.asp` is unchanged, so this check saw no state
+> change. It cannot conclude there was none — the request may have changed something this page
+> does not show — and it will not record an untested endpoint as a safe one.
+
+That is the check working exactly as designed, refusing to call an endpoint safe on evidence
+it does not have. The evidence was missing because **the crawl had already spent it**:
+
+```
+discovery log   [01:58:15] Explored /approve.asp (6 elements)
+                [01:58:16] Explored /approve.asp (6 elements)
+the register    BP-2026-0001  approved     (it is seeded "submitted")
+                BP-2026-0002  approved
+```
+
+Mapping approved two permits. By the time the check read the listing before and after
+approving permit 1, permit 1 was already approved, so nothing changed and the check correctly
+declined.
+
+**Why the existing guard did not cover it.** `probe-order.ts` exists for this exact failure —
+its comment describes "a check whose whole job is observing a change reported that it had seen
+none, of a change five earlier probes against the same address had already spent." That orders
+probes *within* a scan. Nothing ordered discovery against the scan that follows it.
+
+**The fix: a link that says it changes something is never followed, authorised or not.**
+
+The authorisation is for a *control* whose endpoint cannot be learned any other way.
+clinic-spa hides its cancel button from a receptionist, and pressing it is the only way to
+discover `/api/appointments/{id}/cancel` — which is how CS_D04 is found. A link is not that.
+Its address is in its own href, and the crawler already records it either way; a previous fix
+in this same block separated the record from the refusal, with the comment *"The fact and the
+refusal are separate things."* This change completes that thought: having separated them,
+there is no longer any reason to follow the link.
+
+**The accepted cost, stated rather than hidden:** a page reachable only by following such a
+link is not mapped. That is the right trade. A check that exercises the address deliberately,
+reading the application either side, learns strictly more than a crawl that walks into it —
+and mapping an application still must not alter it.
+
+**Nothing in 612 worker tests asserted the old behaviour**, which is why following these links
+under authorisation survived as long as it did. The new test asserts the thing the application
+itself can answer — `expect([...approved]).toEqual([])` — and fails on the old behaviour.
+
+**What this says about the two configurations.** Before this, there was no single setting under
+which all three small targets reached 4 of 4: clinic-spa needs interaction authorised to find
+CS_D04, and permits-legacy was broken by the same authorisation losing PL_D01. The claim "all
+three are at 4 of 4" was true only by reading each in its own best configuration, which is the
+kind of bookkeeping this file exists to stop.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

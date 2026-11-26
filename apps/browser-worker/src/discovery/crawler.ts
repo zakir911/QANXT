@@ -1120,12 +1120,41 @@ export class Crawler {
         }
       }
 
-      if (!this.options.budget.allowStateChangingClicks
-          && linkLooksMutating(name, href, inNav)) {
+      // Not followed even when state-changing interaction is authorised.
+      //
+      // The authorisation exists for a control whose endpoint cannot be learned any other
+      // way: clinic-spa hides its cancel button from a receptionist, and the only way to
+      // find out what it calls is to press it. A link is not that. Its address is in its
+      // own href, and the line above records it whether or not it is followed, so the
+      // attack surface has it either way.
+      //
+      // Following it costs a detection. permits-legacy approves a permit through
+      // `/approve.asp?id=1`, a GET any signed-in role may issue with no token — PL_D01, and
+      // the whole reason that target exists. With interaction authorised the crawl followed
+      // it and approved permits 1 and 2 while mapping. `request.safe-verb-state-change`
+      // then probed the same address, read `/list.asp` before and after, saw nothing change
+      // because the permit was already approved, and reported:
+      //
+      //   "answered 200 and /list.asp is unchanged, so this check saw no state change. It
+      //    cannot conclude there was none ... and it will not record an untested endpoint
+      //    as a safe one."
+      //
+      // Which is the check behaving correctly on evidence the crawl had already spent. The
+      // measured cost: permits-legacy read 4 of 4 in navigation mode and 3 of 4 with
+      // interaction authorised, losing the one defect that authorisation was supposed to
+      // help with.
+      //
+      // The accepted cost of this rule is coverage: a page reachable only by following such
+      // a link is not mapped, and `stateChangingLinks` is where a reader sees what was left
+      // alone. That is the right trade. A check that deliberately exercises the address with
+      // a witness either side learns more than a crawl that walks into it, and mapping an
+      // application still must not alter it.
+      if (linkLooksMutating(name, href, inNav)) {
         this.mutatingLinksSkipped++;
         this.note(`Did not follow ${href}${name ? ` ("${name}")` : ''}: it looks like it changes `
-          + `something, and mapping an application must not alter it. Turn on state-changing `
-          + `interaction for this application to follow links like this.`);
+          + `something, and mapping an application must not alter it. Its address is recorded `
+          + `either way, and the security scan probes it deliberately, reading the application `
+          + `before and after — which following it here would make impossible.`);
         continue;
       }
 
