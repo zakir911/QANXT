@@ -30,23 +30,41 @@ lines in a handler no test could reach. They are listed in
 
 ## Measured
 
+All three columns below come from **one run, in one configuration**, with state-changing
+interaction authorised: `node test-lab/run-target.mjs clinic-spa permits-legacy token-api
+--destructive` on 2026-11-26.
+
 | | clinic-spa | permits-legacy | token-api |
 | --- | --- | --- | --- |
 | Pages discovered | 4 | 7 | 4 |
 | Forms extracted | 4 | 2 | 0 |
-| Tests designed and run | 198 | 203 | 32 |
-| Security checks executed | 22 of 28 | 17 of 21 | 8 of 8 |
-| Security findings | 22 | 23 | 13 |
-| Coverage gaps | 42 | 20 | 6 |
+| Tests designed and run | 199 | 203 | 32 |
+| Security checks executed | 24 of 29 | 17 of 22 | 16 of 26 |
+| Security findings | 19 | 23 | 13 |
+| Coverage gaps | 45 | 27 | 6 |
 | **Planted defects detected on evidence** | **4 of 4** | **4 of 4** | **4 of 4** |
 
-**clinic-spa's column is from a run with interaction authorised**, and the distinction matters
-rather than being a footnote. CS_D04 is a control the interface hides from a receptionist and
-the endpoint permits anyway, and the only way to learn what that control calls is to press it.
-Pressing it is a change to the application, so it needs the owner's permission, exactly as
-PL_D01's probe does. Without that permission the crawl declines, the endpoint stays off the
-surface, and clinic-spa reads 3 of 4 — correctly, with the reason recorded rather than the
-defect silently missing.
+**That it is one configuration is the point, and it was not true until 2026-11-26.**
+
+CS_D04 is a control the interface hides from a receptionist and the endpoint permits anyway,
+and the only way to learn what that control calls is to press it. Pressing it changes the
+application, so it needs the owner's permission. Without that permission the crawl declines,
+the endpoint stays off the surface, and clinic-spa reads 3 of 4 — correctly, with the reason
+recorded rather than the defect silently missing.
+
+The same permission used to **cost** permits-legacy its PL_D01. Approving a permit there is a
+`GET`, so under authorisation the crawl followed the approve link and approved two permits
+while mapping; `request.safe-verb-state-change` then read the register either side of
+approving permit 1, found it already approved, saw no change and declined to call the endpoint
+safe. The check was right and the evidence was already spent. permits-legacy read 4 of 4 in
+navigation mode and 3 of 4 with interaction authorised, losing the one defect the
+authorisation was supposed to help with. Defect 81 has the evidence and the fix: a link whose
+own words say it changes something is never followed, because its address is in its own href
+and is recorded either way, while a control's endpoint can be learned no other way.
+
+Until that was fixed there was no single setting under which all three reached 4 of 4, and
+saying "all three are at 4 of 4" meant reading each in its own best configuration. One run,
+one configuration, is what the table above now reports.
 
 Three checks found it once the endpoint was there: `authz.readonly` reporting *"A read-only
 account can perform a write"* against `/api/appointments/apt-1/cancel`, which is the planted

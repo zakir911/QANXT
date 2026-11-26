@@ -14,8 +14,11 @@ worker, React console, PostgreSQL and Redis.
 | One target, end to end | `node test-lab/run-target.mjs clinic-spa permits-legacy token-api` |
 
 `verification/multi-target-results.md` is what the product found on four applications of
-different shapes. All three small targets are at 4 of 4 — one of them only with interaction
-authorised, because finding its defect means pressing a control.
+different shapes. All three small targets are at 4 of 4, from one run in one configuration
+with interaction authorised. That it is one configuration is recent: clinic-spa needs the
+authorisation, because finding its defect means pressing a control, and the same
+authorisation used to cost permits-legacy a defect by approving permits while mapping.
+Defect 81 has it.
 
 The large one is at **11 of the 17 its measurement can speak to**, with 5 missed, 11
 unscoreable and 4 on screens nothing reached. It read as 10 of 32 with 17 missed until the
