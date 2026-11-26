@@ -200,11 +200,79 @@ test('a read-only account shown the same success page is still a finding', async
   assert.equal(result.findings[0].category, 'PrivilegeEscalation');
 });
 
-test('an alert the control also carries is not treated as a refusal', () => {
-  // A banner both arms see — a maintenance notice, a validation hint already on the page —
-  // says nothing about either request.
+test('an alert both arms see is not decided here, because one page cannot tell', () => {
+  // A banner the page always carries says nothing about either request; a flash message says
+  // everything. From a single page the two are identical, so the comparator reports the shape
+  // and the caller settles it by reading the page again.
   const both = '<div role="alert">Rates are out of date.</div>';
-  assert.deepEqual(distinguishedTheTwo(both, both), { known: true, refused: false });
+  const outcome = distinguishedTheTwo(both, both);
+
+  assert.equal(outcome.sameWithAnAlert, true);
+  assert.equal(outcome.alert, 'Rates are out of date.');
+});
+
+test('a flash message, gone on the second read, means the control was refused too', async () => {
+  // The case that produced ten false findings on freight. The scan held no anti-forgery token
+  // for an application that serves its token as a hidden input, so the control was refused
+  // exactly like the probe, and both landed on "That form expired." Identical pages — which is
+  // true, and not the point.
+  const reads = [];
+  const scanner = {
+    async request(options) {
+      const id = String(options.testId);
+      if (id.endsWith(':again')) {
+        reads.push(options.url);
+        return page('<h1>SHP-0005</h1>');        // the flash was consumed by the first read
+      }
+      if (id.endsWith(':arrived')) return page(REFUSED);
+      if (id.endsWith(':read')) return page('<form/>');
+      return redirectedTo('/shipments/shp-0005');
+    }
+  };
+
+  const result = await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/shipments/shp-0005/edit', session, ...shape
+  });
+
+  assert.equal(result.inconclusive, true);
+  assert.equal(result.findings.length, 0);
+  assert.match(result.reason, /with a token was refused too/);
+  assert.match(result.reason, /That form expired/);
+  assert.deepEqual(reads, ['http://app.test/shipments/shp-0005']);
+});
+
+test('a banner still there on the second read belongs to the page, and the finding stands', async () => {
+  const banner = '<h1>SHP-0005</h1><div role="alert">Rates are out of date.</div>';
+  const scanner = {
+    async request(options) {
+      const id = String(options.testId);
+      if (id.endsWith(':again')) return page(banner);   // still there: not about the request
+      if (id.endsWith(':arrived')) return page(banner);
+      if (id.endsWith(':read')) return page('<form/>');
+      return redirectedTo('/shipments/shp-0005');
+    }
+  };
+
+  const result = await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/shipments/shp-0005/edit', session, ...shape
+  });
+
+  assert.equal(result.findings.length, 1);
+  assert.equal(result.findings[0].category, 'MissingCsrfToken');
+});
+
+test('the second read is only made when both arms landed on the same page with an alert', async () => {
+  const scanner = stub({
+    posts: [redirectedTo('/shipments/shp-0005'), redirectedTo('/shipments/shp-0005')],
+    landings: [page(SAVED), page(SAVED)]
+  });
+
+  await checkCsrfToken(scanner, {
+    baseUrl: 'http://app.test', path: '/shipments/shp-0005/edit', session, ...shape
+  });
+
+  // No alert anywhere, so nothing to disambiguate and nothing to pay for.
+  assert.equal(scanner.sent.filter(r => String(r.testId).endsWith(':again')).length, 0);
 });
 
 test('a missing page on either side is not evidence', () => {

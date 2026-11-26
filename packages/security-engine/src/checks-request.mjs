@@ -194,7 +194,32 @@ export async function arrivedAt(scanner, response, { baseUrl, session, testId, a
       + 'place whether it accepted or refused says which one in the page'
   });
   if (!read.allowed) return null;
-  return typeof read.responseText === 'string' ? read.responseText : null;
+  const body = typeof read.responseText === 'string' ? read.responseText : null;
+  return body === null ? null : { url, body };
+}
+
+/**
+ * Whether an alert on a page belongs to the page rather than to either request.
+ *
+ * An application's flash message is consumed when it is read: it is about the request that
+ * set it and it is gone next time. A banner the page always carries — a stale-rates notice, a
+ * maintenance warning — is still there. One more read tells them apart, and nothing else can:
+ * from a single page the two look identical.
+ *
+ * Only asked when both arms landed on the same page *and* that page carries an alert, so it
+ * costs one request in the one case where it decides something.
+ */
+export async function theAlertIsThePagesOwn(scanner, landing, { session, testId, alert }) {
+  if (!landing?.url) return false;
+  const again = await scanner.request({
+    url: landing.url, method: 'GET', risk: SECURITY_RISK.PASSIVE,
+    headers: { ...authHeaders(session) },
+    as: 'the legitimate caller', testId: `${testId}:again`,
+    note: 'reading the same page a second time, because a flash message about a request is '
+      + 'consumed when it is read and a banner the page always carries is not'
+  });
+  if (!again.allowed || typeof again.responseText !== 'string') return false;
+  return alertsIn(again.responseText).includes(alert);
 }
 
 /** The text of anything on the page that reads as an error the application is reporting. */
@@ -219,6 +244,22 @@ function alertsIn(html) {
  */
 export function distinguishedTheTwo(controlPage, probePage) {
   if (typeof controlPage !== 'string' || typeof probePage !== 'string') return { known: false };
+
+  // The control has to have been *accepted* before the probe means anything, and an
+  // application that answers a refusal with a redirect to the record has not said so in
+  // anything `stateChangeAccepted` can see. It said so on the page it redirected to.
+  //
+  // This is the case that produced ten false findings on freight: the scan held no
+  // anti-forgery token for an application that serves its token as a hidden input, so the
+  // control was refused exactly like the probe, both landed on "That form expired.", the two
+  // pages were identical — and identical was read as "the application did not distinguish
+  // them", which is true and not the point.
+  const onTheControl = alertsIn(controlPage);
+  if (onTheControl.length > 0 && controlPage === probePage) {
+    return { known: true, sameWithAnAlert: true, alert: onTheControl[0],
+             how: `the application answered "${onTheControl[0]}" to both` };
+  }
+
   if (controlPage === probePage) return { known: true, refused: false };
 
   const probeAlerts = alertsIn(probePage);
@@ -368,7 +409,17 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
   // too. Read where each one landed before founding anything on the header alone.
   const probeLanded = await arrivedAt(
     scanner, withoutToken, { baseUrl, session, testId, as: 'a caller with no anti-CSRF token' });
-  const difference = distinguishedTheTwo(controlLanded, probeLanded);
+  const difference = distinguishedTheTwo(controlLanded?.body, probeLanded?.body);
+  if (difference.sameWithAnAlert
+      && !await theAlertIsThePagesOwn(
+           scanner, probeLanded, { session, testId, alert: difference.alert })) {
+    return { skipped: false, findings: [], inconclusive: true,
+             reason: `Not evaluated: the request with a token was refused too — ${difference.how}. `
+               + `The endpoint answered both the same way and redirected both to the same place, `
+               + `so nothing here distinguishes a missing token from a request this scan could `
+               + `not make properly. What was sent: `
+               + `${describeShape(placed.with, contentType, tokenField)}.` };
+  }
   if (difference.known && difference.refused) {
     return { skipped: false, findings: [], ok: true,
              detail: `both requests redirected to the same address, but the one without a token `
@@ -463,7 +514,15 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
 
   const elsewhereLanded = await arrivedAt(
     scanner, crossOrigin, { baseUrl, session, testId, as: 'cross-origin' });
-  const originDifference = distinguishedTheTwo(ownLanded, elsewhereLanded);
+  const originDifference = distinguishedTheTwo(ownLanded?.body, elsewhereLanded?.body);
+  if (originDifference.sameWithAnAlert
+      && !await theAlertIsThePagesOwn(
+           scanner, elsewhereLanded, { session, testId, alert: originDifference.alert })) {
+    return { skipped: false, findings: [], inconclusive: true,
+             reason: `Not evaluated: the request from the application's own origin was refused `
+               + `too — ${originDifference.how}. What another origin does cannot be read against `
+               + 'a control that was not accepted.' };
+  }
   if (originDifference.known && originDifference.refused) {
     return { skipped: false, findings: [], ok: true,
              detail: `both requests redirected to the same address, but the one claiming another `

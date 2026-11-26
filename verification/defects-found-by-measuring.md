@@ -3092,6 +3092,81 @@ than before: 82 and 83 without 84 is exactly the 40-finding run above.
 
 ---
 
+## 85. The scan never held an anti-forgery token for any server-rendered application
+
+**Found by not believing the improvement either.** With defect 84's destination read in place,
+freight's false findings collapsed: `PrivilegeEscalation` 20 → 2, `MissingCsrfToken` 20 → 10.
+Then I checked the ten that survived, and `/shipments/shp-0005/edit` was among them — the exact
+endpoint I had proven by hand, an hour earlier, **enforces its token correctly**.
+
+So the destination read had not worked there, and the reason turned out to be upstream of all
+three of the previous defects:
+
+```js
+const readCsrf = (body) =>
+  (body && typeof body === 'object' && body.csrfToken) ? body.csrfToken : null;
+```
+
+That is the only place a scan ever got an anti-forgery token. A JSON field called `csrfToken`.
+Freight serves its token the way every server-rendered application does — a hidden input,
+`<input type="hidden" name="_csrf" value="…">` — so `session.csrf` was **null for every
+freight scan ever run**, and for every application of that shape.
+
+**Why that was invisible until now, and why it then produced findings rather than silence.**
+The anti-forgery check's control request is the application's own request, token included. With
+no token the control is refused. Before defect 82 the control was refused anyway, for want of a
+body, so nothing downstream could tell the two causes apart. Once the body was right, the
+control was refused *for the token alone* — and on an endpoint that answers a refusal with a
+redirect to the record rather than by re-showing the form, that refusal is invisible in the
+status and the Location. Both arms refused identically. Two identical answers, two identical
+landing pages. Defect 84's rule read "identical" as *the application did not distinguish them*,
+which is true, and not the point.
+
+Ten findings, each against an endpoint doing the right thing, each caused by the scan not
+holding a credential it had never been able to read.
+
+**Two fixes, because one of them is a capability and the other is a guard.**
+
+The capability: `readCsrf` now reads a hidden input whose name says it is a token — the same
+spellings the form extractor uses to set `hasCsrfToken`, in either attribute order — and a
+`<meta name="csrf-token">`, which is how a single-page application is handed one.
+
+And it reads it **after** signing in. The token on the sign-in page belongs to the session the
+caller had *before* it signed in, and freight derives its token from the session cookie:
+
+```js
+function csrfToken(ctx) {
+  const sessionToken = ctx.cookies.lab_session ?? 'anonymous';
+  ...
+}
+```
+
+So the pre-login value is syntactically a token and wrong, which is worse than none, because
+the check would believe it was sending the application's own request. A sign-in POST normally
+answers 302 with an empty body, so `antiForgeryTokenFor` reads the response where it carries
+one, then the page the redirect led to, then the application's root. One extra request per
+identity, at most two.
+
+The guard: the control has to have been *accepted* before the probe means anything, and when
+both arms land on the same page carrying an error, the control was refused. That case now
+reaches no verdict instead of a finding.
+
+**Telling a flash message from a banner.** An alert on the landing page is only evidence if it
+is about the request. A stale-rates notice the page always carries is not, and from a single
+page the two look identical. So when both arms land on the same page *and* it carries an alert,
+the page is read once more: a flash message is consumed when it is read and is gone, a banner
+is still there. One request, in the one case where it decides something.
+
+**Four defects in series over one endpoint.** 82 let the check issue a request the endpoint
+would take. 83 let a write be judged as a write. 84 stopped a refusal-by-redirect reading as
+acceptance. 85 gave the scan the credential that makes its control request the application's
+own. Each one was only visible once the one before it was fixed, and each intermediate state
+produced a *more confident* wrong answer than the state before. That is the argument for
+re-measuring after every fix and distrusting every improvement, and it is why no freight number
+from r11 or r12 was published.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

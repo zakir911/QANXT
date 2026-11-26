@@ -17,8 +17,8 @@ import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { authHeaders } from './credentials.mjs';
 import { at } from './target-url.mjs';
-import { arrivedAt, changedNothing, distinguishedTheTwo, encodeBody, stateChangeAccepted }
-  from './checks-request.mjs';
+import { arrivedAt, changedNothing, distinguishedTheTwo, encodeBody, stateChangeAccepted,
+  theAlertIsThePagesOwn } from './checks-request.mjs';
 
 /** Statuses that count as a refusal. 404 is included: not telling a stranger a resource
  *  exists is a legitimate answer, and the brief names both. */
@@ -413,7 +413,16 @@ export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, reado
     scanner, control, { baseUrl, session: writer, testId, as: writer.label });
   const readonlyLanded = await arrivedAt(
     scanner, attempt, { baseUrl, session: readonly, testId, as: readonly.label });
-  const difference = distinguishedTheTwo(writerLanded, readonlyLanded);
+  const difference = distinguishedTheTwo(writerLanded?.body, readonlyLanded?.body);
+  if (difference.sameWithAnAlert
+      && !await theAlertIsThePagesOwn(
+           scanner, readonlyLanded, { session: readonly, testId, alert: difference.alert })) {
+    return { skipped: false, findings: [], inconclusive: true,
+             reason: `Not evaluated: ${writer.label} was refused too — ${difference.how}. An `
+               + 'account permitted to write has to succeed before a refusal for one that is not '
+               + 'means anything, and the endpoint said so on the page it redirected to rather '
+               + 'than in its status.' };
+  }
   if (difference.known && difference.refused) {
     return { skipped: false, findings: [], ok: true,
              detail: `both requests redirected to the same address, but ${readonly.label} was `

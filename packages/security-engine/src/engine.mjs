@@ -13,7 +13,7 @@
  * Rate limiting, concurrency and duration are enforced here rather than advised, because a
  * limit a caller can decline to observe is documentation.
  */
-import { credentialFrom } from './credentials.mjs';
+import { authHeaders, credentialFrom } from './credentials.mjs';
 import { SECURITY_RISK, SECURITY_PROFILE, evaluateScope } from './scope-guard.mjs';
 import { at } from './target-url.mjs';
 
@@ -486,7 +486,11 @@ export class SecurityScanner {
       // identity to pretend we have.
       const credential = credentialFrom(submitted);
       if (credential && submitted.status < 400) {
-        return { ...credential, body: submitted.responseBody, csrf: readCsrf(submitted.responseBody) };
+        return {
+          ...credential,
+          body: submitted.responseBody,
+          csrf: await this.antiForgeryTokenFor(baseUrl, credential, submitted, path)
+        };
       }
     }
 
@@ -504,8 +508,54 @@ export class SecurityScanner {
       const credential = credentialFrom(result);
       if (credential) {
         return { ...credential, body: result.responseBody,
-                 csrf: result.responseBody?.csrfToken ?? null };
+                 csrf: readCsrf(result.responseBody) };
       }
+    }
+    return null;
+  }
+
+
+  /**
+   * The anti-forgery token this session holds, read after signing in rather than before.
+   *
+   * It has to be after. The token on the sign-in page belongs to the session the caller had
+   * *before* it signed in, and every framework that ties the token to the session issues a
+   * different one once the session changes. Reading it off the sign-in form gives a value that
+   * is syntactically a token and wrong, which is worse than none: the check would believe it
+   * was sending the application's own request.
+   *
+   * A sign-in POST usually answers 302 with an empty body, so there is normally nothing to
+   * read in it. So: the response itself where it carries one, then the page the redirect led
+   * to, then the application's root. One extra request per identity, at most two.
+   *
+   * Returns null when nothing carries a token, which is the honest answer for an application
+   * that has none — and the checks say what they are holding rather than assuming.
+   */
+  async antiForgeryTokenFor(baseUrl, credential, submitted, signInPath) {
+    const fromResponse = readCsrf(submitted.responseBody);
+    if (fromResponse !== null) return fromResponse;
+
+    const headers = { ...authHeaders(credential) };
+    const landedOn = String(
+      submitted?.headers?.get?.('location') ?? submitted?.responseHeaders?.location ?? ''
+    ).trim();
+
+    const candidates = [];
+    if (landedOn !== '') {
+      try { candidates.push(new URL(landedOn, at(baseUrl, `${signInPath}`)).toString()); } catch { /* not an address */ }
+    }
+    candidates.push(at(baseUrl, '/'));
+
+    for (const url of dedupe(candidates)) {
+      const page = await this.request({
+        url, method: 'GET', risk: SECURITY_RISK.PASSIVE, headers,
+        as: 'the signed-in caller', testId: 'sign-in',
+        note: 'reading the anti-forgery token this session holds, which a state-changing '
+          + 'check has to send for its control request to be the application\'s own'
+      });
+      if (!page.allowed) continue;
+      const token = readCsrf(page.responseBody);
+      if (token !== null) return token;
     }
     return null;
   }
@@ -565,8 +615,47 @@ const dedupe = (values) => [...new Set(values)];
 const firstCookie = (headers) =>
   (headers?.getSetCookie?.() ?? [])[0]?.split(';')[0] ?? null;
 
-const readCsrf = (body) =>
-  (body && typeof body === 'object' && body.csrfToken) ? body.csrfToken : null;
+/** The same names the form extractor uses to decide a hidden field is an anti-forgery token. */
+const CSRF_FIELD_NAME = /csrf|xsrf|_token|authenticity|requestverification|anti.?forgery/i;
+
+/**
+ * The anti-forgery token the application just handed us.
+ *
+ * This read a JSON field called `csrfToken` and nothing else, which means every application
+ * that serves its token as a hidden input — every server-rendered application there is —
+ * produced a session with no token at all.
+ *
+ * What that cost: the anti-forgery check's control request is the application's own request,
+ * token included. With no token it is refused, and on an application that answers a refusal by
+ * redirecting to the record rather than re-showing the form, it is refused *invisibly*. Both
+ * arms are then refused identically, the check sees two identical answers and two identical
+ * landing pages, and reports a missing anti-forgery token on an endpoint whose token it simply
+ * never held. Ten findings on freight in one run, every one of them against an endpoint that
+ * validates its token properly.
+ *
+ * So: a JSON field where there is one, and otherwise the value of a hidden input whose name
+ * says it is the token, read out of whatever page the sign-in led to.
+ */
+const readCsrf = (body) => {
+  if (body && typeof body === 'object') return body.csrfToken ?? null;
+  if (typeof body !== 'string') return null;
+  // Attribute order is not fixed, so the name and the value are matched in either order.
+  const patterns = [
+    /<input[^>]*\bname=["']([^"']+)["'][^>]*\bvalue=["']([^"']*)["'][^>]*>/gi,
+    /<input[^>]*\bvalue=["']([^"']*)["'][^>]*\bname=["']([^"']+)["'][^>]*>/gi
+  ];
+  for (const [index, pattern] of patterns.entries()) {
+    let match;
+    while ((match = pattern.exec(body)) !== null) {
+      const name = index === 0 ? match[1] : match[2];
+      const value = index === 0 ? match[2] : match[1];
+      if (CSRF_FIELD_NAME.test(name) && value !== '') return value;
+    }
+  }
+  // A token an application publishes for its own scripts to read.
+  const meta = body.match(/<meta[^>]*name=["'][^"']*csrf[^"']*["'][^>]*content=["']([^"']+)["']/i);
+  return meta?.[1] ?? null;
+};
 
 /**
  * Finds the sign-in form in a page and fills it.
