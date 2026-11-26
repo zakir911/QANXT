@@ -161,9 +161,21 @@ async function runOne(key) {
     bearerToken: target.auth.bearerToken,
     maxPages
   });
+  // Business rules the target's owner states, if the target ships a file of them. These carry
+  // the one input no amount of crawling derives: what the application is supposed to work out.
+  let businessRules = null;
+  try {
+    businessRules = await readFile(new URL(`./${key}/business-rules.txt`, import.meta.url), 'utf8');
+    const stated = (businessRules.match(/^\s*rule\s+\S+\s*$/gim) ?? []).length;
+    line(`  business rules: ${stated} stated in ${key}/business-rules.txt`);
+  } catch {
+    line('  business rules: none stated (no business-rules.txt)');
+  }
+
   await request(`/api/v1/applications/${application.id}`, {
     token: tenant.token, method: 'PATCH',
     body: {
+      ...(businessRules === null ? {} : { businessRules }),
       maxPages, maxCrawlDepth: 6, explorationTimeoutSeconds: budget,
       maxActions: Number(flag('max-actions', 1500)),
       respectRobotsTxt: false, useSitemap: false,

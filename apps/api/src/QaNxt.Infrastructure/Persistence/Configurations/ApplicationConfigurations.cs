@@ -10,6 +10,9 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<Domain.Applicat
     {
         b.ToTable("applications");
         b.Property(x => x.TestingConfigJson).HasColumnType("jsonb");
+        // Plain text, not jsonb: the owner writes it, reads it back and edits it, and a format
+        // that reformats what they wrote would make a diff in their own repository unreadable.
+        b.Property(x => x.BusinessRules).HasColumnType("text");
         b.Property(x => x.Name).HasMaxLength(200).IsRequired();
         b.Property(x => x.BaseUrl).HasMaxLength(2048).IsRequired();
         b.Property(x => x.Description).HasMaxLength(2000);

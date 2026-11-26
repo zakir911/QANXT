@@ -74,6 +74,16 @@ public class Application : BaseEntity, ITenantOwned, IAuditable, ISoftDeletable
     /// application, as the user configured them. Null means the Comprehensive default.</summary>
     public string? TestingConfigJson { get; set; }
 
+    /// <summary>Business rules the application's owner stated, as plain text in the format
+    /// the rules file uses.
+    ///
+    /// These carry the one thing no amount of crawling can derive: what the application is
+    /// supposed to work out. A fuel surcharge applied to the gross rather than the net breaks
+    /// no field, raises no error and ties out arithmetically — it is wrong only against a rule
+    /// somebody states. Stored as the owner wrote it, including the sentence explaining each
+    /// rule, because that sentence is what a failure report has to say.</summary>
+    public string? BusinessRules { get; set; }
+
     public Guid? CreatedByUserId { get; set; }
     public Guid? UpdatedByUserId { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }

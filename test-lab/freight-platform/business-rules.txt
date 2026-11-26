@@ -1,0 +1,48 @@
+# Meridian Freight — business rules, as the operations director states them.
+#
+# These are the statements no amount of crawling derives. Every screen below renders without
+# error, validates every field and ties out internally; what is wrong about it is wrong only
+# against a rule somebody states. That is what this file is for.
+#
+# Format: `rule <name>`, then the screen it is about, what it means in plain words, an optional
+# `when` deciding whether it applies to a given instance of that screen, the expectation, and
+# the rounding it tolerates.
+#
+# Every rule here is one the application's own documentation or rate card states. Three rules
+# were drafted and removed during the first run because they were assumptions rather than
+# stated policy — VAT on the net plus the surcharge, the surcharge inside the invoice total —
+# and all three reported confident failures against behaviour this application never claimed.
+# A rules file is only as good as the rules, and a wrong rule produces a wrong answer with
+# arithmetic attached. Add nothing here that the business has not actually said.
+
+rule SURCHARGE_ON_NET
+  on      /billing/invoices/{id}
+  means   The fuel surcharge is 11.5% of the net freight, never of the VAT-inclusive total.
+  expect  fuelSurcharge == invoiceNet * 0.115
+  within  0.01
+
+# `fuelSurcharge` rather than the summary's visible label "Fuel surcharge 11.5%": that label
+# appears twice on the invoice, once in the line table and once in the summary, and the two
+# figures disagree. A name one screen gives two different figures is refused rather than
+# guessed at, so the rule names the one the application marks uniquely.
+
+rule DUTY_VALUE_INCLUDES_FREIGHT
+  on      /customs/declarations/{id}
+  means   Where the incoterm includes freight, the customs value is the goods value plus the freight cost.
+  when    Incoterm includes freight is Yes
+  expect  valueForDuty == goodsValue + freightCost
+  within  0.01
+
+rule DUTY_VALUE_IS_GOODS_ALONE
+  on      /customs/declarations/{id}
+  means   Where the incoterm does not include freight, the customs value is the goods value alone.
+  when    Incoterm includes freight is No
+  expect  valueForDuty == goodsValue
+  within  0.01
+
+rule DUTY_IS_THE_RATE_ON_THE_CUSTOMS_VALUE
+  on      /customs/declarations/{id}
+  means   Duty at a zero rate is nil whatever the consignment is worth.
+  when    Duty rate is 0%
+  expect  duty == 0
+  within  0.01

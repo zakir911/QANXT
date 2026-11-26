@@ -204,6 +204,17 @@ public enum BrowserActionType
     /// stays on the form instead, the oracle concludes nothing rather than guessing at
     /// which page holds the record. The values travel as JSON in the step's value.</summary>
     AssertSavedValuesReadBack = 70,
+    /// <summary>Checks one business rule the application's owner stated against the figures a
+    /// screen shows.
+    ///
+    /// The only verb here that needs to be told something. Everything else asks a question the
+    /// application answers about itself — does this total equal its lines, does this count match
+    /// these rows — and so finds a defect whatever the business is. A surcharge applied to the
+    /// gross rather than the net answers every one of those correctly and is still wrong. The
+    /// rule travels in the step's value, in the owner's own words, and the worker parses it:
+    /// never eval, and a field the screen does not show makes the step inconclusive rather than
+    /// passed.</summary>
+    AssertBusinessRule = 71,
     /// <summary>Only permitted when the project explicitly allows scripting AND the caller
     /// holds the execution:script permission. Rejected by default.</summary>
     ExecuteScript = 90

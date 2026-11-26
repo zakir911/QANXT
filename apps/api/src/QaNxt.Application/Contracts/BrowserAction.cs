@@ -63,7 +63,8 @@ public static class BrowserActionVerbs
         BrowserActionType.AssertPercentageLineConsistent,
         BrowserActionType.AssertHiddenMeansForbidden,
         BrowserActionType.AssertStateForbidsAction,
-        BrowserActionType.AssertSavedValuesReadBack
+        BrowserActionType.AssertSavedValuesReadBack,
+        BrowserActionType.AssertBusinessRule
     };
 
     public static bool IsAssertion(BrowserActionType action) => Assertions.Contains(action);

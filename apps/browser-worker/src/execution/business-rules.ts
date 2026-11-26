@@ -66,6 +66,16 @@ export type Expression =
   | { kind: 'binary'; operator: '+' | '-' | '*' | '/'; left: Expression; right: Expression }
   | { kind: 'negate'; of: Expression };
 
+/** A condition that decides whether a rule applies to the screen in front of it. */
+export interface RulePrecondition {
+  /** The name of something the screen shows, as the owner wrote it. */
+  field: string;
+  /** The text it must read, compared without case. */
+  is: string;
+  /** True for `is not`. */
+  negated: boolean;
+}
+
 export interface BusinessRule {
   id: string;
   /** The screen the rule is about, as the owner wrote it. */
@@ -77,6 +87,17 @@ export interface BusinessRule {
   right: Expression;
   /** Rounding this rule tolerates. Money needs it; a count does not. */
   within: number;
+  /**
+   * What has to be true of the screen for the rule to apply at all. Null when the rule applies
+   * to every instance of its screen.
+   *
+   * Customs duty is the case that forced this. On a shipment whose incoterm includes freight,
+   * the value for duty is goods plus freight; on one where it does not, goods alone is correct.
+   * The same screen renders both, so a rule without a precondition would report every FOB
+   * declaration as a defect — a false failure, which is the one outcome this product cannot
+   * afford.
+   */
+  when: RulePrecondition | null;
   /** The line the rule started on, so a problem can be pointed at. */
   line: number;
   /** The expression as written, for the report. */
@@ -286,14 +307,14 @@ export function parseRules(text: string): { rules: BusinessRule[]; problems: Rul
     const ruleStart = /^rule\s+(\S+)$/i.exec(line);
     if (ruleStart) {
       finish();
-      current = { id: ruleStart[1]!, means: '', within: DEFAULT_WITHIN, line: lineNumber };
+      current = { id: ruleStart[1]!, means: '', within: DEFAULT_WITHIN, when: null, line: lineNumber };
       return;
     }
 
-    const keyed = /^(on|means|expect|within)\s*:?\s+(.+)$/i.exec(line);
+    const keyed = /^(on|means|expect|within|when)\s*:?\s+(.+)$/i.exec(line);
     if (!keyed) {
       problems.push({ line: lineNumber, text: raw.trim(),
-        problem: "expected 'rule <name>', or an 'on', 'means', 'expect' or 'within' line" });
+        problem: "expected 'rule <name>', or an 'on', 'means', 'when', 'expect' or 'within' line" });
       return;
     }
     if (current === null) {
@@ -307,6 +328,21 @@ export function parseRules(text: string): { rules: BusinessRule[]; problems: Rul
 
     if (key === 'on') current.screen = value;
     else if (key === 'means') current.means = value;
+    else if (key === 'when') {
+      // `when <something the screen shows> is <text>`, or `is not <text>`.
+      const condition = /^(.+?)\s+is\s+(not\s+)?(.+)$/i.exec(value);
+      if (!condition) {
+        problems.push({ line: lineNumber, text: raw.trim(),
+          problem: `rule ${current.id}: a 'when' line reads '<what the screen shows> is <text>', `
+            + `and '${value}' is not that shape` });
+      } else {
+        current.when = {
+          field: condition[1]!.trim(),
+          is: condition[3]!.trim(),
+          negated: condition[2] !== undefined
+        };
+      }
+    }
     else if (key === 'within') {
       const within = Number(value);
       if (!Number.isFinite(within) || within < 0) {
@@ -350,7 +386,9 @@ export function parseRules(text: string): { rules: BusinessRule[]; problems: Rul
 export type RuleOutcome =
   | { outcome: 'held'; detail: string; left: number; right: number }
   | { outcome: 'broken'; detail: string; left: number; right: number; by: number }
-  | { outcome: 'cannotTell'; detail: string; missing: string[]; found: string[] };
+  | { outcome: 'cannotTell'; detail: string; missing: string[]; found: string[] }
+  /** The rule's `when` line says it is not about this instance of the screen. */
+  | { outcome: 'notApplicable'; detail: string };
 
 const evaluate = (expression: Expression, values: Map<string, number>): number => {
   switch (expression.kind) {
@@ -396,9 +434,46 @@ const round = (value: number) => Math.round(value * 1e6) / 1e6;
  * otherwise get a confident "could not tell" for a screen that plainly showed both figures —
  * silence that looks exactly like honesty and is not.
  */
-export function checkRule(rule: BusinessRule, supplied: Map<string, number>): RuleOutcome {
+export function checkRule(
+  rule: BusinessRule,
+  supplied: Map<string, number>,
+  /** The text of everything the screen shows by name, for a `when` line. Numbers are in
+   *  `supplied`; a precondition is usually about a word — an incoterm, a status, a flag. */
+  texts: Map<string, string> = new Map()
+): RuleOutcome {
   const values = new Map<string, number>();
   for (const [name, value] of supplied) values.set(normaliseName(name), value);
+
+  // `?? null` rather than `!== null`: a rule built by hand, or read from an older stored test,
+  // may carry no precondition field at all, and that must mean "applies always" rather than
+  // throwing halfway through a run.
+  const when = rule.when ?? null;
+  if (when !== null) {
+    const folded = new Map<string, string>();
+    for (const [name, text] of texts) folded.set(normaliseName(name), text.trim());
+    // A number the screen shows is also a text for this purpose, so `when status is 0` works.
+    for (const [name, value] of values) if (!folded.has(name)) folded.set(name, String(value));
+
+    const key = normaliseName(when.field);
+    const actual = folded.get(key);
+    if (actual === undefined) {
+      return {
+        outcome: 'cannotTell', missing: [when.field], found: [...texts.keys()].sort(),
+        detail: `Not evaluated: ${rule.id} applies only when '${when.field}' reads `
+          + `'${when.is}', and this screen does not show '${when.field}' at all. `
+          + 'A precondition that cannot be read is not a precondition that was met.'
+      };
+    }
+
+    const same = actual.toLowerCase() === when.is.trim().toLowerCase();
+    if (same === when.negated) {
+      return {
+        outcome: 'notApplicable',
+        detail: `Not applicable: ${rule.id} applies when '${when.field}' is `
+          + `${when.negated ? 'not ' : ''}'${when.is}', and here it reads '${actual}'.`
+      };
+    }
+  }
 
   const needed = [...new Set([...fieldsIn(rule.left), ...fieldsIn(rule.right)])];
   // Reported as the owner wrote them, matched as names fold.

@@ -19,6 +19,7 @@ export const BROWSER_ACTION_TYPES = [
   'assertNoHorizontalScroll', 'assertServerEnforces', 'assertNotColourOnly',
   'assertTotalsAddUp', 'assertDisplayedCountMatches', 'assertPercentageLineConsistent',
   'assertHiddenMeansForbidden', 'assertStateForbidsAction', 'assertSavedValuesReadBack',
+  'assertBusinessRule',
   'apiRequest',
   'checkAccessibility',
   'checkVisual',
@@ -35,7 +36,8 @@ export const ASSERTION_ACTIONS: readonly BrowserActionType[] = [
   'assertLoadTimeUnder', 'assertNoMarkupInjection', 'assertPresent', 'assertValueLength',
   'assertNoHorizontalScroll', 'assertServerEnforces', 'assertNotColourOnly',
   'assertTotalsAddUp', 'assertDisplayedCountMatches', 'assertPercentageLineConsistent',
-  'assertHiddenMeansForbidden', 'assertStateForbidsAction', 'assertSavedValuesReadBack'
+  'assertHiddenMeansForbidden', 'assertStateForbidsAction', 'assertSavedValuesReadBack',
+  'assertBusinessRule'
 ];
 
 export const LOCATOR_STRATEGIES = [

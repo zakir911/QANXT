@@ -20,6 +20,7 @@ import {
 import {
   assertHiddenMeansForbidden, assertStateForbidsAction
 } from './authorization-oracles.js';
+import { assertBusinessRule } from './business-rules-page.js';
 
 /**
  * Executes one validated action against a page.
@@ -537,6 +538,8 @@ async function runFormOracle(
         return await assertHiddenMeansForbidden(page, action.value);
       case 'assertStateForbidsAction':
         return await assertStateForbidsAction(page, action.value);
+      case 'assertBusinessRule':
+        return await assertBusinessRule(page, action.value);
       default:
         throw new ActionError(`Unsupported assertion: ${action.action}`, false);
     }

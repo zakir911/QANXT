@@ -25,7 +25,10 @@ public sealed record CreateApplicationRequest(
     AuthenticationStrategy AuthStrategy, string? LoginUrl, string? LoginFlowJson,
     ApplicationCredentials? Credentials, bool? RespectRobotsTxt = null,
     string? InteractionMode = null, bool? AllowStateChangingClicks = null,
-    string? SeedUrls = null, bool? UseSitemap = null);
+    string? SeedUrls = null, bool? UseSitemap = null,
+    /// <summary>Business rules the application's owner states, as plain text in the rules file
+    /// format. Optional, and normally set later from a file in the repository.</summary>
+    string? BusinessRules = null);
 
 public sealed record UpdateApplicationRequest(
     string? Name, string? BaseUrl, string? Description, string? AllowedDomains, string? ExcludedPaths,
@@ -33,7 +36,10 @@ public sealed record UpdateApplicationRequest(
     AuthenticationStrategy? AuthStrategy, string? LoginUrl, string? LoginFlowJson,
     ApplicationCredentials? Credentials, bool? RespectRobotsTxt = null,
     string? InteractionMode = null, bool? AllowStateChangingClicks = null,
-    string? SeedUrls = null, bool? UseSitemap = null);
+    string? SeedUrls = null, bool? UseSitemap = null,
+    /// <summary>Business rules the application's owner states, as plain text. An empty string
+    /// clears them; null leaves them as they were.</summary>
+    string? BusinessRules = null);
 
 public sealed record ApplicationSummary(
     Guid Id, Guid ProjectId, string Name, string BaseUrl, string Description,
@@ -51,7 +57,12 @@ public sealed record ApplicationDetail(
     string InteractionMode, bool AllowStateChangingClicks,
     string SeedUrls, bool UseSitemap,
     AuthenticationStrategy AuthStrategy, string? LoginUrl, string? LoginFlowJson,
-    bool HasCredentials, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt);
+    bool HasCredentials, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt,
+    /// <summary>How many rules the stored file holds, and how many lines of it could not be
+    /// read. A rules file whose rules all failed to parse is the one state where this
+    /// capability silently does nothing, so the count is part of the application's detail
+    /// rather than something only a run report mentions.</summary>
+    int BusinessRuleCount = 0, int BusinessRulesUnreadable = 0);
 
 public interface IApplicationService
 {
@@ -170,6 +181,8 @@ public sealed class ApplicationService : IApplicationService
         application.AllowStateChangingClicks = request.AllowStateChangingClicks ?? false;
         application.SeedUrls = NormalizeSeedUrls(request.SeedUrls);
         application.UseSitemap = request.UseSitemap ?? true;
+        application.BusinessRules = string.IsNullOrWhiteSpace(request.BusinessRules)
+            ? null : request.BusinessRules.Trim();
 
         if (request.Credentials is not null)
         {
@@ -232,6 +245,16 @@ public sealed class ApplicationService : IApplicationService
         if (request.MaxPages is not null) application.MaxPages = request.MaxPages.Value;
         if (request.MaxActions is not null) application.MaxActions = request.MaxActions.Value;
         if (request.ExplorationTimeoutSeconds is not null) application.ExplorationTimeoutSeconds = request.ExplorationTimeoutSeconds.Value;
+        if (request.BusinessRules is not null)
+        {
+            var rules = request.BusinessRules.Trim();
+            application.BusinessRules = rules.Length == 0 ? null : rules;
+            await _audit.LogAsync(AuditAction.ConfigurationChanged, nameof(ApplicationEntity), application.Id,
+                rules.Length == 0
+                    ? $"Business rules cleared for '{application.Name}'."
+                    : $"Business rules set for '{application.Name}': {Forms.BusinessRuleFile.Blocks(rules).Count} rule(s).",
+                projectId: application.ProjectId, ct: ct);
+        }
         if (request.RespectRobotsTxt is { } respectRobots && respectRobots != application.RespectRobotsTxt)
         {
             application.RespectRobotsTxt = respectRobots;
@@ -493,12 +516,17 @@ public sealed class ApplicationService : IApplicationService
             projectId: application.ProjectId, ct: ct);
     }
 
-    private static ApplicationDetail Map(ApplicationEntity a) => new(
-        a.Id, a.ProjectId, a.Name, a.BaseUrl, a.Description, a.AllowedDomains, a.ExcludedPaths,
-        a.MaxCrawlDepth, a.MaxPages, a.MaxActions, a.ExplorationTimeoutSeconds, a.RespectRobotsTxt,
-        a.InteractionMode, a.AllowStateChangingClicks,
-        a.SeedUrls, a.UseSitemap,
-        a.AuthStrategy, a.LoginUrl, a.LoginFlowJson, a.EncryptedCredentials != null, a.CreatedAt, a.UpdatedAt);
+    private static ApplicationDetail Map(ApplicationEntity a)
+    {
+        var rules = Forms.BusinessRuleFile.Summarise(a.BusinessRules);
+        return new(
+            a.Id, a.ProjectId, a.Name, a.BaseUrl, a.Description, a.AllowedDomains, a.ExcludedPaths,
+            a.MaxCrawlDepth, a.MaxPages, a.MaxActions, a.ExplorationTimeoutSeconds, a.RespectRobotsTxt,
+            a.InteractionMode, a.AllowStateChangingClicks,
+            a.SeedUrls, a.UseSitemap,
+            a.AuthStrategy, a.LoginUrl, a.LoginFlowJson, a.EncryptedCredentials != null, a.CreatedAt, a.UpdatedAt,
+            rules.Rules, rules.Incomplete);
+    }
 }
 
 /// <summary>Applies the deployment's global target policy on top of an application's own

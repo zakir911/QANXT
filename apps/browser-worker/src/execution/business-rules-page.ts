@@ -1,6 +1,7 @@
 import type { Page } from 'playwright';
 import { readNumber } from './calculation-oracles.js';
-import { normaliseName } from './business-rules.js';
+import { checkRule, normaliseName, parseRules, rulesFor } from './business-rules.js';
+import { InconclusiveError, OracleError } from './form-oracles.js';
 
 /**
  * Reading the values a business rule talks about off a screen.
@@ -46,17 +47,36 @@ export function namedValuesFrom(raw: readonly NamedValue[]): {
   values: Map<string, number>;
   ambiguous: string[];
   sources: Map<string, string>;
+  /** The text of everything the screen shows by name, number or not, for a `when` line. A
+   *  precondition is usually about a word: an incoterm, a status, a yes or no. */
+  texts: Map<string, string>;
 } {
   const seen = new Map<string, { value: number; from: string }[]>();
+  const spelled = new Map<string, Set<string>>();
 
   for (const candidate of raw) {
     const name = normaliseName(candidate.name);
     if (name === '') continue;
+
+    const text = String(candidate.text ?? '').trim();
+    if (text !== '') {
+      const already = spelled.get(name) ?? new Set<string>();
+      already.add(text);
+      spelled.set(name, already);
+    }
+
     const value = readNumber(candidate.text);
     if (value === null) continue;
     const already = seen.get(name) ?? [];
     already.push({ value, from: candidate.from });
     seen.set(name, already);
+  }
+
+  // Same refusal as for figures: where the screen gives one name two different texts, it is not
+  // a value, and a precondition resting on it must not be decided by whichever came first.
+  const texts = new Map<string, string>();
+  for (const [name, variants] of spelled) {
+    if (variants.size === 1) texts.set(name, [...variants][0]!);
   }
 
   const values = new Map<string, number>();
@@ -70,7 +90,7 @@ export function namedValuesFrom(raw: readonly NamedValue[]): {
     sources.set(name, candidates[0]!.from);
   }
 
-  return { values, ambiguous, sources: sources };
+  return { values, ambiguous, sources, texts };
 }
 
 /**
@@ -153,4 +173,70 @@ export async function readNamedValues(page: Page): Promise<NamedValue[]> {
 
     return found;
   });
+}
+
+// ---------------------------------------------------------------------------
+// The oracle
+// ---------------------------------------------------------------------------
+
+/**
+ * Checks one stated business rule against the screen the browser is on.
+ *
+ * The rule arrives as the owner wrote it, in the step's value, and is parsed here. Three
+ * outcomes, and each goes to the verdict that is actually true:
+ *
+ * - it holds → the step passes;
+ * - it is broken → `OracleError`, so the step fails with the arithmetic in the message;
+ * - a field it names is not on the screen → `InconclusiveError`, so the step is reported
+ *   skipped with the reason. Never a pass. A rule that passes because its field was absent is
+ *   a rule somebody is relying on and nobody is checking, and this product's own house rule is
+ *   that a pass means the expected behaviour was observed.
+ *
+ * A step whose rule was written for another screen is also inconclusive rather than evaluated.
+ * The designer matches rules to pages, so that should not happen; if it ever does — a rule
+ * edited after a suite was generated, a redirect landing somewhere else — the run says so
+ * rather than checking an invoice rule against a driver record and reporting whatever it finds.
+ */
+export async function assertBusinessRule(page: Page, ruleText: string | undefined): Promise<void> {
+  const { rules, problems } = parseRules(ruleText ?? '');
+
+  if (rules.length === 0) {
+    const why = problems.length > 0
+      ? problems.map(p => `line ${p.line}: ${p.problem}`).join('; ')
+      : 'the step carried no rule';
+    throw new InconclusiveError(`Not evaluated: this rule could not be read — ${why}.`);
+  }
+
+  const rule = rules[0]!;
+  if (problems.length > 0) {
+    throw new InconclusiveError(
+      `Not evaluated: ${rule.id} could not be read — `
+      + `${problems.map(p => `line ${p.line}: ${p.problem}`).join('; ')}.`);
+  }
+
+  const here = page.url();
+  if (rulesFor([rule], here).length === 0) {
+    throw new InconclusiveError(
+      `Not evaluated: ${rule.id} is about ${rule.screen} and this step ran on ${here}. `
+      + 'A rule is not checked against a screen it was not written for.');
+  }
+
+  const { values, ambiguous, texts } = namedValuesFrom(await readNamedValues(page));
+  const outcome = checkRule(rule, values, texts);
+
+  if (outcome.outcome === 'held') return;
+
+  // The rule's own `when` line says it is not about this instance of the screen. Not a pass —
+  // nothing was checked — and emphatically not a failure.
+  if (outcome.outcome === 'notApplicable') throw new InconclusiveError(outcome.detail);
+
+  // A name the screen offered twice with two figures was dropped rather than guessed at. Say
+  // so, because otherwise "this screen does not show 'total'" is baffling on a screen that
+  // plainly shows one.
+  const dropped = ambiguous.length === 0 ? ''
+    : ` This screen shows ${ambiguous.map(n => `'${n}'`).join(', ')} more than once with`
+      + ' different figures, so it was not used: two places disagreeing is not a value.';
+
+  if (outcome.outcome === 'cannotTell') throw new InconclusiveError(outcome.detail + dropped);
+  throw new OracleError(outcome.detail);
 }

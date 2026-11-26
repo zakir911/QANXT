@@ -26,7 +26,11 @@ public sealed record PageDesignContext(
     bool HasSignIn,
     /// <summary>Names shown on the sign-in page, which therefore prove nothing about being signed in.</summary>
     IReadOnlySet<string> SignInPageNames,
-    TestingProfile Profile);
+    TestingProfile Profile,
+    /// <summary>Business rules the application's owner stated, already read into blocks. Empty
+    /// when no rules file is configured, which is the normal case: everything else the designer
+    /// emits asks a question the application answers about itself.</summary>
+    IReadOnlyList<BusinessRuleBlock>? BusinessRules = null);
 
 public sealed record PageDesign(IReadOnlyList<DesignedTest> Tests, IReadOnlyList<DesignedGap> Gaps);
 
@@ -174,6 +178,25 @@ public static class PageTestDesigner
                 new List<DesignedStep> { open, new(BrowserActionType.AssertNotColourOnly, "Confirm nothing is distinguished by colour alone") },
                 TestPriority.Medium, $"{signedIn}{name} exists at {page.Route}.",
                 "DOM snapshot on failure, screenshot on failure."));
+        }
+
+        // Rules the owner stated about this screen. One test each, named after the rule and
+        // described in the owner's own words, so a failure reads as "the fuel surcharge applies
+        // to the net amount, not the gross" rather than as an arithmetic complaint.
+        //
+        // Unlike every other test here, these are not derived from the application: they are the
+        // one input no amount of crawling produces. Emitted regardless of what the page contains,
+        // because the owner said this screen is where the rule applies, and a rule whose fields
+        // turn out not to be on the screen must report that rather than quietly not run.
+        foreach (var rule in BusinessRuleFile.For(ctx.BusinessRules ?? Array.Empty<BusinessRuleBlock>(), page.Route))
+        {
+            var says = rule.Means.Length > 0 ? rule.Means : $"the rule {rule.Id} holds";
+            tests.Add(Test(TestCategory.DataIntegrity, $"business-rule-{rule.Id}",
+                $"obeys {rule.Id}", says,
+                "The figures the screen shows satisfy the rule, or the step reports which of its fields the screen does not show.",
+                new List<DesignedStep> { open, new(BrowserActionType.AssertBusinessRule, says, Value: rule.Text) },
+                TestPriority.High, $"{signedIn}{name} exists at {page.Route}.",
+                "The rule as written, the figures read off the screen and the arithmetic; DOM snapshot on failure."));
         }
 
         // A page that prints a table is making arithmetic claims about its own contents, and

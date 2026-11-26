@@ -1389,6 +1389,10 @@ namespace QaNxt.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(2048)")
                         .HasColumnName("base_url");
 
+                    b.Property<string>("BusinessRules")
+                        .HasColumnType("text")
+                        .HasColumnName("business_rules");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");

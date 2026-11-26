@@ -23,8 +23,10 @@ public class PageTestDesignerTests
 
     private static readonly IReadOnlySet<string> NoSignInNames = new HashSet<string>();
 
-    private static PageDesign Design(DesignPage page, IReadOnlyList<NavigationHop>? path = null, TestingProfile? profile = null, bool signIn = true)
-        => PageTestDesigner.Design(new PageDesignContext(page, path ?? Array.Empty<NavigationHop>(), signIn, NoSignInNames, profile ?? new TestingProfile()));
+    private static PageDesign Design(DesignPage page, IReadOnlyList<NavigationHop>? path = null, TestingProfile? profile = null, bool signIn = true,
+        string? businessRules = null)
+        => PageTestDesigner.Design(new PageDesignContext(page, path ?? Array.Empty<NavigationHop>(), signIn, NoSignInNames,
+            profile ?? new TestingProfile(), BusinessRuleFile.Blocks(businessRules)));
 
     [Fact]
     public void A_page_with_no_form_still_gets_tests_that_open_it_and_check_its_content()
@@ -248,5 +250,97 @@ public class PageTestDesignerTests
 
         Design(page, profile: withoutDataIntegrity).Tests
             .Should().NotContain(t => t.Technique == "totals-add-up");
+    }
+
+    // ---- business rules the owner stated ----------------------------------------------
+
+    private const string Rules = """
+        rule SURCHARGE_ON_NET
+          on      /billing/invoices/new
+          means   The fuel surcharge applies to the net amount, not the gross.
+          expect  fuelSurcharge == netAmount * 0.085
+          within  0.01
+
+        rule CREDIT_NOTE_CAP
+          on      /billing/credit-notes/{id}
+          means   A credit note can never exceed the invoice it credits.
+          expect  creditAmount <= invoiceTotal
+        """;
+
+    [Fact]
+    public void A_rule_the_owner_stated_about_this_screen_becomes_a_test_of_its_own()
+    {
+        var page = Page("/billing/invoices/new", "New invoice", Element("New invoice", ElementKind.Heading));
+
+        var test = Design(page, businessRules: Rules).Tests
+            .Single(t => t.Technique == "business-rule-SURCHARGE_ON_NET");
+
+        test.Steps.Select(s => s.Action).Should().Equal(
+            BrowserActionType.Navigate, BrowserActionType.AssertBusinessRule);
+        // The owner's own sentence, because that is what a failure report has to say.
+        test.Name.Should().Contain("obeys SURCHARGE_ON_NET");
+        test.Steps.Last().Description.Should().Be("The fuel surcharge applies to the net amount, not the gross.");
+    }
+
+    [Fact]
+    public void The_rule_travels_in_the_step_so_the_worker_can_parse_it()
+    {
+        // The expression grammar lives in one place, in the worker. The designer carries the
+        // text and never interprets it: two implementations would drift, and a rule meaning one
+        // thing to the designer and another to the runner is a wrong answer with arithmetic
+        // attached.
+        var page = Page("/billing/invoices/new", "New invoice", Element("New invoice", ElementKind.Heading));
+
+        var value = Design(page, businessRules: Rules).Tests
+            .Single(t => t.Technique == "business-rule-SURCHARGE_ON_NET")
+            .Steps.Last().Value;
+
+        value.Should().Contain("expect  fuelSurcharge == netAmount * 0.085");
+        value.Should().Contain("within  0.01");
+    }
+
+    [Fact]
+    public void A_rule_about_another_screen_produces_nothing_here()
+    {
+        var page = Page("/fleet/drivers", "Drivers", Element("Drivers", ElementKind.Heading));
+
+        Design(page, businessRules: Rules).Tests
+            .Should().NotContain(t => t.Technique!.StartsWith("business-rule-"));
+    }
+
+    [Fact]
+    public void A_rule_written_for_a_route_template_reaches_the_instances_a_run_visits()
+    {
+        var page = Page("/billing/credit-notes/cn-0004", "Credit note", Element("Credit note", ElementKind.Heading));
+
+        Design(page, businessRules: Rules).Tests
+            .Should().Contain(t => t.Technique == "business-rule-CREDIT_NOTE_CAP");
+    }
+
+    [Fact]
+    public void A_rule_is_designed_whatever_the_page_contains()
+    {
+        // Unlike the arithmetic oracles, which are only emitted where discovery saw a table, a
+        // stated rule is emitted on the strength of the owner saying this screen is where it
+        // applies. If its fields turn out not to be there, the step must report that — a rule
+        // that quietly does not run is a rule somebody is relying on and nobody is checking.
+        var bare = Page("/billing/invoices/new", "New invoice", Element("New invoice", ElementKind.Heading));
+
+        Design(bare, businessRules: Rules).Tests
+            .Should().Contain(t => t.Technique == "business-rule-SURCHARGE_ON_NET");
+        Design(bare, businessRules: Rules).Tests
+            .Should().NotContain(t => t.Technique == "totals-add-up");
+    }
+
+    [Fact]
+    public void With_no_rules_file_nothing_changes_about_what_is_designed()
+    {
+        var page = Page("/billing/invoices/new", "New invoice", Element("New invoice", ElementKind.Heading));
+
+        var without = Design(page).Tests.Select(t => t.Technique).ToList();
+        var withEmpty = Design(page, businessRules: "").Tests.Select(t => t.Technique).ToList();
+
+        withEmpty.Should().Equal(without);
+        without.Should().NotContain(t => t!.StartsWith("business-rule-"));
     }
 }

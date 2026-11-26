@@ -316,12 +316,16 @@ public sealed class FormTestingService : IFormTestingService
             var signInNames = designPages.Where(p => p.Kind == PageKind.Login)
                 .SelectMany(p => p.Elements).Select(e => e.Name.Trim()).ToHashSet(StringComparer.OrdinalIgnoreCase);
             var paths = await NavigationPathsAsync(application.Id, designPages, ct);
+            // Read once for the whole application rather than per page: the file is the same
+            // file, and re-reading it 137 times would be the only expensive thing about it.
+            var businessRules = BusinessRuleFile.Blocks(application.BusinessRules);
             var designedPageKeys = new HashSet<string>(StringComparer.Ordinal);
 
             foreach (var page in designPages.Where(p => p.Kind != PageKind.Login))
             {
                 var path = paths.TryGetValue(page.Id, out var found) ? found : Array.Empty<NavigationHop>();
-                var design = PageTestDesigner.Design(new PageDesignContext(page, path, hasSignIn, signInNames, profile));
+                var design = PageTestDesigner.Design(
+                    new PageDesignContext(page, path, hasSignIn, signInNames, profile, businessRules));
                 var made = 0;
                 foreach (var designed in design.Tests)
                 {

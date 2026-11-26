@@ -4,7 +4,9 @@ import type { BrowserContext, Page } from 'playwright';
 import { BrowserPool } from '../src/browser/browser-pool.js';
 import { Logger } from '../src/util/logger.js';
 import { namedValuesFrom, normaliseName, readNamedValues } from '../src/execution/business-rules-page.js';
+import { InconclusiveError, OracleError } from '../src/execution/form-oracles.js';
 import { checkRule, parseRules } from '../src/execution/business-rules.js';
+import { assertBusinessRule } from '../src/execution/business-rules-page.js';
 
 /**
  * Joining a rule's field names to the figures on a screen.
@@ -234,5 +236,148 @@ rule SURCHARGE_ON_NET
     const outcome = checkRule(rules[0]!, await valuesOn());
     expect(outcome.outcome).toBe('cannotTell');
     if (outcome.outcome === 'cannotTell') expect(outcome.missing).toEqual(['duty', 'goods']);
+  });
+}, 120_000);
+
+describe('the oracle: which verdict each outcome becomes', () => {
+  let pool: BrowserPool;
+  let context: BrowserContext;
+  let page: Page;
+  let server: Server;
+  let base: string;
+  let markup = '';
+  const logger = new Logger('error', {}, () => {});
+
+  beforeAll(async () => {
+    server = createServer((request, response) => {
+      response.writeHead(200, { 'content-type': 'text/html' });
+      response.end(`<!doctype html><html><body>${markup}</body></html>`);
+    });
+    await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+    const address = server.address();
+    base = `http://127.0.0.1:${typeof address === 'object' && address ? address.port : 0}`;
+    pool = new BrowserPool(true, logger);
+  }, 60_000);
+
+  beforeEach(async () => {
+    await context?.close().catch(() => undefined);
+    context = await pool.createContext('chromium', { defaultTimeoutMs: 3000, navigationTimeoutMs: 15_000 });
+    page = await context.newPage();
+  });
+
+  afterAll(async () => {
+    await context?.close().catch(() => undefined);
+    await pool?.close().catch(() => undefined);
+    await new Promise<void>(resolve => server.close(() => resolve()));
+  });
+
+  /** Opens the markup at a path, so a rule's `on` line has something real to match. */
+  const openAt = async (path: string, html: string) => { markup = html; await page.goto(base + path); };
+
+  /**
+   * Runs the oracle and returns what it threw.
+   *
+   * `.catch(callback)` would make every one of these tests pass when the oracle wrongly
+   * returned: the callback simply would not run. A test that passes because nothing happened
+   * is the exact failure this product exists to catch.
+   */
+  const refusalOf = async (rule: string | undefined): Promise<Error> => {
+    try {
+      await assertBusinessRule(page, rule);
+    } catch (error) {
+      return error as Error;
+    }
+    throw new Error('the oracle returned where it was expected to refuse');
+  };
+
+  const RULE = (screen: string) => `
+rule SURCHARGE_ON_NET
+  on      ${screen}
+  means   The fuel surcharge applies to the net amount, not the gross.
+  expect  fuelSurcharge == netAmount * 0.085
+  within  0.01
+`;
+
+  const INVOICE = (surcharge: string) =>
+    `<dl><dt>Net amount</dt><dd>£1,000.00</dd><dt>Fuel surcharge</dt><dd>${surcharge}</dd></dl>`;
+
+  test('a rule that holds passes, and throws nothing', async () => {
+    await openAt('/billing/invoices/new', INVOICE('£85.00'));
+    await expect(assertBusinessRule(page, RULE('/billing/invoices/new'))).resolves.toBeUndefined();
+  });
+
+  test('the helper these tests lean on fails when the oracle does not refuse', async () => {
+    // Every refusal test below is only worth anything if a passing oracle makes it fail. The
+    // pattern it replaced — .catch(callback) — passed silently in exactly that case, because
+    // the callback never ran.
+    await openAt('/billing/invoices/new', INVOICE('£85.00'));
+    await expect(refusalOf(RULE('/billing/invoices/new')))
+      .rejects.toThrow('the oracle returned where it was expected to refuse');
+  });
+
+  test('a rule that is broken fails, with the owner\'s words and the arithmetic', async () => {
+    await openAt('/billing/invoices/new', INVOICE('£93.50'));
+    const error = await refusalOf(RULE('/billing/invoices/new'));
+    expect(error).toBeInstanceOf(OracleError);
+    expect(error.message).toContain('not the gross');
+    expect(error.message).toContain('out by 8.5');
+  });
+
+  test('a field the screen does not show is inconclusive, never a pass', async () => {
+    // The house rule: a pass means the expected behaviour was observed. Nothing was observed
+    // here, so the step is reported skipped with the reason.
+    await openAt('/billing/invoices/new', '<dl><dt>Fuel surcharge</dt><dd>£93.50</dd></dl>');
+    const error = await refusalOf(RULE('/billing/invoices/new'));
+    expect(error).toBeInstanceOf(InconclusiveError);
+    expect(error.message).toContain("'netAmount'");
+    expect(error.message).toContain('not a rule that passed');
+  });
+
+  test('a rule written for another screen is not checked against this one', async () => {
+    // The designer matches rules to pages, so this should not happen. If it ever does — a rule
+    // edited after a suite was generated, a redirect landing elsewhere — say so rather than
+    // check an invoice rule against a driver record and report whatever turns up.
+    await openAt('/fleet/drivers', INVOICE('£93.50'));
+    const error = await refusalOf(RULE('/billing/invoices/new'));
+    expect(error).toBeInstanceOf(InconclusiveError);
+    expect(error.message).toContain('is about /billing/invoices/new');
+    expect(error.message).toContain('/fleet/drivers');
+  });
+
+  test('a rule that cannot be read is inconclusive and names the line', async () => {
+    await openAt('/a', INVOICE('£85.00'));
+    const error = await refusalOf('rule BAD\n  on /a\n  expect net +\n');
+    expect(error).toBeInstanceOf(InconclusiveError);
+    expect(error.message).toContain('line 3');
+  });
+
+  test('a step carrying no rule at all is inconclusive, not a pass', async () => {
+    await openAt('/a', INVOICE('£85.00'));
+    expect(await refusalOf(undefined)).toBeInstanceOf(InconclusiveError);
+    expect((await refusalOf(undefined)).message).toContain('carried no rule');
+    expect(await refusalOf('   ')).toBeInstanceOf(InconclusiveError);
+  });
+
+  test('a name the screen shows twice with two figures is explained, not guessed', async () => {
+    await openAt('/billing/invoices/new', `
+      <dl><dt>Net amount</dt><dd>£1,000.00</dd><dt>Fuel surcharge</dt><dd>£85.00</dd></dl>
+      <span data-field="fuel surcharge">93.50</span>`);
+    const error = await refusalOf(RULE('/billing/invoices/new'));
+    expect(error).toBeInstanceOf(InconclusiveError);
+    expect(error.message).toContain('more than once');
+    expect(error.message).toContain('two places disagreeing is not a value');
+  });
+
+  test('a route template in the rule reaches the instance the run is on', async () => {
+    await openAt('/billing/credit-notes/cn-0004',
+      '<dl><dt>Credit amount</dt><dd>£1,500.00</dd><dt>Invoice total</dt><dd>£1,200.00</dd></dl>');
+    const error = await refusalOf(`
+rule CREDIT_NOTE_CAP
+  on      /billing/credit-notes/{id}
+  means   A credit note can never exceed the invoice it credits.
+  expect  creditAmount <= invoiceTotal
+`);
+    expect(error).toBeInstanceOf(OracleError);
+    expect(error.message).toContain('out by 300');
   });
 }, 120_000);

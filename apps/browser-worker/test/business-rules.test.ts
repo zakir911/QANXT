@@ -474,3 +474,86 @@ rule BLANK
     expect(problems[0]!.problem).toContain('cannot be read');
   });
 });
+
+describe('a rule that applies only sometimes', () => {
+  /**
+   * Customs duty is the case that forced this into the language.
+   *
+   * On a shipment whose incoterm includes freight, the value for duty is goods plus freight. On
+   * one where it does not, goods alone is correct. The same screen renders both, so a rule
+   * without a precondition would report every FOB declaration as a defect — a false failure,
+   * which is the one outcome this product cannot afford.
+   */
+  const DUTY = `
+rule DUTY_INCLUDES_FREIGHT
+  on      /customs/declarations/{id}
+  means   Duty on a shipment whose incoterm includes freight is charged on goods plus freight.
+  when    Incoterm includes freight is Yes
+  expect  valueForDuty == goodsValue + freightCost
+`;
+
+  const figures = new Map([['valueForDuty', 7609.52], ['goodsValue', 7609.52], ['freightCost', 593.46]]);
+
+  test('the precondition is read off the when line', () => {
+    const { rules, problems } = parseRules(DUTY);
+    expect(problems).toEqual([]);
+    expect(rules[0]!.when).toEqual({ field: 'Incoterm includes freight', is: 'Yes', negated: false });
+  });
+
+  test('where it holds, the rule is checked — and this one is broken', () => {
+    const { rules } = parseRules(DUTY);
+    const outcome = checkRule(rules[0]!, figures, new Map([['Incoterm includes freight', 'Yes']]));
+    expect(outcome.outcome).toBe('broken');
+    if (outcome.outcome === 'broken') expect(outcome.by).toBe(593.46);
+  });
+
+  test('where it does not hold, the rule is not applicable — not a pass, not a failure', () => {
+    const { rules } = parseRules(DUTY);
+    const outcome = checkRule(rules[0]!, figures, new Map([['Incoterm includes freight', 'No']]));
+    expect(outcome.outcome).toBe('notApplicable');
+    expect(outcome.detail).toContain("here it reads 'No'");
+  });
+
+  test('a precondition that cannot be read is could-not-tell, never applicable by default', () => {
+    // Defaulting to "applies" would report every screen missing the flag as a defect;
+    // defaulting to "does not apply" would silently stop checking. Neither is true.
+    const { rules } = parseRules(DUTY);
+    const outcome = checkRule(rules[0]!, figures, new Map());
+    expect(outcome.outcome).toBe('cannotTell');
+    expect(outcome.detail).toContain('not a precondition that was met');
+  });
+
+  test('`is not` inverts it', () => {
+    const { rules } = parseRules(
+      'rule R\n on /a\n when Status is not cancelled\n expect total > 0\n');
+    expect(rules[0]!.when).toMatchObject({ field: 'Status', is: 'cancelled', negated: true });
+
+    const totals = new Map([['total', 50]]);
+    expect(checkRule(rules[0]!, totals, new Map([['Status', 'open']])).outcome).toBe('held');
+    expect(checkRule(rules[0]!, totals, new Map([['Status', 'cancelled']])).outcome).toBe('notApplicable');
+  });
+
+  test('the comparison ignores case and surrounding space, as screens are written', () => {
+    const { rules } = parseRules('rule R\n on /a\n when Mode is CIF\n expect a == 1\n');
+    expect(checkRule(rules[0]!, new Map([['a', 1]]), new Map([['Mode', ' cif ']])).outcome).toBe('held');
+  });
+
+  test('a number the screen shows can serve as a precondition too', () => {
+    const { rules } = parseRules('rule R\n on /a\n when dutyRate is 0\n expect duty == 0\n');
+    expect(checkRule(rules[0]!, new Map([['dutyRate', 0], ['duty', 0]]), new Map()).outcome).toBe('held');
+    expect(checkRule(rules[0]!, new Map([['dutyRate', 20], ['duty', 0]]), new Map()).outcome)
+      .toBe('notApplicable');
+  });
+
+  test('a when line in no recognised shape is reported against its line', () => {
+    const { problems } = parseRules('rule R\n on /a\n when something vague\n expect a == 1\n');
+    expect(problems[0]).toMatchObject({ line: 3 });
+    expect(problems[0]!.problem).toContain("'when' line reads");
+  });
+
+  test('a rule carrying no precondition at all still applies, rather than throwing', () => {
+    // A rule built by hand, or read back from an older stored test, may have no `when` field.
+    const bare = { ...rule('a == 1'), when: undefined } as unknown as BusinessRule;
+    expect(checkRule(bare, new Map([['a', 1]])).outcome).toBe('held');
+  });
+});
