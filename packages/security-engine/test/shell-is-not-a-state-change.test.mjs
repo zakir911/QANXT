@@ -136,3 +136,43 @@ test('two empty bodies are not evidence that nothing changed', async () => {
 
   assert.equal(result.findings.length, 1);
 });
+
+/**
+ * The read-only write check shares the premise, and shared it with the same false positive.
+ *
+ * "A read-only account can perform a write" compares the answer a writing identity gets with
+ * the answer a read-only one gets. On an address with no handler for POST, both get the
+ * application's shell, the answers match, and the finding is true as stated and meaningless.
+ * clinic-spa reported it on `/`, where a POST returns the same 244-byte shell as a GET.
+ */
+test('a write that answered the shell founds no privilege finding', async () => {
+  const { checkReadOnlyWrite } = await import('../src/checks-authz.mjs');
+  const writer = { label: 'clinician okafor', cookie: 'session=a', headers: { cookie: 'session=a' } };
+  const readonly = { label: 'reception', cookie: 'session=b', headers: { cookie: 'session=b' } };
+  const scanner = stub(answered(200, SHELL), answered(200, SHELL), answered(200, SHELL));
+
+  const result = await checkReadOnlyWrite(scanner, {
+    baseUrl: 'http://app.test', path: '/', writer, readonly, body: {}
+  });
+
+  assert.equal(result.findings.length, 0);
+  assert.equal(result.inconclusive, true);
+  assert.match(result.reason, /changed nothing/);
+});
+
+test('and still reports a read-only account that really writes', async () => {
+  // clinic-spa's cancel endpoint, which is CS_D04: the control and the attempt both return
+  // the cancelled appointment, and a read of the address returns the shell.
+  const { checkReadOnlyWrite } = await import('../src/checks-authz.mjs');
+  const writer = { label: 'clinician okafor', cookie: 'session=a', headers: { cookie: 'session=a' } };
+  const readonly = { label: 'reception', cookie: 'session=b', headers: { cookie: 'session=b' } };
+  const cancelled = JSON.stringify({ id: 'apt-1', status: 'cancelled' });
+  const scanner = stub(answered(200, cancelled), answered(200, cancelled), answered(200, SHELL));
+
+  const result = await checkReadOnlyWrite(scanner, {
+    baseUrl: 'http://app.test', path: '/api/appointments/apt-1/cancel', writer, readonly, body: {}
+  });
+
+  assert.equal(result.findings.length, 1);
+  assert.equal(result.findings[0].cwe, 'CWE-269');
+});

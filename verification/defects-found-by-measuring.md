@@ -2779,6 +2779,45 @@ green suite said the derivation worked. Only the run said what it derived was un
 
 ---
 
+## 80. The same false premise in a third check, and what the measurement cost
+
+The shell rule was applied to the anti-forgery and origin checks, and the run that followed
+showed it working: both false findings on `/` were gone, `CWE-639` on `/api/patients/{id}` and
+`CWE-269` on `/api/appointments/apt-1/cancel` both survived. One finding remained:
+
+```
+CWE-269 | A read-only account can perform a write | http://127.0.0.1:4600/
+```
+
+`authz.readonly` compares the answer a writing identity gets with the answer a read-only one
+gets. On an address with no handler for POST both receive the application's shell, the answers
+match, and the finding is true exactly as worded and says nothing. The same premise, missed
+because I fixed the two checks I had been looking at rather than the class.
+
+**Fixed** by sharing `changedNothing` with it. Its two tests are the pair that matters: the
+address that answers a shell founds nothing, and clinic-spa's cancel endpoint — which is
+CS_D04, a planted defect — still founds `CWE-269`.
+
+**The scoreboard for this one rule**, measured across the runs rather than reasoned about:
+
+| | findings | targets |
+| --- | --- | --- |
+| before | 28 | 19 |
+| after | 20 | 12 |
+
+Seven of those targets were the crawler's own probe traffic recorded as the application's API
+surface, and three of the findings were the shell read as a state change. Nothing a planted
+defect depended on moved: all four are still found.
+
+**Worth saying plainly.** Three checks shared one false premise and I fixed them one at a
+time, each time believing I was done, because each time the only thing that disagreed with me
+was the next run. The lesson is not about this premise. It is that a check which reports a
+finding on evidence it cannot distinguish from nothing happening is not a check, and the only
+thing that reliably exposes one is pointing the product at an application and reading every
+finding it produces.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

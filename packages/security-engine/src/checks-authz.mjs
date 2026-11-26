@@ -17,6 +17,7 @@ import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { authHeaders } from './credentials.mjs';
 import { at } from './target-url.mjs';
+import { changedNothing } from './checks-request.mjs';
 
 /** Statuses that count as a refusal. 404 is included: not telling a stranger a resource
  *  exists is a legitimate answer, and the brief names both. */
@@ -376,6 +377,16 @@ export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, reado
   if (refusal(attempt, path).refused) {
     return { skipped: false, findings: [], ok: true,
              detail: `${writer.label} ${control.status}, ${readonly.label} ${attempt.status}` };
+  }
+
+  // Both were answered, which is not the same as either having written anything. An address
+  // with no handler for POST answers the application's shell to everybody, and "the read-only
+  // account got the same answer as the writer" is then true and meaningless. clinic-spa
+  // reported this on `/`, where a POST returns the same 244-byte shell a GET does.
+  const nothingWritten = await changedNothing(
+    scanner, { baseUrl, path, response: control, session: writer, testId });
+  if (nothingWritten !== null) {
+    return { skipped: false, findings: [], inconclusive: true, reason: nothingWritten };
   }
 
   return {
