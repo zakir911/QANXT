@@ -39,6 +39,39 @@ import type { Logger } from '../util/logger.js';
 
 type CheckRunner = (scanner: Scanner, target: SecurityTarget, context: ScanContext) => Promise<CheckResult>;
 
+/**
+ * What to send against this target: the body the application declares it accepts, the content
+ * type it declares, and where its anti-forgery token goes.
+ *
+ * The write checks were sending `body: {}`. A form endpoint that validates its fields refuses
+ * an empty request, a server-rendered application refuses by redirecting back to the form, and
+ * the check correctly reads that as "the endpoint did not accept the request" and reaches no
+ * verdict. On a 137-screen freight application that was 37 endpoints with no verdict from
+ * either the anti-forgery or the origin check, one of them a planted missing-token defect that
+ * the endpoint hands over the moment the request carries the two fields its form declares.
+ *
+ * A malformed sample is treated as no sample rather than thrown: the surface is built
+ * elsewhere, and a check that cannot read it should still run with what it has and say so.
+ */
+const requestShapeOf = (target: SecurityTarget): {
+  body: Record<string, unknown>;
+  contentType: string;
+  tokenField: string | null;
+} => {
+  const contentType = target.requestContentType?.trim() || 'application/json';
+  const tokenField = target.requestTokenField?.trim() || null;
+  if (!target.requestSample) return { body: {}, contentType, tokenField };
+  try {
+    const parsed = JSON.parse(target.requestSample);
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { body: {}, contentType, tokenField };
+    }
+    return { body: parsed as Record<string, unknown>, contentType, tokenField };
+  } catch {
+    return { body: {}, contentType, tokenField };
+  }
+};
+
 export interface ScanContext {
   baseUrl: string;
   identities: Map<string, SignedInIdentity>;
@@ -79,7 +112,12 @@ export interface SignedInIdentity extends SecurityIdentity {
  * authorization check reported inconclusive.
  */
 export const asActor = (identity: SignedInIdentity) =>
-  ({ headers: identity.headers, cookie: identity.cookie, label: identity.label });
+  // The anti-forgery token travels with the identity, because a check that sends this
+  // identity's state-changing request has to send it the way this identity's own page would:
+  // an application that reads the token from the body refuses a request without it, and the
+  // check would read its own omission as the application refusing the write.
+  ({ headers: identity.headers, cookie: identity.cookie, label: identity.label,
+     csrf: identity.csrf });
 
 /**
  * How an identity proves who it is, read from the headers it actually carries.
@@ -636,11 +674,12 @@ const RUNNERS: Record<string, CheckRunner> = {
   'authz.readonly': async (scanner, target, context) => {
     const writer = owner(context); const reader = readOnly(context);
     if (!writer || !reader) return inconclusive('A writing and a read-only identity are needed; both were not available.');
+    const shape = requestShapeOf(target);
     return authz.checkReadOnlyWrite(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
       writer: asActor(writer),
       readonly: asActor(reader),
-      body: {}
+      body: shape.body, contentType: shape.contentType, tokenField: shape.tokenField
     });
   },
   'authz.missing': async (scanner, target, context) => {
@@ -823,9 +862,11 @@ const RUNNERS: Record<string, CheckRunner> = {
       return inconclusive(noCrossSiteRequestToForge(a, 'there is no cross-site request here for an '
         + 'anti-forgery token to defend'));
     }
+    const shape = requestShapeOf(target);
     return request.checkCsrfToken(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
-      session: { cookie: a.cookie, csrf: a.csrf }, body: {}
+      session: { cookie: a.cookie, csrf: a.csrf },
+      body: shape.body, contentType: shape.contentType, tokenField: shape.tokenField
     });
   },
   'request.origin': async (scanner, target, context) => {
@@ -838,9 +879,11 @@ const RUNNERS: Record<string, CheckRunner> = {
       return inconclusive(noCrossSiteRequestToForge(a, 'varying the origin would compare two '
         + 'requests neither of which carries credentials'));
     }
+    const shape = requestShapeOf(target);
     return request.checkOriginValidation(scanner, {
       baseUrl: context.baseUrl, path: target.identifier,
-      session: { cookie: a.cookie, csrf: a.csrf }, body: {}
+      session: { cookie: a.cookie, csrf: a.csrf },
+      body: shape.body, contentType: shape.contentType, tokenField: shape.tokenField
     });
   },
   'request.upload': async (scanner, target, context) => {

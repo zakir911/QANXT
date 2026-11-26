@@ -181,6 +181,18 @@ export interface SecurityTarget {
    */
   witnessUrl?: string | null;
   /**
+   * What a check that must *send* this endpoint's request should send.
+   *
+   * A write check establishes nothing against a request the endpoint refuses, and an empty
+   * body is refused by every form endpoint that validates its fields. `requestSample` is a
+   * JSON object of field names to values, built from the form the application declares;
+   * `requestTokenField` is the field it reads its anti-forgery token from, so the control
+   * request can put the token there and the probe can leave it out.
+   */
+  requestContentType?: string | null;
+  requestSample?: string | null;
+  requestTokenField?: string | null;
+  /**
    * One address discovery actually saw, query included. `identifier` is a template with the
    * query stripped, so a check that must *issue* the request uses this instead: an
    * application that identifies a record in the query string would otherwise be probed at an

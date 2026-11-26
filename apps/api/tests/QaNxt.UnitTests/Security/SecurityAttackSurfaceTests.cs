@@ -362,8 +362,25 @@ public class SecurityAttackSurfaceTests
     private static FormInput Form(
         string method = "post", string? action = "/api/appointments",
         string route = "/schedule", string pageUrl = "https://app.test/schedule",
-        bool csrf = false, bool authenticated = true)
-        => new(Guid.NewGuid(), route, action, method, pageUrl, csrf, authenticated, Seen);
+        bool csrf = false, bool authenticated = true, string? modelJson = null)
+        => new(Guid.NewGuid(), route, action, method, pageUrl, csrf, authenticated, Seen, modelJson);
+
+    /// <summary>A form model as discovery records one, so the declared endpoint can be given a
+    /// body. The write checks establish nothing against a request the endpoint refuses.</summary>
+    private static string FormModel(string tokenField = "_csrf")
+        => """
+           {
+             "key": "f1", "name": "adjust", "method": "post",
+             "action": "/warehouse/stock/s-1/adjust",
+             "hiddenFieldNames": ["TOKEN"],
+             "fields": [
+               { "key": "delta", "name": "delta", "controlType": "number", "required": true },
+               { "key": "reason", "name": "reason", "controlType": "select", "required": true,
+                 "options": [ { "value": "", "label": "Choose" },
+                              { "value": "Damage", "label": "Damage" } ] }
+             ]
+           }
+           """.Replace("TOKEN", tokenField);
 
     private static SecurityAttackSurface Build(
         IEnumerable<PageInput>? pages = null, IEnumerable<EndpointInput>? endpoints = null,
@@ -861,5 +878,65 @@ public class SecurityAttackSurfaceTests
         Build(new[] { page })
             .Items.Single(i => i.Kind == SecuritySurfaceKind.Page)
             .Parameters.Where(p => p == "tag").Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void A_declared_write_carries_a_body_the_application_would_accept()
+    {
+        // The whole reason this plumbing exists. The anti-forgery and origin checks send the
+        // application's own state-changing request twice and vary one thing; that establishes
+        // nothing if the request is refused, and an empty body is refused by every form
+        // endpoint that validates its fields. Measured on a 137-screen server-rendered
+        // application: 37 endpoints where both checks reached no verdict, one of them a
+        // planted missing-token defect that the endpoint gives up the moment the request
+        // carries the two fields its own form declares.
+        var surface = Build(forms: new[] { Form(
+            method: "post", action: "/warehouse/stock/s-1/adjust", modelJson: FormModel()) });
+
+        var item = surface.Items.Single(i => i.Identifier.EndsWith("/adjust"));
+        item.RequestSampleJson.Should().NotBeNull();
+        item.RequestSampleJson.Should().Contain("delta").And.Contain("reason");
+        item.RequestContentType.Should().Be("application/x-www-form-urlencoded");
+    }
+
+    [Fact]
+    public void A_declared_write_says_where_its_anti_forgery_token_goes()
+    {
+        var surface = Build(forms: new[] { Form(
+            method: "post", action: "/warehouse/stock/s-1/adjust",
+            modelJson: FormModel(tokenField: "_csrf")) });
+
+        var item = surface.Items.Single(i => i.Identifier.EndsWith("/adjust"));
+        item.RequestTokenField.Should().Be("_csrf");
+        // And never in the body: the probe must be able to send the same request with the
+        // token removed, which it cannot if the sample carries one.
+        item.RequestSampleJson.Should().NotContain("_csrf");
+    }
+
+    [Fact]
+    public void The_fields_a_form_declares_become_parameters_to_probe()
+    {
+        // A side effect worth pinning: the input-validation and injection checks were
+        // reporting "no parameter was discovered on this endpoint to probe" on every form
+        // endpoint of a server-rendered application, because the only parameters they knew
+        // about came from a query string or an observed request body.
+        var surface = Build(forms: new[] { Form(
+            method: "post", action: "/warehouse/stock/s-1/adjust", modelJson: FormModel()) });
+
+        var item = surface.Items.Single(i => i.Identifier.EndsWith("/adjust"));
+        item.Parameters.Should().Contain("delta").And.Contain("reason");
+        item.AcceptsInput.Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_form_whose_model_was_never_recorded_still_reaches_the_surface()
+    {
+        // Without a model there is no body to send, and the check says so in its reason. The
+        // address is still surface: losing it would be worse than probing it with nothing.
+        var surface = Build(forms: new[] { Form(method: "post", action: "/api/appointments") });
+
+        var item = surface.Items.Single(i => i.Identifier.EndsWith("/appointments"));
+        item.RequestSampleJson.Should().BeNull();
+        item.RequestTokenField.Should().BeNull();
     }
 }

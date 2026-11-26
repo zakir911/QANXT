@@ -180,20 +180,80 @@ export async function changedNothing(scanner, { baseUrl, path, response, session
     + 'every address it has no handler for.';
 }
 
-export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {}, tokenHeader = 'x-csrf-token', testId = 'SECA-CSRF' }) {
+/**
+ * What was sent, in the terms a reader can check against their own application.
+ *
+ * An inconclusive reason that does not say what shape the request had cannot be acted on: the
+ * reader has no way to tell "my endpoint wants a field you did not send" from "my endpoint
+ * refuses JSON" from "my endpoint wants the token somewhere else".
+ */
+function describeShape(fields, contentType, tokenField) {
+  const names = Object.keys(fields ?? {});
+  const type = /x-www-form-urlencoded/i.test(String(contentType ?? ''))
+    ? 'a urlencoded form body' : 'a JSON body';
+  const carried = names.length === 0
+    ? 'no fields, because none were discovered for this address'
+    : `the field(s) ${names.join(', ')}`;
+  const where = tokenField
+    ? `, with the token in the ${tokenField} field and in a header`
+    : ', with the token in a header only, because no form declared a token field here';
+  return `${type} carrying ${carried}${where}`;
+}
+
+/**
+ * Encode a body the way the application's own page would send it.
+ *
+ * `scanner.request` sends a string unchanged and JSON-encodes anything else, which is right
+ * for an API and wrong for a form. A server that binds `application/x-www-form-urlencoded`
+ * reads nothing out of a JSON document, so a request shaped as JSON is refused by the
+ * application's own field validation rather than by any anti-forgery control — and a refusal
+ * for that reason is not evidence about anything these checks are asking.
+ */
+export function encodeBody(fields, contentType) {
+  if (!/x-www-form-urlencoded/i.test(String(contentType ?? ''))) return fields;
+  const form = new URLSearchParams();
+  for (const [name, value] of Object.entries(fields ?? {})) {
+    if (value === undefined || value === null) continue;
+    form.append(name, String(value));
+  }
+  return form.toString();
+}
+
+/**
+ * The anti-forgery token where the application's own page carries it.
+ *
+ * A form declares its token as a hidden field, and a server that reads it from the body will
+ * not look in a header. So the control request puts it in both places; the probe puts it in
+ * neither, and is stripped of the field even if a caller passed one in the sample. The two
+ * requests then differ by the token alone, which is the whole premise of the check.
+ */
+function tokenPlacement(body, tokenField, token) {
+  const without = { ...(body ?? {}) };
+  if (tokenField) delete without[tokenField];
+  const with_ = tokenField && token !== undefined && token !== null
+    ? { ...without, [tokenField]: token }
+    : without;
+  return { with: with_, without };
+}
+
+export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {},
+    contentType = 'application/json', tokenHeader = 'x-csrf-token', tokenField = null,
+    testId = 'SECA-CSRF' }) {
   if (!isSignedIn(session)) {
     return { skipped: false, findings: [], inconclusive: true,
              reason: 'No authenticated session, so a cross-site request cannot be distinguished from an '
                + 'unauthenticated one.' };
   }
 
+  const placed = tokenPlacement(body, tokenField, session.csrf);
   const withToken = await scanner.request({
     url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: {
-      'content-type': 'application/json', ...authHeaders(session),
+      'content-type': contentType, ...authHeaders(session),
       origin: baseUrl, ...(session.csrf ? { [tokenHeader]: session.csrf } : {})
     },
-    body, as: 'the legitimate caller', testId: `${testId}:control`,
+    body: encodeBody(placed.with, contentType),
+    as: 'the legitimate caller', testId: `${testId}:control`,
     note: 'the request as the application\'s own page would send it'
   });
   if (!withToken.allowed) return { skipped: true, decision: withToken.decision, findings: [] };
@@ -203,15 +263,14 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
     return { skipped: false, findings: [], inconclusive: true,
              reason: `Not evaluated: the endpoint did not accept the request even with a token and a `
                + `same-site origin — it ${control.how}. Nothing can be concluded about what it does `
-               + 'without one. This probe sends JSON with the token in a header, so a form endpoint '
-               + 'that wants the token in a urlencoded body will refuse it here and refuse it for '
-               + 'the right reason.' };
+               + `without one. What was sent: ${describeShape(placed.with, contentType, tokenField)}.` };
   }
 
   const withoutToken = await scanner.request({
     url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
-    headers: { 'content-type': 'application/json', ...authHeaders(session), origin: baseUrl },
-    body, as: 'a caller with no anti-CSRF token', testId: `${testId}:no-token`,
+    headers: { 'content-type': contentType, ...authHeaders(session), origin: baseUrl },
+    body: encodeBody(placed.without, contentType),
+    as: 'a caller with no anti-CSRF token', testId: `${testId}:no-token`,
     note: 'the same request with the anti-CSRF token removed'
   });
   if (!withoutToken.allowed) return { skipped: true, decision: withoutToken.decision, findings: [] };
@@ -252,19 +311,25 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
 }
 
 /** Missing origin validation: a cross-origin Origin header is accepted. */
-export async function checkOriginValidation(scanner, { baseUrl, path, session, body = {}, tokenHeader = 'x-csrf-token', testId = 'SECA-ORIGIN' }) {
+export async function checkOriginValidation(scanner, { baseUrl, path, session, body = {},
+    contentType = 'application/json', tokenHeader = 'x-csrf-token', tokenField = null,
+    testId = 'SECA-ORIGIN' }) {
   if (!isSignedIn(session)) {
     return { skipped: false, findings: [], inconclusive: true, reason: 'No authenticated session.' };
   }
 
   const headers = {
-    'content-type': 'application/json', ...authHeaders(session),
+    'content-type': contentType, ...authHeaders(session),
     ...(session.csrf ? { [tokenHeader]: session.csrf } : {})
   };
+  // The token belongs in both arms: the origin is the only thing that differs between them,
+  // so an endpoint that reads the token from the body must be given it in both or the
+  // comparison is measuring two things at once.
+  const sent = encodeBody(tokenPlacement(body, tokenField, session.csrf).with, contentType);
 
   const sameOrigin = await scanner.request({
     url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
-    headers: { ...headers, origin: baseUrl }, body,
+    headers: { ...headers, origin: baseUrl }, body: sent,
     as: 'same-origin', testId: `${testId}:control`, note: 'the request with the application\'s own origin'
   });
   if (!sameOrigin.allowed) return { skipped: true, decision: sameOrigin.decision, findings: [] };
@@ -273,12 +338,13 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
     return { skipped: false, findings: [], inconclusive: true,
              reason: `Not evaluated: the endpoint did not accept a request from its own origin — it `
                + `${fromOwnOrigin.how}. What it does with another origin's cannot be read against `
-               + 'that.' };
+               + `that. What was sent: `
+               + `${describeShape(tokenPlacement(body, tokenField, session.csrf).with, contentType, tokenField)}.` };
   }
 
   const crossOrigin = await scanner.request({
     url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
-    headers: { ...headers, origin: `https://${EXTERNAL_MARKER_HOST}` }, body,
+    headers: { ...headers, origin: `https://${EXTERNAL_MARKER_HOST}` }, body: sent,
     as: 'cross-origin', testId: `${testId}:cross`,
     note: `the same request claiming to come from ${EXTERNAL_MARKER_HOST}, a host that does not resolve`
   });

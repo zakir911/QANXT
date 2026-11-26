@@ -2877,6 +2877,149 @@ kind of bookkeeping this file exists to stop.
 
 ---
 
+## 82. The write checks sent a body no form endpoint would accept
+
+**Found by re-measuring freight after the shell rule and the derivation landed**, which is the
+run I had told the user was outstanding because "its 11-of-17 figure predates them". The
+comparison showed something I had not predicted: `MissingCsrfToken` fell from 54 findings to
+12 and `MissingOriginValidation` with it, and among the 42 endpoints that went quiet was
+`/warehouse/stock/:id/adjust` — **FP_D29_NO_CSRF_ON_ADJUSTMENT**, a planted defect.
+
+My first reading was that the `changedNothing` rule I had added that morning had suppressed a
+true finding. It had not. The reason the run itself gave was a different one:
+
+> `request.csrf on .../adjust: Inconclusive: Not evaluated: the endpoint did not accept the
+> request even with a token and a same-site origin — it redirected back to
+> /warehouse/stock/stk-fxt-sku-001/adjust, which is how a form is shown again after a
+> refusal.`
+
+That is the redirect rule from defect 75 working exactly as designed, on a request that
+genuinely was refused. Before that rule, the same refusal had been read as an acceptance, and
+the finding had been raised **for the wrong reason**: the scan had never performed a state
+change at all, so it had no evidence about the token either way. FP_D29 had been scored found
+on a verdict reached by a broken premise, and fixing the premise exposed that.
+
+**Why the endpoint refused.** Not the content type, which is what the reason text at the time
+guessed at. The checks hard-code `body: {}`:
+
+```ts
+return request.checkCsrfToken(scanner, {
+  baseUrl: context.baseUrl, path: target.identifier,
+  session: { cookie: a.cookie, csrf: a.csrf }, body: {}
+});
+```
+
+The handler reads `delta` out of the body and refuses a value that is not a whole number. With
+FP_D29 on, the token check is skipped entirely — so the request was never failing on the
+token. It was failing on the field the form declares.
+
+**The A/B, against the running application, signed in as `warehouse`:**
+
+| what was sent | answer | meaning |
+| --- | --- | --- |
+| `{}` as JSON | 302 → `/…/adjust` | the form again: refused |
+| `{"delta":1,"reason":"Damage"}` as JSON | 302 → `/…/stk-fxt-sku-001` | the record: **accepted**, on-hand moved |
+| `delta=1&reason=Damage` urlencoded, no token anywhere | 302 → `/…/stk-fxt-sku-001` | **accepted** |
+
+The third row is the finding. An endpoint that accepts a state-changing POST carrying no
+anti-forgery token, from a request that differs from the application's own only in that one
+respect. The product could not reach it because it had never sent a request the endpoint would
+take.
+
+Note what the second row rules out: freight's `ctx.body()` parses JSON perfectly well. The
+content type was never the blocker. The empty body was.
+
+**What was built.** The form already declares everything needed, and the surface already had
+the fields to carry it — `RequestContentType` and `RequestSampleJson` existed on the endpoint
+input and were simply never populated for a form-declared write, under a comment that said
+`what they are called is the form model's business rather than this one's`. That deferral is
+what this defect is.
+
+- `FormRequestShape.Of(form)` builds the body from the discovered form model, taking values
+  from `ValueSynthesizer` — the same source the form test designer fills a happy-path
+  submission from. Nothing is invented here that the product does not already use to fill
+  that form.
+- The anti-forgery token is deliberately **left out of the body** and its field name carried
+  separately. A sample carrying a token would make the probe identical to the control, and the
+  check would report a missing token on an application that enforces one.
+- The control request places the token in that field *and* in a header; the probe places it in
+  neither. A server that reads the token from the body does not look in a header, so without
+  this an endpoint that enforces its token refuses the control and the check reaches no verdict
+  against an application doing the right thing.
+- `encodeBody` sends a urlencoded body as a form rather than as a JSON document.
+- Two selects over the same list do not take the same option — a transfer form's "From site"
+  and "To site" are the same list of warehouses, and an application that refuses a transfer
+  from Felixstowe to Felixstowe is right to. The form test designer already carries that rule;
+  this carries it for the same reason.
+- An inconclusive reason now names what was sent: the content type, the fields, and where the
+  token went. A reason that does not say that cannot be acted on.
+
+**A side effect worth naming.** The fields a form declares now reach `Parameters`, so
+`api.input-validation` and the injection checks stop reporting *"No parameter was discovered on
+this endpoint to probe"* on every form endpoint of a server-rendered application.
+
+**What the suites had to say about it beforehand: nothing.** 1789 C# tests, 202 engine tests
+and 612 worker tests were green with `body: {}` in three checks. The failure is silent in the
+worst way — each check correctly reported that it could reach no verdict, so nothing was red,
+and 37 endpoints were simply never evaluated. The new tests are 17 in C# and 17 in the engine,
+and the four that pin the write verdict fail on the old code.
+
+---
+
+## 83. A successful write read as a refusal, and a viewer settled a £5,953 claim
+
+**Found while writing a test for defect 82**, when a scripted scanner that should have founded
+a privilege-escalation finding returned none. `checkReadOnlyWrite` judges its two arms with
+`refusal()`:
+
+```js
+if (status >= 300 && status < 400) {
+  ...
+  return { refused: true, how: `answered ${status} with no body, so nothing was served` };
+}
+```
+
+That is right for every other check in the file. `checkBola`, `checkVerticalEscalation`,
+`checkMissingAuthorization` and `checkTokenVerification` all ask whether a resource was
+*served*, and a 3xx means it was not. `checkReadOnlyWrite` is the only one that sends a POST,
+and on a write the same signal means the opposite: an application rendered on the server saves
+and then redirects to what it saved. The 302 that `refusal` reads as *nothing was served* is
+the write having succeeded.
+
+**Both directions were wrong.** A read-only account that successfully wrote was reported
+clean. And an endpoint that refused *both* accounts by re-showing its form passed the
+`control.status >= 400` guard with 302 and founded a privilege-escalation finding against an
+endpoint that wrote nothing for anybody.
+
+This is the same inversion as defect 75, in the authorization family, found a day later and
+only because a test fixture disagreed with the code.
+
+**The live proof, one request, as `readonly` on freight.** The claim page tells that account:
+
+> *Settling a claim needs the claim:settle permission, which your role does not hold.*
+
+| | `data-status` | settled |
+| --- | --- | --- |
+| before | `submitted` | — |
+| the viewer posts `settledAmountGbp=1` → 302 → `/claims/clm-0001` | | |
+| after | `settled` | £1.00 |
+
+A £5,953.11 claim settled for £1.00 by an account the application itself says may not settle
+claims. That is **FP_D11_VIEWER_CAN_SETTLE_CLAIM**, and freight's r10 scan reported zero
+`PrivilegeEscalation` findings.
+
+It needed both fixes to be reachable: without defect 82's body the endpoint refuses the
+settlement for want of an amount, and without this one the successful 302 reads as a refusal.
+Two independent faults in series over one planted defect, which is the argument for measuring
+rather than reading.
+
+**The fix** is one check. `stateChangeAccepted` replaces `refusal` on both write arms — the
+primitive defect 75 built for exactly this question — and the finding now says what each
+account's request did rather than quoting two status codes that mean the opposite of what they
+appear to.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

@@ -111,7 +111,20 @@ describe('asActor', () => {
     } as unknown as SignedInIdentity;
 
     expect(asActor(identity)).toEqual({
-      headers: { authorization: 'Basic x' }, cookie: null, label: 'clerk'
+      headers: { authorization: 'Basic x' }, cookie: null, label: 'clerk', csrf: null
     });
+  });
+
+  it('carries the anti-forgery token, so a write check can send the request as this identity would', () => {
+    // Without this the read-only write check sent its POSTs with no token in the body, an
+    // application that reads the token from the body refused them, and the check read its own
+    // omission as the application refusing the write. On freight that cost FP_D11: a viewer
+    // settling a claim the page tells that viewer it may not settle.
+    const identity = {
+      label: 'viewer', username: 'viewer', password: 'p',
+      headers: {}, cookie: 'session=v', csrf: 'v-token'
+    } as unknown as SignedInIdentity;
+
+    expect(asActor(identity).csrf).toBe('v-token');
   });
 });

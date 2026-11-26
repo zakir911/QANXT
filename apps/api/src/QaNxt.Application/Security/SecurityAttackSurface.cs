@@ -1,3 +1,4 @@
+using QaNxt.Application.Forms;
 using QaNxt.Domain.Enums;
 
 namespace QaNxt.Application.Security;
@@ -31,7 +32,17 @@ public sealed record SecuritySurfaceItem(
     /// template reached /approve.asp with no id and got a 404, so the check that had to
     /// observe a state change observed nothing and the scan that measured rate limiting
     /// measured it against a missing page.</summary>
-    string? SampleIdentifier = null);
+    string? SampleIdentifier = null,
+    /// <summary>What a check that must *send* this endpoint's request should send: the
+    /// content type, a body the application would accept, and the field its anti-forgery
+    /// token belongs in.
+    ///
+    /// The write checks establish nothing against a request the endpoint refuses, and an
+    /// empty body is refused by every form endpoint that validates its fields. Null where
+    /// nothing was observed or declared, which the check then says in its reason.</summary>
+    string? RequestContentType = null,
+    string? RequestSampleJson = null,
+    string? RequestTokenField = null);
 
 /// <summary>What discovery found that is worth security testing, and what that does not cover.</summary>
 public sealed record SecurityAttackSurface(
@@ -113,7 +124,11 @@ public static class SecurityAttackSurfaceBuilder
         /// check that must observe whether a request changed anything reads this page before
         /// and after; without it the only thing to read is the request's own response, which
         /// says what the application chose to say rather than what it did.</summary>
-        string? WitnessUrl = null);
+        string? WitnessUrl = null,
+        /// <summary>The field the application reads its anti-forgery token from, where a form
+        /// declared one. The anti-forgery check puts the token there for the control request
+        /// and omits it for the probe, so the two differ by the token alone.</summary>
+        string? RequestTokenField = null);
 
     /// <summary>A form discovery found, as the application declares it submits.</summary>
     /// <remarks>
@@ -133,7 +148,12 @@ public static class SecurityAttackSurfaceBuilder
     /// </remarks>
     public sealed record FormInput(
         Guid Id, string Route, string? Action, string Method, string PageUrl,
-        bool HasCsrfToken, bool RequiresAuthentication, DateTimeOffset LastSeenAt);
+        bool HasCsrfToken, bool RequiresAuthentication, DateTimeOffset LastSeenAt,
+        /// <summary>The discovered form itself. The declared endpoint's body is built from
+        /// it: without one the write checks send an empty request, which a form endpoint that
+        /// validates its fields refuses, and a refusal for that reason is evidence about
+        /// nothing.</summary>
+        string? ModelJson = null);
 
     /// <summary>
     /// Where the application signs in, as its owner configured it.
@@ -309,17 +329,24 @@ public static class SecurityAttackSurfaceBuilder
             if (!Uri.TryCreate(page, target, out absolute)) return null;
         }
 
+        // The body the form declares it submits, filled the way the form test designer fills
+        // a valid submission. Null where a field the form requires has no value the engine
+        // believes in: a guessed body would be refused, and a check cannot tell a refusal it
+        // caused from one the application would have made anyway.
+        var shape = FormRequestShape.Of(DiscoveredFormModel.FromJson(form.ModelJson));
+
         return new EndpointInput(
             form.Id,
             form.Method.ToUpperInvariant(),
             absolute.GetLeftPart(UriPartial.Path),
             absolute.ToString(),
             form.RequiresAuthentication,
-            // A form posts its fields as a URL-encoded body unless it says otherwise, and
-            // what they are called is the form model's business rather than this one's.
-            "application/x-www-form-urlencoded",
-            null,
-            form.LastSeenAt);
+            // A form posts its fields as a URL-encoded body unless it says otherwise.
+            shape?.ContentType ?? "application/x-www-form-urlencoded",
+            shape is null ? null : FormRequestShape.ToSampleJson(shape),
+            form.LastSeenAt,
+            WitnessUrl: null,
+            RequestTokenField: shape?.TokenField);
     }
 
     /// <summary>Where to point a check at this page: an address that serves it.</summary>
@@ -592,7 +619,10 @@ public static class SecurityAttackSurfaceBuilder
             RelevantChecks: checks.ToList(),
             Why: string.Join("; ", reasons),
             WitnessIdentifier: endpoint.WitnessUrl,
-            SampleIdentifier: string.IsNullOrWhiteSpace(endpoint.SampleUrl) ? null : endpoint.SampleUrl);
+            SampleIdentifier: string.IsNullOrWhiteSpace(endpoint.SampleUrl) ? null : endpoint.SampleUrl,
+            RequestContentType: endpoint.RequestContentType,
+            RequestSampleJson: endpoint.RequestSampleJson,
+            RequestTokenField: endpoint.RequestTokenField);
     }
 
     /// <summary>Records on a surface item what discovery observed about it: that the

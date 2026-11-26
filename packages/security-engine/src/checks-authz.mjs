@@ -17,7 +17,7 @@ import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { authHeaders } from './credentials.mjs';
 import { at } from './target-url.mjs';
-import { changedNothing } from './checks-request.mjs';
+import { changedNothing, encodeBody, stateChangeAccepted } from './checks-request.mjs';
 
 /** Statuses that count as a refusal. 404 is included: not telling a stranger a resource
  *  exists is a legitimate answer, and the brief names both. */
@@ -341,7 +341,8 @@ export async function checkVerticalEscalation(scanner, { baseUrl, path, privileg
 }
 
 /** A read-only role performing a write. */
-export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, readonly, body, testId = 'SECA-RO' }) {
+export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, readonly, body,
+    contentType = 'application/json', tokenField = null, testId = 'SECA-RO' }) {
   const sameActor = sameIdentity(writer, readonly);
   if (sameActor) {
     return {
@@ -355,28 +356,53 @@ export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, reado
 
   const url = at(baseUrl, `${path}`);
 
+  // Both arms send the request the application declares it accepts, token included: the
+  // identity is the only thing that differs between them, so a body one arm would be refused
+  // for is measuring two things at once. An empty body is refused by every form endpoint that
+  // validates its fields, and a refusal for that reason says nothing about permission.
+  const sent = (actor) => encodeBody(
+    tokenField && actor.csrf ? { ...(body ?? {}), [tokenField]: actor.csrf } : (body ?? {}),
+    contentType);
+
   const control = await scanner.request({
     url, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING, testId: `${testId}:control`,
-    headers: { 'content-type': 'application/json', ...authHeaders(writer) },
-    body, as: writer.label, note: 'an account that should be able to write'
+    headers: { 'content-type': contentType, ...authHeaders(writer) },
+    body: sent(writer), as: writer.label, note: 'an account that should be able to write'
   });
   if (!control.allowed) return { skipped: true, decision: control.decision, findings: [] };
 
   const attempt = await scanner.request({
     url, method: 'POST', risk: SECURITY_RISK.STATE_CHANGING, testId: `${testId}:attempt`,
-    headers: { 'content-type': 'application/json', ...authHeaders(readonly) },
-    body, as: readonly.label, note: 'a read-only account attempting the same write'
+    headers: { 'content-type': contentType, ...authHeaders(readonly) },
+    body: sent(readonly), as: readonly.label, note: 'a read-only account attempting the same write'
   });
   if (!attempt.allowed) return { skipped: true, decision: attempt.decision, findings: [] };
 
-  if (control.status >= 400) {
+  // Judged as a write, not as a read.
+  //
+  // `refusal` is the right notion for a check that asks whether a resource was *served*: a
+  // 3xx means it was not, so a redirect is a refusal. On a write it is the opposite. An
+  // application rendered on the server saves and then redirects to what it saved — POST,
+  // redirect, GET — so the 302 that `refusal` reads as "nothing was served" is the write
+  // having succeeded, and the one that means refused is the 302 back to the form.
+  //
+  // Both directions were wrong here. A read-only account that successfully wrote was reported
+  // clean, and an endpoint that refused *both* accounts by re-showing its form passed the
+  // `status >= 400` guard with 302 and founded a privilege-escalation finding. Measured on
+  // freight: FP_D11, a viewer settling a £5,953 claim for £1 through an endpoint whose own
+  // page tells that viewer they lack the permission, with the status moving submitted ->
+  // settled. The check read it as the viewer being refused.
+  const wrote = stateChangeAccepted(control, path);
+  if (!wrote.accepted) {
     return { skipped: false, findings: [], inconclusive: true,
-             reason: `${writer.label} could not write either (${control.status}); the endpoint may reject `
-               + 'this payload for unrelated reasons.' };
+             reason: `Not evaluated: ${writer.label} could not write either — it ${wrote.how}. An `
+               + 'account that is permitted to write has to succeed before a refusal for one that '
+               + 'is not means anything.' };
   }
-  if (refusal(attempt, path).refused) {
+  const attempted = stateChangeAccepted(attempt, path);
+  if (!attempted.accepted) {
     return { skipped: false, findings: [], ok: true,
-             detail: `${writer.label} ${control.status}, ${readonly.label} ${attempt.status}` };
+             detail: `${writer.label} ${wrote.how}; ${readonly.label} ${attempted.how}` };
   }
 
   // Both were answered, which is not the same as either having written anything. An address
@@ -395,8 +421,8 @@ export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, reado
       category: 'PrivilegeEscalation',
       title: `A read-only account can perform a write`,
       endpoint: path, httpMethod: 'POST', observedAsRole: readonly.label,
-      description: `${readonly.label} holds a read-only role and received ${attempt.status} from `
-        + `POST ${path}, the same answer ${writer.label} received.`,
+      description: `${readonly.label} holds a read-only role and POST ${path} ${attempted.how} — `
+        + `the same way it did for ${writer.label}, who ${wrote.how}.`,
       impact: 'An account granted read access can change data.',
       remediation: 'Enforce the role on the write path.',
       cwe: 'CWE-269', cweConfidence: 'confirmed',

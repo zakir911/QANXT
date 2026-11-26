@@ -250,7 +250,13 @@ public sealed class SecurityScanLauncher : ISecurityScanLauncher
                 // And one address as discovery saw it, for a check that has to issue the
                 // request rather than describe it. The identifier above has the query
                 // stripped, which loses the record id on any application that puts it there.
-                sampleUrl = item.SampleIdentifier
+                sampleUrl = item.SampleIdentifier,
+                // What a check that must send this endpoint's request should send. The write
+                // checks establish nothing against a request the endpoint refuses, and an
+                // empty body is refused by every form endpoint that validates its fields.
+                requestContentType = item.RequestContentType,
+                requestSample = item.RequestSampleJson,
+                requestTokenField = item.RequestTokenField
             }),
             checksToRun = requested,
             checksConfigured = implied,

@@ -61,7 +61,11 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
                 e.TriggeredByPageId == null
                     ? null
                     : _db.ApplicationPages.Where(p => p.Id == e.TriggeredByPageId)
-                        .Select(p => p.Url).FirstOrDefault()))
+                        .Select(p => p.Url).FirstOrDefault(),
+                // An observed endpoint has no declared token field: nothing was read from a
+                // form here, so the anti-forgery check sends the token in a header only and
+                // says so when the endpoint refuses.
+                null))
             .ToListAsync(ct);
 
         // Forms, for the endpoints they declare they write to. Discovery never submits one, so
@@ -71,7 +75,7 @@ public sealed class SecuritySurfaceService : ISecuritySurfaceService
             .Where(f => f.ApplicationId == applicationId && f.IsPresent)
             .Select(f => new SecurityAttackSurfaceBuilder.FormInput(
                 f.Id, f.Route, f.Action, f.Method, f.PageUrl, f.HasCsrfToken,
-                f.Page!.RequiresAuthentication, f.LastSeenAt))
+                f.Page!.RequiresAuthentication, f.LastSeenAt, f.ModelJson))
             .ToListAsync(ct);
 
         // The links discovery would not follow, recorded by the ingest as gaps because their
