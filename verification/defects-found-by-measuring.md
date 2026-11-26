@@ -3020,6 +3020,78 @@ appear to.
 
 ---
 
+## 84. Forty confident findings, most of them wrong, because a refusal and a success land in the same place
+
+**Found by distrusting my own improvement.** The run after defects 82 and 83 looked like a
+clear win: `MissingCsrfToken` 12 → 20, `MissingOriginValidation` 12 → 20, and
+`PrivilegeEscalation` **0 → 20** where freight had never produced one. Forty findings that had
+not existed the run before.
+
+Two things about that list were wrong before I checked anything. The CSRF and the escalation
+endpoints were **the same twenty**, which is the sort of coincidence worth a second look. And
+neither FP_D29 (`/warehouse/stock/:id/adjust`) nor FP_D11 (`/claims/:id/settle`) was among
+them — the two planted defects the previous two fixes had been built to reach.
+
+**What the twenty actually are.** Freight's shipment edit, checked against the running
+application:
+
+```
+POST /shipments/shp-0005/edit   _csrf=wrong      ->  302  location: /shipments/shp-0005
+POST /shipments/shp-0005/edit   _csrf=<real>     ->  302  location: /shipments/shp-0005
+```
+
+Identical. And the endpoint enforces its token correctly: after the first, `pieces` was
+unchanged at 18; after the second it was 9. The handler's own line says it:
+
+```js
+if (!await csrfValid(ctx)) { setFlash(ctx, 'error', 'That form expired.');
+                             return ctx.redirect(`/shipments/${shipment.id}`); }
+```
+
+A refusal and a success go to the same address and differ only in the flash message waiting on
+the page they land on. `stateChangeAccepted` reads the Location header, sees "redirected
+onward, not back to the form" for both arms, and calls both accepted. So the check reports a
+missing anti-forgery token on an endpoint that has one, and a privilege escalation against an
+account whose write was refused.
+
+So defect 82's fix — finally sending a body the endpoint would take — did not turn 37 silent
+inconclusives into verdicts. It turned them into **confident wrong answers**, which is worse
+than the silence it replaced. This is defect 75's failure mode reached from the opposite
+direction, and it is the reason the r11 numbers are not in `multi-target-results.md`.
+
+**The fix is the one the commit that caused it already named.** `bee41cd6` was called *"A
+redirect is not an answer: the CSRF and origin checks now read where it went"* — and it read
+where it went from the header. The next step is to actually go there. `arrivedAt` follows each
+arm's redirect once and reads the page, and `distinguishedTheTwo` compares what the
+application said:
+
+- **An error only the probe was shown** → the probe was refused → clean, quoting the
+  application's own words back (`the application answered "That form expired."`).
+- **The same page for both** → the application did not distinguish them → the finding stands.
+  This is FP_D11: writer and viewer both told *"Claim settled."*
+- **Different for some other reason** → `inconclusive`, saying so. A page carrying a view
+  counter or a timestamp is not evidence either way, and reporting a finding on it would be
+  guessing. This costs real detections on applications whose pages vary, and that cost is
+  taken deliberately: the alternative is manufacturing findings, which is the thing this file
+  exists to stop.
+
+An alert both arms see — a maintenance banner, a stale-rates notice — says nothing about
+either request and is ignored.
+
+**Cost:** two extra GETs per endpoint where both arms looked accepted *and* the answer was a
+redirect. A refused control costs none, and a 2xx answer costs none, because nothing was
+inferred from a redirect in either case. I had the control's read running before the
+control's verdict at first, which spent a request on endpoints that were never going to be
+evaluated; a test that pins "the probe is not worth sending once the control failed" caught
+it.
+
+**The order these three defects had to be fixed in is the point.** 82 let the checks issue a
+request the endpoint would accept. 83 let a write be judged as a write. 84 stopped the result
+being a confident lie. Fixing any one or two of them alone would have left the product worse
+than before: 82 and 83 without 84 is exactly the 40-finding run above.
+
+---
+
 ## 61. The measurement reported its own blind spot as the product's failure
 
 **Symptom.** Freight stood at 10 of 32 with 17 "missed". Three of those numbers were wrong,

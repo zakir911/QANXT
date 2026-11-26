@@ -27,13 +27,25 @@ const answered = (status, location) => ({
 
 const session = { cookie: 'session=abc', csrf: 't0ken' };
 
-/** A scanner that answers each request from a script, in order. */
+/**
+ * A scanner that answers each request from a script, in order.
+ *
+ * The reads the checks make to see where a redirect led are answered with the same page for
+ * every arm, so these tests keep asserting what they were written to assert: how the redirect
+ * itself is read. The case where the two arms land on *different* pages is a separate
+ * question, and it has its own tests in redirect-destination.test.mjs.
+ */
 function stub(...responses) {
   const asked = [];
+  const sameLandingPage = {
+    allowed: true, status: 200, headers: headers({}),
+    responseBody: '<h1>The record</h1>', responseText: '<h1>The record</h1>'
+  };
   return {
     asked,
     async request({ url, testId }) {
       asked.push({ url, testId });
+      if (String(testId).endsWith(':arrived')) return sameLandingPage;
       const next = responses.shift();
       if (!next) throw new Error(`no scripted response left for ${testId}`);
       return next;

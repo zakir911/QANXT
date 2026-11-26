@@ -154,8 +154,49 @@ public static class FormRequestShape
 
         if (field.ControlType is "checkbox" or "switch") return "on";
 
+        if (ValueSynthesizer.IsNumeric(field))
+        {
+            var ordinary = OrdinaryNumber(field);
+            if (ordinary is not null) return ordinary;
+        }
+
         var synthesis = ValueSynthesizer.Valid(field);
         return synthesis.Ok ? synthesis.Value : null;
+    }
+
+    /// <summary>
+    /// The most ordinary value a numeric field would carry, rather than one that explores its
+    /// range.
+    ///
+    /// <see cref="ValueSynthesizer"/> picks the midpoint of a bounded range, which is the
+    /// right choice for a form test: it is far from both boundaries, so a test that uses it is
+    /// testing the field rather than its edges. For a request whose only job is to be
+    /// *accepted*, it is the wrong choice, because the midpoint of a symmetric range is zero —
+    /// and zero is the value business rules exclude more often than any other. A quantity, a
+    /// delta, an amount, a count: none of them means anything at zero, and no HTML constraint
+    /// can say so.
+    ///
+    /// Measured on freight's stock adjustment: `min="-100000" max="100000" step="1"` makes the
+    /// midpoint exactly 0, the handler answers *"Enter a whole number other than zero"* and
+    /// redirects back to the form, and the anti-forgery check correctly reported that the
+    /// endpoint had not accepted its request. The body was right in every respect the page
+    /// declares and still could not be used.
+    ///
+    /// So: the smallest ordinary positive value the field's own constraints allow, and the
+    /// synthesizer's choice when none of them is in range.
+    /// </summary>
+    private static string? OrdinaryNumber(FormFieldModel field)
+    {
+        var limits = ValueSynthesizer.NumericLimitsOf(field);
+        foreach (var candidate in new[] { 1m, limits.Delta, 2m, 10m })
+        {
+            if (candidate == 0m) continue;
+            if (limits.Min is not null && candidate < limits.Min) continue;
+            if (limits.Max is not null && candidate > limits.Max) continue;
+            if (!limits.OnStep(candidate)) continue;
+            return limits.Format(candidate);
+        }
+        return null;
     }
 
     private static bool DrawsFromTheSameList(FormFieldModel a, FormFieldModel b)

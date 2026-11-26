@@ -390,9 +390,46 @@ export function extractPage(maxElements: number): RawPageCapture {
     });
   }
 
+  const usable = (href: string) => Boolean(href)
+    && !href.startsWith('javascript:') && !href.startsWith('mailto:') && !href.startsWith('tel:');
+
   const links = Array.from(document.querySelectorAll('a[href]'))
     .map(anchor => (anchor as HTMLAnchorElement).href)
-    .filter(href => href && !href.startsWith('javascript:') && !href.startsWith('mailto:') && !href.startsWith('tel:'));
+    .filter(usable);
+
+  // Destinations a control *declares* rather than carries in an href.
+  //
+  // An application whose navigation is buttons calling a client-side router writes the
+  // destination into an attribute: `<button data-route="/claims/clm-0001">CLM-0001</button>`.
+  // That is the application stating where the control goes, in its own markup, and it is the
+  // same kind of evidence as a form's `action` — better than an observed request, not worse,
+  // because nothing has to be sent or pressed to read it.
+  //
+  // Reading it rather than clicking matters three ways: it costs no action budget, it works
+  // in link-only mode where nothing may be pressed at all, and it cannot change the
+  // application. Whether the address is then *followed* is decided elsewhere, by the same
+  // guard that refuses to follow a link whose words say it changes something — recorded
+  // either way, so a check that probes it deliberately still can.
+  //
+  // Measured on freight: every claim reference is such a button, so no claim detail page and
+  // no settlement form was ever reached by a crawl that does not click, and
+  // FP_D11_VIEWER_CAN_SETTLE_CLAIM sat behind both.
+  const ROUTE_ATTRIBUTES = [
+    'data-route', 'data-href', 'data-url', 'data-link', 'data-to', 'data-path',
+    'data-navigate', 'data-target-url', 'routerlink', 'ng-href', 'to'
+  ];
+  const declared: string[] = [];
+  for (const attribute of ROUTE_ATTRIBUTES) {
+    for (const element of Array.from(document.querySelectorAll(`[${attribute}]`))) {
+      // An anchor already carries its destination; `to` is also an ordinary attribute on
+      // unrelated elements, so it is read only where the element is a control.
+      if (element.tagName === 'A') continue;
+      const value = (element.getAttribute(attribute) ?? '').trim();
+      if (!value || !value.startsWith('/') && !/^https?:/i.test(value)) continue;
+      if (!usable(value)) continue;
+      try { declared.push(new URL(value, location.href).href); } catch { /* not an address */ }
+    }
+  }
 
   const messagesFrom = (selector: string): string[] =>
     Array.from(document.querySelectorAll(selector))
@@ -405,7 +442,7 @@ export function extractPage(maxElements: number): RawPageCapture {
     url: location.href,
     visibleTextExcerpt: (document.body?.innerText ?? '').replace(/\s+/g, ' ').trim().slice(0, 4000),
     elements,
-    links: Array.from(new Set(links)),
+    links: Array.from(new Set([...links, ...declared])),
     formCount: document.querySelectorAll('form').length,
     hasPasswordField: document.querySelectorAll('input[type="password"]').length > 0,
     headings: Array.from(document.querySelectorAll('h1,h2,h3')).map(h => textOf(h)).filter(Boolean).slice(0, 20),

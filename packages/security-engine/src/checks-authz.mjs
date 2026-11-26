@@ -17,7 +17,8 @@ import { SECURITY_RISK } from './scope-guard.mjs';
 import { SeverityFactors, confidenceFrom } from './severity.mjs';
 import { authHeaders } from './credentials.mjs';
 import { at } from './target-url.mjs';
-import { changedNothing, encodeBody, stateChangeAccepted } from './checks-request.mjs';
+import { arrivedAt, changedNothing, distinguishedTheTwo, encodeBody, stateChangeAccepted }
+  from './checks-request.mjs';
 
 /** Statuses that count as a refusal. 404 is included: not telling a stranger a resource
  *  exists is a legitimate answer, and the brief names both. */
@@ -403,6 +404,27 @@ export async function checkReadOnlyWrite(scanner, { baseUrl, path, writer, reado
   if (!attempted.accepted) {
     return { skipped: false, findings: [], ok: true,
              detail: `${writer.label} ${wrote.how}; ${readonly.label} ${attempted.how}` };
+  }
+
+  // Both redirected onward, which on plenty of applications is also what a refusal looks
+  // like: freight's shipment edit redirects to the record whether it wrote or refused, and
+  // says which in the flash on the page it lands on. Read that before founding anything.
+  const writerLanded = await arrivedAt(
+    scanner, control, { baseUrl, session: writer, testId, as: writer.label });
+  const readonlyLanded = await arrivedAt(
+    scanner, attempt, { baseUrl, session: readonly, testId, as: readonly.label });
+  const difference = distinguishedTheTwo(writerLanded, readonlyLanded);
+  if (difference.known && difference.refused) {
+    return { skipped: false, findings: [], ok: true,
+             detail: `both requests redirected to the same address, but ${readonly.label} was `
+               + `refused there: ${difference.how}` };
+  }
+  if (difference.differedAnyway) {
+    return { skipped: false, findings: [], inconclusive: true,
+             reason: `Not evaluated: both ${writer.label} and ${readonly.label} were answered the `
+               + 'same way and both redirected to the same address, but the page they led to is '
+               + 'not the same for each, and the difference is not an error the application is '
+               + 'reporting. Founding a privilege-escalation finding on it would be guessing.' };
   }
 
   // Both were answered, which is not the same as either having written anything. An address

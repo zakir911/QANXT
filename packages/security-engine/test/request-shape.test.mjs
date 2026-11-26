@@ -30,13 +30,23 @@ const answered = (status, location, body = '') => ({
 
 const session = { cookie: 'session=abc', csrf: 't0ken' };
 
-/** A scanner that answers from a script and records the whole request it was given. */
+/**
+ * A scanner that answers from a script and records the whole request it was given.
+ *
+ * Reads of where a redirect led are answered with the same page for every arm, so these tests
+ * stay about the request that was sent. Differing landing pages have their own tests.
+ */
 function stub(...responses) {
   const sent = [];
+  const sameLandingPage = {
+    allowed: true, status: 200, headers: headers({}),
+    responseBody: '<h1>The record</h1>', responseText: '<h1>The record</h1>'
+  };
   return {
     sent,
     async request(options) {
       sent.push(options);
+      if (String(options.testId).endsWith(':arrived')) return sameLandingPage;
       const next = responses.shift();
       if (!next) throw new Error(`no scripted response left for ${options.testId}`);
       return next;
@@ -201,7 +211,7 @@ test('both origin arms carry the body token, so the origin is the only differenc
     body: formBody, contentType: 'application/x-www-form-urlencoded', tokenField: '_csrf'
   });
 
-  const [own, elsewhere] = scanner.sent;
+  const [own, elsewhere] = scanner.sent.filter(r => r.method === 'POST');
   assert.match(own.body, /_csrf=t0ken/);
   assert.match(elsewhere.body, /_csrf=t0ken/);
   assert.equal(own.body, elsewhere.body);
@@ -224,7 +234,7 @@ test('the read-only check sends each identity its own token', async () => {
 
   // Each identity's own token: a check that sent the writer's token as the read-only account
   // would be sending a request that account's own page never sends.
-  const [control, attempt] = scanner.sent;
+  const [control, attempt] = scanner.sent.filter(r => r.method === 'POST');
   assert.match(control.body, /_csrf=writer-token/);
   assert.match(attempt.body, /_csrf=viewer-token/);
   assert.match(control.body, /delta=1/);
@@ -246,7 +256,7 @@ test('an identity with no token still sends the body, without inventing one', as
     body: formBody, contentType: 'application/x-www-form-urlencoded', tokenField: '_csrf'
   });
 
-  const [control] = scanner.sent;
+  const [control] = scanner.sent.filter(r => r.method === 'POST');
   assert.doesNotMatch(control.body, /_csrf/);
   assert.match(control.body, /delta=1/);
 });

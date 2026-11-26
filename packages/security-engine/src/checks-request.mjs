@@ -152,6 +152,84 @@ function samePathAs(location, requestedPath) {
  * appointment as JSON. Different, so the finding stands — correctly, because that endpoint
  * really does accept a cookie-authorised POST with no token.
  */
+/**
+ * Where a redirect actually led, read rather than inferred from its Location.
+ *
+ * `stateChangeAccepted` distinguishes "redirected back to the form" from "redirected onward",
+ * which is right for an application that shows the form again when it refuses. Plenty do not.
+ * Freight's shipment edit answers a refusal with a flash message and a redirect to the record:
+ *
+ *     POST /shipments/shp-0005/edit   bad token   ->  302  location: /shipments/shp-0005
+ *     POST /shipments/shp-0005/edit   real token  ->  302  location: /shipments/shp-0005
+ *
+ * Identical. Nothing was written in the first case — the endpoint enforces its token
+ * properly — and the only place the application says so is the page the redirect leads to,
+ * where the flash sits. Judged on the header alone, both arms read as accepted and the check
+ * reports a missing anti-forgery token on an endpoint that has one.
+ *
+ * Measured: with a request body finally being sent (defect 82), that single pattern produced
+ * 20 false MissingCsrfToken findings and 20 false PrivilegeEscalation findings on freight in
+ * one run. So the redirect is followed, once per arm, and what the application says when it
+ * gets there is the evidence.
+ */
+export async function arrivedAt(scanner, response, { baseUrl, session, testId, as }) {
+  const status = Number(response?.status ?? 0);
+  if (status < 300 || status >= 400) return null;
+  const location = String(
+    response?.headers?.get?.('location')
+    ?? response?.headers?.location
+    ?? response?.responseHeaders?.location
+    ?? ''
+  ).trim();
+  if (location === '') return null;
+
+  let url;
+  try { url = new URL(location, baseUrl).href; } catch { return null; }
+
+  const read = await scanner.request({
+    url, method: 'GET', risk: SECURITY_RISK.PASSIVE,
+    headers: { ...authHeaders(session) },
+    as, testId: `${testId}:arrived`,
+    note: 'the page the redirect led to, because an application that redirects to the same '
+      + 'place whether it accepted or refused says which one in the page'
+  });
+  if (!read.allowed) return null;
+  return typeof read.responseText === 'string' ? read.responseText : null;
+}
+
+/** The text of anything on the page that reads as an error the application is reporting. */
+function alertsIn(html) {
+  if (typeof html !== 'string') return [];
+  const found = [];
+  const pattern = /(?:role=["']alert["']|class=["'][^"']*(?:\berror\b|\balert-danger\b|\balert-error\b|\bflash-error\b|\binvalid-feedback\b)[^"']*["'])[^>]*>\s*([^<]{1,300})/gi;
+  let match;
+  while ((match = pattern.exec(html)) !== null) {
+    const text = match[1].replace(/\s+/g, ' ').trim();
+    if (text !== '') found.push(text);
+  }
+  return found;
+}
+
+/**
+ * Whether the application treated the two requests differently, read from where each landed.
+ *
+ * Three answers, and the third one matters: a page that differs for a reason this cannot
+ * attribute is not evidence either way, and saying so beats both reporting a finding and
+ * reporting none.
+ */
+export function distinguishedTheTwo(controlPage, probePage) {
+  if (typeof controlPage !== 'string' || typeof probePage !== 'string') return { known: false };
+  if (controlPage === probePage) return { known: true, refused: false };
+
+  const probeAlerts = alertsIn(probePage);
+  const controlAlerts = new Set(alertsIn(controlPage));
+  const onlyOnTheProbe = probeAlerts.filter(text => !controlAlerts.has(text));
+  if (onlyOnTheProbe.length > 0) {
+    return { known: true, refused: true, how: `the application answered "${onlyOnTheProbe[0]}"` };
+  }
+  return { known: false, differedAnyway: true };
+}
+
 export async function changedNothing(scanner, { baseUrl, path, response, session, testId }) {
   const read = await scanner.request({
     url: at(baseUrl, `${path}`), method: 'GET', risk: SECURITY_RISK.PASSIVE,
@@ -266,6 +344,11 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
                + `without one. What was sent: ${describeShape(placed.with, contentType, tokenField)}.` };
   }
 
+  // Only now that the control is known to have been accepted: a refused control makes the
+  // probe, and this read, not worth sending.
+  const controlLanded = await arrivedAt(
+    scanner, withToken, { baseUrl, session, testId, as: 'the legitimate caller' });
+
   const withoutToken = await scanner.request({
     url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { 'content-type': contentType, ...authHeaders(session), origin: baseUrl },
@@ -279,6 +362,25 @@ export async function checkCsrfToken(scanner, { baseUrl, path, session, body = {
   if (!probe.accepted) {
     return { skipped: false, findings: [], ok: true,
              detail: `with a token it ${control.how}; without one it ${probe.how}` };
+  }
+
+  // Both redirected onward, which on plenty of applications is what a refusal looks like
+  // too. Read where each one landed before founding anything on the header alone.
+  const probeLanded = await arrivedAt(
+    scanner, withoutToken, { baseUrl, session, testId, as: 'a caller with no anti-CSRF token' });
+  const difference = distinguishedTheTwo(controlLanded, probeLanded);
+  if (difference.known && difference.refused) {
+    return { skipped: false, findings: [], ok: true,
+             detail: `both requests redirected to the same address, but the one without a token `
+               + `was refused there: ${difference.how}` };
+  }
+  if (difference.differedAnyway) {
+    return { skipped: false, findings: [], inconclusive: true,
+             reason: 'Not evaluated: both requests were accepted and both redirected to the same '
+               + 'address, but the page they led to is not the same for each, and the difference '
+               + 'is not an error the application is reporting. That may be a refusal this check '
+               + 'cannot read, or a page that simply varies. Founding a missing-token finding on '
+               + 'it would be guessing.' };
   }
 
   // Both answered. Before founding a finding, establish that either answer was a change at
@@ -342,6 +444,9 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
                + `${describeShape(tokenPlacement(body, tokenField, session.csrf).with, contentType, tokenField)}.` };
   }
 
+  const ownLanded = await arrivedAt(
+    scanner, sameOrigin, { baseUrl, session, testId, as: 'same-origin' });
+
   const crossOrigin = await scanner.request({
     url: at(baseUrl, `${path}`), method: 'POST', risk: SECURITY_RISK.STATE_CHANGING,
     headers: { ...headers, origin: `https://${EXTERNAL_MARKER_HOST}` }, body: sent,
@@ -354,6 +459,22 @@ export async function checkOriginValidation(scanner, { baseUrl, path, session, b
   if (!fromElsewhere.accepted) {
     return { skipped: false, findings: [], ok: true,
              detail: `from its own origin it ${fromOwnOrigin.how}; from another it ${fromElsewhere.how}` };
+  }
+
+  const elsewhereLanded = await arrivedAt(
+    scanner, crossOrigin, { baseUrl, session, testId, as: 'cross-origin' });
+  const originDifference = distinguishedTheTwo(ownLanded, elsewhereLanded);
+  if (originDifference.known && originDifference.refused) {
+    return { skipped: false, findings: [], ok: true,
+             detail: `both requests redirected to the same address, but the one claiming another `
+               + `origin was refused there: ${originDifference.how}` };
+  }
+  if (originDifference.differedAnyway) {
+    return { skipped: false, findings: [], inconclusive: true,
+             reason: 'Not evaluated: both requests were accepted and both redirected to the same '
+               + 'address, but the page they led to is not the same for each, and the difference '
+               + 'is not an error the application is reporting. Founding a missing-origin-check '
+               + 'finding on it would be guessing.' };
   }
 
   // The same premise this check shares with the anti-forgery one: an address with no handler

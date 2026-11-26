@@ -209,4 +209,57 @@ public class FormRequestShapeTests
         FormRequestShape.Of(null).Should().BeNull();
         FormRequestShape.Of(DiscoveredFormModel.FromJson("not json")).Should().BeNull();
     }
+
+    [Fact]
+    public void A_numeric_field_gets_an_ordinary_value_not_the_midpoint_of_its_range()
+    {
+        // The midpoint is the right choice for a form test and the wrong one for a request
+        // whose only job is to be accepted: the midpoint of a symmetric range is zero, and
+        // zero is the value business rules exclude more often than any other.
+        //
+        // Freight's stock adjustment declares min="-100000" max="100000" step="1". The
+        // midpoint is exactly 0, the handler answers "Enter a whole number other than zero"
+        // and redirects back to the form, and the anti-forgery check correctly reported that
+        // the endpoint had not accepted its request.
+        var delta = Field("delta", "number") with
+        {
+            Constraints = new Dictionary<string, string>
+                { ["min"] = "-100000", ["max"] = "100000", ["step"] = "1" }
+        };
+
+        var shape = FormRequestShape.Of(Form(new[] { delta }));
+
+        shape!.Fields["delta"].Should().Be("1");
+    }
+
+    [Fact]
+    public void A_range_that_excludes_one_still_gets_a_value_inside_it()
+    {
+        var quantity = Field("quantity", "number") with
+        {
+            Constraints = new Dictionary<string, string>
+                { ["min"] = "50", ["max"] = "100", ["step"] = "1" }
+        };
+
+        var shape = FormRequestShape.Of(Form(new[] { quantity }));
+
+        var value = decimal.Parse(shape!.Fields["quantity"]);
+        value.Should().BeInRange(50, 100);
+    }
+
+    [Fact]
+    public void A_step_that_one_does_not_land_on_falls_back_rather_than_sending_an_invalid_value()
+    {
+        var amount = Field("amount", "number") with
+        {
+            Constraints = new Dictionary<string, string>
+                { ["min"] = "0", ["max"] = "100", ["step"] = "25" }
+        };
+
+        var shape = FormRequestShape.Of(Form(new[] { amount }));
+
+        // 1 is not on a step of 25, so the synthesizer's own choice is used.
+        var value = decimal.Parse(shape!.Fields["amount"]);
+        (value % 25).Should().Be(0);
+    }
 }
